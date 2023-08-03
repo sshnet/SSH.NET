@@ -409,7 +409,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
             {
                 var privateKeyFile = new PrivateKeyFile(stream, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                Assert.IsNotNull(privateKeyFile.HostKeys[0]);
             }
         }
 
@@ -427,7 +427,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                Assert.IsNotNull(privateKeyFile.HostKeys[0]);
 
                 fs.Close();
             }
@@ -495,7 +495,7 @@ namespace Renci.SshNet.Tests.Classes
             }
 
             var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-            Assert.IsNotNull(privateKeyFile.HostKey);
+            Assert.IsNotNull(privateKeyFile.HostKeys[0]);
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var stream = GetData("Key.RSA.txt"))
             {
                 var privateKeyFile = new PrivateKeyFile(stream);
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                Assert.IsNotNull(privateKeyFile.HostKeys[0]);
             }
         }
 
@@ -523,7 +523,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile);
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                Assert.IsNotNull(privateKeyFile.HostKeys[0]);
 
                 fs.Close();
             }
@@ -541,7 +541,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                Assert.IsNotNull(privateKeyFile.HostKeys[0]);
 
                 fs.Close();
             }

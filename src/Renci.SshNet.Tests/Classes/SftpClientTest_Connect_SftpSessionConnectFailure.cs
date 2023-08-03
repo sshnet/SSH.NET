@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm)privateKey.HostKey;
+                return privateKey.HostKeys[0];
             }
         }
     }

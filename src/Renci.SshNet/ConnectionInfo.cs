@@ -398,6 +398,7 @@ namespace Renci.SshNet
                     { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
                     { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
+                    { "rsa-sha2-256", data => new KeyHostAlgorithm("rsa-sha2-256", new RsaWithSha256SignatureKey(), data) },
                 };
 
             CompressionAlgorithms = new Dictionary<string, Type>

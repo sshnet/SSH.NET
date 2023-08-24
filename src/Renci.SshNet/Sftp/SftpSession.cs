@@ -159,7 +159,6 @@ namespace Renci.SshNet.Sftp
         public async Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
         {
             var fullPath = GetFullRemotePath(path);
-
             var canonizedPath = string.Empty;
             var realPathFiles = await RequestRealPathAsync(fullPath, nullOnError: true, cancellationToken).ConfigureAwait(false);
             if (realPathFiles != null)

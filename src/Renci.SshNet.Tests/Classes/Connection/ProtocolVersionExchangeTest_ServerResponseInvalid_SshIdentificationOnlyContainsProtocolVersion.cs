@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _timeout = TimeSpan.FromSeconds(5);
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _dataReceivedByServer = new List<byte>();
-            _serverIdentification = Encoding.UTF8.GetBytes("SSH-2.0\r\n");
+            _serverIdentification = "SSH-2.0\r\n"u8.ToArray();
 
             _server = new AsyncSocketListener(_serverEndPoint);
             _server.Start();

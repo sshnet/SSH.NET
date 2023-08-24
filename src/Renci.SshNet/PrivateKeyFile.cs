@@ -405,9 +405,9 @@ namespace Renci.SshNet
             var keyReader = new SshDataReader(keyFileData);
 
             // check magic header
-            var authMagic = Encoding.UTF8.GetBytes("openssh-key-v1\0");
+            var authMagic = "openssh-key-v1\0"u8;
             var keyHeaderBytes = keyReader.ReadBytes(authMagic.Length);
-            if (!authMagic.IsEqualTo(keyHeaderBytes))
+            if (!authMagic.SequenceEqual(keyHeaderBytes))
             {
                 throw new SshException("This openssh key does not contain the 'openssh-key-v1' format magic header");
             }

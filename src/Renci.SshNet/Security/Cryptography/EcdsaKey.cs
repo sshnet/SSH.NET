@@ -148,7 +148,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                byte[] curve;
+                ReadOnlySpan<byte> curve;
                 byte[] qx;
                 byte[] qy;
 #if NETFRAMEWORK
@@ -167,16 +167,16 @@ namespace Renci.SshNet.Security
                 switch (magic)
                 {
                     case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp256");
+                        curve = "nistp256"u8;
                         break;
                     case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P384_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp384");
+                        curve = "nistp384"u8;
                         break;
                     case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P521_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp521");
+                        curve = "nistp521"u8;
                         break;
                     default:
-                        throw new SshException("Unexpected Curve Magic: " + magic);
+                        throw new SshException($"Unexpected Curve Magic: {magic}");
                 }
 #pragma warning restore IDE0010 // Add missing cases
 #else
@@ -187,15 +187,15 @@ namespace Renci.SshNet.Security
                 {
                     case "ECDSA_P256":
                     case "nistP256":
-                        curve = Encoding.ASCII.GetBytes("nistp256");
+                        curve = "nistp256"u8;
                         break;
                     case "ECDSA_P384":
                     case "nistP384":
-                        curve = Encoding.ASCII.GetBytes("nistp384");
+                        curve = "nistp384"u8;
                         break;
                     case "ECDSA_P521":
                     case "nistP521":
-                        curve = Encoding.ASCII.GetBytes("nistp521");
+                        curve = "nistp521"u8;
                         break;
                     default:
                         throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
@@ -210,7 +210,7 @@ namespace Renci.SshNet.Security
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
-                return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
+                return new[] { new BigInteger(curve.ToArray().Reverse()), new BigInteger(q.Reverse()) };
             }
             set
             {

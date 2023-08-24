@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net462;net6.0;net7.0</TargetFrameworks>
+    <LangVersion>11</LangVersion>
     <!--
           Even though we're not interested in producing XML docs for test projects, we have to enable this in order to have the .NET Compiler
           Platform analyzers produce the IDE0005 (Remove unnecessary import) diagnostic.

@@ -46,12 +46,9 @@ namespace Renci.SshNet.Common
         /// <param name="host">The host.</param>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
-            CanTrust = true;   //  Set default value
-
+            CanTrust = true;
             HostKey = host.Data;
-
             HostKeyName = host.Name;
-
             KeyLength = host.Key.KeyLength;
 
             using (var md5 = CryptoAbstraction.CreateMD5())

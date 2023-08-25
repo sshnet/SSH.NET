@@ -22,8 +22,12 @@
             get
             {
                 var capacity = base.BufferCapacity;
+
                 if (BoundPort.HasValue)
+                {
                     capacity += 4; // BoundPort
+                }
+
                 return capacity;
             }
         }
@@ -33,7 +37,6 @@
         /// </summary>
         public RequestSuccessMessage()
         {
-
         }
 
         /// <summary>
@@ -51,7 +54,9 @@
         protected override void LoadData()
         {
             if (!IsEndOfData)
+            {
                 BoundPort = ReadUInt32();
+            }
         }
 
         /// <summary>
@@ -60,7 +65,9 @@
         protected override void SaveData()
         {
             if (BoundPort.HasValue)
+            {
                 Write(BoundPort.Value);
+            }
         }
 
         internal override void Process(Session session)

@@ -1,10 +1,9 @@
-﻿using Renci.SshNet.Common;
-using System;
+﻿using System;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Base class for all supported authentication methods
+    /// Base class for all supported authentication methods.
     /// </summary>
     public abstract class AuthenticationMethod : IAuthenticationMethod
     {
@@ -22,7 +21,7 @@ namespace Renci.SshNet
         public string Username { get; private set; }
 
         /// <summary>
-        /// Gets list of allowed authentications.
+        /// Gets or sets the list of allowed authentications.
         /// </summary>
         public string[] AllowedAuthentications { get; protected set; }
 
@@ -33,8 +32,10 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
         protected AuthenticationMethod(string username)
         {
-            if (username.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(username))
+            {
                 throw new ArgumentException("username");
+            }
 
             Username = username;
         }

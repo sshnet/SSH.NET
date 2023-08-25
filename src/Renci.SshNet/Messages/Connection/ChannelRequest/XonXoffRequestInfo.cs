@@ -3,10 +3,10 @@
     /// <summary>
     /// Represents "xon-xoff" type channel request information
     /// </summary>
-    internal class XonXoffRequestInfo : RequestInfo
+    internal sealed class XonXoffRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request type
+        /// Channel request type.
         /// </summary>
         public const string Name = "xon-xoff";
 

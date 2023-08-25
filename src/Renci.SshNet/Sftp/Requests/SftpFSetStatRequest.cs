@@ -3,7 +3,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpFSetStatRequest : SftpRequest
+    internal sealed class SftpFSetStatRequest : SftpRequest
     {
         private byte[] _attributesBytes;
 
@@ -20,10 +20,7 @@ namespace Renci.SshNet.Sftp.Requests
         {
             get
             {
-                if (_attributesBytes == null)
-                {
-                    _attributesBytes = Attributes.GetBytes();
-                }
+                _attributesBytes ??= Attributes.GetBytes();
                 return _attributesBytes;
             }
         }
@@ -56,6 +53,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             Handle = ReadBinary();
             Attributes = ReadAttributes();
         }
@@ -63,6 +61,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(Handle);
             Write(AttributesBytes);
         }

@@ -1,0 +1,38 @@
+﻿[*.cs]
+
+#### SYSLIB diagnostics ####
+
+# SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
+#
+# TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
+dotnet_diagnostic.SYSLIB1045.severity = none
+
+### StyleCop Analyzers rules ###
+
+# SA1202: Elements must be ordered by access
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1202.md
+dotnet_diagnostic.SA1202.severity = none
+
+#### Meziantou.Analyzer rules ####
+
+# MA0053: Make class sealed
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
+MA0053.public_class_should_be_sealed = false
+
+#### .NET Compiler Platform analysers rules ####
+
+# CA1031: Do not catch general exception types
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
+dotnet_diagnostic.CA1031.severity = none
+
+# CA2213: Disposable fields should be disposed
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213
+dotnet_diagnostic.CA2213.severity = none
+
+# IDE0004: Types that own disposable fields should be disposable
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0004
+dotnet_diagnostic.IDE0004.severity = none
+
+# IDE0048: Add parentheses for clarity
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047
+dotnet_diagnostic.IDE0048.severity = none

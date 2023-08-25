@@ -14,15 +14,17 @@ namespace Renci.SshNet.Common
         private int _currentCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SemaphoreLight"/> class, specifying 
-        /// the initial number of requests that can be granted concurrently.
+        /// Initializes a new instance of the <see cref="SemaphoreLight"/> class, specifying the initial number of requests that can
+        /// be granted concurrently.
         /// </summary>
         /// <param name="initialCount">The initial number of requests for the semaphore that can be granted concurrently.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="initialCount"/> is a negative number.</exception>
         public SemaphoreLight(int initialCount)
         {
-            if (initialCount < 0 )
-                throw new ArgumentOutOfRangeException("initialCount", "The value cannot be negative.");
+            if (initialCount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(initialCount), "The value cannot be negative.");
+            }
 
             _currentCount = initialCount;
         }
@@ -30,10 +32,13 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets the current count of the <see cref="SemaphoreLight"/>.
         /// </summary>
-        public int CurrentCount { get { return _currentCount; } }
+        public int CurrentCount
+        {
+            get { return _currentCount; }
+        }
 
         /// <summary>
-        /// Returns a <see cref="WaitHandle"/> that can be used to wait on the semaphore.
+        /// Gets a <see cref="WaitHandle"/> that can be used to wait on the semaphore.
         /// </summary>
         /// <value>
         /// A <see cref="WaitHandle"/> that can be used to wait on the semaphore.
@@ -47,14 +52,11 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                if (_waitHandle == null)
+                if (_waitHandle is null)
                 {
                     lock (_lock)
                     {
-                        if (_waitHandle == null)
-                        {
-                            _waitHandle = new ManualResetEvent(_currentCount > 0);
-                        }
+                        _waitHandle ??= new ManualResetEvent(_currentCount > 0);
                     }
                 }
 
@@ -89,7 +91,7 @@ namespace Renci.SshNet.Common
                 // signal waithandle when the original semaphore count was zero
                 if (_waitHandle != null && oldCount == 0)
                 {
-                    _waitHandle.Set();
+                    _ = _waitHandle.Set();
                 }
 
                 Monitor.PulseAll(_lock);
@@ -107,7 +109,7 @@ namespace Renci.SshNet.Common
             {
                 while (_currentCount < 1)
                 {
-                    Monitor.Wait(_lock);
+                    _ = Monitor.Wait(_lock);
                 }
 
                 _currentCount--;
@@ -115,7 +117,7 @@ namespace Renci.SshNet.Common
                 // unsignal waithandle when the semaphore count reaches zero
                 if (_waitHandle != null && _currentCount == 0)
                 {
-                    _waitHandle.Reset();
+                    _ = _waitHandle.Reset();
                 }
 
                 Monitor.PulseAll(_lock);
@@ -133,7 +135,9 @@ namespace Renci.SshNet.Common
         public bool Wait(int millisecondsTimeout)
         {
             if (millisecondsTimeout < -1)
-                throw new ArgumentOutOfRangeException("millisecondsTimeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+            {
+                throw new ArgumentOutOfRangeException(nameof(millisecondsTimeout), "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+            }
 
             return WaitWithTimeout(millisecondsTimeout);
         }
@@ -149,8 +153,10 @@ namespace Renci.SshNet.Common
         public bool Wait(TimeSpan timeout)
         {
             var timeoutInMilliseconds = timeout.TotalMilliseconds;
-            if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
-                throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+            if (timeoutInMilliseconds is < -1d or > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout), "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+            }
 
             return WaitWithTimeout((int) timeoutInMilliseconds);
         }
@@ -162,14 +168,18 @@ namespace Renci.SshNet.Common
                 if (timeoutInMilliseconds == Session.Infinite)
                 {
                     while (_currentCount < 1)
-                        Monitor.Wait(_lock);
+                    {
+                        _ = Monitor.Wait(_lock);
+                    }
                 }
                 else
                 {
                     if (_currentCount < 1)
                     {
                         if (timeoutInMilliseconds > 0)
+                        {
                             return false;
+                        }
 
                         var remainingTimeInMilliseconds = timeoutInMilliseconds;
                         var startTicks = Environment.TickCount;
@@ -184,7 +194,9 @@ namespace Renci.SshNet.Common
                             var elapsed = Environment.TickCount - startTicks;
                             remainingTimeInMilliseconds -= elapsed;
                             if (remainingTimeInMilliseconds < 0)
+                            {
                                 return false;
+                            }
                         }
                     }
                 }
@@ -194,7 +206,7 @@ namespace Renci.SshNet.Common
                 // unsignal waithandle when the semaphore count is zero
                 if (_waitHandle != null && _currentCount == 0)
                 {
-                    _waitHandle.Reset();
+                    _ = _waitHandle.Reset();
                 }
 
                 Monitor.PulseAll(_lock);
@@ -204,24 +216,16 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Finalizes the current <see cref="SemaphoreLight"/>.
-        /// </summary>
-        ~SemaphoreLight()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected void Dispose(bool disposing)
@@ -229,7 +233,7 @@ namespace Renci.SshNet.Common
             if (disposing)
             {
                 var waitHandle = _waitHandle;
-                if (waitHandle != null)
+                if (waitHandle is not null)
                 {
                     waitHandle.Dispose();
                     _waitHandle = null;

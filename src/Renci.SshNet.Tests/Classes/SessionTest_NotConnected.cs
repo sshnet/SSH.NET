@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -24,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void Act()
         {
-            _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
+            _session = new Session(_connectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
         }
 
         [TestMethod]
@@ -136,9 +135,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) _session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
             Assert.IsNull(exception);
@@ -226,13 +224,10 @@ namespace Renci.SshNet.Tests.Classes
 
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
-            var connectionInfo = new ConnectionInfo(
-                serverEndPoint.Address.ToString(),
-                serverEndPoint.Port,
-                "eric",
-                new NoneAuthenticationMethod("eric"));
-            connectionInfo.Timeout = timeout;
-            return connectionInfo;
+            return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
+                {
+                    Timeout = timeout
+                };
         }
     }
 }

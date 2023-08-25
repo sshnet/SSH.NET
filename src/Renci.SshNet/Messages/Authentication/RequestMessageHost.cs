@@ -3,44 +3,44 @@
     /// <summary>
     /// Represents "hostbased" SSH_MSG_USERAUTH_REQUEST message.
     /// </summary>
-    internal class RequestMessageHost : RequestMessage
+    internal sealed class RequestMessageHost : RequestMessage
     {
         /// <summary>
         /// Gets the public key algorithm for host key as ASCII encoded byte array.
         /// </summary>
-        public byte[] PublicKeyAlgorithm { get; private set; }
+        public byte[] PublicKeyAlgorithm { get; }
 
         /// <summary>
-        /// Gets or sets the public host key and certificates for client host.
+        /// Gets the public host key and certificates for client host.
         /// </summary>
         /// <value>
         /// The public host key.
         /// </value>
-        public byte[] PublicHostKey { get; private set; }
+        public byte[] PublicHostKey { get; }
 
         /// <summary>
-        /// Gets or sets the name of the client host as ASCII encoded byte array.
+        /// Gets the name of the client host as ASCII encoded byte array.
         /// </summary>
         /// <value>
         /// The name of the client host.
         /// </value>
-        public byte[] ClientHostName { get; private set; }
+        public byte[] ClientHostName { get; }
 
         /// <summary>
-        /// Gets or sets the client username on the client host as UTF-8 encoded byte array.
+        /// Gets the client username on the client host as UTF-8 encoded byte array.
         /// </summary>
         /// <value>
         /// The client username.
         /// </value>
-        public byte[] ClientUsername { get; private set; }
+        public byte[] ClientUsername { get; }
 
         /// <summary>
-        /// Gets or sets the signature.
+        /// Gets the signature.
         /// </summary>
         /// <value>
         /// The signature.
         /// </value>
-        public byte[] Signature { get; private set; }
+        public byte[] Signature { get; }
 
         /// <summary>
         /// Gets the size of the message in bytes.

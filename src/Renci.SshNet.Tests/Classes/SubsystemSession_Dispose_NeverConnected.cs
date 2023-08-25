@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
-using Renci.SshNet.Channels;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -29,6 +30,7 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _subsystemName = random.Next().ToString(CultureInfo.InvariantCulture);
             _operationTimeout = 30000;
             _disconnectedRegister = new List<EventArgs>();
@@ -36,10 +38,9 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _subsystemSession = new SubsystemSessionStub(
-                _sessionMock.Object,
-                _subsystemName,
-                _operationTimeout);
+            _subsystemSession = new SubsystemSessionStub(_sessionMock.Object,
+                                                         _subsystemName,
+                                                         _operationTimeout);
             _subsystemSession.Disconnected += (sender, args) => _disconnectedRegister.Add(args);
             _subsystemSession.ErrorOccurred += (sender, args) => _errorOccurredRegister.Add(args);
         }

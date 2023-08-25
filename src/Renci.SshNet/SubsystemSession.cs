@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -8,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Base class for SSH subsystem implementations
+    /// Base class for SSH subsystem implementations.
     /// </summary>
     internal abstract class SubsystemSession : ISubsystemSession
     {
@@ -18,13 +19,14 @@ namespace Renci.SshNet
         /// </summary>
         private const int SystemWaitHandleCount = 3;
 
-        private ISession _session;
         private readonly string _subsystemName;
+        private ISession _session;
         private IChannelSession _channel;
         private Exception _exception;
-        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
-        private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(false);
-        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
+        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(initialState: false);
+        private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(initialState: false);
+        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets or set the number of seconds to wait for an operation to complete.
@@ -68,11 +70,11 @@ namespace Renci.SshNet
         /// </value>
         public bool IsOpen
         {
-            get { return _channel != null && _channel.IsOpen; }
+            get { return _channel is not null && _channel.IsOpen; }
         }
 
         /// <summary>
-        /// Initializes a new instance of the SubsystemSession class.
+        /// Initializes a new instance of the <see cref="SubsystemSession"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
@@ -80,10 +82,15 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            if (session == null)
-                throw new ArgumentNullException("session");
-            if (subsystemName == null)
-                throw new ArgumentNullException("subsystemName");
+            if (session is null)
+            {
+                throw new ArgumentNullException(nameof(session));
+            }
+
+            if (subsystemName is null)
+            {
+                throw new ArgumentNullException(nameof(subsystemName));
+            }
 
             _session = session;
             _subsystemName = subsystemName;
@@ -101,13 +108,15 @@ namespace Renci.SshNet
             EnsureNotDisposed();
 
             if (IsOpen)
+            {
                 throw new InvalidOperationException("The session is already connected.");
+            }
 
             // reset waithandles in case we're reconnecting
-            _errorOccuredWaitHandle.Reset();
-            _sessionDisconnectedWaitHandle.Reset();
-            _sessionDisconnectedWaitHandle.Reset();
-            _channelClosedWaitHandle.Reset();
+            _ = _errorOccuredWaitHandle.Reset();
+            _ = _sessionDisconnectedWaitHandle.Reset();
+            _ = _sessionDisconnectedWaitHandle.Reset();
+            _ = _channelClosedWaitHandle.Reset();
 
             _session.ErrorOccured += Session_ErrorOccured;
             _session.Disconnected += Session_Disconnected;
@@ -122,6 +131,7 @@ namespace Renci.SshNet
             {
                 // close channel session
                 Disconnect();
+
                 // signal subsystem failure
                 throw new SshException(string.Format(CultureInfo.InvariantCulture,
                                                      "Subsystem '{0}' could not be executed.",
@@ -139,7 +149,7 @@ namespace Renci.SshNet
             UnsubscribeFromSessionEvents(_session);
 
             var channel = _channel;
-            if (channel != null)
+            if (channel is not null)
             {
                 _channel = null;
                 channel.DataReceived -= Channel_DataReceived;
@@ -182,9 +192,7 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log("Raised exception: " + error);
 
-            var errorOccuredWaitHandle = _errorOccuredWaitHandle;
-            if (errorOccuredWaitHandle != null)
-                errorOccuredWaitHandle.Set();
+            _ = _errorOccuredWaitHandle?.Set();
 
             SignalErrorOccurred(error);
         }
@@ -208,9 +216,7 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            var channelClosedWaitHandle = _channelClosedWaitHandle;
-            if (channelClosedWaitHandle != null)
-                channelClosedWaitHandle.Set();
+            _ = _channelClosedWaitHandle?.Set();
         }
 
         /// <summary>
@@ -429,9 +435,7 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;
-            if (sessionDisconnectedWaitHandle != null)
-                sessionDisconnectedWaitHandle.Set();
+            _ = _sessionDisconnectedWaitHandle?.Set();
 
             SignalDisconnected();
         }
@@ -443,26 +447,20 @@ namespace Renci.SshNet
 
         private void SignalErrorOccurred(Exception error)
         {
-            var errorOccurred = ErrorOccurred;
-            if (errorOccurred != null)
-            {
-                errorOccurred(this, new ExceptionEventArgs(error));
-            }
+            ErrorOccurred?.Invoke(this, new ExceptionEventArgs(error));
         }
 
         private void SignalDisconnected()
         {
-            var disconnected = Disconnected;
-            if (disconnected != null)
-            {
-                disconnected(this, new EventArgs());
-            }
+            Disconnected?.Invoke(this, EventArgs.Empty);
         }
 
         private void EnsureSessionIsOpen()
         {
             if (!IsOpen)
+            {
                 throw new InvalidOperationException("The session is not open.");
+            }
         }
 
         /// <summary>
@@ -474,34 +472,34 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
+            {
                 return;
+            }
 
             session.Disconnected -= Session_Disconnected;
             session.ErrorOccured -= Session_ErrorOccured;
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -539,15 +537,15 @@ namespace Renci.SshNet
         /// </summary>
         ~SubsystemSession()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         private void EnsureNotDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(GetType().FullName);
+            }
         }
-
-        #endregion
     }
 }

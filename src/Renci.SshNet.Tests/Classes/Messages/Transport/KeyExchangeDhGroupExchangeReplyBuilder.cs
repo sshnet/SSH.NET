@@ -17,7 +17,10 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             var sshDataStream = new SshDataStream(0);
             foreach (var hostKey in hostKeys)
+            {
                 sshDataStream.Write(hostKey);
+            }
+
             _hostKeys = sshDataStream.ToArray();
 
             return this;

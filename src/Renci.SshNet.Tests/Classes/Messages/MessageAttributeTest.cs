@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages
@@ -19,9 +19,9 @@ namespace Renci.SshNet.Tests.Classes.Messages
         [Ignore] // placeholder
         public void MessageAttributeConstructorTest()
         {
-            string name = string.Empty; // TODO: Initialize to an appropriate value
+            var name = string.Empty; // TODO: Initialize to an appropriate value
             byte number = 0; // TODO: Initialize to an appropriate value
-            MessageAttribute target = new MessageAttribute(name, number);
+            var target = new MessageAttribute(name, number);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -32,10 +32,10 @@ namespace Renci.SshNet.Tests.Classes.Messages
         [Ignore] // placeholder
         public void NameTest()
         {
-            string name = string.Empty; // TODO: Initialize to an appropriate value
+            var name = string.Empty; // TODO: Initialize to an appropriate value
             byte number = 0; // TODO: Initialize to an appropriate value
-            MessageAttribute target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
-            string expected = string.Empty; // TODO: Initialize to an appropriate value
+            var target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
+            var expected = string.Empty; // TODO: Initialize to an appropriate value
             target.Name = expected;
             var actual = target.Name;
             Assert.AreEqual(expected, actual);
@@ -49,9 +49,9 @@ namespace Renci.SshNet.Tests.Classes.Messages
         [Ignore] // placeholder
         public void NumberTest()
         {
-            string name = string.Empty; // TODO: Initialize to an appropriate value
+            var name = string.Empty; // TODO: Initialize to an appropriate value
             byte number = 0; // TODO: Initialize to an appropriate value
-            MessageAttribute target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
+            var target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
             byte expected = 0; // TODO: Initialize to an appropriate value
             target.Number = expected;
             var actual = target.Number;

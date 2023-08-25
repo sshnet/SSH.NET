@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -157,7 +157,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             for (var i = 0; i < runs; i++)
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
             }
 
             GC.Collect();

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             try
             {
-                new PortForwardEventArgs(null, 80);
+                _ = new PortForwardEventArgs(null, 80);
             }
             catch (ArgumentNullException ex)
             {
@@ -54,7 +54,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                new PortForwardEventArgs(Resources.HOST, port);
+                _ = new PortForwardEventArgs(Resources.HOST, port);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)

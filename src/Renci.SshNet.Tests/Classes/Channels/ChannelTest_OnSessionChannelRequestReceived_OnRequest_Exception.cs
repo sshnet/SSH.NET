@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -32,8 +33,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         protected override void SetupMocks()
         {
-            SessionMock.Setup(p => p.ConnectionInfo)
-                        .Returns(new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "password")));
+            _ = SessionMock.Setup(p => p.ConnectionInfo)
+                           .Returns(new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "password")));
         }
 
         protected override void Arrange()

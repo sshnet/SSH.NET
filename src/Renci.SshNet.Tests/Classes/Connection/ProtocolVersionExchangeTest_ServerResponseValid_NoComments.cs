@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -76,6 +77,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected void Act()
         {
             _actual = _protocolVersionExchange.Start(_clientVersion, _client, _timeout);
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

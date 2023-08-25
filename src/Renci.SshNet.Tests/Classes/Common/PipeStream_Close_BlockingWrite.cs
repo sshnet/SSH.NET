@@ -32,7 +32,6 @@ namespace Renci.SshNet.Tests.Classes.Common
                     catch (Exception ex)
                     {
                         _writeException = ex;
-                        throw;
                     }
                 });
             _writehread.Start();
@@ -46,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             _pipeStream.Close();
 
             // give write time to complete
-            _writehread.Join(100);
+            _ = _writehread.Join(100);
         }
 
         [TestMethod]

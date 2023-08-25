@@ -1,11 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -31,8 +34,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  8122,
                                                  "proxyUser",
                                                  "proxyPwd",
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+                                                 new KeyboardInteractiveAuthenticationMethod("user"))
+                {
+                    Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200))
+                };
             _stopWatch = new Stopwatch();
             _actualException = null;
 
@@ -41,18 +46,15 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_clientSocket != null)
-            {
-                _clientSocket.Dispose();
-            }
+            _clientSocket?.Dispose();
         }
 
         protected override void Act()
@@ -61,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SshOperationTimeoutException ex)
@@ -98,7 +100,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(new byte[0]);
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

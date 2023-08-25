@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -53,6 +55,17 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         void Connect();
+
+        /// <summary>
+        /// Asynchronously connects to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        Task ConnectAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Create a new SSH session channel.

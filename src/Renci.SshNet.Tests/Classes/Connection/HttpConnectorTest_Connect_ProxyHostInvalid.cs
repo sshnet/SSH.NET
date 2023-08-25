@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SocketException ex)

@@ -1,6 +1,7 @@
-﻿using Renci.SshNet.Security;
+﻿using System;
 using System.IO;
-using System;
+
+using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Compression
 {
@@ -11,9 +12,9 @@ namespace Renci.SshNet.Compression
     {
         private readonly ZlibStream _compressor;
         private readonly ZlibStream _decompressor;
-
         private MemoryStream _compressorStream;
         private MemoryStream _decompressorStream;
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets or sets a value indicating whether compression is active.
@@ -73,7 +74,9 @@ namespace Renci.SshNet.Compression
             if (!IsActive)
             {
                 if (offset == 0 && length == data.Length)
+                {
                     return data;
+                }
 
                 var buffer = new byte[length];
                 Buffer.BlockCopy(data, offset, buffer, 0, length);
@@ -113,7 +116,9 @@ namespace Renci.SshNet.Compression
             if (!IsActive)
             {
                 if (offset == 0 && length == data.Length)
+                {
                     return data;
+                }
 
                 var buffer = new byte[length];
                 Buffer.BlockCopy(data, offset, buffer, 0, length);
@@ -127,16 +132,12 @@ namespace Renci.SshNet.Compression
             return _decompressorStream.ToArray();
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -147,7 +148,9 @@ namespace Renci.SshNet.Compression
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -175,9 +178,7 @@ namespace Renci.SshNet.Compression
         /// </summary>
         ~Compressor()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

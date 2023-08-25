@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -113,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -562,8 +562,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             IAsyncResult asyncResult = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> expected = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> actual;
+            IEnumerable<ISftpFile> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<ISftpFile> actual;
             actual = target.EndListDirectory(asyncResult);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -702,8 +702,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
-            SftpFile expected = null; // TODO: Initialize to an appropriate value
-            SftpFile actual;
+            ISftpFile expected = null; // TODO: Initialize to an appropriate value
+            ISftpFile actual;
             actual = target.Get(path);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -802,8 +802,8 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             Action<int> listCallback = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> expected = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> actual;
+            IEnumerable<ISftpFile> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<ISftpFile> actual;
             actual = target.ListDirectory(path, listCallback);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -1360,14 +1360,23 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (FileStream file = new FileStream(fileName, FileMode.Open))
             {
+#if NET7_0_OR_GREATER
+                var hash = MD5.HashData(file);
+#else
+#if NET6_0
+                var md5 = MD5.Create();
+#else
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(file);
+#endif // NET6_0
+                var hash = md5.ComputeHash(file);
+#endif // NET7_0_OR_GREATER
+
                 file.Close();
 
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
+                for (var i = 0; i < hash.Length; i++)
                 {
-                    sb.Append(retVal[i].ToString("x2"));
+                    sb.Append(hash[i].ToString("x2"));
                 }
                 return sb.ToString();
             }

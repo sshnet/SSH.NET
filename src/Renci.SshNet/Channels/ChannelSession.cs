@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -13,7 +14,7 @@ namespace Renci.SshNet.Channels
     internal sealed class ChannelSession : ClientChannel, IChannelSession
     {
         /// <summary>
-        /// Counts failed channel open attempts
+        /// Counts failed channel open attempts.
         /// </summary>
         private int _failedOpenAttempts;
 
@@ -28,16 +29,16 @@ namespace Renci.SshNet.Channels
         private int _sessionSemaphoreObtained;
 
         /// <summary>
-        /// Wait handle to signal when response was received to open the channel
+        /// Wait handle to signal when response was received to open the channel.
         /// </summary>
-        private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(initialState: false);
 
-        private EventWaitHandle _channelRequestResponse = new ManualResetEvent(false);
+        private EventWaitHandle _channelRequestResponse = new ManualResetEvent(initialState: false);
 
         private bool _channelRequestSucces;
 
         /// <summary>
-        /// Initializes a new <see cref="ChannelSession"/> instance.
+        /// Initializes a new instance of the <see cref="ChannelSession"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -64,7 +65,7 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Open()
         {
-            //  Try to open channel several times
+            // Try to open channel several times
             while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
             {
                 SendChannelOpenMessage();
@@ -81,7 +82,9 @@ namespace Renci.SshNet.Channels
             }
 
             if (!IsOpen)
+            {
                 throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
+            }
         }
 
         /// <summary>
@@ -93,7 +96,8 @@ namespace Renci.SshNet.Channels
         protected override void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
         {
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
-            _channelOpenResponseWaitHandle.Set();
+
+            _ = _channelOpenResponseWaitHandle.Set();
         }
 
         /// <summary>
@@ -106,7 +110,7 @@ namespace Renci.SshNet.Channels
         {
             _failedOpenAttempts++;
             ReleaseSemaphore();
-            _channelOpenResponseWaitHandle.Set();
+            _ = _channelOpenResponseWaitHandle.Set();
         }
 
         protected override void Close()
@@ -129,7 +133,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalModeValues)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -147,7 +151,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendX11ForwardingRequest(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new X11ForwardingRequestInfo(isSingleConnection, protocol, cookie, screenNumber)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -163,7 +167,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendEnvironmentVariableRequest(string variableName, string variableValue)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new EnvironmentVariableRequestInfo(variableName, variableValue)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -177,7 +181,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendShellRequest()
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new ShellRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -192,7 +196,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendExecRequest(string command)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new ExecRequestInfo(command, ConnectionInfo.Encoding)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -207,7 +211,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendBreakRequest(uint breakLength)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new BreakRequestInfo(breakLength)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -222,7 +226,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendSubsystemRequest(string subsystem)
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new SubsystemRequestInfo(subsystem)));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -307,7 +311,7 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendEndOfWriteRequest()
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new EndOfWriteRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
@@ -321,23 +325,21 @@ namespace Renci.SshNet.Channels
         /// </returns>
         public bool SendKeepAliveRequest()
         {
-            _channelRequestResponse.Reset();
+            _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new KeepAliveRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
         }
 
         /// <summary>
-        /// Called when channel request was successful
+        /// Called when channel request was successful.
         /// </summary>
         protected override void OnSuccess()
         {
             base.OnSuccess();
-            _channelRequestSucces = true;
 
-            var channelRequestResponse = _channelRequestResponse;
-            if (channelRequestResponse != null)
-                channelRequestResponse.Set();
+            _channelRequestSucces = true;
+            _ = _channelRequestResponse?.Set();
         }
 
         /// <summary>
@@ -346,11 +348,9 @@ namespace Renci.SshNet.Channels
         protected override void OnFailure()
         {
             base.OnFailure();
-            _channelRequestSucces = false;
 
-            var channelRequestResponse = _channelRequestResponse;
-            if (channelRequestResponse != null)
-                channelRequestResponse.Set();
+            _channelRequestSucces = false;
+            _ = _channelRequestResponse?.Set();
         }
 
         /// <summary>
@@ -407,9 +407,9 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -442,7 +442,9 @@ namespace Renci.SshNet.Channels
         private void ReleaseSemaphore()
         {
             if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 0, 1) == 1)
-                SessionSemaphore.Release();
+            {
+                _ = SessionSemaphore.Release();
+            }
         }
     }
 }

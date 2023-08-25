@@ -4,7 +4,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpRenameRequest : SftpRequest
+    internal sealed class SftpRenameRequest : SftpRequest
     {
         private byte[] _oldPath;
         private byte[] _newPath;

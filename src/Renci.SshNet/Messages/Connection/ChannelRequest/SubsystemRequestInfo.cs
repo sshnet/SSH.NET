@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "subsystem" type channel request information
     /// </summary>
-    internal class SubsystemRequestInfo : RequestInfo
+    internal sealed class SubsystemRequestInfo : RequestInfo
     {
         private byte[] _subsystemName;
 

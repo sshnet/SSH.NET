@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
+
 using Renci.SshNet.Common;
-using System.Diagnostics;
 
 namespace Renci.SshNet.Sftp
 {
@@ -12,54 +12,28 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public class SftpFileAttributes
     {
-        #region Bitmask constants
-
-        private const uint S_IFMT = 0xF000; //  bitmask for the file type bitfields
-
-        private const uint S_IFSOCK = 0xC000; //	socket
-
-        private const uint S_IFLNK = 0xA000; //	symbolic link
-
-        private const uint S_IFREG = 0x8000; //	regular file
-
-        private const uint S_IFBLK = 0x6000; //	block device
-
-        private const uint S_IFDIR = 0x4000; //	directory
-
-        private const uint S_IFCHR = 0x2000; //	character device
-
-        private const uint S_IFIFO = 0x1000; //	FIFO
-
-        private const uint S_ISUID = 0x0800; //	set UID bit
-
-        private const uint S_ISGID = 0x0400; //	set-group-ID bit (see below)
-
-        private const uint S_ISVTX = 0x0200; //	sticky bit (see below)
-
-        private const uint S_IRUSR = 0x0100; //	owner has read permission
-
-        private const uint S_IWUSR = 0x0080; //	owner has write permission
-
-        private const uint S_IXUSR = 0x0040; //	owner has execute permission
-
-        private const uint S_IRGRP = 0x0020; //	group has read permission
-
-        private const uint S_IWGRP = 0x0010; //	group has write permission
-
-        private const uint S_IXGRP = 0x0008; //	group has execute permission
-
-        private const uint S_IROTH = 0x0004; //	others have read permission
-
-        private const uint S_IWOTH = 0x0002; //	others have write permission
-
-        private const uint S_IXOTH = 0x0001; //	others have execute permission
-
-        #endregion
-
-        private bool _isBitFiledsBitSet;
-        private bool _isUIDBitSet;
-        private bool _isGroupIDBitSet;
-        private bool _isStickyBitSet;
+#pragma warning disable IDE1006 // Naming Styles
+        private const uint S_IFMT = 0xF000; // bitmask for the file type bitfields
+        private const uint S_IFSOCK = 0xC000; // socket
+        private const uint S_IFLNK = 0xA000; // symbolic link
+        private const uint S_IFREG = 0x8000; // regular file
+        private const uint S_IFBLK = 0x6000; // block device
+        private const uint S_IFDIR = 0x4000; // directory
+        private const uint S_IFCHR = 0x2000; // character device
+        private const uint S_IFIFO = 0x1000; // FIFO
+        private const uint S_ISUID = 0x0800; // set UID bit
+        private const uint S_ISGID = 0x0400; // set-group-ID bit (see below)
+        private const uint S_ISVTX = 0x0200; // sticky bit (see below)
+        private const uint S_IRUSR = 0x0100; // owner has read permission
+        private const uint S_IWUSR = 0x0080; // owner has write permission
+        private const uint S_IXUSR = 0x0040; // owner has execute permission
+        private const uint S_IRGRP = 0x0020; // group has read permission
+        private const uint S_IWGRP = 0x0010; // group has write permission
+        private const uint S_IXGRP = 0x0008; // group has execute permission
+        private const uint S_IROTH = 0x0004; // others have read permission
+        private const uint S_IWOTH = 0x0002; // others have write permission
+        private const uint S_IXOTH = 0x0001; // others have execute permission
+#pragma warning restore IDE1006 // Naming Styles
 
         private readonly DateTime _originalLastAccessTimeUtc;
         private readonly DateTime _originalLastWriteTimeUtc;
@@ -68,6 +42,11 @@ namespace Renci.SshNet.Sftp
         private readonly int _originalGroupId;
         private readonly uint _originalPermissions;
         private readonly IDictionary<string, string> _originalExtensions;
+
+        private bool _isBitFiledsBitSet;
+        private bool _isUIDBitSet;
+        private bool _isGroupIDBitSet;
+        private bool _isStickyBitSet;
 
         internal bool IsLastAccessTimeChanged
         {
@@ -114,12 +93,12 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return ToLocalTime(this.LastAccessTimeUtc);
+                return ToLocalTime(LastAccessTimeUtc);
             }
 
             set
             {
-                this.LastAccessTimeUtc = ToUniversalTime(value);
+                LastAccessTimeUtc = ToUniversalTime(value);
             }
         }
 
@@ -133,12 +112,12 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return ToLocalTime(this.LastWriteTimeUtc);
+                return ToLocalTime(LastWriteTimeUtc);
             }
 
             set
             {
-                this.LastWriteTimeUtc = ToUniversalTime(value);
+                LastWriteTimeUtc = ToUniversalTime(value);
             }
         }
 
@@ -194,7 +173,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a symbolic link.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
         /// </value>
         public bool IsSymbolicLink { get; private set; }
 
@@ -202,7 +181,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a regular file.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a regular file; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a regular file; otherwise, <c>false</c>.
         /// </value>
         public bool IsRegularFile { get; private set; }
 
@@ -210,7 +189,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a block device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a block device; otherwise, <c>false</c>.
         /// </value>
         public bool IsBlockDevice { get; private set; }
 
@@ -218,7 +197,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a directory.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a directory; otherwise, <c>false</c>.
         /// </value>
         public bool IsDirectory { get; private set; }
 
@@ -226,7 +205,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a character device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a character device; otherwise, <c>false</c>.
         /// </value>
         public bool IsCharacterDevice { get; private set; }
 
@@ -234,84 +213,84 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a named pipe.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
         /// </value>
         public bool IsNamedPipe { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether the owner can read from this file.
+        /// Gets or sets a value indicating whether the owner can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
         /// </value>
         public bool OwnerCanRead { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the owner can write into this file.
+        /// Gets or sets a value indicating whether the owner can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
+        /// <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
         /// </value>
         public bool OwnerCanWrite { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the owner can execute this file.
+        /// Gets or sets a value indicating whether the owner can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
+        /// <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
         /// </value>
         public bool OwnerCanExecute { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the group members can read from this file.
+        /// Gets or sets a value indicating whether the group members can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
+        /// <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
         /// </value>
         public bool GroupCanRead { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the group members can write into this file.
+        /// Gets or sets a value indicating whether the group members can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
+        /// <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
         /// </value>
         public bool GroupCanWrite { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the group members can execute this file.
+        /// Gets or sets a value indicating whether the group members can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
+        /// <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
         /// </value>
         public bool GroupCanExecute { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the others can read from this file.
+        /// Gets or sets a value indicating whether the others can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can read from this file; otherwise, <c>false</c>.
+        /// <c>true</c> if others can read from this file; otherwise, <c>false</c>.
         /// </value>
         public bool OthersCanRead { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the others can write into this file.
+        /// Gets or sets a value indicating whether the others can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can write into this file; otherwise, <c>false</c>.
+        /// <c>true</c> if others can write into this file; otherwise, <c>false</c>.
         /// </value>
         public bool OthersCanWrite { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the others can execute this file.
+        /// Gets or sets a value indicating whether the others can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can execute this file; otherwise, <c>false</c>.
+        /// <c>true</c> if others can execute this file; otherwise, <c>false</c>.
         /// </value>
         public bool OthersCanExecute { get; set; }
 
         /// <summary>
-        /// Gets or sets the extensions.
+        /// Gets the extensions.
         /// </summary>
         /// <value>
         /// The extensions.
@@ -325,108 +304,148 @@ namespace Renci.SshNet.Sftp
                 uint permission = 0;
 
                 if (_isBitFiledsBitSet)
-                    permission = permission | S_IFMT;
+                {
+                    permission |= S_IFMT;
+                }
 
                 if (IsSocket)
-                    permission = permission | S_IFSOCK;
+                {
+                    permission |= S_IFSOCK;
+                }
 
                 if (IsSymbolicLink)
-                    permission = permission | S_IFLNK;
+                {
+                    permission |= S_IFLNK;
+                }
 
                 if (IsRegularFile)
-                    permission = permission | S_IFREG;
+                {
+                    permission |= S_IFREG;
+                }
 
                 if (IsBlockDevice)
-                    permission = permission | S_IFBLK;
+                {
+                    permission |= S_IFBLK;
+                }
 
                 if (IsDirectory)
-                    permission = permission | S_IFDIR;
+                {
+                    permission |= S_IFDIR;
+                }
 
                 if (IsCharacterDevice)
-                    permission = permission | S_IFCHR;
+                {
+                    permission |= S_IFCHR;
+                }
 
                 if (IsNamedPipe)
-                    permission = permission | S_IFIFO;
+                {
+                    permission |= S_IFIFO;
+                }
 
                 if (_isUIDBitSet)
-                    permission = permission | S_ISUID;
+                {
+                    permission |= S_ISUID;
+                }
 
                 if (_isGroupIDBitSet)
-                    permission = permission | S_ISGID;
+                {
+                    permission |= S_ISGID;
+                }
 
                 if (_isStickyBitSet)
-                    permission = permission | S_ISVTX;
+                {
+                    permission |= S_ISVTX;
+                }
 
                 if (OwnerCanRead)
-                    permission = permission | S_IRUSR;
+                {
+                    permission |= S_IRUSR;
+                }
 
                 if (OwnerCanWrite)
-                    permission = permission | S_IWUSR;
+                {
+                    permission |= S_IWUSR;
+                }
 
                 if (OwnerCanExecute)
-                    permission = permission | S_IXUSR;
+                {
+                    permission |= S_IXUSR;
+                }
 
                 if (GroupCanRead)
-                    permission = permission | S_IRGRP;
+                {
+                    permission |= S_IRGRP;
+                }
 
                 if (GroupCanWrite)
-                    permission = permission | S_IWGRP;
+                {
+                    permission |= S_IWGRP;
+                }
 
                 if (GroupCanExecute)
-                    permission = permission | S_IXGRP;
+                {
+                    permission |= S_IXGRP;
+                }
 
                 if (OthersCanRead)
-                    permission = permission | S_IROTH;
+                {
+                    permission |= S_IROTH;
+                }
 
                 if (OthersCanWrite)
-                    permission = permission | S_IWOTH;
+                {
+                    permission |= S_IWOTH;
+                }
 
                 if (OthersCanExecute)
-                    permission = permission | S_IXOTH;
+                {
+                    permission |= S_IXOTH;
+                }
 
                 return permission;
             }
             private set
             {
-                _isBitFiledsBitSet = ((value & S_IFMT) == S_IFMT);
+                _isBitFiledsBitSet = (value & S_IFMT) == S_IFMT;
 
-                IsSocket = ((value & S_IFSOCK) == S_IFSOCK);
+                IsSocket = (value & S_IFSOCK) == S_IFSOCK;
 
-                IsSymbolicLink = ((value & S_IFLNK) == S_IFLNK);
+                IsSymbolicLink = (value & S_IFLNK) == S_IFLNK;
 
-                IsRegularFile = ((value & S_IFREG) == S_IFREG);
+                IsRegularFile = (value & S_IFREG) == S_IFREG;
 
-                IsBlockDevice = ((value & S_IFBLK) == S_IFBLK);
+                IsBlockDevice = (value & S_IFBLK) == S_IFBLK;
 
-                IsDirectory = ((value & S_IFDIR) == S_IFDIR);
+                IsDirectory = (value & S_IFDIR) == S_IFDIR;
 
-                IsCharacterDevice = ((value & S_IFCHR) == S_IFCHR);
+                IsCharacterDevice = (value & S_IFCHR) == S_IFCHR;
 
-                IsNamedPipe = ((value & S_IFIFO) == S_IFIFO);
+                IsNamedPipe = (value & S_IFIFO) == S_IFIFO;
 
-                _isUIDBitSet = ((value & S_ISUID) == S_ISUID);
+                _isUIDBitSet = (value & S_ISUID) == S_ISUID;
 
-                _isGroupIDBitSet = ((value & S_ISGID) == S_ISGID);
+                _isGroupIDBitSet = (value & S_ISGID) == S_ISGID;
 
-                _isStickyBitSet = ((value & S_ISVTX) == S_ISVTX);
+                _isStickyBitSet = (value & S_ISVTX) == S_ISVTX;
 
-                OwnerCanRead = ((value & S_IRUSR) == S_IRUSR);
+                OwnerCanRead = (value & S_IRUSR) == S_IRUSR;
 
-                OwnerCanWrite = ((value & S_IWUSR) == S_IWUSR);
+                OwnerCanWrite = (value & S_IWUSR) == S_IWUSR;
 
-                OwnerCanExecute = ((value & S_IXUSR) == S_IXUSR);
+                OwnerCanExecute = (value & S_IXUSR) == S_IXUSR;
 
-                GroupCanRead = ((value & S_IRGRP) == S_IRGRP);
+                GroupCanRead = (value & S_IRGRP) == S_IRGRP;
 
-                GroupCanWrite = ((value & S_IWGRP) == S_IWGRP);
+                GroupCanWrite = (value & S_IWGRP) == S_IWGRP;
 
-                GroupCanExecute = ((value & S_IXGRP) == S_IXGRP);
+                GroupCanExecute = (value & S_IXGRP) == S_IXGRP;
 
-                OthersCanRead = ((value & S_IROTH) == S_IROTH);
+                OthersCanRead = (value & S_IROTH) == S_IROTH;
 
-                OthersCanWrite = ((value & S_IWOTH) == S_IWOTH);
+                OthersCanWrite = (value & S_IWOTH) == S_IWOTH;
 
-                OthersCanExecute = ((value & S_IXOTH) == S_IXOTH);
+                OthersCanExecute = (value & S_IXOTH) == S_IXOTH;
             }
         }
 
@@ -451,9 +470,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="mode">The mode.</param>
         public void SetPermissions(short mode)
         {
-            if (mode < 0 || mode > 999)
+            if (mode is < 0 or > 999)
             {
-                throw new ArgumentOutOfRangeException("mode");
+                throw new ArgumentOutOfRangeException(nameof(mode));
             }
 
             var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0').ToCharArray();
@@ -562,26 +581,26 @@ namespace Renci.SshNet.Sftp
             uint permissions = 0;
             DateTime accessTime;
             DateTime modifyTime;
-            IDictionary<string, string> extensions = null;
+            Dictionary<string, string> extensions = null;
 
-            if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
+            if ((flag & 0x00000001) == 0x00000001) // SSH_FILEXFER_ATTR_SIZE
             {
                 size = (long) stream.ReadUInt64();
             }
 
-            if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID
+            if ((flag & 0x00000002) == 0x00000002) // SSH_FILEXFER_ATTR_UIDGID
             {
                 userId = (int) stream.ReadUInt32();
 
                 groupId = (int) stream.ReadUInt32();
             }
 
-            if ((flag & 0x00000004) == 0x00000004)   //  SSH_FILEXFER_ATTR_PERMISSIONS
+            if ((flag & 0x00000004) == 0x00000004) // SSH_FILEXFER_ATTR_PERMISSIONS
             {
                 permissions = stream.ReadUInt32();
             }
 
-            if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
+            if ((flag & 0x00000008) == 0x00000008) // SSH_FILEXFER_ATTR_ACMODTIME
             {
                 // The incoming times are "Unix times", so they're already in UTC.  We need to preserve that
                 // to avoid losing information in a local time conversion during the "fall back" hour in DST.
@@ -596,7 +615,7 @@ namespace Renci.SshNet.Sftp
                 modifyTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             }
 
-            if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_EXTENDED
+            if ((flag & 0x80000000) == 0x80000000) // SSH_FILEXFER_ATTR_EXTENDED
             {
                 var extendedCount = (int) stream.ReadUInt32();
                 extensions = new Dictionary<string, string>(extendedCount);

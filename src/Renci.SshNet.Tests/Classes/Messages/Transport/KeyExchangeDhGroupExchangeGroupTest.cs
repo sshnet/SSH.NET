@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Transport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [Ignore] // placeholder
         public void KeyExchangeDhGroupExchangeGroupConstructorTest()
         {
-            KeyExchangeDhGroupExchangeGroup target = new KeyExchangeDhGroupExchangeGroup();
+            var target = new KeyExchangeDhGroupExchangeGroup();
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

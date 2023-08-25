@@ -19,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void AuthenticationPasswordChangeEventArgsConstructorTest()
         {
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationPasswordChangeEventArgs target = new AuthenticationPasswordChangeEventArgs(username);
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var target = new AuthenticationPasswordChangeEventArgs(username);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void NewPasswordTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationPasswordChangeEventArgs target = new AuthenticationPasswordChangeEventArgs(username); // TODO: Initialize to an appropriate value
+            var target = new AuthenticationPasswordChangeEventArgs(username); // TODO: Initialize to an appropriate value
             byte[] expected = null; // TODO: Initialize to an appropriate value
             byte[] actual;
             target.NewPassword = expected;

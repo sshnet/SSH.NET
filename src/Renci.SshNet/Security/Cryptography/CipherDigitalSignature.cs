@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="cipher">The cipher.</param>
         protected CipherDigitalSignature(ObjectIdentifier oid, AsymmetricCipher cipher)
         {
-            if (cipher == null)
+            if (cipher is null)
             {
                 throw new ArgumentNullException(nameof(cipher));
             }

@@ -60,27 +60,27 @@ namespace Renci.SshNet.Security.Cryptography
             _mode = mode;
             _padding = padding;
 
-            if (_mode != null)
-                _mode.Init(this);
+            _mode?.Init(this);
         }
 
         /// <summary>
         /// Encrypts the specified data.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin encrypting.</param>
-        /// <param name="length">The number of bytes to encrypt from <paramref name="data"/>.</param>
+        /// <param name="input">The data.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
         /// <returns>Encrypted data</returns>
-        public override byte[] Encrypt(byte[] data, int offset, int length)
+        public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             if (length % _blockSize > 0)
             {
-                if (_padding == null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
+
                 var paddingLength = _blockSize - (length % _blockSize);
-                data = _padding.Pad(data, offset, length, paddingLength);
+                input = _padding.Pad(input, offset, length, paddingLength);
                 length += paddingLength;
                 offset = 0;
             }
@@ -90,13 +90,13 @@ namespace Renci.SshNet.Security.Cryptography
 
             for (var i = 0; i < length / _blockSize; i++)
             {
-                if (_mode == null)
+                if (_mode is null)
                 {
-                    writtenBytes += EncryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
+                    writtenBytes += EncryptBlock(input, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += _mode.EncryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
+                    writtenBytes += _mode.EncryptBlock(input, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
             }
 
@@ -111,34 +111,34 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Decrypts the specified data.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="input">The data.</param>
         /// <returns>Decrypted data</returns>
-        public override byte[] Decrypt(byte[] data)
+        public override byte[] Decrypt(byte[] input)
         {
-            return Decrypt(data, 0, data.Length);
+            return Decrypt(input, 0, input.Length);
         }
 
         /// <summary>
         /// Decrypts the specified input.
         /// </summary>
-        /// <param name="data">The input.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin decrypting.</param>
-        /// <param name="length">The number of bytes to decrypt from <paramref name="data"/>.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="input"/>.</param>
         /// <returns>
         /// The decrypted data.
         /// </returns>
-        public override byte[] Decrypt(byte[] data, int offset, int length)
+        public override byte[] Decrypt(byte[] input, int offset, int length)
         {
             if (length % _blockSize > 0)
             {
-                if (_padding == null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
 
-                data = _padding.Pad(_blockSize, data, offset, length);
+                input = _padding.Pad(_blockSize, input, offset, length);
                 offset = 0;
-                length = data.Length;
+                length = input.Length;
             }
 
             var output = new byte[length];
@@ -146,13 +146,13 @@ namespace Renci.SshNet.Security.Cryptography
             var writtenBytes = 0;
             for (var i = 0; i < length / _blockSize; i++)
             {
-                if (_mode == null)
+                if (_mode is null)
                 {
-                    writtenBytes += DecryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
+                    writtenBytes += DecryptBlock(input, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += _mode.DecryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
+                    writtenBytes += _mode.DecryptBlock(input, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
             }
 

@@ -23,7 +23,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
         public EcdsaDigitalSignature(EcdsaKey key)
         {
-            if (key == null)
+            if (key is null)
             {
                 throw new ArgumentNullException(nameof(key));
             }
@@ -108,7 +108,7 @@ namespace Renci.SshNet.Security.Cryptography
         }
     }
 
-    internal class SshDataSignature : SshData
+    internal sealed class SshDataSignature : SshData
     {
         private readonly int _signature_size;
 

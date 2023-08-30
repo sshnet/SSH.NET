@@ -20,11 +20,11 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void AuthenticationPromptEventArgsConstructorTest()
         {
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string instruction = string.Empty; // TODO: Initialize to an appropriate value
-            string language = string.Empty; // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var instruction = string.Empty; // TODO: Initialize to an appropriate value
+            var language = string.Empty; // TODO: Initialize to an appropriate value
             IEnumerable<AuthenticationPrompt> prompts = null; // TODO: Initialize to an appropriate value
-            AuthenticationPromptEventArgs target = new AuthenticationPromptEventArgs(username, instruction, language, prompts);
+            var target = new AuthenticationPromptEventArgs(username, instruction, language, prompts);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

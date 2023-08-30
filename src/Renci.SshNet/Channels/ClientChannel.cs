@@ -117,7 +117,7 @@ namespace Renci.SshNet.Channels
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
             {
                 return;
             }

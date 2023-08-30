@@ -180,14 +180,14 @@ namespace Renci.SshNet
         /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
-        internal BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+        private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
-            if (connectionInfo == null)
+            if (connectionInfo is null)
             {
                 throw new ArgumentNullException(nameof(connectionInfo));
             }
 
-            if (serviceFactory == null)
+            if (serviceFactory is null)
             {
                 throw new ArgumentNullException(nameof(serviceFactory));
             }
@@ -453,7 +453,7 @@ namespace Renci.SshNet
         /// </summary>
         private void StopKeepAliveTimer()
         {
-            if (_keepAliveTimer == null)
+            if (_keepAliveTimer is null)
             {
                 return;
             }
@@ -467,7 +467,7 @@ namespace Renci.SshNet
             var session = Session;
 
             // do nothing if we have disposed or disconnected
-            if (session == null)
+            if (session is null)
             {
                 return;
             }

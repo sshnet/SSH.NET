@@ -5,7 +5,7 @@ namespace Renci.SshNet.Connection
     /// <summary>
     /// Represents an SSH identification.
     /// </summary>
-    internal class SshIdentification
+    internal sealed class SshIdentification
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshIdentification"/> class with the specified protocol version
@@ -31,12 +31,12 @@ namespace Renci.SshNet.Connection
         /// <exception cref="ArgumentNullException"><paramref name="softwareVersion"/> is <see langword="null"/>.</exception>
         public SshIdentification(string protocolVersion, string softwareVersion, string comments)
         {
-            if (protocolVersion == null)
+            if (protocolVersion is null)
             {
                 throw new ArgumentNullException(nameof(protocolVersion));
             }
 
-            if (softwareVersion == null)
+            if (softwareVersion is null)
             {
                 throw new ArgumentNullException(nameof(softwareVersion));
             }

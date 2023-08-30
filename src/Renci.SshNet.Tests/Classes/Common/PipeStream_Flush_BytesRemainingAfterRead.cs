@@ -30,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             _readThread.Start();
 
             // ensure we've started reading
-            _readThread.Join(50);
+            _ = _readThread.Join(50);
         }
 
         protected override void Act()
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             _pipeStream.Flush();
 
             // give async read time to complete
-            _readThread.Join(100);
+            _ = _readThread.Join(100);
         }
 
         [TestMethod]

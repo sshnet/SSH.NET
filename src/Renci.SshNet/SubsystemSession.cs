@@ -23,9 +23,9 @@ namespace Renci.SshNet
         private ISession _session;
         private IChannelSession _channel;
         private Exception _exception;
-        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
-        private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(false);
-        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
+        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(initialState: false);
+        private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(initialState: false);
+        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
         private bool _isDisposed;
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Renci.SshNet
         /// </value>
         public bool IsOpen
         {
-            get { return _channel != null && _channel.IsOpen; }
+            get { return _channel is not null && _channel.IsOpen; }
         }
 
         /// <summary>
@@ -82,12 +82,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if (subsystemName == null)
+            if (subsystemName is null)
             {
                 throw new ArgumentNullException(nameof(subsystemName));
             }
@@ -149,7 +149,7 @@ namespace Renci.SshNet
             UnsubscribeFromSessionEvents(_session);
 
             var channel = _channel;
-            if (channel != null)
+            if (channel is not null)
             {
                 _channel = null;
                 channel.DataReceived -= Channel_DataReceived;
@@ -472,7 +472,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
             {
                 return;
             }

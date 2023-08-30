@@ -124,7 +124,7 @@ namespace Renci.SshNet.Connection
         {
             if (proxyUser == null)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             return Encoding.ASCII.GetBytes(proxyUser);

@@ -1,11 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -34,37 +37,30 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _proxyServer.Disconnected += socket => _disconnected = true;
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
-                    socket.Send(new byte[] { _proxySocksVersion });
+                    _ = socket.Send(new byte[] { _proxySocksVersion });
                 };
             _proxyServer.Start();
         }
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_clientSocket != null)
-            {
-                _clientSocket.Dispose();
-            }
+            _proxyServer?.Dispose();
+            _clientSocket?.Dispose();
         }
 
         protected override void Act()
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (ProxyException ex)
@@ -95,7 +91,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(new byte[0]);
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

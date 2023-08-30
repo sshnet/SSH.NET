@@ -322,8 +322,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = key.Length * 8;
 
-            if (keySize < 1 || keySize > 448)
+            if (keySize is < 1 or > 448)
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
 
             _s0 = new uint[SboxSk];
             _s1 = new uint[SboxSk];
@@ -352,12 +354,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("inputCount");
             }
 
-            uint xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= _p[0];
 
-            for (int i = 1; i < Rounds; i += 2)
+            for (var i = 1; i < Rounds; i += 2)
             {
                 xr ^= F(xl) ^ _p[i];
                 xl ^= F(xr) ^ _p[i + 1];
@@ -385,7 +387,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputCount != BlockSize)
+            {
                 throw new ArgumentException("inputCount");
+            }
 
             var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
             var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
@@ -408,7 +412,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private uint F(uint x)
         {
-            return (((_s0[x >> 24] + _s1[(x >> 16) & 0xff]) ^ _s2[(x >> 8) & 0xff]) + _s3[x & 0xff]);
+            return ((_s0[x >> 24] + _s1[(x >> 16) & 0xff]) ^ _s2[(x >> 8) & 0xff]) + _s3[x & 0xff];
         }
 
         private void SetKey(byte[] key)

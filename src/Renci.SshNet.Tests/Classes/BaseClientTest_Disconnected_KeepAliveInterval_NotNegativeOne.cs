@@ -21,13 +21,13 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void SetupMocks()
         {
-            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.IsConnected).Returns(false);
-            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+            ServiceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.Setup(p => p.Connect());
+            SessionMock.Setup(p => p.IsConnected).Returns(false);
+            SessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
                         .Returns(true);
         }
 
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _client.Connect();
         }
 
@@ -43,8 +43,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             if (_client != null)
             {
-                _sessionMock.Setup(p => p.OnDisconnecting());
-                _sessionMock.Setup(p => p.Dispose());
+                SessionMock.Setup(p => p.OnDisconnecting());
+                SessionMock.Setup(p => p.Dispose());
                 _client.Dispose();
             }
         }
@@ -66,32 +66,32 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+            ServiceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
         }
 
         [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+            ServiceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object),
                                        Times.Once);
         }
 
         [TestMethod]
         public void ConnectOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.Connect(), Times.Once);
+            SessionMock.Verify(p => p.Connect(), Times.Once);
         }
 
         [TestMethod]
         public void IsConnectedOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.IsConnected, Times.Once);
+            SessionMock.Verify(p => p.IsConnected, Times.Once);
         }
 
         [TestMethod]
         public void SendMessageOnSessionShouldNeverBeInvoked()
         {
-            _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Never);
+            SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Never);
         }
 
         private class MyClient : BaseClient

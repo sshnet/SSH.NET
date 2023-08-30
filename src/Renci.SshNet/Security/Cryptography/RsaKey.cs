@@ -9,6 +9,7 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets the Key String.
@@ -48,7 +49,10 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 2)
+                {
                     return _privateKey[2];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -61,7 +65,11 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 3)
+                {
                     return _privateKey[3];
+                }
+
+
                 return BigInteger.Zero;
             }
         }
@@ -74,7 +82,10 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 4)
+                {
                     return _privateKey[4];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -87,7 +98,10 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 5)
+                {
                     return _privateKey[5];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -100,7 +114,10 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 6)
+                {
                     return _privateKey[6];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -113,7 +130,10 @@ namespace Renci.SshNet.Security
             get
             {
                 if (_privateKey.Length > 7)
+                {
                     return _privateKey[7];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -140,10 +160,8 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                if (_digitalSignature == null)
-                {
-                    _digitalSignature = new RsaDigitalSignature(this);
-                }
+                _digitalSignature ??= new RsaDigitalSignature(this);
+
                 return _digitalSignature;
             }
         }
@@ -163,7 +181,9 @@ namespace Renci.SshNet.Security
             set
             {
                 if (value.Length != 2)
+                {
                     throw new InvalidOperationException("Invalid private key.");
+                }
 
                 _privateKey = new[] { value[1], value[0] };
             }
@@ -184,7 +204,9 @@ namespace Renci.SshNet.Security
             : base(data)
         {
             if (_privateKey.Length != 8)
+            {
                 throw new InvalidOperationException("Invalid private key.");
+            }
         }
 
         /// <summary>
@@ -198,15 +220,17 @@ namespace Renci.SshNet.Security
         /// <param name="inverseQ">The inverse Q.</param>
         public RsaKey(BigInteger modulus, BigInteger exponent, BigInteger d, BigInteger p, BigInteger q, BigInteger inverseQ)
         {
-            _privateKey = new BigInteger[8];
-            _privateKey[0] = modulus;
-            _privateKey[1] = exponent;
-            _privateKey[2] = d;
-            _privateKey[3] = p;
-            _privateKey[4] = q;
-            _privateKey[5] = PrimeExponent(d, p);
-            _privateKey[6] = PrimeExponent(d, q);
-            _privateKey[7] = inverseQ;
+            _privateKey = new BigInteger[8]
+                {
+                    modulus,
+                    exponent,
+                    d,
+                    p,
+                    q,
+                    PrimeExponent(d, p),
+                    PrimeExponent(d, q),
+                    inverseQ
+                };
         }
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
@@ -215,16 +239,12 @@ namespace Renci.SshNet.Security
             return privateExponent % pe;
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -235,7 +255,9 @@ namespace Renci.SshNet.Security
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -256,9 +278,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         ~RsaKey()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

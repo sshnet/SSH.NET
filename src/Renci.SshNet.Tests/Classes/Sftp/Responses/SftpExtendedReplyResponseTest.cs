@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
@@ -60,8 +62,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var sid = (ulong) _random.Next(0, int.MaxValue);
             var namemax = (ulong) _random.Next(0, int.MaxValue);
 
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
-            sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
+            var sshDataStream = new SshDataStream(4 + 1 + 4 + 88)
+                {
+                    Position = 4 // skip 4 bytes for SSH packet length
+                };
             sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(bsize);

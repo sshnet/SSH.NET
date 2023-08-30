@@ -80,9 +80,11 @@ namespace Renci.SshNet.Tests.Classes
             var password = Resources.PASSWORD;
 
             #region Example SshClient Connect Timeout
-            var connectionInfo = new PasswordConnectionInfo(host, username, password);
 
-            connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+            var connectionInfo = new PasswordConnectionInfo(host, username, password)
+                {
+                    Timeout = TimeSpan.FromSeconds(30)
+                };
 
             using (var client = new SshClient(connectionInfo))
             {

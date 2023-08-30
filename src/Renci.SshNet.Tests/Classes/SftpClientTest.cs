@@ -1360,14 +1360,23 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (FileStream file = new FileStream(fileName, FileMode.Open))
             {
+#if NET7_0_OR_GREATER
+                var hash = MD5.HashData(file);
+#else
+#if NET6_0
+                var md5 = MD5.Create();
+#else
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(file);
+#endif // NET6_0
+                var hash = md5.ComputeHash(file);
+#endif // NET7_0_OR_GREATER
+
                 file.Close();
 
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
+                for (var i = 0; i < hash.Length; i++)
                 {
-                    sb.Append(retVal[i].ToString("x2"));
+                    sb.Append(hash[i].ToString("x2"));
                 }
                 return sb.ToString();
             }

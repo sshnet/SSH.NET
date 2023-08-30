@@ -9,10 +9,8 @@
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <LangVersion>latest</LangVersion>
-        <!--
         <WarningLevel>9999</WarningLevel>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        -->
         <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     </PropertyGroup>
 
@@ -39,10 +37,8 @@
         <!--
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0-preview1.23165.1" PrivateAssets="all" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.52" PrivateAssets="all" />
-        -->
-        <!--
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.54" PrivateAssets="all" />
         <PackageReference Include="SonarAnalyzer.CSharp" Version="8.55.0.65544" PrivateAssets="all" />
-        -->
+        -->        
     </ItemGroup>
 </Project>

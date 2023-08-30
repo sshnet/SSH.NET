@@ -13,8 +13,10 @@ namespace Renci.SshNet.Security
     {
         private ED25519DigitalSignature _digitalSignature;
 
-        private byte[] publicKey = new byte[Ed25519.PublicKeySizeInBytes];
+        private byte[] _publicKey = new byte[Ed25519.PublicKeySizeInBytes];
+#pragma warning disable IDE1006 // Naming Styles
         private readonly byte[] privateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
+#pragma warning restore IDE1006 // Naming Styles
         private bool _isDisposed;
 
         /// <summary>
@@ -35,11 +37,11 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return new BigInteger[] { publicKey.ToBigInteger2() };
+                return new BigInteger[] { _publicKey.ToBigInteger2() };
             }
             set
             {
-                publicKey = value[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+                _publicKey = value[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
             }
         }
 
@@ -76,7 +78,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return publicKey;
+                return _publicKey;
             }
         }
 
@@ -104,7 +106,7 @@ namespace Renci.SshNet.Security
         /// <param name="pk">pk data.</param>
         public ED25519Key(byte[] pk)
         {
-            publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
         }
 
         /// <summary>
@@ -114,10 +116,10 @@ namespace Renci.SshNet.Security
         /// <param name="sk">sk data.</param>
         public ED25519Key(byte[] pk, byte[] sk)
         {
-            publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
             var seed = new byte[Ed25519.PrivateKeySeedSizeInBytes];
             Buffer.BlockCopy(sk, 0, seed, 0, seed.Length);
-            Ed25519.KeyPairFromSeed(out publicKey, out privateKey, seed);
+            Ed25519.KeyPairFromSeed(out _publicKey, out privateKey, seed);
         }
 
         /// <summary>

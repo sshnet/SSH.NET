@@ -114,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_SendMessageShouldThrowSshConnectionException()
         {
             var session = (ISession) Session;
@@ -197,7 +197,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                session.TryWait(waitHandle, timeout);
+                _ = session.TryWait(waitHandle, timeout);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -212,9 +212,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
             Assert.IsNull(exception);
@@ -230,7 +229,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                session.TryWait(waitHandle, timeout, out exception);
+                _ = session.TryWait(waitHandle, timeout, out exception);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)

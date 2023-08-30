@@ -38,12 +38,12 @@ namespace Renci.SshNet
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
 
-            StartAccept(null);
+            StartAccept(e: null);
         }
 
         private void StartAccept(SocketAsyncEventArgs e)
         {
-            if (e == null)
+            if (e is null)
             {
                 e = new SocketAsyncEventArgs();
                 e.Completed += AcceptCompleted;
@@ -61,12 +61,12 @@ namespace Renci.SshNet
                 {
                     if (!_listener.AcceptAsync(e))
                     {
-                        AcceptCompleted(null, e);
+                        AcceptCompleted(sender: null, e);
                     }
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    if (_status == ForwardedPortStatus.Stopping || _status == ForwardedPortStatus.Stopped)
                     {
                         // ignore ObjectDisposedException while stopping or stopped
                         return;
@@ -178,9 +178,12 @@ namespace Renci.SshNet
 
         private bool HandleSocks(IChannelDirectTcpip channel, Socket clientSocket, TimeSpan timeout)
         {
-            // create eventhandler which is to be invoked to interrupt a blocking receive
-            // when we're closing the forwarded port
+
+#pragma warning disable IDE0039 // Use lambda instead of local function to reduce allocations
+            // Create eventhandler which is to be invoked to interrupt a blocking receive
+            // when we're closing the forwarded port.
             EventHandler closeClientSocket = (_, args) => CloseClientSocket(clientSocket);
+#pragma warning restore IDE0039 // Use lambda instead of local function to reduce allocations
 
             Closing += closeClientSocket;
 
@@ -351,7 +354,7 @@ namespace Renci.SshNet
             var ipAddress = new IPAddress(ipBuffer);
 
             var username = ReadString(socket, timeout);
-            if (username == null)
+            if (username is null)
             {
                 // SOCKS client closed connection
                 return false;
@@ -418,7 +421,9 @@ namespace Renci.SshNet
             }
 
             if (version != 5)
+            {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
+            }
 
             var commandCode = SocketAbstraction.ReadByte(socket, timeout);
             if (commandCode == -1)
@@ -447,7 +452,7 @@ namespace Renci.SshNet
             }
 
             var host = GetSocks5Host(addressType, socket, timeout);
-            if (host == null)
+            if (host is null)
             {
                 // SOCKS client closed connection
                 return false;

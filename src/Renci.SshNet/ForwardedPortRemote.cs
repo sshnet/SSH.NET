@@ -16,7 +16,7 @@ namespace Renci.SshNet
     {
         private ForwardedPortStatus _status;
         private bool _requestStatus;
-        private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
+        private EventWaitHandle _globalRequestResponse = new AutoResetEvent(initialState: false);
         private CountdownEvent _pendingChannelCountdown;
         private bool _isDisposed;
 
@@ -86,12 +86,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
         {
-            if (boundHostAddress == null)
+            if (boundHostAddress is null)
             {
                 throw new ArgumentNullException(nameof(boundHostAddress));
             }
 
-            if (hostAddress == null)
+            if (hostAddress is null)
             {
                 throw new ArgumentNullException(nameof(hostAddress));
             }
@@ -328,7 +328,7 @@ namespace Renci.SshNet
 
             if (BoundPort == 0)
             {
-                BoundPort = (e.Message.BoundPort == null) ? 0 : e.Message.BoundPort.Value;
+                BoundPort = (e.Message.BoundPort is null) ? 0 : e.Message.BoundPort.Value;
             }
 
             _ = _globalRequestResponse.Set();
@@ -390,7 +390,7 @@ namespace Renci.SshNet
         /// </summary>
         ~ForwardedPortRemote()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
     }
 }

@@ -49,6 +49,7 @@ namespace Renci.SshNet.Connection
             switch (authenticationMethod)
             {
                 case 0x00:
+                    // No authentication
                     break;
                 case 0x02:
                     // Create username/password authentication request
@@ -73,6 +74,8 @@ namespace Renci.SshNet.Connection
                     break;
                 case 0xFF:
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
+                default:
+                    throw new ProxyException($"SOCKS5: Chosen authentication method '0x{authenticationMethod:x2}' is not supported.");
             }
 
             var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
@@ -238,6 +241,7 @@ namespace Renci.SshNet.Connection
 
             byte[] address;
 
+#pragma warning disable IDE0010 // Add missing cases
             switch (ip.AddressFamily)
             {
                 case AddressFamily.InterNetwork:
@@ -251,6 +255,7 @@ namespace Renci.SshNet.Connection
                 default:
                     throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
             }
+#pragma warning restore IDE0010 // Add missing cases
 
             return address;
         }

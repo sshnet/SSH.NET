@@ -94,12 +94,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 _channelClosedReceived = null;
             }
 
-            if (_raiseChannelCloseReceivedThread != null && _raiseChannelCloseReceivedThread.IsAlive)
+            if (_raiseChannelCloseReceivedThread != null)
             {
-                if (!_raiseChannelCloseReceivedThread.Join(1000))
-                {
-                    _raiseChannelCloseReceivedThread.Abort();
-                }
+                _raiseChannelCloseReceivedThread.Join();
+                _raiseChannelCloseReceivedThread = null;
             }
 
             if (_channelClosedEventHandlerCompleted != null)

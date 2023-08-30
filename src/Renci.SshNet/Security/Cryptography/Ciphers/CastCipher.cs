@@ -38,7 +38,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var keySize = key.Length * 8;
 
             if (!(keySize >= 40 && keySize <= 128 && keySize % 8 == 0))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
 
             SetKey(key);
         }
@@ -625,6 +627,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var rp = ri;        // equivalent to R[i-1]
 
                 li = rp;
+
                 switch (i)
                 {
                     case 1:
@@ -648,6 +651,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     case 12:
                     case 15:
                         ri = lp ^ F3(rp, _km[i], _kr[i]);
+                        break;
+                    default:
+                        // We should never get here as max. rounds is 16
                         break;
                 }
             }
@@ -666,6 +672,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var rp = ri;        // equivalent to R[i-1]
 
                 li = rp;
+
                 switch (i)
                 {
                     case 1:
@@ -689,6 +696,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     case 12:
                     case 15:
                         ri = lp ^ F3(rp, _km[i], _kr[i]);
+                        break;
+                    default:
+                        // We should never get here as max. rounds is 16
                         break;
                 }
             }

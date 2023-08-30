@@ -2,6 +2,5 @@
 
 generated_code = true
 
-# IDE0005: Remove unnecessary using directives
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005
-dotnet_diagnostic.IDE0005.severity = none
+# Do not reported any diagnostics for "imported" code
+dotnet_analyzer_diagnostic.severity = none

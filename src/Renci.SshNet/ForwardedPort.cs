@@ -60,7 +60,7 @@ namespace Renci.SshNet
                 throw new InvalidOperationException("Forwarded port is already started.");
             }
 
-            if (Session == null)
+            if (Session is null)
             {
                 throw new InvalidOperationException("Forwarded port is not added to a client.");
             }

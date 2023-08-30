@@ -56,7 +56,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
             }
 
             var j = IV.Length;
-            while (--j >= 0 && ++IV[j] == 0) ;
+            while (--j >= 0 && ++IV[j] == 0)
+            {
+                // Intentionally empty block
+            }
 
             return _blockSize;
         }
@@ -97,7 +100,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
             }
 
             var j = IV.Length;
-            while (--j >= 0 && ++IV[j] == 0) ;
+            while (--j >= 0 && ++IV[j] == 0)
+            {
+                // Intentionally empty block
+            }
 
             return _blockSize;
         }

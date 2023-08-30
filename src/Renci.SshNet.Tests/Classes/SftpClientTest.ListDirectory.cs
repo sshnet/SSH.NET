@@ -4,8 +4,10 @@ using Renci.SshNet.Tests.Properties;
 using System;
 using System.Diagnostics;
 using System.Linq;
+#if NET6_0_OR_GREATER
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet.Tests.Classes
 {

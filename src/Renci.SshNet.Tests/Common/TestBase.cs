@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.Common
             }
         }
 
-        protected Stream GetData(string name)
+        protected static Stream GetData(string name)
         {
             return ExecutingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
         }

@@ -243,7 +243,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Download(string filename, Stream destination)
         {
-            if (filename.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(filename))
             {
                 throw new ArgumentException(Message);
             }

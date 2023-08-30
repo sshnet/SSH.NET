@@ -4,6 +4,10 @@ using Renci.SshNet.Tests.Properties;
 using System;
 using System.Diagnostics;
 using System.Linq;
+#if NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -89,6 +93,30 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [TestCategory("integration")]
+        public async Task Test_Sftp_ListDirectoryAsync_Current()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromMinutes(1));
+                var count = 0;
+                await foreach(var file in sftp.ListDirectoryAsync(".", cts.Token))
+                {
+                    count++;
+                    Debug.WriteLine(file.FullName);
+                }
+
+                Assert.IsTrue(count > 0);
+
+                sftp.Disconnect();
+            }
+        }
+#endif
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]

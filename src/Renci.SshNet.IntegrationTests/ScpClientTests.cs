@@ -1,6 +1,4 @@
-using System.Text;
-
-namespace Renci.SshNet.IntegrationTests
+namespace IntegrationTests
 {
     /// <summary>
     /// The SCP client integration tests
@@ -18,7 +16,7 @@ namespace Renci.SshNet.IntegrationTests
 
         [TestMethod]
 
-        public void Scp_Upload_And_Download_FileStream()
+        public void Upload_And_Download_FileStream()
         {
             var file = $"/tmp/{Guid.NewGuid()}.txt";
             var fileContent = "File content !@#$%^&*()_+{}:,./<>[];'\\|";

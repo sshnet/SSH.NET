@@ -2,13 +2,12 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 
-namespace Renci.SshNet.IntegrationTests.TestsFixtures
+namespace IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
     {
         private InfrastructureFixture()
         {
-
         }
 
         private static readonly Lazy<InfrastructureFixture> InstanceLazy = new Lazy<InfrastructureFixture>(() => new InfrastructureFixture());
@@ -48,7 +47,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             _sshServer = new ContainerBuilder()
                 .WithHostname("renci-ssh-tests-server")
                 .WithImage(_sshServerImage)
-                //.WithPrivileged(true)
                 .WithPortBinding(22, true)
                 .Build();
 

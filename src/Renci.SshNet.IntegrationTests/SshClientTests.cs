@@ -1,6 +1,4 @@
-using System.Text;
-
-namespace Renci.SshNet.IntegrationTests
+namespace IntegrationTests
 {
     /// <summary>
     /// The SSH client integration tests
@@ -17,7 +15,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Test_SSH_Echo_Command()
+        public void Echo_Command_with_all_characters()
         {
             var builder = new StringBuilder();
             var response = _sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'");

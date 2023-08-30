@@ -67,16 +67,16 @@ namespace IntegrationTests
             Assert.IsTrue(_sftpClient.Exists(testFilePath));
 
             // Check if ListDirectory works
-            var files = await _sftpClient.ListDirectoryAsync(testDirectory, CancellationToken.None);
-
-            _sftpClient.DeleteFile(testFilePath);
-            _sftpClient.DeleteDirectory(testDirectory);
+            var files = _sftpClient.ListDirectoryAsync(testDirectory, CancellationToken.None);
 
             var builder = new StringBuilder();
-            foreach (var file in files)
+            await foreach (var file in files)
             {
                 builder.AppendLine($"{file.FullName} {file.IsRegularFile} {file.IsDirectory}");
             }
+
+            _sftpClient.DeleteFile(testFilePath);
+            _sftpClient.DeleteDirectory(testDirectory);
 
             Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True
 /home/sshnet/sshnet-test/.. False True

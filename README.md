@@ -117,7 +117,7 @@ Private keys can be encrypted using one of the following cipher methods:
 ## Framework Support
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
-* .NET Standard 2.0
+* .NET Standard 2.0 and 2.1
 * .NET 6 (and higher)
 
 ## Usage

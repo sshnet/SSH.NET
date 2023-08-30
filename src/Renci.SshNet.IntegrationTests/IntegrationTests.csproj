@@ -7,7 +7,6 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <!--
           Even though we're not interested in producing XML docs for test projects, we have to enable this in order to have the .NET Compiler
           Platform analyzers produce the IDE0005 (Remove unnecessary import) diagnostic.
@@ -25,7 +24,19 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+      
     <PackageReference Include="Testcontainers" Version="3.4.0" />
+    <!--
+        Testcontainers has a dependency on SSH.NET which causes build warnings during assembly resolution:      
+        
+            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2023.0.0.0, Culture=neutral
+            , PublicKeyToken=1cee9f8bde3db106" and "Renci.SshNet, Version=2020.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db
+            106". Choosing "Renci.SshNet, Version=2023.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
+             
+        To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
+    -->
+    <PackageReference Include="SSH.NET" Version="2020.0.2" ExcludeAssets="All"/>
+      
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -33,15 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
-        <Aliases>LocalSshNet</Aliases>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="app.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
 
 </Project>

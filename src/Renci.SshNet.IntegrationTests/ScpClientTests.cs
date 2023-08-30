@@ -1,3 +1,5 @@
+using Renci.SshNet;
+
 namespace IntegrationTests
 {
     /// <summary>

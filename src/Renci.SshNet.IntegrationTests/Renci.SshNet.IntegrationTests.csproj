@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
@@ -16,8 +15,12 @@
           We can stop producing XML docs for test projects (and remove the NoWarn for CS1591) once the following issue is fixed:
           https://github.com/dotnet/roslyn/issues/41640.
       -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
       
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <DefineConstants>TRACE;FEATURE_MSTEST_DATATEST;FEATURE_SOCKET_EAP;FEATURE_ENCODING_ASCII;FEATURE_THREAD_SLEEP;FEATURE_THREAD_THREADPOOL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +29,7 @@
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
       
     <PackageReference Include="Testcontainers" Version="3.4.0" />
+    <PackageReference Include="System.Management" Version="4.7.0" />
     <!--
         Testcontainers has a dependency on SSH.NET which causes build warnings during assembly resolution:      
         
@@ -35,7 +39,7 @@
              
         To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
     -->
-    <PackageReference Include="SSH.NET" Version="2020.0.2" ExcludeAssets="All"/>
+    <PackageReference Include="SSH.NET" Version="2020.0.2" ExcludeAssets="All" />
       
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -44,7 +48,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Renci.SshNet.TestTools.OpenSSH\Renci.SshNet.TestTools.OpenSSH.csproj" />
     <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <EmbeddedResource Include="resources\client\id_dsa" />
+    <EmbeddedResource Include="resources\client\id_dsa.ppk" />
+    <EmbeddedResource Include="resources\client\id_noaccess.rsa" />
+    <EmbeddedResource Include="resources\client\id_rsa" />
+    <EmbeddedResource Include="resources\client\key_ecdsa_256_openssh" />
+    <EmbeddedResource Include="resources\client\key_ecdsa_384_openssh" />
+    <EmbeddedResource Include="resources\client\key_ecdsa_521_openssh" />
+    <EmbeddedResource Include="resources\issue #70.png" />
+  </ItemGroup>
 </Project>

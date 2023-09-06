@@ -13,7 +13,7 @@
           We can stop producing XML docs for test projects (and remove the NoWarn for CS1591) once the following issue is fixed:
           https://github.com/dotnet/roslyn/issues/41640.
       -->
-        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <NoWarn>$(NoWarn);CS1591;SYSLIB0021;SYSLIB1045</NoWarn>
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Properties\" />

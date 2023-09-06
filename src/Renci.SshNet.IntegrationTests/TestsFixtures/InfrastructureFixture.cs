@@ -20,11 +20,11 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             }
         }
 
-        private IContainer? _sshServer;
+        private IContainer _sshServer;
 
-        private IFutureDockerImage? _sshServerImage;
+        private IFutureDockerImage _sshServerImage;
 
-        public string? SshServerHostName { get; set; }
+        public string SshServerHostName { get; set; }
 
         public ushort SshServerPort { get; set; }
 

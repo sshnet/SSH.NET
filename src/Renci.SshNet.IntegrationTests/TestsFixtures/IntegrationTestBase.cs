@@ -10,7 +10,7 @@
         /// <summary>
         /// The SSH Server host name.
         /// </summary>
-        public string? SshServerHostName
+        public string SshServerHostName
         {
             get
             {

@@ -571,6 +571,12 @@ dotnet_diagnostic.IDE0130.severity = none
 # var inputPath = originalDossierPathList.Find(x => x.id == updatedPath.id) ?? throw new PcsException($"Path id ({updatedPath.id}) unknown in PCS for dossier id {dossierFromTs.dossier.id}", updatedPath.id);
 dotnet_diagnostic.IDE0270.severity = none
 
+#### Source-generator diagnostics ####
+
+# SYSLIB1045 Use GeneratedRegexAttribute to generate the regular expression implementation at compile time.
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/syslib1040-1049
+dotnet_diagnostic.SYSLIB1045.severity = none
+
 #### .NET Compiler Platform code style rules ####
 
 ### Language rules ###

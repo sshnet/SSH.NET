@@ -1,6 +1,4 @@
-using Renci.SshNet;
-
-namespace IntegrationTests
+namespace Renci.SshNet.IntegrationTests
 {
     /// <summary>
     /// The SCP client integration tests

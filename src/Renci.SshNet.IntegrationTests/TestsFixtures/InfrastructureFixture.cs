@@ -1,8 +1,8 @@
-﻿using DotNet.Testcontainers.Images;
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Images;
 
-namespace IntegrationTests.TestsFixtures
+namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
     {

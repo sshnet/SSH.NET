@@ -1,4 +1,4 @@
-﻿namespace IntegrationTests.TestsFixtures
+﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     /// <summary>
     /// The base class for integration tests

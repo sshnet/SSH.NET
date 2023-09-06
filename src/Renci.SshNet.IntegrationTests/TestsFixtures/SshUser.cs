@@ -1,4 +1,4 @@
-﻿namespace IntegrationTests.TestsFixtures
+﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public class SshUser
     {

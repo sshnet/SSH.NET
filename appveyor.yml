@@ -9,6 +9,6 @@ build:
 
 test_script:
 - cmd: >-
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning" --blame
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
     
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net7.0\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning" --blame
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net7.0\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame

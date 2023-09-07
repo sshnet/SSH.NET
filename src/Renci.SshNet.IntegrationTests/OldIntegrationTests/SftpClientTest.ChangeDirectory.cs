@@ -1,21 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Properties;
+﻿using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_Dont_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/asdasd");
@@ -24,11 +21,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_With_Slash_Dont_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/asdasd/");
@@ -37,11 +33,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_Dont_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/asdasd/sssddds");
@@ -50,11 +45,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_With_Slash_Dont_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/asdasd/sssddds/");
@@ -63,10 +57,9 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_ChangeDirectory_Which_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/usr");
@@ -76,10 +69,9 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_ChangeDirectory_Which_Exists_With_Slash()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.ChangeDirectory("/usr/");

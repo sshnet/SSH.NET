@@ -1,11 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Renci.SshNet.Tests.Classes
@@ -1354,70 +1352,6 @@ namespace Renci.SshNet.Tests.Classes
             string actual;
             actual = target.WorkingDirectory;
             Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        protected static string CalculateMD5(string fileName)
-        {
-            using (FileStream file = new FileStream(fileName, FileMode.Open))
-            {
-#if NET7_0_OR_GREATER
-                var hash = MD5.HashData(file);
-#else
-#if NET6_0
-                var md5 = MD5.Create();
-#else
-                MD5 md5 = new MD5CryptoServiceProvider();
-#endif // NET6_0
-                var hash = md5.ComputeHash(file);
-#endif // NET7_0_OR_GREATER
-
-                file.Close();
-
-                StringBuilder sb = new StringBuilder();
-                for (var i = 0; i < hash.Length; i++)
-                {
-                    sb.Append(hash[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
-
-        private static void RemoveAllFiles()
-        {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                client.Connect();
-                client.RunCommand("rm -rf *");
-                client.Disconnect();
-            }
-        }
-
-        /// <summary>
-        /// Helper class to help with upload and download testing
-        /// </summary>
-        private class TestInfo
-        {
-            public string RemoteFileName { get; set; }
-
-            public string UploadedFileName { get; set; }
-
-            public string DownloadedFileName { get; set; }
-
-            //public ulong UploadedBytes { get; set; }
-
-            //public ulong DownloadedBytes { get; set; }
-
-            public FileStream UploadedFile { get; set; }
-
-            public FileStream DownloadedFile { get; set; }
-
-            public string UploadedHash { get; set; }
-
-            public string DownloadedHash { get; set; }
-
-            public SftpUploadAsyncResult UploadResult { get; set; }
-
-            public SftpDownloadAsyncResult DownloadResult { get; set; }
         }
     }
 }

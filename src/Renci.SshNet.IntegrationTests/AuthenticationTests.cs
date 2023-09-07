@@ -255,8 +255,10 @@ namespace Renci.SshNet.IntegrationTests
             int authenticationPromptCount = 0;
             keyboardInteractive.AuthenticationPrompt += (sender, args) =>
             {
+                Console.WriteLine(args.Instruction);
                 foreach (var authenticationPrompt in args.Prompts)
                 {
+                    Console.WriteLine(authenticationPrompt.Request);
                     switch (authenticationPromptCount)
                     {
                         case 0:
@@ -287,6 +289,49 @@ namespace Renci.SshNet.IntegrationTests
                 client.Connect();
                 Assert.AreEqual(4, authenticationPromptCount);
             }
+        }
+
+        [TestMethod]
+        public void KeyboardInteractiveConnectionInfo()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive")
+                             .WithChallengeResponseAuthentication(true)
+                             .WithKeyboardInteractiveAuthentication(true)
+                             .WithUsePAM(true)
+                             .Update()
+                             .Restart();
+
+            var host = SshServerHostName;
+            var port = SshServerPort;
+            var username = User.UserName;
+            var password = User.Password;
+
+            #region Example KeyboardInteractiveConnectionInfo AuthenticationPrompt
+
+            var connectionInfo = new KeyboardInteractiveConnectionInfo(host, port, username);
+            connectionInfo.AuthenticationPrompt += delegate (object sender, AuthenticationPromptEventArgs e)
+                                                       {
+                                                           Console.WriteLine(e.Instruction);
+
+                                                           foreach (var prompt in e.Prompts)
+                                                           {
+                                                               Console.WriteLine(prompt.Request);
+                                                               prompt.Response = password;
+                                                           }
+                                                       };
+
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+
+                //  Do something here
+                client.Disconnect();
+            }
+
+            #endregion
+
+            Assert.AreEqual(connectionInfo.Host, SshServerHostName);
+            Assert.AreEqual(connectionInfo.Username, User.UserName);
         }
     }
 }

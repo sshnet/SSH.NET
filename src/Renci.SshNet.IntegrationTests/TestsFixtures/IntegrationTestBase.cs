@@ -62,5 +62,24 @@
             Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
             Console.WriteLine($"SSH Server port: {_infrastructureFixture.SshServerPort}");
         }
+
+        /// <summary>
+        /// Creates the test file.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="size">Size in megabytes.</param>
+        protected void CreateTestFile(string fileName, int size)
+        {
+            using (var testFile = File.Create(fileName))
+            {
+                var random = new Random();
+                for (int i = 0; i < 1024 * size; i++)
+                {
+                    var buffer = new byte[1024];
+                    random.NextBytes(buffer);
+                    testFile.Write(buffer, 0, buffer.Length);
+                }
+            }
+        }
     }
 }

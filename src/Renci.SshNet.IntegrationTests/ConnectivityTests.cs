@@ -382,6 +382,31 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
+
+        [TestMethod]
+        [WorkItem(1140)]
+        [Description("Test whether IsConnected is false after disconnect.")]
+        [Owner("Kenneth_aa")]
+        public void Test_BaseClient_IsConnected_True_After_Disconnect()
+        {
+            // 2012-04-29 - Kenneth_aa
+            // The problem with this test, is that after SSH Net calls .Disconnect(), the library doesn't wait
+            // for the server to confirm disconnect before IsConnected is checked. And now I'm not mentioning
+            // anything about Socket's either.
+
+            var connectionInfo = new PasswordAuthenticationMethod(User.UserName, User.Password);
+
+            using (SftpClient client = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                client.Connect();
+                Assert.AreEqual(true, client.IsConnected, "IsConnected is not true after Connect() was called.");
+
+                client.Disconnect();
+
+                Assert.AreEqual(false, client.IsConnected, "IsConnected is true after Disconnect() was called.");
+            }
+        }
+
         private static void DisableHostNetworkConnection(string networkConnection)
         {
             SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");

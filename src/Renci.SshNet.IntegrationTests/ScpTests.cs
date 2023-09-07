@@ -1,5 +1,4 @@
 ﻿using Renci.SshNet.Common;
-using Renci.SshNet.IntegrationTests.Common;
 
 namespace Renci.SshNet.IntegrationTests
 {

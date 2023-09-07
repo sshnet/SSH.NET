@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
+
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -12,40 +10,6 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class KeyboardInteractiveConnectionInfoTest : TestBase
     {
-        [TestMethod]
-        [TestCategory("KeyboardInteractiveConnectionInfo")]
-        [TestCategory("integration")]
-        public void Test_KeyboardInteractiveConnectionInfo()
-        {
-            var host = Resources.HOST;
-            var username = Resources.USERNAME;
-            var password = Resources.PASSWORD;
-
-            #region Example KeyboardInteractiveConnectionInfo AuthenticationPrompt
-            var connectionInfo = new KeyboardInteractiveConnectionInfo(host, username);
-            connectionInfo.AuthenticationPrompt += delegate(object sender, AuthenticationPromptEventArgs e)
-            {
-                System.Console.WriteLine(e.Instruction);
-
-                foreach (var prompt in e.Prompts)
-                {
-                    Console.WriteLine(prompt.Request);
-                    prompt.Response = Console.ReadLine();
-                }
-            };
-
-            using (var client = new SftpClient(connectionInfo))
-            {
-                client.Connect();
-                //  Do something here
-                client.Disconnect();
-            }
-            #endregion
-
-            Assert.AreEqual(connectionInfo.Host, Resources.HOST);
-            Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
-        }
-
         /// <summary>
         ///A test for Dispose
         ///</summary>

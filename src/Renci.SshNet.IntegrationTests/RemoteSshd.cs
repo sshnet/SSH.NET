@@ -28,14 +28,14 @@ namespace Renci.SshNet.IntegrationTests
                 var stopOutput = stopCommand.Execute();
                 if (stopCommand.ExitStatus != 0)
                 {
-                    throw new ApplicationException($"Stopping ssh service failed with exit code {stopCommand.ExitStatus}.\r\n{stopOutput}");
+                    throw new ApplicationException($"Stopping ssh service failed with exit code {stopCommand.ExitStatus}.\r\n{stopOutput}\r\n{stopCommand.Error}");
                 }
 
                 var resetFailedCommand = client.CreateCommand("sudo /usr/sbin/sshd.pam");
                 var resetFailedOutput = resetFailedCommand.Execute();
                 if (resetFailedCommand.ExitStatus != 0)
                 {
-                    throw new ApplicationException($"Reset failures for ssh service failed with exit code {resetFailedCommand.ExitStatus}.\r\n{resetFailedOutput}");
+                    throw new ApplicationException($"Reset failures for ssh service failed with exit code {resetFailedCommand.ExitStatus}.\r\n{resetFailedOutput}\r\n{resetFailedCommand.Error}");
                 }
             }
 

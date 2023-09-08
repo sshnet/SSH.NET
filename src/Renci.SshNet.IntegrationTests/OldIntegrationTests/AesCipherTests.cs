@@ -24,7 +24,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             _remoteSshdConfig?.Reset();
         }
 
-
         [TestMethod]
         [Owner("olegkap")]
         [TestCategory("Cipher")]

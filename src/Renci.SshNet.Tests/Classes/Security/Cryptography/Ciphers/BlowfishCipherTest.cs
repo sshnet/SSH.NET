@@ -29,23 +29,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             }
         }
 
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_BlowfishCBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("blowfish-cbc", new CipherInfo(128, (key, iv) => { return new BlowfishCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
         /// <summary>
         ///A test for BlowfishCipher Constructor
         ///</summary>

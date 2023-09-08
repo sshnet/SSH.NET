@@ -1,6 +1,6 @@
 ﻿using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Classes.Sftp
+namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Represents SFTP file information

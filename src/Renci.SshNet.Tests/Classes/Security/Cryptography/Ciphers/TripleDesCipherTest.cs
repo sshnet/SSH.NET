@@ -5,8 +5,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
-
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {

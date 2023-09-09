@@ -1,15 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes
 {

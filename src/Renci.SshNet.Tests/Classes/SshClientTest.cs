@@ -2,11 +2,10 @@
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes
 {

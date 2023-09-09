@@ -390,6 +390,7 @@ namespace Renci.SshNet.IntegrationTests
                     // Verify if port is still open
                     socksSocket.Send(httpGetRequest);
                     httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
+                    Console.WriteLine(httpResponse);
                     Assert.IsTrue(httpResponse.Contains(searchText), httpResponse);
 
                     forwardedPort.Stop();

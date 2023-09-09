@@ -48,7 +48,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var file = sftp.Get("abc.txt");
 
-                Assert.AreEqual("/home/tester/abc.txt", file.FullName);
+                Assert.AreEqual("/home/sshnet/abc.txt", file.FullName);
                 Assert.IsTrue(file.IsRegularFile);
                 Assert.IsFalse(file.IsDirectory);
             }
@@ -82,7 +82,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var file = sftp.Get("test-üöä-");
 
-                Assert.AreEqual("/home/tester/test-üöä-", file.FullName);
+                Assert.AreEqual("/home/sshnet/test-üöä-", file.FullName);
                 Assert.IsTrue(file.IsRegularFile);
                 Assert.IsFalse(file.IsDirectory);
             }

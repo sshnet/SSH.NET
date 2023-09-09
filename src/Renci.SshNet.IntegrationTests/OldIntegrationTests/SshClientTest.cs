@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.HostKeyReceived += delegate(object sender, HostKeyEventArgs e)
                 {
                     hostKeyValidated = true;
-
+                    Console.WriteLine(string.Join(", ", e.FingerPrint));
                     if (e.FingerPrint.SequenceEqual(new byte[] { 179, 185, 208, 27, 115, 196, 96, 180, 206, 237, 6, 248, 88, 73, 163, 218 }))
                     {
                         e.CanTrust = true;

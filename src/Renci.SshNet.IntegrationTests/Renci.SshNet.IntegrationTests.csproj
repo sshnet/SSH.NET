@@ -56,6 +56,7 @@
     <EmbeddedResource Include="resources\client\id_dsa.ppk" />
     <EmbeddedResource Include="resources\client\id_noaccess.rsa" />
     <EmbeddedResource Include="resources\client\id_rsa" />
+    <EmbeddedResource Include="resources\client\id_rsa_with_pass" />
     <EmbeddedResource Include="resources\client\key_ecdsa_256_openssh" />
     <EmbeddedResource Include="resources\client\key_ecdsa_384_openssh" />
     <EmbeddedResource Include="resources\client\key_ecdsa_521_openssh" />

@@ -44,6 +44,63 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void Multifactor_PublicKey()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+            }
+        }
+
+        [TestMethod]
+        public void Multifactor_PublicKeyWithPassPhrase()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyWithPassPhraseAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+            }
+        }
+
+        [TestMethod]
+        public void Multifactor_PublicKey_MultiplePrivateKey()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserMultiplePrivateKeyAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+            }
+        }
+
+        [TestMethod]
+        public void Multifactor_PublicKey_MultipleAuthenticationMethod()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethod(),
+                                                               _authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+            }
+        }
+
+        [TestMethod]
         public void Multifactor_KeyboardInteractiveAndPublicKey()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive,publickey")

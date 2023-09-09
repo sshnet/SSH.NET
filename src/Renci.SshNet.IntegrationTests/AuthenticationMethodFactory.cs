@@ -27,6 +27,12 @@
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
+        public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod()
+        {
+            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa_with_pass", null);
+            return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
+        }
+
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey()
         {
             var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_noaccess.rsa");

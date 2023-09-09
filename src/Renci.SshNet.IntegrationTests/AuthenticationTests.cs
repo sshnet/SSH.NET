@@ -58,6 +58,24 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        [TestCategory("Authentication")]
+        public void Multifactor_PublicKey_Connect_Then_Reconnect()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
         public void Multifactor_PublicKeyWithPassPhrase()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
@@ -65,6 +83,21 @@ namespace Renci.SshNet.IntegrationTests
                              .Restart();
 
             var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyWithPassPhraseAuthenticationMethod());
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
+        public void Multifactor_PublicKeyWithEmptyPassPhrase()
+        {
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();

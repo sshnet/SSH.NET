@@ -200,6 +200,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                     testInfo.DownloadedHash = CalculateMD5(testInfo.DownloadedFileName);
 
+                    Console.WriteLine(remoteFile);
+                    Console.WriteLine("UploadedBytes: "+ testInfo.UploadResult.UploadedBytes);
+                    Console.WriteLine("DownloadedBytes: " + testInfo.DownloadResult.DownloadedBytes);
+                    Console.WriteLine("UploadedHash: " + testInfo.UploadedHash);
+                    Console.WriteLine("DownloadedHash: " + testInfo.DownloadedHash);
                     if (!(testInfo.UploadResult.UploadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes == testInfo.UploadResult.UploadedBytes))
                     {
                         uploadDownloadSizeOk = false;

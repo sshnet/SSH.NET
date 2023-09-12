@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 

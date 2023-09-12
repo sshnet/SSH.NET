@@ -1,15 +1,15 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    internal class ProcessDisruptor
+    internal class SshConnectionDisruptor
     {
         private readonly IConnectionInfoFactory _connectionInfoFactory;
 
-        public ProcessDisruptor(IConnectionInfoFactory connectionInfoFactory)
+        public SshConnectionDisruptor(IConnectionInfoFactory connectionInfoFactory)
         {
             _connectionInfoFactory = connectionInfoFactory;
         }
 
-        public ProcessDisruptorOperation BreakConnections()
+        public SshConnectionRestorer BreakConnections()
         {
             var client = new SshClient(_connectionInfoFactory.Create());
             
@@ -17,7 +17,7 @@
 
             PauseSshd(client);
             
-            return new ProcessDisruptorOperation(client);
+            return new SshConnectionRestorer(client);
         }
 
         private static void PauseSshd(SshClient client)
@@ -27,14 +27,14 @@
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Resuming ssh service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Blocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
             }
             command = client.CreateCommand("sudo pkill -9 -U sshnet -f sshd.pam");
             output = command.Execute();
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Resuming ssh service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Killing sshd.pam service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
             }
         }
     }

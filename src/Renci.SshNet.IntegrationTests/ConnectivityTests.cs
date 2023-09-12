@@ -11,7 +11,7 @@ namespace Renci.SshNet.IntegrationTests
         private IConnectionInfoFactory _connectionInfoFactory;
         private IConnectionInfoFactory _adminConnectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
-        private ProcessDisruptor _processDisruptor;
+        private SshConnectionDisruptor _sshConnectionDisruptor;
 
         [TestInitialize]
         public void SetUp()
@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
             _connectionInfoFactory = new LinuxVMConnectionFactory(SshServerHostName, SshServerPort, _authenticationMethodFactory);
             _adminConnectionInfoFactory = new LinuxAdminConnectionFactory(SshServerHostName, SshServerPort);
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
-            _processDisruptor = new ProcessDisruptor(_adminConnectionInfoFactory);
+            _sshConnectionDisruptor = new SshConnectionDisruptor(_adminConnectionInfoFactory);
         }
 
         [TestCleanup]
@@ -57,7 +57,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Common_DisposeAfterLossOfNetworkConnectivity()
         {
             var hostNetworkConnectionDisabled = false;
-            ProcessDisruptorOperation disruptor = null;
+            SshConnectionRestorer disruptor = null;
             try
             {
                 Exception errorOccurred = null;
@@ -72,7 +72,7 @@ namespace Renci.SshNet.IntegrationTests
                                                 };
                     client.Connect();
 
-                    disruptor = _processDisruptor.BreakConnections();
+                    disruptor = _sshConnectionDisruptor.BreakConnections();
                     hostNetworkConnectionDisabled = true;
                     WaitForConnectionInterruption(client);
                 }
@@ -89,7 +89,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 if (hostNetworkConnectionDisabled)
                 {
-                    disruptor?.ResumeSshd();
+                    disruptor?.RestoreConnections();
                     disruptor?.Dispose();
                 }
             }
@@ -111,7 +111,7 @@ namespace Renci.SshNet.IntegrationTests
                 client.KeepAliveInterval = new TimeSpan(0, 0, 0, 0, 50);
                 client.Connect();
 
-                var disruptor = _processDisruptor.BreakConnections();
+                var disruptor = _sshConnectionDisruptor.BreakConnections();
 
                 try
                 {
@@ -129,7 +129,7 @@ namespace Renci.SshNet.IntegrationTests
                 }
                 finally
                 {
-                    disruptor?.ResumeSshd();
+                    disruptor?.RestoreConnections();
                     disruptor?.Dispose();
                 }
             }
@@ -167,7 +167,7 @@ namespace Renci.SshNet.IntegrationTests
                 };
                 client.Connect();
 
-                var disruptor = _processDisruptor.BreakConnections();
+                var disruptor = _sshConnectionDisruptor.BreakConnections();
 
                 try
                 {
@@ -189,7 +189,7 @@ namespace Renci.SshNet.IntegrationTests
                 }
                 finally
                 {
-                    disruptor.ResumeSshd();
+                    disruptor.RestoreConnections();
                     disruptor.Dispose();
                 }
             }
@@ -199,7 +199,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Common_LossOfNetworkConnectivityDisconnectAndConnect()
         {
             bool vmNetworkConnectionDisabled = false;
-            ProcessDisruptorOperation disruptor = null;
+            SshConnectionRestorer disruptor = null;
             try
             {
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -209,7 +209,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.Connect();
 
-                    disruptor = _processDisruptor.BreakConnections();
+                    disruptor = _sshConnectionDisruptor.BreakConnections();
                     vmNetworkConnectionDisabled = true;
 
                     WaitForConnectionInterruption(client);
@@ -218,7 +218,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     Assert.IsFalse(client.IsConnected);
 
-                    disruptor.ResumeSshd();
+                    disruptor.RestoreConnections();
                     vmNetworkConnectionDisabled = false;
 
                     // connect when network connectivity is restored
@@ -239,7 +239,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 if (vmNetworkConnectionDisabled)
                 {
-                    disruptor.ResumeSshd();
+                    disruptor.RestoreConnections();
                 }
                 disruptor?.Dispose();
             }
@@ -259,7 +259,7 @@ namespace Renci.SshNet.IntegrationTests
                 };
                 client.Connect();
 
-                var disruptor = _processDisruptor.BreakConnections();
+                var disruptor = _sshConnectionDisruptor.BreakConnections();
                 Thread.Sleep(100);
                 try
                 {
@@ -281,7 +281,7 @@ namespace Renci.SshNet.IntegrationTests
                 }
                 finally
                 {
-                    disruptor.ResumeSshd();
+                    disruptor.RestoreConnections();
                     disruptor.Dispose();
                 }
             }

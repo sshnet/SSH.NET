@@ -22,63 +22,46 @@ namespace Renci.SshNet.IntegrationTests
         {
             _remoteSshdConfig?.Reset();
         }
-        
+
         [TestMethod]
         [Ignore] // No longer supported in recent versions of OpenSSH
+        // TODO: We should be able to enable some legacy settings to make it work
+        // https://www.openssh.com/legacy.html e.g. PubkeyAcceptedKeyTypes / HostbasedAcceptedKeyTypes ?
         public void SshDsa()
         {
-            _remoteSshdConfig.ClearHostKeyAlgorithms()
-                             .AddHostKeyAlgorithm(HostKeyAlgorithm.SshDsa)
-                             .ClearHostKeyFiles()
-                             .AddHostKeyFile(HostKeyFile.Dsa.FilePath)
-                             .Update()
-                             .Restart();
-
-            HostKeyEventArgs hostKeyEventsArgs = null;
-
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
-            {
-                client.HostKeyReceived += (sender, e) => hostKeyEventsArgs = e;
-                client.Connect();
-                client.Disconnect();
-            }
-
-            Assert.IsNotNull(hostKeyEventsArgs);
-            Assert.AreEqual(HostKeyFile.Dsa.KeyName, hostKeyEventsArgs.HostKeyName);
-            Assert.AreEqual(1024, hostKeyEventsArgs.KeyLength);
-            Assert.IsTrue(hostKeyEventsArgs.FingerPrint.SequenceEqual(HostKeyFile.Dsa.FingerPrint));
+            DoTest(HostKeyAlgorithm.SshDsa, HostKeyFile.Dsa, 1024);
         }
 
         [TestMethod]
         public void SshRsa()
         {
-            _remoteSshdConfig.ClearHostKeyAlgorithms()
-                             .AddHostKeyAlgorithm(HostKeyAlgorithm.SshRsa)
-                             .Update()
-                             .Restart();
+            DoTest(HostKeyAlgorithm.SshRsa, HostKeyFile.Rsa, 3072);
+        }
 
-            HostKeyEventArgs hostKeyEventsArgs = null;
+        [TestMethod]
+        public void SshRsaSha256()
+        {
+            DoTest(HostKeyAlgorithm.RsaSha2256, HostKeyFile.Rsa, 3072);
+        }
 
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
-            {
-                client.HostKeyReceived += (sender, e) => hostKeyEventsArgs = e;
-                client.Connect();
-                client.Disconnect();
-            }
-
-            Assert.IsNotNull(hostKeyEventsArgs);
-            Assert.AreEqual(HostKeyFile.Rsa.KeyName, hostKeyEventsArgs.HostKeyName);
-            Assert.AreEqual(3072, hostKeyEventsArgs.KeyLength);
-            Assert.IsTrue(hostKeyEventsArgs.FingerPrint.SequenceEqual(HostKeyFile.Rsa.FingerPrint));
+        [TestMethod]
+        public void SshRsaSha512()
+        {
+            DoTest(HostKeyAlgorithm.RsaSha2512, HostKeyFile.Rsa, 3072);
         }
 
         [TestMethod]
         public void SshEd25519()
         {
+            DoTest(HostKeyAlgorithm.SshEd25519, HostKeyFile.Ed25519, 256);
+        }
+
+        private void DoTest(HostKeyAlgorithm hostKeyAlgorithm, HostKeyFile hostKeyFile, int keyLength)
+        {
             _remoteSshdConfig.ClearHostKeyAlgorithms()
-                             .AddHostKeyAlgorithm(HostKeyAlgorithm.SshEd25519)
+                             .AddHostKeyAlgorithm(hostKeyAlgorithm)
                              .ClearHostKeyFiles()
-                             .AddHostKeyFile(HostKeyFile.Ed25519.FilePath)
+                             .AddHostKeyFile(hostKeyFile.FilePath)
                              .Update()
                              .Restart();
 
@@ -92,14 +75,9 @@ namespace Renci.SshNet.IntegrationTests
             }
 
             Assert.IsNotNull(hostKeyEventsArgs);
-            Assert.AreEqual(HostKeyFile.Ed25519.KeyName, hostKeyEventsArgs.HostKeyName);
-            Assert.AreEqual(256, hostKeyEventsArgs.KeyLength);
-            Assert.IsTrue(hostKeyEventsArgs.FingerPrint.SequenceEqual(HostKeyFile.Ed25519.FingerPrint));
-        }
-
-        private void Client_HostKeyReceived(object sender, HostKeyEventArgs e)
-        {
-            throw new NotImplementedException();
+            Assert.AreEqual(hostKeyFile.KeyName, hostKeyEventsArgs.HostKeyName);
+            Assert.AreEqual(keyLength, hostKeyEventsArgs.KeyLength);
+            CollectionAssert.AreEqual(hostKeyFile.FingerPrint, hostKeyEventsArgs.FingerPrint);
         }
     }
 }

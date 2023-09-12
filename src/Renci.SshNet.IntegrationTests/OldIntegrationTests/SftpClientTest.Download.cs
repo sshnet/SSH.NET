@@ -1,28 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Properties;
-using System;
-using System.IO;
+﻿using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Download_Forbidden()
         {
-            if (Resources.USERNAME == "root")
-            {
-                Assert.Fail("Must not run this test as root!");
-            }
-
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, AdminUser.UserName, AdminUser.Password))
             {
                 sftp.Connect();
 
@@ -39,11 +29,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_Download_File_Not_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
@@ -59,12 +48,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginDownloadFile_StreamIsNull()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.BeginDownloadFile("aaaa", null, null, null);
@@ -74,12 +62,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginDownloadFile_FileNameIsWhiteSpace()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.BeginDownloadFile("   ", new MemoryStream(), null, null);
@@ -89,12 +76,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginDownloadFile_FileNameIsNull()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 sftp.BeginDownloadFile(null, new MemoryStream(), null, null);
@@ -104,15 +90,14 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_EndDownloadFile_Invalid_Async_Handle()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 var filename = Path.GetTempFileName();
-                this.CreateTestFile(filename, 1);
+                CreateTestFile(filename, 1);
                 sftp.UploadFile(File.OpenRead(filename), "test123");
                 var async1 = sftp.BeginListDirectory("/", null, null);
                 var async2 = sftp.BeginDownloadFile("test123", new MemoryStream(), null, null);

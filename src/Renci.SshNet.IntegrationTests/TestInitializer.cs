@@ -1,4 +1,4 @@
-namespace IntegrationTests
+namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
     public class TestInitializer

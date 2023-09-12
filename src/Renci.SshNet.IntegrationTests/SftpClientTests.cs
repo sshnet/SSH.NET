@@ -1,7 +1,6 @@
-using Renci.SshNet;
 using Renci.SshNet.Common;
 
-namespace IntegrationTests
+namespace Renci.SshNet.IntegrationTests
 {
     /// <summary>
     /// The SFTP client integration tests

@@ -1,22 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Tests.Properties;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Renci.SshNet.Tests.Classes
+﻿namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public async Task Test_Sftp_RenameFileAsync()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(default);
 
@@ -24,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
                 string remoteFileName1 = Path.GetRandomFileName();
                 string remoteFileName2 = Path.GetRandomFileName();
 
-                this.CreateTestFile(uploadedFileName, 1);
+                CreateTestFile(uploadedFileName, 1);
 
                 using (var file = File.OpenRead(uploadedFileName))
                 {
@@ -46,12 +39,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to RenameFile.")]
         [ExpectedException(typeof(ArgumentNullException))]
         public async Task Test_Sftp_RenameFileAsync_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(default);
 

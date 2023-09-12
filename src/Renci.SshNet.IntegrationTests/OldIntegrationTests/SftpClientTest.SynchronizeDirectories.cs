@@ -1,31 +1,26 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Tests.Properties;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_SynchronizeDirectories()
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
                 string uploadedFileName = Path.GetTempFileName();
 
                 string sourceDir = Path.GetDirectoryName(uploadedFileName);
-                string destDir = "/";
+                string destDir = "/home/sshnet/";
                 string searchPattern = Path.GetFileName(uploadedFileName);
                 var upLoadedFiles = sftp.SynchronizeDirectories(sourceDir, destDir, searchPattern);
 
@@ -42,19 +37,18 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_BeginSynchronizeDirectories()
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
                 string uploadedFileName = Path.GetTempFileName();
 
                 string sourceDir = Path.GetDirectoryName(uploadedFileName);
-                string destDir = "/";
+                string destDir = "/home/sshnet/";
                 string searchPattern = Path.GetFileName(uploadedFileName);
 
                 var asyncResult = sftp.BeginSynchronizeDirectories(sourceDir,

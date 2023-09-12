@@ -1,29 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_Upload_And_Download_1MB_File()
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
@@ -62,11 +53,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Upload_Forbidden()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
@@ -86,7 +76,6 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         public void Test_Sftp_Multiple_Async_Upload_And_Download_10Files_5MB_Each()
         {
             var maxFiles = 10;
@@ -94,8 +83,9 @@ namespace Renci.SshNet.Tests.Classes
 
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
+                sftp.OperationTimeout = TimeSpan.FromMinutes(1);
                 sftp.Connect();
 
                 var testInfoList = new Dictionary<string, TestInfo>();
@@ -210,6 +200,11 @@ namespace Renci.SshNet.Tests.Classes
 
                     testInfo.DownloadedHash = CalculateMD5(testInfo.DownloadedFileName);
 
+                    Console.WriteLine(remoteFile);
+                    Console.WriteLine("UploadedBytes: "+ testInfo.UploadResult.UploadedBytes);
+                    Console.WriteLine("DownloadedBytes: " + testInfo.DownloadResult.DownloadedBytes);
+                    Console.WriteLine("UploadedHash: " + testInfo.UploadedHash);
+                    Console.WriteLine("DownloadedHash: " + testInfo.DownloadedHash);
                     if (!(testInfo.UploadResult.UploadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes == testInfo.UploadResult.UploadedBytes))
                     {
                         uploadDownloadSizeOk = false;
@@ -242,13 +237,12 @@ namespace Renci.SshNet.Tests.Classes
         //  TODO:   Split this test into multiple tests
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
         public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
@@ -330,12 +324,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginUploadFile_StreamIsNull()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 _ = sftp.BeginUploadFile(null, "aaaaa", null, null);
@@ -345,12 +338,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsWhiteSpace()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 _ = sftp.BeginUploadFile(new MemoryStream(), "   ", null, null);
@@ -360,12 +352,11 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsNull()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 _ = sftp.BeginUploadFile(new MemoryStream(), null, null, null);
@@ -375,11 +366,10 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [TestCategory("integration")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_EndUploadFile_Invalid_Async_Handle()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
                 var async1 = sftp.BeginListDirectory("/", null, null);

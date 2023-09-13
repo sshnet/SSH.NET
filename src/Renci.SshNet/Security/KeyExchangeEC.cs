@@ -1,7 +1,4 @@
-﻿using System.Text;
-
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
+﻿using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
@@ -76,20 +73,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override bool ValidateExchangeHash()
         {
-            var exchangeHash = CalculateHash();
-
-            var length = Pack.BigEndianToUInt32(_hostKey);
-            var algorithmName = Encoding.UTF8.GetString(_hostKey, 4, (int)length);
-            var key = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](_hostKey);
-
-            Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
-
-            if (CanTrustHostKey(key))
-            {
-                return key.VerifySignature(exchangeHash, _signature);
-            }
-
-            return false;
+            return ValidateExchangeHash(_hostKey, _signature);
         }
 
         /// <summary>

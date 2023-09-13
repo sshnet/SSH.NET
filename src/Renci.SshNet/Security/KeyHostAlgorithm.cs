@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Text;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Chaos.NaCl;
 using Renci.SshNet.Security.Cryptography;
@@ -241,15 +243,12 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private sealed class SignatureKeyData : SshData
+        internal sealed class SignatureKeyData : SshData
         {
             /// <summary>
-            /// Gets or sets the name of the algorithm as UTF-8 encoded byte array.
+            /// Gets or sets the signature format identifier
             /// </summary>
-            /// <value>
-            /// The name of the algorithm.
-            /// </value>
-            private byte[] AlgorithmName { get; set; }
+            public string AlgorithmName { get; set; }
 
             /// <summary>
             /// Gets the signature.
@@ -271,7 +270,7 @@ namespace Renci.SshNet.Security
                 {
                     var capacity = base.BufferCapacity;
                     capacity += 4; // AlgorithmName length
-                    capacity += AlgorithmName.Length; // AlgorithmName
+                    capacity += Encoding.UTF8.GetByteCount(AlgorithmName); // AlgorithmName
                     capacity += 4; // Signature length
                     capacity += Signature.Length; // Signature
                     return capacity;
@@ -284,7 +283,7 @@ namespace Renci.SshNet.Security
 
             public SignatureKeyData(string name, byte[] signature)
             {
-                AlgorithmName = Utf8.GetBytes(name);
+                AlgorithmName = name;
                 Signature = signature;
             }
 
@@ -293,7 +292,7 @@ namespace Renci.SshNet.Security
             /// </summary>
             protected override void LoadData()
             {
-                AlgorithmName = ReadBinary();
+                AlgorithmName = Encoding.UTF8.GetString(ReadBinary());
                 Signature = ReadBinary();
             }
 
@@ -302,7 +301,7 @@ namespace Renci.SshNet.Security
             /// </summary>
             protected override void SaveData()
             {
-                WriteBinaryString(AlgorithmName);
+                WriteBinaryString(Encoding.UTF8.GetBytes(AlgorithmName));
                 WriteBinaryString(Signature);
             }
         }

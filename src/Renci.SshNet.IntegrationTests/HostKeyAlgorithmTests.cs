@@ -75,7 +75,7 @@ namespace Renci.SshNet.IntegrationTests
             }
 
             Assert.IsNotNull(hostKeyEventsArgs);
-            Assert.AreEqual(hostKeyFile.KeyName, hostKeyEventsArgs.HostKeyName);
+            Assert.AreEqual(hostKeyAlgorithm.Name, hostKeyEventsArgs.HostKeyName);
             Assert.AreEqual(keyLength, hostKeyEventsArgs.KeyLength);
             CollectionAssert.AreEqual(hostKeyFile.FingerPrint, hostKeyEventsArgs.FingerPrint);
         }

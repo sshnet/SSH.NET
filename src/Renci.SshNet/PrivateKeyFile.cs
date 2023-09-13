@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -63,18 +65,44 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IPrivateKeySource, IDisposable
+    public class PrivateKeyFile : IHostAlgorithmsProvider, IPrivateKeySource, IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
             RegexOptions.Compiled | RegexOptions.Multiline);
 
+        private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;
         private bool _isDisposed;
 
         /// <summary>
         /// Gets the host key.
         /// </summary>
-        public HostAlgorithm HostKey { get; private set; }
+        /// <remarks>
+        /// This property returns the first item in <see cref="HostAlgorithms"/>.
+        /// </remarks>
+        public HostAlgorithm HostKey
+        {
+            get
+            {
+                return _hostAlgorithms[0];
+            }
+            private set
+            {
+                Debug.Assert(_hostAlgorithms.Count == 0, $"Only expected to set {nameof(HostKey)} at most once.");
+                _hostAlgorithms.Add(value);
+            }
+        }
+
+        /// <summary>
+        /// The supported host algorithms for this key file.
+        /// </summary>
+        public IReadOnlyCollection<HostAlgorithm> HostAlgorithms
+        {
+            get
+            {
+                return _hostAlgorithms;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -92,6 +120,7 @@ namespace Renci.SshNet
         public PrivateKeyFile(Stream privateKey)
         {
             Open(privateKey, passPhrase: null);
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKey)} is not set.");
         }
 
         /// <summary>
@@ -127,6 +156,8 @@ namespace Renci.SshNet
             {
                 Open(keyFile, passPhrase);
             }
+
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKey)} is not set.");
         }
 
         /// <summary>
@@ -138,6 +169,7 @@ namespace Renci.SshNet
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             Open(privateKey, passPhrase);
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKey)} is not set.");
         }
 
         /// <summary>
@@ -222,8 +254,11 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    _key = new RsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                    var rsaKey = new RsaKey(decryptedData);
+                    _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);

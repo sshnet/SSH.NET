@@ -25,6 +25,10 @@
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\netstandard2.0</OutputDirectory>
 			<Moniker>netstandard2.0</Moniker>
 		</TargetFrameworkModern>
+		<TargetFrameworkModern Include=".NETStandard 2.1">
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\netstandard2.1</OutputDirectory>
+			<Moniker>netstandard2.1</Moniker>
+		</TargetFrameworkModern>
 		<TargetFrameworkModern Include=".NET 6.0">
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net6.0</OutputDirectory>
 			<Moniker>net6.0</Moniker>

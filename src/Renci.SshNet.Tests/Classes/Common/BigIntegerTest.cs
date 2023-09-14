@@ -11,7 +11,6 @@
 //#define FEATURE_NUMERICS_BIGINTEGER
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -1557,61 +1556,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (OverflowException)
             {
             }
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void ToArray_Performance()
-        {
-            const int loopCount = 100000000;
-            var bigInteger = new BigInteger(Huge_a);
-
-            var stopWatch = new Stopwatch();
-
-            GC.Collect();
-            _ = GC.WaitForFullGCComplete();
-
-            stopWatch.Start();
-
-            for (var i = 0; i < loopCount; i++)
-            {
-                _ = bigInteger.ToByteArray();
-            }
-
-            GC.Collect();
-            _ = GC.WaitForFullGCComplete();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Ctor_ByteArray_Performance()
-        {
-            const int loopCount = 100000000;
-
-            var stopWatch = new Stopwatch();
-
-            GC.Collect();
-            _ = GC.WaitForFullGCComplete();
-
-            stopWatch.Start();
-
-            for (var i = 0; i < loopCount; i++)
-            {
-                _ = new BigInteger(Huge_a);
-            }
-
-            GC.Collect();
-            _ = GC.WaitForFullGCComplete();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
         }
 
         [TestMethod]

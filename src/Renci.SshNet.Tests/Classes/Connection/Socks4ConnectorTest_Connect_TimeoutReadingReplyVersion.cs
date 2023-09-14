@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
 using System;
 using System.Diagnostics;

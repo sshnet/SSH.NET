@@ -6,7 +6,7 @@
         <title>SSH.NET</title>
         <authors>Renci</authors>
         <owners>olegkap,drieseng</owners>
-        <licenseUrl>https://github.com/sshnet/SSH.NET/blob/master/LICENSE</licenseUrl>
+        <license type="expression">MIT</license>
         <projectUrl>https://github.com/sshnet/SSH.NET/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support.</description>
@@ -18,6 +18,9 @@
         <dependencies>
           <group targetFramework="net462" />
           <group targetFramework="netstandard2.0">
+            <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
+          </group>          
+          <group targetFramework="netstandard2.1">
             <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
           </group>
           <group targetFramework="net6.0">

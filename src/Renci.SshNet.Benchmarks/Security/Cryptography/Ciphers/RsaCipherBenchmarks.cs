@@ -5,6 +5,7 @@ using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 {
+    [MemoryDiagnoser]
     public class RsaCipherBenchmarks
     {
         private readonly RsaKey _privateKey;
@@ -37,10 +38,11 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
             return new RsaCipher(_publicKey).Encrypt(_data);
         }
 
-        [Benchmark]
-        public byte[] Decrypt()
-        {
-            return new RsaCipher(_privateKey).Decrypt(_data);
-        }
+        // RSA Decrypt does not work
+        // [Benchmark]
+        // public byte[] Decrypt()
+        // {
+        //     return new RsaCipher(_privateKey).Decrypt(_data);
+        // }
     }
 }

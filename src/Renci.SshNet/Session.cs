@@ -993,7 +993,7 @@ namespace Renci.SshNet
             {
                 case 0:
                     System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(_exception).Throw();
-                    throw _exception;
+                    break;
                 case 1:
                     throw new SshConnectionException("Client not connected.");
                 case 2:

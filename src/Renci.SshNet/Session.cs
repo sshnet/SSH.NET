@@ -992,9 +992,7 @@ namespace Renci.SshNet
             switch (signaledElement)
             {
                 case 0:
-#if !NET35 && !NET40
                     System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(_exception).Throw();
-#endif
                     throw _exception;
                 case 1:
                     throw new SshConnectionException("Client not connected.");

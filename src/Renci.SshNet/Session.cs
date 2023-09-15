@@ -992,7 +992,8 @@ namespace Renci.SshNet
             switch (signaledElement)
             {
                 case 0:
-                    throw _exception;
+                    System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(_exception).Throw();
+                    break;
                 case 1:
                     throw new SshConnectionException("Client not connected.");
                 case 2:

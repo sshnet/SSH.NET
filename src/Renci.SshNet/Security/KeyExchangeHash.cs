@@ -1,9 +1,10 @@
-﻿using Renci.SshNet.Common;
-using System;
+﻿using System;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeHashData : SshData
+    internal sealed class KeyExchangeHashData : SshData
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;

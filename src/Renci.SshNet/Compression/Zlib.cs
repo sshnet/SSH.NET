@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "zlib" compression implementation
     /// </summary>
-    internal class Zlib : Compressor
+    internal sealed class Zlib : Compressor
     {
         /// <summary>
         /// Gets algorithm name.
@@ -20,6 +20,7 @@
         public override void Init(Session session)
         {
             base.Init(session);
+
             IsActive = true;
         }
     }

@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [Ignore] // placeholder
         public void ChannelOpenFailureMessageConstructorTest()
         {
-            ChannelOpenFailureMessage target = new ChannelOpenFailureMessage();
+            var target = new ChannelOpenFailureMessage();
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -31,9 +31,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         public void ChannelOpenFailureMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value
-            string description = string.Empty; // TODO: Initialize to an appropriate value
+            var description = string.Empty; // TODO: Initialize to an appropriate value
             uint reasonCode = 0; // TODO: Initialize to an appropriate value
-            ChannelOpenFailureMessage target = new ChannelOpenFailureMessage(localChannelNumber, description, reasonCode);
+            var target = new ChannelOpenFailureMessage(localChannelNumber, description, reasonCode);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

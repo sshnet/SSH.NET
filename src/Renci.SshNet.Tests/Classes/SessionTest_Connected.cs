@@ -197,7 +197,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+                _ = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -212,9 +212,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(true);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out exception);
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
 
             Assert.AreEqual(WaitResult.Success, result);
             Assert.IsNull(exception);
@@ -225,9 +224,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out exception);
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
 
             Assert.AreEqual(WaitResult.TimedOut, result);
             Assert.IsNull(exception);

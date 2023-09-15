@@ -34,18 +34,18 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
                                .Returns(_remotePathTransformationMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence).Setup(p => p.Connect());
-            _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
-            _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.InSequence(sequence).Setup(p => p.Connect());
+            ServiceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
+            SessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _remotePathTransformationMock.InSequence(sequence)
                                          .Setup(p => p.Transform(_path))
@@ -53,18 +53,14 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.InSequence(sequence)
                 .Setup(p => p.SendExecRequest(string.Format("scp -pf {0}", _transformedPath))).Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
-#if NET35
-            _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
-#else
             _pipeStreamMock.InSequence(sequence).Setup(p => p.Close());
-#endif
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _scpClient = new ScpClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
         }
@@ -105,11 +101,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
-#if NET35
-            _pipeStreamMock.As<IDisposable>().Verify(p => p.Dispose(), Times.Once);
-#else
             _pipeStreamMock.Verify(p => p.Close(), Times.Once);
-#endif
         }
 
         [TestMethod]

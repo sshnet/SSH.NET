@@ -5,10 +5,10 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents "diffie-hellman-group14-sha1" algorithm implementation.
     /// </summary>
-    internal class KeyExchangeDiffieHellmanGroup14Sha1 : KeyExchangeDiffieHellmanGroupSha1
+    internal sealed class KeyExchangeDiffieHellmanGroup14Sha1 : KeyExchangeDiffieHellmanGroupSha1
     {
         /// <summary>
-        /// https://tools.ietf.org/html/rfc2409#section-6.2
+        /// Defined in https://tools.ietf.org/html/rfc2409#section-6.2.
         /// </summary>
         private static readonly byte[] SecondOkleyGroupReversed =
             {

@@ -1,19 +1,23 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Chaos.NaCl;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains ED25519 private and public key
+    /// Contains ED25519 private and public key.
     /// </summary>
     public class ED25519Key : Key, IDisposable
     {
         private ED25519DigitalSignature _digitalSignature;
 
-        private byte[] publicKey = new byte[Ed25519.PublicKeySizeInBytes];
-        private byte[] privateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
+        private byte[] _publicKey = new byte[Ed25519.PublicKeySizeInBytes];
+#pragma warning disable IDE1006 // Naming Styles
+        private readonly byte[] privateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
+#pragma warning restore IDE1006 // Naming Styles
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets the Key String.
@@ -33,11 +37,11 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return new BigInteger[] { publicKey.ToBigInteger2() };
+                return new BigInteger[] { _publicKey.ToBigInteger2() };
             }
             set
             {
-                publicKey = value[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+                _publicKey = value[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
             }
         }
 
@@ -62,27 +66,24 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                if (_digitalSignature == null)
-                {
-                    _digitalSignature = new ED25519DigitalSignature(this);
-                }
+                _digitalSignature ??= new ED25519DigitalSignature(this);
                 return _digitalSignature;
             }
         }
 
         /// <summary>
-        /// Gets the PublicKey Bytes
+        /// Gets the PublicKey Bytes.
         /// </summary>
         public byte[] PublicKey
         {
             get
             {
-                return publicKey;
+                return _publicKey;
             }
         }
 
         /// <summary>
-        /// Gets the PrivateKey Bytes
+        /// Gets the PrivateKey Bytes.
         /// </summary>
         public byte[] PrivateKey
         {
@@ -105,7 +106,7 @@ namespace Renci.SshNet.Security
         /// <param name="pk">pk data.</param>
         public ED25519Key(byte[] pk)
         {
-            publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
         }
 
         /// <summary>
@@ -115,22 +116,18 @@ namespace Renci.SshNet.Security
         /// <param name="sk">sk data.</param>
         public ED25519Key(byte[] pk, byte[] sk)
         {
-            publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
             var seed = new byte[Ed25519.PrivateKeySeedSizeInBytes];
             Buffer.BlockCopy(sk, 0, seed, 0, seed.Length);
-            Ed25519.KeyPairFromSeed(out publicKey, out privateKey, seed);
+            Ed25519.KeyPairFromSeed(out _publicKey, out privateKey, seed);
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -141,7 +138,9 @@ namespace Renci.SshNet.Security
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -150,14 +149,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="DsaKey"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="ED25519Key"/> class.
         /// </summary>
         ~ED25519Key()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

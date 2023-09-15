@@ -43,16 +43,16 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence)
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.InSequence(sequence)
                         .Setup(p => p.Connect());
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateShellStream(_sessionMock.Object,
+            ServiceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateShellStream(SessionMock.Object,
                                                                _terminalName,
                                                                _widthColumns,
                                                                _heightRows,
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _sshClient.Connect();
         }
 
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShellStreamOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateShellStream(_sessionMock.Object,
+            ServiceFactoryMock.Verify(p => p.CreateShellStream(SessionMock.Object,
                                                                 _terminalName,
                                                                 _widthColumns,
                                                                 _heightRows,

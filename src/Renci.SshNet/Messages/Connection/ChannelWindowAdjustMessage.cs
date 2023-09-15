@@ -32,7 +32,6 @@
         /// </summary>
         public ChannelWindowAdjustMessage()
         {
-
         }
 
         /// <summary>
@@ -52,6 +51,7 @@
         protected override void LoadData()
         {
             base.LoadData();
+
             BytesToAdd = ReadUInt32();
         }
 
@@ -61,6 +61,7 @@
         protected override void SaveData()
         {
             base.SaveData();
+
             Write(BytesToAdd);
         }
 

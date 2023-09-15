@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -40,14 +42,19 @@ namespace Renci.SshNet.Tests.Classes
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
-            _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
-            _channelMock.InSequence(sequence).Setup(p => p.Open());
-            _channelMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
 
-            _subsystemSession = new SubsystemSessionStub(
-                _sessionMock.Object,
-                _subsystemName,
-                _operationTimeout);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelMock.Object);
+            _ = _channelMock.InSequence(sequence)
+                            .Setup(p => p.Open());
+            _ = _channelMock.InSequence(sequence)
+                            .Setup(p => p.SendSubsystemRequest(_subsystemName))
+                            .Returns(true);
+
+            _subsystemSession = new SubsystemSessionStub(_sessionMock.Object,
+                                                         _subsystemName,
+                                                         _operationTimeout);
             _subsystemSession.Disconnected += (sender, args) => _disconnectedRegister.Add(args);
             _subsystemSession.ErrorOccurred += (sender, args) => _errorOccurredRegister.Add(args);
             _subsystemSession.Dispose();
@@ -58,6 +65,7 @@ namespace Renci.SshNet.Tests.Classes
             try
             {
                 _subsystemSession.Connect();
+                Assert.Fail();
             }
             catch (ObjectDisposedException ex)
             {

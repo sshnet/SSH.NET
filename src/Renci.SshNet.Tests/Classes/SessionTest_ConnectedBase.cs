@@ -4,9 +4,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Connection;
@@ -111,11 +113,13 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     var newKeysMessage = new NewKeysMessage();
                     var newKeys = newKeysMessage.GetPacket(8, null);
-                    ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+                    _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
                 };
 
-            ServerListener = new AsyncSocketListener(_serverEndPoint);
-            ServerListener.ShutdownRemoteCommunicationSocket = false;
+            ServerListener = new AsyncSocketListener(_serverEndPoint)
+                {
+                    ShutdownRemoteCommunicationSocket = false
+                };
             ServerListener.Connected += socket =>
                 {
                     ServerSocket = socket;
@@ -137,7 +141,7 @@ namespace Renci.SshNet.Tests.Classes
                             ServerHostKeyAlgorithms = new string[0]
                         };
                     var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
-                    ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+                    _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };
             ServerListener.BytesReceived += (received, socket) =>
                 {
@@ -147,7 +151,7 @@ namespace Renci.SshNet.Tests.Classes
                     {
                         var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
                                                                               .Build();
-                        ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
+                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
 
                         _authenticationStarted = true;
                     }
@@ -169,32 +173,37 @@ namespace Renci.SshNet.Tests.Classes
 
         private void SetupMocks()
         {
-            ServiceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object))
-                              .Returns(ConnectorMock.Object);
-            ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
-                         .Returns(ClientSocket);
-            ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
-                              .Returns(_protocolVersionExchangeMock.Object);
-            _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                        .Returns(ServerIdentification);
-
-            ServiceFactoryMock.Setup(
-                p =>
-                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
-            _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
-            _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
-            _keyExchangeMock.Setup(p => p.ExchangeHash).Returns(SessionId);
-            _keyExchangeMock.Setup(p => p.CreateServerCipher()).Returns((Cipher) null);
-            _keyExchangeMock.Setup(p => p.CreateClientCipher()).Returns((Cipher) null);
-            _keyExchangeMock.Setup(p => p.CreateServerHash()).Returns((HashAlgorithm) null);
-            _keyExchangeMock.Setup(p => p.CreateClientHash()).Returns((HashAlgorithm) null);
-            _keyExchangeMock.Setup(p => p.CreateCompressor()).Returns((Compressor) null);
-            _keyExchangeMock.Setup(p => p.CreateDecompressor()).Returns((Compressor) null);
-            _keyExchangeMock.Setup(p => p.Dispose());
-            ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
-                .Callback(ClientAuthentication_Callback)
-                .Returns(_clientAuthenticationMock.Object);
-            _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object))
+                                  .Returns(ConnectorMock.Object);
+            _ = ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
+                             .Returns(ClientSocket);
+            _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
+                                  .Returns(_protocolVersionExchangeMock.Object);
+            _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
+                                            .Returns(ServerIdentification);
+            _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
+            _ = _keyExchangeMock.Setup(p => p.Name)
+                                .Returns(_keyExchangeAlgorithm);
+            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
+            _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
+                                .Returns(SessionId);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())
+                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
+                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerHash())
+                                .Returns((HashAlgorithm) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateClientHash())
+                                .Returns((HashAlgorithm) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
+                                .Returns((Compressor) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
+                                .Returns((Compressor) null);
+            _ = _keyExchangeMock.Setup(p => p.Dispose());
+            _ = ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
+                                  .Callback(ClientAuthentication_Callback)
+                                  .Returns(_clientAuthenticationMock.Object);
+            _ = _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
         }
 
         protected void Arrange()

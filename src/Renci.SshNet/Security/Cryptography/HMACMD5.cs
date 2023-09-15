@@ -1,6 +1,4 @@
-﻿#if FEATURE_HMAC_MD5
-
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -57,5 +55,3 @@ namespace Renci.SshNet.Security.Cryptography
         }
     }
 }
-
-#endif // FEATURE_HMAC_MD5

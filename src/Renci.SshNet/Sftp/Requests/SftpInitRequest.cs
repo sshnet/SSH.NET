@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpInitRequest : SftpMessage
+    internal sealed class SftpInitRequest : SftpMessage
     {
         public override SftpMessageTypes SftpMessageType
         {

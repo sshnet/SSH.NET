@@ -8,11 +8,6 @@ namespace Renci.SshNet.Common
     public abstract class AuthenticationEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the username.
-        /// </summary>
-        public string Username { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationEventArgs"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
@@ -20,5 +15,10 @@ namespace Renci.SshNet.Common
         {
             Username = username;
         }
+
+        /// <summary>
+        /// Gets the username.
+        /// </summary>
+        public string Username { get; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -34,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             try
             {
-                new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
+                _ =new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
                 Assert.Fail();
             }
             catch (ArgumentException ex)
@@ -48,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("Combining {0}: {1} with {2}: {3} is invalid.", typeof(FileMode).Name, _fileMode, typeof(FileAccess).Name, _fileAccess), _actualException.Message);
+            Assert.AreEqual(string.Format("Combining {0}: {1} with {2}: {3} is invalid.", nameof(FileMode), _fileMode, nameof(FileAccess), _fileAccess), _actualException.Message);
             Assert.IsNull(_actualException.ParamName);
         }
     }

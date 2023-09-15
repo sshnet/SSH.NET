@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Transport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [Ignore] // placeholder
         public void DisconnectMessageConstructorTest()
         {
-            DisconnectMessage target = new DisconnectMessage();
+            var target = new DisconnectMessage();
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -30,9 +30,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [Ignore] // placeholder
         public void DisconnectMessageConstructorTest1()
         {
-            DisconnectReason reasonCode = new DisconnectReason(); // TODO: Initialize to an appropriate value
-            string message = string.Empty; // TODO: Initialize to an appropriate value
-            DisconnectMessage target = new DisconnectMessage(reasonCode, message);
+            var reasonCode = new DisconnectReason(); // TODO: Initialize to an appropriate value
+            var message = string.Empty; // TODO: Initialize to an appropriate value
+            var target = new DisconnectMessage(reasonCode, message);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

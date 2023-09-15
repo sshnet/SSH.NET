@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         public void DsaDigitalSignatureConstructorTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
-            DsaDigitalSignature target = new DsaDigitalSignature(key);
+            var target = new DsaDigitalSignature(key);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         public void DisposeTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
-            DsaDigitalSignature target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
+            var target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
             target.Dispose();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -44,11 +44,10 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         public void SignTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
-            DsaDigitalSignature target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
+            var target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
             byte[] input = null; // TODO: Initialize to an appropriate value
             byte[] expected = null; // TODO: Initialize to an appropriate value
-            byte[] actual;
-            actual = target.Sign(input);
+            var actual = target.Sign(input);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -61,12 +60,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         public void VerifyTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
-            DsaDigitalSignature target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
+            var target = new DsaDigitalSignature(key); // TODO: Initialize to an appropriate value
             byte[] input = null; // TODO: Initialize to an appropriate value
             byte[] signature = null; // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.Verify(input, signature);
+            var expected = false; // TODO: Initialize to an appropriate value
+            var actual = target.Verify(input, signature);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

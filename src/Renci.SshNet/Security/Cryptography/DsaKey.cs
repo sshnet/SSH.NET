@@ -5,10 +5,13 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains DSA private and public key
+    /// Contains DSA private and public key.
     /// </summary>
     public class DsaKey : Key, IDisposable
     {
+        private DsaDigitalSignature _digitalSignature;
+        private bool _isDisposed;
+
         /// <summary>
         /// Gets the P.
         /// </summary>
@@ -78,7 +81,6 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private DsaDigitalSignature _digitalSignature;
         /// <summary>
         /// Gets the digital signature.
         /// </summary>
@@ -86,10 +88,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                if (_digitalSignature == null)
-                {
-                    _digitalSignature = new DsaDigitalSignature(this);
-                }
+                _digitalSignature ??= new DsaDigitalSignature(this);
                 return _digitalSignature;
             }
         }
@@ -109,7 +108,9 @@ namespace Renci.SshNet.Security
             set
             {
                 if (value.Length != 4)
+                {
                     throw new InvalidOperationException("Invalid public key.");
+                }
 
                 _privateKey = value;
             }
@@ -131,7 +132,9 @@ namespace Renci.SshNet.Security
             : base(data)
         {
             if (_privateKey.Length != 5)
+            {
                 throw new InvalidOperationException("Invalid private key.");
+            }
         }
 
         /// <summary>
@@ -144,24 +147,15 @@ namespace Renci.SshNet.Security
         /// <param name="x">The x.</param>
         public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
         {
-            _privateKey = new BigInteger[5];
-            _privateKey[0] = p;
-            _privateKey[1] = q;
-            _privateKey[2] = g;
-            _privateKey[3] = y;
-            _privateKey[4] = x;
+            _privateKey = new BigInteger[5] { p, q, g, y, x };
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -172,7 +166,9 @@ namespace Renci.SshNet.Security
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -188,14 +184,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="DsaKey"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="DsaKey"/> class.
         /// </summary>
         ~DsaKey()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

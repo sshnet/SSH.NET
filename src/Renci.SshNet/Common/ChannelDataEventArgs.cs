@@ -1,15 +1,10 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.DataReceived"/> event.
+    /// Provides data for <see cref="Channels.Channel.DataReceived"/> event.
     /// </summary>
     internal class ChannelDataEventArgs : ChannelEventArgs
     {
-        /// <summary>
-        /// Gets channel data.
-        /// </summary>
-        public byte[] Data { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelDataEventArgs"/> class.
         /// </summary>
@@ -20,5 +15,10 @@
         {
             Data = data;
         }
+
+        /// <summary>
+        /// Gets channel data.
+        /// </summary>
+        public byte[] Data { get; }
     }
 }

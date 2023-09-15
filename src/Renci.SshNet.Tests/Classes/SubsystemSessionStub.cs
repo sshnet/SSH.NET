@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -29,10 +29,12 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void OnChannelOpen()
         {
-            Interlocked.Increment(ref _onChannelOpenInvocationCount);
+            _ = Interlocked.Increment(ref _onChannelOpenInvocationCount);
 
             if (OnChannelOpenException != null)
+            {
                 throw OnChannelOpenException;
+            }
         }
 
         protected override void OnDataReceived(byte[] data)
@@ -40,7 +42,9 @@ namespace Renci.SshNet.Tests.Classes
             OnDataReceivedInvocations.Add(new ChannelDataEventArgs(0, data));
 
             if (OnDataReceivedException != null)
+            {
                 throw OnDataReceivedException;
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Renci.SshNet
         public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
         {
             KeySize = keySize;
-            HashAlgorithm = key => (hash(key.Take(KeySize / 8)));
+            HashAlgorithm = key => hash(key.Take(KeySize / 8));
         }
     }
 }

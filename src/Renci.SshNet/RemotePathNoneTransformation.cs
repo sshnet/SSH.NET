@@ -5,7 +5,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Performs no transformation.
     /// </summary>
-    internal class RemotePathNoneTransformation : IRemotePathTransformation
+    internal sealed class RemotePathNoneTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Returns the specified path without applying a transformation.
@@ -21,9 +21,9 @@ namespace Renci.SshNet
         /// </remarks>
         public string Transform(string path)
         {
-            if (path == null)
+            if (path is null)
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             return path;

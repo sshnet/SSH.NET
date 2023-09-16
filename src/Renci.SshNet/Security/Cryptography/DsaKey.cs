@@ -84,7 +84,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the digital signature.
         /// </summary>
-        protected override DigitalSignature DigitalSignature
+        protected internal override DigitalSignature DigitalSignature
         {
             get
             {

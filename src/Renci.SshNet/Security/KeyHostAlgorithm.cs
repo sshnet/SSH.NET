@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Chaos.NaCl;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -10,38 +11,76 @@ namespace Renci.SshNet.Security
     public class KeyHostAlgorithm : HostAlgorithm
     {
         /// <summary>
-        /// Gets the key.
+        /// The key used in this host key algorithm.
         /// </summary>
         public Key Key { get; private set; }
 
         /// <summary>
-        /// Gets the public key data.
+        /// The signature implementation used in this host key algorithm.
+        /// </summary>
+        public DigitalSignature DigitalSignature { get; private set; }
+
+        /// <summary>
+        /// Gets the encoded public key data.
         /// </summary>
         public override byte[] Data
         {
             get
             {
-                return new SshKeyData(Name, Key.Public).GetBytes();
+                var keyFormatIdentifier = Key is RsaKey ? "ssh-rsa" : Name;
+                return new SshKeyData(keyFormatIdentifier, Key.Public).GetBytes();
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
-        /// <param name="name">Host key name.</param>
-        /// <param name="key">Host key.</param>
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key"><inheritdoc cref="Key" path="/summary"/></param>
+        /// <remarks>
+        /// This constructor is typically passed a private key in order to create an encoded signature for later
+        /// verification by the host.
+        /// </remarks>
         public KeyHostAlgorithm(string name, Key key)
             : base(name)
         {
             Key = key;
+            DigitalSignature = key.DigitalSignature;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
-        /// <param name="name">Host key name.</param>
-        /// <param name="key">Host key.</param>
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key"><inheritdoc cref="Key" path="/summary"/></param>
+        /// <param name="digitalSignature"><inheritdoc cref="DigitalSignature" path="/summary"/></param>
+        /// <remarks>
+        /// <para>
+        /// This constructor is typically passed a private key in order to create an encoded signature for later
+        /// verification by the host.
+        /// </para>
+        /// The key used by <paramref name="digitalSignature"/> is intended to be equal to <paramref name="key"/>.
+        /// This is not verified.
+        /// </remarks>
+        public KeyHostAlgorithm(string name, Key key, DigitalSignature digitalSignature)
+            : base(name)
+        {
+            Key = key;
+            DigitalSignature = digitalSignature;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class
+        /// with the given encoded public key data. The data will be decoded into <paramref name="key"/>.
+        /// </summary>
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key"><inheritdoc cref="Key" path="/summary"/></param>
         /// <param name="data">Host key encoded data.</param>
+        /// <remarks>
+        /// This constructor is typically passed a new or reusable <see cref="Security.Key"/> instance in
+        /// order to verify an encoded signature sent by the host, created by the private counterpart
+        /// to the host's public key, which is encoded in <paramref name="data"/>.
+        /// </remarks>
         public KeyHostAlgorithm(string name, Key key, byte[] data)
             : base(name)
         {
@@ -50,34 +89,66 @@ namespace Renci.SshNet.Security
             var sshKey = new SshKeyData();
             sshKey.Load(data);
             Key.Public = sshKey.Keys;
+
+            DigitalSignature = key.DigitalSignature;
         }
 
         /// <summary>
-        /// Signs the specified data.
+        /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class
+        /// with the given encoded public key data. The data will be decoded into <paramref name="key"/>.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key"><inheritdoc cref="Key" path="/summary"/></param>
+        /// <param name="data">Host key encoded data.</param>
+        /// <param name="digitalSignature"><inheritdoc cref="DigitalSignature" path="/summary"/></param>
+        /// <remarks>
+        /// <para>
+        /// This constructor is typically passed a new or reusable <see cref="Security.Key"/> instance in
+        /// order to verify an encoded signature sent by the host, created by the private counterpart
+        /// to the host's public key, which is encoded in <paramref name="data"/>.
+        /// </para>
+        /// The key used by <paramref name="digitalSignature"/> is intended to be equal to <paramref name="key"/>.
+        /// This is not verified.
+        /// </remarks>
+        public KeyHostAlgorithm(string name, Key key, byte[] data, DigitalSignature digitalSignature)
+            : base(name)
+        {
+            Key = key;
+
+            var sshKey = new SshKeyData();
+            sshKey.Load(data);
+            Key.Public = sshKey.Keys;
+
+            DigitalSignature = digitalSignature;
+        }
+
+        /// <summary>
+        /// Signs and encodes the specified data.
+        /// </summary>
+        /// <param name="data">The data to be signed.</param>
         /// <returns>
-        /// Signed data.
+        /// The encoded signature.
         /// </returns>
         public override byte[] Sign(byte[] data)
         {
-            return new SignatureKeyData(Name, Key.Sign(data)).GetBytes();
+            return new SignatureKeyData(Name, DigitalSignature.Sign(data)).GetBytes();
         }
 
         /// <summary>
         /// Verifies the signature.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <param name="signature">The signature.</param>
+        /// <param name="data">The data to verify the signature against.</param>
+        /// <param name="signature">The encoded signature data.</param>
         /// <returns>
-        ///   <c>True</c> is signature was successfully verifies; otherwise <c>false</c>.
+        /// <see langword="true"/> if <paramref name="signature"/> is the result of signing <paramref name="data"/>
+        /// with the corresponding private key to <see cref="Key"/>.
         /// </returns>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {
             var signatureData = new SignatureKeyData();
             signatureData.Load(signature);
 
-            return Key.VerifySignature(data, signatureData.Signature);
+            return DigitalSignature.Verify(data, signatureData.Signature);
         }
 
         private sealed class SshKeyData : SshData

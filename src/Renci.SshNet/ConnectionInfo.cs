@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 
 using Renci.SshNet.Abstractions;
@@ -9,6 +10,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Security;
+using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 
@@ -396,6 +398,8 @@ namespace Renci.SshNet
                     { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
+                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); }},
+                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); }},
                     { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
                 };

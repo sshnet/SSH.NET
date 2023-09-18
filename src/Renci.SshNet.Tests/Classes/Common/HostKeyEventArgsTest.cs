@@ -42,7 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 0xa0, 0x23, 0xaf, 0xff, 0x9c, 0x0f, 0x8c, 0x83, 0x7c, 0xf8, 0xe1, 0x8e, 0x32, 0x8e, 0x61, 0xfc,
                 0x5b, 0xbd, 0xd4, 0x46, 0xe1
             }.SequenceEqual(target.HostKey));
-            Assert.AreEqual("ssh-rsa", target.HostKeyName);
+            Assert.AreEqual("rsa-sha2-512", target.HostKeyName);
             Assert.AreEqual(2048, target.KeyLength);
         }
 

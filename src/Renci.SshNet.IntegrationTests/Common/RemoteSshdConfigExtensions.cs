@@ -20,9 +20,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                             .ClearCiphers()
                             .ClearKeyExchangeAlgorithms()
                             .ClearHostKeyAlgorithms()
-                            .AddHostKeyAlgorithm(HostKeyAlgorithm.SshRsa)
                             .ClearPublicKeyAcceptedAlgorithms()
-                            .AddPublicKeyAcceptedAlgorithms(PublicKeyAlgorithm.SshRsa)
                             .WithUsePAM(true)
                             .Update()
                             .Restart();

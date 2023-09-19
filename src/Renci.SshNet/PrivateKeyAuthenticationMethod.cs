@@ -111,7 +111,7 @@ namespace Renci.SshNet
 
                     session.WaitOnHandle(_authenticationCompleted);
 
-                    if (_authenticationResult == AuthenticationResult.Success)
+                    if (_authenticationResult is AuthenticationResult.Success or AuthenticationResult.PartialSuccess)
                     {
                         break;
                     }

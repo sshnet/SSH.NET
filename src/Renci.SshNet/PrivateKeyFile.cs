@@ -270,7 +270,17 @@ namespace Renci.SshNet
                     break;
                 case "OPENSSH":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
-                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    if (_key is RsaKey parsedRsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+                    }
+                    else
+                    {
+                        HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    }
+
                     break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
@@ -325,8 +335,11 @@ namespace Renci.SshNet
                         var inverseQ = reader.ReadBigIntWithBits(); // u
                         var q = reader.ReadBigIntWithBits(); // p
                         var p = reader.ReadBigIntWithBits(); // q
-                        _key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
-                        HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                        var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {

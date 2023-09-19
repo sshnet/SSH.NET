@@ -65,7 +65,11 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IHostAlgorithmsProvider, IPrivateKeySource, IDisposable
+    public class PrivateKeyFile : IHostAlgorithmsProvider,
+#pragma warning disable CS0618 // Type or member is obsolete
+        IPrivateKeySource,
+#pragma warning restore CS0618 // Type or member is obsolete
+        IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
             RegexOptions.Compiled | RegexOptions.Multiline);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -68,13 +70,31 @@ namespace Renci.SshNet
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
             RegexOptions.Compiled | RegexOptions.Multiline);
 
+        private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;
         private bool _isDisposed;
 
         /// <summary>
-        /// Gets the host key.
+        /// The supported host algorithms for this key file.
         /// </summary>
-        public HostAlgorithm HostKey { get; private set; }
+        public IReadOnlyCollection<HostAlgorithm> HostKeyAlgorithms
+        {
+            get
+            {
+                return _hostAlgorithms;
+            }
+        }
+
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        public Key Key
+        {
+            get
+            {
+                return _key;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -82,7 +102,8 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
-            HostKey = new KeyHostAlgorithm(key.ToString(), key);
+            _key = key;
+            _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
         }
 
         /// <summary>
@@ -92,6 +113,7 @@ namespace Renci.SshNet
         public PrivateKeyFile(Stream privateKey)
         {
             Open(privateKey, passPhrase: null);
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -127,6 +149,8 @@ namespace Renci.SshNet
             {
                 Open(keyFile, passPhrase);
             }
+
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -138,6 +162,8 @@ namespace Renci.SshNet
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             Open(privateKey, passPhrase);
+
+            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -222,20 +248,32 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    _key = new RsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                    var rsaKey = new RsaKey(decryptedData);
+                    _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm("ssh-dss", _key);
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
                     break;
                 case "EC":
                     _key = new EcdsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
                     break;
                 case "OPENSSH":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
-                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    if (_key is RsaKey parsedRsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
                     break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
@@ -290,8 +328,11 @@ namespace Renci.SshNet
                         var inverseQ = reader.ReadBigIntWithBits(); // u
                         var q = reader.ReadBigIntWithBits(); // p
                         var p = reader.ReadBigIntWithBits(); // q
-                        _key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
-                        HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                        var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {
@@ -306,7 +347,7 @@ namespace Renci.SshNet
                         var y = reader.ReadBigIntWithBits();
                         var x = reader.ReadBigIntWithBits();
                         _key = new DsaKey(p, q, g, y, x);
-                        HostKey = new KeyHostAlgorithm("ssh-dss", _key);
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
                     }
                     else
                     {

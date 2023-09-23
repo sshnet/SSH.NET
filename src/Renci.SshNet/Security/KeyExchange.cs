@@ -318,6 +318,28 @@ namespace Renci.SshNet.Security
         /// <returns>true if exchange hash is valid; otherwise false.</returns>
         protected abstract bool ValidateExchangeHash();
 
+        private protected bool ValidateExchangeHash(byte[] encodedKey, byte[] encodedSignature)
+        {
+            var exchangeHash = CalculateHash();
+
+            var signatureData = new KeyHostAlgorithm.SignatureKeyData();
+            signatureData.Load(encodedSignature);
+
+            var keyAlgorithm = Session.ConnectionInfo.HostKeyAlgorithms[signatureData.AlgorithmName](encodedKey);
+
+            Session.ConnectionInfo.CurrentHostKeyAlgorithm = signatureData.AlgorithmName;
+
+            if (CanTrustHostKey(keyAlgorithm))
+            {
+                // keyAlgorithm.VerifySignature decodes the signature data before verifying.
+                // But as we have already decoded the data to find the signature algorithm,
+                // we just verify the decoded data directly through the DigitalSignature.
+                return keyAlgorithm.DigitalSignature.Verify(exchangeHash, signatureData.Signature);
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Calculates key exchange hash value.
         /// </summary>

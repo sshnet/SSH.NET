@@ -5,7 +5,7 @@ namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
     public class PrivateKeyAuthenticationTests : TestBase
-        {
+    {
         private IConnectionInfoFactory _connectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
@@ -23,43 +23,64 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        [Ignore] // No longer supported in recent versions of OpenSSH
+        // TODO: We should be able to enable some legacy settings to make it work
+        // https://www.openssh.com/legacy.html e.g. PubkeyAcceptedKeyTypes / HostbasedAcceptedKeyTypes ?
+        public void SshDsa()
+        {
+            DoTest(PublicKeyAlgorithm.SshDss, "id_dsa");
+        }
+
+        [TestMethod]
+        public void SshRsa()
+        {
+            DoTest(PublicKeyAlgorithm.SshRsa, "id_rsa");
+        }
+
+        [TestMethod]
+        public void SshRsaSha256()
+        {
+            DoTest(PublicKeyAlgorithm.RsaSha2256, "id_rsa");
+        }
+
+        [TestMethod]
+        public void SshRsaSha512()
+        {
+            DoTest(PublicKeyAlgorithm.RsaSha2512, "id_rsa");
+        }
+
+        [TestMethod]
         public void Ecdsa256()
         {
-            _remoteSshdConfig.AddPublicKeyAcceptedAlgorithms(PublicKeyAlgorithm.EcdsaSha2Nistp256)
-                             .Update()
-                             .Restart();
-
-            var connectionInfo = _connectionInfoFactory.Create(CreatePrivateKeyAuthenticationMethod("key_ecdsa_256_openssh"));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-            }
+            DoTest(PublicKeyAlgorithm.EcdsaSha2Nistp256, "key_ecdsa_256_openssh");
         }
 
         [TestMethod]
         public void Ecdsa384()
         {
-            _remoteSshdConfig.AddPublicKeyAcceptedAlgorithms(PublicKeyAlgorithm.EcdsaSha2Nistp384)
-                             .Update()
-                             .Restart();
-
-            var connectionInfo = _connectionInfoFactory.Create(CreatePrivateKeyAuthenticationMethod("key_ecdsa_384_openssh"));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-            }
+            DoTest(PublicKeyAlgorithm.EcdsaSha2Nistp384, "key_ecdsa_384_openssh");
         }
 
         [TestMethod]
-        public void EcdsaA521()
+        public void Ecdsa521()
         {
-            _remoteSshdConfig.AddPublicKeyAcceptedAlgorithms(PublicKeyAlgorithm.EcdsaSha2Nistp521)
+            DoTest(PublicKeyAlgorithm.EcdsaSha2Nistp521, "key_ecdsa_521_openssh");
+        }
+
+        [TestMethod]
+        public void Ed25519()
+        {
+            DoTest(PublicKeyAlgorithm.SshEd25519, "key_ed25519_openssh");
+        }
+
+        private void DoTest(PublicKeyAlgorithm publicKeyAlgorithm, string keyResource)
+        {
+            _remoteSshdConfig.ClearPublicKeyAcceptedAlgorithms()
+                             .AddPublicKeyAcceptedAlgorithms(publicKeyAlgorithm)
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(CreatePrivateKeyAuthenticationMethod("key_ecdsa_521_openssh"));
+            var connectionInfo = _connectionInfoFactory.Create(CreatePrivateKeyAuthenticationMethod(keyResource));
 
             using (var client = new SshClient(connectionInfo))
             {

@@ -211,8 +211,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 writer.WriteLine("MACs " + string.Join(",", MessageAuthenticationCodeAlgorithms.Select(c => c.Name).ToArray()));
             }
 
-            writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(",", PublicKeyAcceptedAlgorithms.Select(c => c.Name).ToArray()));
-
+            if (PublicKeyAcceptedAlgorithms.Count > 0)
+            {
+                writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(",", PublicKeyAcceptedAlgorithms.Select(c => c.Name).ToArray()));
+            }
+            
             foreach (var match in Matches)
             {
                 _matchFormatter.Format(match, writer);

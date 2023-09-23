@@ -21,7 +21,8 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 
             using (var s = typeof(RsaCipherBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
             {
-                _privateKey = (RsaKey)((KeyHostAlgorithm) new PrivateKeyFile(s).HostKey).Key;
+                
+                _privateKey = (RsaKey)new PrivateKeyFile(s).Key;
                 
                 // The implementations of RsaCipher.Encrypt/Decrypt differ based on whether the supplied RsaKey has private key information
                 // or only public. So we extract out the public key information to a separate variable.

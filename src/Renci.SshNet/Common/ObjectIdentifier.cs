@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace Renci.SshNet.Common
 {
@@ -31,6 +33,20 @@ namespace Renci.SshNet.Common
             }
 
             Identifiers = identifiers;
+        }
+
+        internal static ObjectIdentifier FromHashAlgorithmName(HashAlgorithmName hashAlgorithmName)
+        {
+            var oid = CryptoConfig.MapNameToOID(hashAlgorithmName.Name);
+
+            if (oid is null)
+            {
+                throw new ArgumentException($"Could not map `{hashAlgorithmName}` to OID.", nameof(hashAlgorithmName));
+            }
+
+            var identifiers = oid.Split('.').Select(ulong.Parse).ToArray();
+
+            return new ObjectIdentifier(identifiers);
         }
     }
 }

@@ -8,8 +8,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public class RsaCipher : AsymmetricCipher
     {
-        private readonly bool _isPrivate;
-
         private readonly RsaKey _key;
 
         /// <summary>
@@ -24,7 +22,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             _key = key;
-            _isPrivate = !_key.D.IsZero;
         }
 
         /// <summary>
@@ -116,7 +113,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             BigInteger result;
 
-            if (_isPrivate)
+            var isPrivate = !_key.D.IsZero;
+
+            if (isPrivate)
             {
                 var random = BigInteger.One;
                 var max = _key.Modulus - 1;

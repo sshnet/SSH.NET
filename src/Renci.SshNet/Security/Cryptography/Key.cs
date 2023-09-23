@@ -17,9 +17,9 @@ namespace Renci.SshNet.Security
         protected BigInteger[] _privateKey;
 
         /// <summary>
-        /// Gets the key specific digital signature.
+        /// Gets the default digital signature implementation for this key.
         /// </summary>
-        protected abstract DigitalSignature DigitalSignature { get; }
+        protected internal abstract DigitalSignature DigitalSignature { get; }
 
         /// <summary>
         /// Gets or sets the public key.

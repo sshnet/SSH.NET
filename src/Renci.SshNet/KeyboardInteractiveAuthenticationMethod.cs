@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 using Renci.SshNet.Abstractions;
@@ -78,7 +79,7 @@ namespace Renci.SshNet
 
             if (_exception != null)
             {
-                throw _exception;
+                ExceptionDispatchInfo.Capture(_exception).Throw();
             }
 
             return _authenticationResult;

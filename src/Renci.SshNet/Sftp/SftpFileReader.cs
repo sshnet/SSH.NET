@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 using Renci.SshNet.Abstractions;
@@ -80,7 +81,7 @@ namespace Renci.SshNet.Sftp
 
             if (_exception is not null)
             {
-                throw _exception;
+                ExceptionDispatchInfo.Capture(_exception).Throw();
             }
 
             if (_isEndOfFileRead)
@@ -102,7 +103,7 @@ namespace Renci.SshNet.Sftp
                 // throw when exception occured in read-ahead, or the current instance is already disposed
                 if (_exception != null)
                 {
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
                 }
 
                 var data = nextChunk.Data;

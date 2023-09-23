@@ -1,9 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
-using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -412,7 +410,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
             {
                 var privateKeyFile = new PrivateKeyFile(stream, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                TestRsaKeyFile(privateKeyFile);
             }
         }
 
@@ -430,7 +428,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                TestRsaKeyFile(privateKeyFile);
 
                 fs.Close();
             }
@@ -498,7 +496,7 @@ namespace Renci.SshNet.Tests.Classes
             }
 
             var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-            Assert.IsNotNull(privateKeyFile.HostKey);
+            TestRsaKeyFile(privateKeyFile);
         }
 
         /// <summary>
@@ -510,7 +508,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var stream = GetData("Key.RSA.txt"))
             {
                 var privateKeyFile = new PrivateKeyFile(stream);
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                TestRsaKeyFile(privateKeyFile);
             }
         }
 
@@ -526,7 +524,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile);
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                TestRsaKeyFile(privateKeyFile);
 
                 fs.Close();
             }
@@ -544,7 +542,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var fs = File.Open(_temporaryFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-                Assert.IsNotNull(privateKeyFile.HostKey);
+                TestRsaKeyFile(privateKeyFile);
 
                 fs.Close();
             }
@@ -684,15 +682,14 @@ namespace Renci.SshNet.Tests.Classes
 
         private static void TestRsaKeyFile(PrivateKeyFile rsaPrivateKeyFile)
         {
-            Assert.AreEqual(3, rsaPrivateKeyFile.HostAlgorithms.Count);
+            Assert.IsNotNull(rsaPrivateKeyFile.HostKeyAlgorithms);
+            Assert.AreEqual(3, rsaPrivateKeyFile.HostKeyAlgorithms.Count);
 
-            List<KeyHostAlgorithm> algorithms = rsaPrivateKeyFile.HostAlgorithms.Cast<KeyHostAlgorithm>().ToList();
+            var algorithms = rsaPrivateKeyFile.HostKeyAlgorithms.ToList();
 
             Assert.AreEqual("rsa-sha2-512", algorithms[0].Name);
             Assert.AreEqual("rsa-sha2-256", algorithms[1].Name);
             Assert.AreEqual("ssh-rsa", algorithms[2].Name);
-
-            Assert.AreSame(algorithms[0], rsaPrivateKeyFile.HostKey);
         }
     }
 }

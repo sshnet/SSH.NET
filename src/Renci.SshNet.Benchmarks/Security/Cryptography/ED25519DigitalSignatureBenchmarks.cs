@@ -21,7 +21,7 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography
 
             using (var s = typeof(ED25519DigitalSignatureBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.OPENSSH.ED25519.txt"))
             {
-                _key = (ED25519Key) ((KeyHostAlgorithm) new PrivateKeyFile(s).HostKey).Key;
+                _key = (ED25519Key) new PrivateKeyFile(s).Key;
             }
             _signature = new ED25519DigitalSignature(_key).Sign(_data);
         }

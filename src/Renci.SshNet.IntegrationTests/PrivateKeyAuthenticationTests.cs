@@ -23,10 +23,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [Ignore] // No longer supported in recent versions of OpenSSH
-        // TODO: We should be able to enable some legacy settings to make it work
-        // https://www.openssh.com/legacy.html e.g. PubkeyAcceptedKeyTypes / HostbasedAcceptedKeyTypes ?
-        public void SshDsa()
+        public void SshDss()
         {
             DoTest(PublicKeyAlgorithm.SshDss, "id_dsa");
         }

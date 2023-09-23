@@ -164,7 +164,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             using (var stream = GetData("Key.RSA.txt"))
             {
-                return (RsaKey) ((KeyHostAlgorithm) new PrivateKeyFile(stream).HostKey).Key;
+                return (RsaKey) new PrivateKeyFile(stream).Key;
             }
         }
 

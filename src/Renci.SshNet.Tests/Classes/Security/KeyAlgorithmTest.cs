@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+﻿﻿using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -176,7 +176,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         {
             using (var stream = GetData("Key.RSA.txt"))
             {
-                return (RsaKey) ((KeyHostAlgorithm) new PrivateKeyFile(stream).HostKey).Key;
+                return (RsaKey) new PrivateKeyFile(stream).Key;
             }
         }
 

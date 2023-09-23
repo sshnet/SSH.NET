@@ -31,7 +31,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        public ICollection<IHostAlgorithmsProvider> KeyFiles { get; private set; }
+        public ICollection<IPrivateKeySource> KeyFiles { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -39,7 +39,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params IHostAlgorithmsProvider[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
             if (keyFiles is null)
@@ -47,7 +47,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(keyFiles));
             }
 
-            KeyFiles = new Collection<IHostAlgorithmsProvider>(keyFiles);
+            KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            var hostAlgorithms = KeyFiles.SelectMany(x => x.HostAlgorithms).ToList();
+            var hostAlgorithms = KeyFiles.SelectMany(x => x.HostKeyAlgorithms).ToList();
 
             try
             {

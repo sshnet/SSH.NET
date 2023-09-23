@@ -153,10 +153,14 @@ namespace Renci.SshNet.Security
         }
 
         private RsaDigitalSignature _digitalSignature;
+
         /// <summary>
-        /// Gets the digital signature.
+        /// <inheritdoc cref="Key.DigitalSignature"/>
         /// </summary>
-        protected override DigitalSignature DigitalSignature
+        /// <returns>
+        /// An implementation of an RSA digital signature using the SHA-1 hash algorithm.
+        /// </returns>
+        protected internal override DigitalSignature DigitalSignature
         {
             get
             {

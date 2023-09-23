@@ -60,6 +60,7 @@
     <EmbeddedResource Include="resources\client\key_ecdsa_256_openssh" />
     <EmbeddedResource Include="resources\client\key_ecdsa_384_openssh" />
     <EmbeddedResource Include="resources\client\key_ecdsa_521_openssh" />
+    <EmbeddedResource Include="resources\client\key_ed25519_openssh" />
     <EmbeddedResource Include="resources\issue #70.png" />
   </ItemGroup>
 </Project>

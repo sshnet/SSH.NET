@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 
 using Renci.SshNet.Common;
@@ -30,7 +31,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        public ICollection<IPrivateKeySource> KeyFiles { get; private set; }
+        public ICollection<IHostAlgorithmsProvider> KeyFiles { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -38,7 +39,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, params IHostAlgorithmsProvider[] keyFiles)
             : base(username)
         {
             if (keyFiles is null)
@@ -46,7 +47,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(keyFiles));
             }
 
-            KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
+            KeyFiles = new Collection<IHostAlgorithmsProvider>(keyFiles);
         }
 
         /// <summary>
@@ -64,24 +65,26 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
+            var hostAlgorithms = KeyFiles.SelectMany(x => x.HostAlgorithms).ToList();
+
             try
             {
-                foreach (var keyFile in KeyFiles)
+                foreach (var hostAlgorithm in hostAlgorithms)
                 {
                     _ = _authenticationCompleted.Reset();
                     _isSignatureRequired = false;
 
                     var message = new RequestMessagePublicKey(ServiceName.Connection,
                                                               Username,
-                                                              keyFile.HostKey.Name,
-                                                              keyFile.HostKey.Data);
+                                                              hostAlgorithm.Name,
+                                                              hostAlgorithm.Data);
 
-                    if (KeyFiles.Count < 2)
+                    if (hostAlgorithms.Count == 1)
                     {
                         // If only one key file provided then send signature for very first request
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        message.Signature = keyFile.HostKey.Sign(signatureData);
+                        message.Signature = hostAlgorithm.Sign(signatureData);
                     }
 
                     // Send public key authentication request
@@ -95,12 +98,12 @@ namespace Renci.SshNet
 
                         var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
                                                                            Username,
-                                                                           keyFile.HostKey.Name,
-                                                                           keyFile.HostKey.Data);
+                                                                           hostAlgorithm.Name,
+                                                                           hostAlgorithm.Data);
 
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+                        signatureMessage.Signature = hostAlgorithm.Sign(signatureData);
 
                         // Send public key authentication request with signature
                         session.SendMessage(signatureMessage);
@@ -108,7 +111,7 @@ namespace Renci.SshNet
 
                     session.WaitOnHandle(_authenticationCompleted);
 
-                    if (_authenticationResult == AuthenticationResult.Success)
+                    if (_authenticationResult is AuthenticationResult.Success or AuthenticationResult.PartialSuccess)
                     {
                         break;
                     }

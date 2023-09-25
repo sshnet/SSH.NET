@@ -16,7 +16,7 @@
 		public static readonly HostKeyAlgorithm RsaSha2512 = new HostKeyAlgorithm("rsa-sha2-512");
 		public static readonly HostKeyAlgorithm RsaSha2256 = new HostKeyAlgorithm("rsa-sha2-256");
 		public static readonly HostKeyAlgorithm SshRsa = new HostKeyAlgorithm("ssh-rsa");
-        public static readonly HostKeyAlgorithm SshDsa = new HostKeyAlgorithm("ssh-dsa");
+        public static readonly HostKeyAlgorithm SshDss = new HostKeyAlgorithm("ssh-dss");
 
         public HostKeyAlgorithm(string name)
         {

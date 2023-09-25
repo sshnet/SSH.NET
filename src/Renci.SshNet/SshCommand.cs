@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 
@@ -483,7 +484,8 @@ namespace Renci.SshNet
             switch (signaledElement)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    break;
                 case 1:
                     // Specified waithandle was signaled
                     break;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 
@@ -114,7 +115,7 @@ namespace Renci.SshNet
 
             if (_exception != null)
             {
-                throw _exception;
+                ExceptionDispatchInfo.Capture(_exception).Throw();
             }
 
             return _authenticationResult;

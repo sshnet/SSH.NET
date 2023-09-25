@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 using Renci.SshNet.Abstractions;
@@ -241,7 +242,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    break;
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -286,7 +288,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return false; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -340,7 +343,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return -1; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -377,7 +381,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return -1; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:

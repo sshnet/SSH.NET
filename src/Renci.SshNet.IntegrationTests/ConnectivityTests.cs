@@ -380,6 +380,53 @@ namespace Renci.SshNet.IntegrationTests
             Assert.IsTrue(hostValidationSuccessful);
         }
 
+        [TestMethod]
+        public void Common_HostKeyValidationSHA256_Success()
+        {
+            var hostValidationSuccessful = false;
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.HostKeyReceived += (sender, e) =>
+                {
+                    if (e.FingerPrintSHA256 == "9fa6vbz64gimzsGZ/xZi3aaYE1o7E96iU2NjcfQNGwI")
+                    {
+                        hostValidationSuccessful = e.CanTrust;
+                    }
+                    else
+                    {
+                        e.CanTrust = false;
+                    }
+                };
+                client.Connect();
+            }
+
+            Assert.IsTrue(hostValidationSuccessful);
+        }
+
+        [TestMethod]
+        public void Common_HostKeyValidationMD5_Success()
+        {
+            var hostValidationSuccessful = false;
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.HostKeyReceived += (sender, e) =>
+                {
+                    if (e.FingerPrintMD5 == "3d:90:d8:0d:d5:e0:b6:13:42:7c:78:1e:19:a3:99:2b")
+                    {
+                        hostValidationSuccessful = e.CanTrust;
+                    }
+                    else
+                    {
+                        e.CanTrust = false;
+                    }
+                };
+                client.Connect();
+            }
+
+            Assert.IsTrue(hostValidationSuccessful);
+        }
         /// <summary>
         /// Verifies whether we handle a disconnect initiated by the SSH server (through a SSH_MSG_DISCONNECT message).
         /// </summary>

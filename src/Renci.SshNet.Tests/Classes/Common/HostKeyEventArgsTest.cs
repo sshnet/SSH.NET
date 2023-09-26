@@ -56,6 +56,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsTrue(new byte[] {
                 0x92, 0xea, 0x54, 0xa1, 0x01, 0xf9, 0x95, 0x9c, 0x71, 0xd9, 0xbb, 0x51, 0xb2, 0x55, 0xf8, 0xd9
             }.SequenceEqual(target.FingerPrint));
+            Assert.AreEqual("92:ea:54:a1:01:f9:95:9c:71:d9:bb:51:b2:55:f8:d9", target.FingerPrintMD5);
+
         }
 
         /// <summary>

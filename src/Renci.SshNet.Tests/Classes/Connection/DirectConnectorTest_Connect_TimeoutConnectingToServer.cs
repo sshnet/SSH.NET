@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             var random = new Random();
 
             _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString());
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(0, 5));
             _stopWatch = new Stopwatch();
             _actualException = null;
 

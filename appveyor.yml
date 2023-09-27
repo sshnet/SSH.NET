@@ -12,14 +12,35 @@ build:
   project: src\Renci.SshNet.sln
   verbosity: minimal
 
-configuration: Release
+configuration:
+  - Debug
+  - Release
 
-test_script:
-- cmd: >-
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Release\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
+for:
+-
+  matrix:
+    only:
+      - configuration: Debug
+
+  test_script:
+  - cmd: >-
+      vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
     
-    dotnet test src\Renci.SshNet.Tests\bin\Release\net7.0\Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame
+      dotnet test src\Renci.SshNet.Tests\bin\Debug\net7.0\Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame
 
-- sh: >-
-    dotnet test src/Renci.SshNet.Tests/bin/Release/net7.0/Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame
+  - sh: >-
+      dotnet test src/Renci.SshNet.Tests/bin/Debug/net7.0/Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame
 
+-
+  matrix:
+    only:
+      - configuration: Release
+
+  test_script:
+  - cmd: >-
+      vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Release\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
+    
+      dotnet test src\Renci.SshNet.Tests\bin\Release\net7.0\Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame
+
+  - sh: >-
+      dotnet test src/Renci.SshNet.Tests/bin/Release/net7.0/Renci.SshNet.Tests.dll --logger Appveyor --filter "TestCategory!=integration" --blame

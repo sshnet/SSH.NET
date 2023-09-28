@@ -5,7 +5,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Used to open "session" channel type
     /// </summary>
-    internal class SessionChannelOpenInfo : ChannelOpenInfo
+    internal sealed class SessionChannelOpenInfo : ChannelOpenInfo
     {
         /// <summary>
         /// Specifies channel open type

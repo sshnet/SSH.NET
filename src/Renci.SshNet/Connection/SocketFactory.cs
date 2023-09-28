@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Connection
 {
-    internal class SocketFactory : ISocketFactory
+    internal sealed class SocketFactory : ISocketFactory
     {
         public Socket Create(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType)
         {

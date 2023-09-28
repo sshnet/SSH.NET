@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
@@ -26,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -44,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -62,7 +61,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                Extensions.IsEqualTo(left, right);
+                _ = Extensions.IsEqualTo(left, right);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -94,95 +93,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             var left = new byte[] { 0x0d, 0x0d };
 
             Assert.IsTrue(Extensions.IsEqualTo(left, left));
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_Equal()
-        {
-            var buffer = CreateBuffer(50000);
-            var left = buffer.Concat(new byte[] {0x0a});
-            var right = buffer.Concat(new byte[] {0x0a});
-            const int runs = 10000;
-
-            Performance(left, right, runs);
-        }
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_NotEqual_DifferentLength()
-        {
-            var left = CreateBuffer(50000);
-            var right = left.Concat(new byte[] {0x0a});
-            const int runs = 10000;
-
-            Performance(left, right, runs);
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_NotEqual_SameLength()
-        {
-            var buffer = CreateBuffer(50000);
-            var left = buffer.Concat(new byte[] {0x0a});
-            var right = buffer.Concat(new byte[] {0x0b});
-            const int runs = 10000;
-
-            Performance(left, right, runs);
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_Same()
-        {
-            var left = CreateBuffer(50000);
-            var right = left.Concat(new byte[] {0x0a});
-            const int runs = 10000;
-
-            Performance(left, right, runs);
-        }
-
-        private static void Performance(byte[] left, byte[] right, int runs)
-        {
-            var stopWatch = new Stopwatch();
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Start();
-
-            for (var i = 0; i < runs; i++)
-            {
-                Extensions.IsEqualTo(left, right);
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
-
-            stopWatch.Reset();
-            stopWatch.Start();
-
-            for (var i = 0; i < runs; i++)
-            {
-                var result = System.Linq.Enumerable.SequenceEqual(left, right);
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
         }
 
         private byte[] CreateBuffer(int length)

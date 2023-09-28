@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -37,12 +38,12 @@ namespace Renci.SshNet
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
 
-            StartAccept(null);
+            StartAccept(e: null);
         }
 
         private void StartAccept(SocketAsyncEventArgs e)
         {
-            if (e == null)
+            if (e is null)
             {
                 e = new SocketAsyncEventArgs();
                 e.Completed += AcceptCompleted;
@@ -60,12 +61,12 @@ namespace Renci.SshNet
                 {
                     if (!_listener.AcceptAsync(e))
                     {
-                        AcceptCompleted(null, e);
+                        AcceptCompleted(sender: null, e);
                     }
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    if (_status == ForwardedPortStatus.Stopping || _status == ForwardedPortStatus.Stopped)
                     {
                         // ignore ObjectDisposedException while stopping or stopped
                         return;
@@ -78,7 +79,7 @@ namespace Renci.SshNet
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (e.SocketError == SocketError.OperationAborted || e.SocketError == SocketError.NotSocket)
+            if (e.SocketError is SocketError.OperationAborted or SocketError.NotSocket)
             {
                 // server was stopped
                 return;
@@ -91,6 +92,7 @@ namespace Renci.SshNet
             {
                 // accept new connection
                 StartAccept(e);
+
                 // dispose broken client socket
                 CloseClientSocket(clientSocket);
                 return;
@@ -98,6 +100,7 @@ namespace Renci.SshNet
 
             // accept new connection
             StartAccept(e);
+
             // process connection
             ProcessAccept(clientSocket);
         }
@@ -146,7 +149,7 @@ namespace Renci.SshNet
                 // the CountdownEvent will be disposed
                 try
                 {
-                    pendingChannelCountdown.Signal();
+                    _ = pendingChannelCountdown.Signal();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -170,17 +173,17 @@ namespace Renci.SshNet
         private void InitializePendingChannelCountdown()
         {
             var original = Interlocked.Exchange(ref _pendingChannelCountdown, new CountdownEvent(1));
-            if (original != null)
-            {
-                original.Dispose();
-            }
+            original?.Dispose();
         }
 
         private bool HandleSocks(IChannelDirectTcpip channel, Socket clientSocket, TimeSpan timeout)
         {
-            // create eventhandler which is to be invoked to interrupt a blocking receive
-            // when we're closing the forwarded port
+
+#pragma warning disable IDE0039 // Use lambda instead of local function to reduce allocations
+            // Create eventhandler which is to be invoked to interrupt a blocking receive
+            // when we're closing the forwarded port.
             EventHandler closeClientSocket = (_, args) => CloseClientSocket(clientSocket);
+#pragma warning restore IDE0039 // Use lambda instead of local function to reduce allocations
 
             Closing += closeClientSocket;
 
@@ -204,10 +207,19 @@ namespace Renci.SshNet
             {
                 // ignore exception thrown by interrupting the blocking receive as part of closing
                 // the forwarded port
+#if NETFRAMEWORK
                 if (ex.SocketErrorCode != SocketError.Interrupted)
                 {
                     RaiseExceptionEvent(ex);
                 }
+#else
+                // Since .NET 5 the exception has been changed. 
+                // more info https://github.com/dotnet/runtime/issues/41585
+                if (ex.SocketErrorCode != SocketError.ConnectionAborted)
+                {
+                    RaiseExceptionEvent(ex);
+                }
+#endif
                 return false;
             }
             finally
@@ -242,11 +254,7 @@ namespace Renci.SshNet
         partial void StopListener()
         {
             // close listener socket
-            var listener = _listener;
-            if (listener != null)
-            {
-                listener.Dispose();
-            }
+            _listener?.Dispose();
 
             // unsubscribe from session events
             var session = Session;
@@ -263,7 +271,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum time to wait for the pending channels to close.</param>
         partial void InternalStop(TimeSpan timeout)
         {
-            _pendingChannelCountdown.Signal();
+            _ = _pendingChannelCountdown.Signal();
+
             if (!_pendingChannelCountdown.Wait(timeout))
             {
                 // TODO: log as warning
@@ -345,7 +354,7 @@ namespace Renci.SshNet
             var ipAddress = new IPAddress(ipBuffer);
 
             var username = ReadString(socket, timeout);
-            if (username == null)
+            if (username is null)
             {
                 // SOCKS client closed connection
                 return false;
@@ -392,12 +401,12 @@ namespace Renci.SshNet
             {
                 // no user authentication is one of the authentication methods supported
                 // by the SOCKS client
-                SocketAbstraction.Send(socket, new byte[] {0x05, 0x00}, 0, 2);
+                SocketAbstraction.Send(socket, new byte[] { 0x05, 0x00 }, 0, 2);
             }
             else
             {
                 // the SOCKS client requires authentication, which we currently do not support
-                SocketAbstraction.Send(socket, new byte[] {0x05, 0xFF}, 0, 2);
+                SocketAbstraction.Send(socket, new byte[] { 0x05, 0xFF }, 0, 2);
 
                 // we continue business as usual but expect the client to close the connection
                 // so one of the subsequent reads should return -1 signaling that the client
@@ -412,7 +421,9 @@ namespace Renci.SshNet
             }
 
             if (version != 5)
+            {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
+            }
 
             var commandCode = SocketAbstraction.ReadByte(socket, timeout);
             if (commandCode == -1)
@@ -441,7 +452,7 @@ namespace Renci.SshNet
             }
 
             var host = GetSocks5Host(addressType, socket, timeout);
-            if (host == null)
+            if (host is null)
             {
                 // SOCKS client closed connection
                 return false;
@@ -583,11 +594,10 @@ namespace Renci.SshNet
                     break;
                 }
 
-                var c = (char) byteRead;
-                text.Append(c);
+                _ = text.Append((char) byteRead);
             }
+
             return text.ToString();
         }
     }
 }
-

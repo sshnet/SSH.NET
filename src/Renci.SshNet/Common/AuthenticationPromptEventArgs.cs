@@ -3,25 +3,10 @@
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.KeyboardInteractiveConnectionInfo.AuthenticationPrompt"/> event.
+    /// Provides data for <see cref="KeyboardInteractiveConnectionInfo.AuthenticationPrompt"/> event.
     /// </summary>
     public class AuthenticationPromptEventArgs : AuthenticationEventArgs
     {
-        /// <summary>
-        /// Gets prompt language.
-        /// </summary>
-        public string Language { get; private set; }
-
-        /// <summary>
-        /// Gets prompt instruction.
-        /// </summary>
-        public string Instruction { get; private set; }
-
-        /// <summary>
-        /// Gets server information request prompts.
-        /// </summary>
-        public IEnumerable<AuthenticationPrompt> Prompts { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationPromptEventArgs"/> class.
         /// </summary>
@@ -36,5 +21,20 @@ namespace Renci.SshNet.Common
             Language = language;
             Prompts = prompts;
         }
+
+        /// <summary>
+        /// Gets prompt language.
+        /// </summary>
+        public string Language { get; }
+
+        /// <summary>
+        /// Gets prompt instruction.
+        /// </summary>
+        public string Instruction { get; }
+
+        /// <summary>
+        /// Gets server information request prompts.
+        /// </summary>
+        public IEnumerable<AuthenticationPrompt> Prompts { get; }
     }
 }

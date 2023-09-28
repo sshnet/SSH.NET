@@ -7,21 +7,21 @@
     {
         /// <summary>
         /// Indicates end of options.
-        /// </summary> 
+        /// </summary>
         TTY_OP_END = 0,
-        
+
         /// <summary>
         /// Interrupt character; 255 if none.  Similarly for the other characters.  Not all of these characters are supported on all systems.
-        /// </summary> 
+        /// </summary>
         VINTR = 1,
 
         /// <summary>
         /// The quit character (sends SIGQUIT signal on POSIX systems).
-        /// </summary> 
+        /// </summary>
         VQUIT = 2,
-        
+
         /// <summary>
-        /// Erase the character to left of the cursor. 
+        /// Erase the character to left of the cursor.
         /// </summary>
         VERASE = 3,
 
@@ -34,32 +34,32 @@
         /// End-of-file character (sends EOF from the terminal).
         /// </summary>
         VEOF = 5,
-        
+
         /// <summary>
         /// End-of-line character in addition to carriage return and/or linefeed.
         /// </summary>
         VEOL = 6,
-        
+
         /// <summary>
         /// Additional end-of-line character.
         /// </summary>
         VEOL2 = 7,
-        
+
         /// <summary>
         /// Continues paused output (normally control-Q).
         /// </summary>
         VSTART = 8,
-        
+
         /// <summary>
         /// Pauses output (normally control-S).
         /// </summary>
         VSTOP = 9,
-        
+
         /// <summary>
         /// Suspends the current program.
         /// </summary>
         VSUSP = 10,
-        
+
         /// <summary>
         /// Another suspend character.
         /// </summary>
@@ -76,7 +76,7 @@
         VWERASE = 13,
 
         /// <summary>
-        /// Enter the next character typed literally, even if it is a special character
+        /// Enter the next character typed literally, even if it is a special character.
         /// </summary>
         VLNEXT = 14,
 

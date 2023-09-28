@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// The exception that is thrown when pass phrase for key file is empty or null
+    /// The exception that is thrown when pass phrase for key file is empty or <see langword="null"/>.
     /// </summary>
 #if FEATURE_BINARY_SERIALIZATION
     [Serializable]
@@ -18,7 +18,6 @@ namespace Renci.SshNet.Common
         /// </summary>
         public SshPassPhraseNullOrEmptyException()
         {
-
         }
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace Renci.SshNet.Common
         public SshPassPhraseNullOrEmptyException(string message)
             : base(message)
         {
-
         }
 
         /// <summary>
@@ -36,8 +34,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public SshPassPhraseNullOrEmptyException(string message, Exception innerException) :
-            base(message, innerException)
+        public SshPassPhraseNullOrEmptyException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 

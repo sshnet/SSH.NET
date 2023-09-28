@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -125,7 +124,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public async Task SubsequentReadShouldReturnAllRemaningBytesFromReadBufferAndReadAgainWhenCountIsGreaterThanNumberOfRemainingBytesAndNewReadReturnsZeroBytes()
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestReadAsync(_handle, (ulong)(_serverData.Length), _readBufferSize, default)).ReturnsAsync(Array<byte>.Empty);
+            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestReadAsync(_handle, (ulong)(_serverData.Length), _readBufferSize, default)).ReturnsAsync(Array.Empty<byte>());
 
             var buffer = new byte[_numberOfBytesToWriteToReadBuffer + 1];
 
@@ -140,4 +139,3 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
     }
 }
-#endif

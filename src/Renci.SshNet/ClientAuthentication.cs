@@ -4,19 +4,21 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
-    internal class ClientAuthentication : IClientAuthentication
+    internal sealed class ClientAuthentication : IClientAuthentication
     {
         private readonly int _partialSuccessLimit;
 
         /// <summary>
-        /// Initializes a new <see cref="ClientAuthentication"/> instance.
+        /// Initializes a new instance of the <see cref="ClientAuthentication"/> class.
         /// </summary>
         /// <param name="partialSuccessLimit">The number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/> can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="partialSuccessLimit"/> is less than one.</exception>
         public ClientAuthentication(int partialSuccessLimit)
         {
             if (partialSuccessLimit < 1)
-                throw new ArgumentOutOfRangeException("partialSuccessLimit", "Cannot be less than one.");
+            {
+                throw new ArgumentOutOfRangeException(nameof(partialSuccessLimit), "Cannot be less than one.");
+            }
 
             _partialSuccessLimit = partialSuccessLimit;
         }
@@ -42,10 +44,15 @@ namespace Renci.SshNet
         /// <param name="session">The <see cref="ISession"/> for which to perform authentication.</param>
         public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (session == null)
-                throw new ArgumentNullException("session");
+            if (connectionInfo is null)
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
+            if (session is null)
+            {
+                throw new ArgumentNullException(nameof(session));
+            }
 
             session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
             session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
@@ -122,6 +129,7 @@ namespace Renci.SshNet
                         {
                             authenticationResult = AuthenticationResult.Success;
                         }
+
                         break;
                     case AuthenticationResult.Failure:
                         authenticationState.RecordFailure(authenticationMethod);
@@ -130,16 +138,20 @@ namespace Renci.SshNet
                     case AuthenticationResult.Success:
                         authenticationException = null;
                         break;
+                    default:
+                        break;
                 }
 
                 if (authenticationResult == AuthenticationResult.Success)
+                {
                     return true;
+                }
             }
 
             return false;
         }
 
-        private class AuthenticationState
+        private sealed class AuthenticationState
         {
             private readonly IList<IAuthenticationMethod> _supportedAuthenticationMethods;
 
@@ -181,8 +193,7 @@ namespace Renci.SshNet
             /// <param name="authenticationMethod">An <see cref="IAuthenticationMethod"/> for which to record the result of an authentication attempt.</param>
             public void RecordPartialSuccess(IAuthenticationMethod authenticationMethod)
             {
-                int partialSuccessCount;
-                if (_authenticationMethodPartialSuccessRegister.TryGetValue(authenticationMethod, out partialSuccessCount))
+                if (_authenticationMethodPartialSuccessRegister.TryGetValue(authenticationMethod, out var partialSuccessCount))
                 {
                     _authenticationMethodPartialSuccessRegister[authenticationMethod] = ++partialSuccessCount;
                 }
@@ -203,11 +214,11 @@ namespace Renci.SshNet
             /// </returns>
             public int GetPartialSuccessCount(IAuthenticationMethod authenticationMethod)
             {
-                int partialSuccessCount;
-                if (_authenticationMethodPartialSuccessRegister.TryGetValue(authenticationMethod, out partialSuccessCount))
+                if (_authenticationMethodPartialSuccessRegister.TryGetValue(authenticationMethod, out var partialSuccessCount))
                 {
                     return partialSuccessCount;
                 }
+
                 return 0;
             }
 
@@ -270,7 +281,9 @@ namespace Renci.SshNet
 
                     // skip authentication methods that have already failed
                     if (_failedAuthenticationMethods.Contains(authenticationMethod))
+                    {
                         continue;
+                    }
 
                     // delay use of authentication methods that had a PartialSuccess result
                     if (_authenticationMethodPartialSuccessRegister.ContainsKey(authenticationMethod))
@@ -283,7 +296,9 @@ namespace Renci.SshNet
                 }
 
                 foreach (var authenticationMethod in skippedAuthenticationMethods)
+                {
                     yield return authenticationMethod;
+                }
             }
         }
     }

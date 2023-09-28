@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -13,16 +15,19 @@ namespace Renci.SshNet
     /// </summary>
     public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod, IDisposable
     {
-        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
-        private Session _session;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-        private Exception _exception;
         private readonly RequestMessage _requestMessage;
+        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
+        private Session _session;
+        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
+        private Exception _exception;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Gets authentication method name
+        /// Gets the name of the authentication method.
         /// </summary>
+        /// <value>
+        /// The name of the authentication method.
+        /// </value>
         public override string Name
         {
             get { return _requestMessage.MethodName; }
@@ -73,7 +78,9 @@ namespace Renci.SshNet
             }
 
             if (_exception != null)
-                throw _exception;
+            {
+                ExceptionDispatchInfo.Capture(_exception).Throw();
+            }
 
             return _authenticationResult;
         }
@@ -81,20 +88,24 @@ namespace Renci.SshNet
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             _authenticationResult = AuthenticationResult.Success;
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
+            {
                 _authenticationResult = AuthenticationResult.PartialSuccess;
+            }
             else
+            {
                 _authenticationResult = AuthenticationResult.Failure;
+            }
 
             // Copy allowed authentication methods
             AllowedAuthentications = e.Message.AllowedAuthentications;
 
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationInformationRequestReceived(object sender, MessageEventArgs<InformationRequestMessage> e)
@@ -110,10 +121,7 @@ namespace Renci.SshNet
                 {
                     try
                     {
-                        if (AuthenticationPrompt != null)
-                        {
-                            AuthenticationPrompt(this, eventArgs);
-                        }
+                        AuthenticationPrompt?.Invoke(this, eventArgs);
 
                         var informationResponse = new InformationResponseMessage();
 
@@ -122,38 +130,36 @@ namespace Renci.SshNet
                             informationResponse.Responses.Add(response);
                         }
 
-                        //  Send information response message
+                        // Send information response message
                         _session.SendMessage(informationResponse);
                     }
                     catch (Exception exp)
                     {
                         _exception = exp;
-                        _authenticationCompleted.Set();
+                        _ = _authenticationCompleted.Set();
                     }
                 });
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -169,14 +175,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveAuthenticationMethod"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="KeyboardInteractiveAuthenticationMethod"/> class.
         /// </summary>
         ~KeyboardInteractiveAuthenticationMethod()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

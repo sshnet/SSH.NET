@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
         public void BytesSentTest()
         {
             var target = new CommandAsyncResult();
-            int expected = new Random().Next();
+            var expected = new Random().Next();
 
             target.BytesSent = expected;
 

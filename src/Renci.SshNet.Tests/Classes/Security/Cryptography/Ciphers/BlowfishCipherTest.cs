@@ -2,7 +2,7 @@
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
+
 using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
@@ -20,27 +20,12 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var key = new byte[] { 0xe4, 0x94, 0xf9, 0xb1, 0x00, 0x4f, 0x16, 0x2a, 0x80, 0x11, 0xea, 0x73, 0x0d, 0xb9, 0xbf, 0x64 };
             var iv = new byte[] { 0x74, 0x8b, 0x4f, 0xe6, 0xc1, 0x29, 0xb3, 0x54, 0xec, 0x77, 0x92, 0xf3, 0x15, 0xa0, 0x41, 0xa8 };
             var output = new byte[] { 0x50, 0x49, 0xe0, 0xce, 0x98, 0x93, 0x8b, 0xec, 0x82, 0x7d, 0x14, 0x1b, 0x3e, 0xdc, 0xca, 0x63, 0xef, 0x36, 0x20, 0x67, 0x58, 0x63, 0x1f, 0x9c, 0xd2, 0x12, 0x6b, 0xca, 0xea, 0xd0, 0x78, 0x8b, 0x61, 0x50, 0x4f, 0xc4, 0x5b, 0x32, 0x91, 0xd6, 0x65, 0xcb, 0x74, 0xe5, 0x6e, 0xf5, 0xde, 0x14 };
-            var testCipher = new Renci.SshNet.Security.Cryptography.Ciphers.BlowfishCipher(key, new Renci.SshNet.Security.Cryptography.Ciphers.Modes.CbcCipherMode(iv), null);
+            var testCipher = new BlowfishCipher(key, new CbcCipherMode(iv), null);
             var r = testCipher.Encrypt(input);
 
             if (!r.SequenceEqual(output))
-                Assert.Fail("Invalid encryption");
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_BlowfishCBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("blowfish-cbc", new CipherInfo(128, (key, iv) => { return new BlowfishCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
             {
-                client.Connect();
-                client.Disconnect();
+                Assert.Fail("Invalid encryption");
             }
         }
 
@@ -54,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             byte[] key = null; // TODO: Initialize to an appropriate value
             CipherMode mode = null; // TODO: Initialize to an appropriate value
             CipherPadding padding = null; // TODO: Initialize to an appropriate value
-            BlowfishCipher target = new BlowfishCipher(key, mode, padding);
+            var target = new BlowfishCipher(key, mode, padding);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -68,15 +53,14 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             byte[] key = null; // TODO: Initialize to an appropriate value
             CipherMode mode = null; // TODO: Initialize to an appropriate value
             CipherPadding padding = null; // TODO: Initialize to an appropriate value
-            BlowfishCipher target = new BlowfishCipher(key, mode, padding); // TODO: Initialize to an appropriate value
+            var target = new BlowfishCipher(key, mode, padding); // TODO: Initialize to an appropriate value
             byte[] inputBuffer = null; // TODO: Initialize to an appropriate value
-            int inputOffset = 0; // TODO: Initialize to an appropriate value
-            int inputCount = 0; // TODO: Initialize to an appropriate value
+            var inputOffset = 0; // TODO: Initialize to an appropriate value
+            var inputCount = 0; // TODO: Initialize to an appropriate value
             byte[] outputBuffer = null; // TODO: Initialize to an appropriate value
-            int outputOffset = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+            var outputOffset = 0; // TODO: Initialize to an appropriate value
+            var expected = 0; // TODO: Initialize to an appropriate value
+            var actual = target.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -91,15 +75,14 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             byte[] key = null; // TODO: Initialize to an appropriate value
             CipherMode mode = null; // TODO: Initialize to an appropriate value
             CipherPadding padding = null; // TODO: Initialize to an appropriate value
-            BlowfishCipher target = new BlowfishCipher(key, mode, padding); // TODO: Initialize to an appropriate value
+            var target = new BlowfishCipher(key, mode, padding); // TODO: Initialize to an appropriate value
             byte[] inputBuffer = null; // TODO: Initialize to an appropriate value
-            int inputOffset = 0; // TODO: Initialize to an appropriate value
-            int inputCount = 0; // TODO: Initialize to an appropriate value
+            var inputOffset = 0; // TODO: Initialize to an appropriate value
+            var inputCount = 0; // TODO: Initialize to an appropriate value
             byte[] outputBuffer = null; // TODO: Initialize to an appropriate value
-            int outputOffset = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+            var outputOffset = 0; // TODO: Initialize to an appropriate value
+            var expected = 0; // TODO: Initialize to an appropriate value
+            var actual = target.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

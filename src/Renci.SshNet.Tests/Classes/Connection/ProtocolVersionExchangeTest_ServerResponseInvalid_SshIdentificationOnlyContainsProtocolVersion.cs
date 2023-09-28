@@ -1,13 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -62,7 +65,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _server.BytesReceived += (bytes, socket) =>
                 {
                     _dataReceivedByServer.AddRange(bytes);
-                    socket.Send(_serverIdentification);
+
+                    _ = socket.Send(_serverIdentification);
+
                     socket.Shutdown(SocketShutdown.Send);
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
@@ -77,13 +82,16 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _protocolVersionExchange.Start(_clientVersion, _client, _timeout);
+                _ = _protocolVersionExchange.Start(_clientVersion, _client, _timeout);
                 Assert.Fail();
             }
             catch (SshConnectionException ex)
             {
                 _actualException = ex;
             }
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

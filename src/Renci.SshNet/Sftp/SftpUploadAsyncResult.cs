@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
@@ -9,7 +10,7 @@ namespace Renci.SshNet.Sftp
     public class SftpUploadAsyncResult : AsyncResult
     {
         /// <summary>
-        /// Gets or sets a value indicating whether to cancel asynchronous upload operation
+        /// Gets or sets a value indicating whether to cancel asynchronous upload operation.
         /// </summary>
         /// <value>
         /// <c>true</c> if upload operation to be canceled; otherwise, <c>false</c>.
@@ -29,7 +30,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        public SftpUploadAsyncResult(AsyncCallback asyncCallback, Object state)
+        public SftpUploadAsyncResult(AsyncCallback asyncCallback, object state)
             : base(asyncCallback, state)
         {
         }

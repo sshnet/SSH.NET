@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
 using Renci.SshNet.Security;
-using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -28,34 +30,34 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.Connect());
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSftpResponseFactory())
-                               .Returns(_sftpResponseFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSftpSession(_sessionMock.Object, -1, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object))
-                               .Returns(_sftpSessionMock.Object);
-            _sftpSessionMock.InSequence(sequence)
-                            .Setup(p => p.Connect())
-                            .Throws(_sftpSessionConnectionException);
-            _sftpSessionMock.InSequence(sequence)
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSocketFactory())
+                                   .Returns(SocketFactoryMock.Object);
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                                   .Returns(SessionMock.Object);
+            _ = SessionMock.InSequence(sequence)
+                            .Setup(p => p.Connect());
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSftpResponseFactory())
+                                   .Returns(SftpResponseFactoryMock.Object);
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSftpSession(SessionMock.Object, -1, _connectionInfo.Encoding, SftpResponseFactoryMock.Object))
+                                   .Returns(SftpSessionMock.Object);
+            _ = SftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.Connect())
+                                .Throws(_sftpSessionConnectionException);
+            _ = SftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.Dispose());
+            _ = SessionMock.InSequence(sequence)
                             .Setup(p => p.Dispose());
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.Dispose());
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _sftpClient = new SftpClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _sftpClient = new SftpClient(_connectionInfo, false, ServiceFactoryMock.Object);
         }
 
         protected override void Act()
@@ -97,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _sftpClient.ErrorOccurred += (sender, args) => Interlocked.Increment(ref errorOccurredSignalCount);
 
-            _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
 
             Assert.AreEqual(0, errorOccurredSignalCount);
         }
@@ -109,7 +111,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _sftpClient.HostKeyReceived += (sender, args) => Interlocked.Increment(ref hostKeyReceivedSignalCount);
 
-            _sessionMock.Raise(p => p.HostKeyReceived += null, new HostKeyEventArgs(GetKeyHostAlgorithm()));
+            SessionMock.Raise(p => p.HostKeyReceived += null, new HostKeyEventArgs(GetKeyHostAlgorithm()));
 
             Assert.AreEqual(0, hostKeyReceivedSignalCount);
         }
@@ -121,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm)privateKey.HostKey;
+                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }
         }
     }

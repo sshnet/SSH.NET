@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             _pipeStream.Close();
 
             // give async read time to complete
-            _readThread.Join(100);
+            _ = _readThread.Join(100);
         }
 
         [TestMethod]

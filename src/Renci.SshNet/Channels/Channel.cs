@@ -22,7 +22,7 @@ namespace Renci.SshNet.Channels
         private uint? _remoteWindowSize;
         private uint? _remoteChannelNumber;
         private uint? _remotePacketSize;
-        private ISession _session;
+        private readonly ISession _session;
         private bool _isDisposed;
 
         /// <summary>
@@ -834,7 +834,6 @@ namespace Renci.SshNet.Channels
                 var session = _session;
                 if (session != null)
                 {
-                    _session = null;
                     session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
                     session.ChannelDataReceived -= OnChannelData;
                     session.ChannelExtendedDataReceived -= OnChannelExtendedData;

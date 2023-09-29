@@ -21,6 +21,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                             .ClearKeyExchangeAlgorithms()
                             .ClearHostKeyAlgorithms()
                             .ClearPublicKeyAcceptedAlgorithms()
+                            .ClearMessageAuthenticationCodeAlgorithms()
                             .WithUsePAM(true)
                             .Update()
                             .Restart();

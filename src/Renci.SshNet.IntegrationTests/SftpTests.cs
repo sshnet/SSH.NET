@@ -6137,6 +6137,134 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public void Sftp_SetLastAccessTime()
+        {
+            var testFilePath = "/home/sshnet/test-file.txt";
+            var testContent = "File";
+            using var client = new SftpClient(_connectionInfoFactory.Create());
+            client.Connect();
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            var currentTime = DateTime.Now;
+
+            client.UploadFile(fileStream, testFilePath);
+
+            try
+            {
+                var time = client.GetLastAccessTime(testFilePath);
+                Assert.AreEqual(currentTime.Year, time.Year);
+                Assert.AreEqual(currentTime.Month, time.Month);
+                Assert.AreEqual(currentTime.Day, time.Day);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+
+                client.SetLastAccessTime(testFilePath, newTime);
+                time = client.GetLastAccessTime(testFilePath);
+                Assert.AreEqual(newTime, time);
+            }
+            finally
+            {
+                client.DeleteFile(testFilePath);
+            }
+        }
+
+
+        [TestMethod]
+        public void Sftp_SetLastAccessTimeUtc()
+        {
+            var testFilePath = "/home/sshnet/test-file.txt";
+            var testContent = "File";
+            using var client = new SftpClient(_connectionInfoFactory.Create());
+            client.Connect();
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            var currentTime = DateTime.UtcNow;
+
+            client.UploadFile(fileStream, testFilePath);
+            try
+            {
+                var time = client.GetLastAccessTimeUtc(testFilePath);
+                Assert.AreEqual(currentTime.Year, time.Year);
+                Assert.AreEqual(currentTime.Month, time.Month);
+                Assert.AreEqual(currentTime.Day, time.Day);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+                DateTime.SpecifyKind(newTime, DateTimeKind.Utc);
+
+                client.SetLastAccessTimeUtc(testFilePath, newTime);
+                time = client.GetLastAccessTimeUtc(testFilePath);
+                Assert.AreEqual(newTime, time);
+            }
+            finally
+            {
+                client.DeleteFile(testFilePath); 
+            }
+        }
+
+        [TestMethod]
+        public void Sftp_SetLastWriteTime()
+        {
+            var testFilePath = "/home/sshnet/test-file.txt";
+            var testContent = "File";
+            using var client = new SftpClient(_connectionInfoFactory.Create());
+            client.Connect();
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            var currentTime = DateTime.Now;
+
+            client.UploadFile(fileStream, testFilePath);
+            try
+            {
+                var time = client.GetLastWriteTime(testFilePath);
+                Assert.AreEqual(currentTime.Year, time.Year);
+                Assert.AreEqual(currentTime.Month, time.Month);
+                Assert.AreEqual(currentTime.Day, time.Day);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+
+                client.SetLastWriteTime(testFilePath, newTime);
+                time = client.GetLastWriteTime(testFilePath);
+                Assert.AreEqual(newTime, time);
+            }
+            finally
+            {
+                client.DeleteFile(testFilePath);
+            }
+        }
+
+        [TestMethod]
+        public void Sftp_SetLastWriteTimeUtc()
+        {
+            var testFilePath = "/home/sshnet/test-file.txt";
+            var testContent = "File";
+            using var client = new SftpClient(_connectionInfoFactory.Create());
+            client.Connect();
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            var currentTime = DateTime.UtcNow;
+            
+            client.UploadFile(fileStream, testFilePath);
+            try
+            {
+                var time = client.GetLastWriteTimeUtc(testFilePath);
+                Assert.AreEqual(currentTime.Year, time.Year);
+                Assert.AreEqual(currentTime.Month, time.Month);
+                Assert.AreEqual(currentTime.Day, time.Day);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+                DateTime.SpecifyKind(newTime, DateTimeKind.Utc);
+
+                client.SetLastWriteTimeUtc(testFilePath, newTime);
+                time = client.GetLastWriteTimeUtc(testFilePath);
+                Assert.AreEqual(newTime, time);
+            }
+            finally
+            {
+                client.DeleteFile(testFilePath);
+            }
+        }
+
         private static IEnumerable<object[]> GetSftpUploadFileFileStreamData()
         {
             yield return new object[] { 0 };

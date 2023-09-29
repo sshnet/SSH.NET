@@ -618,6 +618,13 @@ namespace Renci.SshNet
                                                          DisconnectReason.ProtocolVersionNotSupported);
                     }
 
+                    if ((serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.5") || serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6"))
+                        && !serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6.1"))
+                    {
+                        _ = ConnectionInfo.KeyExchangeAlgorithms.Remove("curve25519-sha256");
+                        _ = ConnectionInfo.KeyExchangeAlgorithms.Remove("curve25519-sha256@libssh.org");
+                    }
+
                     // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
                     RegisterMessage("SSH_MSG_IGNORE");

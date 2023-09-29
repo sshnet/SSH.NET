@@ -239,6 +239,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state);
 
         /// <summary>
@@ -338,7 +339,7 @@ namespace Renci.SshNet
         /// </para>
         /// <para>
         /// When <paramref name="path"/> refers to an existing file, set <paramref name="canOverride"/> to <c>true</c> to overwrite and truncate that file.
-        /// If <paramref name="canOverride"/> is <c>false</c>, the upload will fail and <see cref="EndUploadFile(IAsyncResult)"/> will throw an
+        /// If <paramref name="canOverride"/> is <c>false</c>, the upload will fail and <see cref="SftpClient.EndUploadFile(IAsyncResult)"/> will throw an
         /// <see cref="SshException"/>.
         /// </para>
         /// </remarks>
@@ -515,7 +516,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>/// 
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>///
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
@@ -527,7 +528,7 @@ namespace Renci.SshNet
         /// Ends an asynchronous file downloading into the stream.
         /// </summary>
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
-        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndDownloadFile(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="SftpClient.EndDownloadFile(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException">The path was not found on the remote host.</exception>
@@ -541,7 +542,7 @@ namespace Renci.SshNet
         /// <returns>
         /// A list of files.
         /// </returns>
-        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndListDirectory(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="SftpClient.EndListDirectory(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
         IEnumerable<ISftpFile> EndListDirectory(IAsyncResult asyncResult);
 
         /// <summary>
@@ -551,7 +552,7 @@ namespace Renci.SshNet
         /// <returns>
         /// A list of uploaded files.
         /// </returns>
-        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndSynchronizeDirectories(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="SftpClient.EndSynchronizeDirectories(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
         /// <exception cref="SftpPathNotFoundException">The destination path was not found on the remote host.</exception>
         IEnumerable<FileInfo> EndSynchronizeDirectories(IAsyncResult asyncResult);
 
@@ -559,7 +560,7 @@ namespace Renci.SshNet
         /// Ends an asynchronous uploading the stream into remote file.
         /// </summary>
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
-        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndUploadFile(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="SftpClient.EndUploadFile(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException">The directory of the file was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
@@ -926,6 +927,34 @@ namespace Renci.SshNet
         void RenameFile(string oldPath, string newPath, bool isPosix);
 
         /// <summary>
+        /// Sets the date and time the specified file was last accessed.
+        /// </summary>
+        /// <param name="path">The file for which to set the access date and time information.</param>
+        /// <param name="lastAccessTime">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
+        void SetLastAccessTime(string path, DateTime lastAccessTime);
+
+        /// <summary>
+        /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last accessed.
+        /// </summary>
+        /// <param name="path">The file for which to set the access date and time information.</param>
+        /// <param name="lastAccessTimeUtc">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in UTC time.</param>
+        void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc);
+
+        /// <summary>
+        /// Sets the date and time that the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to set the date and time information.</param>
+        /// <param name="lastWriteTime">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
+        void SetLastWriteTime(string path, DateTime lastWriteTime);
+
+        /// <summary>
+        /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to set the date and time information.</param>
+        /// <param name="lastWriteTimeUtc">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
+        void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc);
+        
+        /// <summary>
         /// Sets the specified <see cref="SftpFileAttributes"/> of the file on the specified path.
         /// </summary>
         /// <param name="path">The path to the file.</param>
@@ -959,6 +988,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="destinationPath"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern);
 
         /// <summary>

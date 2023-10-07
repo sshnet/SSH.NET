@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Endo
 {
     internal interface GlvEndomorphism
-        :   ECEndomorphism
+        : ECEndomorphism
     {
         BigInteger[] DecomposeScalar(BigInteger k);
     }

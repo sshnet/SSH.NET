@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
                 .Setup(p => p.RequestRead(_handle, (ulong) _actual, _readBufferSize))
-                .Returns(Array<byte>.Empty);
+                .Returns(Array.Empty<byte>());
 
             var buffer = _originalBuffer.Copy();
             var actual = _target.Read(buffer, 0, buffer.Length);
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
                 .Setup(p => p.RequestRead(_handle, (ulong)_actual, _readBufferSize))
-                .Returns(Array<byte>.Empty);
+                .Returns(Array.Empty<byte>());
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
             _target.Read(new byte[10], 0, 10);

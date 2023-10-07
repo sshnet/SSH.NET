@@ -4,7 +4,7 @@
     /// Represents SSH_MSG_KEXDH_INIT message.
     /// </summary>
     [Message("SSH_MSG_KEXDH_INIT", 30)]
-    internal class KeyExchangeDhInitMessage : Message, IKeyExchangedAllowed
+    internal sealed class KeyExchangeDhInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
         /// Gets the E value.

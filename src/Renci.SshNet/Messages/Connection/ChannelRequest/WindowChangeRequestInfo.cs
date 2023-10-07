@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "window-change" type channel request information
     /// </summary>
-    internal class WindowChangeRequestInfo : RequestInfo
+    internal sealed class WindowChangeRequestInfo : RequestInfo
     {
         /// <summary>
         /// Channe request name

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -31,17 +34,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Truncate, false))
-                           .Returns(_handle);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                           .Returns(_readBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                           .Returns(_writeBufferSize);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestClose(_handle));
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Truncate, false))
+                               .Returns(_handle);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                               .Returns(_readBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                               .Returns(_writeBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen).Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestClose(_handle));
         }
 
         protected override void Arrange()

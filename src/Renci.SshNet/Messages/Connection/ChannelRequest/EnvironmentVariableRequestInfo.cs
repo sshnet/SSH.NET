@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "env" type channel request information
     /// </summary>
-    internal class EnvironmentVariableRequestInfo : RequestInfo
+    internal sealed class EnvironmentVariableRequestInfo : RequestInfo
     {
         private byte[] _variableName;
         private byte[] _variableValue;

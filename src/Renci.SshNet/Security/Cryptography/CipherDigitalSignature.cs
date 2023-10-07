@@ -18,8 +18,10 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="cipher">The cipher.</param>
         protected CipherDigitalSignature(ObjectIdentifier oid, AsymmetricCipher cipher)
         {
-            if (cipher == null)
-                throw new ArgumentNullException("cipher");
+            if (cipher is null)
+            {
+                throw new ArgumentNullException(nameof(cipher));
+            }
 
             _cipher = cipher;
             _oid = oid;
@@ -50,10 +52,10 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Sign(byte[] input)
         {
-            //  Calculate hash value
+            // Calculate hash value
             var hashData = Hash(input);
 
-            //  Calculate DER string
+            // Calculate DER string
             var derEncodedHash = DerEncode(hashData);
 
             return _cipher.Encrypt(derEncodedHash).TrimLeadingZeros();
@@ -70,7 +72,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// Encodes hash using DER.
         /// </summary>
         /// <param name="hashData">The hash data.</param>
-        /// <returns>DER Encoded byte array</returns>
+        /// <returns>
+        /// DER Encoded byte array.
+        /// </returns>
         protected byte[] DerEncode(byte[] hashData)
         {
             var alg = new DerData();

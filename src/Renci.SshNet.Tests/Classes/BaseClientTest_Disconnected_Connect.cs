@@ -29,22 +29,22 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence)
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.InSequence(sequence)
                         .Setup(p => p.Connect());
-            _sessionMock.InSequence(sequence)
+            SessionMock.InSequence(sequence)
                         .Setup(p => p.OnDisconnecting());
-            _sessionMock.InSequence(sequence)
+            SessionMock.InSequence(sequence)
                         .Setup(p => p.Dispose());
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
                                .Returns(_socketFactory2Mock.Object);
-            _serviceFactoryMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSession(_connectionInfo, _socketFactory2Mock.Object))
                                .Returns(_session2Mock.Object);
             _session2Mock.InSequence(sequence)
@@ -55,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _client.Connect();
             _client.Disconnect();
         }
@@ -78,22 +78,22 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedTwic()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Exactly(2));
+            ServiceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Exactly(2));
         }
 
         [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedTwice()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+            ServiceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object),
                                        Times.Once);
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactory2Mock.Object),
+            ServiceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactory2Mock.Object),
                                        Times.Once);
         }
 
         [TestMethod]
         public void ConnectOnSessionShouldBeInvokedTwice()
         {
-            _sessionMock.Verify(p => p.Connect(), Times.Once);
+            SessionMock.Verify(p => p.Connect(), Times.Once);
             _session2Mock.Verify(p => p.Connect(), Times.Once);
         }
 

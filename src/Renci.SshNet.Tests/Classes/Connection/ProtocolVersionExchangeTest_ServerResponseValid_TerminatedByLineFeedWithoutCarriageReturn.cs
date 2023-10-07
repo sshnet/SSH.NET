@@ -1,13 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -60,11 +62,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _server = new AsyncSocketListener(_serverEndPoint);
             _server.Start();
             _server.BytesReceived += (bytes, socket) =>
-            {
-                _dataReceivedByServer.AddRange(bytes);
-                socket.Send(_serverIdentification);
-                socket.Shutdown(SocketShutdown.Send);
-            };
+                {
+                    _dataReceivedByServer.AddRange(bytes);
+
+                    _ = socket.Send(_serverIdentification);
+
+                    socket.Shutdown(SocketShutdown.Send);
+                };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -76,6 +80,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected void Act()
         {
             _actual = _protocolVersionExchange.Start(_clientVersion, _client, _timeout);
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

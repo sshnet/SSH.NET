@@ -4,14 +4,14 @@ using System.Text;
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "exec" type channel request information
+    /// Represents "exec" type channel request information.
     /// </summary>
-    internal class ExecRequestInfo : RequestInfo
+    internal sealed class ExecRequestInfo : RequestInfo
     {
         private byte[] _command;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "exec";
 
@@ -79,10 +79,15 @@ namespace Renci.SshNet.Messages.Connection
         public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
-            if (command == null)
-                throw new ArgumentNullException("command");
-            if (encoding == null)
-                throw new ArgumentNullException("encoding");
+            if (command is null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            if (encoding is null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             _command = encoding.GetBytes(command);
             Encoding = encoding;

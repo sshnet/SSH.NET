@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -40,10 +42,17 @@ namespace Renci.SshNet.Tests.Classes
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
             _sequence = new MockSequence();
-            _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
-            _channelMock.InSequence(_sequence).Setup(p => p.Open());
-            _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelMock.InSequence(_sequence).Setup(p => p.Dispose());
+
+            _ = _sessionMock.InSequence(_sequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelMock.Object);
+            _ = _channelMock.InSequence(_sequence)
+                            .Setup(p => p.Open());
+            _ = _channelMock.InSequence(_sequence)
+                            .Setup(p => p.SendSubsystemRequest(_subsystemName))
+                            .Returns(true);
+            _ = _channelMock.InSequence(_sequence)
+                            .Setup(p => p.Dispose());
 
             _subsystemSession = new SubsystemSessionStub(
                 _sessionMock.Object,

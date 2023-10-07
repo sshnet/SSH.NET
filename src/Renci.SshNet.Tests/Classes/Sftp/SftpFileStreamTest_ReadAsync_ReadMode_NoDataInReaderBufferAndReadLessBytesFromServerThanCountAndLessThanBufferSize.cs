@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -119,7 +118,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
                 .Setup(p => p.RequestReadAsync(_handle, (ulong) _actual, _readBufferSize, default))
-                .ReturnsAsync(Array<byte>.Empty);
+                .ReturnsAsync(Array.Empty<byte>());
 
             var buffer = _originalBuffer.Copy();
             var actual = await _target.ReadAsync(buffer, 0, buffer.Length);
@@ -137,7 +136,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
                 .Setup(p => p.RequestReadAsync(_handle, (ulong)_actual, _readBufferSize, default))
-                .ReturnsAsync(Array<byte>.Empty);
+                .ReturnsAsync(Array.Empty<byte>());
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
             await _target.ReadAsync(new byte[10], 0, 10);
@@ -149,4 +148,3 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
     }
 }
-#endif

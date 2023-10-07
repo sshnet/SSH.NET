@@ -28,9 +28,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             Assert.IsNull(target.ChannelType);
             Assert.IsNull(target.Info);
-            Assert.AreEqual(default(uint), target.InitialWindowSize);
-            Assert.AreEqual(default(uint), target.LocalChannelNumber);
-            Assert.AreEqual(default(uint), target.MaximumPacketSize);
+            Assert.AreEqual(default, target.InitialWindowSize);
+            Assert.AreEqual(default, target.LocalChannelNumber);
+            Assert.AreEqual(default, target.MaximumPacketSize);
         }
 
         [TestMethod]

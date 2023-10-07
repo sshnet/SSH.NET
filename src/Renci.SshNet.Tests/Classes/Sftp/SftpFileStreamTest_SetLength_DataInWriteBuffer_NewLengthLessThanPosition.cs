@@ -160,7 +160,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(_sequence)
                            .Setup(p => p.RequestRead(_handle, (uint) _length, _readBufferSize))
-                           .Returns(Array<byte>.Empty);
+                           .Returns(Array.Empty<byte>());
 
             var byteRead = _sftpFileStream.ReadByte();
 

@@ -1,8 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
@@ -28,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void Act()
         {
-            ServerSocket.Send(_packet, 0, _packet.Length, SocketFlags.None);
+            _ = ServerSocket.Send(_packet, 0, _packet.Length, SocketFlags.None);
 
             // give session some time to process packet
             Thread.Sleep(200);
@@ -101,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerSocket.ReceiveTimeout = 500;
             try
             {
-                ServerSocket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+                _ = ServerSocket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                 Assert.Fail();
             }
             catch (SocketException ex)
@@ -134,7 +135,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_SendMessageShouldSendMessageToServer()
         {
             var session = (ISession) Session;
@@ -204,9 +205,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Failed, result);
             Assert.IsNotNull(exception);

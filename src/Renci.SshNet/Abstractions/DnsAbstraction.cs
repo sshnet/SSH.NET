@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 #if FEATURE_DNS_SYNC
 #elif FEATURE_DNS_APM
@@ -92,7 +89,6 @@ namespace Renci.SshNet.Abstractions
 #endif
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Returns the Internet Protocol (IP) addresses for the specified host.
         /// </summary>
@@ -107,7 +103,5 @@ namespace Renci.SshNet.Abstractions
         {
             return Dns.GetHostAddressesAsync(hostNameOrAddress);
         }
-#endif
-
     }
 }

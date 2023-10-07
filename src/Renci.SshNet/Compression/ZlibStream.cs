@@ -14,7 +14,9 @@ namespace Renci.SshNet.Compression
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="mode">The mode.</param>
+#pragma warning disable IDE0060 // Remove unused parameter
         public ZlibStream(Stream stream, CompressionMode mode)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             //switch (mode)
             //{
@@ -37,7 +39,9 @@ namespace Renci.SshNet.Compression
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="count">The count.</param>
+#pragma warning disable IDE0060 // Remove unused parameter
         public void Write(byte[] buffer, int offset, int count)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             //this._baseStream.Write(buffer, offset, count);
         }

@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
@@ -156,40 +155,5 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Arcfour128_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour128", new CipherInfo(128, (key, iv) => { return new Arc4Cipher(key, true); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Arcfour256_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour256", new CipherInfo(256, (key, iv) => { return new Arc4Cipher(key, true); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
     }
 }

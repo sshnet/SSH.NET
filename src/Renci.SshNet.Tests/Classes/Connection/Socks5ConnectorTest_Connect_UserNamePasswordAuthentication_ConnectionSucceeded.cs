@@ -1,13 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -39,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     {
                         // We received the greeting
 
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                     // SOCKS version
                                     0x05,
@@ -51,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     {
                         // We received the username/password authentication request
 
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                     // Authentication version
                                     0x01,
@@ -63,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     {
                         // We received the connection request
 
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                     // SOCKS version
                                     0x05,
@@ -74,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             });
 
                         // Send server bound address
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                     // IPv4
                                     0x01,
@@ -89,7 +93,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             });
 
                         // Send extra byte to allow us to verify that connector did not consume too much
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                 0xfe
                             });
@@ -100,18 +104,15 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
+            _proxyServer?.Dispose();
 
             if (_clientSocket != null)
             {
@@ -123,6 +124,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected override void Act()
         {
             _actual = Connector.Connect(_connectionInfo);
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

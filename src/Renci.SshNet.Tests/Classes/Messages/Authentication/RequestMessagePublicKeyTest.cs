@@ -1,7 +1,7 @@
-﻿using Renci.SshNet.Messages.Authentication;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Messages.Authentication
@@ -20,11 +20,11 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void RequestMessagePublicKeyConstructorTest()
         {
-            ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
+            var serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
             byte[] keyData = null; // TODO: Initialize to an appropriate value
-            RequestMessagePublicKey target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData);
+            var target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -35,12 +35,12 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void RequestMessagePublicKeyConstructorTest1()
         {
-            ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
+            var serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
             byte[] keyData = null; // TODO: Initialize to an appropriate value
             byte[] signature = null; // TODO: Initialize to an appropriate value
-            RequestMessagePublicKey target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData, signature);
+            var target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData, signature);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -51,13 +51,12 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void MethodNameTest()
         {
-            ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
+            var serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
             byte[] keyData = null; // TODO: Initialize to an appropriate value
-            RequestMessagePublicKey target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData); // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.MethodName;
+            var target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData); // TODO: Initialize to an appropriate value
+            var actual = target.MethodName;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
@@ -68,11 +67,11 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void SignatureTest()
         {
-            ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            string keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
+            var serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
+            var keyAlgorithmName = string.Empty; // TODO: Initialize to an appropriate value
             byte[] keyData = null; // TODO: Initialize to an appropriate value
-            RequestMessagePublicKey target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData); // TODO: Initialize to an appropriate value
+            var target = new RequestMessagePublicKey(serviceName, username, keyAlgorithmName, keyData); // TODO: Initialize to an appropriate value
             byte[] expected = null; // TODO: Initialize to an appropriate value
             target.Signature = expected;
             var actual = target.Signature;

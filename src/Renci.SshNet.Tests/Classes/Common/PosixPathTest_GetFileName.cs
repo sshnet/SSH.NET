@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.GetFileName(path);
+                _ = PosixPath.GetFileName(path);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)

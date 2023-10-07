@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Transport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
@@ -19,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [Ignore] // placeholder
         public void ServiceRequestMessageConstructorTest()
         {
-            ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
-            ServiceRequestMessage target = new ServiceRequestMessage(serviceName);
+            var serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
+            var target = new ServiceRequestMessage(serviceName);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

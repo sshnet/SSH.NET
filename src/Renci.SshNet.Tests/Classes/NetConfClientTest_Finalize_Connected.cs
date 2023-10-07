@@ -16,8 +16,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
-            _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
-            _netConfClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
+            _netConfClient = new NetConfClient(_connectionInfo, false, ServiceFactoryMock.Object)
+                {
+                    OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout)
+                };
             _netConfClientWeakRefence = new WeakReference(_netConfClient);
         }
 
@@ -25,19 +27,19 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.Connect());
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _operationTimeout))
-                               .Returns(_netConfSessionMock.Object);
-            _netConfSessionMock.InSequence(sequence)
-                               .Setup(p => p.Connect());
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSocketFactory())
+                                   .Returns(SocketFactoryMock.Object);
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                                   .Returns(SessionMock.Object);
+            _ = SessionMock.InSequence(sequence)
+                            .Setup(p => p.Connect());
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateNetConfSession(SessionMock.Object, _operationTimeout))
+                                   .Returns(NetConfSessionMock.Object);
+            _ = NetConfSessionMock.InSequence(sequence)
+                                   .Setup(p => p.Connect());
         }
 
         protected override void Arrange()
@@ -64,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
             // Since we recreated the mocks, this test has no value
             // We'll leaving ths test just in case we have a solution that does not require us
             // to recreate the mocks
-            _netConfSessionMock.Verify(p => p.Disconnect(), Times.Never);
+            NetConfSessionMock.Verify(p => p.Disconnect(), Times.Never);
         }
 
         [TestMethod]
@@ -73,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes
             // Since we recreated the mocks, this test has no value
             // We'll leaving ths test just in case we have a solution that does not require us
             // to recreate the mocks
-            _netConfSessionMock.Verify(p => p.Dispose(), Times.Never);
+            NetConfSessionMock.Verify(p => p.Dispose(), Times.Never);
         }
 
         [TestMethod]

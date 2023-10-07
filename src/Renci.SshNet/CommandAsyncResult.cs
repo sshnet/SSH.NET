@@ -4,7 +4,7 @@ using System.Threading;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides additional information for asynchronous command execution
+    /// Provides additional information for asynchronous command execution.
     /// </summary>
     public class CommandAsyncResult : IAsyncResult
     {
@@ -27,8 +27,6 @@ namespace Renci.SshNet
         /// <value>Total bytes sent.</value>
         public int BytesSent { get; set; }
 
-        #region IAsyncResult Members
-
         /// <summary>
         /// Gets a user-defined object that qualifies or contains information about an asynchronous operation.
         /// </summary>
@@ -36,27 +34,31 @@ namespace Renci.SshNet
         public object AsyncState { get; internal set; }
 
         /// <summary>
-        /// Gets a <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.
+        /// Gets a <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.
         /// </summary>
-        /// <returns>A <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.</returns>
+        /// <returns>
+        /// A <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.
+        /// </returns>
         public WaitHandle AsyncWaitHandle { get; internal set; }
 
         /// <summary>
-        /// Gets a value that indicates whether the asynchronous operation completed synchronously.
+        /// Gets a value indicating whether the asynchronous operation completed synchronously.
         /// </summary>
-        /// <returns>true if the asynchronous operation completed synchronously; otherwise, false.</returns>
+        /// <returns>
+        /// true if the asynchronous operation completed synchronously; otherwise, false.
+        /// </returns>
         public bool CompletedSynchronously { get; internal set; }
 
         /// <summary>
-        /// Gets a value that indicates whether the asynchronous operation has completed.
+        /// Gets a value indicating whether the asynchronous operation has completed.
         /// </summary>
-        /// <returns>true if the operation is complete; otherwise, false.</returns>
+        /// <returns>
+        /// true if the operation is complete; otherwise, false.
+        /// </returns>
         public bool IsCompleted { get; internal set; }
 
-        #endregion
-
         /// <summary>
-        /// Gets a value indicating whether <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this
+        /// Gets or sets a value indicating whether <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this
         /// <see cref="CommandAsyncResult"/>.
         /// </summary>
         /// <returns>

@@ -6153,15 +6153,15 @@ namespace Renci.SshNet.IntegrationTests
             try
             {
                 var time = client.GetLastAccessTime(testFilePath);
-                Assert.AreEqual(currentTime.Year, time.Year);
-                Assert.AreEqual(currentTime.Month, time.Month);
-                Assert.AreEqual(currentTime.Day, time.Day);
 
-                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastAccessTime(testFilePath, newTime);
                 time = client.GetLastAccessTime(testFilePath);
-                Assert.AreEqual(newTime, time);
+
+                DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
             finally
             {
@@ -6185,16 +6185,15 @@ namespace Renci.SshNet.IntegrationTests
             try
             {
                 var time = client.GetLastAccessTimeUtc(testFilePath);
-                Assert.AreEqual(currentTime.Year, time.Year);
-                Assert.AreEqual(currentTime.Month, time.Month);
-                Assert.AreEqual(currentTime.Day, time.Day);
 
-                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
-                DateTime.SpecifyKind(newTime, DateTimeKind.Utc);
+                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastAccessTimeUtc(testFilePath, newTime);
                 time = client.GetLastAccessTimeUtc(testFilePath);
-                Assert.AreEqual(newTime, time);
+
+                DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
             finally
             {
@@ -6217,15 +6216,15 @@ namespace Renci.SshNet.IntegrationTests
             try
             {
                 var time = client.GetLastWriteTime(testFilePath);
-                Assert.AreEqual(currentTime.Year, time.Year);
-                Assert.AreEqual(currentTime.Month, time.Month);
-                Assert.AreEqual(currentTime.Day, time.Day);
 
-                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
+                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastWriteTime(testFilePath, newTime);
                 time = client.GetLastWriteTime(testFilePath);
-                Assert.AreEqual(newTime, time);
+
+                DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
             finally
             {
@@ -6248,16 +6247,15 @@ namespace Renci.SshNet.IntegrationTests
             try
             {
                 var time = client.GetLastWriteTimeUtc(testFilePath);
-                Assert.AreEqual(currentTime.Year, time.Year);
-                Assert.AreEqual(currentTime.Month, time.Month);
-                Assert.AreEqual(currentTime.Day, time.Day);
 
-                var newTime = new DateTime(1986, 03, 15, 01, 02, 03);
-                DateTime.SpecifyKind(newTime, DateTimeKind.Utc);
+                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
+
+                var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastWriteTimeUtc(testFilePath, newTime);
                 time = client.GetLastWriteTimeUtc(testFilePath);
-                Assert.AreEqual(newTime, time);
+
+                DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
             finally
             {

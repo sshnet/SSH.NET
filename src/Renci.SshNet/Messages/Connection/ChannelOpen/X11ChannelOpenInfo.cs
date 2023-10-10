@@ -5,7 +5,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Used to open "x11" channel type
     /// </summary>
-    internal class X11ChannelOpenInfo : ChannelOpenInfo
+    internal sealed class X11ChannelOpenInfo : ChannelOpenInfo
     {
         private byte[] _originatorAddress;
 

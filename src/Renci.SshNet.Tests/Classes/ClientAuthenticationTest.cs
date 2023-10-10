@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -28,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format("Cannot be less than one.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than one.", ex);
                 Assert.AreEqual("partialSuccessLimit", ex.ParamName);
             }
         }
@@ -46,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format("Cannot be less than one.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than one.", ex);
                 Assert.AreEqual("partialSuccessLimit", ex.ParamName);
             }
         }

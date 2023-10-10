@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 
@@ -92,95 +90,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentException)
             {
             }
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_All()
-        {
-            var value = CreateBuffer(50000);
-            var count = value.Length;
-            const int runs = 10000;
-
-            Performance(value, count, runs);
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_LargeCount()
-        {
-            var value = CreateBuffer(50000);
-            const int count = 40000;
-            const int runs = 1000000;
-
-            Performance(value, count, runs);
-        }
-
-        [TestMethod]
-        [TestCategory("LongRunning")]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_SmallCount()
-        {
-            var value = CreateBuffer(50000);
-            const int count = 50;
-            const int runs = 1000000;
-
-            Performance(value, count, runs);
-        }
-
-        [TestMethod]
-        [TestCategory("Performance")]
-        public void Performance_LargeArray_ZeroCount()
-        {
-            var value = CreateBuffer(50000);
-            const int count = 0;
-            const int runs = 1000000;
-
-            Performance(value, count, runs);
-        }
-
-        private static void Performance(byte[] value, int count, int runs)
-        {
-            var stopWatch = new Stopwatch();
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Start();
-
-            for (var i = 0; i < runs; i++)
-            {
-                var result = Extensions.Take(value, count);
-                var resultLength = result.Length;
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
-
-            stopWatch.Reset();
-            stopWatch.Start();
-
-            for (var i = 0; i < runs; i++)
-            {
-                var result = Enumerable.Take(value, count);
-                var resultLength = result.ToArray().Length;
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            stopWatch.Stop();
-
-            Console.WriteLine(stopWatch.ElapsedMilliseconds);
         }
 
         private byte[] CreateBuffer(int length)

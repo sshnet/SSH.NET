@@ -76,7 +76,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public ChannelOpenMessage()
         {
-            //  Required for dynamicly loading request type when it comes from the server
+            // Required for dynamicly loading request type when it comes from the server
         }
 
         /// <summary>
@@ -90,7 +90,9 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelOpenMessage(uint channelNumber, uint initialWindowSize, uint maximumPacketSize, ChannelOpenInfo info)
         {
             if (info == null)
-                throw new ArgumentNullException("info");
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
 
             ChannelType = Ascii.GetBytes(info.ChannelType);
             LocalChannelNumber = channelNumber;

@@ -25,15 +25,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
         }
 
         protected override void TearDown()
         {
             if (_client != null)
             {
-                _sessionMock.Setup(p => p.OnDisconnecting());
-                _sessionMock.Setup(p => p.Dispose());
+                SessionMock.Setup(p => p.OnDisconnecting());
+                SessionMock.Setup(p => p.Dispose());
                 _client.Dispose();
             }
         }
@@ -55,12 +55,12 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ConnectShouldActivateKeepAliveIfSessionIs()
         {
-            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+            ServiceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.Setup(p => p.Connect());
+            SessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
                         .Returns(true)
                         .Callback(() => Interlocked.Increment(ref _keepAliveCount));
 
@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(250);
 
             // Exactly two keep-alives should be sent
-            _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Exactly(2));
+            SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Exactly(2));
         }
 
         private class MyClient : BaseClient

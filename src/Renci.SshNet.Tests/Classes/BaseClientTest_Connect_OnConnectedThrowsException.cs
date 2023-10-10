@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,20 +25,20 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void SetupMocks()
         {
-            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.Dispose());
+            ServiceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.Setup(p => p.Connect());
+            SessionMock.Setup(p => p.Dispose());
         }
 
         protected override void TearDown()
         {
             if (_client != null)
             {
-                _sessionMock.Setup(p => p.OnDisconnecting());
-                _sessionMock.Setup(p => p.Dispose());
+                SessionMock.Setup(p => p.OnDisconnecting());
+                SessionMock.Setup(p => p.Dispose());
                 _client.Dispose();
             }
         }
@@ -46,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
+            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object)
                 {
                     OnConnectedException = _onConnectException
                 };
@@ -75,26 +76,26 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+            ServiceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
         }
 
         [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+            ServiceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object),
                                        Times.Once);
         }
 
         [TestMethod]
         public void ConnectOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.Connect(), Times.Once);
+            SessionMock.Verify(p => p.Connect(), Times.Once);
         }
 
         [TestMethod]
         public void DisposeOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.Dispose(), Times.Once);
+            SessionMock.Verify(p => p.Dispose(), Times.Once);
         }
 
         [TestMethod]
@@ -104,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _client.ErrorOccurred += (sender, args) => Interlocked.Increment(ref errorOccurredSignalCount);
 
-            _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
 
             Assert.AreEqual(0, errorOccurredSignalCount);
         }
@@ -116,7 +117,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _client.HostKeyReceived += (sender, args) => Interlocked.Increment(ref hostKeyReceivedSignalCount);
 
-            _sessionMock.Raise(p => p.HostKeyReceived += null, new HostKeyEventArgs(GetKeyHostAlgorithm()));
+            SessionMock.Raise(p => p.HostKeyReceived += null, new HostKeyEventArgs(GetKeyHostAlgorithm()));
 
             Assert.AreEqual(0, hostKeyReceivedSignalCount);
         }
@@ -140,7 +141,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm) privateKey.HostKey;
+                return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();
             }
         }
 

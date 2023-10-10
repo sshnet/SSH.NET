@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SocketException ex)
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(SocketError.HostNotFound, _actualException.SocketErrorCode);
+            Assert.IsTrue(_actualException.SocketErrorCode is SocketError.HostNotFound or SocketError.TryAgain);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Messages.Connection
         internal const byte MessageNumber = 94;
 
         /// <summary>
-        /// Gets or sets message data.
+        /// Gets the message data.
         /// </summary>
         /// <value>
         /// The data.
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <value>
         /// The zero-based offset in <see cref="Data"/> at which the data begins.
         /// </value>
-        public int Offset { get; set; }
+        public int Offset { get; private set; }
 
         /// <summary>
         /// Gets the number of bytes of <see cref="Data"/> to read or write.
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <value>
         /// The number of bytes of <see cref="Data"/> to read or write.
         /// </value>
-        public int Size { get; set; }
+        public int Size { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -74,8 +74,10 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data)
             : base(localChannelNumber)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             Data = data;
             Offset = 0;
@@ -92,8 +94,10 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data, int offset, int size)
             : base(localChannelNumber)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             Data = data;
             Offset = offset;
@@ -106,6 +110,7 @@ namespace Renci.SshNet.Messages.Connection
         protected override void LoadData()
         {
             base.LoadData();
+
             Data = ReadBinary();
             Offset = 0;
             Size = Data.Length;
@@ -117,6 +122,7 @@ namespace Renci.SshNet.Messages.Connection
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinary(Data, Offset, Size);
         }
     }

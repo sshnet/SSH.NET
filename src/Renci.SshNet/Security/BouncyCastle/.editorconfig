@@ -1,0 +1,6 @@
+﻿[*.cs]
+
+generated_code = true
+
+# Do not reported any diagnostics for "imported" code
+dotnet_analyzer_diagnostic.severity = none

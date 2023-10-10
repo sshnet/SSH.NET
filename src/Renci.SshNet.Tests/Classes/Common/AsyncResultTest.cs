@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -19,10 +20,9 @@ namespace Renci.SshNet.Tests.Classes.Common
         ///</summary>
         public void EndInvokeTest1Helper<TResult>()
         {
-            AsyncResult<TResult> target = CreateAsyncResult<TResult>(); // TODO: Initialize to an appropriate value
-            TResult expected = default(TResult); // TODO: Initialize to an appropriate value
-            TResult actual;
-            actual = target.EndInvoke();
+            var target = CreateAsyncResult<TResult>(); // TODO: Initialize to an appropriate value
+            var expected = default(TResult); // TODO: Initialize to an appropriate value
+            var actual = target.EndInvoke();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -45,9 +45,9 @@ namespace Renci.SshNet.Tests.Classes.Common
         ///</summary>
         public void SetAsCompletedTest1Helper<TResult>()
         {
-            AsyncResult<TResult> target = CreateAsyncResult<TResult>(); // TODO: Initialize to an appropriate value
-            TResult result = default(TResult); // TODO: Initialize to an appropriate value
-            bool completedSynchronously = false; // TODO: Initialize to an appropriate value
+            var target = CreateAsyncResult<TResult>(); // TODO: Initialize to an appropriate value
+            TResult result = default; // TODO: Initialize to an appropriate value
+            var completedSynchronously = false; // TODO: Initialize to an appropriate value
             target.SetAsCompleted(result, completedSynchronously);
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -71,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void EndInvokeTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
             target.EndInvoke();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -82,9 +82,9 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void SetAsCompletedTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
             Exception exception = null; // TODO: Initialize to an appropriate value
-            bool completedSynchronously = false; // TODO: Initialize to an appropriate value
+            var completedSynchronously = false; // TODO: Initialize to an appropriate value
             target.SetAsCompleted(exception, completedSynchronously);
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -95,9 +95,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void AsyncStateTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
-            object actual;
-            actual = target.AsyncState;
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var actual = target.AsyncState;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
@@ -107,9 +106,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void AsyncWaitHandleTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
-            WaitHandle actual;
-            actual = target.AsyncWaitHandle;
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var actual = target.AsyncWaitHandle;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
@@ -119,9 +117,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void CompletedSynchronouslyTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.CompletedSynchronously;
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var actual = target.CompletedSynchronously;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
@@ -131,9 +128,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void IsCompletedTest()
         {
-            AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.IsCompleted;
+            var target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
+            var actual = target.IsCompleted;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
     }

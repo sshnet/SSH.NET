@@ -7,9 +7,9 @@ namespace Renci.SshNet.Sftp.Requests
     {
         private readonly Action<SftpStatusResponse> _statusAction;
 
-        public uint RequestId { get; private set; }
-        
-        public uint ProtocolVersion { get; private set; }
+        public uint RequestId { get; }
+
+        public uint ProtocolVersion { get; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -36,8 +36,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public virtual void Complete(SftpResponse response)
         {
-            var statusResponse = response as SftpStatusResponse;
-            if (statusResponse != null)
+            if (response is SftpStatusResponse statusResponse)
             {
                 _statusAction(statusResponse);
             }
@@ -55,6 +54,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             Write(RequestId);
         }
     }

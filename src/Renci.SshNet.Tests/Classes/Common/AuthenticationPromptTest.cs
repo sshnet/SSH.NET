@@ -17,10 +17,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void AuthenticationPromptConstructorTest()
         {
-            int id = 0; // TODO: Initialize to an appropriate value
-            bool isEchoed = false; // TODO: Initialize to an appropriate value
-            string request = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationPrompt target = new AuthenticationPrompt(id, isEchoed, request);
+            var id = 0; // TODO: Initialize to an appropriate value
+            var isEchoed = false; // TODO: Initialize to an appropriate value
+            var request = string.Empty; // TODO: Initialize to an appropriate value
+            var target = new AuthenticationPrompt(id, isEchoed, request);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -30,14 +30,13 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ResponseTest()
         {
-            int id = 0; // TODO: Initialize to an appropriate value
-            bool isEchoed = false; // TODO: Initialize to an appropriate value
-            string request = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationPrompt target = new AuthenticationPrompt(id, isEchoed, request); // TODO: Initialize to an appropriate value
-            string expected = string.Empty; // TODO: Initialize to an appropriate value
-            string actual;
+            var id = 0; // TODO: Initialize to an appropriate value
+            var isEchoed = false; // TODO: Initialize to an appropriate value
+            var request = string.Empty; // TODO: Initialize to an appropriate value
+            var target = new AuthenticationPrompt(id, isEchoed, request); // TODO: Initialize to an appropriate value
+            var expected = string.Empty; // TODO: Initialize to an appropriate value
             target.Response = expected;
-            actual = target.Response;
+            var actual = target.Response;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

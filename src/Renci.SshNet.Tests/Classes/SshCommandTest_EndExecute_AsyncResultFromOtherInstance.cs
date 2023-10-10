@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Tests.Common;
 
@@ -39,15 +42,26 @@ namespace Renci.SshNet.Tests.Classes
             _asyncResultB = null;
 
             var seq = new MockSequence();
-            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionAMock.Object);
-            _channelSessionAMock.InSequence(seq).Setup(p => p.Open());
-            _channelSessionAMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText)).Returns(true);
-            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionBMock.Object);
-            _channelSessionBMock.InSequence(seq).Setup(p => p.Open());
-            _channelSessionBMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText)).Returns(true);
+
+            _ = _sessionMock.InSequence(seq)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelSessionAMock.Object);
+            _ = _channelSessionAMock.InSequence(seq)
+                                    .Setup(p => p.Open());
+            _ = _channelSessionAMock.InSequence(seq)
+                                    .Setup(p => p.SendExecRequest(_commandText))
+                                    .Returns(true);
+            _ = _sessionMock.InSequence(seq)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelSessionBMock.Object);
+            _ = _channelSessionBMock.InSequence(seq)
+                                    .Setup(p => p.Open());
+            _ = _channelSessionBMock.InSequence(seq)
+                                    .Setup(p => p.SendExecRequest(_commandText))
+                                    .Returns(true);
 
             _sshCommandA = new SshCommand(_sessionMock.Object, _commandText, _encoding);
-            _sshCommandA.BeginExecute();
+            _ = _sshCommandA.BeginExecute();
 
             _sshCommandB = new SshCommand(_sessionMock.Object, _commandText, _encoding);
             _asyncResultB = _sshCommandB.BeginExecute();
@@ -57,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                _sshCommandA.EndExecute(_asyncResultB);
+                _ = _sshCommandA.EndExecute(_asyncResultB);
                 Assert.Fail();
             }
             catch (ArgumentException ex)
@@ -71,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", typeof(IAsyncResult).Name), _actualException.Message);
+            Assert.AreEqual(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", nameof(IAsyncResult)), _actualException.Message);
             Assert.IsNull(_actualException.ParamName);
         }
     }

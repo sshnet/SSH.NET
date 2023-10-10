@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using System;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -14,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PacketDump.Create(data, 0);
+                _ = PacketDump.Create(data, 0);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -31,13 +32,15 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PacketDump.Create(data, -1);
+                _ =PacketDump.Create(data, -1);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format("Cannot be less than zero.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than zero.", ex);
+
                 Assert.AreEqual("indentLevel", ex.ParamName);
             }
         }

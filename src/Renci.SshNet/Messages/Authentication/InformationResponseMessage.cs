@@ -7,7 +7,7 @@ namespace Renci.SshNet.Messages.Authentication
     /// Represents SSH_MSG_USERAUTH_INFO_RESPONSE message.
     /// </summary>
     [Message("SSH_MSG_USERAUTH_INFO_RESPONSE", 61)]
-    internal class InformationResponseMessage : Message
+    internal sealed class InformationResponseMessage : Message
     {
         /// <summary>
         /// Gets authentication responses.

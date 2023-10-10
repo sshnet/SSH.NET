@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using System.Threading;
-using Renci.SshNet.Common;
-using System.Xml;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Xml;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.NetConf
 {
-    internal class NetConfSession : SubsystemSession, INetConfSession
+    internal sealed class NetConfSession : SubsystemSession, INetConfSession
     {
         private const string Prompt = "]]>]]>";
 
         private readonly StringBuilder _data = new StringBuilder();
         private bool _usingFramingProtocol;
-        private EventWaitHandle _serverCapabilitiesConfirmed = new AutoResetEvent(false);
-        private EventWaitHandle _rpcReplyReceived = new AutoResetEvent(false);
+        private EventWaitHandle _serverCapabilitiesConfirmed = new AutoResetEvent(initialState: false);
+        private EventWaitHandle _rpcReplyReceived = new AutoResetEvent(initialState: false);
         private StringBuilder _rpcReply = new StringBuilder();
         private int _messageId;
 
@@ -46,12 +47,11 @@ namespace Renci.SshNet.NetConf
                                                         "</capability>" +
                                                     "</capabilities>" +
                                                 "</hello>");
-
         }
 
         public XmlDocument SendReceiveRpc(XmlDocument rpc, bool automaticMessageIdHandling)
         {
-            _data.Clear();
+            _ = _data.Clear();
 
             XmlNamespaceManager nsMgr = null;
             if (automaticMessageIdHandling)
@@ -61,15 +61,16 @@ namespace Renci.SshNet.NetConf
                 nsMgr.AddNamespace("nc", "urn:ietf:params:xml:ns:netconf:base:1.0");
                 rpc.SelectSingleNode("/nc:rpc/@message-id", nsMgr).Value = _messageId.ToString(CultureInfo.InvariantCulture);
             }
+
             _rpcReply = new StringBuilder();
-            _rpcReplyReceived.Reset();
+            _ = _rpcReplyReceived.Reset();
             var reply = new XmlDocument();
             if (_usingFramingProtocol)
             {
                 var command = new StringBuilder(rpc.InnerXml.Length + 10);
-                command.AppendFormat("\n#{0}\n", rpc.InnerXml.Length);
-                command.Append(rpc.InnerXml);
-                command.Append("\n##\n");
+                _ = command.AppendFormat(CultureInfo.InvariantCulture, "\n#{0}\n", rpc.InnerXml.Length);
+                _ = command.Append(rpc.InnerXml);
+                _ = command.Append("\n##\n");
                 SendData(Encoding.UTF8.GetBytes(command.ToString()));
 
                 WaitOnHandle(_rpcReplyReceived, OperationTimeout);
@@ -81,6 +82,7 @@ namespace Renci.SshNet.NetConf
                 WaitOnHandle(_rpcReplyReceived, OperationTimeout);
                 reply.LoadXml(_rpcReply.ToString());
             }
+
             if (automaticMessageIdHandling)
             {
                 var replyId = rpc.SelectSingleNode("/nc:rpc/@message-id", nsMgr).Value;
@@ -89,14 +91,15 @@ namespace Renci.SshNet.NetConf
                     throw new NetConfServerException("The rpc message id does not match the rpc-reply message id.");
                 }
             }
+
             return reply;
         }
 
         protected override void OnChannelOpen()
         {
-            _data.Clear();
+            _ = _data.Clear();
 
-            var message = string.Format("{0}{1}", ClientCapabilities.InnerXml, Prompt);
+            var message = string.Concat(ClientCapabilities.InnerXml, Prompt);
 
             SendData(Encoding.UTF8.GetBytes(message));
 
@@ -107,21 +110,22 @@ namespace Renci.SshNet.NetConf
         {
             var chunk = Encoding.UTF8.GetString(data);
 
-            if (ServerCapabilities == null)   // This must be server capabilities, old protocol
+            if (ServerCapabilities is null)
             {
-                _data.Append(chunk);  
+                _ = _data.Append(chunk);
 
                 if (!chunk.Contains(Prompt))
                 {
                     return;
                 }
+
                 try
                 {
-                    chunk = _data.ToString(); 
-                    _data.Clear();
+                    chunk = _data.ToString();
+                    _ = _data.Clear();
 
                     ServerCapabilities = new XmlDocument();
-                    ServerCapabilities.LoadXml(chunk.Replace(Prompt, ""));
+                    ServerCapabilities.LoadXml(chunk.Replace(Prompt, string.Empty));
                 }
                 catch (XmlException e)
                 {
@@ -131,9 +135,9 @@ namespace Renci.SshNet.NetConf
                 var nsMgr = new XmlNamespaceManager(ServerCapabilities.NameTable);
                 nsMgr.AddNamespace("nc", "urn:ietf:params:xml:ns:netconf:base:1.0");
 
-                _usingFramingProtocol = (ServerCapabilities.SelectSingleNode("/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']", nsMgr) != null);
+                _usingFramingProtocol = ServerCapabilities.SelectSingleNode("/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']", nsMgr) != null;
 
-                _serverCapabilitiesConfirmed.Set();
+                _ = _serverCapabilitiesConfirmed.Set();
             }
             else if (_usingFramingProtocol)
             {
@@ -146,30 +150,31 @@ namespace Renci.SshNet.NetConf
                     {
                         break;
                     }
-                    var fractionLength = Convert.ToInt32(match.Groups["length"].Value);
-                    _rpcReply.Append(chunk, position + match.Index + match.Length, fractionLength);
+
+                    var fractionLength = Convert.ToInt32(match.Groups["length"].Value, CultureInfo.InvariantCulture);
+                    _ = _rpcReply.Append(chunk, position + match.Index + match.Length, fractionLength);
                     position += match.Index + match.Length + fractionLength;
                 }
+
                 if (Regex.IsMatch(chunk.Substring(position), @"\n##\n"))
                 {
-                    _rpcReplyReceived.Set();
+                    _ = _rpcReplyReceived.Set();
                 }
             }
-            else  // Old protocol
+            else
             {
-                _data.Append(chunk);
+                _ = _data.Append(chunk);
 
                 if (!chunk.Contains(Prompt))
                 {
                     return;
-                    //throw new NetConfServerException("Server XML message does not end with the prompt " + _prompt);
                 }
-                
-                chunk = _data.ToString();
-                _data.Clear();
 
-                _rpcReply.Append(chunk.Replace(Prompt, ""));
-                _rpcReplyReceived.Set();
+                chunk = _data.ToString();
+                _ = _data.Clear();
+
+                _ = _rpcReply.Append(chunk.Replace(Prompt, string.Empty));
+                _ = _rpcReplyReceived.Set();
             }
         }
 

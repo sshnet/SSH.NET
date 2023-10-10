@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using System;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -14,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+                _ = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -31,13 +32,13 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+                _ = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format("The path is a zero-length string.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+                ArgumentExceptionAssert.MessageEquals("The path is a zero-length string.", ex);
                 Assert.AreEqual("path", ex.ParamName);
             }
         }

@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using System.Threading.Tasks;
 #if FEATURE_ASYNC_ENUMERABLE
 using System.Runtime.CompilerServices;
 #endif
@@ -704,6 +705,33 @@ namespace Renci.SshNet
 
             // Wait for operation to complete, then return result or throw exception
             return ar.EndInvoke();
+        }
+
+        /// <summary>
+        /// Enumerates files and directories in remote directory.
+        /// </summary>
+        /// <remarks>
+        /// This method differs to <see cref="ListDirectory(string, Action{int})"/> in the way how the items are returned. 
+        /// It yields the items to the last moment for the enumerator to decide if it needs to continue or stop enumerating the items. 
+        /// It is handy in case of really huge directory contents at remote server - meaning really huge 65 thousand files and more.
+        /// It also decrease the memory footprint and avoids LOH allocation as happen per call to <see cref="ListDirectory(string, Action{int})"/> method.
+        /// There aren't asynchronous counterpart methods to this because enumerating should happen in your specific asynchronous block.
+        /// </remarks>
+        /// <param name="path">The path.</param>
+        /// <param name="listCallback">The list callback.</param>
+        /// <returns>
+        /// An <see cref="System.Collections.Generic.IEnumerable{SftpFile}"/> of files and directories ready to be enumerated.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public IEnumerable<SftpFile> EnumerateDirectory(string path, Action<int> listCallback = null)
+        {
+            CheckDisposed();
+
+            return InternalEnumerateDirectory(path, listCallback);
         }
 
         /// <summary>
@@ -1613,7 +1641,7 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
+            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int) _bufferSize, cancellationToken);
         }
 
         /// <summary>
@@ -2273,7 +2301,7 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <param name="listCallback">The list callback.</param>
         /// <returns>
-        /// A list of files in the specfied directory.
+        /// A list of files in the specified directory.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
@@ -2326,6 +2354,67 @@ namespace Renci.SshNet
             _sftpSession.RequestClose(handle);
 
             return result;
+        }
+
+        /// <summary>
+        /// Internals the list directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="listCallback">The list callback.</param>
+        /// <returns>
+        /// A list of files in the specified directory.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client not connected.</exception>
+        private IEnumerable<SftpFile> InternalEnumerateDirectory(string path, Action<int> listCallback)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException("path");
+            }
+
+            if (_sftpSession == null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            var fullPath = _sftpSession.GetCanonicalPath(path);
+
+            var handle = _sftpSession.RequestOpenDir(fullPath);
+
+            var basePath = fullPath;
+
+            if (!basePath.EndsWith("/"))
+            {
+                basePath = string.Format("{0}/", fullPath);
+            }
+
+            try
+            {
+                var count = 0;
+                var files = _sftpSession.RequestReadDir(handle);
+
+                while (files != null)
+                {
+                    count += files.Length;
+                    //  Call callback to report number of files read
+                    if (listCallback != null)
+                    {
+                        //  Execute callback on different thread
+                        ThreadAbstraction.ExecuteThread(() => listCallback(count));
+                    }
+                    foreach (var file in files)
+                    {
+                        var fullName = string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, file.Key);
+                        yield return new SftpFile(_sftpSession, fullName, file.Value);
+                    }
+                    files = _sftpSession.RequestReadDir(handle);
+                }
+            }
+            finally
+            {
+                _sftpSession.RequestClose(handle);
+            }
         }
 
         /// <summary>

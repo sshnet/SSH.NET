@@ -1,11 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Renci.SshNet.Tests.Classes
@@ -94,11 +92,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-#if NETFRAMEWORK
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
-#else
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive. (Parameter '" + ex.ParamName + "')", ex.Message);
-#endif
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -117,11 +111,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-#if NETFRAMEWORK
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
-#else
-                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive. (Parameter '" + ex.ParamName + "')", ex.Message);
-#endif
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -1362,61 +1352,6 @@ namespace Renci.SshNet.Tests.Classes
             string actual;
             actual = target.WorkingDirectory;
             Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        protected static string CalculateMD5(string fileName)
-        {
-            using (FileStream file = new FileStream(fileName, FileMode.Open))
-            {
-                MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(file);
-                file.Close();
-
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
-                {
-                    sb.Append(retVal[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
-
-        private static void RemoveAllFiles()
-        {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                client.Connect();
-                client.RunCommand("rm -rf *");
-                client.Disconnect();
-            }
-        }
-
-        /// <summary>
-        /// Helper class to help with upload and download testing
-        /// </summary>
-        private class TestInfo
-        {
-            public string RemoteFileName { get; set; }
-
-            public string UploadedFileName { get; set; }
-
-            public string DownloadedFileName { get; set; }
-
-            //public ulong UploadedBytes { get; set; }
-
-            //public ulong DownloadedBytes { get; set; }
-
-            public FileStream UploadedFile { get; set; }
-
-            public FileStream DownloadedFile { get; set; }
-
-            public string UploadedHash { get; set; }
-
-            public string DownloadedHash { get; set; }
-
-            public SftpUploadAsyncResult UploadResult { get; set; }
-
-            public SftpDownloadAsyncResult DownloadResult { get; set; }
         }
     }
 }

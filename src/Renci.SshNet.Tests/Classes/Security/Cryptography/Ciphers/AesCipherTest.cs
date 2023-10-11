@@ -3,7 +3,6 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
@@ -82,125 +81,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var actual = testCipher.Decrypt(input, 1, input.Length - 3);
 
             Assert.IsTrue(expected.IsEqualTo(actual));
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_AEes128CBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Aes192CBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Aes256CBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Aes128CTR_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Aes192CTR_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Aes256CTR_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_Arcfour_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour", new CipherInfo(128, (key, iv) => { return new Arc4Cipher(key, false); }));
-
-            using (var client = new SshClient(connectionInfo))
-            {
-                client.Connect();
-                client.Disconnect();
-            }
         }
 
         /// <summary>

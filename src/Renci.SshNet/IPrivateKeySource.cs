@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Security;
+using System.Collections.Generic;
+
+using Renci.SshNet.Security;
 
 namespace Renci.SshNet
 {
@@ -8,8 +10,12 @@ namespace Renci.SshNet
     public interface IPrivateKeySource
     {
         /// <summary>
-        /// Gets the host key.
+        /// Gets the host keys algorithms.
         /// </summary>
-        HostAlgorithm HostKey { get; }
+        /// <remarks>
+        /// In situations where there is a preferred order of usage of the host algorithms,
+        /// the collection should be ordered from most preferred to least.
+        /// </remarks>
+        IReadOnlyCollection<HostAlgorithm> HostKeyAlgorithms { get; }
     }
 }

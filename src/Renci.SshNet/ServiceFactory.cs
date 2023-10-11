@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Abstractions;
-using Renci.SshNet.Connection;
-using System.Net.Sockets;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Basic factory for creating new services.
     /// </summary>
-    internal partial class ServiceFactory : IServiceFactory
+    internal sealed partial class ServiceFactory : IServiceFactory
     {
         /// <summary>
         /// Defines the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/>
         /// can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
         /// </summary>
-        private static int PartialSuccessLimit = 5;
+        private static readonly int PartialSuccessLimit = 5;
 
         /// <summary>
         /// Creates a <see cref="IClientAuthentication"/>.
@@ -91,10 +92,15 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
         public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
         {
-            if (clientAlgorithms == null)
-                throw new ArgumentNullException("clientAlgorithms");
-            if (serverAlgorithms == null)
-                throw new ArgumentNullException("serverAlgorithms");
+            if (clientAlgorithms is null)
+            {
+                throw new ArgumentNullException(nameof(clientAlgorithms));
+            }
+
+            if (serverAlgorithms is null)
+            {
+                throw new ArgumentNullException(nameof(serverAlgorithms));
+            }
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmType = (from c in clientAlgorithms
@@ -102,7 +108,7 @@ namespace Renci.SshNet
                                             where s == c.Key
                                             select c.Value).FirstOrDefault();
 
-            if (keyExchangeAlgorithmType == null)
+            if (keyExchangeAlgorithmType is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
@@ -116,10 +122,10 @@ namespace Renci.SshNet
 
             // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
             // causes a performance degradation on Sun SSH
-            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
+            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, callback: null, state: null);
             var handle = sftpSession.EndOpen(openAsyncResult);
 
-            var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
+            var statAsyncResult = sftpSession.BeginLStat(fileName, callback: null, state: null);
 
             long? fileSize;
             int maxPendingReads;
@@ -157,7 +163,7 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
@@ -209,10 +215,15 @@ namespace Renci.SshNet
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            if (connectionInfo is null)
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
+            if (socketFactory is null)
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             switch (connectionInfo.ProxyType)
             {

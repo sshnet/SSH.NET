@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Authentication;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Messages.Authentication
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void FailureMessageConstructorTest()
         {
-            FailureMessage target = new FailureMessage();
+            var target = new FailureMessage();
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         [Ignore] // placeholder
         public void AllowedAuthenticationsTest()
         {
-            FailureMessage target = new FailureMessage(); // TODO: Initialize to an appropriate value
+            var target = new FailureMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
             string[] actual;
             target.AllowedAuthentications = expected;

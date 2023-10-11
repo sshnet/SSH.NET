@@ -4,7 +4,7 @@
     /// Represents SSH_MSG_USERAUTH_PK_OK message.
     /// </summary>
     [Message("SSH_MSG_USERAUTH_PK_OK", 60)]
-    internal class PublicKeyMessage : Message
+    internal sealed class PublicKeyMessage : Message
     {
         /// <summary>
         /// Gets the name of the public key algorithm as ASCII encoded byte array.

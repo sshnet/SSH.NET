@@ -1,8 +1,9 @@
 ﻿using System;
-using Renci.SshNet.Channels;
 using System.IO;
-using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
+
+using Renci.SshNet.Channels;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -26,8 +27,10 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
-            if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+            if (fileInfo is null)
+            {
+                throw new ArgumentNullException(nameof(fileInfo));
+            }
 
             var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
 
@@ -43,6 +46,7 @@ namespace Renci.SshNet
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
+
                 CheckReturnCode(input);
 
                 using (var source = fileInfo.OpenRead())
@@ -66,12 +70,20 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
-            if (directoryInfo == null)
-                throw new ArgumentNullException("directoryInfo");
-            if (path == null)
-                throw new ArgumentNullException("path");
+            if (directoryInfo is null)
+            {
+                throw new ArgumentNullException(nameof(directoryInfo));
+            }
+
+            if (path is null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             if (path.Length == 0)
-                throw new ArgumentException("The path cannot be a zero-length string.", "path");
+            {
+                throw new ArgumentException("The path cannot be a zero-length string.", nameof(path));
+            }
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -107,9 +119,14 @@ namespace Renci.SshNet
         public void Download(string filename, FileInfo fileInfo)
         {
             if (string.IsNullOrEmpty(filename))
+            {
                 throw new ArgumentException("filename");
-            if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+            }
+
+            if (fileInfo is null)
+            {
+                throw new ArgumentNullException(nameof(fileInfo));
+            }
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -122,6 +139,7 @@ namespace Renci.SshNet
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
+
                 // Send reply
                 SendSuccessConfirmation(channel);
 
@@ -141,9 +159,14 @@ namespace Renci.SshNet
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             if (string.IsNullOrEmpty(directoryName))
+            {
                 throw new ArgumentException("directoryName");
-            if (directoryInfo == null)
-                throw new ArgumentNullException("directoryInfo");
+            }
+
+            if (directoryInfo is null)
+            {
+                throw new ArgumentNullException(nameof(directoryInfo));
+            }
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -156,6 +179,7 @@ namespace Renci.SshNet
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
+
                 // Send reply
                 SendSuccessConfirmation(channel);
 
@@ -187,7 +211,7 @@ namespace Renci.SshNet
         /// <param name="directoryInfo">The directory to upload.</param>
         private void UploadDirectoryContent(IChannelSession channel, Stream input, DirectoryInfo directoryInfo)
         {
-            //  Upload files
+            // Upload files
             var files = directoryInfo.GetFiles();
             foreach (var file in files)
             {
@@ -199,7 +223,7 @@ namespace Renci.SshNet
                 }
             }
 
-            //  Upload directories
+            // Upload directories
             var directories = directoryInfo.GetDirectories();
             foreach (var directory in directories)
             {
@@ -237,23 +261,26 @@ namespace Renci.SshNet
 
                 if (message == "E")
                 {
-                    SendSuccessConfirmation(channel); //  Send reply
+                    SendSuccessConfirmation(channel); // Send reply
 
                     directoryCounter--;
 
                     currentDirectoryFullName = new DirectoryInfo(currentDirectoryFullName).Parent.FullName;
 
                     if (directoryCounter == 0)
+                    {
                         break;
+                    }
+
                     continue;
                 }
 
                 var match = DirectoryInfoRe.Match(message);
                 if (match.Success)
                 {
-                    SendSuccessConfirmation(channel); //  Send reply
+                    SendSuccessConfirmation(channel); // Send reply
 
-                    //  Read directory
+                    // Read directory
                     var filename = match.Result("${filename}");
 
                     DirectoryInfo newDirectoryInfo;
@@ -265,7 +292,7 @@ namespace Renci.SshNet
                     }
                     else
                     {
-                        //  Don't create directory for first level
+                        // Don't create directory for first level
                         newDirectoryInfo = fileSystemInfo as DirectoryInfo;
                     }
 
@@ -278,16 +305,16 @@ namespace Renci.SshNet
                 match = FileInfoRe.Match(message);
                 if (match.Success)
                 {
-                    //  Read file
+                    // Read file
                     SendSuccessConfirmation(channel); //  Send reply
 
                     var length = long.Parse(match.Result("${length}"));
                     var fileName = match.Result("${filename}");
 
-                    var fileInfo = fileSystemInfo as FileInfo;
-
-                    if (fileInfo == null)
+                    if (fileSystemInfo is not FileInfo fileInfo)
+                    {
                         fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
+                    }
 
                     using (var output = fileInfo.OpenWrite())
                     {
@@ -298,14 +325,17 @@ namespace Renci.SshNet
                     fileInfo.LastWriteTime = modifiedTime;
 
                     if (directoryCounter == 0)
+                    {
                         break;
+                    }
+
                     continue;
                 }
 
                 match = TimestampRe.Match(message);
                 if (match.Success)
                 {
-                    //  Read timestamp
+                    // Read timestamp
                     SendSuccessConfirmation(channel); //  Send reply
 
                     var mtime = long.Parse(match.Result("${mtime}"));
@@ -319,40 +349,6 @@ namespace Renci.SshNet
 
                 SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
             }
-        }
-
-        /// <summary>
-        /// Return a value indicating whether the specified path is a valid SCP file path.
-        /// </summary>
-        /// <param name="path">The path to verify.</param>
-        /// <returns>
-        /// <see langword="true"/> if <paramref name="path"/> is a valid SCP file path; otherwise, <see langword="false"/>.
-        /// </returns>
-        /// <remarks>
-        /// To match OpenSSH behavior (introduced as a result of CVE-2018-20685), a file path is considered
-        /// invalid in any of the following conditions:
-        /// <list type="bullet">
-        ///   <item>
-        ///     <description><paramref name="path"/> is a zero-length string.</description>
-        ///   </item>
-        ///   <item>
-        ///     <description><paramref name="path"/> is &quot;<c>.</c>&quot;.</description>
-        ///   </item>
-        ///   <item>
-        ///     <description><paramref name="path"/> is &quot;<c>..</c>&quot;.</description>
-        ///   </item>
-        ///   <item>
-        ///     <description><paramref name="path"/> contains a forward slash (/).</description>
-        ///   </item>
-        /// </list>
-        /// </remarks>
-        private static bool IsValidScpFilePath(string path)
-        {
-            return path != null &&
-                   path.Length != 0 &&
-                   path != "." &&
-                   path != ".." &&
-                   path.IndexOf('/') == -1;
         }
     }
 }

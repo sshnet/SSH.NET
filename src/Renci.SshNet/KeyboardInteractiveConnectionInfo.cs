@@ -4,13 +4,15 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides connection information when keyboard interactive authentication method is used
+    /// Provides connection information when keyboard interactive authentication method is used.
     /// </summary>
     /// <example>
     ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
     /// </example>
     public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
+        private bool _isDisposed;
+
         /// <summary>
         /// Occurs when server prompts for more authentication information.
         /// </summary>
@@ -18,8 +20,6 @@ namespace Renci.SshNet
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
         /// </example>
         public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
-
-        //  TODO: DOCS Add exception documentation for this class.
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
@@ -29,7 +29,6 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, string username)
             : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
-
         }
 
         /// <summary>
@@ -41,7 +40,6 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, int port, string username)
             : this(host, port, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
-
         }
 
         /// <summary>
@@ -131,8 +129,7 @@ namespace Renci.SshNet
         {
             foreach (var authenticationMethod in AuthenticationMethods)
             {
-                var kbdInteractive = authenticationMethod as KeyboardInteractiveAuthenticationMethod;
-                if (kbdInteractive != null)
+                if (authenticationMethod is KeyboardInteractiveAuthenticationMethod kbdInteractive)
                 {
                     kbdInteractive.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
                 }
@@ -142,34 +139,28 @@ namespace Renci.SshNet
 
         private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
-            if (AuthenticationPrompt != null)
-            {
-                AuthenticationPrompt(sender, e);
-            }
+            AuthenticationPrompt?.Invoke(sender, e);
         }
-
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -177,8 +168,7 @@ namespace Renci.SshNet
                 {
                     foreach (var authenticationMethods in AuthenticationMethods)
                     {
-                        var disposable = authenticationMethods as IDisposable;
-                        if (disposable != null)
+                        if (authenticationMethods is IDisposable disposable)
                         {
                             disposable.Dispose();
                         }
@@ -190,14 +180,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
         /// </summary>
         ~KeyboardInteractiveConnectionInfo()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

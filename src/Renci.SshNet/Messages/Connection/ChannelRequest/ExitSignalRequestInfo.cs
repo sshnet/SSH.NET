@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "exit-signal" type channel request information
     /// </summary>
-    internal class ExitSignalRequestInfo : RequestInfo
+    internal sealed class ExitSignalRequestInfo : RequestInfo
     {
         private byte[] _signalName;
         private byte[] _errorMessage;

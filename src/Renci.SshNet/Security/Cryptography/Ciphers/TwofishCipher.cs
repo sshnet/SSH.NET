@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements Twofish cipher algorithm
+    /// Implements Twofish cipher algorithm.
     /// </summary>
     public sealed class TwofishCipher : BlockCipher
     {
@@ -20,10 +20,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = key.Length * 8;
 
-            if (!(keySize == 128 || keySize == 192 || keySize == 256))
+            if (keySize is not (128 or 192 or 256))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
-
-            //  TODO:   Refactor this algorithm
+            }
 
             // calculate the MDS matrix
             var m1 = new int[2];
@@ -42,13 +42,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 mX[1] = Mx_X(j) & 0xff;
                 mY[1] = Mx_Y(j) & 0xff;
 
-                gMDS0[i] = m1[P_00] | mX[P_00] << 8 | mY[P_00] << 16 | mY[P_00] << 24;
+                _gMDS0[i] = m1[P_00] | mX[P_00] << 8 | mY[P_00] << 16 | mY[P_00] << 24;
 
-                gMDS1[i] = mY[P_10] | mY[P_10] << 8 | mX[P_10] << 16 | m1[P_10] << 24;
+                _gMDS1[i] = mY[P_10] | mY[P_10] << 8 | mX[P_10] << 16 | m1[P_10] << 24;
 
-                gMDS2[i] = mX[P_20] | mY[P_20] << 8 | m1[P_20] << 16 | mY[P_20] << 24;
+                _gMDS2[i] = mX[P_20] | mY[P_20] << 8 | m1[P_20] << 16 | mY[P_20] << 24;
 
-                gMDS3[i] = mX[P_30] | m1[P_30] << 8 | mY[P_30] << 16 | mX[P_30] << 24;
+                _gMDS3[i] = mX[P_30] | m1[P_30] << 8 | mY[P_30] << 16 | mX[P_30] << 24;
             }
 
             _k64Cnt = key.Length / 8; // pre-padded ?
@@ -68,31 +68,31 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            var x0 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[INPUT_WHITEN];
-            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[INPUT_WHITEN + 1];
-            var x2 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[INPUT_WHITEN + 2];
-            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[INPUT_WHITEN + 3];
+            var x0 = BytesTo32Bits(inputBuffer, inputOffset) ^ _gSubKeys[INPUT_WHITEN];
+            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ _gSubKeys[INPUT_WHITEN + 1];
+            var x2 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ _gSubKeys[INPUT_WHITEN + 2];
+            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ _gSubKeys[INPUT_WHITEN + 3];
 
             var k = ROUND_SUBKEYS;
             for (var r = 0; r < ROUNDS; r += 2)
             {
-                var t0 = Fe32_0(gSBox, x0);
-                var t1 = Fe32_3(gSBox, x1);
-                x2 ^= t0 + t1 + gSubKeys[k++];
+                var t0 = Fe32_0(_gSBox, x0);
+                var t1 = Fe32_3(_gSBox, x1);
+                x2 ^= t0 + t1 + _gSubKeys[k++];
                 x2 = (int)((uint)x2 >> 1) | x2 << 31;
-                x3 = (x3 << 1 | (int)((uint)x3 >> 31)) ^ (t0 + 2 * t1 + gSubKeys[k++]);
+                x3 = (x3 << 1 | (int)((uint)x3 >> 31)) ^ (t0 + 2 * t1 + _gSubKeys[k++]);
 
-                t0 = Fe32_0(gSBox, x2);
-                t1 = Fe32_3(gSBox, x3);
-                x0 ^= t0 + t1 + gSubKeys[k++];
+                t0 = Fe32_0(_gSBox, x2);
+                t1 = Fe32_3(_gSBox, x3);
+                x0 ^= t0 + t1 + _gSubKeys[k++];
                 x0 = (int)((uint)x0 >> 1) | x0 << 31;
-                x1 = (x1 << 1 | (int)((uint)x1 >> 31)) ^ (t0 + 2 * t1 + gSubKeys[k++]);
+                x1 = (x1 << 1 | (int)((uint)x1 >> 31)) ^ (t0 + 2 * t1 + _gSubKeys[k++]);
             }
 
-            Bits32ToBytes(x2 ^ gSubKeys[OUTPUT_WHITEN], outputBuffer, outputOffset);
-            Bits32ToBytes(x3 ^ gSubKeys[OUTPUT_WHITEN + 1], outputBuffer, outputOffset + 4);
-            Bits32ToBytes(x0 ^ gSubKeys[OUTPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
-            Bits32ToBytes(x1 ^ gSubKeys[OUTPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
+            Bits32ToBytes(x2 ^ _gSubKeys[OUTPUT_WHITEN], outputBuffer, outputOffset);
+            Bits32ToBytes(x3 ^ _gSubKeys[OUTPUT_WHITEN + 1], outputBuffer, outputOffset + 4);
+            Bits32ToBytes(x0 ^ _gSubKeys[OUTPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
+            Bits32ToBytes(x1 ^ _gSubKeys[OUTPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
             return BlockSize;
         }
@@ -110,36 +110,34 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            var x2 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[OUTPUT_WHITEN];
-            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[OUTPUT_WHITEN + 1];
-            var x0 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[OUTPUT_WHITEN + 2];
-            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[OUTPUT_WHITEN + 3];
+            var x2 = BytesTo32Bits(inputBuffer, inputOffset) ^ _gSubKeys[OUTPUT_WHITEN];
+            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ _gSubKeys[OUTPUT_WHITEN + 1];
+            var x0 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ _gSubKeys[OUTPUT_WHITEN + 2];
+            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ _gSubKeys[OUTPUT_WHITEN + 3];
 
             var k = ROUND_SUBKEYS + 2 * ROUNDS - 1;
             for (var r = 0; r < ROUNDS; r += 2)
             {
-                var t0 = Fe32_0(gSBox, x2);
-                var t1 = Fe32_3(gSBox, x3);
-                x1 ^= t0 + 2 * t1 + gSubKeys[k--];
-                x0 = (x0 << 1 | (int)((uint)x0 >> 31)) ^ (t0 + t1 + gSubKeys[k--]);
+                var t0 = Fe32_0(_gSBox, x2);
+                var t1 = Fe32_3(_gSBox, x3);
+                x1 ^= t0 + 2 * t1 + _gSubKeys[k--];
+                x0 = (x0 << 1 | (int)((uint)x0 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
                 x1 = (int)((uint)x1 >> 1) | x1 << 31;
 
-                t0 = Fe32_0(gSBox, x0);
-                t1 = Fe32_3(gSBox, x1);
-                x3 ^= t0 + 2 * t1 + gSubKeys[k--];
-                x2 = (x2 << 1 | (int)((uint)x2 >> 31)) ^ (t0 + t1 + gSubKeys[k--]);
+                t0 = Fe32_0(_gSBox, x0);
+                t1 = Fe32_3(_gSBox, x1);
+                x3 ^= t0 + 2 * t1 + _gSubKeys[k--];
+                x2 = (x2 << 1 | (int)((uint)x2 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
                 x3 = (int)((uint)x3 >> 1) | x3 << 31;
             }
 
-            Bits32ToBytes(x0 ^ gSubKeys[INPUT_WHITEN], outputBuffer, outputOffset);
-            Bits32ToBytes(x1 ^ gSubKeys[INPUT_WHITEN + 1], outputBuffer, outputOffset + 4);
-            Bits32ToBytes(x2 ^ gSubKeys[INPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
-            Bits32ToBytes(x3 ^ gSubKeys[INPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
+            Bits32ToBytes(x0 ^ _gSubKeys[INPUT_WHITEN], outputBuffer, outputOffset);
+            Bits32ToBytes(x1 ^ _gSubKeys[INPUT_WHITEN + 1], outputBuffer, outputOffset + 4);
+            Bits32ToBytes(x2 ^ _gSubKeys[INPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
+            Bits32ToBytes(x3 ^ _gSubKeys[INPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
             return BlockSize;
         }
-
-        #region Static Definition Tables
 
         private static readonly byte[] P =
             {
@@ -160,6 +158,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 0x57, 0xC7, 0x8D, 0x74, 0xB7, 0xC4, 0x9F, 0x72, 0x7E, 0x15, 0x22, 0x12, 0x58, 0x07, 0x99, 0x34,
                 0x6E, 0x50, 0xDE, 0x68, 0x65, 0xBC, 0xDB, 0xF8, 0xC8, 0xA8, 0x2B, 0x40, 0xDC, 0xFE, 0x32, 0xA4,
                 0xCA, 0x10, 0x21, 0xF0, 0xD3, 0x5D, 0x0F, 0x00, 0x6F, 0x9D, 0x36, 0x42, 0x4A, 0x5E, 0xC1, 0xE0,
+
                 // p1
                 0x75, 0xF3, 0xC6, 0xF4, 0xDB, 0x7B, 0xFB, 0xC8, 0x4A, 0xD3, 0xE6, 0x6B, 0x45, 0x7D, 0xE8, 0x4B,
                 0xD6, 0x32, 0xD8, 0xFD, 0x37, 0x71, 0xF1, 0xE1, 0x30, 0x0F, 0xF8, 0x1B, 0x87, 0xFA, 0x06, 0x3F,
@@ -179,13 +178,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 0xD7, 0x61, 0x1E, 0xB4, 0x50, 0x04, 0xF6, 0xC2, 0x16, 0x25, 0x86, 0x56, 0x55, 0x09, 0xBE, 0x91
             };
 
-        #endregion
-
         /**
-		* Define the fixed p0/p1 permutations used in keyed S-box lookup.
-		* By changing the following constant definitions, the S-boxes will
-		* automatically Get changed in the Twofish engine.
-		*/
+         * Define the fixed p0/p1 permutations used in keyed S-box lookup.
+         * By changing the following constant definitions, the S-boxes will
+         * automatically Get changed in the Twofish engine.
+         */
         private const int P_00 = 1;
         private const int P_01 = 0;
         private const int P_02 = 0;
@@ -217,10 +214,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private const int RS_GF_FDBK = 0x14D; // field generator
 
-        //====================================
-        // Useful constants
-        //====================================
-
         private const int ROUNDS = 16;
         private const int MAX_ROUNDS = 16;  // bytes = 128 bits
         private const int MAX_KEY_BITS = 256;
@@ -235,19 +228,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const int SK_BUMP = 0x01010101;
         private const int SK_ROTL = 9;
 
-        private readonly int[] gMDS0 = new int[MAX_KEY_BITS];
-        private readonly int[] gMDS1 = new int[MAX_KEY_BITS];
-        private readonly int[] gMDS2 = new int[MAX_KEY_BITS];
-        private readonly int[] gMDS3 = new int[MAX_KEY_BITS];
-
-        /**
-        * gSubKeys[] and gSBox[] are eventually used in the
-        * encryption and decryption methods.
-        */
-        private int[] gSubKeys;
-        private int[] gSBox;
+        private readonly int[] _gMDS0 = new int[MAX_KEY_BITS];
+        private readonly int[] _gMDS1 = new int[MAX_KEY_BITS];
+        private readonly int[] _gMDS2 = new int[MAX_KEY_BITS];
+        private readonly int[] _gMDS3 = new int[MAX_KEY_BITS];
 
         private readonly int _k64Cnt;
+
+        /**
+        * _gSubKeys[] and _gSBox[] are eventually used in the
+        * encryption and decryption methods.
+        */
+        private int[] _gSubKeys;
+        private int[] _gSBox;
 
         private void SetKey(byte[] key)
         {
@@ -255,7 +248,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var k32o = new int[MAX_KEY_BITS / 64]; // 4
 
             var sBoxKeys = new int[MAX_KEY_BITS / 64]; // 4
-            gSubKeys = new int[TOTAL_SUBKEYS];
+            _gSubKeys = new int[TOTAL_SUBKEYS];
 
             if (_k64Cnt < 1)
             {
@@ -290,9 +283,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var b = F32(q + SK_BUMP, k32o);
                 b = b << 8 | (int)((uint)b >> 24);
                 a += b;
-                gSubKeys[i * 2] = a;
+                _gSubKeys[i * 2] = a;
                 a += b;
-                gSubKeys[i * 2 + 1] = a << SK_ROTL | (int)((uint)a >> (32 - SK_ROTL));
+                _gSubKeys[i * 2 + 1] = a << SK_ROTL | (int)((uint)a >> (32 - SK_ROTL));
             }
 
             /*
@@ -302,18 +295,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var k1 = sBoxKeys[1];
             var k2 = sBoxKeys[2];
             var k3 = sBoxKeys[3];
-            gSBox = new int[4 * MAX_KEY_BITS];
+            _gSBox = new int[4 * MAX_KEY_BITS];
             for (var i = 0; i < MAX_KEY_BITS; i++)
             {
                 int b1, b2, b3;
                 var b0 = b1 = b2 = b3 = i;
+
+#pragma warning disable IDE0010 // Add missing cases
                 switch (_k64Cnt & 3)
                 {
                     case 1:
-                        gSBox[i * 2] = gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)];
-                        gSBox[i * 2 + 1] = gMDS1[(P[P_11 * 256 + b1] & 0xff) ^ M_b1(k0)];
-                        gSBox[i * 2 + 0x200] = gMDS2[(P[P_21 * 256 + b2] & 0xff) ^ M_b2(k0)];
-                        gSBox[i * 2 + 0x201] = gMDS3[(P[P_31 * 256 + b3] & 0xff) ^ M_b3(k0)];
+                        _gSBox[i * 2] = _gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)];
+                        _gSBox[i * 2 + 1] = _gMDS1[(P[P_11 * 256 + b1] & 0xff) ^ M_b1(k0)];
+                        _gSBox[i * 2 + 0x200] = _gMDS2[(P[P_21 * 256 + b2] & 0xff) ^ M_b2(k0)];
+                        _gSBox[i * 2 + 0x201] = _gMDS3[(P[P_31 * 256 + b3] & 0xff) ^ M_b3(k0)];
                         break;
                     case 0: /* 256 bits of key */
                         b0 = (P[P_04 * 256 + b0] & 0xff) ^ M_b0(k3);
@@ -328,12 +323,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                         b3 = (P[P_33 * 256 + b3] & 0xff) ^ M_b3(k2);
                         goto case 2;
                     case 2:
-                        gSBox[i * 2] = gMDS0[(P[P_01 * 256 + (P[P_02 * 256 + b0] & 0xff) ^ M_b0(k1)] & 0xff) ^ M_b0(k0)];
-                        gSBox[i * 2 + 1] = gMDS1[(P[P_11 * 256 + (P[P_12 * 256 + b1] & 0xff) ^ M_b1(k1)] & 0xff) ^ M_b1(k0)];
-                        gSBox[i * 2 + 0x200] = gMDS2[(P[P_21 * 256 + (P[P_22 * 256 + b2] & 0xff) ^ M_b2(k1)] & 0xff) ^ M_b2(k0)];
-                        gSBox[i * 2 + 0x201] = gMDS3[(P[P_31 * 256 + (P[P_32 * 256 + b3] & 0xff) ^ M_b3(k1)] & 0xff) ^ M_b3(k0)];
+                        _gSBox[i * 2] = _gMDS0[(P[P_01 * 256 + (P[P_02 * 256 + b0] & 0xff) ^ M_b0(k1)] & 0xff) ^ M_b0(k0)];
+                        _gSBox[i * 2 + 1] = _gMDS1[(P[P_11 * 256 + (P[P_12 * 256 + b1] & 0xff) ^ M_b1(k1)] & 0xff) ^ M_b1(k0)];
+                        _gSBox[i * 2 + 0x200] = _gMDS2[(P[P_21 * 256 + (P[P_22 * 256 + b2] & 0xff) ^ M_b2(k1)] & 0xff) ^ M_b2(k0)];
+                        _gSBox[i * 2 + 0x201] = _gMDS3[(P[P_31 * 256 + (P[P_32 * 256 + b3] & 0xff) ^ M_b3(k1)] & 0xff) ^ M_b3(k0)];
                         break;
                 }
+#pragma warning restore IDE0010 // Add missing cases
             }
 
             /*
@@ -359,13 +355,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var k3 = k32[3];
 
             var result = 0;
+
+#pragma warning disable IDE0010 // Add missing cases
             switch (_k64Cnt & 3)
             {
                 case 1:
-                    result = gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)] ^
-                             gMDS1[(P[P_11 * 256 + b1] & 0xff) ^ M_b1(k0)] ^
-                             gMDS2[(P[P_21 * 256 + b2] & 0xff) ^ M_b2(k0)] ^
-                             gMDS3[(P[P_31 * 256 + b3] & 0xff) ^ M_b3(k0)];
+                    result = _gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)] ^
+                             _gMDS1[(P[P_11 * 256 + b1] & 0xff) ^ M_b1(k0)] ^
+                             _gMDS2[(P[P_21 * 256 + b2] & 0xff) ^ M_b2(k0)] ^
+                             _gMDS3[(P[P_31 * 256 + b3] & 0xff) ^ M_b3(k0)];
                     break;
                 case 0: /* 256 bits of key */
                     b0 = (P[P_04 * 256 + b0] & 0xff) ^ M_b0(k3);
@@ -381,12 +379,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     goto case 2;
                 case 2:
                     result =
-                    gMDS0[(P[P_01 * 256 + (P[P_02 * 256 + b0] & 0xff) ^ M_b0(k1)] & 0xff) ^ M_b0(k0)] ^
-                    gMDS1[(P[P_11 * 256 + (P[P_12 * 256 + b1] & 0xff) ^ M_b1(k1)] & 0xff) ^ M_b1(k0)] ^
-                    gMDS2[(P[P_21 * 256 + (P[P_22 * 256 + b2] & 0xff) ^ M_b2(k1)] & 0xff) ^ M_b2(k0)] ^
-                    gMDS3[(P[P_31 * 256 + (P[P_32 * 256 + b3] & 0xff) ^ M_b3(k1)] & 0xff) ^ M_b3(k0)];
+                    _gMDS0[(P[P_01 * 256 + (P[P_02 * 256 + b0] & 0xff) ^ M_b0(k1)] & 0xff) ^ M_b0(k0)] ^
+                    _gMDS1[(P[P_11 * 256 + (P[P_12 * 256 + b1] & 0xff) ^ M_b1(k1)] & 0xff) ^ M_b1(k0)] ^
+                    _gMDS2[(P[P_21 * 256 + (P[P_22 * 256 + b2] & 0xff) ^ M_b2(k1)] & 0xff) ^ M_b2(k0)] ^
+                    _gMDS3[(P[P_31 * 256 + (P[P_32 * 256 + b3] & 0xff) ^ M_b3(k1)] & 0xff) ^ M_b3(k0)];
                     break;
             }
+#pragma warning restore IDE0010 // Add missing cases
+
             return result;
         }
 
@@ -402,6 +402,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private static int RS_MDS_Encode(int k0, int k1)
         {
             var r = k1;
+
             // shift 1 byte at a time
             r = RS_rem(r);
             r = RS_rem(r);
@@ -428,24 +429,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private static int RS_rem(int x)
         {
             var b = (int)(((uint)x >> 24) & 0xff);
-            var g2 = ((b << 1) ^
-                    ((b & 0x80) != 0 ? RS_GF_FDBK : 0)) & 0xff;
-            var g3 = ((int)((uint)b >> 1) ^
-                    ((b & 0x01) != 0 ? (int)((uint)RS_GF_FDBK >> 1) : 0)) ^ g2;
-            return ((x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b);
+            var g2 = ((b << 1) ^ ((b & 0x80) != 0 ? RS_GF_FDBK : 0)) & 0xff;
+            var g3 = ((int)((uint)b >> 1) ^ ((b & 0x01) != 0 ? (int)((uint)RS_GF_FDBK >> 1) : 0)) ^ g2;
+            return (x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b;
         }
 
         private static int LFSR1(int x)
         {
-            return (x >> 1) ^
-                    (((x & 0x01) != 0) ? GF256_FDBK_2 : 0);
+            return (x >> 1) ^ (((x & 0x01) != 0) ? GF256_FDBK_2 : 0);
         }
 
         private static int LFSR2(int x)
         {
-            return (x >> 2) ^
-                    (((x & 0x02) != 0) ? GF256_FDBK_2 : 0) ^
-                    (((x & 0x01) != 0) ? GF256_FDBK_4 : 0);
+            return (x >> 2) ^ (((x & 0x02) != 0) ? GF256_FDBK_2 : 0) ^ (((x & 0x01) != 0) ? GF256_FDBK_4 : 0);
         }
 
         private static int Mx_X(int x)
@@ -458,22 +454,30 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return x ^ LFSR1(x) ^ LFSR2(x);
         } // EF
 
+#pragma warning disable IDE1006 // Naming Styles
         private static int M_b0(int x)
+#pragma warning restore IDE1006 // Naming Styles
         {
             return x & 0xff;
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         private static int M_b1(int x)
+#pragma warning restore IDE1006 // Naming Styles
         {
             return (int)((uint)x >> 8) & 0xff;
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         private static int M_b2(int x)
+#pragma warning restore IDE1006 // Naming Styles
         {
             return (int)((uint)x >> 16) & 0xff;
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         private static int M_b3(int x)
+#pragma warning restore IDE1006 // Naming Styles
         {
             return (int)((uint)x >> 24) & 0xff;
         }
@@ -496,7 +500,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static int BytesTo32Bits(byte[] b, int p)
         {
-            return ((b[p] & 0xff)) |
+            return (b[p] & 0xff) |
                 ((b[p + 1] & 0xff) << 8) |
                 ((b[p + 2] & 0xff) << 16) |
                 ((b[p + 3] & 0xff) << 24);

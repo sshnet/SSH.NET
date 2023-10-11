@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "shell" type channel request information
     /// </summary>
-    internal class ShellRequestInfo : RequestInfo
+    internal sealed class ShellRequestInfo : RequestInfo
     {
         /// <summary>
         /// Channel request name

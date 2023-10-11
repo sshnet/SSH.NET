@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
@@ -26,9 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod()]
         public void RequestNameTest()
         {
-            RequestInfo target = CreateRequestInfo(); // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.RequestName;
+            var target = CreateRequestInfo(); // TODO: Initialize to an appropriate value
+            var actual = target.RequestName;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
     }

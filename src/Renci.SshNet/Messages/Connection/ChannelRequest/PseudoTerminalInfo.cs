@@ -1,15 +1,16 @@
-﻿using Renci.SshNet.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "pty-req" type channel request information
+    /// Represents "pty-req" type channel request information.
     /// </summary>
-    internal class PseudoTerminalRequestInfo : RequestInfo
+    internal sealed class PseudoTerminalRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "pty-req";
 
@@ -98,7 +99,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="environmentVariable">The <c>TERM</c> environment variable which a identifier for the text window’s capabilities.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <remarks>
@@ -153,7 +154,7 @@ namespace Renci.SshNet.Messages.Connection
             else
             {
                 // when there are no terminal mode, the length of the string is zero
-                Write((uint) 0);
+                Write(0u);
             }
         }
     }

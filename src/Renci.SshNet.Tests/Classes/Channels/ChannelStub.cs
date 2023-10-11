@@ -54,7 +54,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         public void InitializeRemoteChannelInfo(uint remoteChannelNumber, uint remoteWindowSize, uint remotePacketSize)
         {
-            base.InitializeRemoteInfo(remoteChannelNumber, remoteWindowSize, remotePacketSize);
+            InitializeRemoteInfo(remoteChannelNumber, remoteWindowSize, remotePacketSize);
         }
 
         protected override void OnClose()
@@ -62,7 +62,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnClose();
 
             if (OnCloseException != null)
+            {
                 throw OnCloseException;
+            }
         }
 
         protected override void OnData(byte[] data)
@@ -70,7 +72,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnData(data);
 
             if (OnDataException != null)
+            {
                 throw OnDataException;
+            }
         }
 
         protected override void OnDisconnected()
@@ -78,7 +82,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnDisconnected();
 
             if (OnDisconnectedException != null)
+            {
                 throw OnDisconnectedException;
+            }
         }
 
         protected override void OnEof()
@@ -86,7 +92,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnEof();
 
             if (OnEofException != null)
+            {
                 throw OnEofException;
+            }
         }
 
         protected override void OnExtendedData(byte[] data, uint dataTypeCode)
@@ -94,7 +102,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnExtendedData(data, dataTypeCode);
 
             if (OnExtendedDataException != null)
+            {
                 throw OnExtendedDataException;
+            }
         }
 
         protected override void OnErrorOccured(Exception exp)
@@ -102,7 +112,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             OnErrorOccurredInvocations.Add(exp);
 
             if (OnErrorOccurredException != null)
+            {
                 throw OnErrorOccurredException;
+            }
         }
 
         protected override void OnFailure()
@@ -110,7 +122,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnFailure();
 
             if (OnFailureException != null)
+            {
                 throw OnFailureException;
+            }
         }
 
         protected override void OnRequest(RequestInfo info)
@@ -118,7 +132,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnRequest(info);
 
             if (OnRequestException != null)
+            {
                 throw OnRequestException;
+            }
         }
 
         protected override void OnSuccess()
@@ -126,7 +142,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnSuccess();
 
             if (OnSuccessException != null)
+            {
                 throw OnSuccessException;
+            }
         }
 
         protected override void OnWindowAdjust(uint bytesToAdd)
@@ -134,7 +152,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.OnWindowAdjust(bytesToAdd);
 
             if (OnWindowAdjustException != null)
+            {
                 throw OnWindowAdjustException;
+            }
         }
     }
 }

@@ -24,7 +24,10 @@ namespace Renci.SshNet.Tests.Common
             get
             {
                 if (_httpRequestParser == null)
+                {
                     throw new InvalidOperationException("The proxy is not started.");
+                }
+
                 return _httpRequestParser.HttpRequest;
             }
         }
@@ -45,8 +48,7 @@ namespace Renci.SshNet.Tests.Common
 
         public void Stop()
         {
-            if (_listener != null)
-                _listener.Stop();
+            _listener?.Stop();
         }
 
         public void Dispose()
@@ -62,7 +64,10 @@ namespace Renci.SshNet.Tests.Common
             if (_httpRequestParser.CurrentState == HttpRequestParser.State.Content)
             {
                 foreach (var response in Responses)
-                    socket.Send(response);
+                {
+                    _ = socket.Send(response);
+                }
+
                 socket.Shutdown(SocketShutdown.Send);
             }
         }
@@ -150,11 +155,16 @@ namespace Renci.SshNet.Tests.Common
                     {
                         var buffer = _buffer.ToArray();
                         var bytesInLine = buffer.Length;
+
                         // when the previous byte was a CR, then do not include it in line
                         if (buffer.Length > 0 && buffer[buffer.Length - 1] == '\r')
+                        {
                             bytesInLine -= 1;
+                        }
+
                         // clear the buffer
                         _buffer.Clear();
+
                         // move position up one position as we've processed the current byte
                         position++;
                         return Encoding.ASCII.GetString(buffer, 0, bytesInLine);

@@ -1,9 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
-using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
@@ -24,25 +25,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var r = testCipher.Encrypt(input);
 
             if (!r.SequenceEqual(output))
-                Assert.Fail("Invalid encryption");
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("Cipher")]
-        [TestCategory("integration")]
-        public void Test_Cipher_TripleDESCBC_Connection()
-        {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
-            connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => { return new TripleDesCipher(key, new CbcCipherMode(iv), null); }));
-
-            using (var client = new SshClient(connectionInfo))
             {
-                client.Connect();
-                client.Disconnect();
+                Assert.Fail("Invalid encryption");
             }
         }
+
         /// <summary>
         ///A test for TripleDesCipher Constructor
         ///</summary>

@@ -6,7 +6,7 @@ using Renci.SshNet.Security.Chaos.NaCl.Internal.Ed25519Ref10;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal sealed class KeyExchangeECCurve25519 : KeyExchangeEC
     {
         private byte[] _privateKey;
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Starts key exchange algorithm
+        /// Starts key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">Key exchange init message.</param>
@@ -68,7 +68,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
@@ -82,12 +82,12 @@ namespace Renci.SshNet.Security
         {
             var message = e.Message;
 
-            //  Unregister message once received
+            // Unregister message once received
             Session.UnRegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             HandleServerEcdhReply(message.KS, message.QS, message.Signature);
 
-            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            // When SSH_MSG_KEXDH_REPLY received key exchange is completed
             Finish();
         }
 

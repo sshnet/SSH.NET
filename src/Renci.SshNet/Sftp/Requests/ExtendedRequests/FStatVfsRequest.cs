@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class FStatVfsRequest : SftpExtendedRequest
+    internal sealed class FStatVfsRequest : SftpExtendedRequest
     {
         private readonly Action<SftpExtendedReplyResponse> _extendedReplyAction;
 
@@ -42,8 +43,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public override void Complete(SftpResponse response)
         {
-            var extendedReplyResponse = response as SftpExtendedReplyResponse;
-            if (extendedReplyResponse != null)
+            if (response is SftpExtendedReplyResponse extendedReplyResponse)
             {
                 _extendedReplyAction(extendedReplyResponse);
             }

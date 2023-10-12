@@ -119,9 +119,15 @@ namespace Renci.SshNet.Tests.Classes
         private static KeyHostAlgorithm GetKeyHostAlgorithm()
         {
             var executingAssembly = Assembly.GetExecutingAssembly();
+            var resourceName = string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt");
 
-            using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
+            using (var s = executingAssembly.GetManifestResourceStream(resourceName))
             {
+                if (s is null)
+                {
+                    throw new ArgumentException($"Resource '{resourceName}' does not exist in assembly '{executingAssembly.GetName().Name}'.");
+                }
+
                 var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }

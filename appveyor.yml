@@ -4,7 +4,7 @@ before_build:
   - nuget restore Renci.SshNet.sln
 
 install:
-  - cinst dotnet-sdk --version=7.0.402
+  - cinst dotnet-sdk --version=7.0.402 --limit-output
 
 build:
   project: Renci.SshNet.sln

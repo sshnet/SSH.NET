@@ -6,7 +6,7 @@
     -->
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Renci.SshNet.snk</AssemblyOriginatorKeyFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <LangVersion>latest</LangVersion>
         <WarningLevel>9999</WarningLevel>

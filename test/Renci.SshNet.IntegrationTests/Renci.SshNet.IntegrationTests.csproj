@@ -49,7 +49,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet.TestTools.OpenSSH\Renci.SshNet.TestTools.OpenSSH.csproj" />
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj" />
+    <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\client\id_dsa" />

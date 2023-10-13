@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Globalization;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Renci.SshNet
 {
@@ -21,6 +20,12 @@ namespace Renci.SshNet
     public class SftpClient : BaseClient, ISftpClient
     {
         private static readonly Encoding Utf8NoBOM = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
+        /// <summary>
+        /// Holds the <see cref="ISftpSession"/> instance that is used to communicate to the
+        /// SFTP server.
+        /// </summary>
+        private ISftpSession _sftpSession;
 
         /// <summary>
         /// Holds the operation timeout.
@@ -119,7 +124,12 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
-                return SftpSession is null ? throw new SshConnectionException("Client not connected.") : SftpSession.WorkingDirectory;
+                if (_sftpSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return _sftpSession.WorkingDirectory;
             }
         }
 
@@ -134,7 +144,12 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
-                return SftpSession is null ? throw new SshConnectionException("Client not connected.") : (int) SftpSession.ProtocolVersion;
+                if (_sftpSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return (int) _sftpSession.ProtocolVersion;
             }
         }
 
@@ -144,7 +159,10 @@ namespace Renci.SshNet
         /// <value>
         /// The current SFTP session.
         /// </value>
-        internal ISftpSession SftpSession { get; private set; }
+        internal ISftpSession SftpSession
+        {
+            get { return _sftpSession; }
+        }
 
         #region Constructors
 
@@ -168,6 +186,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SftpClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
         {
@@ -196,6 +215,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is nu<b>null</b>ll or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SftpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true)
         {
@@ -269,12 +289,12 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            SftpSession.ChangeDirectory(path);
+            _sftpSession.ChangeDirectory(path);
         }
 
         /// <summary>
@@ -312,14 +332,14 @@ namespace Renci.SshNet
                 throw new ArgumentException(path);
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            SftpSession.RequestMkDir(fullPath);
+            _sftpSession.RequestMkDir(fullPath);
         }
 
         /// <summary>
@@ -341,14 +361,14 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            SftpSession.RequestRmDir(fullPath);
+            _sftpSession.RequestRmDir(fullPath);
         }
 
         /// <summary>
@@ -370,14 +390,14 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            SftpSession.RequestRemove(fullPath);
+            _sftpSession.RequestRemove(fullPath);
         }
 
         /// <summary>
@@ -401,15 +421,15 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await SftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            await SftpSession.RequestRemoveAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            await _sftpSession.RequestRemoveAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -453,16 +473,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(newPath));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var oldFullPath = await SftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
-            var newFullPath = await SftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
-            await SftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
+            var oldFullPath = await _sftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
+            var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
+            await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -490,22 +510,22 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(newPath));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var oldFullPath = SftpSession.GetCanonicalPath(oldPath);
+            var oldFullPath = _sftpSession.GetCanonicalPath(oldPath);
 
-            var newFullPath = SftpSession.GetCanonicalPath(newPath);
+            var newFullPath = _sftpSession.GetCanonicalPath(newPath);
 
             if (isPosix)
             {
-                SftpSession.RequestPosixRename(oldFullPath, newFullPath);
+                _sftpSession.RequestPosixRename(oldFullPath, newFullPath);
             }
             else
             {
-                SftpSession.RequestRename(oldFullPath, newFullPath);
+                _sftpSession.RequestRename(oldFullPath, newFullPath);
             }
         }
 
@@ -533,16 +553,16 @@ namespace Renci.SshNet
                 throw new ArgumentException("linkPath");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var linkFullPath = SftpSession.GetCanonicalPath(linkPath);
+            var linkFullPath = _sftpSession.GetCanonicalPath(linkPath);
 
-            SftpSession.RequestSymLink(fullPath, linkFullPath);
+            _sftpSession.RequestSymLink(fullPath, linkFullPath);
         }
 
         /// <summary>
@@ -588,16 +608,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await SftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
-            var handle = await SftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            var handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
             try
             {
                 var basePath = (fullPath[fullPath.Length - 1] == '/') ?
@@ -606,7 +626,7 @@ namespace Renci.SshNet
 
                 while (true)
                 {
-                    var files = await SftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    var files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
                     if (files is null)
                     {
                         break;
@@ -614,13 +634,13 @@ namespace Renci.SshNet
 
                     foreach (var file in files)
                     {
-                        yield return new SftpFile(SftpSession, basePath + file.Key, file.Value);
+                        yield return new SftpFile(_sftpSession, basePath + file.Key, file.Value);
                     }
                 }
             }
             finally
             {
-                await SftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+                await _sftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -702,16 +722,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var attributes = SftpSession.RequestLStat(fullPath);
+            var attributes = _sftpSession.RequestLStat(fullPath);
 
-            return new SftpFile(SftpSession, fullPath, attributes);
+            return new SftpFile(_sftpSession, fullPath, attributes);
         }
 
         /// <summary>
@@ -735,12 +755,12 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
             // using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
             // been clear on how the server should respond when the specified path is not present on
@@ -761,7 +781,7 @@ namespace Renci.SshNet
 
             try
             {
-                _ = SftpSession.RequestLStat(fullPath);
+                _ = _sftpSession.RequestLStat(fullPath);
                 return true;
             }
             catch (SftpPathNotFoundException)
@@ -1164,14 +1184,14 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            return SftpSession.RequestStatVfs(fullPath);
+            return _sftpSession.RequestStatVfs(fullPath);
         }
 
         /// <summary>
@@ -1195,15 +1215,15 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await SftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            return await SftpSession.RequestStatVfsAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            return await _sftpSession.RequestStatVfsAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
 
         #region File Methods
@@ -1339,9 +1359,12 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return encoding is null
-                ? throw new ArgumentNullException(nameof(encoding))
-                : new StreamWriter(new SftpFileStream(SftpSession, path, FileMode.Append, FileAccess.Write, (int) _bufferSize), encoding);
+            if (encoding is null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
+
+            return new StreamWriter(new SftpFileStream(_sftpSession, path, FileMode.Append, FileAccess.Write, (int) _bufferSize), encoding);
         }
 
         /// <summary>
@@ -1362,7 +1385,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(SftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int) _bufferSize);
         }
 
         /// <summary>
@@ -1384,7 +1407,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(SftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
         /// <summary>
@@ -1553,7 +1576,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(SftpSession, path, mode, access, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, mode, access, (int) _bufferSize);
         }
 
         /// <summary>
@@ -1579,14 +1602,14 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return SftpFileStream.OpenAsync(SftpSession, path, mode, access, (int) _bufferSize, cancellationToken);
+            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int) _bufferSize, cancellationToken);
         }
 
         /// <summary>
@@ -1636,7 +1659,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(SftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int) _bufferSize);
         }
 
         /// <summary>
@@ -2019,14 +2042,14 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            return SftpSession.RequestLStat(fullPath);
+            return _sftpSession.RequestLStat(fullPath);
         }
 
         /// <summary>
@@ -2041,14 +2064,14 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            SftpSession.RequestSetStat(fullPath, fileAttributes);
+            _sftpSession.RequestSetStat(fullPath, fileAttributes);
         }
 
         // Please don't forget this when you implement these methods: <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
@@ -2079,11 +2102,17 @@ namespace Renci.SshNet
         /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
-            return sourcePath is null
-                ? throw new ArgumentNullException(nameof(sourcePath))
-                : string.IsNullOrWhiteSpace(destinationPath)
-                ? throw new ArgumentException("destinationPath")
-                : InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asynchResult: null);
+            if (sourcePath is null)
+            {
+                throw new ArgumentNullException(nameof(sourcePath));
+            }
+
+            if (string.IsNullOrWhiteSpace(destinationPath))
+            {
+                throw new ArgumentException("destinationPath");
+            }
+
+            return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asynchResult: null);
         }
 
         /// <summary>
@@ -2251,14 +2280,14 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var handle = SftpSession.RequestOpenDir(fullPath);
+            var handle = _sftpSession.RequestOpenDir(fullPath);
 
             var basePath = fullPath;
 
@@ -2269,13 +2298,13 @@ namespace Renci.SshNet
 
             var result = new List<ISftpFile>();
 
-            var files = SftpSession.RequestReadDir(handle);
+            var files = _sftpSession.RequestReadDir(handle);
 
             while (files is not null)
             {
                 foreach (var f in files)
                 {
-                    result.Add(new SftpFile(SftpSession,
+                    result.Add(new SftpFile(_sftpSession,
                                             string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key),
                                             f.Value));
                 }
@@ -2287,10 +2316,10 @@ namespace Renci.SshNet
                     ThreadAbstraction.ExecuteThread(() => listCallback(result.Count));
                 }
 
-                files = SftpSession.RequestReadDir(handle);
+                files = _sftpSession.RequestReadDir(handle);
             }
 
-            SftpSession.RequestClose(handle);
+            _sftpSession.RequestClose(handle);
 
             return result;
         }
@@ -2317,14 +2346,14 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            using (var fileReader = ServiceFactory.CreateSftpFileReader(fullPath, SftpSession, _bufferSize))
+            using (var fileReader = ServiceFactory.CreateSftpFileReader(fullPath, _sftpSession, _bufferSize))
             {
                 var totalBytesRead = 0UL;
 
@@ -2381,19 +2410,19 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
             }
 
-            if (SftpSession is null)
+            if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = SftpSession.GetCanonicalPath(path);
+            var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var handle = SftpSession.RequestOpen(fullPath, flags);
+            var handle = _sftpSession.RequestOpen(fullPath, flags);
 
             ulong offset = 0;
 
             // create buffer of optimal length
-            var buffer = new byte[SftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
+            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
 
             var bytesRead = input.Read(buffer, 0, buffer.Length);
             var expectedResponses = 0;
@@ -2411,7 +2440,7 @@ namespace Renci.SshNet
                 {
                     var writtenBytes = offset + (ulong) bytesRead;
 
-                    SftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
+                    _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
@@ -2436,12 +2465,12 @@ namespace Renci.SshNet
                 else if (expectedResponses > 0)
                 {
                     //  Wait for expectedResponses to change
-                    SftpSession.WaitOnHandle(responseReceivedWaitHandle, _operationTimeout);
+                    _sftpSession.WaitOnHandle(responseReceivedWaitHandle, _operationTimeout);
                 }
             }
             while (expectedResponses > 0 || bytesRead > 0);
 
-            SftpSession.RequestClose(handle);
+            _sftpSession.RequestClose(handle);
         }
 
         /// <summary>
@@ -2451,7 +2480,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            SftpSession = CreateAndConnectToSftpSession();
+            _sftpSession = CreateAndConnectToSftpSession();
         }
 
         /// <summary>
@@ -2463,10 +2492,10 @@ namespace Renci.SshNet
 
             // disconnect, dispose and dereference the SFTP session since we create a new SFTP session
             // on each connect
-            var sftpSession = SftpSession;
+            var sftpSession = _sftpSession;
             if (sftpSession is not null)
             {
-                SftpSession = null;
+                _sftpSession = null;
                 sftpSession.Dispose();
             }
         }
@@ -2481,10 +2510,10 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                var sftpSession = SftpSession;
+                var sftpSession = _sftpSession;
                 if (sftpSession is not null)
                 {
-                    SftpSession = null;
+                    _sftpSession = null;
                     sftpSession.Dispose();
                 }
             }

@@ -3,19 +3,11 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
-        <!--
-          Even though we're not interested in producing XML docs for test projects, we have to enable this in order to have the .NET Compiler
-          Platform analyzers produce the IDE0005 (Remove unnecessary import) diagnostic.
-            
-          To avoid warnings for missing XML docs, we add CS1591 (Missing XML comment for publicly visible type or member) to the NoWarn property.
-
-          We can stop producing XML docs for test projects (and remove the NoWarn for CS1591) once the following issue is fixed:
-          https://github.com/dotnet/roslyn/issues/41640.
-      -->
-        <NoWarn>$(NoWarn);CS1591;SYSLIB0021;SYSLIB1045</NoWarn>
+        <NoWarn>$(NoWarn);SYSLIB0021;SYSLIB1045</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-      <Folder Include="Properties\" />
+      <Compile Remove="Properties\**" />
+      <EmbeddedResource Remove="Properties\**" />
+      <None Remove="Properties\**" />
     </ItemGroup>
 </Project>

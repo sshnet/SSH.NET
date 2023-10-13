@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <EmbeddedResource Include="Data\*.txt" LinkBase="Data" />
+      <EmbeddedResource Include="..\Data\*.txt" LinkBase="Data" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">

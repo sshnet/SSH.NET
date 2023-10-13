@@ -167,9 +167,21 @@ namespace Renci.SshNet.IntegrationTests
             return this;
         }
 
-        public RemoteSshdConfig AddPublicKeyAcceptedAlgorithms(PublicKeyAlgorithm publicKeyAlgorithm)
+        public RemoteSshdConfig AddPublicKeyAcceptedAlgorithm(PublicKeyAlgorithm publicKeyAlgorithm)
         {
             _config.PublicKeyAcceptedAlgorithms.Add(publicKeyAlgorithm);
+            return this;
+        }
+
+        public RemoteSshdConfig ClearMessageAuthenticationCodeAlgorithms()
+        {
+            _config.MessageAuthenticationCodeAlgorithms.Clear();
+            return this;
+        }
+
+        public RemoteSshdConfig AddMessageAuthenticationCodeAlgorithm(MessageAuthenticationCodeAlgorithm messageAuthenticationCodeAlgorithm)
+        {
+            _config.MessageAuthenticationCodeAlgorithms.Add(messageAuthenticationCodeAlgorithm);
             return this;
         }
 

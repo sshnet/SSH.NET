@@ -73,7 +73,7 @@ namespace Renci.SshNet.IntegrationTests
         private void DoTest(PublicKeyAlgorithm publicKeyAlgorithm, string keyResource)
         {
             _remoteSshdConfig.ClearPublicKeyAcceptedAlgorithms()
-                             .AddPublicKeyAcceptedAlgorithms(publicKeyAlgorithm)
+                             .AddPublicKeyAcceptedAlgorithm(publicKeyAlgorithm)
                              .Update()
                              .Restart();
 

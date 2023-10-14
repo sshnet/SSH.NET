@@ -588,15 +588,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SshCommand"/> class.
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~SshCommand()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

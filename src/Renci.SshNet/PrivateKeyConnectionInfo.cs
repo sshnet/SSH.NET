@@ -177,13 +177,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PrivateKeyConnectionInfo"/> class.
-        /// </summary>
-        ~PrivateKeyConnectionInfo()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

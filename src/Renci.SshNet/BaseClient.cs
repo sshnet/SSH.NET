@@ -440,14 +440,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="BaseClient"/> class.
-        /// </summary>
-        ~BaseClient()
-        {
-            Dispose(disposing: false);
-        }
-
-        /// <summary>
         /// Stops the keep-alive timer, and waits until all timer callbacks have been
         /// executed.
         /// </summary>

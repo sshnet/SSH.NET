@@ -205,13 +205,5 @@ namespace Renci.SshNet
             InternalDispose(disposing);
             _isDisposed = true;
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ForwardedPortLocal"/> class.
-        /// </summary>
-        ~ForwardedPortLocal()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

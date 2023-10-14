@@ -537,14 +537,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SubsystemSession" /> class.
-        /// </summary>
-        ~SubsystemSession()
-        {
-            Dispose(disposing: false);
-        }
-
         private void EnsureNotDisposed()
         {
             if (_isDisposed)

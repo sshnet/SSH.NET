@@ -182,13 +182,5 @@ namespace Renci.SshNet.Security
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="DsaKey"/> class.
-        /// </summary>
-        ~DsaKey()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

@@ -213,11 +213,6 @@ namespace Renci.SshNet.Sftp
             return read;
         }
 
-        ~SftpFileReader()
-        {
-            Dispose(disposing: false);
-        }
-
         public void Dispose()
         {
             Dispose(disposing: true);

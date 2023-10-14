@@ -158,13 +158,5 @@ namespace Renci.SshNet
             InternalDispose(disposing);
             _isDisposed = true;
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ForwardedPortDynamic"/> class.
-        /// </summary>
-        ~ForwardedPortDynamic()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

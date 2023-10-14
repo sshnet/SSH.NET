@@ -178,13 +178,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
-        /// </summary>
-        ~KeyboardInteractiveConnectionInfo()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

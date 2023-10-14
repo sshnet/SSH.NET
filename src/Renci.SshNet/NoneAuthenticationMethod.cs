@@ -121,13 +121,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="NoneAuthenticationMethod"/> class.
-        /// </summary>
-        ~NoneAuthenticationMethod()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

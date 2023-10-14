@@ -191,14 +191,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
-        /// </summary>
-        ~PrivateKeyAuthenticationMethod()
-        {
-            Dispose(disposing: false);
-        }
-
         private sealed class SignatureData : SshData
         {
             private readonly RequestMessagePublicKey _message;

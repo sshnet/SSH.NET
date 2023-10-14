@@ -147,13 +147,5 @@ namespace Renci.SshNet.Security
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ED25519Key"/> class.
-        /// </summary>
-        ~ED25519Key()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

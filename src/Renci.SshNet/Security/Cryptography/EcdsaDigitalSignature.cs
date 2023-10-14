@@ -98,14 +98,6 @@ namespace Renci.SshNet.Security.Cryptography
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="EcdsaDigitalSignature"/> class.
-        /// </summary>
-        ~EcdsaDigitalSignature()
-        {
-            Dispose(disposing: false);
-        }
     }
 
     internal sealed class SshDataSignature : SshData

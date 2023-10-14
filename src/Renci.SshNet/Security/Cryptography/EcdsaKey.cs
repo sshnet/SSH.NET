@@ -497,13 +497,5 @@ namespace Renci.SshNet.Security
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="EcdsaKey"/> class.
-        /// </summary>
-        ~EcdsaKey()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

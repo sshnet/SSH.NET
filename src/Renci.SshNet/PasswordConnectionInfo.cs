@@ -8,11 +8,6 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when password authentication method is used
     /// </summary>
-    /// <example>
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using username and password" />
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Change password when connecting" />
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
-    /// </example>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
         private bool _isDisposed;
@@ -20,9 +15,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Change password when connecting" />
-        /// </example>
         public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;
 
         /// <summary>
@@ -31,9 +23,6 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using username and password" />
-        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
         public PasswordConnectionInfo(string host, string username, string password)

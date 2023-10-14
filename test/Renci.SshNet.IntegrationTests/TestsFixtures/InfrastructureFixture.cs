@@ -36,7 +36,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
         {
             _sshServerImage = new ImageFromDockerfileBuilder()
                 .WithName("renci-ssh-tests-server-image")
-                .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), "Renci.SshNet.IntegrationTests")
+                .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))
                 .WithDockerfile("Dockerfile")
                 .WithDeleteIfExists(true)
                 

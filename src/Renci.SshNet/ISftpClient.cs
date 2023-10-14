@@ -700,7 +700,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null);
 
-#if FEATURE_ASYNC_ENUMERABLE
         /// <summary>
         /// Asynchronously enumerates the files in remote directory.
         /// </summary>
@@ -716,7 +715,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         IAsyncEnumerable<ISftpFile> ListDirectoryAsync(string path, CancellationToken cancellationToken);
-#endif //FEATURE_ASYNC_ENUMERABLE
 
         /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.

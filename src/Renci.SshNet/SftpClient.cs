@@ -10,9 +10,7 @@ using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using System.Threading.Tasks;
-#if FEATURE_ASYNC_ENUMERABLE
 using System.Runtime.CompilerServices;
-#endif
 
 namespace Renci.SshNet
 {
@@ -587,7 +585,6 @@ namespace Renci.SshNet
             return InternalListDirectory(path, listCallback);
         }
 
-#if FEATURE_ASYNC_ENUMERABLE
         /// <summary>
         /// Asynchronously enumerates the files in remote directory.
         /// </summary>
@@ -646,7 +643,6 @@ namespace Renci.SshNet
                 await _sftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
             }
         }
-#endif //FEATURE_ASYNC_ENUMERABLE
 
         /// <summary>
         /// Begins an asynchronous operation of retrieving list of files in remote directory.
@@ -1613,7 +1609,7 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
+            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int) _bufferSize, cancellationToken);
         }
 
         /// <summary>

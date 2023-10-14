@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
@@ -21,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, actual.Length);
         }
 
-        [TestInitialize]
+        [TestMethod]
         public void Null()
         {
             const byte[] value = null;
@@ -60,24 +59,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(4, value[3]);
             Assert.AreEqual(1, value[4]);
             Assert.AreEqual(0, value[5]);
-        }
-
-        [TestMethod]
-        [Ignore]
-        public void Perf_Large()
-        {
-            var value = new byte[2048];
-            new Random().NextBytes(value);
-
-            var stopwatch = Stopwatch.StartNew();
-
-            for (var i = 0; i < 1000000; i++)
-            {
-                Extensions.Reverse(value);
-            }
-
-            stopwatch.Stop();
-            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
     }
 }

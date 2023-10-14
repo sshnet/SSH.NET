@@ -12,18 +12,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     [TestClass]
     public class Arc4CipherTest : TestBase
     {
-        /// <summary>
-        ///A test for Arc4Cipher Constructor
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void Arc4CipherConstructorTest()
-        {
-            byte[] key = null; // TODO: Initialize to an appropriate value
-            Arc4Cipher target = new Arc4Cipher(key, true);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
         [TestMethod]
         public void Decrypt_DischargeFirstBytes_False1()
         {
@@ -64,27 +52,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var actualPlainText = cipher.Decrypt(cipherText, 2, cipherText.Length - 4);
 
             Assert.AreEqual(expectedPlainText, encoding.GetString(actualPlainText));
-        }
-
-        /// <summary>
-        ///A test for DecryptBlock
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void DecryptBlockTest()
-        {
-            byte[] key = null; // TODO: Initialize to an appropriate value
-            Arc4Cipher target = new Arc4Cipher(key, true); // TODO: Initialize to an appropriate value
-            byte[] inputBuffer = null; // TODO: Initialize to an appropriate value
-            int inputOffset = 0; // TODO: Initialize to an appropriate value
-            int inputCount = 0; // TODO: Initialize to an appropriate value
-            byte[] outputBuffer = null; // TODO: Initialize to an appropriate value
-            int outputOffset = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
         [TestMethod]
@@ -133,27 +100,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             Assert.IsTrue(expectedCipherText.IsEqualTo(actualCipherText));
 
             Assert.IsTrue(plainTextBytes.IsEqualTo(encoding.GetBytes(plainText)));
-        }
-
-        /// <summary>
-        ///A test for EncryptBlock
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void EncryptBlockTest()
-        {
-            byte[] key = null; // TODO: Initialize to an appropriate value
-            Arc4Cipher target = new Arc4Cipher(key, true); // TODO: Initialize to an appropriate value
-            byte[] inputBuffer = null; // TODO: Initialize to an appropriate value
-            int inputOffset = 0; // TODO: Initialize to an appropriate value
-            int inputCount = 0; // TODO: Initialize to an appropriate value
-            byte[] outputBuffer = null; // TODO: Initialize to an appropriate value
-            int outputOffset = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
         }
     }
 }

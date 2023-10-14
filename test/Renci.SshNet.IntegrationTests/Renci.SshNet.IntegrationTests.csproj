@@ -3,20 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <!--
-          Even though we're not interested in producing XML docs for test projects, we have to enable this in order to have the .NET Compiler
-          Platform analyzers produce the IDE0005 (Remove unnecessary import) diagnostic.
-            
-          To avoid warnings for missing XML docs, we add CS1591 (Missing XML comment for publicly visible type or member) to the NoWarn property.
-
-          We can stop producing XML docs for test projects (and remove the NoWarn for CS1591) once the following issue is fixed:
-          https://github.com/dotnet/roslyn/issues/41640.
-      -->
-    <NoWarn>$(NoWarn);CS1591;SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
-      
+    <NoWarn>$(NoWarn);SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
@@ -27,7 +16,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    
     <PackageReference Include="Testcontainers" Version="3.4.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <!--
@@ -40,7 +28,6 @@
         To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
     -->
     <PackageReference Include="SSH.NET" Version="2020.0.2" ExcludeAssets="All" />
-      
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -49,8 +36,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet.TestTools.OpenSSH\Renci.SshNet.TestTools.OpenSSH.csproj" />
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj" />
+    <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="resources\client\id_dsa" />
     <EmbeddedResource Include="resources\client\id_dsa.ppk" />

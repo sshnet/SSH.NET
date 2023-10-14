@@ -167,18 +167,5 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
                 return (RsaKey) new PrivateKeyFile(stream).Key;
             }
         }
-
-        /// <summary>
-        ///A test for Dispose
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void DisposeTest()
-        {
-            RsaKey rsaKey = null; // TODO: Initialize to an appropriate value
-            RsaDigitalSignature target = new RsaDigitalSignature(rsaKey); // TODO: Initialize to an appropriate value
-            target.Dispose();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
     }
 }

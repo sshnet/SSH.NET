@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -60,20 +59,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Exception inner = null; // TODO: Initialize to an appropriate value
             var target = new SshConnectionException(message, disconnectReasonCode, inner);
             Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for GetObjectData
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void GetObjectDataTest()
-        {
-            var target = new SshConnectionException(); // TODO: Initialize to an appropriate value
-            SerializationInfo info = null; // TODO: Initialize to an appropriate value
-            var context = new StreamingContext(); // TODO: Initialize to an appropriate value
-            target.GetObjectData(info, context);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
 }

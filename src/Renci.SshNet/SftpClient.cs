@@ -1129,10 +1129,10 @@ namespace Renci.SshNet
                 try
                 {
                     InternalUploadFile(input, path, flags, asyncResult, offset =>
-                    {
-                        asyncResult.Update(offset);
-                        uploadCallback?.Invoke(offset);
-                    });
+                        {
+                            asyncResult.Update(offset);
+                            uploadCallback?.Invoke(offset);
+                        });
 
                     asyncResult.SetAsCompleted(exception: null, completedSynchronously: false);
                 }
@@ -2144,18 +2144,18 @@ namespace Renci.SshNet
             var asyncResult = new SftpSynchronizeDirectoriesAsyncResult(asyncCallback, state);
 
             ThreadAbstraction.ExecuteThread(() =>
-            {
-                try
                 {
-                    var result = InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult);
+                    try
+                    {
+                        var result = InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult);
 
-                    asyncResult.SetAsCompleted(result, completedSynchronously: false);
-                }
-                catch (Exception exp)
-                {
-                    asyncResult.SetAsCompleted(exp, completedSynchronously: false);
-                }
-            });
+                        asyncResult.SetAsCompleted(result, completedSynchronously: false);
+                    }
+                    catch (Exception exp)
+                    {
+                        asyncResult.SetAsCompleted(exp, completedSynchronously: false);
+                    }
+                });
 
             return asyncResult;
         }
@@ -2441,20 +2441,20 @@ namespace Renci.SshNet
                     var writtenBytes = offset + (ulong) bytesRead;
 
                     _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
-                    {
-                        if (s.StatusCode == StatusCodes.Ok)
                         {
-                            _ = Interlocked.Decrement(ref expectedResponses);
-                            _ = responseReceivedWaitHandle.Set();
-
-                            //  Call callback to report number of bytes written
-                            if (uploadCallback is not null)
+                            if (s.StatusCode == StatusCodes.Ok)
                             {
-                                //  Execute callback on different thread
-                                ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
+                                _ = Interlocked.Decrement(ref expectedResponses);
+                                _ = responseReceivedWaitHandle.Set();
+
+                                //  Call callback to report number of bytes written
+                                if (uploadCallback is not null)
+                                {
+                                    //  Execute callback on different thread
+                                    ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
+                                }
                             }
-                        }
-                    });
+                        });
 
                     _ = Interlocked.Increment(ref expectedResponses);
 

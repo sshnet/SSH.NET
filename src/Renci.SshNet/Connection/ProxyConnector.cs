@@ -21,7 +21,9 @@ namespace Renci.SshNet.Connection
 
             using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
             {
+#pragma warning disable MA0042 // Do not use blocking calls in an async method; false positive caused by https://github.com/meziantou/Meziantou.Analyzer/issues/613
                 HandleProxyConnect(connectionInfo, socket);
+#pragma warning restore MA0042 // Do not use blocking calls in an async method
             }
 
             return Task.CompletedTask;

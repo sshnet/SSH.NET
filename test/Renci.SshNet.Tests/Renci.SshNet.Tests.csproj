@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net462;net6.0;net7.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <EmbeddedResource Include="..\Data\*.txt" LinkBase="Data" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">
+    <!-- Look for Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll in VS 2019 Enterprise -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Professional -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Professional\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Community -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Preview -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Preview\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="Moq" Version="4.18.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
+  </ItemGroup>
+</Project>

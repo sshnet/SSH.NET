@@ -599,7 +599,9 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+#pragma warning disable MA0050 // Validate arguments correctly in iterator methods; Remove when https://github.com/meziantou/Meziantou.Analyzer/issues/617 is fixed
         public async IAsyncEnumerable<ISftpFile> ListDirectoryAsync(string path, [EnumeratorCancellation] CancellationToken cancellationToken)
+#pragma warning restore MA0050 // Validate arguments correctly in iterator methods
         {
             CheckDisposed();
 

@@ -1,7 +1,7 @@
-os: Visual Studio 2022
+os: Ubuntu2004
 
-before_build:
-  - nuget restore Renci.SshNet.sln
+build_script:
+  - dotnet build
 
 test_script:
   - dotnet test

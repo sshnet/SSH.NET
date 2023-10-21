@@ -2,3 +2,6 @@ os: Visual Studio 2022
 
 before_build:
   - nuget restore Renci.SshNet.sln
+
+test_script:
+  - dotnet test

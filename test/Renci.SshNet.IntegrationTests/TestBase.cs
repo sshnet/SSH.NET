@@ -71,7 +71,7 @@ namespace Renci.SshNet.IntegrationTests
             string resourceName = $"Renci.SshNet.IntegrationTests.{name}";
 
             return typeof(TestBase).Assembly.GetManifestResourceStream(resourceName)
-                ?? throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{typeof(TestBase).Assembly.FullName}'.", nameof(resourceName));
+                ?? throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{typeof(TestBase).Assembly.FullName}'.", nameof(name));
         }
     }
 }

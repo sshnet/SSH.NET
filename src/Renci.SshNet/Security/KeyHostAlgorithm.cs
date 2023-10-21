@@ -13,13 +13,19 @@ namespace Renci.SshNet.Security
     public class KeyHostAlgorithm : HostAlgorithm
     {
         /// <summary>
-        /// The key used in this host key algorithm.
+        /// Gets the key used in this host key algorithm.
         /// </summary>
+        /// <value>
+        /// The key used in this host key algorithm.
+        /// </value>
         public Key Key { get; private set; }
 
         /// <summary>
-        /// The signature implementation used in this host key algorithm.
+        /// Gets the signature implementation used in this host key algorithm.
         /// </summary>
+        /// <value>
+        /// The signature implementation used in this host key algorithm.
+        /// </value>
         public DigitalSignature DigitalSignature { get; private set; }
 
         /// <summary>
@@ -202,11 +208,13 @@ namespace Renci.SshNet.Security
                     var capacity = base.BufferCapacity;
                     capacity += 4; // Name length
                     capacity += _name.Length; // Name
+
                     foreach (var key in _keys)
                     {
                         capacity += 4; // Key length
                         capacity += key.Length; // Key
                     }
+
                     return capacity;
                 }
             }
@@ -246,7 +254,7 @@ namespace Renci.SshNet.Security
         internal sealed class SignatureKeyData : SshData
         {
             /// <summary>
-            /// Gets or sets the signature format identifier
+            /// Gets or sets the signature format identifier.
             /// </summary>
             public string AlgorithmName { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Messages.Transport
+﻿using System;
+
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXDH_INIT message.
@@ -55,7 +57,9 @@
 
         internal override void Process(Session session)
         {
-            throw new System.NotImplementedException();
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
+            throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
     }
 }

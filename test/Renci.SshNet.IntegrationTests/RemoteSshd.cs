@@ -128,7 +128,7 @@ namespace Renci.SshNet.IntegrationTests
             var sshNetMatch = _config.Matches.FirstOrDefault(m => m.Users.Contains(user));
             if (sshNetMatch == null)
             {
-                sshNetMatch = new Match(new[] { user }, new string[0]);
+                sshNetMatch = new Match(new[] { user }, Array.Empty<string>());
                 _config.Matches.Add(sshNetMatch);
             }
 

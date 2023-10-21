@@ -4,7 +4,7 @@ using DotNet.Testcontainers.Images;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
-    public sealed class InfrastructureFixture : IDisposable
+    public sealed class InfrastructureFixture : IAsyncDisposable
     {
         private InfrastructureFixture()
         {
@@ -28,9 +28,9 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public ushort SshServerPort { get; set; }
 
-        public SshUser AdminUser = new SshUser("sshnetadm", "ssh4ever");
+        public SshUser AdminUser { get; } = new SshUser("sshnetadm", "ssh4ever");
 
-        public SshUser User = new SshUser("sshnet", "ssh4ever");
+        public SshUser User { get; } = new SshUser("sshnet", "ssh4ever");
 
         public async Task InitializeAsync()
         {
@@ -38,39 +38,34 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 .WithName("renci-ssh-tests-server-image")
                 .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))
                 .WithDockerfile("Dockerfile")
-                .WithDeleteIfExists(true)
-                
+                .WithDeleteIfExists(deleteIfExists: true)
                 .Build();
 
-            await _sshServerImage.CreateAsync();
+            await _sshServerImage.CreateAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             _sshServer = new ContainerBuilder()
                 .WithHostname("renci-ssh-tests-server")
                 .WithImage(_sshServerImage)
-                .WithPortBinding(22, true)
+                .WithPortBinding(22, assignRandomHostPort: true)
                 .Build();
 
-            await _sshServer.StartAsync();
+            await _sshServer.StartAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             SshServerPort = _sshServer.GetMappedPublicPort(22);
             SshServerHostName = _sshServer.Hostname;
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             if (_sshServer != null)
             {
-                await _sshServer.DisposeAsync();
+                await _sshServer.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
 
             if (_sshServerImage != null)
             {
-                await _sshServerImage.DisposeAsync();
+                await _sshServerImage.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

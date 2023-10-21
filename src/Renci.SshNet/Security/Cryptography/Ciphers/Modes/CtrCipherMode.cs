@@ -4,7 +4,7 @@ using System.Globalization;
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 {
     /// <summary>
-    /// Implements CTR cipher mode
+    /// Implements CTR cipher mode.
     /// </summary>
     public class CtrCipherMode : CipherMode
     {
@@ -33,24 +33,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < _blockSize)
+            if (inputBuffer.Length - inputOffset < BlockSize)
             {
                 throw new ArgumentException("Invalid input buffer");
             }
 
-            if (outputBuffer.Length - outputOffset < _blockSize)
+            if (outputBuffer.Length - outputOffset < BlockSize)
             {
                 throw new ArgumentException("Invalid output buffer");
             }
 
-            if (inputCount != _blockSize)
+            if (inputCount != BlockSize)
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", BlockSize));
             }
 
             _ = Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
-            for (var i = 0; i < _blockSize; i++)
+            for (var i = 0; i < BlockSize; i++)
             {
                 outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
@@ -61,7 +61,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
                 // Intentionally empty block
             }
 
-            return _blockSize;
+            return BlockSize;
         }
 
         /// <summary>
@@ -77,24 +77,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < _blockSize)
+            if (inputBuffer.Length - inputOffset < BlockSize)
             {
                 throw new ArgumentException("Invalid input buffer");
             }
 
-            if (outputBuffer.Length - outputOffset < _blockSize)
+            if (outputBuffer.Length - outputOffset < BlockSize)
             {
                 throw new ArgumentException("Invalid output buffer");
             }
 
-            if (inputCount != _blockSize)
+            if (inputCount != BlockSize)
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", BlockSize));
             }
 
             _ = Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
-            for (var i = 0; i < _blockSize; i++)
+            for (var i = 0; i < BlockSize; i++)
             {
                 outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
                 // Intentionally empty block
             }
 
-            return _blockSize;
+            return BlockSize;
         }
     }
 }

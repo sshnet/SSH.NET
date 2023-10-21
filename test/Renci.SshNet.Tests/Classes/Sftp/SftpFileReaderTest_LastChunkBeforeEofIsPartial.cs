@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -35,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _handle = CreateByteArray(random, 5);
             _chunk1 = CreateByteArray(random, ChunkLength);
             _chunk2 = CreateByteArray(random, ChunkLength);
-            _chunk3 = new byte[0];
+            _chunk3 = Array.Empty<byte>();
             _fileSize = _chunk1.Length + _chunk2.Length;
             _waitHandleArray = new WaitHandle[2];
             _operationTimeout = random.Next(10000, 20000);

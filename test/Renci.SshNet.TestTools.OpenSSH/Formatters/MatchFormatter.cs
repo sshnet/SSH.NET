@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH.Formatters
 {
-    internal class MatchFormatter
+    internal sealed class MatchFormatter : IMatchFormatter
     {
         public string Format(Match match)
         {

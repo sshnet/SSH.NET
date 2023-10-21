@@ -95,14 +95,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ArrangeAsync()
         {
-            await base.ArrangeAsync();
+            await base.ArrangeAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, FileMode.Create, FileAccess.Write, (int) _bufferSize, _cancellationToken);
+            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, FileMode.Create, FileAccess.Write, (int) _bufferSize, _cancellationToken)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         protected override Task ActAsync()
         {
-            return _target.WriteAsync(_data, _offset, _count);
+            return _target.WriteAsync(_data, _offset, _count)
+                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]

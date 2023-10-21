@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class Subsystem
+    public sealed partial class Subsystem
     {
         public Subsystem(string name, string command)
         {
@@ -14,14 +14,9 @@ namespace Renci.SshNet.TestTools.OpenSSH
 
         public string Command { get; set; }
 
-        public void WriteTo(TextWriter writer)
-        {
-            writer.WriteLine(Name + "=" + Command);
-        }
-
         public static Subsystem FromConfig(string value)
         {
-            var subSystemValueRegex = new Regex(@"^\s*(?<name>[\S]+)\s+(?<command>.+?){1}\s*$");
+            var subSystemValueRegex = CreateSubsystemRegex();
 
             var match = subSystemValueRegex.Match(value);
             if (match.Success)
@@ -35,7 +30,20 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 return new Subsystem(name, command);
             }
 
-            throw new Exception($"'{value}' not recognized as value for Subsystem.");
+            throw new NotSupportedException($"'{value}' not recognized as value for Subsystem.");
         }
+
+        public void WriteTo(TextWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            writer.WriteLine(Name + "=" + Command);
+        }
+
+        [GeneratedRegex(@"^\s*(?<name>[\S]+)\s+(?<command>.+?){1}\s*$")]
+        private static partial Regex CreateSubsystemRegex();
     }
 }

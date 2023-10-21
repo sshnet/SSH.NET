@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             Assert.IsNull(target.Data);
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual((uint) 0, target.ResponseId);
+            Assert.AreEqual(0U, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);
         }
 

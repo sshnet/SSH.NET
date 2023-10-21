@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             _random = new Random();
-            _path = _random.Next().ToString();
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.Create;
             _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
@@ -37,7 +37,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             try
             {
-                _ = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, default);
+                _ = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, default)
+                                        .ConfigureAwait(continueOnCapturedContext: false);
                 Assert.Fail();
             }
             catch (ArgumentException ex)

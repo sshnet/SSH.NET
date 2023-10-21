@@ -1327,7 +1327,7 @@ namespace Renci.SshNet.IntegrationTests
                     // create directory if it's not the home directory of the user
                     if (remotePath.Length > 0 && remotePath != client.WorkingDirectory)
                     {
-                        if (!client.Exists((remotePath)))
+                        if (!client.Exists(remotePath))
                         {
                             client.CreateDirectory(remotePath);
                         }
@@ -1784,7 +1784,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 client.Connect();
 
-                if (client.Exists((remoteDirectory)))
+                if (client.Exists(remoteDirectory))
                 {
                     client.DeleteDirectory(remoteDirectory);
                 }
@@ -1826,13 +1826,13 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
                     client.Connect();
 
-                    if (client.Exists((remoteDirectory)))
+                    if (client.Exists(remoteDirectory))
                     {
                         client.DeleteDirectory(remoteDirectory);
                     }
@@ -2160,7 +2160,7 @@ namespace Renci.SshNet.IntegrationTests
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/dir|&;<>()$`\"'sp\u0100ce \\tab\tlf\n*?[#~=%", "file123", 1024 };
             yield return new object[] { null, "/home/sshnet/scp test", "file 123", 1024 };
             yield return new object[] { RemotePathTransformation.None, "/home/sshnet/scp-test", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
-            yield return new object[] { null, "", "scp-issue280", 1024 };
+            yield return new object[] { null, string.Empty, "scp-issue280", 1024 };
         }
 
         private static IEnumerable<object[]> GetScpUploadFileStreamFileDoesNotExistData()
@@ -2169,7 +2169,7 @@ namespace Renci.SshNet.IntegrationTests
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/dir|&;<>()$`\"'sp\u0100ce \\tab\tlf\n*?[#~=%", "file123", 1024 };
             yield return new object[] { null, "/home/sshnet/scp test", "file 123", 1024 };
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/scp-test", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
-            yield return new object[] { RemotePathTransformation.None, "", "scp-issue280", 1024 };
+            yield return new object[] { RemotePathTransformation.None, string.Empty, "scp-issue280", 1024 };
         }
 
         private static IEnumerable<object[]> GetScpUploadDirectoryInfoExistingDirectoryData()
@@ -2227,9 +2227,9 @@ namespace Renci.SshNet.IntegrationTests
 
         private static IEnumerable<object[]> GetScpDownloadFileInfoExistingFileData()
         {
-            yield return new object[] { null, "", "file 123", 0 };
-            yield return new object[] { null, "", "file 123", 1024 };
-            yield return new object[] { RemotePathTransformation.ShellQuote, "", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
+            yield return new object[] { null, string.Empty, "file 123", 0 };
+            yield return new object[] { null, string.Empty, "file 123", 1024 };
+            yield return new object[] { RemotePathTransformation.ShellQuote, string.Empty, "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
             yield return new object[] { null, "/home/sshnet/scp test", "file 123", 1024 };
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/dir|&;<>()$`\"'sp\u0100ce \\tab\tlf\n*?[#~=%", "file123", 1024 };
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/scp-test", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
@@ -2242,9 +2242,9 @@ namespace Renci.SshNet.IntegrationTests
 
         private static IEnumerable<object[]> GetScpDownloadStreamExistingFileData()
         {
-            yield return new object[] { null, "", "file 123", 0 };
-            yield return new object[] { null, "", "file 123", 1024 };
-            yield return new object[] { RemotePathTransformation.ShellQuote, "", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
+            yield return new object[] { null, string.Empty, "file 123", 0 };
+            yield return new object[] { null, string.Empty, "file 123", 1024 };
+            yield return new object[] { RemotePathTransformation.ShellQuote, string.Empty, "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
             yield return new object[] { null, "/home/sshnet/scp test", "file 123", 1024 };
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/dir|&;<>()$`\"'sp\u0100ce \\tab\tlf\n*?[#~=%", "file123", 1024 };
             yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/scp-test", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };

@@ -52,7 +52,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="blockSize">Size of the block.</param>
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
             : base(key)
         {
@@ -69,7 +69,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The data.</param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
         /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
-        /// <returns>Encrypted data</returns>
+        /// <returns>Encrypted data.</returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             if (length % _blockSize > 0)
@@ -112,7 +112,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Decrypts the specified data.
         /// </summary>
         /// <param name="input">The data.</param>
-        /// <returns>Decrypted data</returns>
+        /// <returns>Decrypted data.</returns>
         public override byte[] Decrypt(byte[] input)
         {
             return Decrypt(input, 0, input.Length);

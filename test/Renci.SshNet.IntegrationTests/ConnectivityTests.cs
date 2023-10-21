@@ -76,7 +76,7 @@ namespace Renci.SshNet.IntegrationTests
                     hostNetworkConnectionDisabled = true;
                     WaitForConnectionInterruption(client);
                 }
-                
+
                 Assert.IsNotNull(errorOccurred);
                 Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
@@ -427,6 +427,7 @@ namespace Renci.SshNet.IntegrationTests
 
             Assert.IsTrue(hostValidationSuccessful);
         }
+
         /// <summary>
         /// Verifies whether we handle a disconnect initiated by the SSH server (through a SSH_MSG_DISCONNECT message).
         /// </summary>

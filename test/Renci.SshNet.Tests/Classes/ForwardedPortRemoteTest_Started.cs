@@ -17,8 +17,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
         private ForwardedPortRemote _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
 
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes
                         p.SendMessage(
                             It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                                 g => g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
-                _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(true));
+                _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(initialState: true));
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
             var originatorPort = (uint) new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
-            var channelDisposed = new ManualResetEvent(false);
+            var channelDisposed = new ManualResetEvent(initialState: false);
 
             _sessionMock.Setup(
                 p =>
@@ -110,10 +110,13 @@ namespace Renci.SshNet.Tests.Classes
             channelMock.Setup(p => p.Dispose()).Callback(() => channelDisposed.Set());
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize,
-                    new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress,
-                        originatorPort))));
+                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber,
+                                                                                initialWindowSize,
+                                                                                maximumPacketSize,
+                                                                                new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost,
+                                                                                                              _forwardedPort.BoundPort,
+                                                                                                              originatorAddress,
+                                                                                                              originatorPort))));
 
             // wait for channel to be disposed
             channelDisposed.WaitOne(TimeSpan.FromMilliseconds(200));
@@ -124,6 +127,8 @@ namespace Renci.SshNet.Tests.Classes
 
             Assert.AreEqual(0, _closingRegister.Count);
             Assert.AreEqual(0, _exceptionRegister.Count);
+
+            channelDisposed.Dispose();
         }
 
         [TestMethod]
@@ -141,10 +146,13 @@ namespace Renci.SshNet.Tests.Classes
                     p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize,
-                    new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort + 1, originatorAddress,
-                        originatorPort))));
+                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber,
+                                                                                initialWindowSize,
+                                                                                maximumPacketSize,
+                                                                                new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost,
+                                                                                                              _forwardedPort.BoundPort + 1,
+                                                                                                              originatorAddress,
+                                                                                                              originatorPort))));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 
@@ -167,10 +175,13 @@ namespace Renci.SshNet.Tests.Classes
                     p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize,
-                    new ForwardedTcpipChannelInfo("111.111.111.111", _forwardedPort.BoundPort, originatorAddress,
-                        originatorPort))));
+                    new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber,
+                                                                                    initialWindowSize,
+                                                                                    maximumPacketSize,
+                                                                                    new ForwardedTcpipChannelInfo("111.111.111.111",
+                                                                                                                  _forwardedPort.BoundPort,
+                                                                                                                  originatorAddress,
+                                                                                                                  originatorPort))));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 
@@ -191,8 +202,10 @@ namespace Renci.SshNet.Tests.Classes
                     p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize, new DirectTcpipChannelInfo("HOST", 5, "ORIGIN", 4))));
+                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber,
+                                                                                initialWindowSize,
+                                                                                maximumPacketSize,
+                                                                                new DirectTcpipChannelInfo("HOST", 5, "ORIGIN", 4))));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 

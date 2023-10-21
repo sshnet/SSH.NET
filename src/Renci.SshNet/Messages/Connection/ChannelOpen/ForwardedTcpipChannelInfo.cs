@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "forwarded-tcpip" channel type
+    /// Used to open "forwarded-tcpip" channel type.
     /// </summary>
     internal sealed class ForwardedTcpipChannelInfo : ChannelOpenInfo
     {
@@ -14,14 +14,14 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="ForwardedTcpipChannelInfo"/> class from the
         /// specified data.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public ForwardedTcpipChannelInfo(byte[] data)
         {
             Load(data);
         }
 
         /// <summary>
-        /// Initializes a new <see cref="ForwardedTcpipChannelInfo"/> instance with the specified connector
+        /// Initializes a new instance of the <see cref="ForwardedTcpipChannelInfo"/> class with the specified connector
         /// address and port, and originator address and port.
         /// </summary>
         public ForwardedTcpipChannelInfo(string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Messages.Connection
         }
 
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string NAME = "forwarded-tcpip";
 

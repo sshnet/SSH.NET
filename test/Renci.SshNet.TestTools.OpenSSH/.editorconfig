@@ -1,0 +1,8 @@
+﻿[*]
+
+[*.cs]
+
+#### Meziantou.Analyzer rules ####
+
+# MA0001: StringComparison is missing
+dotnet_diagnostic.MA0001.severity = none

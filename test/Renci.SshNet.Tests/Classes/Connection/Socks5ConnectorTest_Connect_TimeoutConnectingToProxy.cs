@@ -75,7 +75,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ConnectShouldHaveRespectedTimeout()
         {
-            var errorText = string.Format("Elapsed: {0}, Timeout: {1}",
+            var errorText = string.Format(CultureInfo.InvariantCulture,
+                                          "Elapsed: {0}, Timeout: {1}",
                                           _stopWatch.ElapsedMilliseconds,
                                           _connectionInfo.Timeout.TotalMilliseconds);
 
@@ -89,11 +90,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _ = _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

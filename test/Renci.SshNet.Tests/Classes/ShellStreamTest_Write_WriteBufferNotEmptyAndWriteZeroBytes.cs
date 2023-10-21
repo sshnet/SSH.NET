@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes
             _bufferSize = random.Next(100, 1000);
 
             _bufferData = CryptoAbstraction.GenerateRandom(_bufferSize - 60);
-            _data = new byte[0];
+            _data = Array.Empty<byte>();
             _offset = 0;
             _count = _data.Length;
         }

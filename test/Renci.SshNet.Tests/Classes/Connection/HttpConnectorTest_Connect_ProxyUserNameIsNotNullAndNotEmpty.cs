@@ -131,4 +131,3 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
     }
 }
-

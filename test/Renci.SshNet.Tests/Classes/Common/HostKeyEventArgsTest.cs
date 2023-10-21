@@ -1,22 +1,25 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
-using System.Linq;
-using System.Reflection;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     /// <summary>
-    ///This is a test class for HostKeyEventArgsTest and is intended
-    ///to contain all HostKeyEventArgsTest Unit Tests
-    ///</summary>
+    /// This is a test class for HostKeyEventArgsTest and is intended
+    /// to contain all HostKeyEventArgsTest Unit Tests
+    /// </summary>
     [TestClass]
     public class HostKeyEventArgsTest : TestBase
     {
         /// <summary>
-        ///A test for HostKeyEventArgs Constructor
-        ///</summary>
+        /// A test for HostKeyEventArgs Constructor
+        /// </summary>
         [TestMethod]
         public void HostKeyEventArgsConstructorTest()
         {
@@ -46,9 +49,26 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(2048, target.KeyLength);
         }
 
+        [TestMethod]
+        public void HostKeyEventArgsConstructorTest_HostIsNull()
+        {
+            const KeyHostAlgorithm host = null;
+
+            try
+            {
+                _ = new HostKeyEventArgs(host);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("host", ex.ParamName);
+            }
+        }
+
         /// <summary>
-        ///A test for MD5 calculation in HostKeyEventArgs Constructor
-        ///</summary>
+        /// A test for MD5 calculation in HostKeyEventArgs Constructor
+        /// </summary>
         [TestMethod]
         public void HostKeyEventArgsConstructorTest_VerifyMD5()
         {
@@ -61,8 +81,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         /// <summary>
-        ///A test for SHA256 calculation in HostKeyEventArgs Constructor
-        ///</summary>
+        /// A test for SHA256 calculation in HostKeyEventArgs Constructor
+        /// </summary>
         [TestMethod]
         public void HostKeyEventArgsConstructorTest_VerifySHA256()
         {
@@ -71,8 +91,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         /// <summary>
-        ///A test for CanTrust
-        ///</summary>
+        /// A test for CanTrust
+        /// </summary>
         [TestMethod]
         public void CanTrustTest()
         {
@@ -94,6 +114,5 @@ namespace Renci.SshNet.Tests.Classes.Common
                 return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }
         }
-
     }
 }

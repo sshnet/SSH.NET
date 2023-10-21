@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
     /// </summary>
-    public abstract class BaseClient : IBaseClient, IDisposable
+    public abstract class BaseClient : IBaseClient
     {
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.
@@ -69,7 +69,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this client is connected to the server.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this client is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this client is connected; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public bool IsConnected
@@ -158,9 +158,9 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
@@ -174,10 +174,10 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
@@ -393,8 +393,6 @@ namespace Renci.SshNet
         /// </summary>
         public void Dispose()
         {
-            DiagnosticAbstraction.Log("Disposing client.");
-
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
@@ -402,7 +400,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -412,14 +410,17 @@ namespace Renci.SshNet
 
             if (disposing)
             {
+                DiagnosticAbstraction.Log("Disposing client.");
+
                 Disconnect();
 
-                if (_ownsConnectionInfo && _connectionInfo != null)
+                if (_ownsConnectionInfo && _connectionInfo is not null)
                 {
                     if (_connectionInfo is IDisposable connectionInfoDisposable)
                     {
                         connectionInfoDisposable.Dispose();
                     }
+
                     _connectionInfo = null;
                 }
 
@@ -433,10 +434,14 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">THe current instance is disposed.</exception>
         protected void CheckDisposed()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
         }
 
         /// <summary>
@@ -566,7 +571,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Disposes the SSH session, and assigns <c>null</c> to <see cref="Session"/>.
+        /// Disposes the SSH session, and assigns <see langword="null"/> to <see cref="Session"/>.
         /// </summary>
         private void DisposeSession()
         {
@@ -582,7 +587,7 @@ namespace Renci.SshNet
         /// Returns a value indicating whether the SSH session is established.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the SSH session is established; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the SSH session is established; otherwise, <see langword="false"/>.
         /// </returns>
         private bool IsSessionConnected()
         {

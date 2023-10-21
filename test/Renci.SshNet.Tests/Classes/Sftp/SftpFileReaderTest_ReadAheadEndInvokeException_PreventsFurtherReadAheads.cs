@@ -41,10 +41,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileSize = 3 * _chunk1.Length;
             _waitHandleArray = new WaitHandle[2];
             _operationTimeout = random.Next(10000, 20000);
-            _closeAsyncResult = new SftpCloseAsyncResult(null, null);
+            _closeAsyncResult = new SftpCloseAsyncResult(asyncCallback: null, state: null);
 
-            _readAheadChunk2 = new ManualResetEvent(false);
-            _readChunk2 = new ManualResetEvent(false);
+            _readAheadChunk2 = new ManualResetEvent(initialState: false);
+            _readChunk2 = new ManualResetEvent(initialState: false);
 
             _exception = new SshException();
         }
@@ -72,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                                    {
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
-                                       asyncResult.SetAsCompleted(_chunk1, false);
+                                       asyncResult.SetAsCompleted(_chunk1, completedSynchronously: false);
                                    })
                                .Returns((SftpReadAsyncResult) null);
             _ = SftpSessionMock.InSequence(_seq)
@@ -89,13 +89,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                            {
                                                // signal that we're in the read-ahead for chunk2
                                                _ = _readAheadChunk2.Set();
+
                                                // wait for client to start reading this chunk
                                                _ = _readChunk2.WaitOne(TimeSpan.FromSeconds(5));
+
                                                // sleep a short time to make sure the client is in the blocking wait
                                                Thread.Sleep(500);
+
                                                // complete async read of chunk2 with exception
                                                var asyncResult = new SftpReadAsyncResult(callback, state);
-                                               asyncResult.SetAsCompleted(_exception, false);
+                                               asyncResult.SetAsCompleted(_exception, completedSynchronously: false);
                                            });
                                    })
                                .Returns((SftpReadAsyncResult)null);
@@ -111,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             base.Arrange();
 
-            // use a max. read-ahead of 1 to allow us to verify that the next read-ahead is not done
+            // Use a max. read-ahead of 1 to allow us to verify that the next read-ahead is not done
             // when a read-ahead has failed
             _reader = new SftpFileReader(_handle, SftpSessionMock.Object, ChunkLength, 1, _fileSize);
         }
@@ -120,9 +123,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _ = _reader.Read();
 
-            // wait until SftpFileReader has starting reading ahead chunk 2
+            // Wait until SftpFileReader has starting reading ahead chunk 2
             Assert.IsTrue(_readAheadChunk2.WaitOne(TimeSpan.FromSeconds(5)));
-            // signal that we are about to read chunk 2
+
+            // Signal that we are about to read chunk 2
             _ = _readChunk2.Set();
 
             try

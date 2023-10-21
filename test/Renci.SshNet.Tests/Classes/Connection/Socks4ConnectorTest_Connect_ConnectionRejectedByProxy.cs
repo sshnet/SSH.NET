@@ -102,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _ = _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

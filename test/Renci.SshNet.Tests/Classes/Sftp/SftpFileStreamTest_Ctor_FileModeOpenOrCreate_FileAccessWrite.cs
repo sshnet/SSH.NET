@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             _random = new Random();
-            _path = _random.Next().ToString();
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.OpenOrCreate;
             _fileAccess = FileAccess.Write;
             _bufferSize = _random.Next(5, 1000);

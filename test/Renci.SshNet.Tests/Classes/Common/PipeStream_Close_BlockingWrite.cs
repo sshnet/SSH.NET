@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -10,12 +12,12 @@ namespace Renci.SshNet.Tests.Classes.Common
     public class PipeStream_Close_BlockingWrite : TripleATestBase
     {
         private PipeStream _pipeStream;
-        private Exception _writeException;
+        private ObjectDisposedException _writeException;
         private Thread _writehread;
 
         protected override void Arrange()
         {
-            _pipeStream = new PipeStream {MaxBufferLength = 3};
+            _pipeStream = new PipeStream { MaxBufferLength = 3 };
 
             _writehread = new Thread(() =>
                 {
@@ -29,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                     {
                         _pipeStream.WriteByte(35);
                     }
-                    catch (Exception ex)
+                    catch (ObjectDisposedException ex)
                     {
                         _writeException = ex;
                     }
@@ -58,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void WriteShouldHaveThrownObjectDisposedException()
         {
             Assert.IsNotNull(_writeException);
-            Assert.AreEqual(typeof (ObjectDisposedException), _writeException.GetType());
+            Assert.AreEqual(typeof(ObjectDisposedException), _writeException.GetType());
         }
     }
 }

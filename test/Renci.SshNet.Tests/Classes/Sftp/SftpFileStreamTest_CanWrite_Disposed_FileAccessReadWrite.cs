@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             var random = new Random();
-            _path = random.Next().ToString();
+            _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = GenerateRandom(1, random);
             _bufferSize = (uint) random.Next(0, 1000);
             _readBufferSize = (uint) random.Next(0, 1000);
@@ -42,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence)
                            .Setup(p => p.IsOpen)
-                           .Returns(true);
+                           .Returns(value: true);
             SftpSessionMock.InSequence(MockSequence)
                            .Setup(p => p.RequestClose(_handle));
         }

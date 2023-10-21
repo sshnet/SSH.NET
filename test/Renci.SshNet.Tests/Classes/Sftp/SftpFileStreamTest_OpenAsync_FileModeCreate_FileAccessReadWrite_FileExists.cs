@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             _random = new Random();
-            _path = _random.Next().ToString();
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.Create;
             _fileAccess = FileAccess.ReadWrite;
             _bufferSize = _random.Next(5, 1000);
@@ -53,7 +53,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ActAsync()
         {
-            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken);
+            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]
@@ -83,7 +84,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void PositionShouldReturnZero()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.IsOpen)
+                           .Returns(value: true);
 
             var actual = _target.Position;
 
@@ -99,10 +102,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var data = new byte[] { 5, 4, 3, 2, 1 };
             var expected = new byte[] { 0, 5, 4, 3, 2, 1, 0, 0 };
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, _cancellationToken)).ReturnsAsync(data);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.IsOpen)
+                           .Returns(value: true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, _cancellationToken))
+                           .ReturnsAsync(data);
 
-            var actual = await _target.ReadAsync(buffer, 1, data.Length);
+#pragma warning disable MA0040 // Forward the CancellationToken parameter to methods that take one
+#pragma warning disable CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+            var actual = await _target.ReadAsync(buffer, 1, data.Length)
+                                      .ConfigureAwait(continueOnCapturedContext: false);
+#pragma warning restore CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+#pragma warning restore MA0040 // Forward the CancellationToken parameter to methods that take one
 
             Assert.AreEqual(data.Length, actual);
             Assert.IsTrue(buffer.IsEqualTo(expected));
@@ -119,7 +131,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken)).Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length);
+#pragma warning disable MA0040 // Forward the CancellationToken parameter to methods that take one
+#pragma warning disable CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+            await _target.WriteAsync(buffer, 0, buffer.Length)
+                         .ConfigureAwait(continueOnCapturedContext: false);
+#pragma warning restore CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+#pragma warning restore MA0040 // Forward the CancellationToken parameter to methods that take one
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

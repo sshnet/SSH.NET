@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         protected override void Act()
         {
             SessionMock.Raise(s => s.ChannelDataReceived += null,
-                               new MessageEventArgs<ChannelDataMessage>(new ChannelDataMessage(_localChannelNumber, new byte[0])));
+                               new MessageEventArgs<ChannelDataMessage>(new ChannelDataMessage(_localChannelNumber, Array.Empty<byte>())));
         }
 
         [TestMethod]

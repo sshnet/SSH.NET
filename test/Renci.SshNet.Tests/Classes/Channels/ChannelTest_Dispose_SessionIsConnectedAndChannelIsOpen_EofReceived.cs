@@ -40,8 +40,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelEndOfDataRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
-            _channelClosedReceived = new ManualResetEvent(false);
-            _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
+            _channelClosedReceived = new ManualResetEvent(initialState: false);
+            _channelClosedEventHandlerCompleted = new ManualResetEvent(initialState: false);
             _raiseChannelCloseReceivedThread = null;
         }
 
@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var sequence = new MockSequence();
 
-            SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
+            SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(value: true);
             SessionMock.InSequence(sequence).Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
             SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
             ConnectionInfoMock.InSequence(sequence).Setup(p => p.ChannelCloseTimeout).Returns(_channelCloseTimeout);
@@ -121,7 +121,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.EndOfData += (sender, args) => _channelEndOfDataRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
-            _channel.SetIsOpen(true);
+            _channel.SetIsOpen(value: true);
 
             SessionMock.Raise(
                 s => s.ChannelEofReceived += null,

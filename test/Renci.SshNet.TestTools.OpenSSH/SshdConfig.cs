@@ -6,9 +6,9 @@ using Renci.SshNet.TestTools.OpenSSH.Formatters;
 
 namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class SshdConfig
+    public sealed partial class SshdConfig
     {
-        private static readonly Regex MatchRegex = new Regex($@"\s*Match\s+(User\s+(?<users>[\S]+))?\s*(Address\s+(?<addresses>[\S]+))?\s*", RegexOptions.Compiled);
+        private static readonly Regex MatchRegex = CreateMatchRegex();
 
         private readonly SubsystemFormatter _subsystemFormatter;
         private readonly Int32Formatter _int32Formatter;
@@ -50,7 +50,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// <value>
         /// A list of private host key files used by sshd.
         /// </value>
-        public List<string> HostKeyFiles { get; set; }
+        public List<string> HostKeyFiles { get; }
 
         /// <summary>
         /// Gets or sets a value specifying whether challenge-response authentication is allowed.
@@ -143,85 +143,6 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// </value>
         public bool? AllowTcpForwarding { get; set; }
 
-        public void SaveTo(TextWriter writer)
-        {
-            writer.WriteLine("Protocol " + Protocol);
-            writer.WriteLine("Port " + _int32Formatter.Format(Port));
-            if (HostKeyFiles.Count > 0)
-            {
-                writer.WriteLine("HostKey " + string.Join(",", HostKeyFiles.ToArray()));
-            }
-
-            if (ChallengeResponseAuthentication is not null)
-            {
-                writer.WriteLine("ChallengeResponseAuthentication " + _booleanFormatter.Format(ChallengeResponseAuthentication.Value));
-            }
-
-            if (KeyboardInteractiveAuthentication is not null)
-            {
-                writer.WriteLine("KbdInteractiveAuthentication " + _booleanFormatter.Format(KeyboardInteractiveAuthentication.Value));
-            }
-
-            if (AllowTcpForwarding is not null)
-            {
-                writer.WriteLine("AllowTcpForwarding " + _booleanFormatter.Format(AllowTcpForwarding.Value));
-            }
-
-            if (PrintMotd is not null)
-            {
-                writer.WriteLine("PrintMotd " + _booleanFormatter.Format(PrintMotd.Value));
-            }
-
-            writer.WriteLine("LogLevel " + new LogLevelFormatter().Format(LogLevel));
-
-            foreach (var subsystem in Subsystems)
-            {
-                writer.WriteLine("Subsystem " + _subsystemFormatter.Format(subsystem));
-            }
-
-            if (UsePAM is not null)
-            {
-                writer.WriteLine("UsePAM " + _booleanFormatter.Format(UsePAM.Value));
-            }
-
-            writer.WriteLine("X11Forwarding " + _booleanFormatter.Format(X11Forwarding));
-
-            foreach (var acceptedEnvVar in AcceptedEnvironmentVariables)
-            {
-                writer.WriteLine("AcceptEnv " + acceptedEnvVar);
-            }
-
-            if (Ciphers.Count > 0)
-            {
-                writer.WriteLine("Ciphers " + string.Join(",", Ciphers.Select(c => c.Name).ToArray()));
-            }
-
-            if (HostKeyAlgorithms.Count > 0)
-            {
-                writer.WriteLine("HostKeyAlgorithms " + string.Join(",", HostKeyAlgorithms.Select(c => c.Name).ToArray()));
-            }
-
-            if (KeyExchangeAlgorithms.Count > 0)
-            {
-                writer.WriteLine("KexAlgorithms " + string.Join(",", KeyExchangeAlgorithms.Select(c => c.Name).ToArray()));
-            }
-
-            if (MessageAuthenticationCodeAlgorithms.Count > 0)
-            {
-                writer.WriteLine("MACs " + string.Join(",", MessageAuthenticationCodeAlgorithms.Select(c => c.Name).ToArray()));
-            }
-
-            if (PublicKeyAcceptedAlgorithms.Count > 0)
-            {
-                writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(",", PublicKeyAcceptedAlgorithms.Select(c => c.Name).ToArray()));
-            }
-            
-            foreach (var match in Matches)
-            {
-                _matchFormatter.Format(match, writer);
-            }
-        }
-
         public static SshdConfig LoadFrom(Stream stream, Encoding encoding)
         {
             using (var sr = new StreamReader(stream, encoding))
@@ -285,17 +206,105 @@ namespace Renci.SshNet.TestTools.OpenSSH
 
                 if (sshdConfig.MessageAuthenticationCodeAlgorithms == null)
                 {
-                    // Obtain supported MACs using ssh -Q mac 
+                    // Obtain supported MACs using ssh -Q mac
                 }
-
 
                 return sshdConfig;
             }
         }
 
+        /// <summary>
+        /// Writes the SSHD config to the specified <see cref="TextWriter"/>.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter"/> to write the SSHD configuration to.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
+        public void SaveTo(TextWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            writer.WriteLine("Protocol " + Protocol);
+            writer.WriteLine("Port " + _int32Formatter.Format(Port));
+            if (HostKeyFiles.Count > 0)
+            {
+                writer.WriteLine("HostKey " + string.Join(',', HostKeyFiles));
+            }
+
+            if (ChallengeResponseAuthentication is not null)
+            {
+                writer.WriteLine("ChallengeResponseAuthentication " + _booleanFormatter.Format(ChallengeResponseAuthentication.Value));
+            }
+
+            if (KeyboardInteractiveAuthentication is not null)
+            {
+                writer.WriteLine("KbdInteractiveAuthentication " + _booleanFormatter.Format(KeyboardInteractiveAuthentication.Value));
+            }
+
+            if (AllowTcpForwarding is not null)
+            {
+                writer.WriteLine("AllowTcpForwarding " + _booleanFormatter.Format(AllowTcpForwarding.Value));
+            }
+
+            if (PrintMotd is not null)
+            {
+                writer.WriteLine("PrintMotd " + _booleanFormatter.Format(PrintMotd.Value));
+            }
+
+            writer.WriteLine("LogLevel " + new LogLevelFormatter().Format(LogLevel));
+
+            foreach (var subsystem in Subsystems)
+            {
+                writer.WriteLine("Subsystem " + _subsystemFormatter.Format(subsystem));
+            }
+
+            if (UsePAM is not null)
+            {
+                writer.WriteLine("UsePAM " + _booleanFormatter.Format(UsePAM.Value));
+            }
+
+            writer.WriteLine("X11Forwarding " + _booleanFormatter.Format(X11Forwarding));
+
+            foreach (var acceptedEnvVar in AcceptedEnvironmentVariables)
+            {
+                writer.WriteLine("AcceptEnv " + acceptedEnvVar);
+            }
+
+            if (Ciphers.Count > 0)
+            {
+                writer.WriteLine("Ciphers " + string.Join(',', Ciphers.Select(c => c.Name)));
+            }
+
+            if (HostKeyAlgorithms.Count > 0)
+            {
+                writer.WriteLine("HostKeyAlgorithms " + string.Join(',', HostKeyAlgorithms.Select(c => c.Name)));
+            }
+
+            if (KeyExchangeAlgorithms.Count > 0)
+            {
+                writer.WriteLine("KexAlgorithms " + string.Join(',', KeyExchangeAlgorithms.Select(c => c.Name)));
+            }
+
+            if (MessageAuthenticationCodeAlgorithms.Count > 0)
+            {
+                writer.WriteLine("MACs " + string.Join(',', MessageAuthenticationCodeAlgorithms.Select(c => c.Name)));
+            }
+
+            if (PublicKeyAcceptedAlgorithms.Count > 0)
+            {
+                writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(',', PublicKeyAcceptedAlgorithms.Select(c => c.Name)));
+            }
+
+            foreach (var match in Matches)
+            {
+                _matchFormatter.Format(match, writer);
+            }
+        }
+
         private static void ProcessGlobalOption(SshdConfig sshdConfig, string line)
         {
-            var matchOptionRegex = new Regex(@"^\s*(?<name>[\S]+)\s+(?<value>.+?){1}\s*$");
+            var matchOptionRegex = CreateMatchOptionRegex();
 
             var optionsMatch = matchOptionRegex.Match(line);
             if (!optionsMatch.Success)
@@ -315,7 +324,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.Port = ToInt(value);
                     break;
                 case "HostKey":
-                    sshdConfig.HostKeyFiles = ParseCommaSeparatedValue(value);
+                    ParseCommaSeparatedValue(value, sshdConfig.HostKeyFiles);
                     break;
                 case "ChallengeResponseAuthentication":
                     sshdConfig.ChallengeResponseAuthentication = ToBool(value);
@@ -324,7 +333,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.KeyboardInteractiveAuthentication = ToBool(value);
                     break;
                 case "LogLevel":
-                    sshdConfig.LogLevel = (LogLevel) Enum.Parse(typeof(LogLevel), value, true);
+                    sshdConfig.LogLevel = Enum.Parse<LogLevel>(value, ignoreCase: true);
                     break;
                 case "Subsystem":
                     sshdConfig.Subsystems.Add(Subsystem.FromConfig(value));
@@ -382,7 +391,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "GatewayPorts":
                     break;
                 default:
-                    throw new Exception($"Global option '{name}' is not implemented.");
+                    throw new NotSupportedException($"Global option '{name}' is not supported.");
             }
         }
 
@@ -399,10 +408,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var cipherNames = value.Split(',');
             var ciphers = new List<Cipher>(cipherNames.Length);
+
             foreach (var cipherName in cipherNames)
             {
                 ciphers.Add(new Cipher(cipherName.Trim()));
             }
+
             return ciphers;
         }
 
@@ -410,21 +421,30 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var kexNames = value.Split(',');
             var keyExchangeAlgorithms = new List<KeyExchangeAlgorithm>(kexNames.Length);
+
             foreach (var kexName in kexNames)
             {
                 keyExchangeAlgorithms.Add(new KeyExchangeAlgorithm(kexName.Trim()));
             }
+
             return keyExchangeAlgorithms;
         }
 
         public static List<PublicKeyAlgorithm> ParsePublicKeyAcceptedAlgorithms(string value)
         {
+            if (value is null)
+            {
+                throw new ArgumentNullException(value);
+            }
+
             var publicKeyAlgorithmNames = value.Split(',');
             var publicKeyAlgorithms = new List<PublicKeyAlgorithm>(publicKeyAlgorithmNames.Length);
+
             foreach (var publicKeyAlgorithmName in publicKeyAlgorithmNames)
             {
                 publicKeyAlgorithms.Add(new PublicKeyAlgorithm(publicKeyAlgorithmName.Trim()));
             }
+
             return publicKeyAlgorithms;
         }
 
@@ -432,10 +452,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var algorithmNames = value.Split(',');
             var hostKeyAlgorithms = new List<HostKeyAlgorithm>(algorithmNames.Length);
+
             foreach (var algorithmName in algorithmNames)
             {
                 hostKeyAlgorithms.Add(new HostKeyAlgorithm(algorithmName.Trim()));
             }
+
             return hostKeyAlgorithms;
         }
 
@@ -443,16 +465,18 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var macNames = value.Split(',');
             var macAlgorithms = new List<MessageAuthenticationCodeAlgorithm>(macNames.Length);
+
             foreach (var algorithmName in macNames)
             {
                 macAlgorithms.Add(new MessageAuthenticationCodeAlgorithm(algorithmName.Trim()));
             }
+
             return macAlgorithms;
         }
 
         private static void ProcessMatchOption(Match matchConfiguration, string line)
         {
-            var matchOptionRegex = new Regex(@"^\s+(?<name>[\S]+)\s+(?<value>.+?){1}\s*$");
+            var matchOptionRegex = CreateMatchOptionRegex();
 
             var optionsMatch = matchOptionRegex.Match(line);
             if (!optionsMatch.Success)
@@ -472,15 +496,16 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     matchConfiguration.AuthenticationMethods = value;
                     break;
                 default:
-                    throw new Exception($"Match option '{name}' is not implemented.");
+                    throw new NotSupportedException($"Match option '{name}' is not supported.");
             }
         }
 
-
-        private static List<string> ParseCommaSeparatedValue(string value)
+        private static void ParseCommaSeparatedValue(string value, List<string> valueList)
         {
-            var values = value.Split(',');
-            return new List<string>(values);
+            foreach (var splitValue in value.Split(','))
+            {
+                valueList.Add(splitValue);
+            }
         }
 
         private static bool ToBool(string value)
@@ -492,7 +517,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "no":
                     return false;
                 default:
-                    throw new Exception($"Value '{value}' cannot be mapped to a boolean.");
+                    throw new ArgumentException($"Value '{value}' cannot be mapped to a boolean.", nameof(value));
             }
         }
 
@@ -500,5 +525,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             return int.Parse(value, NumberFormatInfo.InvariantInfo);
         }
+
+        [GeneratedRegex($@"\s*Match\s+(User\s+(?<users>[\S]+))?\s*(Address\s+(?<addresses>[\S]+))?\s*", RegexOptions.Compiled | RegexOptions.ExplicitCapture)]
+        private static partial Regex CreateMatchRegex();
+
+        [GeneratedRegex(@"^\s*(?<name>[\S]+)\s+(?<value>.+?){1}\s*$")]
+        private static partial Regex CreateMatchOptionRegex();
     }
 }

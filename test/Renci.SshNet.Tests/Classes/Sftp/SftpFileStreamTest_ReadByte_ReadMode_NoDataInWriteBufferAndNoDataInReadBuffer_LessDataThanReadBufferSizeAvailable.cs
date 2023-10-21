@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             var random = new Random();
-            _path = random.Next().ToString();
+            _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = GenerateRandom(5, random);
             _bufferSize = (uint) random.Next(5, 1000);
             _readBufferSize = (uint) random.Next(10, 100);

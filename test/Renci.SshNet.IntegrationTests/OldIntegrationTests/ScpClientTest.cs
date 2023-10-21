@@ -1,7 +1,5 @@
 ﻿using System.Security.Cryptography;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
@@ -263,15 +261,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var uploadedFiles = uploadFilenames.ToDictionary(Path.GetFileName, (filename) => 0L);
                 var downloadedFiles = uploadFilenames.ToDictionary((filename) => string.Format("{0}.down", Path.GetFileName(filename)), (filename) => 0L);
 
-                scp.Uploading += delegate (object sender, ScpUploadEventArgs e)
-                {
-                    uploadedFiles[e.Filename] = e.Uploaded;
-                };
+                scp.Uploading += (sender, e) =>
+                    {
+                        uploadedFiles[e.Filename] = e.Uploaded;
+                    };
 
-                scp.Downloading += delegate (object sender, ScpDownloadEventArgs e)
-                {
-                    downloadedFiles[string.Format("{0}.down", e.Filename)] = e.Downloaded;
-                };
+                scp.Downloading += (sender, e) =>
+                    {
+                        downloadedFiles[string.Format("{0}.down", e.Filename)] = e.Downloaded;
+                    };
 
                 _ = Parallel.ForEach(uploadFilenames,
                                      filename =>

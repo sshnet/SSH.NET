@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
-using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -28,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Create_ByteArrayAndIndentLevel_IndentLevelLessThanZero()
         {
-            var data = new byte[0];
+            var data = Array.Empty<byte>();
 
             try
             {
@@ -48,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Create_ByteArrayAndIndentLevel_DataIsEmpty()
         {
-            var data = new byte[0];
+            var data = Array.Empty<byte>();
 
             var actual = PacketDump.Create(data, 2);
 

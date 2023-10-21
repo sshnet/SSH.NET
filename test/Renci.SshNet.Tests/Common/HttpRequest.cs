@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Common
         public HttpRequest()
         {
             Headers = new List<string>();
-            MessageBody = new byte[0];
+            MessageBody = System.Array.Empty<byte>();
         }
 
         public string RequestLine { get; set; }

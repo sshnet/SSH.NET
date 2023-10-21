@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -13,7 +14,7 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents base class for different key exchange algorithm implementations
+    /// Represents base class for different key exchange algorithm implementations.
     /// </summary>
     public abstract class KeyExchange : Algorithm, IKeyExchange
     {
@@ -183,7 +184,8 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
+            DiagnosticAbstraction.Log(string.Format(CultureInfo.InvariantCulture,
+                                                    "[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentServerEncryption,
                                                     Session.ToHex(serverKey),
@@ -297,7 +299,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="host">The host algorithm.</param>
         /// <returns>
-        /// <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the specified host can be trusted; otherwise, <see langword="false"/>.
         /// </returns>
         protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
@@ -447,7 +449,9 @@ namespace Renci.SshNet.Security
 
             protected override void LoadData()
             {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
                 throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
             }
 
             protected override void SaveData()
@@ -488,7 +492,9 @@ namespace Renci.SshNet.Security
 
             protected override void LoadData()
             {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
                 throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
             }
 
             protected override void SaveData()
@@ -511,16 +517,15 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyExchange"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="KeyExchange"/> class.
         /// </summary>
         ~KeyExchange()
         {

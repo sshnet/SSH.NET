@@ -16,9 +16,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="key">The key.</param>
         public HMACSHA1(byte[] key)
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             : base(key)
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
         {
+#pragma warning disable MA0056 // Do not call overridable members in constructor
             _hashSize = base.HashSize;
+#pragma warning restore MA0056 // Do not call overridable members in constructor
         }
 
         /// <summary>
@@ -27,7 +31,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="key">The key.</param>
         /// <param name="hashSize">The size, in bits, of the computed hash code.</param>
         public HMACSHA1(byte[] key, int hashSize)
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             : base(key)
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
         {
             _hashSize = hashSize;
         }
@@ -51,7 +57,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] HashFinal()
         {
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             var hash = base.HashFinal();
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             return hash.Take(HashSize / 8);
         }
     }

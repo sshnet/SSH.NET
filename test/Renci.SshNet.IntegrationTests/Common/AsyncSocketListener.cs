@@ -3,10 +3,10 @@ using System.Net.Sockets;
 
 namespace Renci.SshNet.IntegrationTests.Common
 {
-    public class AsyncSocketListener : IDisposable
+    public sealed class AsyncSocketListener : IDisposable
     {
         private readonly IPEndPoint _endPoint;
-        private readonly ManualResetEvent _acceptCallbackDone;
+        private ManualResetEvent _acceptCallbackDone;
         private readonly List<Socket> _connectedClients;
         private readonly object _syncLock;
         private Socket _listener;
@@ -24,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests.Common
         public AsyncSocketListener(IPEndPoint endPoint)
         {
             _endPoint = endPoint;
-            _acceptCallbackDone = new ManualResetEvent(false);
+            _acceptCallbackDone = new ManualResetEvent(initialState: false);
             _connectedClients = new List<Socket>();
             _syncLock = new object();
             ShutdownRemoteCommunicationSocket = true;
@@ -57,6 +57,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
         public void Stop()
         {
+            _acceptCallbackDone.Reset();
             _started = false;
 
             lock (_syncLock)
@@ -93,6 +94,7 @@ namespace Renci.SshNet.IntegrationTests.Common
         public void Dispose()
         {
             Stop();
+            _acceptCallbackDone.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -182,7 +184,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
             try
             {
-                _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ReadCallback, state);
             }
             catch (SocketException ex)
             {
@@ -315,7 +317,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
                 try
                 {
-                    _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                    _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ReadCallback, state);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -326,10 +328,10 @@ namespace Renci.SshNet.IntegrationTests.Common
                 {
                     if (!_started)
                     {
-                        throw new Exception("BeginReceive while stopping!", ex);
+                        throw new InvalidOperationException("BeginReceive while stopping!", ex);
                     }
 
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                    throw new InvalidOperationException("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
                 }
 
             }
@@ -360,7 +362,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
             try
             {
-                while (true && socket.Connected)
+                while (socket.Connected)
                 {
                     var bytesRead = socket.Receive(buffer);
                     if (bytesRead == 0)
@@ -382,7 +384,7 @@ namespace Renci.SshNet.IntegrationTests.Common
         {
             public Socket Socket { get; private set; }
 
-            public readonly byte[] Buffer = new byte[1024];
+            public byte[] Buffer { get; } = new byte[1024];
 
             public SocketStateObject(Socket handler)
             {

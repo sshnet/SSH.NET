@@ -5,15 +5,18 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains RSA private and public key
+    /// Contains RSA private and public key.
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
         private bool _isDisposed;
 
         /// <summary>
-        /// Gets the Key String.
+        /// Gets the name of the cipher algorithm.
         /// </summary>
+        /// <returns>
+        /// The name of the cipher algorithm.
+        /// </returns>
         public override string ToString()
         {
             return "ssh-rsa";
@@ -68,7 +71,6 @@ namespace Renci.SshNet.Security
                 {
                     return _privateKey[3];
                 }
-
 
                 return BigInteger.Zero;
             }
@@ -155,7 +157,7 @@ namespace Renci.SshNet.Security
         private RsaDigitalSignature _digitalSignature;
 
         /// <summary>
-        /// <inheritdoc cref="Key.DigitalSignature"/>
+        /// Gets the digital signature implementation for this key.
         /// </summary>
         /// <returns>
         /// An implementation of an RSA digital signature using the SHA-1 hash algorithm.
@@ -253,9 +255,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -266,7 +268,7 @@ namespace Renci.SshNet.Security
             if (disposing)
             {
                 var digitalSignature = _digitalSignature;
-                if (digitalSignature != null)
+                if (digitalSignature is not null)
                 {
                     digitalSignature.Dispose();
                     _digitalSignature = null;
@@ -274,15 +276,6 @@ namespace Renci.SshNet.Security
 
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="RsaKey"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~RsaKey()
-        {
-            Dispose(disposing: false);
         }
     }
 }

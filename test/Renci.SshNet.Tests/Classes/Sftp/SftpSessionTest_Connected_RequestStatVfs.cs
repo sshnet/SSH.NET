@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                                 .Build()
                                                                 .GetBytes();
             _sftpVersionResponse = new SftpVersionResponseBuilder().WithVersion(_protocolVersion)
-                                                                   .WithExtension("statvfs@openssh.com", "")
+                                                                   .WithExtension("statvfs@openssh.com", string.Empty)
                                                                    .Build();
             _sftpRealPathRequestBytes = new SftpRealPathRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                         .WithRequestId(1)

@@ -17,26 +17,17 @@ namespace Renci.SshNet
         internal ISession Session { get; set; }
 
         /// <summary>
-        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
-        /// </summary>
-        internal event EventHandler Closing;
-
-        /// <summary>
-        /// The <see cref="IForwardedPort.Closing"/> event occurs as the forwarded port is being stopped.
-        /// </summary>
-        event EventHandler IForwardedPort.Closing
-        {
-            add { Closing += value; }
-            remove { Closing -= value; }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
-        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
+        /// <see langword="true"/> if port forwarding is started; otherwise, <see langword="false"/>.
         /// </value>
         public abstract bool IsStarted { get; }
+
+        /// <summary>
+        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
+        /// </summary>
+        public event EventHandler Closing;
 
         /// <summary>
         /// Occurs when an exception is thrown.
@@ -51,6 +42,8 @@ namespace Renci.SshNet
         /// <summary>
         /// Starts port forwarding.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The current <see cref="ForwardedPort"/> is already started -or- is not linked to a SSH client.</exception>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
         public virtual void Start()
         {
             CheckDisposed();
@@ -77,12 +70,23 @@ namespace Renci.SshNet
         /// <summary>
         /// Stops port forwarding.
         /// </summary>
+#pragma warning disable CA1716 // Identifiers should not match keywords
         public virtual void Stop()
+#pragma warning restore CA1716 // Identifiers should not match keywords
         {
             if (IsStarted)
             {
                 StopPort(Session.ConnectionInfo.Timeout);
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -107,9 +111,9 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langowrd="true"/> to release both managed and unmanaged resources; <see langowrd="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -133,7 +137,9 @@ namespace Renci.SshNet
         /// Raises <see cref="Exception"/> event.
         /// </summary>
         /// <param name="exception">The exception.</param>
+#pragma warning disable CA1030 // Use events where appropriate
         protected void RaiseExceptionEvent(Exception exception)
+#pragma warning restore CA1030 // Use events where appropriate
         {
             Exception?.Invoke(this, new ExceptionEventArgs(exception));
         }
@@ -143,7 +149,9 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">Request originator host.</param>
         /// <param name="port">Request originator port.</param>
+#pragma warning disable CA1030 // Use events where appropriate
         protected void RaiseRequestReceived(string host, uint port)
+#pragma warning restore CA1030 // Use events where appropriate
         {
             RequestReceived?.Invoke(this, new PortForwardEventArgs(host, port));
         }

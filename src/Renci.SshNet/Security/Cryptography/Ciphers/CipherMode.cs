@@ -3,24 +3,24 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Base class for cipher mode implementations
+    /// Base class for cipher mode implementations.
     /// </summary>
     public abstract class CipherMode
     {
         /// <summary>
         /// Gets the cipher.
         /// </summary>
-        protected BlockCipher Cipher;
+        protected BlockCipher Cipher { get; private set; }
 
         /// <summary>
         /// Gets the IV vector.
         /// </summary>
-        protected byte[] IV;
+        protected byte[] IV { get; private set; }
 
         /// <summary>
-        /// Holds block size of the cipher.
+        /// Gets the block size of the cipher.
         /// </summary>
-        protected int _blockSize;
+        protected int BlockSize { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherMode"/> class.
@@ -38,8 +38,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         internal void Init(BlockCipher cipher)
         {
             Cipher = cipher;
-            _blockSize = cipher.BlockSize;
-            IV = IV.Take(_blockSize);
+            BlockSize = cipher.BlockSize;
+            IV = IV.Take(BlockSize);
         }
 
         /// <summary>

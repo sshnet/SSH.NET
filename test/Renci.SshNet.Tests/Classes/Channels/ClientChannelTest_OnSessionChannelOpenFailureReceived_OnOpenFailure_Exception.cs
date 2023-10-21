@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             _sessionMock.Raise(s => s.ChannelOpenFailureReceived += null,
                 new MessageEventArgs<ChannelOpenFailureMessage>(
-                    new ChannelOpenFailureMessage(_localChannelNumber, "", ChannelOpenFailureMessage.ConnectFailed)));
+                    new ChannelOpenFailureMessage(_localChannelNumber, string.Empty, ChannelOpenFailureMessage.ConnectFailed)));
         }
 
         [TestMethod]

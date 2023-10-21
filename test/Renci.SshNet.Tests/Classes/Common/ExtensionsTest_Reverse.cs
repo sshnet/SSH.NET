@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Empty()
         {
-            var value = new byte[0];
+            var value = Array.Empty<byte>();
 
             var actual = Extensions.Reverse(value);
 
@@ -62,4 +62,3 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
     }
 }
-

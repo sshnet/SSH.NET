@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             Assert.IsNull(target.Handle);
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual((uint) 0, target.ResponseId);
+            Assert.AreEqual(0U, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Handle, target.SftpMessageType);
         }
 
@@ -41,18 +41,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpHandleResponse(_protocolVersion);
 
-            var sshDataStream = new SshDataStream(4 + _handle.Length);
-            sshDataStream.Write(_responseId);
-            sshDataStream.Write((uint) _handle.Length);
-            sshDataStream.Write(_handle, 0, _handle.Length);
+            using (var sshDataStream = new SshDataStream(4 + _handle.Length))
+            {
+                sshDataStream.Write(_responseId);
+                sshDataStream.Write((uint) _handle.Length);
+                sshDataStream.Write(_handle, 0, _handle.Length);
 
-            target.Load(sshDataStream.ToArray());
+                target.Load(sshDataStream.ToArray());
+            }
 
             Assert.IsNotNull(target.Handle);
             Assert.IsTrue(target.Handle.SequenceEqual(_handle));
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual(_responseId, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Handle, target.SftpMessageType);
+
         }
     }
 }

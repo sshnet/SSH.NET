@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class PublicKeyAlgorithm
+    public sealed class PublicKeyAlgorithm
     {
         public static readonly PublicKeyAlgorithm SshEd25519 = new PublicKeyAlgorithm("ssh-ed25519");
         public static readonly PublicKeyAlgorithm SshEd25519CertV01OpenSSH = new PublicKeyAlgorithm("ssh-ed25519-cert-v01@openssh.com");
@@ -33,11 +33,6 @@
 
         public override bool Equals(object? obj)
         {
-            if (obj == null)
-            {
-                return false;
-            }
-
             if (obj is HostKeyAlgorithm otherHka)
             {
                 return otherHka.Name == Name;
@@ -48,7 +43,7 @@
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return Name.GetHashCode(StringComparison.Ordinal);
         }
 
         public override string ToString()

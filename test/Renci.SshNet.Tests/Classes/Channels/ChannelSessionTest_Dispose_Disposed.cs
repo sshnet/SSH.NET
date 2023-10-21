@@ -72,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                         _remoteWindowSize,
                                         _remotePacketSize,
                                         _remoteChannelNumber)));
-                        w.WaitOne();
+                            w.WaitOne();
                     });
             SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             SessionMock.InSequence(sequence)

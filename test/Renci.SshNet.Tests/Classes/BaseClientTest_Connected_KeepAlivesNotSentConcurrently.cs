@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes
                         .Setup(p => p.Connect());
             SessionMock.InSequence(_mockSequence)
                         .Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true)
+                        .Returns(value: true)
                         .Callback(() =>
                             {
                                 Thread.Sleep(300);

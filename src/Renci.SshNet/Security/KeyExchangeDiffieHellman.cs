@@ -6,54 +6,72 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents base class for Diffie Hellman key exchange algorithm
+    /// Represents base class for Diffie Hellman key exchange algorithm.
     /// </summary>
     internal abstract class KeyExchangeDiffieHellman : KeyExchange
     {
         /// <summary>
         /// Specifies key exchange group number.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger _group;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies key exchange prime number.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger _prime;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies client payload.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _clientPayload;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
-        /// Specifies server payload
+        /// Specifies server payload.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _serverPayload;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies client exchange number.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _clientExchangeValue;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies server exchange number.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _serverExchangeValue;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies random generated number.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger _privateExponent;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies host key data.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _hostKey;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies signature data.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _signature;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.

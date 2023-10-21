@@ -21,8 +21,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortDynamic _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _endpoint;
         private Socket _client;
         private IPEndPoint _remoteEndpoint;
@@ -80,8 +80,8 @@ namespace Renci.SshNet.Tests.Classes
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
             _userName = random.Next().ToString(CultureInfo.InvariantCulture);
-            _channelBindStarted = new ManualResetEvent(false);
-            _channelBindCompleted = new ManualResetEvent(false);
+            _channelBindStarted = new ManualResetEvent(initialState: false);
+            _channelBindCompleted = new ManualResetEvent(initialState: false);
 
             _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
@@ -119,11 +119,13 @@ namespace Renci.SshNet.Tests.Classes
             SetupData();
             SetupMocks();
 
-            // start port
+            // Start port
             _forwardedPort.Start();
-            // connect to port
+
+            // Connect to port
             EstablishSocks4Connection(_client);
-            // wait until SOCKS client is bound to channel
+
+            // Wait until SOCKS client is bound to channel
             Assert.IsTrue(_channelBindStarted.WaitOne(TimeSpan.FromMilliseconds(200)));
         }
 
@@ -164,11 +166,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BoundClientShouldNotBeClosed()
         {
-            // the forwarded port itself does not close the client connection; when the channel is closed properly
-            // it's the channel that will take care of closing the client connection
-            //
-            // we'll check if the client connection is still alive by attempting to receive, which should time out
-            // as the forwarded port (or its channel) are not sending anything
+            /*
+             * The forwarded port itself does not close the client connection; when the channel is closed properly
+             * it's the channel that will take care of closing the client connection.
+             *
+             * We'll check if the client connection is still alive by attempting to receive, which should time out
+             * as the forwarded port (or its channel) are not sending anything.
+             */
 
             var buffer = new byte[1];
 
@@ -209,16 +213,21 @@ namespace Renci.SshNet.Tests.Classes
 
             _client.Connect(_endpoint);
 
-            // send SOCKS version
+            // Send SOCKS version
             client.Send(new byte[] { 0x04 }, 0, 1, SocketFlags.None);
-            // send command byte
+
+            // Send command byte
             client.Send(new byte[] { 0x00 }, 0, 1, SocketFlags.None);
-            // send port
+
+            // Send port
             client.Send(portBytes, 0, portBytes.Length, SocketFlags.None);
-            // send address
+
+            // Send address
             client.Send(addressBytes, 0, addressBytes.Length, SocketFlags.None);
-            // send user name
+
+            // Send user name
             client.Send(userNameBytes, 0, userNameBytes.Length, SocketFlags.None);
+
             // terminate user name with null
             client.Send(new byte[] { 0x00 }, 0, 1, SocketFlags.None);
 

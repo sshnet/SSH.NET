@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _ = _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

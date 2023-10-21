@@ -3291,7 +3291,7 @@ namespace Renci.SshNet.IntegrationTests
                 var memoryStream = CreateMemoryStream(size);
                 memoryStream.Position = 0;
 
-                var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, false, null, null);
+                var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, canOverride: false, asyncCallback: null, state: null);
                 try
                 {
                     client.EndUploadFile(asyncResult);
@@ -3326,7 +3326,7 @@ namespace Renci.SshNet.IntegrationTests
                         sw.Flush();
                         uploadMemoryStream.Position = 0;
 
-                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, false, null, null);
+                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, canOverride: false, asyncCallback: null, state: null);
                         client.EndUploadFile(asyncResult);
                     }
 
@@ -3377,7 +3377,7 @@ namespace Renci.SshNet.IntegrationTests
                     sw.Flush();
                     uploadMemoryStream.Position = 0;
 
-                    var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, false, null, null);
+                    var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, canOverride: false, asyncCallback: null, state: null);
 
                     try
                     {
@@ -3426,7 +3426,7 @@ namespace Renci.SshNet.IntegrationTests
                 var memoryStream = CreateMemoryStream(size);
                 memoryStream.Position = 0;
 
-                var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, true, null, null);
+                var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, canOverride: true, asyncCallback: null, state: null);
                 try
                 {
                     client.EndUploadFile(asyncResult);
@@ -3461,7 +3461,7 @@ namespace Renci.SshNet.IntegrationTests
                         sw.Flush();
                         uploadMemoryStream.Position = 0;
 
-                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, true, null, null);
+                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, canOverride: true, asyncCallback: null, state: null);
                         client.EndUploadFile(asyncResult);
                     }
 
@@ -3513,7 +3513,7 @@ namespace Renci.SshNet.IntegrationTests
                         sw.Flush();
                         uploadMemoryStream.Position = 0;
 
-                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, true, null, null);
+                        var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, canOverride: true, asyncCallback: null, state: null);
                         client.EndUploadFile(asyncResult);
                     }
 

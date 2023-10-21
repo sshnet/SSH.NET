@@ -24,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests.Common
         {
             if (endPoint == null)
             {
-                throw new ArgumentNullException("endPoint");
+                throw new ArgumentNullException(nameof(endPoint));
             }
 
             var addressBytes = GetAddressBytes(endPoint);

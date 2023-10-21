@@ -94,21 +94,23 @@ namespace Renci.SshNet.Tests.Classes
                 _extendedOutputStream.ReadByte();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("XXX", ex.ObjectName);
             }
         }
 
         [TestMethod]
         public void RaisingDisconnectedOnSessionShouldDoNothing()
         {
-            _sessionMock.Raise(s => s.Disconnected += null, new EventArgs());
+            _sessionMock.Raise(s => s.Disconnected += null, EventArgs.Empty);
         }
 
         [TestMethod]
         public void RaisingErrorOccuredOnSessionShouldDoNothing()
         {
-            _sessionMock.Raise(s => s.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            _sessionMock.Raise(s => s.ErrorOccured += null, new ExceptionEventArgs(new InvalidOperationException()));
         }
 
         [TestMethod]

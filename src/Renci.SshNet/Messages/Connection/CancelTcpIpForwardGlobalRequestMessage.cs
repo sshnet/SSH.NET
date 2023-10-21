@@ -50,7 +50,9 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         /// <summary>

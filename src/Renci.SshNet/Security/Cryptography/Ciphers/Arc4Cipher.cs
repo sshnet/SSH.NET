@@ -3,14 +3,14 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements ARCH4 cipher algorithm
+    /// Implements ARCH4 cipher algorithm.
     /// </summary>
     public sealed class Arc4Cipher : StreamCipher
     {
-        private static readonly int STATE_LENGTH = 256;
+        private const int StateLength = 256;
 
         /// <summary>
-        ///  Holds the state of the RC4 engine
+        ///  Holds the state of the RC4 engine.
         /// </summary>
         private byte[] _engineState;
 
@@ -33,8 +33,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="Arc4Cipher" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="dischargeFirstBytes">if set to <c>true</c> will disharged first 1536 bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+        /// <param name="dischargeFirstBytes">if set to <see langword="true"/> will disharged first 1536 bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <see langword="null"/>.</exception>
         public Arc4Cipher(byte[] key, bool dischargeFirstBytes)
             : base(key)
         {
@@ -59,6 +59,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes encrypted.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too small.</exception>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             return ProcessBytes(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
@@ -75,6 +76,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes decrypted.
         /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too small.</exception>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             return ProcessBytes(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
@@ -128,12 +130,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if ((inputOffset + inputCount) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(inputBuffer));
             }
 
             if ((outputOffset + inputCount) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(outputBuffer));
             }
 
             for (var i = 0; i < inputCount; i++)
@@ -158,10 +160,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _x = 0;
             _y = 0;
 
-            _engineState ??= new byte[STATE_LENGTH];
+            _engineState ??= new byte[StateLength];
 
             // reset the state of the engine
-            for (var i = 0; i < STATE_LENGTH; i++)
+            for (var i = 0; i < StateLength; i++)
             {
                 _engineState[i] = (byte) i;
             }
@@ -169,7 +171,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var i1 = 0;
             var i2 = 0;
 
-            for (var i = 0; i < STATE_LENGTH; i++)
+            for (var i = 0; i < StateLength; i++)
             {
                 i2 = ((keyBytes[i1] & 0xff) + _engineState[i] + i2) & 0xff;
 

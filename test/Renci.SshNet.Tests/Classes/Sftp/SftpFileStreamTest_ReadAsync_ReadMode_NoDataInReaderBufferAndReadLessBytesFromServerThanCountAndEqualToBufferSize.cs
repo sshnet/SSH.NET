@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             var random = new Random();
-            _path = random.Next().ToString();
+            _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = GenerateRandom(5, random);
             _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 20;
@@ -77,19 +78,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ArrangeAsync()
         {
-            await base.ArrangeAsync();
+            await base.ArrangeAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object,
-                                         _path,
-                                         FileMode.Open,
-                                         FileAccess.Read,
-                                         (int)_bufferSize,
-                                         default);
+                                                     _path,
+                                                     FileMode.Open,
+                                                     FileAccess.Read,
+                                                     (int)_bufferSize,
+                                                     default)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         protected override async Task ActAsync()
         {
-            _actual = await _target.ReadAsync(_buffer, 0, _numberOfBytesToRead, default);
+            _actual = await _target.ReadAsync(_buffer, 0, _numberOfBytesToRead, default)
+                                   .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]

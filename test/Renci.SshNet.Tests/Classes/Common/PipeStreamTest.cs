@@ -178,8 +178,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         /// <summary>
-        ///A test for MaxBufferLength
-        ///</summary>
+        /// A test for MaxBufferLength
+        /// </summary>
         [TestMethod]
         public void MaxBufferLengthTest()
         {

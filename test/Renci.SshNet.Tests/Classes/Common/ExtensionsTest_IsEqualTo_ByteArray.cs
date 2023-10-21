@@ -76,15 +76,15 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a}, new byte[] {0x0a, 0x0d}));
             Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a, 0x0d}, new byte[] {0x0a}));
-            Assert.IsFalse(Extensions.IsEqualTo(new byte[0], new byte[] { 0x0a }));
-            Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[0]));
+            Assert.IsFalse(Extensions.IsEqualTo(Array.Empty<byte>(), new byte[] { 0x0a }));
+            Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, Array.Empty<byte>()));
         }
 
         [TestMethod]
         public void ShouldReturnTrueWhenLeftIsEqualToRight()
         {
             Assert.IsTrue(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[] { 0x0a, 0x0d }));
-            Assert.IsTrue(Extensions.IsEqualTo(new byte[0], new byte[0]));
+            Assert.IsTrue(Extensions.IsEqualTo(Array.Empty<byte>(), Array.Empty<byte>()));
         }
 
         [TestMethod]

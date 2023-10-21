@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "env" type channel request information
+    /// Represents "env" type channel request information.
     /// </summary>
     internal sealed class EnvironmentVariableRequestInfo : RequestInfo
     {
@@ -9,7 +9,7 @@
         private byte[] _variableValue;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "env";
 
@@ -25,7 +25,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the name of the variable.
+        /// Gets the name of the variable.
         /// </summary>
         /// <value>
         /// The name of the variable.
@@ -36,10 +36,10 @@
         }
 
         /// <summary>
-        /// Gets or sets the variable value.
+        /// Gets the value of the variable.
         /// </summary>
         /// <value>
-        /// The variable value.
+        /// The value of the variable.
         /// </value>
         public string VariableValue
         {

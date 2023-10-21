@@ -16,7 +16,6 @@ namespace Renci.SshNet.Security
             set { _serverVersion = Utf8.GetBytes(value); }
         }
 
-
         public string ClientVersion
         {
             private get { return Utf8.GetString(_clientVersion, 0, _clientVersion.Length); }
@@ -93,7 +92,9 @@ namespace Renci.SshNet.Security
 
         protected override void LoadData()
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         protected override void SaveData()

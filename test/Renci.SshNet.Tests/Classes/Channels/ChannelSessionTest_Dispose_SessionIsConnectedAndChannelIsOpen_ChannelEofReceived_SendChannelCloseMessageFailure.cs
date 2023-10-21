@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteChannelNumber;
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
-        private IList<ChannelEventArgs> _channelClosedRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private ChannelSession _channel;
         private MockSequence _sequence;
@@ -71,11 +71,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                             _remoteChannelNumber)));
                                 w.WaitOne();
                             });
-            SessionMock.Setup(p => p.IsConnected).Returns(true);
+            SessionMock.Setup(p => p.IsConnected).Returns(value: true);
             SessionMock.InSequence(_sequence)
-                        .Setup(
-                            p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
-                        .Returns(false);
+                       .Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
+                       .Returns(value: false);
         }
 
         protected override void Arrange()

@@ -26,4 +26,3 @@ namespace Renci.SshNet.Tests.Common
         protected abstract void Act();
     }
 }
-

@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             _random = new Random();
-            _path = _random.Next().ToString();
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.OpenOrCreate;
             _fileAccess = FileAccess.ReadWrite;
             _bufferSize = _random.Next(5, 1000);
@@ -56,7 +56,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ActAsync()
         {
-            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken);
+            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]

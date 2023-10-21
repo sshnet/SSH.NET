@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes
             _errorOccurredRegister = new List<ExceptionEventArgs>();
             _channelDataEventArgs = new ChannelDataEventArgs(
                 (uint) random.Next(0, int.MaxValue),
-                new [] {(byte) random.Next(byte.MinValue, byte.MaxValue)});
+                new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)});
             _onDataReceivedException = new SystemException();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);

@@ -124,5 +124,4 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }
     }
-
 }

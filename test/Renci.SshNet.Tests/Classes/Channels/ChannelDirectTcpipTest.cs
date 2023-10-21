@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void SocketShouldBeClosedAndBindShouldEndWhenForwardedPortSignalsClosingEvent()
         {
             _ = _sessionMock.Setup(p => p.IsConnected)
-                            .Returns(true);
+                            .Returns(value: true);
             _ = _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
                                                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
@@ -84,9 +84,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     var closeForwardedPortThread =
                         new Thread(() =>
                         {
-                            // sleep for a short period to allow channel to actually start receiving from socket
+                            // Sleep for a short period to allow channel to actually start receiving from socket
                             Thread.Sleep(100);
-                            // raise Closing event on forwarded port
+
+                            // Raise Closing event on forwarded port
                             _forwardedPortMock.Raise(p => p.Closing += null, EventArgs.Empty);
                         });
                     closeForwardedPortThread.Start();
@@ -99,13 +100,16 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
 
-                // attempt to receive from socket to verify it was shut down by channel
+                // Attempt to receive from socket to verify it was shut down by channel
                 var buffer = new byte[16];
                 var bytesReceived = client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                 Assert.AreEqual(0, bytesReceived);
                 Assert.IsTrue(client.Connected);
-                // signal to server that we also shut down the socket at our end
+
+                // Signal to server that we also shut down the socket at our end
                 client.Shutdown(SocketShutdown.Send);
+
+                client.Dispose();
             }
         }
 
@@ -113,7 +117,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void SocketShouldBeClosedAndBindShouldEndWhenOnErrorOccurredIsInvoked()
         {
             _ = _sessionMock.Setup(p => p.IsConnected)
-                            .Returns(true);
+                            .Returns(value: true);
             _ = _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
                                                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
@@ -140,11 +144,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     var signalSessionErrorOccurredThread =
                         new Thread(() =>
                         {
-                            // sleep for a short period to allow channel to actually start receiving from socket
+                            // Sleep for a short period to allow channel to actually start receiving from socket
                             Thread.Sleep(100);
-                            // raise ErrorOccured event on session
+
+                            // Raise ErrorOccured event on session
                             _sessionMock.Raise(s => s.ErrorOccured += null,
-                                               new ExceptionEventArgs(new SystemException()));
+                                               new ExceptionEventArgs(new InvalidOperationException()));
                         });
                     signalSessionErrorOccurredThread.Start();
 
@@ -156,13 +161,16 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
 
-                // attempt to receive from socket to verify it was shut down by channel
+                // Attempt to receive from socket to verify it was shut down by channel
                 var buffer = new byte[16];
                 var bytesReceived = client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                 Assert.AreEqual(0, bytesReceived);
                 Assert.IsTrue(client.Connected);
-                // signal to server that we also shut down the socket at our end
+
+                // Signal to server that we also shut down the socket at our end
                 client.Shutdown(SocketShutdown.Send);
+
+                client.Dispose();
             }
         }
 
@@ -172,7 +180,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             var sequence = new MockSequence();
 
             _ = _sessionMock.InSequence(sequence).Setup(p => p.IsConnected)
-                            .Returns(true);
+                            .Returns(value: true);
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
@@ -186,10 +194,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.IsConnected)
-                            .Returns(true);
+                            .Returns(value: true);
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()))
-                            .Returns(true)
+                            .Returns(value: true)
                             .Callback<Message>(m => new Thread(() =>
                                 {
                                     Thread.Sleep(50);
@@ -198,10 +206,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                 }).Start());
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.IsConnected)
-                            .Returns(true);
+                            .Returns(value: true);
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()))
-                            .Returns(true)
+                            .Returns(value: true)
                             .Callback<Message>(m => new Thread(() =>
                                 {
                                     Thread.Sleep(50);
@@ -219,7 +227,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             .Callback<WaitHandle, TimeSpan>((waitHandle, channelCloseTimeout) => waitHandle.WaitOne())
                             .Returns(WaitResult.Success);
 
-            var channelBindFinishedWaitHandle = new ManualResetEvent(false);
+            var channelBindFinishedWaitHandle = new ManualResetEvent(initialState: false);
             Socket handler = null;
             ChannelDirectTcpip channel = null;
 
@@ -260,6 +268,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
+
+                client.Dispose();
+                channelBindFinishedWaitHandle.Dispose();
             }
         }
     }

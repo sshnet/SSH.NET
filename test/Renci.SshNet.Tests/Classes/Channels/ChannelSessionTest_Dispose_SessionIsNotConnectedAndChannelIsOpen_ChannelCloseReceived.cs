@@ -58,21 +58,22 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                             m.InitialWindowSize == _localWindowSize && m.MaximumPacketSize == _localPacketSize &&
                                             m.Info is SessionChannelOpenInfo)));
             SessionMock.InSequence(_sequence)
-                        .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
-                        .Callback<WaitHandle>(
-                            w =>
-                            {
-                                SessionMock.Raise(
-                                    s => s.ChannelOpenConfirmationReceived += null,
-                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                        new ChannelOpenConfirmationMessage(
-                                            _localChannelNumber,
-                                            _remoteWindowSize,
-                                            _remotePacketSize,
-                                            _remoteChannelNumber)));
-                                w.WaitOne();
-                            });
-            SessionMock.Setup(p => p.IsConnected).Returns(false);
+                       .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
+                       .Callback<WaitHandle>(
+                           w =>
+                           {
+                               SessionMock.Raise(
+                                   s => s.ChannelOpenConfirmationReceived += null,
+                                   new MessageEventArgs<ChannelOpenConfirmationMessage>(
+                                       new ChannelOpenConfirmationMessage(
+                                           _localChannelNumber,
+                                           _remoteWindowSize,
+                                           _remotePacketSize,
+                                           _remoteChannelNumber)));
+                               w.WaitOne();
+                           });
+            SessionMock.Setup(p => p.IsConnected)
+                       .Returns(value: false);
         }
 
         protected override void Arrange()

@@ -32,8 +32,8 @@ namespace Renci.SshNet.Tests.Classes
             base.SetupMocks();
 
             _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, SocketFactoryMock.Object))
-                                   .Returns(ConnectorMock.Object);
-           _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
+                                  .Returns(ConnectorMock.Object);
+            _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
                              .Throws(_connectException);
         }
 

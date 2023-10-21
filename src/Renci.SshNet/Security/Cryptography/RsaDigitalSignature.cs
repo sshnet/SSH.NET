@@ -18,7 +18,8 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="rsaKey">The RSA key.</param>
         public RsaDigitalSignature(RsaKey rsaKey)
             : this(rsaKey, HashAlgorithmName.SHA1)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
@@ -58,9 +59,9 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -71,7 +72,7 @@ namespace Renci.SshNet.Security.Cryptography
             if (disposing)
             {
                 var hash = _hash;
-                if (hash != null)
+                if (hash is not null)
                 {
                     hash.Dispose();
                     _hash = null;
@@ -79,15 +80,6 @@ namespace Renci.SshNet.Security.Cryptography
 
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="RsaDigitalSignature"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~RsaDigitalSignature()
-        {
-            Dispose(disposing: false);
         }
 
         #endregion

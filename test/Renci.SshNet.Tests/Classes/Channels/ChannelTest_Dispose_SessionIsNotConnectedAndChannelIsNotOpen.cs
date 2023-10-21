@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localChannelNumber;
         private Channel _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
 
         protected override void SetupData()
         {
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         protected override void SetupMocks()
         {
-            SessionMock.Setup(p => p.IsConnected).Returns(false);
+            SessionMock.Setup(p => p.IsConnected).Returns(value: false);
         }
 
         protected override void Arrange()

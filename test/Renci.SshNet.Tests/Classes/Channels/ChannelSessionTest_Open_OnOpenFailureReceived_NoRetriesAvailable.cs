@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void OpenShouldHaveThrownSshException()
         {
             Assert.IsNotNull(_actualException);
-            Assert.AreEqual(typeof (SshException), _actualException.GetType());
+            Assert.AreEqual(typeof(SshException), _actualException.GetType());
             Assert.IsNull(_actualException.InnerException);
             Assert.AreEqual("Failed to open a channel after 1 attempts.", _actualException.Message);
         }

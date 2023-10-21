@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 
-            _data = new byte[0];
+            _data = Array.Empty<byte>();
             _offset = 0;
             _count = _data.Length;
         }

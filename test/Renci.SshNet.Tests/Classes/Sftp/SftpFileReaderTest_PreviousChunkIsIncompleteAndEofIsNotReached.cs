@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -57,7 +61,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _chunk3 = CreateByteArray(random, ChunkLength);
             _chunk4 = CreateByteArray(random, ChunkLength);
             _chunk5 = CreateByteArray(random, ChunkLength);
-            _chunk6 = new byte[0];
+            _chunk6 = Array.Empty<byte>();
             _chunk1BeginRead = new ManualResetEvent(false);
             _chunk2BeginRead = new ManualResetEvent(false);
             _chunk3BeginRead = new ManualResetEvent(false);
@@ -191,34 +195,47 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void Act()
         {
-            // reader is configured to read-ahead max. 3 chunks, so chunk4 should not have been read
+            // Reader is configured to read-ahead max. 3 chunks, so chunk4 should not have been read
             Assert.IsFalse(_chunk4BeginRead.WaitOne(0));
-            // consume chunk 1
+
+            // Consume chunk 1
             _actualChunk1 = _reader.Read();
-            // consuming chunk1 allows chunk4 to be read-ahead
+
+            // Consuming chunk1 allows chunk4 to be read-ahead
             Assert.IsTrue(_chunk4BeginRead.WaitOne(200));
-            // verify that chunk5 has not yet been read-ahead
+
+            // Verify that chunk5 has not yet been read-ahead
             Assert.IsFalse(_chunk5BeginRead.WaitOne(0));
-            // consume chunk 2
+
+            // Consume chunk 2
             _actualChunk2 = _reader.Read();
-            // consuming chunk2 allows chunk5 to be read-ahead
+
+            // Consuming chunk2 allows chunk5 to be read-ahead
             Assert.IsTrue(_chunk5BeginRead.WaitOne(200));
-            // pauze until the read-ahead has started waiting a semaphore to become available
+
+            // Pauze until the read-ahead has started waiting a semaphore to become available
             Assert.IsTrue(_waitBeforeChunk6.WaitOne(200));
-            // consume remaining parts of chunk 2
+
+            // Consume remaining parts of chunk 2
             _actualChunk2CatchUp1 = _reader.Read();
             _actualChunk2CatchUp2 = _reader.Read();
-            // verify that chunk6 has not yet been read-ahead
+
+            // Verify that chunk6 has not yet been read-ahead
             Assert.IsFalse(_chunk6BeginRead.WaitOne(0));
-            // consume chunk 3
+
+            // Consume chunk 3
             _actualChunk3 = _reader.Read();
-            // consuming chunk3 allows chunk6 to be read-ahead
+
+            // Consuming chunk3 allows chunk6 to be read-ahead
             Assert.IsTrue(_chunk6BeginRead.WaitOne(200));
-            // consume chunk 4
+
+            // Consume chunk 4
             _actualChunk4 = _reader.Read();
-            // consume chunk 5
+
+            // Consume chunk 5
             _actualChunk5 = _reader.Read();
-            // consume chunk 6
+
+            // Consume chunk 6
             _actualChunk6 = _reader.Read();
         }
 
@@ -298,7 +315,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.IsOpen)
-                               .Returns(true);
+                               .Returns(value: true);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.BeginClose(_handle, null, null))
                                .Returns(_closeAsyncResult);

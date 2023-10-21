@@ -55,7 +55,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="sftpSession">The SFT session.</param>
         /// <param name="chunkSize">The size of a individual read-ahead chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
-        /// <param name="fileSize">The size of the file, if known; otherwise, <c>null</c>.</param>
+        /// <param name="fileSize">The size of the file, if known; otherwise, <see langword="null"/>.</param>
         public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
             _handle = handle;
@@ -72,12 +72,25 @@ namespace Renci.SshNet.Sftp
             StartReadAhead();
         }
 
+        /// <summary>
+        /// Reads a sequence of bytes from the current file and advances the position within the file by the number of bytes read.
+        /// </summary>
+        /// <returns>
+        /// The sequence of bytes read from the file, or a zero-length array if the end of the file
+        /// has been reached.
+        /// </returns>
+        /// <exception cref="ObjectDisposedException">The current <see cref="ISftpFileReader"/> is disposed.</exception>
+        /// <exception cref="SshException">Attempting to read beyond the end of the file.</exception>
         public byte[] Read()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_disposingOrDisposed, this);
+#else
             if (_disposingOrDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (_exception is not null)
             {
@@ -97,7 +110,7 @@ namespace Renci.SshNet.Sftp
                 // instance is already disposed
                 while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception is null)
                 {
-                    _ =Monitor.Wait(_readLock);
+                    _ = Monitor.Wait(_readLock);
                 }
 
                 // throw when exception occured in read-ahead, or the current instance is already disposed
@@ -168,7 +181,9 @@ namespace Renci.SshNet.Sftp
 
             var bytesToCatchUp = nextChunk.Offset - _offset;
 
-            // TODO: break loop and interrupt blocking wait in case of exception
+            /*
+             * TODO: break loop and interrupt blocking wait in case of exception
+             */
 
             var read = _sftpSession.RequestRead(_handle, _offset, (uint) bytesToCatchUp);
             if (read.Length == 0)
@@ -227,7 +242,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         private void Dispose(bool disposing)
         {
             if (_disposingOrDisposed)
@@ -360,7 +375,7 @@ namespace Renci.SshNet.Sftp
         /// Returns a value indicating whether the read-ahead loop should be continued.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the read-ahead loop should be continued; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the read-ahead loop should be continued; otherwise, <see langword="false"/>.
         /// </returns>
         private bool ContinueReadAhead()
         {
@@ -374,7 +389,7 @@ namespace Renci.SshNet.Sftp
                     case 1: // semaphore available
                         return true;
                     default:
-                        throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", waitResult));
+                        throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not supported.", waitResult));
                 }
             }
             catch (Exception ex)

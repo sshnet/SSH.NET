@@ -5,34 +5,46 @@ namespace Renci.SshNet.Security
     internal abstract class KeyExchangeEC : KeyExchange
     {
         /// <summary>
-        /// Specifies client payload
+        /// Specifies client payload.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _clientPayload;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
-        /// Specifies server payload
+        /// Specifies server payload.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _serverPayload;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies client exchange.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _clientExchangeValue;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies server exchange.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _serverExchangeValue;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies host key data.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _hostKey;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Specifies signature data.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected byte[] _signature;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.

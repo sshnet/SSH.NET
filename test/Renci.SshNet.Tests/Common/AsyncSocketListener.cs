@@ -185,7 +185,7 @@ namespace Renci.SshNet.Tests.Common
 
             try
             {
-                _ =handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                _ =handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ReadCallback, state);
             }
             catch (SocketException ex)
             {
@@ -318,7 +318,7 @@ namespace Renci.SshNet.Tests.Common
 
                 try
                 {
-                    _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                    _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ReadCallback, state);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -329,10 +329,10 @@ namespace Renci.SshNet.Tests.Common
                 {
                     if (!_started)
                     {
-                        throw new Exception("BeginReceive while stopping!", ex);
+                        throw new InvalidOperationException("BeginReceive while stopping!", ex);
                     }
 
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                    throw new InvalidOperationException("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
                 }
 
             }

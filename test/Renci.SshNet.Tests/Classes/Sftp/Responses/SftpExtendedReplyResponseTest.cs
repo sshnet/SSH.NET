@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var target = new SftpExtendedReplyResponse(_protocolVersion);
 
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual((uint) 0, target.ResponseId);
+            Assert.AreEqual(0U, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.ExtendedReply, target.SftpMessageType);
         }
 
@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             sshDataStream.Write(ffree);
             sshDataStream.Write(favail);
             sshDataStream.Write(sid);
-            sshDataStream.Write((ulong) 0x2);
+            sshDataStream.Write(0x2UL);
             sshDataStream.Write(namemax);
 
             var sshData = sshDataStream.ToArray();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,10 +21,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             base.SetupData();
 
-            _random = new Random();
-            _path = _random.Next().ToString();
+            _random = new Random(CultureInfo.InvariantCulture);
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.Open;
-            _fileAccess = 0;
+            _fileAccess = (FileAccess) 666;
             _bufferSize = _random.Next(5, 1000);
         }
 
@@ -35,7 +36,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             try
             {
-                await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, default);
+                _ = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, default)
+                                        .ConfigureAwait(continueOnCapturedContext: false);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)

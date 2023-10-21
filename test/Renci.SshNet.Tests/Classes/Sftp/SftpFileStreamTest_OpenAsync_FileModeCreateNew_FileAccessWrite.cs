@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,14 +31,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             _random = new Random();
-            _path = _random.Next().ToString();
+            _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.CreateNew;
             _fileAccess = FileAccess.Write;
             _bufferSize = _random.Next(5, 1000);
             _readBufferSize = (uint) _random.Next(5, 1000);
             _writeBufferSize = (uint) _random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
-            _cancellationToken = new CancellationToken();
+            _cancellationToken = default;
         }
 
         protected override void SetupMocks()
@@ -55,7 +56,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ActAsync()
         {
-            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken);
+            _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]
@@ -87,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _ = SftpSessionMock.InSequence(MockSequence)
                                .Setup(p => p.IsOpen)
-                               .Returns(true);
+                               .Returns(value: true);
 
             var actual = _target.Position;
 
@@ -103,11 +105,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _ = SftpSessionMock.InSequence(MockSequence)
                                .Setup(p => p.IsOpen)
-                               .Returns(true);
+                               .Returns(value: true);
 
             try
             {
-                _ = await _target.ReadAsync(buffer, 0, buffer.Length);
+#pragma warning disable MA0040 // Forward the CancellationToken parameter to methods that take one
+#pragma warning disable CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+                _ = await _target.ReadAsync(buffer, 0, buffer.Length)
+                                 .ConfigureAwait(continueOnCapturedContext: false);
+#pragma warning restore CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+#pragma warning restore MA0040 // Forward the CancellationToken parameter to methods that take one
                 Assert.Fail();
             }
             catch (NotSupportedException ex)
@@ -125,12 +132,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _ = SftpSessionMock.InSequence(MockSequence)
                                .Setup(p => p.IsOpen)
-                               .Returns(true);
+                               .Returns(value: true);
             _ = SftpSessionMock.InSequence(MockSequence)
                                .Setup(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken))
                                .Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length);
+#pragma warning disable MA0040 // Forward the CancellationToken parameter to methods that take one
+#pragma warning disable CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+            await _target.WriteAsync(buffer, 0, buffer.Length)
+                         .ConfigureAwait(continueOnCapturedContext: false);
+#pragma warning restore CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+#pragma warning restore MA0040 // Forward the CancellationToken parameter to methods that take one
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

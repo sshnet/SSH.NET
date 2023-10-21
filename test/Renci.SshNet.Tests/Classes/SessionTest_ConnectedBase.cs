@@ -88,12 +88,13 @@ namespace Renci.SshNet.Tests.Classes
             Random = new Random();
 
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
-            ConnectionInfo = new ConnectionInfo(
-                _serverEndPoint.Address.ToString(),
-                _serverEndPoint.Port,
-                "user",
-                new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
+            ConnectionInfo = new ConnectionInfo(_serverEndPoint.Address.ToString(),
+                                                _serverEndPoint.Port,
+                                                "user",
+                                                new PasswordAuthenticationMethod("user", "password"))
+                {
+                    Timeout = TimeSpan.FromSeconds(20)
+                };
             _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
@@ -129,18 +130,18 @@ namespace Renci.SshNet.Tests.Classes
 
                     var keyExchangeInitMessage = new KeyExchangeInitMessage
                         {
-                            CompressionAlgorithmsClientToServer = new string[0],
-                            CompressionAlgorithmsServerToClient = new string[0],
-                            EncryptionAlgorithmsClientToServer = new string[0],
-                            EncryptionAlgorithmsServerToClient = new string[0],
+                            CompressionAlgorithmsClientToServer = Array.Empty<string>(),
+                            CompressionAlgorithmsServerToClient = Array.Empty<string>(),
+                            EncryptionAlgorithmsClientToServer = Array.Empty<string>(),
+                            EncryptionAlgorithmsServerToClient = Array.Empty<string>(),
                             KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
-                            LanguagesClientToServer = new string[0],
-                            LanguagesServerToClient = new string[0],
-                            MacAlgorithmsClientToServer = new string[0],
-                            MacAlgorithmsServerToClient = new string[0],
-                            ServerHostKeyAlgorithms = new string[0]
+                            LanguagesClientToServer = Array.Empty<string>(),
+                            LanguagesServerToClient = Array.Empty<string>(),
+                            MacAlgorithmsClientToServer = Array.Empty<string>(),
+                            MacAlgorithmsServerToClient = Array.Empty<string>(),
+                            ServerHostKeyAlgorithms = Array.Empty<string>()
                         };
-                    var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
+                    var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, compressor: null);
                     _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };
             ServerListener.BytesReceived += (received, socket) =>

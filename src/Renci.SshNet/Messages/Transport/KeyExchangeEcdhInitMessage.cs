@@ -10,7 +10,7 @@ namespace Renci.SshNet.Messages.Transport
     internal sealed class KeyExchangeEcdhInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
-        /// Gets the client's ephemeral contribution to the ECDH exchange, encoded as an octet string
+        /// Gets the client's ephemeral contribution to the ECDH exchange, encoded as an octet string.
         /// </summary>
         public byte[] QC { get; private set; }
 
@@ -72,7 +72,9 @@ namespace Renci.SshNet.Messages.Transport
 
         internal override void Process(Session session)
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
     }
 }

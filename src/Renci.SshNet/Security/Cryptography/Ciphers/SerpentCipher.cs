@@ -24,7 +24,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public SerpentCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 16, mode, padding)
@@ -871,7 +871,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms
+        /// InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms.
         /// </summary>
         /// <param name="a">A.</param>
         /// <param name="b">The b.</param>

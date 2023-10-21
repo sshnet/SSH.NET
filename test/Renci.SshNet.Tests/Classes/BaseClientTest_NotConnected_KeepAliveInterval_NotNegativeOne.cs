@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, ownsConnectionInfo: false, ServiceFactoryMock.Object);
         }
 
         protected override void TearDown()
@@ -61,8 +61,8 @@ namespace Renci.SshNet.Tests.Classes
                                .Returns(SessionMock.Object);
             SessionMock.Setup(p => p.Connect());
             SessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true)
-                        .Callback(() => Interlocked.Increment(ref _keepAliveCount));
+                       .Returns(value: true)
+                       .Callback(() => Interlocked.Increment(ref _keepAliveCount));
 
             _client.Connect();
 

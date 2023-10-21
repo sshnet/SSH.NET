@@ -203,14 +203,18 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.ModPow(1, -1, 5);
                 Assert.Fail("#1");
             }
-            catch (ArgumentOutOfRangeException) { }
+            catch (ArgumentOutOfRangeException)
+            {
+            }
 
             try
             {
                 _ = BigInteger.ModPow(1, 5, 0);
                 Assert.Fail("#2");
             }
-            catch (DivideByZeroException) { }
+            catch (DivideByZeroException)
+            {
+            }
 
             Assert.AreEqual(4L, (long)BigInteger.ModPow(3, 2, 5), "#2");
             Assert.AreEqual(20L, (long)BigInteger.ModPow(555, 10, 71), "#3");
@@ -631,7 +635,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ByteArrayCtor()
         {
-            Assert.AreEqual(0, (int) new BigInteger(new byte[0]));
+            Assert.AreEqual(0, (int) new BigInteger(Array.Empty<byte>()));
             Assert.AreEqual(0, (int) new BigInteger(new byte[1]));
             Assert.AreEqual(0, (int) new BigInteger(new byte[2]));
         }
@@ -853,23 +857,29 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = (long) new BigInteger(Huge_a);
                 Assert.Fail("#1");
             }
-            catch (OverflowException) { }
+            catch (OverflowException)
+            {
+            }
 
-            //long.MaxValue + 1
+            // long.MaxValue + 1
             try
             {
                 _ = (long) new BigInteger(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00 });
                 Assert.Fail("#2");
             }
-            catch (OverflowException) { }
+            catch (OverflowException)
+            {
+            }
 
-            //TODO long.MinValue - 1
+            // TODO long.MinValue - 1
             try
             {
                 _ = (long) new BigInteger(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF });
                 Assert.Fail("#3");
             }
-            catch (OverflowException) { }
+            catch (OverflowException)
+            {
+            }
 
             Assert.AreEqual(long.MaxValue, (long)new BigInteger(long.MaxValue), "#4");
             Assert.AreEqual(long.MinValue, (long)new BigInteger(long.MinValue), "#5");
@@ -1082,7 +1092,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                _ = BigInteger.Parse("");
+                _ = BigInteger.Parse(string.Empty);
                 Assert.Fail("#2");
             }
             catch (FormatException) { }
@@ -1171,7 +1181,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void TryParse_Value()
         {
-            Assert.IsFalse(BigInteger.TryParse("", out var x));
+            Assert.IsFalse(BigInteger.TryParse(string.Empty, out var x));
             Assert.AreEqual(BigInteger.Zero, x);
 
             Assert.IsFalse(BigInteger.TryParse(" ", out x));
@@ -1199,34 +1209,34 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void TryParse_ValueAndStyleAndProvider()
         {
-            Assert.IsFalse(BigInteger.TryParse("null", NumberStyles.None, null, out var x));
+            Assert.IsFalse(BigInteger.TryParse("null", NumberStyles.None, provider: null, out var x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsFalse(BigInteger.TryParse("-10", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse("-10", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsFalse(BigInteger.TryParse("(10)", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse("(10)", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsFalse(BigInteger.TryParse(" 10", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse(" 10", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsFalse(BigInteger.TryParse("10 ", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse("10 ", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsTrue(BigInteger.TryParse("-10", NumberStyles.AllowLeadingSign, null, out x));
+            Assert.IsTrue(BigInteger.TryParse("-10", NumberStyles.AllowLeadingSign, provider: null, out x));
             Assert.AreEqual(-10, (int) x);
 
-            Assert.IsTrue(BigInteger.TryParse("(10)", NumberStyles.AllowParentheses, null, out x));
+            Assert.IsTrue(BigInteger.TryParse("(10)", NumberStyles.AllowParentheses, provider: null, out x));
             Assert.AreEqual(-10, (int) x);
 
-            Assert.IsTrue(BigInteger.TryParse(" 10", NumberStyles.AllowLeadingWhite, null, out x));
+            Assert.IsTrue(BigInteger.TryParse(" 10", NumberStyles.AllowLeadingWhite, provider: null, out x));
             Assert.AreEqual(10, (int) x);
 
-            Assert.IsTrue(BigInteger.TryParse("10 ", NumberStyles.AllowTrailingWhite, null, out x));
+            Assert.IsTrue(BigInteger.TryParse("10 ", NumberStyles.AllowTrailingWhite, provider: null, out x));
             Assert.AreEqual(10, (int) x);
 
-            Assert.IsFalse(BigInteger.TryParse("$10", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse("$10", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
             Assert.IsFalse(BigInteger.TryParse("$10", NumberStyles.None, _nfi, out x));
@@ -1235,10 +1245,10 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(BigInteger.TryParse("%10", NumberStyles.None, _nfi, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsFalse(BigInteger.TryParse("10 ", NumberStyles.None, null, out x));
+            Assert.IsFalse(BigInteger.TryParse("10 ", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(BigInteger.Zero, x);
 
-            Assert.IsTrue(BigInteger.TryParse("10", NumberStyles.None, null, out x));
+            Assert.IsTrue(BigInteger.TryParse("10", NumberStyles.None, provider: null, out x));
             Assert.AreEqual(10, (int) x);
 
             Assert.IsTrue(BigInteger.TryParse(_nfi.CurrencySymbol + "10", NumberStyles.AllowCurrencySymbol, _nfi, out x));
@@ -1520,10 +1530,10 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, (int)a, "#9");
 
             a = new BigInteger();
-            Assert.AreEqual((uint) 0, (uint)a, "#10");
+            Assert.AreEqual(0U, (uint) a, "#10");
 
             a = new BigInteger();
-            Assert.AreEqual((ulong) 0, (ulong)a, "#11");
+            Assert.AreEqual(0UL, (ulong)a, "#11");
 
             a = new BigInteger();
             Assert.AreEqual(true, a.Equals(a), "#12");

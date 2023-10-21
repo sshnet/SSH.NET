@@ -17,7 +17,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private int _rounds;
         private uint[] _encryptionKey;
         private uint[] _decryptionKey;
-        private uint _c0, _c1, _c2, _c3;
+        private uint _c0;
+        private uint _c1;
+        private uint _c2;
+        private uint _c3;
 
         #region Static Definition Tables
 
@@ -558,7 +561,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public AesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 16, mode, padding)
@@ -582,8 +585,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes encrypted.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <c>null</c>.</exception>
-        /// <exception cref="IndexOutOfRangeException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too small.</exception>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputBuffer is null)
@@ -598,12 +601,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(inputBuffer));
             }
 
             if ((outputOffset + (32 / 2)) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(outputBuffer));
             }
 
             _encryptionKey ??= GenerateWorkingKey(isEncryption: true, Key);
@@ -628,8 +631,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes decrypted.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <c>null</c>.</exception>
-        /// <exception cref="IndexOutOfRangeException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too small.</exception>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputBuffer is null)
@@ -644,12 +647,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(inputBuffer));
             }
 
             if ((outputOffset + (32 / 2)) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("Buffer is too small.", nameof(outputBuffer));
             }
 
             _decryptionKey ??= GenerateWorkingKey(isEncryption: false, Key);
@@ -665,46 +668,47 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private uint[] GenerateWorkingKey(bool isEncryption, byte[] key)
         {
-            var KC = key.Length / 4;  // key length in words
+            var kc = key.Length / 4; // key length in words
 
-            if (((KC != 4) && (KC != 6) && (KC != 8)) || ((KC * 4) != key.Length))
+            if (((kc != 4) && (kc != 6) && (kc != 8)) || ((kc * 4) != key.Length))
             {
                 throw new ArgumentException("Key length not 128/192/256 bits.");
             }
 
-            _rounds = KC + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
-            var W = new uint[(_rounds + 1) * 4];   // 4 words in a block
+            _rounds = kc + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
+            var w = new uint[(_rounds + 1) * 4];   // 4 words in a block
 
-            //
-            // copy the key into the round key array
-            //
+            /*
+             * Copy the key into the round key array.
+             */
 
             var t = 0;
 
             for (var i = 0; i < key.Length; t++)
             {
-                W[(t >> 2) * 4 + (t & 3)] = Pack.LittleEndianToUInt32(key, i);
+                w[((t >> 2) * 4) + (t & 3)] = Pack.LittleEndianToUInt32(key, i);
                 i += 4;
             }
 
-            //
-            // while not enough round key material calculated
-            // calculate new values
-            //
+            /*
+             * While not enough round key material calculated
+             * calculate new values.
+             */
+
             var k = (_rounds + 1) << 2;
-            for (var i = KC; i < k; i++)
+            for (var i = kc; i < k; i++)
             {
-                var temp = W[((i - 1) >> 2) * 4 + ((i - 1) & 3)];
-                if ((i % KC) == 0)
+                var temp = w[(((i - 1) >> 2) * 4) + ((i - 1) & 3)];
+                if ((i % kc) == 0)
                 {
-                    temp = SubWord(Shift(temp, 8)) ^ Rcon[(i / KC) - 1];
+                    temp = SubWord(Shift(temp, 8)) ^ Rcon[(i / kc) - 1];
                 }
-                else if ((KC > 6) && ((i % KC) == 4))
+                else if ((kc > 6) && ((i % kc) == 4))
                 {
                     temp = SubWord(temp);
                 }
 
-                W[(i >> 2) * 4 + (i & 3)] = W[((i - KC) >> 2) * 4 + ((i - KC) & 3)] ^ temp;
+                w[((i >> 2) * 4) + (i & 3)] = w[(((i - kc) >> 2) * 4) + ((i - kc) & 3)] ^ temp;
             }
 
             if (!isEncryption)
@@ -713,12 +717,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 {
                     for (var i = 0; i < 4; i++)
                     {
-                        W[j * 4 + i] = InvMcol(W[j * 4 + i]);
+                        w[(j * 4) + i] = InvMcol(w[(j * 4) + i]);
                     }
                 }
             }
 
-            return W;
+            return w;
         }
 
         private static uint Shift(uint r, int shift)
@@ -765,74 +769,74 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Pack.UInt32ToLittleEndian(_c3, bytes, off + 12);
         }
 
-        private void EncryptBlock(uint[] KW)
+        private void EncryptBlock(uint[] kw)
         {
             int r;
             uint r0, r1, r2, r3;
 
-            _c0 ^= KW[0 * 4 + 0];
-            _c1 ^= KW[0 * 4 + 1];
-            _c2 ^= KW[0 * 4 + 2];
-            _c3 ^= KW[0 * 4 + 3];
+            _c0 ^= kw[0];
+            _c1 ^= kw[1];
+            _c2 ^= kw[2];
+            _c3 ^= kw[3];
 
             for (r = 1; r < _rounds - 1;)
             {
-                r0 = T0[_c0 & 255] ^ T1[(_c1 >> 8) & 255] ^ T2[(_c2 >> 16) & 255] ^ T3[_c3 >> 24] ^ KW[r * 4 + 0];
-                r1 = T0[_c1 & 255] ^ T1[(_c2 >> 8) & 255] ^ T2[(_c3 >> 16) & 255] ^ T3[_c0 >> 24] ^ KW[r * 4 + 1];
-                r2 = T0[_c2 & 255] ^ T1[(_c3 >> 8) & 255] ^ T2[(_c0 >> 16) & 255] ^ T3[_c1 >> 24] ^ KW[r * 4 + 2];
-                r3 = T0[_c3 & 255] ^ T1[(_c0 >> 8) & 255] ^ T2[(_c1 >> 16) & 255] ^ T3[_c2 >> 24] ^ KW[r++ * 4 + 3];
-                _c0 = T0[r0 & 255] ^ T1[(r1 >> 8) & 255] ^ T2[(r2 >> 16) & 255] ^ T3[r3 >> 24] ^ KW[r * 4 + 0];
-                _c1 = T0[r1 & 255] ^ T1[(r2 >> 8) & 255] ^ T2[(r3 >> 16) & 255] ^ T3[r0 >> 24] ^ KW[r * 4 + 1];
-                _c2 = T0[r2 & 255] ^ T1[(r3 >> 8) & 255] ^ T2[(r0 >> 16) & 255] ^ T3[r1 >> 24] ^ KW[r * 4 + 2];
-                _c3 = T0[r3 & 255] ^ T1[(r0 >> 8) & 255] ^ T2[(r1 >> 16) & 255] ^ T3[r2 >> 24] ^ KW[r++ * 4 + 3];
+                r0 = T0[_c0 & 255] ^ T1[(_c1 >> 8) & 255] ^ T2[(_c2 >> 16) & 255] ^ T3[_c3 >> 24] ^ kw[(r * 4) + 0];
+                r1 = T0[_c1 & 255] ^ T1[(_c2 >> 8) & 255] ^ T2[(_c3 >> 16) & 255] ^ T3[_c0 >> 24] ^ kw[(r * 4) + 1];
+                r2 = T0[_c2 & 255] ^ T1[(_c3 >> 8) & 255] ^ T2[(_c0 >> 16) & 255] ^ T3[_c1 >> 24] ^ kw[(r * 4) + 2];
+                r3 = T0[_c3 & 255] ^ T1[(_c0 >> 8) & 255] ^ T2[(_c1 >> 16) & 255] ^ T3[_c2 >> 24] ^ kw[(r++ * 4) + 3];
+                _c0 = T0[r0 & 255] ^ T1[(r1 >> 8) & 255] ^ T2[(r2 >> 16) & 255] ^ T3[r3 >> 24] ^ kw[(r * 4) + 0];
+                _c1 = T0[r1 & 255] ^ T1[(r2 >> 8) & 255] ^ T2[(r3 >> 16) & 255] ^ T3[r0 >> 24] ^ kw[(r * 4) + 1];
+                _c2 = T0[r2 & 255] ^ T1[(r3 >> 8) & 255] ^ T2[(r0 >> 16) & 255] ^ T3[r1 >> 24] ^ kw[(r * 4) + 2];
+                _c3 = T0[r3 & 255] ^ T1[(r0 >> 8) & 255] ^ T2[(r1 >> 16) & 255] ^ T3[r2 >> 24] ^ kw[(r++ * 4) + 3];
             }
 
-            r0 = T0[_c0 & 255] ^ T1[(_c1 >> 8) & 255] ^ T2[(_c2 >> 16) & 255] ^ T3[_c3 >> 24] ^ KW[r * 4 + 0];
-            r1 = T0[_c1 & 255] ^ T1[(_c2 >> 8) & 255] ^ T2[(_c3 >> 16) & 255] ^ T3[_c0 >> 24] ^ KW[r * 4 + 1];
-            r2 = T0[_c2 & 255] ^ T1[(_c3 >> 8) & 255] ^ T2[(_c0 >> 16) & 255] ^ T3[_c1 >> 24] ^ KW[r * 4 + 2];
-            r3 = T0[_c3 & 255] ^ T1[(_c0 >> 8) & 255] ^ T2[(_c1 >> 16) & 255] ^ T3[_c2 >> 24] ^ KW[r++ * 4 + 3];
+            r0 = T0[_c0 & 255] ^ T1[(_c1 >> 8) & 255] ^ T2[(_c2 >> 16) & 255] ^ T3[_c3 >> 24] ^ kw[(r * 4) + 0];
+            r1 = T0[_c1 & 255] ^ T1[(_c2 >> 8) & 255] ^ T2[(_c3 >> 16) & 255] ^ T3[_c0 >> 24] ^ kw[(r * 4) + 1];
+            r2 = T0[_c2 & 255] ^ T1[(_c3 >> 8) & 255] ^ T2[(_c0 >> 16) & 255] ^ T3[_c1 >> 24] ^ kw[(r * 4) + 2];
+            r3 = T0[_c3 & 255] ^ T1[(_c0 >> 8) & 255] ^ T2[(_c1 >> 16) & 255] ^ T3[_c2 >> 24] ^ kw[(r++ * 4) + 3];
 
-            // the final round's table is a simple function of S so we don't use a whole other four tables for it
+            /* the final round's table is a simple function of S so we don't use a whole other four tables for it */
 
-            _c0 = (uint)S[r0 & 255] ^ (((uint)S[(r1 >> 8) & 255]) << 8) ^ (((uint)S[(r2 >> 16) & 255]) << 16) ^ (((uint)S[r3 >> 24]) << 24) ^ KW[r * 4 + 0];
-            _c1 = (uint)S[r1 & 255] ^ (((uint)S[(r2 >> 8) & 255]) << 8) ^ (((uint)S[(r3 >> 16) & 255]) << 16) ^ (((uint)S[r0 >> 24]) << 24) ^ KW[r * 4 + 1];
-            _c2 = (uint)S[r2 & 255] ^ (((uint)S[(r3 >> 8) & 255]) << 8) ^ (((uint)S[(r0 >> 16) & 255]) << 16) ^ (((uint)S[r1 >> 24]) << 24) ^ KW[r * 4 + 2];
-            _c3 = (uint)S[r3 & 255] ^ (((uint)S[(r0 >> 8) & 255]) << 8) ^ (((uint)S[(r1 >> 16) & 255]) << 16) ^ (((uint)S[r2 >> 24]) << 24) ^ KW[r * 4 + 3];
+            _c0 = (uint)S[r0 & 255] ^ (((uint)S[(r1 >> 8) & 255]) << 8) ^ (((uint)S[(r2 >> 16) & 255]) << 16) ^ (((uint)S[r3 >> 24]) << 24) ^ kw[(r * 4) + 0];
+            _c1 = (uint)S[r1 & 255] ^ (((uint)S[(r2 >> 8) & 255]) << 8) ^ (((uint)S[(r3 >> 16) & 255]) << 16) ^ (((uint)S[r0 >> 24]) << 24) ^ kw[(r * 4) + 1];
+            _c2 = (uint)S[r2 & 255] ^ (((uint)S[(r3 >> 8) & 255]) << 8) ^ (((uint)S[(r0 >> 16) & 255]) << 16) ^ (((uint)S[r1 >> 24]) << 24) ^ kw[(r * 4) + 2];
+            _c3 = (uint)S[r3 & 255] ^ (((uint)S[(r0 >> 8) & 255]) << 8) ^ (((uint)S[(r1 >> 16) & 255]) << 16) ^ (((uint)S[r2 >> 24]) << 24) ^ kw[(r * 4) + 3];
         }
 
-        private void DecryptBlock(uint[] KW)
+        private void DecryptBlock(uint[] kw)
         {
             int r;
             uint r0, r1, r2, r3;
 
-            _c0 ^= KW[_rounds * 4 + 0];
-            _c1 ^= KW[_rounds * 4 + 1];
-            _c2 ^= KW[_rounds * 4 + 2];
-            _c3 ^= KW[_rounds * 4 + 3];
+            _c0 ^= kw[(_rounds * 4) + 0];
+            _c1 ^= kw[(_rounds * 4) + 1];
+            _c2 ^= kw[(_rounds * 4) + 2];
+            _c3 ^= kw[(_rounds * 4) + 3];
 
             for (r = _rounds - 1; r > 1;)
             {
-                r0 = Tinv0[_c0 & 255] ^ Tinv1[(_c3 >> 8) & 255] ^ Tinv2[(_c2 >> 16) & 255] ^ Tinv3[_c1 >> 24] ^ KW[r * 4 + 0];
-                r1 = Tinv0[_c1 & 255] ^ Tinv1[(_c0 >> 8) & 255] ^ Tinv2[(_c3 >> 16) & 255] ^ Tinv3[_c2 >> 24] ^ KW[r * 4 + 1];
-                r2 = Tinv0[_c2 & 255] ^ Tinv1[(_c1 >> 8) & 255] ^ Tinv2[(_c0 >> 16) & 255] ^ Tinv3[_c3 >> 24] ^ KW[r * 4 + 2];
-                r3 = Tinv0[_c3 & 255] ^ Tinv1[(_c2 >> 8) & 255] ^ Tinv2[(_c1 >> 16) & 255] ^ Tinv3[_c0 >> 24] ^ KW[r-- * 4 + 3];
-                _c0 = Tinv0[r0 & 255] ^ Tinv1[(r3 >> 8) & 255] ^ Tinv2[(r2 >> 16) & 255] ^ Tinv3[r1 >> 24] ^ KW[r * 4 + 0];
-                _c1 = Tinv0[r1 & 255] ^ Tinv1[(r0 >> 8) & 255] ^ Tinv2[(r3 >> 16) & 255] ^ Tinv3[r2 >> 24] ^ KW[r * 4 + 1];
-                _c2 = Tinv0[r2 & 255] ^ Tinv1[(r1 >> 8) & 255] ^ Tinv2[(r0 >> 16) & 255] ^ Tinv3[r3 >> 24] ^ KW[r * 4 + 2];
-                _c3 = Tinv0[r3 & 255] ^ Tinv1[(r2 >> 8) & 255] ^ Tinv2[(r1 >> 16) & 255] ^ Tinv3[r0 >> 24] ^ KW[r-- * 4 + 3];
+                r0 = Tinv0[_c0 & 255] ^ Tinv1[(_c3 >> 8) & 255] ^ Tinv2[(_c2 >> 16) & 255] ^ Tinv3[_c1 >> 24] ^ kw[(r * 4) + 0];
+                r1 = Tinv0[_c1 & 255] ^ Tinv1[(_c0 >> 8) & 255] ^ Tinv2[(_c3 >> 16) & 255] ^ Tinv3[_c2 >> 24] ^ kw[(r * 4) + 1];
+                r2 = Tinv0[_c2 & 255] ^ Tinv1[(_c1 >> 8) & 255] ^ Tinv2[(_c0 >> 16) & 255] ^ Tinv3[_c3 >> 24] ^ kw[(r * 4) + 2];
+                r3 = Tinv0[_c3 & 255] ^ Tinv1[(_c2 >> 8) & 255] ^ Tinv2[(_c1 >> 16) & 255] ^ Tinv3[_c0 >> 24] ^ kw[(r-- * 4) + 3];
+                _c0 = Tinv0[r0 & 255] ^ Tinv1[(r3 >> 8) & 255] ^ Tinv2[(r2 >> 16) & 255] ^ Tinv3[r1 >> 24] ^ kw[(r * 4) + 0];
+                _c1 = Tinv0[r1 & 255] ^ Tinv1[(r0 >> 8) & 255] ^ Tinv2[(r3 >> 16) & 255] ^ Tinv3[r2 >> 24] ^ kw[(r * 4) + 1];
+                _c2 = Tinv0[r2 & 255] ^ Tinv1[(r1 >> 8) & 255] ^ Tinv2[(r0 >> 16) & 255] ^ Tinv3[r3 >> 24] ^ kw[(r * 4) + 2];
+                _c3 = Tinv0[r3 & 255] ^ Tinv1[(r2 >> 8) & 255] ^ Tinv2[(r1 >> 16) & 255] ^ Tinv3[r0 >> 24] ^ kw[(r-- * 4) + 3];
             }
 
-            r0 = Tinv0[_c0 & 255] ^ Tinv1[(_c3 >> 8) & 255] ^ Tinv2[(_c2 >> 16) & 255] ^ Tinv3[_c1 >> 24] ^ KW[r * 4 + 0];
-            r1 = Tinv0[_c1 & 255] ^ Tinv1[(_c0 >> 8) & 255] ^ Tinv2[(_c3 >> 16) & 255] ^ Tinv3[_c2 >> 24] ^ KW[r * 4 + 1];
-            r2 = Tinv0[_c2 & 255] ^ Tinv1[(_c1 >> 8) & 255] ^ Tinv2[(_c0 >> 16) & 255] ^ Tinv3[_c3 >> 24] ^ KW[r * 4 + 2];
-            r3 = Tinv0[_c3 & 255] ^ Tinv1[(_c2 >> 8) & 255] ^ Tinv2[(_c1 >> 16) & 255] ^ Tinv3[_c0 >> 24] ^ KW[r * 4 + 3];
+            r0 = Tinv0[_c0 & 255] ^ Tinv1[(_c3 >> 8) & 255] ^ Tinv2[(_c2 >> 16) & 255] ^ Tinv3[_c1 >> 24] ^ kw[(r * 4) + 0];
+            r1 = Tinv0[_c1 & 255] ^ Tinv1[(_c0 >> 8) & 255] ^ Tinv2[(_c3 >> 16) & 255] ^ Tinv3[_c2 >> 24] ^ kw[(r * 4) + 1];
+            r2 = Tinv0[_c2 & 255] ^ Tinv1[(_c1 >> 8) & 255] ^ Tinv2[(_c0 >> 16) & 255] ^ Tinv3[_c3 >> 24] ^ kw[(r * 4) + 2];
+            r3 = Tinv0[_c3 & 255] ^ Tinv1[(_c2 >> 8) & 255] ^ Tinv2[(_c1 >> 16) & 255] ^ Tinv3[_c0 >> 24] ^ kw[(r * 4) + 3];
 
-            // the final round's table is a simple function of Si so we don't use a whole other four tables for it
+            /* the final round's table is a simple function of Si so we don't use a whole other four tables for it */
 
-            _c0 = (uint)Si[r0 & 255] ^ (((uint)Si[(r3 >> 8) & 255]) << 8) ^ (((uint)Si[(r2 >> 16) & 255]) << 16) ^ (((uint)Si[r1 >> 24]) << 24) ^ KW[0 * 4 + 0];
-            _c1 = (uint)Si[r1 & 255] ^ (((uint)Si[(r0 >> 8) & 255]) << 8) ^ (((uint)Si[(r3 >> 16) & 255]) << 16) ^ (((uint)Si[r2 >> 24]) << 24) ^ KW[0 * 4 + 1];
-            _c2 = (uint)Si[r2 & 255] ^ (((uint)Si[(r1 >> 8) & 255]) << 8) ^ (((uint)Si[(r0 >> 16) & 255]) << 16) ^ (((uint)Si[r3 >> 24]) << 24) ^ KW[0 * 4 + 2];
-            _c3 = (uint)Si[r3 & 255] ^ (((uint)Si[(r2 >> 8) & 255]) << 8) ^ (((uint)Si[(r1 >> 16) & 255]) << 16) ^ (((uint)Si[r0 >> 24]) << 24) ^ KW[0 * 4 + 3];
+            _c0 = (uint)Si[r0 & 255] ^ (((uint)Si[(r3 >> 8) & 255]) << 8) ^ (((uint)Si[(r2 >> 16) & 255]) << 16) ^ (((uint)Si[r1 >> 24]) << 24) ^ kw[0];
+            _c1 = (uint)Si[r1 & 255] ^ (((uint)Si[(r0 >> 8) & 255]) << 8) ^ (((uint)Si[(r3 >> 16) & 255]) << 16) ^ (((uint)Si[r2 >> 24]) << 24) ^ kw[1];
+            _c2 = (uint)Si[r2 & 255] ^ (((uint)Si[(r1 >> 8) & 255]) << 8) ^ (((uint)Si[(r0 >> 16) & 255]) << 16) ^ (((uint)Si[r3 >> 24]) << 24) ^ kw[2];
+            _c3 = (uint)Si[r3 & 255] ^ (((uint)Si[(r2 >> 8) & 255]) << 8) ^ (((uint)Si[(r1 >> 16) & 255]) << 16) ^ (((uint)Si[r0 >> 24]) << 24) ^ kw[3];
         }
     }
 }

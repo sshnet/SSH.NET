@@ -12,7 +12,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets authentication responses.
         /// </summary>
-        public IList<string> Responses { get; private set; }
+        public List<string> Responses { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -39,7 +39,9 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void LoadData()
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         /// <summary>
@@ -56,7 +58,9 @@ namespace Renci.SshNet.Messages.Authentication
 
         internal override void Process(Session session)
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
     }
 }

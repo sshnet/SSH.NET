@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Sftp;
-using Renci.SshNet.Common;
 using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -68,19 +71,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override async Task ArrangeAsync()
         {
-            await base.ArrangeAsync();
+            await base.ArrangeAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object,
-                                         _path,
-                                         FileMode.Open,
-                                         FileAccess.Read,
-                                         (int)_bufferSize,
-                                         default);
+                                                     _path,
+                                                     FileMode.Open,
+                                                     FileAccess.Read,
+                                                     (int) _bufferSize,
+                                                     default)
+                                          .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         protected override async Task ActAsync()
         {
-            _actual = await _target.ReadAsync(_buffer, 0, _numberOfBytesToRead, default);
+            _actual = await _target.ReadAsync(_buffer, 0, _numberOfBytesToRead, default)
+                                   .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         [TestMethod]

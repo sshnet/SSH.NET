@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -29,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.SetupData();
 
             var random = new Random();
-            _path = random.Next().ToString();
+            _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = GenerateRandom(5, random);
             _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 20;
@@ -108,7 +109,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void PositionShouldReturnNumberOfBytesWrittenToCallerProvidedBuffer()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.IsOpen)
+                           .Returns(value: true);
 
             Assert.AreEqual(_actual, _target.Position);
 
@@ -118,7 +121,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void ReadShouldReturnAllRemaningBytesFromReadBufferWhenCountIsEqualToNumberOfRemainingBytes()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.IsOpen)
+                           .Returns(value: true);
 
             var numberOfBytesRemainingInReadBuffer = _serverData1Length + _serverData2Length - _numberOfBytesToRead;
 
@@ -135,8 +140,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void ReadShouldReturnAllRemaningBytesFromReadBufferAndReadAgainWhenCountIsGreaterThanNumberOfRemainingBytesAndNewReadReturnsZeroBytes()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestRead(_handle, (ulong)(_serverData1Length + _serverData2Length), _readBufferSize)).Returns(Array.Empty<byte>());
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.IsOpen)
+                           .Returns(value: true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.RequestRead(_handle, (ulong)(_serverData1Length + _serverData2Length), _readBufferSize))
+                           .Returns(Array.Empty<byte>());
 
             var numberOfBytesRemainingInReadBuffer = _serverData1Length + _serverData2Length - _numberOfBytesToRead;
 

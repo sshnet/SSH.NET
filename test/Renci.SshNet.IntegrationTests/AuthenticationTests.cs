@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Globalization;
+
+using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
 
 namespace Renci.SshNet.IntegrationTests
@@ -314,7 +316,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void KeyboardInteractive_PasswordExpired()
         {
-            var temporaryPassword = new Random().Next().ToString();
+            var temporaryPassword = new Random().Next().ToString(CultureInfo.InvariantCulture);
 
             using (var client = new SshClient(_adminConnectionInfoFactory.Create()))
             {
@@ -335,9 +337,9 @@ namespace Renci.SshNet.IntegrationTests
             }
 
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive")
-                             .WithChallengeResponseAuthentication(true)
-                             .WithKeyboardInteractiveAuthentication(true)
-                             .WithUsePAM(true)
+                             .WithChallengeResponseAuthentication(value: true)
+                             .WithKeyboardInteractiveAuthentication(value: true)
+                             .WithUsePAM(usePAM: true)
                              .Update()
                              .Restart();
 
@@ -385,9 +387,9 @@ namespace Renci.SshNet.IntegrationTests
         public void KeyboardInteractiveConnectionInfo()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive")
-                             .WithChallengeResponseAuthentication(true)
-                             .WithKeyboardInteractiveAuthentication(true)
-                             .WithUsePAM(true)
+                             .WithChallengeResponseAuthentication(value: true)
+                             .WithKeyboardInteractiveAuthentication(value: true)
+                             .WithUsePAM(usePAM: true)
                              .Update()
                              .Restart();
 
@@ -399,22 +401,22 @@ namespace Renci.SshNet.IntegrationTests
             #region Example KeyboardInteractiveConnectionInfo AuthenticationPrompt
 
             var connectionInfo = new KeyboardInteractiveConnectionInfo(host, port, username);
-            connectionInfo.AuthenticationPrompt += delegate (object sender, AuthenticationPromptEventArgs e)
-                                                       {
-                                                           Console.WriteLine(e.Instruction);
+            connectionInfo.AuthenticationPrompt += (sender, e) =>
+                {
+                    Console.WriteLine(e.Instruction);
 
-                                                           foreach (var prompt in e.Prompts)
-                                                           {
-                                                               Console.WriteLine(prompt.Request);
-                                                               prompt.Response = password;
-                                                           }
-                                                       };
+                    foreach (var prompt in e.Prompts)
+                    {
+                        Console.WriteLine(prompt.Request);
+                        prompt.Response = password;
+                    }
+                };
 
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
 
-                //  Do something here
+                // Do something here
                 client.Disconnect();
             }
 

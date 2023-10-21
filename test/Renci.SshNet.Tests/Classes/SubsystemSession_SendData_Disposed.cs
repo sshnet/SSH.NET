@@ -16,8 +16,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private ObjectDisposedException _actualException;
 
         [TestInitialize]
@@ -58,7 +58,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                _subsystemSession.SendData(new byte[0]);
+                _subsystemSession.SendData(Array.Empty<byte>());
+                Assert.Fail();
             }
             catch (ObjectDisposedException ex)
             {

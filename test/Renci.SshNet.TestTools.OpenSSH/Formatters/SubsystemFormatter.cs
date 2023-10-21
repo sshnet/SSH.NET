@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH.Formatters
 {
-    internal class SubsystemFormatter
+    internal sealed class SubsystemFormatter : IFormatter<Subsystem>
     {
         public string Format(Subsystem subsystem)
         {

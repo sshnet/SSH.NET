@@ -25,7 +25,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// Gets a value indicating whether authentication is partially successful.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if partially successful; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if partially successful; otherwise, <see langword="false"/>.
         /// </value>
         public bool PartialSuccess { get; private set; }
 
@@ -38,7 +38,13 @@ namespace Renci.SshNet.Messages.Authentication
             PartialSuccess = ReadBoolean();
             if (PartialSuccess)
             {
-                Message = string.Join(",", AllowedAuthentications);
+#if NET || NETSTANDARD2_1_OR_GREATER
+                const char separator = ',';
+#else
+                const string separator = ",";
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+
+                Message = string.Join(separator, AllowedAuthentications);
             }
         }
 
@@ -47,7 +53,9 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         internal override void Process(Session session)

@@ -50,7 +50,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
+        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format.
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
@@ -60,6 +60,7 @@ namespace Renci.SshNet.Common
                 Buffer.BlockCopy(data, 0, buf, 1, data.Length);
                 data = buf;
             }
+
             return data.ToBigInteger();
         }
 
@@ -141,7 +142,7 @@ namespace Renci.SshNet.Common
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="offset"/> is zero and <paramref name="count"/> equals the length of <paramref name="value"/>,
         /// then <paramref name="value"/> is returned.
@@ -176,7 +177,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A <see cref="byte"/> array that contains the specified number of bytes at the start of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="count"/> equals the length of <paramref name="value"/>, then <paramref name="value"/>
         /// is returned.

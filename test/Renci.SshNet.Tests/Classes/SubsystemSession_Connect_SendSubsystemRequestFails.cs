@@ -114,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisconnectedOnSessionShouldNoLongerBeSignaledViaDisconnectedOnSubsystemSession()
         {
-            _sessionMock.Raise(p => p.Disconnected += null, new EventArgs());
+            _sessionMock.Raise(p => p.Disconnected += null, EventArgs.Empty);
 
             Assert.AreEqual(0, _disconnectedRegister.Count);
         }

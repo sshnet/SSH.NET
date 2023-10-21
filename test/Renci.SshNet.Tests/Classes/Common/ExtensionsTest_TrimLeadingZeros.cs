@@ -71,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldReturnEmptyByteArrayWhenValueIsEmpty()
         {
-            byte[] value = {};
+            byte[] value = Array.Empty<byte>();
 
             var actual = Extensions.TrimLeadingZeros(value);
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 
 using Renci.SshNet.Common;
 
@@ -21,12 +22,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var testValue = Guid.NewGuid().ToString();
                 var command = client.RunCommand(string.Format("echo {0}", testValue));
                 var result = command.Result;
-                result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
+                result = result.Substring(0, result.Length - 1); // Remove \n character returned by command
 
                 client.Disconnect();
                 #endregion
 
-                Assert.IsTrue(result.Equals(testValue));
+                Assert.IsTrue(result.Equals(testValue, StringComparison.Ordinal));
             }
         }
 
@@ -42,12 +43,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var command = string.Format("echo {0}", testValue);
                 var cmd = client.CreateCommand(command);
                 var result = cmd.Execute();
-                result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
+                result = result.Substring(0, result.Length - 1); // Remove \n character returned by command
 
                 client.Disconnect();
                 #endregion
 
-                Assert.IsTrue(result.Equals(testValue));
+                Assert.IsTrue(result.Equals(testValue, StringComparison.Ordinal));
             }
         }
 
@@ -59,20 +60,21 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 #region Example SshCommand CreateCommand Execute OutputStream
                 client.Connect();
 
-                var cmd = client.CreateCommand("ls -l");   //  very long list
+                var cmd = client.CreateCommand("ls -l"); // very long list
                 var asynch = cmd.BeginExecute();
 
-                var reader = new StreamReader(cmd.OutputStream);
-
-                while (!asynch.IsCompleted)
+                using (var reader = new StreamReader(cmd.OutputStream))
                 {
-                    var result = reader.ReadToEnd();
-                    if (string.IsNullOrEmpty(result))
+                    while (!asynch.IsCompleted)
                     {
-                        continue;
-                    }
+                        var result = reader.ReadToEnd();
+                        if (string.IsNullOrEmpty(result))
+                        {
+                            continue;
+                        }
 
-                    Console.Write(result);
+                        Console.Write(result);
+                    }
                 }
 
                 _ = cmd.EndExecute(asynch);
@@ -97,11 +99,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 Console.Write(result);
 
-                var reader = new StreamReader(cmd.ExtendedOutputStream);
-                Console.WriteLine("DEBUG:");
-                Console.Write(reader.ReadToEnd());
+                using (var reader = new StreamReader(cmd.ExtendedOutputStream))
+                {
+                    Console.WriteLine("DEBUG:");
+                    Console.Write(reader.ReadToEnd());
 
-                client.Disconnect();
+                    client.Disconnect();
+                }
 
                 #endregion
 
@@ -184,15 +188,19 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
+
                 var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
                 cmd.Execute();
 
-                //var extendedData = Encoding.ASCII.GetString(cmd.ExtendedOutputStream.ToArray());
-                var extendedData = new StreamReader(cmd.ExtendedOutputStream, Encoding.ASCII).ReadToEnd();
-                client.Disconnect();
+                using (var sr = new StreamReader(cmd.ExtendedOutputStream, Encoding.ASCII))
+                {
+                    var extendedData = sr.ReadToEnd();
 
-                Assert.AreEqual("12345\n", cmd.Result);
-                Assert.AreEqual("654321\n", extendedData);
+                    client.Disconnect();
+
+                    Assert.AreEqual("12345\n", cmd.Result);
+                    Assert.AreEqual("654321\n", extendedData);
+                }
             }
         }
 
@@ -222,7 +230,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                
+
                 Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
@@ -240,7 +248,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.CreateCommand("sleep 5s; echo 'test'");
-                var asyncResult = cmd.BeginExecute(null, null);
+                var asyncResult = cmd.BeginExecute(callback: null, state: null);
                 while (!asyncResult.IsCompleted)
                 {
                     Thread.Sleep(100);
@@ -262,7 +270,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.CreateCommand("sleep 5s; ;");
-                var asyncResult = cmd.BeginExecute(null, null);
+                var asyncResult = cmd.BeginExecute(callback: null, state: null);
                 while (!asyncResult.IsCompleted)
                 {
                     Thread.Sleep(100);
@@ -286,10 +294,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var callbackCalled = false;
 
                 var cmd = client.CreateCommand("sleep 5s; echo 'test'");
-                var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
-                {
-                    callbackCalled = true;
-                }), null);
+                var asyncResult = cmd.BeginExecute(new AsyncCallback((s) => callbackCalled = true),
+                                                   state: null);
                 while (!asyncResult.IsCompleted)
                 {
                     Thread.Sleep(100);
@@ -315,9 +321,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cmd = client.CreateCommand("sleep 5s; echo 'test'");
                 var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
-                {
-                    callbackThreadId = Thread.CurrentThread.ManagedThreadId;
-                }), null);
+                                                    {
+                                                        callbackThreadId = Thread.CurrentThread.ManagedThreadId;
+                                                    }),
+                                                   state: null);
                 while (!asyncResult.IsCompleted)
                 {
                     Thread.Sleep(100);
@@ -334,7 +341,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         /// <summary>
         /// Tests for Issue 563.
         /// </summary>
-        [WorkItem(563), TestMethod]
+        [WorkItem(563)]
+        [TestMethod]
         public void Test_Execute_Command_Same_Object_Different_Commands()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -375,7 +383,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             }
         }
 
-        [WorkItem(703), TestMethod]
+        [WorkItem(703)]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_EndExecute_Before_BeginExecute()
         {
@@ -383,14 +392,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
                 var cmd = client.CreateCommand("ls -l");
-                cmd.EndExecute(null);
+                cmd.EndExecute(asyncResult: null);
                 client.Disconnect();
             }
         }
 
         /// <summary>
-        ///A test for BeginExecute
-        ///</summary>
+        /// A test for BeginExecute
+        /// </summary>
         [TestMethod()]
         public void BeginExecuteTest()
         {
@@ -409,9 +418,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 while (!asynch.IsCompleted)
                 {
-                    //  Waiting for command to complete...
+                    // Waiting for command to complete...
                     Thread.Sleep(2000);
                 }
+
                 result = cmd.EndExecute(asynch);
                 client.Disconnect();
 
@@ -452,27 +462,26 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             try
             {
 #region Example SshCommand RunCommand Parallel
-                Parallel.For(0, 100,
-                    () =>
-                    {
-                        var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-                        client.Connect();
-                        return client;
-                    },
-                    (int counter, ParallelLoopState pls, SshClient client) =>
-                    {
-                        var result = client.RunCommand("echo 123");
-                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
-                        return client;
-                    },
-                    (SshClient client) =>
-                    {
-                        client.Disconnect();
-                        client.Dispose();
-                    }
-                );
+                Parallel.For(0,
+                             100,
+                             () =>
+                                {
+                                    var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+                                    client.Connect();
+                                    return client;
+                                },
+                             (int counter, ParallelLoopState pls, SshClient client) =>
+                                {
+                                    var result = client.RunCommand("echo 123");
+                                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "TestMultipleThreadMultipleConnections #{0}", counter));
+                                    return client;
+                                },
+                             (SshClient client) =>
+                                {
+                                    client.Disconnect();
+                                    client.Dispose();
+                                });
 #endregion
-
             }
             catch (Exception exp)
             {
@@ -481,36 +490,28 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        
         public void Test_MultipleThread_100_MultipleConnections()
         {
-            try
-            {
-                Parallel.For(0, 100,
-                    () =>
-                    {
-                        var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-                        client.Connect();
-                        return client;
-                    },
-                    (int counter, ParallelLoopState pls, SshClient client) =>
-                    {
-                        var result = ExecuteTestCommand(client);
-                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
-                        Assert.IsTrue(result);
-                        return client;
-                    },
-                    (SshClient client) =>
-                    {
-                        client.Disconnect();
-                        client.Dispose();
-                    }
-                );
-            }
-            catch (Exception exp)
-            {
-                Assert.Fail(exp.ToString());
-            }
+            Parallel.For(0,
+                         100,
+                         () =>
+                            {
+                                var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+                                client.Connect();
+                                return client;
+                            },
+                         (int counter, ParallelLoopState pls, SshClient client) =>
+                            {
+                                var result = ExecuteTestCommand(client);
+                                Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "TestMultipleThreadMultipleConnections #{0}", counter));
+                                Assert.IsTrue(result);
+                                return client;
+                            },
+                         (SshClient client) =>
+                            {
+                                client.Disconnect();
+                                client.Dispose();
+                            });
         }
 
         [TestMethod]
@@ -519,14 +520,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                Parallel.For(0, 100,
-                    (counter) =>
+                Parallel.For(0, 100, (counter) =>
                     {
                         var result = ExecuteTestCommand(client);
-                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                        Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "TestMultipleThreadMultipleConnections #{0}", counter));
                         Assert.IsTrue(result);
-                    }
-                );
+                    });
 
                 client.Disconnect();
             }
@@ -538,8 +537,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             var command = string.Format("echo {0}", testValue);
             var cmd = s.CreateCommand(command);
             var result = cmd.Execute();
-            result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
-            return result.Equals(testValue);
+
+            // Remove \n character returned by command
+            result = result.Substring(0, result.Length - 1);
+
+            return result.Equals(testValue, StringComparison.Ordinal);
         }
     }
 }

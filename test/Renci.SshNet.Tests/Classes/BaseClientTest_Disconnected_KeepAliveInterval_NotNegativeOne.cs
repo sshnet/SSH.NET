@@ -26,16 +26,16 @@ namespace Renci.SshNet.Tests.Classes
             ServiceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
                                .Returns(SessionMock.Object);
             SessionMock.Setup(p => p.Connect());
-            SessionMock.Setup(p => p.IsConnected).Returns(false);
+            SessionMock.Setup(p => p.IsConnected).Returns(value: false);
             SessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true);
+                       .Returns(value: true);
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, ownsConnectionInfo: false, ServiceFactoryMock.Object);
             _client.Connect();
         }
 

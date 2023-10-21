@@ -1,13 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -96,20 +100,24 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             var expectedSocksRequest = new List<byte>();
 
-            //
-            // Client greeting
-            //
+            /*
+             * Client greeting
+             */
 
             // SOCKS version
             expectedSocksRequest.Add(0x05);
+
             // Number of authentication methods supported
             expectedSocksRequest.Add(0x02);
+
             // No authentication
             expectedSocksRequest.Add(0x00);
+
             // Username/password
             expectedSocksRequest.Add(0x02);
 
-            var errorText = string.Format("Expected:{0}{1}{0}but was:{0}{2}",
+            var errorText = string.Format(CultureInfo.InvariantCulture,
+                                          "Expected:{0}{1}{0}but was:{0}{2}",
                                           Environment.NewLine,
                                           PacketDump.Create(expectedSocksRequest, 2),
                                           PacketDump.Create(_bytesReceivedByProxy, 2));
@@ -128,11 +136,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _ = _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

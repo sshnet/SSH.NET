@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -67,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                                 {
                                     var asyncResult = new SftpReadAsyncResult(callback, state);
-                                    asyncResult.SetAsCompleted(_chunk1, false);
+                                    asyncResult.SetAsCompleted(_chunk1, completedSynchronously: false);
                                 })
                            .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
@@ -79,7 +83,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                             .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                             {
                                 var asyncResult = new SftpReadAsyncResult(callback, state);
-                                asyncResult.SetAsCompleted(_chunk2, false);
+                                asyncResult.SetAsCompleted(_chunk2, completedSynchronously: false);
                             })
                             .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
@@ -92,7 +96,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                             {
                                 _readAheadChunk3.Set();
                                 _readChunk3.WaitOne(TimeSpan.FromSeconds(5));
-                                // sleep a short time to make sure the client is in the blocking wait
+
+                                // Sleep a short time to make sure the client is in the blocking wait
                                 Thread.Sleep(500);
                             })
                             .Throws(_exception);
@@ -110,9 +115,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _reader.Read();
             _reader.Read();
 
-            // wait until we've the SftpFileReader has starting reading ahead chunk 3
+            // Wait until we've the SftpFileReader has starting reading ahead chunk 3
             Assert.IsTrue(_readAheadChunk3.WaitOne(TimeSpan.FromSeconds(5)));
-            // signal that we are about to read chunk 3
+
+            // Signal that we are about to read chunk 3
             _readChunk3.Set();
 
             try
@@ -150,7 +156,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void DisposeShouldCloseHandleAndCompleteImmediately()
         {
-            SftpSessionMock.InSequence(_seq).Setup(p => p.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(_seq).Setup(p => p.IsOpen).Returns(value: true);
             SftpSessionMock.InSequence(_seq).Setup(p => p.BeginClose(_handle, null, null)).Returns(_closeAsyncResult);
             SftpSessionMock.InSequence(_seq).Setup(p => p.EndClose(_closeAsyncResult));
 

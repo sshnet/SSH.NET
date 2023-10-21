@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -41,38 +42,48 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
                     if (_bytesReceivedByProxy.Count == 4)
                     {
-                        // We received the greeting
+                        /*
+                         * We received the greeting.
+                         */
 
                         _ = socket.Send(new byte[]
                             {
                                     // SOCKS version
                                     0x05,
+
                                     // Require username/password authentication
                                     0x02
                             });
                     }
                     else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _connectionInfo.ProxyUsername.Length + 1 + _connectionInfo.ProxyPassword.Length))
                     {
-                        // We received the username/password authentication request
+                        /*
+                         * We received the username/password authentication request.
+                         */
 
                         _ = socket.Send(new byte[]
                             {
                                     // Authentication version
                                     0x01,
+
                                     // Authentication successful
                                     0x00
                             });
                     }
                     else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _connectionInfo.ProxyUsername.Length + 1 + _connectionInfo.ProxyPassword.Length) + (1 + 1 + 1 + 1 + 4 + 2))
                     {
-                        // We received the connection request
+                        /*
+                         * We received the connection request.
+                         */
 
                         _ = socket.Send(new byte[]
                             {
                                     // SOCKS version
                                     0x05,
+
                                     // Connection successful
                                     0x00,
+
                                     // Reserved byte
                                     0x00,
                             });
@@ -82,11 +93,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             {
                                     // IPv4
                                     0x01,
+
                                     // IP address
                                     0x01,
                                     0x02,
                                     0x12,
                                     0x41,
+
                                     // Port
                                     0x01,
                                     0x02,
@@ -147,56 +160,69 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             var expectedSocksRequest = new List<byte>();
 
-            //
-            // Client greeting
-            //
+            /*
+             * Client greeting
+             */
 
             // SOCKS version
             expectedSocksRequest.Add(0x05);
+
             // Number of authentication methods supported
             expectedSocksRequest.Add(0x02);
+
             // No authentication
             expectedSocksRequest.Add(0x00);
+
             // Username/password
             expectedSocksRequest.Add(0x02);
 
-            //
-            // Username/password authentication request
-            //
+            /*
+             * Username/password authentication request
+             */
 
             // Version of the negotiation
             expectedSocksRequest.Add(0x01);
+
             // Length of the username
             expectedSocksRequest.Add((byte)_connectionInfo.ProxyUsername.Length);
+
             // Username
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyUsername));
+
             // Length of the password
             expectedSocksRequest.Add((byte)_connectionInfo.ProxyPassword.Length);
+
             // Password
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyPassword));
 
-            //
-            // Client connection request
-            //
+            /*
+             * Client connection request
+             */
 
             // SOCKS version
             expectedSocksRequest.Add(0x05);
+
             // Establish a TCP/IP stream connection
             expectedSocksRequest.Add(0x01);
+
             // Reserved
             expectedSocksRequest.Add(0x00);
+
             // Destination address type (IPv4)
             expectedSocksRequest.Add(0x01);
+
             // Destination address (IPv4)
             expectedSocksRequest.Add(0x7f);
             expectedSocksRequest.Add(0x00);
             expectedSocksRequest.Add(0x00);
             expectedSocksRequest.Add(0x01);
+
             // Destination port
             expectedSocksRequest.Add(0x03);
             expectedSocksRequest.Add(0x09);
 
-            var errorText = string.Format("Expected:{0}{1}{0}but was:{0}{2}",
+            var errorText = string.Format(CultureInfo.InvariantCulture,
+                                          "Expected:{0}{1}{0}but was:{0}{2}",
                                           Environment.NewLine,
                                           PacketDump.Create(expectedSocksRequest, 2),
                                           PacketDump.Create(_bytesReceivedByProxy, 2));

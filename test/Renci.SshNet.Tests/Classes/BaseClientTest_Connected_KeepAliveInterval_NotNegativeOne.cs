@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _client = new MyClient(_connectionInfo, ownsConnectionInfo: false, ServiceFactoryMock.Object);
             _client.Connect();
         }
 

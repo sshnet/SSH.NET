@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -41,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _chunk1 = CreateByteArray(random, ChunkLength);
             _chunk2 = CreateByteArray(random, ChunkLength - 10);
             _chunk2CatchUp = CreateByteArray(random, 10);
-            _chunk3 = new byte[0];
+            _chunk3 = Array.Empty<byte>();
             _chunk1BeginRead = new ManualResetEvent(false);
             _chunk2BeginRead = new ManualResetEvent(false);
             _chunk3BeginRead = new ManualResetEvent(false);
@@ -122,15 +126,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void Act()
         {
-            // consume chunk 1
+            // Consume chunk 1
             _actualChunk1 = _reader.Read();
-            // consume chunk 2
+
+            // Consume chunk 2
             _actualChunk2 = _reader.Read();
-            // wait until chunk3 has been read-ahead
+
+            // Wait until chunk3 has been read-ahead
             Assert.IsTrue(_chunk3BeginRead.WaitOne(200));
-            // consume remaining parts of chunk 2
+
+            // Consume remaining parts of chunk 2
             _actualChunk2CatchUp = _reader.Read();
-            // consume chunk 3
+
+            // Consume chunk 3
             _actualChunk3 = _reader.Read();
         }
 

@@ -68,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes
             try
             {
                 var value = _pipeStream.Length;
-                Assert.Fail("" + value);
+                Assert.Fail(string.Empty + value);
             }
             catch (ObjectDisposedException)
             {
@@ -97,7 +97,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void Read_ByteArrayAndOffsetAndCount_ShouldThrowObjectDisposedException()
         {
-            var buffer = new byte[0];
+            var buffer = Array.Empty<byte>();
             const int offset = 0;
             const int count = 0;
 
@@ -153,7 +153,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void Write_ByteArrayAndOffsetAndCount_ShouldThrowObjectDisposedException()
         {
-            var buffer = new byte[0];
+            var buffer = Array.Empty<byte>();
             const int offset = 0;
             const int count = 0;
 

@@ -629,6 +629,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math
             }
         }
 
+#pragma warning disable CA5394 // Do not use insecure randomness
         public BigInteger(
             int		sizeInBits,
             Random	random)
@@ -716,6 +717,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math
                 }
             }
         }
+#pragma warning restore CA5394 // Do not use insecure randomness
 
         public BigInteger Abs()
         {

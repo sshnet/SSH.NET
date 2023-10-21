@@ -1,5 +1,9 @@
 ﻿[*.cs]
 
+# S1264: A "while" loop should be used instead of a "for" loop
+# https://rules.sonarsource.com/csharp/RSPEC-1264
+dotnet_diagnostic.S1264.severity = none
+
 #### SYSLIB diagnostics ####
 
 # SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
@@ -9,15 +13,59 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 
 ### StyleCop Analyzers rules ###
 
+# SA1123: Do not place regions within elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1123.md
+dotnet_diagnostic.SA1123.severity = none
+
+# SA1124: Do not use regions
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1124.md
+dotnet_diagnostic.SA1124.severity = none
+
 # SA1202: Elements must be ordered by access
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1202.md
 dotnet_diagnostic.SA1202.severity = none
 
+# SA1204: Static elements must appear before instance elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1204.md
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1310: Field names must not contain underscore
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1310.md
+#dotnet_diagnostic.SA1310.severity = none
+
+# SA1636: File header copyright text should match
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1636.md
+dotnet_diagnostic.SA1636.severity = none
+
 #### Meziantou.Analyzer rules ####
+
+# MA0001 - StringComparison is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
+#dotnet_diagnostic.MA0001.severity = none
+
+# MA0011: IFormatProvider is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0011.severity = none
+
+# MA0015: Specify the parameter name in ArgumentException
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0015.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0015.severity = none
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = none
 
 # MA0053: Make class sealed
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
 MA0053.public_class_should_be_sealed = false
+
+# MA0110: Use the Regex source generator
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
+dotnet_diagnostic.MA0110.severity = none
 
 #### .NET Compiler Platform analysers rules ####
 
@@ -25,9 +73,19 @@ MA0053.public_class_should_be_sealed = false
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
 dotnet_diagnostic.CA1031.severity = none
 
+# CA1062: Validate arguments of public methods
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1062
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.CA1062.severity = none
+
 # CA2213: Disposable fields should be disposed
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213
 dotnet_diagnostic.CA2213.severity = none
+
+# CA3075: Insecure DTD Processing
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca3075
+dotnet_diagnostic.CA3075.severity = none
 
 # IDE0004: Types that own disposable fields should be disposable
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0004
@@ -36,3 +94,7 @@ dotnet_diagnostic.IDE0004.severity = none
 # IDE0048: Add parentheses for clarity
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047
 dotnet_diagnostic.IDE0048.severity = none
+
+# IDE0305: Collection initialization can be simplified
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0305
+dotnet_diagnostic.IDE0305.severity = none

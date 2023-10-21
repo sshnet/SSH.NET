@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             sshDataStream.Write(_ffree);
             sshDataStream.Write(_favail);
             sshDataStream.Write(_sid);
-            sshDataStream.Write((ulong) 0x1);
+            sshDataStream.Write(0x1UL);
             sshDataStream.Write(_namemax);
 
             var extendedReplyResponse = new SftpExtendedReplyResponse(SftpSession.MaximumSupportedVersion);

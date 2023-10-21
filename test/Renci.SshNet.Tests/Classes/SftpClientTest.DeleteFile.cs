@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Tests.Properties;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -17,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                sftp.DeleteFile(null);
+                sftp.DeleteFile(path: null);
             }
         }
     }

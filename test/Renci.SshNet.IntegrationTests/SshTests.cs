@@ -90,7 +90,7 @@ namespace Renci.SshNet.IntegrationTests
         /// </summary>
         [TestMethod]
         [Category("Reproduction Tests")]
-        [Ignore]
+        [Ignore("https://github.com/sshnet/SSH.NET/issues/63")]
         public void Ssh_ShellStream_IntermittendOutput()
         {
             const string remoteFile = "/home/sshnet/test.sh";
@@ -192,7 +192,7 @@ namespace Renci.SshNet.IntegrationTests
                                              "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                                              "Line 5 ",
                                              "Line 6",
-                                             "");
+                                             string.Empty);
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -786,7 +786,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     bool mappingFound = false;
 
-                    for (var i = (hostConfig.Entries.Count - 1); i >= 0; i--)
+                    for (var i = hostConfig.Entries.Count - 1; i >= 0; i--)
                     {
                         hostEntry = hostConfig.Entries[i];
 
@@ -804,7 +804,7 @@ namespace Renci.SshNet.IntegrationTests
                         }
                         else
                         {
-                            for (var j = (hostEntry.Aliases.Count - 1); j >= 0; j--)
+                            for (var j = hostEntry.Aliases.Count - 1; j >= 0; j--)
                             {
                                 var alias = hostEntry.Aliases[j];
 
@@ -865,8 +865,10 @@ namespace Renci.SshNet.IntegrationTests
                     }
                     else
                     {
-                        // Use one of the aliases (that are different from the specified host name) as host name
-                        // of the host entry.
+                        /*
+                         * Use one of the aliases (that are different from the specified host name) as host name
+                         * of the host entry.
+                         */
 
                         for (var i = hostEntry.Aliases.Count - 1; i >= 0; i--)
                         {
@@ -877,8 +879,10 @@ namespace Renci.SshNet.IntegrationTests
                             }
                             else if (hostEntry.HostName == hostName)
                             {
-                                // If we haven't already used one of the aliases as host name of the host entry
-                                // then do this now and remove the alias.
+                                /*
+                                 * If we haven't already used one of the aliases as host name of the host entry
+                                 * then do this now and remove the alias.
+                                 */
 
                                 hostEntry.HostName = alias;
                                 hostEntry.Aliases.RemoveAt(i);
@@ -921,9 +925,11 @@ namespace Renci.SshNet.IntegrationTests
         {
             var httpResponseBuffer = new byte[2048];
 
-            // We expect:
-            // * The response to contain the searchText in the first receive.
-            // * The full response to be returned in the first receive.
+            /*
+             * We expect:
+             * - The response to contain the searchText in the first receive.
+             * - The full response to be returned in the first receive.
+             */
 
             var bytesReceived = socket.Receive(httpResponseBuffer,
                                                0,
@@ -950,8 +956,8 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
-                using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
+
+                using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
                 {
                     sw.Write(script);
                 }

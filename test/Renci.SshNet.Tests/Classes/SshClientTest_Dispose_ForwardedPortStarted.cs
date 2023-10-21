@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _sshClient = new SshClient(_connectionInfo, ownsConnectionInfo: false, ServiceFactoryMock.Object);
             _sshClient.Connect();
             _sshClient.AddForwardedPort(_forwardedPortMock.Object);
 
@@ -76,10 +76,12 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var connected = _sshClient.IsConnected;
                 Assert.Fail("IsConnected should have thrown {0} but returned {1}.",
-                    typeof (ObjectDisposedException).FullName, connected);
+                            typeof(ObjectDisposedException).FullName,
+                            connected);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

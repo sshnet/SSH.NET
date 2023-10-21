@@ -9,7 +9,7 @@
         /// Initializes a new instance of the <see cref="AuthenticationPrompt"/> class.
         /// </summary>
         /// <param name="id">The sequence id.</param>
-        /// <param name="isEchoed">if set to <c>true</c> the user input should be echoed.</param>
+        /// <param name="isEchoed">if set to <see langword="true"/> the user input should be echoed.</param>
         /// <param name="request">The request.</param>
         public AuthenticationPrompt(int id, bool isEchoed, string request)
         {
@@ -27,7 +27,7 @@
         /// Gets a value indicating whether the user input should be echoed as characters are typed.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if the user input should be echoed as characters are typed; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if the user input should be echoed as characters are typed; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsEchoed { get; }
 

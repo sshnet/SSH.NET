@@ -8,10 +8,6 @@
     <NoWarn>$(NoWarn);SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <DefineConstants>TRACE;FEATURE_MSTEST_DATATEST;FEATURE_SOCKET_EAP;FEATURE_ENCODING_ASCII;FEATURE_THREAD_SLEEP;FEATURE_THREAD_THREADPOOL</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />

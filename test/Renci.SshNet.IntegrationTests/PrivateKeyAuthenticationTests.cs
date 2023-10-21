@@ -87,15 +87,9 @@ namespace Renci.SshNet.IntegrationTests
 
         private PrivateKeyAuthenticationMethod CreatePrivateKeyAuthenticationMethod(string keyResource)
         {
-            var privateKey = CreatePrivateKeyFromManifestResource("Renci.SshNet.IntegrationTests.resources.client." + keyResource);
-            return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKey);
-        }
-
-        private PrivateKeyFile CreatePrivateKeyFromManifestResource(string resourceName)
-        {
-            using (var stream = GetManifestResourceStream(resourceName))
+            using (var stream = GetData($"resources.client.{keyResource}"))
             {
-                return new PrivateKeyFile(stream);
+                return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, new PrivateKeyFile(stream));
             }
         }
     }

@@ -66,15 +66,12 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        protected Stream GetManifestResourceStream(string resourceName)
+        internal static Stream GetData(string name)
         {
-            var type = GetType();
-            var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
-            {
-                throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
-            }
-            return resourceStream;
+            string resourceName = $"Renci.SshNet.IntegrationTests.{name}";
+
+            return typeof(TestBase).Assembly.GetManifestResourceStream(resourceName)
+                ?? throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{typeof(TestBase).Assembly.FullName}'.", nameof(resourceName));
         }
     }
 }

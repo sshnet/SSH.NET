@@ -10,32 +10,32 @@
 
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyAuthenticationMethod()
         {
-            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa");
+            var privateKeyFile = GetPrivateKey("resources.client.id_rsa");
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
         public PrivateKeyAuthenticationMethod CreateRegularUserMultiplePrivateKeyAuthenticationMethod()
         {
-            var privateKeyFile1 = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa");
-            var privateKeyFile2 = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa");
+            var privateKeyFile1 = GetPrivateKey("resources.client.id_rsa");
+            var privateKeyFile2 = GetPrivateKey("resources.client.id_rsa");
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile1, privateKeyFile2);
         }
 
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyWithPassPhraseAuthenticationMethod()
         {
-            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa_with_pass", "tester");
+            var privateKeyFile = GetPrivateKey("resources.client.id_rsa_with_pass", "tester");
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod()
         {
-            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa_with_pass", null);
+            var privateKeyFile = GetPrivateKey("resources.client.id_rsa_with_pass", null);
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey()
         {
-            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_noaccess.rsa");
+            var privateKeyFile = GetPrivateKey("resources.client.id_noaccess.rsa");
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
@@ -64,21 +64,10 @@
 
         private PrivateKeyFile GetPrivateKey(string resourceName, string passPhrase = null)
         {
-            using (var stream = GetResourceStream(resourceName))
+            using (var stream = TestBase.GetData(resourceName))
             {
                 return new PrivateKeyFile(stream, passPhrase);
             }
-        }
-
-        private Stream GetResourceStream(string resourceName)
-        {
-            var type = GetType();
-            var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
-            {
-                throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
-            }
-            return resourceStream;
         }
     }
 }

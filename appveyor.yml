@@ -1,17 +1,1 @@
 os: Visual Studio 2022
-
-before_build:
-  - nuget restore Renci.SshNet.sln
-
-install:
-  - cinst dotnet-sdk --version=7.0.402 --limit-output
-
-build:
-  project: Renci.SshNet.sln
-  verbosity: minimal
-
-test_script:
-- cmd: >-
-    vstest.console /logger:Appveyor test\Renci.SshNet.Tests\bin\Debug\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
-    
-    vstest.console /logger:Appveyor test\Renci.SshNet.Tests\bin\Debug\net7.0\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame

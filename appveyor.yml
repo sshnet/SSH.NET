@@ -4,4 +4,4 @@ build_script:
   - dotnet build test/Renci.SshNet.IntegrationTests/
 
 test_script:
-  - dotnet test test/Renci.SshNet.IntegrationTests/
+  - dotnet test test/Renci.SshNet.IntegrationTests/ --logger "console;verbosity=detailed"

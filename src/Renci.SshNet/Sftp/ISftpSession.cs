@@ -35,10 +35,11 @@ namespace Renci.SshNet.Sftp
         /// Resolves a given path into an absolute path on the server.
         /// </summary>
         /// <param name="path">The path to resolve.</param>
+        /// <param name="getRealPath">Boolean determining whether to get the ral path.</param>
         /// <returns>
         /// The absolute path.
         /// </returns>
-        string GetCanonicalPath(string path);
+        string GetCanonicalPath(string path, bool getRealPath = true);
 
         Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken);
 

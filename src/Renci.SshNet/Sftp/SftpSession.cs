@@ -89,12 +89,19 @@ namespace Renci.SshNet.Sftp
         /// Resolves a given path into an absolute path on the server.
         /// </summary>
         /// <param name="path">The path to resolve.</param>
+        /// <param name="getRealPath">Boolean determining whether to get the real path.</param>
         /// <returns>
         /// The absolute path.
         /// </returns>
-        public string GetCanonicalPath(string path)
+        public string GetCanonicalPath(string path, bool getRealPath = true)
         {
             var fullPath = GetFullRemotePath(path);
+
+            if (!getRealPath)
+            {
+                // getRealPath set to false allows us to get a reference to the symbolic link itself and not to the file it points to.
+                return fullPath;
+            }
 
             var canonizedPath = string.Empty;
 
@@ -152,7 +159,6 @@ namespace Renci.SshNet.Sftp
         public async Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
         {
             var fullPath = GetFullRemotePath(path);
-
             var canonizedPath = string.Empty;
             var realPathFiles = await RequestRealPathAsync(fullPath, nullOnError: true, cancellationToken).ConfigureAwait(false);
             if (realPathFiles != null)

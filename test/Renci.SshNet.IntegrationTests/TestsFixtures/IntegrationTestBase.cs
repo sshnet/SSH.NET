@@ -1,4 +1,5 @@
-﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
+﻿[assembly: DoNotParallelize]
+namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     /// <summary>
     /// The base class for integration tests

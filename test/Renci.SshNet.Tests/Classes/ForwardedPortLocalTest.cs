@@ -16,15 +16,22 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenBoundHostIsNull()
         {
+            ForwardedPortLocal target = null;
+
             try
             {
-                _ = new ForwardedPortLocal(null, 8080, Resources.HOST, 80);
+                target = new ForwardedPortLocal(null, 8080, Resources.HOST, 80);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
+                Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("boundHost", ex.ParamName);
+            }
+            finally
+            {
+                target?.Dispose();
             }
         }
 
@@ -33,9 +40,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             var boundHost = string.Empty;
 
-            var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80);
-
-            Assert.AreSame(boundHost, forwardedPort.BoundHost);
+            using (var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80))
+            {
+                Assert.AreSame(boundHost, forwardedPort.BoundHost);
+            }
         }
 
         [TestMethod]
@@ -43,23 +51,31 @@ namespace Renci.SshNet.Tests.Classes
         {
             const string boundHost = "in_valid_host.";
 
-            var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80);
-
-            Assert.AreSame(boundHost, forwardedPort.BoundHost);
+            using (var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80))
+            {
+                Assert.AreSame(boundHost, forwardedPort.BoundHost);
+            }
         }
 
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenHostIsNull()
         {
+            ForwardedPortLocal target = null;
+
             try
             {
-                _ = new ForwardedPortLocal(Resources.HOST, 8080, null, 80);
+                target = new ForwardedPortLocal(Resources.HOST, 8080, null, 80);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
+                Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("host", ex.ParamName);
+            }
+            finally
+            {
+                target?.Dispose();
             }
         }
 
@@ -68,9 +84,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             var host = string.Empty;
 
-            var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, string.Empty, 80);
-
-            Assert.AreSame(host, forwardedPort.Host);
+            using (var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, string.Empty, 80))
+            {
+                Assert.AreSame(host, forwardedPort.Host);
+            }
         }
 
         [TestMethod]
@@ -78,9 +95,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             const string host = "in_valid_host.";
 
-            var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, host, 80);
-
-            Assert.AreSame(host, forwardedPort.Host);
+            using (var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, host, 80))
+            {
+                Assert.AreSame(host, forwardedPort.Host);
+            }
         }
     }
 }

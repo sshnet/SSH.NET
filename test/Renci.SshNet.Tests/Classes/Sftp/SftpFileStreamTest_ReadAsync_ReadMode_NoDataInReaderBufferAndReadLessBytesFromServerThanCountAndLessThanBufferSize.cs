@@ -124,7 +124,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 .ReturnsAsync(Array.Empty<byte>());
 
             var buffer = _originalBuffer.Copy();
-            var actual = await _target.ReadAsync(buffer, 0, buffer.Length);
+            var actual = await _target.ReadAsync(buffer, 0, buffer.Length)
+                                      .ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(0, actual);
             Assert.IsTrue(_originalBuffer.IsEqualTo(buffer));
@@ -142,7 +143,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 .ReturnsAsync(Array.Empty<byte>());
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
-            await _target.ReadAsync(new byte[10], 0, 10);
+            await _target.ReadAsync(new byte[10], 0, 10)
+                         .ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(_actual, _target.Position);
 

@@ -4,9 +4,9 @@ using Renci.SshNet.TestTools.OpenSSH;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class CipherTests : IntegrationTestBase
+    public sealed class CipherTests : IntegrationTestBase
     {
-        private IConnectionInfoFactory _connectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
         [TestInitialize]

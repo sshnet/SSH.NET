@@ -3,7 +3,7 @@
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : IntegrationTestBase
+    public sealed partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
@@ -11,7 +11,7 @@
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                await sftp.ConnectAsync(default);
+                await sftp.ConnectAsync(default).ConfigureAwait(continueOnCapturedContext: false);
 
                 string uploadedFileName = Path.GetTempFileName();
                 string remoteFileName1 = Path.GetRandomFileName();
@@ -19,15 +19,18 @@
 
                 CreateTestFile(uploadedFileName, 1);
 
+#pragma warning disable MA0042 // Do not use blocking calls in an async method
                 using (var file = File.OpenRead(uploadedFileName))
                 {
-                    using (Stream remoteStream = await sftp.OpenAsync(remoteFileName1, FileMode.CreateNew, FileAccess.Write, default))
+                    using (Stream remoteStream = await sftp.OpenAsync(remoteFileName1, FileMode.CreateNew, FileAccess.Write, default).ConfigureAwait(continueOnCapturedContext: false))
                     {
-                        await file.CopyToAsync(remoteStream, 81920, default);
+                        await file.CopyToAsync(remoteStream, 81920, default)
+                                  .ConfigureAwait(continueOnCapturedContext: false);
                     }
                 }
+#pragma warning restore MA0042 // Do not use blocking calls in an async method
 
-                await sftp.RenameFileAsync(remoteFileName1, remoteFileName2, default);
+                await sftp.RenameFileAsync(remoteFileName1, remoteFileName2, default).ConfigureAwait(continueOnCapturedContext: false);
 
                 File.Delete(uploadedFileName);
 
@@ -45,9 +48,11 @@
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                await sftp.ConnectAsync(default);
+                await sftp.ConnectAsync(default)
+                          .ConfigureAwait(continueOnCapturedContext: false);
 
-                await sftp.RenameFileAsync(null, null, default);
+                await sftp.RenameFileAsync(oldPath: null, newPath: null, cancellationToken: default)
+                          .ConfigureAwait(false);
 
                 sftp.Disconnect();
             }

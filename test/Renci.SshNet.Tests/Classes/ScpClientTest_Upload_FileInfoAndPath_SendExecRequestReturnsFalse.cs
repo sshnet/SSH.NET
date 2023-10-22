@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes
         private string _remotePath;
         private string _transformedPath;
         private string _fileName;
-        private IList<ScpUploadEventArgs> _uploadingRegister;
+        private List<ScpUploadEventArgs> _uploadingRegister;
         private SshException _actualException;
 
         protected override void SetupData()
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Tests.Classes
 
             ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
-                               .Returns(_remotePathTransformationMock.Object);
+                               .Returns(RemotePathTransformationMock.Object);
             ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
                                .Returns(SocketFactoryMock.Object);
@@ -49,17 +49,17 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
                                .Returns(SessionMock.Object);
             SessionMock.InSequence(sequence).Setup(p => p.Connect());
-            ServiceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
-            SessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
-            _remotePathTransformationMock.InSequence(sequence)
+            ServiceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(PipeStreamMock.Object);
+            SessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(ChannelSessionMock.Object);
+            ChannelSessionMock.InSequence(sequence).Setup(p => p.Open());
+            RemotePathTransformationMock.InSequence(sequence)
                                          .Setup(p => p.Transform(_remoteDirectory))
                                          .Returns(_transformedPath);
-            _channelSessionMock.InSequence(sequence)
+            ChannelSessionMock.InSequence(sequence)
                                .Setup(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)))
                                .Returns(false);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
-            _pipeStreamMock.InSequence(sequence).Setup(p => p.Close());
+            ChannelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
+            PipeStreamMock.InSequence(sequence).Setup(p => p.Close());
         }
 
         protected override void Arrange()
@@ -106,19 +106,19 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendExecRequestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)), Times.Once);
+            ChannelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)), Times.Once);
         }
 
         [TestMethod]
         public void DisposeOnChannelShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.Dispose(), Times.Once);
+            ChannelSessionMock.Verify(p => p.Dispose(), Times.Once);
         }
 
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
-            _pipeStreamMock.Verify(p => p.Close(), Times.Once);
+            PipeStreamMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]
@@ -127,13 +127,15 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(0, _uploadingRegister.Count);
         }
 
-        private string CreateTemporaryFile(byte[] content)
+        private static string CreateTemporaryFile(byte[] content)
         {
             var tempFile = Path.GetTempFileName();
+
             using (var fs = File.OpenWrite(tempFile))
             {
                 fs.Write(content, 0, content.Length);
             }
+
             return tempFile;
         }
     }

@@ -77,7 +77,6 @@ namespace Renci.SshNet.Tests.Classes
                 var output = new MemoryStream();
                 var extendedOutput = new MemoryStream();
 
-
                 try
                 {
                     client.CreateShell(encoding, input, output, extendedOutput);
@@ -149,19 +148,17 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
-                    client.CreateShell(
-                        encoding,
-                        input,
-                        output,
-                        extendedOutput,
-                        terminalName,
-                        columns,
-                        rows,
-                        width,
-                        height,
-                        terminalModes,
-                        bufferSize);
+                    client.CreateShell(encoding,
+                                       input,
+                                       output,
+                                       extendedOutput,
+                                       terminalName,
+                                       columns,
+                                       rows,
+                                       width,
+                                       height,
+                                       terminalModes,
+                                       bufferSize);
                     Assert.Fail();
                 }
                 catch (SshConnectionException ex)
@@ -183,7 +180,6 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
                     client.CreateShell(input, output, extendedOutput);
                     Assert.Fail();
                 }
@@ -250,18 +246,16 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
-                    client.CreateShell(
-                        input,
-                        output,
-                        extendedOutput,
-                        terminalName,
-                        columns,
-                        rows,
-                        width,
-                        height,
-                        terminalModes,
-                        bufferSize);
+                    client.CreateShell(input,
+                                       output,
+                                       extendedOutput,
+                                       terminalName,
+                                       columns,
+                                       rows,
+                                       width,
+                                       height,
+                                       terminalModes,
+                                       bufferSize);
                     Assert.Fail();
                 }
                 catch (SshConnectionException ex)
@@ -312,9 +306,8 @@ namespace Renci.SshNet.Tests.Classes
         public void AddForwardedPort_NeverConnected()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var port = new ForwardedPortLocal(50, "host", 8080))
             {
-                var port = new ForwardedPortLocal(50, "host", 8080);
-
                 try
                 {
                     client.AddForwardedPort(port);

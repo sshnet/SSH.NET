@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             try
             {
-                new IgnoreMessage(data);
+                _ = new IgnoreMessage(data);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -69,16 +69,17 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual(IgnoreMessage.MessageNumber, sshDataStream.ReadByte());
+                Assert.AreEqual((uint) _data.Length, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual(IgnoreMessage.MessageNumber, sshDataStream.ReadByte());
-            Assert.AreEqual((uint) _data.Length, sshDataStream.ReadUInt32());
+                var actualData = new byte[_data.Length];
+                sshDataStream.Read(actualData, 0, actualData.Length);
+                Assert.IsTrue(_data.SequenceEqual(actualData));
 
-            var actualData = new byte[_data.Length];
-            sshDataStream.Read(actualData, 0, actualData.Length);
-            Assert.IsTrue(_data.SequenceEqual(actualData));
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
 
         [TestMethod]
@@ -98,39 +99,43 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [TestMethod]
         public void Load_ShouldIgnoreDataWhenItsLengthIsGreatherThanItsActualBytes()
         {
-            var ssh = new SshDataStream(1);
-            ssh.WriteByte(2); // Type
-            ssh.Write(5u); // Data length
-            ssh.Write(new byte[3]); // Data
+            using (var ssh = new SshDataStream(1))
+            {
+                ssh.WriteByte(2); // Type
+                ssh.Write(5u); // Data length
+                ssh.Write(new byte[3]); // Data
 
-            var ignoreMessageBytes = ssh.ToArray();
+                var ignoreMessageBytes = ssh.ToArray();
 
-            var ignoreMessage = new IgnoreMessage();
-            ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
-            Assert.IsNotNull(ignoreMessage.Data);
-            Assert.AreEqual(0, ignoreMessage.Data.Length);
+                var ignoreMessage = new IgnoreMessage();
+                ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
+                Assert.IsNotNull(ignoreMessage.Data);
+                Assert.AreEqual(0, ignoreMessage.Data.Length);
+            }
         }
 
         [TestMethod]
         public void Load_ShouldThrowNotSupportedExceptionWhenDataLengthIsGreaterThanInt32MaxValue()
         {
-            var ssh = new SshDataStream(1);
-            ssh.WriteByte(2); // Type
-            ssh.Write(uint.MaxValue); // Data length
-            ssh.Write(new byte[3]);
-
-            var ignoreMessageBytes = ssh.ToArray();
-            var ignoreMessage = new IgnoreMessage();
-
-            try
+            using (var ssh = new SshDataStream(1))
             {
-                ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
-                Assert.Fail();
-            }
-            catch (NotSupportedException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue), ex.Message);
+                ssh.WriteByte(2); // Type
+                ssh.Write(uint.MaxValue); // Data length
+                ssh.Write(new byte[3]);
+
+                var ignoreMessageBytes = ssh.ToArray();
+                var ignoreMessage = new IgnoreMessage();
+
+                try
+                {
+                    ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
+                    Assert.Fail();
+                }
+                catch (NotSupportedException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue), ex.Message);
+                }
             }
         }
     }

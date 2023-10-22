@@ -8,10 +8,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 {
     internal class SftpNameResponseBuilder
     {
+        private readonly List<KeyValuePair<string, SftpFileAttributes>> _files;
         private uint _responseId;
         private uint _protocolVersion;
         private Encoding _encoding;
-        private readonly List<KeyValuePair<string, SftpFileAttributes>> _files;
 
         public SftpNameResponseBuilder()
         {

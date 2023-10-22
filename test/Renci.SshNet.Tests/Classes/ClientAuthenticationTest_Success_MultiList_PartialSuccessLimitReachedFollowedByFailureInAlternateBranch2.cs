@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     ///     o publickey
     ///     o keyboard-interactive
     /// * Partial success limit is 2
-    /// 
+    ///
     ///                    none
     ///                  (1=FAIL)
     ///                     |
@@ -133,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes
                                                        .Returns(AuthenticationResult.PartialSuccess);
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
                                                        .Setup(p => p.AllowedAuthentications)
-                                                       .Returns(new[] {"password", "publickey"});
+                                                       .Returns(new[] { "password", "publickey" });
 
             /* Enumerate supported authentication methods */
 

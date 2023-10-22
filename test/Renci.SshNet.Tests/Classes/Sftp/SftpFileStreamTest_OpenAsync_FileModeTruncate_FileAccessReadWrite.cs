@@ -113,7 +113,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, _cancellationToken))
                            .ReturnsAsync(data);
 
-            var actual = await _target.ReadAsync(buffer, 1, data.Length);
+            var actual = await _target.ReadAsync(buffer, 1, data.Length)
+                                      .ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(data.Length, actual);
             Assert.IsTrue(buffer.IsEqualTo(expected));
@@ -134,7 +135,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken))
                            .Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length);
+            await _target.WriteAsync(buffer, 0, buffer.Length)
+                         .ConfigureAwait(continueOnCapturedContext: false);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

@@ -36,16 +36,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         [TestMethod]
         public void Load()
         {
-            var target = new SftpExtendedReplyResponse(_protocolVersion);
+            using (var sshDataStream = new SshDataStream(4))
+            {
+                sshDataStream.Write(_responseId);
 
-            var sshDataStream = new SshDataStream(4);
-            sshDataStream.Write(_responseId);
+                var target = new SftpExtendedReplyResponse(_protocolVersion);
+                target.Load(sshDataStream.ToArray());
 
-            target.Load(sshDataStream.ToArray());
-
-            Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual(_responseId, target.ResponseId);
-            Assert.AreEqual(SftpMessageTypes.ExtendedReply, target.SftpMessageType);
+                Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
+                Assert.AreEqual(_responseId, target.ResponseId);
+                Assert.AreEqual(SftpMessageTypes.ExtendedReply, target.SftpMessageType);
+            }
         }
 
         [TestMethod]
@@ -62,46 +63,45 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var sid = (ulong) _random.Next(0, int.MaxValue);
             var namemax = (ulong) _random.Next(0, int.MaxValue);
 
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + 88)
-                {
-                    Position = 4 // skip 4 bytes for SSH packet length
-                };
-            sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
-            sshDataStream.Write(_responseId);
-            sshDataStream.Write(bsize);
-            sshDataStream.Write(frsize);
-            sshDataStream.Write(blocks);
-            sshDataStream.Write(bfree);
-            sshDataStream.Write(bavail);
-            sshDataStream.Write(files);
-            sshDataStream.Write(ffree);
-            sshDataStream.Write(favail);
-            sshDataStream.Write(sid);
-            sshDataStream.Write(0x2UL);
-            sshDataStream.Write(namemax);
+            using (var sshDataStream = new SshDataStream(4 + 1 + 4 + 88) { Position = 4 })
+            {
+                sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
+                sshDataStream.Write(_responseId);
+                sshDataStream.Write(bsize);
+                sshDataStream.Write(frsize);
+                sshDataStream.Write(blocks);
+                sshDataStream.Write(bfree);
+                sshDataStream.Write(bavail);
+                sshDataStream.Write(files);
+                sshDataStream.Write(ffree);
+                sshDataStream.Write(favail);
+                sshDataStream.Write(sid);
+                sshDataStream.Write(0x2UL);
+                sshDataStream.Write(namemax);
 
-            var sshData = sshDataStream.ToArray();
+                var sshData = sshDataStream.ToArray();
 
-            var target = new SftpExtendedReplyResponse(_protocolVersion);
-            target.Load(sshData, 5, sshData.Length - 5);
+                var target = new SftpExtendedReplyResponse(_protocolVersion);
+                target.Load(sshData, 5, sshData.Length - 5);
 
-            var reply = target.GetReply<StatVfsReplyInfo>();
-            Assert.IsNotNull(reply);
+                var reply = target.GetReply<StatVfsReplyInfo>();
+                Assert.IsNotNull(reply);
 
-            var information = reply.Information;
-            Assert.IsNotNull(information);
-            Assert.AreEqual(bavail, information.AvailableBlocks);
-            Assert.AreEqual(favail, information.AvailableNodes);
-            Assert.AreEqual(frsize, information.BlockSize);
-            Assert.AreEqual(bsize, information.FileSystemBlockSize);
-            Assert.AreEqual(bfree, information.FreeBlocks);
-            Assert.AreEqual(ffree, information.FreeNodes);
-            Assert.IsFalse(information.IsReadOnly);
-            Assert.AreEqual(namemax, information.MaxNameLenght);
-            Assert.AreEqual(sid, information.Sid);
-            Assert.IsFalse(information.SupportsSetUid);
-            Assert.AreEqual(blocks, information.TotalBlocks);
-            Assert.AreEqual(files, information.TotalNodes);
+                var information = reply.Information;
+                Assert.IsNotNull(information);
+                Assert.AreEqual(bavail, information.AvailableBlocks);
+                Assert.AreEqual(favail, information.AvailableNodes);
+                Assert.AreEqual(frsize, information.BlockSize);
+                Assert.AreEqual(bsize, information.FileSystemBlockSize);
+                Assert.AreEqual(bfree, information.FreeBlocks);
+                Assert.AreEqual(ffree, information.FreeNodes);
+                Assert.IsFalse(information.IsReadOnly);
+                Assert.AreEqual(namemax, information.MaxNameLenght);
+                Assert.AreEqual(sid, information.Sid);
+                Assert.IsFalse(information.SupportsSetUid);
+                Assert.AreEqual(blocks, information.TotalBlocks);
+                Assert.AreEqual(files, information.TotalNodes);
+            }
         }
     }
 }

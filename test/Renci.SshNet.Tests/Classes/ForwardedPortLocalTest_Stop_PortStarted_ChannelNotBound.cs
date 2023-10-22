@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -16,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortLocal _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
 
@@ -45,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
-                random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
+                                             random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -56,8 +59,10 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
 
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port,
-                _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(),
+                                                    (uint) _localEndpoint.Port,
+                                                    _remoteEndpoint.Address.ToString(),
+                                                    (uint) _remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;

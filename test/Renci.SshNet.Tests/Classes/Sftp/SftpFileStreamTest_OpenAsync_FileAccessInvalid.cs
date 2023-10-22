@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             base.SetupData();
 
-            _random = new Random(CultureInfo.InvariantCulture);
+            _random = new Random();
             _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _fileMode = FileMode.Open;
             _fileAccess = (FileAccess) 666;

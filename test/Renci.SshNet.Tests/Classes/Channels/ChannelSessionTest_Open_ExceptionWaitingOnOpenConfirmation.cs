@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
-        private IList<ChannelEventArgs> _channelClosedRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private SemaphoreLight _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _sessionSemaphore = new SemaphoreLight(_initialSessionSemaphoreCount);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
-            _waitOnConfirmationException = new SystemException();
+            _waitOnConfirmationException = new InvalidOperationException();
         }
 
         protected override void SetupMocks()

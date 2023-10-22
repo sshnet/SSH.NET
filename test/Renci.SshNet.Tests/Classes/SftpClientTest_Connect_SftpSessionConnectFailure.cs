@@ -16,14 +16,14 @@ namespace Renci.SshNet.Tests.Classes
     public class SftpClientTest_Connect_SftpSessionConnectFailure : SftpClientTestBase
     {
         private ConnectionInfo _connectionInfo;
-        private ApplicationException _sftpSessionConnectionException;
+        private InvalidOperationException _sftpSessionConnectionException;
         private SftpClient _sftpClient;
-        private ApplicationException _actualException;
+        private InvalidOperationException _actualException;
 
         protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
-            _sftpSessionConnectionException = new ApplicationException();
+            _sftpSessionConnectionException = new InvalidOperationException();
         }
 
         protected override void SetupMocks()
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
                 _sftpClient.Connect();
                 Assert.Fail();
             }
-            catch (ApplicationException ex)
+            catch (InvalidOperationException ex)
             {
                 _actualException = ex;
             }
@@ -99,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _sftpClient.ErrorOccurred += (sender, args) => Interlocked.Increment(ref errorOccurredSignalCount);
 
-            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new InvalidOperationException()));
 
             Assert.AreEqual(0, errorOccurredSignalCount);
         }
@@ -125,11 +125,15 @@ namespace Renci.SshNet.Tests.Classes
             {
                 if (s is null)
                 {
+#pragma warning disable MA0015 // Specify the parameter name in ArgumentException
                     throw new ArgumentException($"Resource '{resourceName}' does not exist in assembly '{executingAssembly.GetName().Name}'.");
+#pragma warning restore MA0015 // Specify the parameter name in ArgumentException
                 }
 
-                var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
+                using (var privateKey = new PrivateKeyFile(s))
+                {
+                    return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();
+                }
             }
         }
     }

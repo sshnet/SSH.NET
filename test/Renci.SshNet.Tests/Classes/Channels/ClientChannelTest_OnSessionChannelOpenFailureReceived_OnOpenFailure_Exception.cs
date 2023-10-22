@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localWindowSize;
         private uint _localPacketSize;
         private ClientChannelStub _channel;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onOpenFailureException;
 
         [TestInitialize]
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _localWindowSize = (uint)random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
-            _onOpenFailureException = new SystemException();
+            _onOpenFailureException = new InvalidOperationException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);

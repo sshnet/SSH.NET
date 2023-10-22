@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    internal class SftpDataResponseBuilder
+    internal sealed class SftpDataResponseBuilder
     {
         private uint _protocolVersion;
         private uint _responseId;

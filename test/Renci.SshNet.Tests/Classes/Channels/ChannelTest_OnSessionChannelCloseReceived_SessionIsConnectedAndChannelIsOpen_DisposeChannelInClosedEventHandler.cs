@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private ChannelStub _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
         private List<ChannelEventArgs> _channelEndOfDataRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
         private bool _channelClosedWaitHandleSignaled;
 

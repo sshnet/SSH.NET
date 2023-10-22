@@ -22,8 +22,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
         private Socket _client;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private ManualResetEvent _exceptionFired;
         private TimeSpan _connectionTimeout;
 
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private void Act()
         {
-            var buffer = new byte[] {0x07};
+            var buffer = new byte[] { 0x07 };
             _client.Send(buffer, 0, buffer.Length, SocketFlags.None);
 
             // wait for Exception event to be fired as a way to ensure that SOCKS

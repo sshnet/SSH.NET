@@ -17,8 +17,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _endpoint;
 
         [TestInitialize]

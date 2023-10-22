@@ -102,8 +102,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

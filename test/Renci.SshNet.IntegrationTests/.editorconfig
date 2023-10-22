@@ -9,7 +9,25 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 
 ### StyleCop Analyzers rules ###
 
+# SA1123: Do not place regions within elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1123.md
+dotnet_diagnostic.SA1123.severity = suggestion
+
+#### Meziantou.Analyzer rules ####
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = suggestion
+
 #### .NET Compiler Platform analysers rules ####
+
+# CA1031: Do not catch general exception types
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1031
+dotnet_diagnostic.CA1031.severity = suggestion
+
+# CA2201: Do not raise reserved exception types
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca2201
+dotnet_diagnostic.CA2201.severity = suggestion
 
 # IDE0007: Use var instead of explicit type
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007

@@ -65,8 +65,10 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     _serverSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we can immediately send the bad
-                    // packet upon establishing the connection
+                    /*
+                     * Since we're mocking the protocol version exchange, we can immediately send the bad
+                     * packet upon establishing the connection.
+                     */
 
                     var badPacket = new byte[] { 0x0a, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05 };
 

@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private Stopwatch _closeTimer;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
         private List<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
 
         protected override void SetupData()
         {
@@ -59,6 +59,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                            new Thread(() =>
                            {
                                Thread.Sleep(100);
+
                                // raise ChannelCloseReceived event to set waithandle for receiving
                                // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
                                // sending the SSH_MSG_CHANNEL_CLOSE message to the server

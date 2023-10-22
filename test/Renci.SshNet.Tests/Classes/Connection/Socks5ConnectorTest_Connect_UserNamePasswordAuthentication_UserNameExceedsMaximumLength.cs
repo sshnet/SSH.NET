@@ -48,6 +48,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             {
                                 // SOCKS version
                                 0x05,
+
                                 // Username/password authentication
                                 0x02
                             });
@@ -102,10 +103,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 // SOCKS version
                 0x05,
+
                 // Number of authentication methods supported
                 0x02,
+
                 // No authentication
                 0x00,
+
                 // Username/password
                 0x02
             };
@@ -132,8 +136,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

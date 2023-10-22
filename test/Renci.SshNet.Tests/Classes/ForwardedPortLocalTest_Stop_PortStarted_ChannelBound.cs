@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -17,8 +20,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortLocal _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
         private Socket _client;
@@ -41,16 +44,19 @@ namespace Renci.SshNet.Tests.Classes
                 _client.Dispose();
                 _client = null;
             }
+
             if (_forwardedPort != null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+
             if (_channelBound != null)
             {
                 _channelBound.Dispose();
                 _channelBound = null;
             }
+
             if (_channelBindCompleted != null)
             {
                 _channelBindCompleted.Dispose();
@@ -114,8 +120,10 @@ namespace Renci.SshNet.Tests.Classes
 
             // start port
             _forwardedPort.Start();
+
             // connect to port
             _client.Connect(_localEndpoint);
+
             // wait for SOCKS client to bind to channel
             Assert.IsTrue(_channelBound.WaitOne(TimeSpan.FromMilliseconds(200)));
         }
@@ -157,11 +165,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BoundClientShouldNotBeClosed()
         {
-            // the forwarded port itself does not close the client connection; when the channel is closed properly
-            // it's the channel that will take care of closing the client connection
-            //
-            // we'll check if the client connection is still alive by attempting to receive, which should time out
-            // as the forwarded port (or its channel) are not sending anything
+            /*
+             * The forwarded port itself does not close the client connection; when the channel is closed properly
+             * it's the channel that will take care of closing the client connection.
+             *
+             * We'll check if the client connection is still alive by attempting to receive, which should time out
+             * as the forwarded port (or its channel) are not sending anything.
+             */
 
             var buffer = new byte[1];
 

@@ -6,11 +6,11 @@ using Renci.SshNet.IntegrationTests.Common;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class AuthenticationTests : IntegrationTestBase
+    public sealed class AuthenticationTests : IntegrationTestBase
     {
         private AuthenticationMethodFactory _authenticationMethodFactory;
-        private IConnectionInfoFactory _connectionInfoFactory;
-        private IConnectionInfoFactory _adminConnectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
+        private LinuxAdminConnectionFactory _adminConnectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
         [TestInitialize]
@@ -139,9 +139,9 @@ namespace Renci.SshNet.IntegrationTests
         public void Multifactor_KeyboardInteractiveAndPublicKey()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive,publickey")
-                             .WithChallengeResponseAuthentication(true)
-                             .WithKeyboardInteractiveAuthentication(true)
-                             .WithUsePAM(true)
+                             .WithChallengeResponseAuthentication(value: true)
+                             .WithKeyboardInteractiveAuthentication(value: true)
+                             .WithUsePAM(usePAM: true)
                              .Update()
                              .Restart();
 
@@ -182,8 +182,10 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Multifactor_Password_MatchPartialSuccessLimit()
         {
-            // configure server to require a number of successfull authentications from a given method that exactly
-            // matches our partial success limit (5)
+            /*
+             * Configure server to require a number of successfull authentications from a given method that exactly
+             * matches our partial success limit (5).
+             */
 
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "password,password,password,password,password")
                              .Update()
@@ -200,9 +202,9 @@ namespace Renci.SshNet.IntegrationTests
         public void Multifactor_Password_Or_PublicKeyAndKeyboardInteractive()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "password publickey,keyboard-interactive")
-                             .WithChallengeResponseAuthentication(true)
-                             .WithKeyboardInteractiveAuthentication(true)
-                             .WithUsePAM(true)
+                             .WithChallengeResponseAuthentication(value: true)
+                             .WithKeyboardInteractiveAuthentication(value: true)
+                             .WithUsePAM(usePAM: true)
                              .Update()
                              .Restart();
 
@@ -267,7 +269,6 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.AreEqual("Permission denied (password).", ex.Message);
                 }
             }
-
         }
 
         [TestMethod]
@@ -289,7 +290,6 @@ namespace Renci.SshNet.IntegrationTests
             {
                 client.Connect();
             }
-
         }
 
         [TestMethod]
@@ -424,6 +424,8 @@ namespace Renci.SshNet.IntegrationTests
 
             Assert.AreEqual(connectionInfo.Host, SshServerHostName);
             Assert.AreEqual(connectionInfo.Username, User.UserName);
+
+            connectionInfo.Dispose();
         }
     }
 }

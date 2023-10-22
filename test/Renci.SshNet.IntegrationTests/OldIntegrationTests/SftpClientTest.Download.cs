@@ -5,7 +5,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : IntegrationTestBase
+    public sealed partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
@@ -55,7 +55,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.BeginDownloadFile("aaaa", null, null, null);
+                sftp.BeginDownloadFile("aaaa", output: null, asyncCallback: null, state: null);
                 sftp.Disconnect();
             }
         }
@@ -69,7 +69,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.BeginDownloadFile("   ", new MemoryStream(), null, null);
+                sftp.BeginDownloadFile("   ", new MemoryStream(), asyncCallback: null, state: null);
                 sftp.Disconnect();
             }
         }
@@ -83,7 +83,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.BeginDownloadFile(null, new MemoryStream(), null, null);
+                sftp.BeginDownloadFile(path: null, new MemoryStream(), asyncCallback: null, state: null);
                 sftp.Disconnect();
             }
         }
@@ -98,9 +98,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 sftp.Connect();
                 var filename = Path.GetTempFileName();
                 CreateTestFile(filename, 1);
-                sftp.UploadFile(File.OpenRead(filename), "test123");
-                var async1 = sftp.BeginListDirectory("/", null, null);
-                var async2 = sftp.BeginDownloadFile("test123", new MemoryStream(), null, null);
+
+                using (var fs = File.OpenRead(filename))
+                {
+                    sftp.UploadFile(fs, "test123");
+                }
+
+                var async1 = sftp.BeginListDirectory("/", asyncCallback: null, state: null);
+                var async2 = sftp.BeginDownloadFile("test123", new MemoryStream(), asyncCallback: null, state: null);
                 sftp.EndDownloadFile(async1);
             }
         }

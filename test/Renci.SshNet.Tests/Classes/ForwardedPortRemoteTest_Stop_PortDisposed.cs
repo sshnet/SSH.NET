@@ -12,8 +12,8 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortRemote _forwardedPort;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
 
         [TestInitialize]
         public void Setup()
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -35,6 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));

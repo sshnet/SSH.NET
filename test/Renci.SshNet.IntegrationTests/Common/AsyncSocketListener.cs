@@ -6,9 +6,10 @@ namespace Renci.SshNet.IntegrationTests.Common
     public sealed class AsyncSocketListener : IDisposable
     {
         private readonly IPEndPoint _endPoint;
-        private ManualResetEvent _acceptCallbackDone;
         private readonly List<Socket> _connectedClients;
         private readonly object _syncLock;
+        private readonly ManualResetEvent _acceptCallbackDone;
+
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
@@ -17,9 +18,23 @@ namespace Renci.SshNet.IntegrationTests.Common
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
         public delegate void ConnectedHandler(Socket socket);
 
+#pragma warning disable CA1003 // Use generic event handler instances
+#pragma warning disable MA0046 // Use EventHandler<T> to declare events
         public event BytesReceivedHandler BytesReceived;
+#pragma warning restore MA0046 // Use EventHandler<T> to declare events
+#pragma warning restore CA1003 // Use generic event handler instances
+
+#pragma warning disable CA1003 // Use generic event handler instances
+#pragma warning disable MA0046 // Use EventHandler<T> to declare events
         public event ConnectedHandler Connected;
+#pragma warning restore MA0046 // Use EventHandler<T> to declare events
+#pragma warning restore CA1003 // Use generic event handler instances
+
+#pragma warning disable CA1003 // Use generic event handler instances
+#pragma warning disable MA0046 // Use EventHandler<T> to declare events
         public event ConnectedHandler Disconnected;
+#pragma warning restore MA0046 // Use EventHandler<T> to declare events
+#pragma warning restore CA1003 // Use generic event handler instances
 
         public AsyncSocketListener(IPEndPoint endPoint)
         {
@@ -98,6 +113,30 @@ namespace Renci.SshNet.IntegrationTests.Common
             GC.SuppressFinalize(this);
         }
 
+        private static void DrainSocket(Socket socket)
+        {
+            var buffer = new byte[128];
+
+            try
+            {
+                while (socket.Connected)
+                {
+                    var bytesRead = socket.Receive(buffer);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.Error.WriteLine("[{0}] Failure draining socket ({1}): {2}",
+                                        typeof(AsyncSocketListener).FullName,
+                                        ex.SocketErrorCode.ToString("G"),
+                                        ex);
+            }
+        }
+
         private void StartListener(object state)
         {
             try
@@ -148,9 +187,10 @@ namespace Renci.SshNet.IntegrationTests.Common
                 if (_started)
                 {
                     Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
-                        typeof(AsyncSocketListener).FullName,
-                        ex);
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
                 }
+
                 return;
             }
             catch (ObjectDisposedException ex)
@@ -165,9 +205,10 @@ namespace Renci.SshNet.IntegrationTests.Common
                 if (_started)
                 {
                     Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
-                        typeof(AsyncSocketListener).FullName,
-                        ex);
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
                 }
+
                 return;
             }
 
@@ -252,6 +293,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                                             typeof(AsyncSocketListener).FullName,
                                             ex);
                 }
+
                 return;
             }
             catch (ObjectDisposedException ex)
@@ -269,6 +311,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                                             typeof(AsyncSocketListener).FullName,
                                             ex);
                 }
+
                 return;
             }
 
@@ -333,7 +376,6 @@ namespace Renci.SshNet.IntegrationTests.Common
 
                     throw new InvalidOperationException("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
                 }
-
             }
             else
             {
@@ -356,31 +398,7 @@ namespace Renci.SshNet.IntegrationTests.Common
             Disconnected?.Invoke(client);
         }
 
-        private static void DrainSocket(Socket socket)
-        {
-            var buffer = new byte[128];
-
-            try
-            {
-                while (socket.Connected)
-                {
-                    var bytesRead = socket.Receive(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                }
-            }
-            catch (SocketException ex)
-            {
-                Console.Error.WriteLine("[{0}] Failure draining socket ({1}): {2}",
-                                        typeof(AsyncSocketListener).FullName,
-                                        ex.SocketErrorCode.ToString("G"),
-                                        ex);
-            }
-        }
-
-        private class SocketStateObject
+        private sealed class SocketStateObject
         {
             public Socket Socket { get; private set; }
 

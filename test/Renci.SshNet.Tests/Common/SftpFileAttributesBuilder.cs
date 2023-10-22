@@ -6,13 +6,13 @@ namespace Renci.SshNet.Tests.Common
 {
     public class SftpFileAttributesBuilder
     {
+        private readonly Dictionary<string, string> _extensions;
         private DateTime? _lastAccessTime;
         private DateTime? _lastWriteTime;
         private long? _size;
         private int? _userId;
         private int? _groupId;
         private uint? _permissions;
-        private readonly IDictionary<string, string> _extensions;
 
         public SftpFileAttributesBuilder()
         {

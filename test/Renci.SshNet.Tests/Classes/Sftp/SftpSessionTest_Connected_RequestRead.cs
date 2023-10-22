@@ -17,8 +17,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     [TestClass]
     public class SftpSessionTest_Connected_RequestRead
     {
-        #region SftpSession.Connect()
-
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
         private ISftpResponseFactory _sftpResponseFactory;
@@ -30,8 +28,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpVersionResponse _sftpVersionResponse;
         private byte[] _sftpRealPathRequestBytes;
         private SftpNameResponse _sftpNameResponse;
-
-        #endregion SftpSession.Connect()
 
         private byte[] _sftpReadRequestBytes;
         private byte[] _sftpDataResponseBytes;
@@ -51,8 +47,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private void SetupData()
         {
             var random = new Random();
-
-            #region SftpSession.Connect()
 
             _operationTimeout = random.Next(100, 500);
             _protocolVersion = (uint) random.Next(0, 3);
@@ -74,8 +68,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                              .WithEncoding(_encoding)
                                                              .WithFile("XYZ", SftpFileAttributes.Empty)
                                                              .Build();
-
-            #endregion SftpSession.Connect()
 
             _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
             _offset = (uint) random.Next(1, 5);
@@ -105,40 +97,46 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sequence = new MockSequence();
 
-            #region SftpSession.Connect()
-
-            _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest("sftp")).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes))
-                                                    .Callback(() =>
-                                                    {
-                                                        _channelSessionMock.Raise(c => c.DataReceived += null,
-                                                                                  new ChannelDataEventArgs(0, _sftpVersionResponse.GetBytes()));
-                                                    });
-            _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes))
-                                                    .Callback(() =>
-                                                    {
-                                                        _channelSessionMock.Raise(c => c.DataReceived += null,
-                                                                                  new ChannelDataEventArgs(0, _sftpNameResponse.GetBytes()));
-                                                    });
-
-            #endregion SftpSession.Connect()
-
-            _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes))
-                                                    .Callback(() =>
-                    {
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(0, 20)));
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(20, _sftpDataResponseBytes.Length - 20)));
-                    }
-                );
+            _sessionMock.InSequence(sequence)
+                        .Setup(p => p.CreateChannelSession())
+                        .Returns(_channelSessionMock.Object);
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.Open());
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.SendSubsystemRequest("sftp"))
+                               .Returns(true);
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.SendData(_sftpInitRequestBytes))
+                               .Callback(() =>
+                                    {
+                                        _channelSessionMock.Raise(c => c.DataReceived += null,
+                                                                  new ChannelDataEventArgs(0, _sftpVersionResponse.GetBytes()));
+                                    });
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.SendData(_sftpRealPathRequestBytes))
+                               .Callback(() =>
+                                    {
+                                        _channelSessionMock.Raise(c => c.DataReceived += null,
+                                                                  new ChannelDataEventArgs(0, _sftpNameResponse.GetBytes()));
+                                    });
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _channelSessionMock.InSequence(sequence)
+                               .Setup(p => p.SendData(_sftpReadRequestBytes))
+                               .Callback(() =>
+                                    {
+                                        _channelSessionMock.Raise(c => c.DataReceived += null,
+                                                                  new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(0, 20)));
+                                        _channelSessionMock.Raise(c => c.DataReceived += null,
+                                                                  new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(20, _sftpDataResponseBytes.Length - 20)));
+                                    });
         }
 
         private void Arrange()

@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 {
     public abstract class SftpFileReaderTestBase
     {
-        internal Mock<ISftpSession> SftpSessionMock {  get; private set;}
+        internal Mock<ISftpSession> SftpSessionMock { get; private set; }
 
         protected abstract void SetupData();
 
@@ -37,8 +37,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Act();
         }
 
-        protected abstract void Act();
-
         protected static SftpFileAttributes CreateSftpFileAttributes(long size)
         {
             var utcDefault = DateTime.SpecifyKind(default, DateTimeKind.Utc);
@@ -47,6 +45,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected static byte[] CreateByteArray(Random random, int length)
         {
+            if (random is null)
+            {
+                throw new ArgumentNullException(nameof(random));
+            }
+
             var chunk = new byte[length];
             random.NextBytes(chunk);
             return chunk;
@@ -63,5 +66,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             return result;
         }
+
+        protected abstract void Act();
     }
 }

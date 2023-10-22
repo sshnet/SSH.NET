@@ -14,8 +14,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
         private ForwardedPortLocal _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
 
@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
-                random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
+                                             random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);

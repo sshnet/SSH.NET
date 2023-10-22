@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _stopWatch.Stop();
             }
-            
+
             // Give some time to process all messages
             Thread.Sleep(200);
         }
@@ -116,8 +116,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

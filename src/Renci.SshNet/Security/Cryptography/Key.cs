@@ -14,7 +14,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Specifies array of big integers that represent private key.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger[] _privateKey;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the default digital signature implementation for this key.

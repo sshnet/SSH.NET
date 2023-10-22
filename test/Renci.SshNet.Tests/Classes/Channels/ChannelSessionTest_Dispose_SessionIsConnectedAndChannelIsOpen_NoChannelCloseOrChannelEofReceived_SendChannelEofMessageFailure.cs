@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteChannelNumber;
         private TimeSpan _channelCloseTimeout;
         private SemaphoreLight _sessionSemaphore;
-        private IList<ChannelEventArgs> _channelClosedRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
 
         protected override void SetupData()

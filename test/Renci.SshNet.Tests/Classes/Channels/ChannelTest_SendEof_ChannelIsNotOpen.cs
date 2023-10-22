@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localChannelNumber;
         private ChannelStub _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private InvalidOperationException _actualException;
 
         protected override void SetupData()

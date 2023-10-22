@@ -25,13 +25,13 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 };
 
             var input = Encoding.ASCII.GetBytes("www.javaCODEgeeks.com!!!");
-            var key = new byte[] {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef};
-            var iv = new byte[] {0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00};
+            var key = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
+            var iv = new byte[] { 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00 };
 
             var des = new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
             var actualCypher = des.Encrypt(input);
 
-            Assert.IsTrue((expectedCypher.IsEqualTo(actualCypher)));
+            Assert.IsTrue(expectedCypher.IsEqualTo(actualCypher));
         }
 
         [TestMethod]

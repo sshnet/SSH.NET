@@ -4,7 +4,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SSH client integration tests
     /// </summary>
     [TestClass]
-    public class SshClientTests : IntegrationTestBase, IDisposable
+    public sealed class SshClientTests : IntegrationTestBase, IDisposable
     {
         private readonly SshClient _sshClient;
 
@@ -22,7 +22,7 @@ namespace Renci.SshNet.IntegrationTests
 
             Assert.AreEqual("test !@#$%^&*()_+{}:,./<>[];\\|\n", response.Result);
         }
-    
+
         public void Dispose()
         {
             _sshClient.Disconnect();

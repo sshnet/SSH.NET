@@ -8,10 +8,10 @@ using Renci.SshNet.IntegrationTests.Common;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class SshTests : TestBase
+    public sealed class SshTests : TestBase
     {
-        private IConnectionInfoFactory _connectionInfoFactory;
-        private IConnectionInfoFactory _adminConnectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
+        private LinuxAdminConnectionFactory _adminConnectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
         [TestInitialize]
@@ -22,7 +22,7 @@ namespace Renci.SshNet.IntegrationTests
 
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
             _remoteSshdConfig.AllowTcpForwarding()
-                             .PrintMotd(false)
+                             .PrintMotd(value: false)
                              .Update()
                              .Restart();
         }
@@ -69,7 +69,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     var line = shellStream.ReadLine();
                     Assert.IsNotNull(line);
-                    Assert.IsTrue(line.EndsWith("Hello!"), line);
+                    Assert.IsTrue(line.EndsWith("Hello!", StringComparison.Ordinal), line);
 
                     // TODO: ReadLine should return null when the buffer is empty and the channel has been closed (issue #672)
                     try
@@ -77,9 +77,9 @@ namespace Renci.SshNet.IntegrationTests
                         line = shellStream.ReadLine();
                         Assert.Fail(line);
                     }
-                    catch (NullReferenceException)
+                    catch (NullReferenceException ex)
                     {
-
+                        Assert.IsNull(ex.InnerException);
                     }
                 }
             }
@@ -132,14 +132,16 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         shellStream.WriteLine(remoteFile);
                         Thread.Sleep(1200);
-                        using (var reader = new StreamReader(shellStream, new UTF8Encoding(false), false, 10))
+                        using (var reader = new StreamReader(shellStream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), detectEncodingFromByteOrderMarks: false, bufferSize: 10))
                         {
                             var lines = new List<string>();
                             string line = null;
-                            while ((line = reader.ReadLine()) != null)
+
+                            while ((line = reader.ReadLine()) is not null)
                             {
                                 lines.Add(line);
                             }
+
                             Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
                             Assert.AreEqual(expectedResult, string.Join("\n", lines));
                         }
@@ -169,11 +171,15 @@ namespace Renci.SshNet.IntegrationTests
                     var shell = client.CreateShell(input, output, extOutput);
                     shell.Start();
 
-                    var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
-                    inputWriter.WriteLine("echo $PATH");
+                    using (var inputWriter = new StreamWriter(input, Encoding.ASCII, bufferSize: 1024, leaveOpen: true))
+                    {
+                        inputWriter.WriteLine("echo $PATH");
+                    }
 
-                    var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
-                    Console.WriteLine(outputReader.ReadToEnd());
+                    using (var outputReader = new StreamReader(output, Encoding.ASCII, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true))
+                    {
+                        Console.WriteLine(outputReader.ReadToEnd());
+                    }
 
                     shell.Stop();
                 }
@@ -242,11 +248,11 @@ namespace Renci.SshNet.IntegrationTests
         /// Ignored for now, because:
         /// * OutputStream.Read(...) does not block when no data is available
         /// * SshCommand.(Begin)Execute consumes *OutputStream*, advancing its position.
-        /// 
+        ///
         /// https://github.com/sshnet/SSH.NET/issues/650
         /// </summary>
         [TestMethod]
-        [Ignore]
+        [Ignore("https://github.com/sshnet/SSH.NET/issues/650")]
         public void Ssh_Command_IntermittendOutput_OutputStream()
         {
             const string remoteFile = "/home/sshnet/test.sh";
@@ -290,11 +296,11 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         var asyncResult = command.BeginExecute();
 
-                        using (var reader = new StreamReader(command.OutputStream, new UTF8Encoding(false), false, 10))
+                        using (var reader = new StreamReader(command.OutputStream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), detectEncodingFromByteOrderMarks: false, bufferSize: 10))
                         {
                             var lines = new List<string>();
                             string line = null;
-                            while ((line = reader.ReadLine()) != null)
+                            while ((line = reader.ReadLine()) is not null)
                             {
                                 lines.Add(line);
                             }
@@ -331,20 +337,22 @@ namespace Renci.SshNet.IntegrationTests
                 client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                 client.Connect();
 
-                var forwardedPort = new ForwardedPortDynamic(1080);
-                forwardedPort.Exception += (sender, args) => Console.WriteLine(args.Exception.ToString());
-                client.AddForwardedPort(forwardedPort);
-                forwardedPort.Start();
+                using (var forwardedPort = new ForwardedPortDynamic(1080))
+                {
+                    forwardedPort.Exception += (sender, args) => Console.WriteLine(args.Exception.ToString());
+                    client.AddForwardedPort(forwardedPort);
+                    forwardedPort.Start();
 
-                var socksClient = new Socks5Handler(new IPEndPoint(IPAddress.Loopback, 1080),
-                                                    string.Empty,
-                                                    string.Empty);
+                    var socksClient = new Socks5Handler(new IPEndPoint(IPAddress.Loopback, 1080),
+                                                        string.Empty,
+                                                        string.Empty);
 
-                socksSocket = socksClient.Connect(hostName, 80);
-                socksSocket.Send(httpGetRequest);
+                    socksSocket = socksClient.Connect(hostName, 80);
+                    socksSocket.Send(httpGetRequest);
 
-                var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                Assert.IsTrue(httpResponse.Contains(searchText), httpResponse);
+                    var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
+                    Assert.IsTrue(httpResponse.Contains(searchText, StringComparison.Ordinal), httpResponse);
+                }
             }
 
             Assert.IsTrue(socksSocket.Connected);
@@ -376,7 +384,9 @@ namespace Renci.SshNet.IntegrationTests
                     client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                     client.Connect();
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
                     var forwardedPort = new ForwardedPortDynamic(1080);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     forwardedPort.Exception += (sender, args) => Console.WriteLine(args.Exception.ToString());
                     client.AddForwardedPort(forwardedPort);
                     forwardedPort.Start();
@@ -388,7 +398,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     socksSocket.Send(httpGetRequest);
                     var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                    Assert.IsTrue(httpResponse.Contains(searchText), httpResponse);
+                    Assert.IsTrue(httpResponse.Contains(searchText, StringComparison.Ordinal), httpResponse);
 
                     // Verify if port is still open
                     socksSocket.Send(httpGetRequest);
@@ -408,7 +418,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     socksSocket.Send(httpGetRequest);
                     httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                    Assert.IsTrue(httpResponse.Contains(searchText), httpResponse);
+                    Assert.IsTrue(httpResponse.Contains(searchText, StringComparison.Ordinal), httpResponse);
 
                     forwardedPort.Dispose();
 
@@ -417,7 +427,9 @@ namespace Renci.SshNet.IntegrationTests
                     // check if client socket was properly closed
                     Assert.AreEqual(0, socksSocket.Receive(new byte[1], 0, 1, SocketFlags.None));
 
+#pragma warning disable S3966 // Objects should not be disposed more than once
                     forwardedPort.Dispose();
+#pragma warning restore S3966 // Objects should not be disposed more than once
                 }
             }
             finally
@@ -445,7 +457,9 @@ namespace Renci.SshNet.IntegrationTests
                 client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                 client.Connect();
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
                 var forwardedPort = new ForwardedPortDynamic(1080);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 forwardedPort.Exception += (sender, args) => Console.WriteLine(args.Exception.ToString());
                 client.AddForwardedPort(forwardedPort);
                 forwardedPort.Start();
@@ -457,7 +471,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 socksSocket.Send(httpGetRequest);
                 var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                Assert.IsTrue(httpResponse.Contains(searchText), httpResponse);
+                Assert.IsTrue(httpResponse.Contains(searchText, StringComparison.Ordinal), httpResponse);
 
                 forwardedPort.Dispose();
 
@@ -501,7 +515,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                            var httpRequest = (HttpWebRequest) WebRequest.Create(new Uri("http://" + localEndPoint));
                             httpRequest.Host = hostName;
                             httpRequest.Method = "GET";
                             httpRequest.AllowAutoRedirect = false;
@@ -529,6 +543,8 @@ namespace Renci.SshNet.IntegrationTests
                         {
                             client.RemoveForwardedPort(forwardedPort);
                         }
+
+                        forwardedPort.Dispose();
                     }
                 }
             }
@@ -570,7 +586,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                        var httpRequest = (HttpWebRequest) WebRequest.Create(new Uri("http://" + localEndPoint));
                         httpRequest.Host = hostName;
                         httpRequest.Method = "GET";
                         httpRequest.Accept = "text/html";
@@ -599,6 +615,8 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         client.RemoveForwardedPort(forwardedPort);
                     }
+
+                    forwardedPort.Dispose();
                 }
             }
             finally
@@ -672,6 +690,9 @@ namespace Renci.SshNet.IntegrationTests
 
                 forwardedPort1.Stop();
                 forwardedPort2.Stop();
+
+                forwardedPort1.Dispose();
+                forwardedPort2.Dispose();
             }
 
             var textReceivedOnListener1 = Encoding.ASCII.GetString(bytesReceivedOnListener1.ToArray());
@@ -752,7 +773,7 @@ namespace Renci.SshNet.IntegrationTests
         /// <see langword="true"/> if an entry was added or updated in the specified hosts file; otherwise,
         /// <see langword="false"/>.
         /// </returns>
-        private static bool AddOrUpdateHostsEntry(IConnectionInfoFactory linuxAdminConnectionFactory,
+        private static bool AddOrUpdateHostsEntry(LinuxAdminConnectionFactory linuxAdminConnectionFactory,
                                                   IPAddress ipAddress,
                                                   string hostName)
         {
@@ -798,7 +819,7 @@ namespace Renci.SshNet.IntegrationTests
                                 continue;
                             }
 
-                            // If hostname is currently mapped to another IP address, then remove the 
+                            // If hostname is currently mapped to another IP address, then remove the
                             // current mapping
                             hostConfig.Entries.RemoveAt(i);
                         }
@@ -836,10 +857,7 @@ namespace Renci.SshNet.IntegrationTests
         /// <param name="linuxAdminConnectionFactory"></param>
         /// <param name="ipAddress"></param>
         /// <param name="hostName"></param>
-        /// <returns>
-        /// <see langword="true"/> if the hosts file was updated; otherwise, <see langword="false"/>.
-        /// </returns>
-        private static bool RemoveHostsEntry(IConnectionInfoFactory linuxAdminConnectionFactory,
+        private static void RemoveHostsEntry(LinuxAdminConnectionFactory linuxAdminConnectionFactory,
                                              IPAddress ipAddress,
                                              string hostName)
         {
@@ -852,9 +870,9 @@ namespace Renci.SshNet.IntegrationTests
                 var hostConfig = HostConfig.Read(client, hostsFile);
 
                 var hostEntry = hostConfig.Entries.SingleOrDefault(h => h.IPAddress.Equals(ipAddress));
-                if (hostEntry == null)
+                if (hostEntry is null)
                 {
-                    return false;
+                    return;
                 }
 
                 if (hostEntry.HostName == hostName)
@@ -912,12 +930,12 @@ namespace Renci.SshNet.IntegrationTests
 
                     if (!aliasRemoved)
                     {
-                        return false;
+                        return;
                     }
                 }
 
                 hostConfig.Write(client, hostsFile);
-                return true;
+                return;
             }
         }
 
@@ -951,7 +969,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        private static void CreateShellScript(IConnectionInfoFactory connectionInfoFactory, string remoteFile, string script)
+        private static void CreateShellScript(LinuxVMConnectionFactory connectionInfoFactory, string remoteFile, string script)
         {
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -14,8 +17,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _endpoint;
 
         [TestInitialize]
@@ -28,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;

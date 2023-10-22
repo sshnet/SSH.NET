@@ -6,8 +6,21 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {
+    /// <summary>
+    /// A factory for creating SFTP response messages.
+    /// </summary>
     internal sealed class SftpResponseFactory : ISftpResponseFactory
     {
+        /// <summary>
+        /// Creates a SFTP response message for the specified protocol version and message type, and
+        /// with the specified <see cref="Encoding"/>.
+        /// </summary>
+        /// <param name="protocolVersion">The protocol version.</param>
+        /// <param name="messageType">The message type.</param>
+        /// <param name="encoding">The <see cref="Encoding"/>.</param>
+        /// <returns>
+        /// A <see cref="SftpMessage"/>.
+        /// </returns>
         public SftpMessage Create(uint protocolVersion, byte messageType, Encoding encoding)
         {
             var sftpMessageType = (SftpMessageTypes) messageType;

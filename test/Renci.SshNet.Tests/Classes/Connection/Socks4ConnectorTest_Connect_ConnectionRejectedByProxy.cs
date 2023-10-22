@@ -43,8 +43,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             {
                                 // Reply version (null byte)
                                 0x00,
+
                                 // Connection refused
-                                 0x5b
+                                0x5b
                             });
                     }
 
@@ -105,8 +106,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

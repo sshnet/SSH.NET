@@ -9,8 +9,8 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortDynamicTest_Dispose_PortDisposed
     {
         private ForwardedPortDynamic _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
 
         [TestInitialize]
         public void Setup()

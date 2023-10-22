@@ -12,8 +12,8 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortRemote _forwardedPort;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
 
         [TestInitialize]
         public void Setup()
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -35,12 +35,17 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _remoteEndpoint  = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
+            _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
+                                              random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
-            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint) _bindEndpoint.Port, _remoteEndpoint.Address, (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address,
+                                                     (uint) _bindEndpoint.Port,
+                                                     _remoteEndpoint.Address,
+                                                     (uint) _remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Dispose();

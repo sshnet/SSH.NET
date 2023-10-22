@@ -39,6 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _handle = CreateByteArray(random, 5);
             _chunk1 = CreateByteArray(random, ChunkLength);
+
             // chunk is less than the requested length, but - together with chunk 1 - contains all data up to the EOF
             _chunk2 = CreateByteArray(random, ChunkLength - 10);
             _chunk3 = Array.Empty<byte>();

@@ -43,24 +43,26 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
                 if (_bytesReceivedByProxy.Count == 4)
                 {
-                    // We received the greeting
+                    /* We received the greeting */
 
                     _ = socket.Send(new byte[]
                         {
                             // SOCKS version
                             0x05,
+
                             // Require username/password authentication
                             0x02
                         });
                 }
                 else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + 2 + 1 + 4))
                 {
-                    // We received the username/password authentication request
+                    /* We received the username/password authentication request */
 
                     _ = socket.Send(new byte[]
                         {
                             // Authentication version
                             0x01,
+
                             // Authentication failed
                             0x01
                         });
@@ -112,31 +114,34 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             var expectedSocksRequest = new List<byte>();
 
-            //
-            // Client greeting
-            //
+            /* Client greeting */
 
             // SOCKS version
             expectedSocksRequest.Add(0x05);
+
             // Number of authentication methods supported
             expectedSocksRequest.Add(0x02);
+
             // No authentication
             expectedSocksRequest.Add(0x00);
+
             // Username/password
             expectedSocksRequest.Add(0x02);
 
-            //
-            // Username/password authentication request
-            //
+            /* Username/password authentication request */
 
             // Version of the negotiation
             expectedSocksRequest.Add(0x01);
+
             // Length of the username
             expectedSocksRequest.Add((byte) _connectionInfo.ProxyUsername.Length);
+
             // Username
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyUsername));
+
             // Length of the password
             expectedSocksRequest.Add((byte) _connectionInfo.ProxyPassword.Length);
+
             // Password
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyPassword));
 
@@ -162,8 +167,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = _clientSocket.Receive(Array.Empty<byte>());
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

@@ -23,20 +23,12 @@ namespace Renci.SshNet.Tests.Common
             OnCleanup();
         }
 
-        protected virtual void OnInit()
-        {
-        }
-
-        protected virtual void OnCleanup()
-        {
-        }
-
         /// <summary>
         /// Creates the test file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="size">Size in megabytes.</param>
-        protected void CreateTestFile(string fileName, int size)
+        protected static void CreateTestFile(string fileName, int size)
         {
             using (var testFile = File.Create(fileName))
             {
@@ -53,6 +45,14 @@ namespace Renci.SshNet.Tests.Common
         protected static Stream GetData(string name)
         {
             return ExecutingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
+        }
+
+        protected virtual void OnInit()
+        {
+        }
+
+        protected virtual void OnCleanup()
+        {
         }
     }
 }

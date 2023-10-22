@@ -44,16 +44,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _data = new byte[(_writeBufferSize * 2) + 15];
             _random.NextBytes(_data);
             _offset = _random.Next(1, 5);
+
             // to get multiple SSH_FXP_WRITE messages (and verify the offset is updated correctly), we make sure
             // the number of bytes to write is at least two times the write buffer size; we write a few extra bytes to
             // ensure the buffer is not empty after the writes so we can verify whether Length, Dispose and Flush
             // flush the buffer
             _count = ((int) _writeBufferSize * 2) + _random.Next(1, 5);
 
-            _expectedWrittenByteCount = (2 * _writeBufferSize);
-            _expectedBufferedByteCount = (int)(_count - _expectedWrittenByteCount);
-            _expectedBufferedBytes = _data.Take(_offset + (int)_expectedWrittenByteCount, _expectedBufferedByteCount);
-            _cancellationToken = new CancellationToken();
+            _expectedWrittenByteCount = 2 * _writeBufferSize;
+            _expectedBufferedByteCount = (int) (_count - _expectedWrittenByteCount);
+            _expectedBufferedBytes = _data.Take(_offset + (int) _expectedWrittenByteCount, _expectedBufferedByteCount);
+            _cancellationToken = default;
         }
 
         protected override void SetupMocks()
@@ -103,8 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override Task ActAsync()
         {
-            return _target.WriteAsync(_data, _offset, _count)
-                          .ConfigureAwait(continueOnCapturedContext: false);
+            return _target.WriteAsync(_data, _offset, _count);
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Callback<byte[], ulong, byte[], int, int, CancellationToken>((handle, serverFileOffset, data, offset, length, ct) => actualFlushedData = data.Take(offset, length))
                            .Returns(Task.CompletedTask);
 
-            await _target.FlushAsync();
+            await _target.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.IsTrue(actualFlushedData.IsEqualTo(_expectedBufferedBytes));
 

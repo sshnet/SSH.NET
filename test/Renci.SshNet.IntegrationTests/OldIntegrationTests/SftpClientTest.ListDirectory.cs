@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 
 using Renci.SshNet.Common;
 
@@ -7,7 +8,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : IntegrationTestBase
+    public sealed partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
@@ -57,14 +58,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var files = sftp.ListDirectory(".");
 
-                Assert.IsTrue(files.Count() > 0);
-
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.IsTrue(files.Any());
             }
         }
 
@@ -75,14 +69,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
                 var cts = new CancellationTokenSource();
                 cts.CancelAfter(TimeSpan.FromMinutes(1));
+
+                await sftp.ConnectAsync(cts.Token).ConfigureAwait(false);
+
                 var count = 0;
-                await foreach (var file in sftp.ListDirectoryAsync(".", cts.Token))
+                await foreach (var file in sftp.ListDirectoryAsync(".", cts.Token).ConfigureAwait(false))
                 {
                     count++;
-                    Debug.WriteLine(file.FullName);
                 }
 
                 Assert.IsTrue(count > 0);
@@ -102,14 +97,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var files = sftp.ListDirectory(string.Empty);
 
-                Assert.IsTrue(files.Count() > 0);
-
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.IsTrue(files.Any());
             }
         }
 
@@ -123,16 +111,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory(null);
+                var files = sftp.ListDirectory(path: null);
 
-                Assert.IsTrue(files.Count() > 0);
-
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.IsTrue(files.Any());
             }
         }
 
@@ -144,15 +125,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                //  Create 10000 directory items
-                for (int i = 0; i < 10000; i++)
+                // Create 10000 directory items
+                for (var i = 0; i < 10000; i++)
                 {
-                    sftp.CreateDirectory(string.Format("test_{0}", i));
+                    sftp.CreateDirectory(string.Format(CultureInfo.InvariantCulture, "test_{0}", i));
                 }
 
                 var files = sftp.ListDirectory(".");
 
-                //  Ensure that directory has at least 10000 items
+                // Ensure that directory has at least 10000 items
                 Assert.IsTrue(files.Count() > 10000);
 
                 sftp.Disconnect();
@@ -169,13 +150,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 sftp.CreateDirectory("test1");
 
                 sftp.ChangeDirectory("test1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 sftp.CreateDirectory("test1_1");
                 sftp.CreateDirectory("test1_2");
@@ -183,39 +164,39 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var files = sftp.ListDirectory(".");
 
-                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}", sftp.WorkingDirectory)));
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}", sftp.WorkingDirectory), StringComparison.Ordinal));
 
                 sftp.ChangeDirectory("test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("../test1_2");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("..");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("..");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 files = sftp.ListDirectory("test1/test1_1");
 
-                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}/test1/test1_1", sftp.WorkingDirectory)));
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}/test1/test1_1", sftp.WorkingDirectory), StringComparison.Ordinal));
 
                 sftp.ChangeDirectory("test1/test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("/home/sshnet/test1/test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("/home/sshnet/test1/test1_1/../test1_2");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("../../");
 
@@ -240,7 +221,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                sftp.ChangeDirectory(null);
+                sftp.ChangeDirectory(path: null);
 
                 sftp.Disconnect();
             }
@@ -255,7 +236,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                var ar = sftp.BeginListDirectory("/", null, null);
+                var ar = sftp.BeginListDirectory("/", asyncCallback: null, state: null);
                 var result = sftp.EndListDirectory(ar);
                 var result1 = sftp.EndListDirectory(ar);
             }

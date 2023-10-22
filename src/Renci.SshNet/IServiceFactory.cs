@@ -95,6 +95,12 @@ namespace Renci.SshNet
         /// </returns>
         ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
 
+        /// <summary>
+        /// Creates a new <see cref="ISftpResponseFactory"/> instance.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ISftpResponseFactory"/>.
+        /// </returns>
         ISftpResponseFactory CreateSftpResponseFactory();
 
         /// <summary>

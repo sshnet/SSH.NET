@@ -1,4 +1,6 @@
-﻿// Based in huge part on:
+﻿#pragma warning disable SA1636 // File header copyright text should match
+#pragma warning disable SA1515 // Single-line comment should be preceded by blank line
+// Based in huge part on:
 //
 // https://github.com/mono/mono/blob/master/mcs/class/System.Numerics/Test/System.Numerics/BigIntegerTest.cs
 //
@@ -6,14 +8,15 @@
 // Rodrigo Kumpera <rkumpera@novell.com>
 //
 // Copyright (C) 2010 Novell, Inc (http://www.novell.com)
-//
-
-//#define FEATURE_NUMERICS_BIGINTEGER
+#pragma warning restore SA1515 // Single-line comment should be preceded by blank line
+#pragma warning restore SA1636 // File header copyright text should match
 
 using System;
 using System.Globalization;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 #if FEATURE_NUMERICS_BIGINTEGER
 using BigInteger = System.Numerics.BigInteger;
@@ -21,13 +24,14 @@ using BigInteger = System.Numerics.BigInteger;
 using BigInteger = Renci.SshNet.Common.BigInteger;
 #endif
 
-
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     public class BigIntegerTest
     {
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] Huge_a =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0x1D, 0x33, 0xFB, 0xFE, 0xB1, 0x2, 0x85, 0x44, 0xCA, 0xDC, 0xFB, 0x70, 0xD, 0x39,
             0xB1, 0x47, 0xB6, 0xE6, 0xA2, 0xD1, 0x19, 0x1E, 0x9F, 0xE4, 0x3C, 0x1E, 0x16, 0x56, 0x13, 0x9C, 0x4D, 0xD3,
@@ -35,7 +39,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             0xF6, 0x8C
         };
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] Huge_b =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0x96, 0x5, 0xDA, 0xFE, 0x93, 0x17, 0xC1, 0x93, 0xEC, 0x2F, 0x30, 0x2D, 0x8F,
             0x28, 0x13, 0x99, 0x70, 0xF4, 0x4C, 0x60, 0xA6, 0x49, 0x24, 0xF9, 0xB3, 0x4A, 0x41, 0x67, 0xDC, 0xDD, 0xB1,
@@ -43,7 +49,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             0xA8, 0xC8, 0xB0, 0x20, 0x95, 0xE6, 0x4C, 0xE1, 0xE0, 0x4B, 0x49, 0xD5, 0x5A, 0xB7
         };
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] Huge_add =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0xB3, 0x38, 0xD5, 0xFD, 0x45, 0x1A, 0x46, 0xD8, 0xB6, 0xC, 0x2C, 0x9E, 0x9C,
             0x61, 0xC4, 0xE0, 0x26, 0xDB, 0xEF, 0x31, 0xC0, 0x67, 0xC3, 0xDD, 0xF0, 0x68, 0x57, 0xBD, 0xEF, 0x79, 0xFF,
@@ -51,7 +59,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             0x16, 0xBF, 0x3D, 0x20, 0x95, 0xE6, 0x4C, 0xE1, 0xE0, 0x4B, 0x49, 0xD5, 0x5A, 0xB7
         };
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] A_m_b =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0x87, 0x2D, 0x21, 0x0, 0x1E, 0xEB, 0xC3, 0xB0, 0xDD, 0xAC, 0xCB, 0x43, 0x7E, 0x10,
             0x9E, 0xAE, 0x45, 0xF2, 0x55, 0x71, 0x73, 0xD4, 0x7A, 0xEB, 0x88, 0xD3, 0xD4, 0xEE, 0x36, 0xBE, 0x9B, 0x2D,
@@ -59,7 +69,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             0x2D, 0xDC, 0xDE, 0x6A, 0x19, 0xB3, 0x1E, 0x1F, 0xB4, 0xB6, 0x2A, 0xA5, 0x48
         };
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] B_m_a =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0x79, 0xD2, 0xDE, 0xFF, 0xE1, 0x14, 0x3C, 0x4F, 0x22, 0x53, 0x34, 0xBC, 0x81,
             0xEF, 0x61, 0x51, 0xBA, 0xD, 0xAA, 0x8E, 0x8C, 0x2B, 0x85, 0x14, 0x77, 0x2C, 0x2B, 0x11, 0xC9, 0x41, 0x64,
@@ -67,7 +79,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             0x3B, 0xD2, 0x23, 0x21, 0x95, 0xE6, 0x4C, 0xE1, 0xE0, 0x4B, 0x49, 0xD5, 0x5A, 0xB7
         };
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] Huge_mul =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0xFE, 0x83, 0xE1, 0x9B, 0x8D, 0x61, 0x40, 0xD1, 0x60, 0x19, 0xBD, 0x38, 0xF0,
             0xFF, 0x90, 0xAE, 0xDD, 0xAE, 0x73, 0x2C, 0x20, 0x23, 0xCF, 0x6, 0x7A, 0xB4, 0x1C, 0xE7, 0xD9, 0x64, 0x96,
@@ -78,18 +92,31 @@ namespace Renci.SshNet.Tests.Classes.Common
             0x57, 0x40, 0x51, 0xB6, 0x5D, 0xC, 0x17, 0xD1, 0x86, 0xE9, 0xA4, 0x20
         };
 
-        private static readonly byte[] Huge_div = {0x0};
+#pragma warning disable SA1310 // Field names should not contain underscore
+        private static readonly byte[] Huge_div = { 0x0 };
+#pragma warning restore SA1310 // Field names should not contain underscore
 
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[] Huge_rem =
+#pragma warning restore SA1310 // Field names should not contain underscore
         {
             0x1D, 0x33, 0xFB, 0xFE, 0xB1, 0x2, 0x85, 0x44, 0xCA, 0xDC, 0xFB, 0x70, 0xD,
             0x39, 0xB1, 0x47, 0xB6, 0xE6, 0xA2, 0xD1, 0x19, 0x1E, 0x9F, 0xE4, 0x3C, 0x1E, 0x16, 0x56, 0x13, 0x9C, 0x4D,
             0xD3, 0x5C, 0x74, 0xC9, 0xBD, 0xFA, 0x56, 0x40, 0x58, 0xAC, 0x20, 0x6B, 0x55, 0xA2, 0xD5, 0x41, 0x38, 0xA4,
             0x6D, 0xF6, 0x8C
         };
+
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[][] Add_a = { new byte[] { 1 }, new byte[] { 0xFF }, Huge_a };
+#pragma warning restore SA1310 // Field names should not contain underscore
+
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[][] Add_b = { new byte[] { 1 }, new byte[] { 1 }, Huge_b };
+#pragma warning restore SA1310 // Field names should not contain underscore
+
+#pragma warning disable SA1310 // Field names should not contain underscore
         private static readonly byte[][] Add_c = { new byte[] { 2 }, new byte[] { 0 }, Huge_add };
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         private readonly NumberFormatInfo _nfi = NumberFormatInfo.InvariantInfo;
         private NumberFormatInfo _nfiUser;
@@ -186,7 +213,10 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.Pow(1, -1);
                 Assert.Fail("#1");
             }
-            catch (ArgumentOutOfRangeException) { }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             Assert.AreEqual(1, (int)BigInteger.Pow(99999, 0), "#2");
             Assert.AreEqual(99999, (int)BigInteger.Pow(99999, 1), "#5");
@@ -203,8 +233,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.ModPow(1, -1, 5);
                 Assert.Fail("#1");
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             try
@@ -212,8 +243,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.ModPow(1, 5, 0);
                 Assert.Fail("#2");
             }
-            catch (DivideByZeroException)
+            catch (DivideByZeroException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             Assert.AreEqual(4L, (long)BigInteger.ModPow(3, 2, 5), "#2");
@@ -290,8 +322,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.DivRem(100, 0, out var d);
                 Assert.Fail("#1");
             }
-            catch (DivideByZeroException)
+            catch (DivideByZeroException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -612,7 +645,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.AreEqual(a, b, "#1");
             Assert.AreNotEqual(a, c, "#2");
-            Assert.AreEqual(a, 10, "#3");
+            Assert.AreEqual(10, a, "#3");
         }
 
         [TestMethod]
@@ -681,7 +714,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                     Assert.AreEqual(val, (long) b, "#b_" + val);
                     Assert.AreEqual(a, b, "#a  == #b (" + val + ")");
                 }
-                catch (Exception e)
+                catch (AssertFailedException e)
                 {
                     Assert.Fail("Failed to roundtrip {0}: {1}", val, e);
                 }
@@ -748,12 +781,12 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsTrue(new BigInteger(1).IsOne, "#7");
             Assert.IsTrue(new BigInteger(32).IsPowerOfTwo, "#8");
             Assert.IsTrue(new BigInteger(0).IsZero, "#9");
-            Assert.IsTrue(new BigInteger().IsZero, "#9b");
+            Assert.IsTrue(default(BigInteger).IsZero, "#9b");
             Assert.AreEqual(0, new BigInteger(0).Sign, "#10");
             Assert.AreEqual(-1, new BigInteger(-99999).Sign, "#11");
 
             Assert.IsFalse(new BigInteger(0).IsPowerOfTwo, "#12");
-            Assert.IsFalse(new BigInteger().IsPowerOfTwo, "#12b");
+            Assert.IsFalse(default(BigInteger).IsPowerOfTwo, "#12b");
             Assert.IsFalse(new BigInteger(-16).IsPowerOfTwo, "#13");
             Assert.IsTrue(new BigInteger(1).IsPowerOfTwo, "#14");
         }
@@ -772,16 +805,12 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("0000000005", new BigInteger(5).ToString("d10"), "#2");
             Assert.AreEqual("0A8", new BigInteger(168).ToString("X"), "#3");
             Assert.AreEqual("0", new BigInteger(0).ToString("X"), "#4");
-            Assert.AreEqual("0", new BigInteger().ToString("X"), "#4b");
+            Assert.AreEqual("0", default(BigInteger).ToString("X"), "#4b");
             Assert.AreEqual("1", new BigInteger(1).ToString("X"), "#5");
             Assert.AreEqual("0A", new BigInteger(10).ToString("X"), "#6");
             Assert.AreEqual("F6", new BigInteger(-10).ToString("X"), "#7");
-
             Assert.AreEqual("10000000000000000000000000000000000000000000000000000000", BigInteger.Pow(10, 55).ToString("G"), "#8");
-
             Assert.AreEqual("10000000000000000000000000000000000000000000000000000000", BigInteger.Pow(10, 55).ToString("R"), "#9");
-
-
             Assert.AreEqual("000000000A", new BigInteger(10).ToString("X10"), "#10");
             Assert.AreEqual("0000000010", new BigInteger(10).ToString("G10"), "#11");
         }
@@ -817,7 +846,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             info = new NumberFormatInfo();
 
             Assert.AreEqual("-10", new BigInteger(-10).ToString(info), "#2");
-
         }
 
         [TestMethod]
@@ -828,26 +856,34 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = (int) new BigInteger(Huge_a);
                 Assert.Fail("#1");
             }
-            catch (OverflowException) { }
+            catch (OverflowException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = (int) new BigInteger(1L + int.MaxValue);
                 Assert.Fail("#2");
             }
-            catch (OverflowException) { }
+            catch (OverflowException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = (int) new BigInteger(-1L + int.MinValue);
                 Assert.Fail("#3");
             }
-            catch (OverflowException) { }
+            catch (OverflowException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             Assert.AreEqual(int.MaxValue, (int)new BigInteger(int.MaxValue), "#4");
             Assert.AreEqual(int.MinValue, (int)new BigInteger(int.MinValue), "#5");
         }
-
 
         [TestMethod]
         public void TestToLongOperator()
@@ -857,8 +893,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = (long) new BigInteger(Huge_a);
                 Assert.Fail("#1");
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             // long.MaxValue + 1
@@ -867,18 +904,20 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = (long) new BigInteger(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00 });
                 Assert.Fail("#2");
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
-            // TODO long.MinValue - 1
+            // long.MinValue - 1
             try
             {
                 _ = (long) new BigInteger(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF });
                 Assert.Fail("#3");
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             Assert.AreEqual(long.MaxValue, (long)new BigInteger(long.MaxValue), "#4");
@@ -900,7 +939,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             AssertEqual(new byte[] { 0x7F }, new BigInteger(0x7F).ToByteArray());
             AssertEqual(new byte[] { 0x45, 0xCC, 0xD0 }, new BigInteger(-0x2F33BB).ToByteArray());
             AssertEqual(new byte[] { 0 }, new BigInteger(0).ToByteArray());
-            AssertEqual(new byte[] { 0 }, new BigInteger().ToByteArray());
+            AssertEqual(new byte[] { 0 }, default(BigInteger).ToByteArray());
         }
 
         [TestMethod]
@@ -949,14 +988,20 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = (short) new BigInteger(10000000);
                 Assert.Fail("#3");
             }
-            catch (OverflowException) { }
+            catch (OverflowException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = (short) new BigInteger(-10000000);
                 Assert.Fail("#4");
             }
-            catch (OverflowException) { }
+            catch (OverflowException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
         }
 
         [TestMethod]
@@ -967,8 +1012,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = new BigInteger(double.NaN);
                 Assert.Fail();
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -980,8 +1026,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = new BigInteger(double.NegativeInfinity);
                 Assert.Fail();
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -993,8 +1040,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = new BigInteger(double.PositiveInfinity);
                 Assert.Fail();
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -1060,8 +1108,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var x = (decimal) BigInteger.Pow(2, 1024);
                 Assert.Fail("#2: " + x);
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             try
@@ -1069,15 +1118,16 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var x = (decimal) BigInteger.Pow(-2, 1025);
                 Assert.Fail("#3: " + x);
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
-            Assert.AreEqual(0m, (decimal)new BigInteger(0), "#4");
-            Assert.AreEqual(1m, (decimal)new BigInteger(1), "#5");
-            Assert.AreEqual(-1m, (decimal)new BigInteger(-1), "#6");
+            Assert.AreEqual(0m, (decimal) new BigInteger(0), "#4");
+            Assert.AreEqual(1m, (decimal) new BigInteger(1), "#5");
+            Assert.AreEqual(-1m, (decimal) new BigInteger(-1), "#6");
             Assert.AreEqual(9999999999999999999999999999m, (decimal)new BigInteger(9999999999999999999999999999m), "#7");
-            Assert.AreEqual(0m, (decimal)new BigInteger(), "#8");
+            Assert.AreEqual(0m, (decimal) default(BigInteger), "#8");
         }
 
         [TestMethod]
@@ -1088,43 +1138,61 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.Parse(null);
                 Assert.Fail("#1");
             }
-            catch (ArgumentNullException) { }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("x", ex.ParamName);
+            }
 
             try
             {
                 _ = BigInteger.Parse(string.Empty);
                 Assert.Fail("#2");
             }
-            catch (FormatException) { }
-
+            catch (FormatException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = BigInteger.Parse("  ");
                 Assert.Fail("#3");
             }
-            catch (FormatException) { }
+            catch (FormatException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = BigInteger.Parse("hh");
                 Assert.Fail("#4");
             }
-            catch (FormatException) { }
+            catch (FormatException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = BigInteger.Parse("-");
                 Assert.Fail("#5");
             }
-            catch (FormatException) { }
+            catch (FormatException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             try
             {
                 _ = BigInteger.Parse("-+");
                 Assert.Fail("#6");
             }
-            catch (FormatException) { }
+            catch (FormatException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+            }
 
             Assert.AreEqual(10, (int)BigInteger.Parse("+10"), "#7");
             Assert.AreEqual(10, (int)BigInteger.Parse("10 "), "#8");
@@ -1144,7 +1212,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.AreEqual(300000, (int)BigInteger.Parse("3E5", NumberStyles.AllowExponent), "#20");
             var dsep = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
-            Assert.AreEqual(250, (int)BigInteger.Parse("2" + dsep + "5E2", NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint), "#21");//2.5E2 = 250
+            Assert.AreEqual(250, (int)BigInteger.Parse("2" + dsep + "5E2", NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint), "#21"); // 2.5E2 = 250
             Assert.AreEqual(25, (int)BigInteger.Parse("2500E-2", NumberStyles.AllowExponent), "#22");
 
             Assert.AreEqual("136236974127783066520110477975349088954559032721408", BigInteger.Parse("136236974127783066520110477975349088954559032721408", NumberStyles.None).ToString(), "#23");
@@ -1155,8 +1223,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = BigInteger.Parse("2E3.0", NumberStyles.AllowExponent); // decimal notation for the exponent
                 Assert.Fail("#25");
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
 
             try
@@ -1164,8 +1233,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _ = int.Parse("2" + dsep + "09E1", NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
                 Assert.Fail("#26");
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -1402,7 +1472,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("136236974127783066520110477975349088954559032721408", (v << 69).ToString(), "#69");
         }
 
-
         [TestMethod]
         public void RightShiftByInt()
         {
@@ -1500,54 +1569,54 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void DefaultCtorWorks()
         {
-            var a = new BigInteger();
+            var a = default(BigInteger);
             Assert.AreEqual(BigInteger.One, ++a, "#1");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(BigInteger.MinusOne, --a, "#2");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(BigInteger.MinusOne, ~a, "#3");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual("0", a.ToString(), "#4");
 
-            a = new BigInteger();
+            a = default;
 #pragma warning disable CS1718 // Comparison made to same variable
             Assert.AreEqual(true, a == a, "#5");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(false, a < a, "#6");
 #pragma warning restore CS1718 // Comparison made to same variable
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(true, a < 10L, "#7");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(true, a.IsEven, "#8");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(0, (int)a, "#9");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(0U, (uint) a, "#10");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(0UL, (ulong)a, "#11");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(true, a.Equals(a), "#12");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(a, BigInteger.Min(a, a), "#13");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(a, BigInteger.GreatestCommonDivisor(a, a), "#14");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(BigInteger.Zero.GetHashCode(), a.GetHashCode(), "#15");
 
-            a = new BigInteger();
+            a = default;
             Assert.AreEqual(BigInteger.Zero, a, "#16");
         }
 
@@ -1563,8 +1632,10 @@ namespace Renci.SshNet.Tests.Classes.Common
                 x = (long)x;
                 Assert.Fail("#2 Must OVF: " + x);
             }
-            catch (OverflowException)
+            catch (OverflowException ex)
             {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(string.Empty, ex.Message);
             }
         }
 
@@ -1631,7 +1702,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 var randomValue = BigInteger.Random(bitLength);
 
-                //clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
+                // clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
                 clientExchangeValue = (group ^ randomValue) % prime;
             }
             while (clientExchangeValue < 1 || clientExchangeValue > (prime - 1));
@@ -1651,7 +1722,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 var randomValue = BigInteger.Random(bitLength);
 
-                //clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
+                // clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
                 clientExchangeValue = (group ^ randomValue) % prime;
             }
             while (clientExchangeValue < 1 || clientExchangeValue > (prime - 1));
@@ -1671,7 +1742,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 var randomValue = BigInteger.Random(bitLength);
 
-                //clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
+                // clientExchangeValue = BigInteger.ModPow(group, randomValue, prime);
                 clientExchangeValue = (group ^ randomValue) % prime;
             }
             while (clientExchangeValue < 1 || clientExchangeValue > (prime - 1));

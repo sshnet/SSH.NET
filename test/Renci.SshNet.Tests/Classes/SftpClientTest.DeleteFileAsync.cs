@@ -20,7 +20,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                await sftp.DeleteFileAsync(null, default);
+                await sftp.DeleteFileAsync(null, default)
+                          .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
     }

@@ -3,7 +3,6 @@ using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
@@ -38,8 +37,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _countdownEvent.AddCount();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -73,8 +73,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var set = _countdownEvent.Signal();
                 Assert.Fail("Should have thrown ObjectDisposedException, but returned: " + set);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -86,8 +87,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var set = _countdownEvent.Wait(TimeSpan.FromSeconds(5));
                 Assert.Fail("Should have thrown ObjectDisposedException, but returned: " + set);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -99,8 +101,9 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var waitHandle = _countdownEvent.WaitHandle;
                 Assert.Fail("Should have thrown ObjectDisposedException, but returned: " + waitHandle);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
     }

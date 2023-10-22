@@ -154,7 +154,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = PacketDump.Create(data, 2);
 
             Assert.AreEqual(expected, actual);
-
         }
     }
 }

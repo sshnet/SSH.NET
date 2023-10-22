@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpFileReader _reader;
         private ObjectDisposedException _actualException;
         private AsyncCallback _readAsyncCallback;
-        private EventWaitHandle _disposeCompleted;
+        private ManualResetEvent _disposeCompleted;
 
         [TestCleanup]
         public void TearDown()

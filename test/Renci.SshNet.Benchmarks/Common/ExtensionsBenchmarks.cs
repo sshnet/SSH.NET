@@ -7,7 +7,7 @@ namespace Renci.SshNet.Benchmarks.Common
         private byte[]? _data;
 
         [Params(1000, 10000)]
-        public int N;
+        public int N { get; set; }
 
         [GlobalSetup]
         public void Setup()

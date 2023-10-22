@@ -20,33 +20,33 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void BigEndianToUInt32()
         {
-            Assert.AreEqual(0U, Pack.BigEndianToUInt32(new byte[] {0, 0, 0, 0}));
-            Assert.AreEqual(1U, Pack.BigEndianToUInt32(new byte[] {0, 0, 0, 1}));
-            Assert.AreEqual(256U, Pack.BigEndianToUInt32(new byte[] {0, 0, 1, 0}));
-            Assert.AreEqual(257U, Pack.BigEndianToUInt32(new byte[] {0, 0, 1, 1}));
-            Assert.AreEqual(1025U, Pack.BigEndianToUInt32(new byte[] {0, 0, 4, 1}));
-            Assert.AreEqual(65536U, Pack.BigEndianToUInt32(new byte[] {0, 1, 0, 0}));
-            Assert.AreEqual(133124U, Pack.BigEndianToUInt32(new byte[] {0, 2, 8, 4}));
-            Assert.AreEqual(16777216U, Pack.BigEndianToUInt32(new byte[] {1, 0, 0, 0}));
-            Assert.AreEqual(uint.MaxValue, Pack.BigEndianToUInt32(new byte[] {255, 255, 255, 255}));
+            Assert.AreEqual(0U, Pack.BigEndianToUInt32(new byte[] { 0, 0, 0, 0 }));
+            Assert.AreEqual(1U, Pack.BigEndianToUInt32(new byte[] { 0, 0, 0, 1 }));
+            Assert.AreEqual(256U, Pack.BigEndianToUInt32(new byte[] { 0, 0, 1, 0 }));
+            Assert.AreEqual(257U, Pack.BigEndianToUInt32(new byte[] { 0, 0, 1, 1 }));
+            Assert.AreEqual(1025U, Pack.BigEndianToUInt32(new byte[] { 0, 0, 4, 1 }));
+            Assert.AreEqual(65536U, Pack.BigEndianToUInt32(new byte[] { 0, 1, 0, 0 }));
+            Assert.AreEqual(133124U, Pack.BigEndianToUInt32(new byte[] { 0, 2, 8, 4 }));
+            Assert.AreEqual(16777216U, Pack.BigEndianToUInt32(new byte[] { 1, 0, 0, 0 }));
+            Assert.AreEqual(uint.MaxValue, Pack.BigEndianToUInt32(new byte[] { 255, 255, 255, 255 }));
         }
 
         [TestMethod]
         public void BigEndianToUInt64()
         {
-            Assert.AreEqual(0UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}));
-            Assert.AreEqual(1UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 0, 0, 1}));
-            Assert.AreEqual(256UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 0, 1, 0}));
-            Assert.AreEqual(257UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 0, 1, 1}));
-            Assert.AreEqual(65536UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 1, 0, 0}));
-            Assert.AreEqual(133124UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 0, 2, 8, 4}));
-            Assert.AreEqual(16777216UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 0, 1, 0, 0, 0}));
-            Assert.AreEqual(4294967296UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 0, 1, 0, 0, 0, 0}));
-            Assert.AreEqual(1099511627776UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 1, 0, 0, 0, 0, 0}));
-            Assert.AreEqual(1099511892096UL, Pack.BigEndianToUInt64(new byte[] {0, 0, 1, 0, 0, 4, 8, 128}));
-            Assert.AreEqual(1099511627776UL * 256, Pack.BigEndianToUInt64(new byte[] {0, 1, 0, 0, 0, 0, 0, 0}));
-            Assert.AreEqual(1099511627776UL * 256 * 256, Pack.BigEndianToUInt64(new byte[] {1, 0, 0, 0, 0, 0, 0, 0}));
-            Assert.AreEqual(ulong.MaxValue, Pack.BigEndianToUInt64(new byte[] {255, 255, 255, 255, 255, 255, 255, 255}));
+            Assert.AreEqual(0UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }));
+            Assert.AreEqual(1UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }));
+            Assert.AreEqual(256UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 0, 1, 0 }));
+            Assert.AreEqual(257UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 0, 1, 1 }));
+            Assert.AreEqual(65536UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 1, 0, 0 }));
+            Assert.AreEqual(133124UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 0, 2, 8, 4 }));
+            Assert.AreEqual(16777216UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 0, 1, 0, 0, 0 }));
+            Assert.AreEqual(4294967296UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 0, 1, 0, 0, 0, 0 }));
+            Assert.AreEqual(1099511627776UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 1, 0, 0, 0, 0, 0 }));
+            Assert.AreEqual(1099511892096UL, Pack.BigEndianToUInt64(new byte[] { 0, 0, 1, 0, 0, 4, 8, 128 }));
+            Assert.AreEqual(1099511627776UL * 256, Pack.BigEndianToUInt64(new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }));
+            Assert.AreEqual(1099511627776UL * 256 * 256, Pack.BigEndianToUInt64(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }));
+            Assert.AreEqual(ulong.MaxValue, Pack.BigEndianToUInt64(new byte[] { 255, 255, 255, 255, 255, 255, 255, 255 }));
         }
 
         [TestMethod]

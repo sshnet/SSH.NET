@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes
             _netConfClient = null;
 
             // We need to dereference all mocks as they might otherwise hold the target alive
-            //(through recorded invocations?)
+            // (through recorded invocations?)
             CreateMocks();
         }
 

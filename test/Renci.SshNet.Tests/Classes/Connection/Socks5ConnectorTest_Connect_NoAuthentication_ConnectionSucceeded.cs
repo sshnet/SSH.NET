@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks5Connector_Connect_NoAuthentication_Succeed : Socks5ConnectorTestBase
+    public class Socks5ConnectorTest_Connect_NoAuthentication_ConnectionSucceeded : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;
@@ -40,26 +40,29 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
                 if (_bytesReceivedByProxy.Count == 4)
                 {
-                    // We received the greeting
+                    /* We received the greeting */
 
                     _ = socket.Send(new byte[]
                         {
                                     // SOCKS version
                                     0x05,
+
                                     // Require no authentication
                                     0x00
                         });
                 }
                 else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + 1 + 1 + 4 + 2))
                 {
-                    // We received the connection request
+                    /* We received the connection request */
 
                     _ = socket.Send(new byte[]
                         {
                                     // SOCKS version
                                     0x05,
+
                                     // Connection successful
                                     0x00,
+
                                     // Reserved byte
                                     0x00,
                         });
@@ -69,6 +72,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                         {
                                     // IPv6
                                     0x04,
+
                                     // IP address
                                     0x01,
                                     0x02,
@@ -86,6 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                     0x52,
                                     0x12,
                                     0x91,
+
                                     // Port
                                     0x0f,
                                     0x1b,
@@ -146,40 +151,43 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             var expectedSocksRequest = new byte[]
                 {
-                    //
-                    // Client greeting
-                    //
+                    /* Client greeting */
 
                     // SOCKS version
                     0x05,
+
                     // Number of authentication methods supported
                     0x02,
+
                     // No authentication
                     0x00,
+
                     // Username/password
                     0x02,
 
-                    //
-                    // Client connection request
-                    //
+                    /* Client connection request */
 
                     // SOCKS version
                     0x05,
+
                     // Establish a TCP/IP stream connection
                     0x01,
+
                     // Reserved
                     0x00,
+
                     // Destination address type (IPv4)
                     0x01,
+
                     // Destination address (IPv4)
                     0x7f,
                     0x00,
                     0x00,
                     0x01,
+
                     // Destination port
                     0x03,
                     0x09
-
                 };
 
             var errorText = string.Format("Expected:{0}{1}{0}but was:{0}{2}",

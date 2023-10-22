@@ -10,36 +10,51 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public async Task ConnectAsync_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
-            var connectionInfo = new ConnectionInfo(Guid.NewGuid().ToString("N"), 40, "user",
-                new KeyboardInteractiveAuthenticationMethod("user"));
-            var sftpClient = new SftpClient(connectionInfo);
+            var connectionInfo = new ConnectionInfo(Guid.NewGuid().ToString("N"),
+                                                    40,
+                                                    "user",
+                                                    new KeyboardInteractiveAuthenticationMethod("user"));
 
-            try
+            using (var sftpClient = new SftpClient(connectionInfo))
             {
-                await sftpClient.ConnectAsync(default);
-                Assert.Fail();
-            }
-            catch (SocketException ex)
-            {
-                Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                try
+                {
+                    await sftpClient.ConnectAsync(cancellationToken: default)
+                                    .ConfigureAwait(continueOnCapturedContext: false);
+                    Assert.Fail();
+                }
+                catch (SocketException ex)
+                {
+                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                }
             }
         }
 
         [TestMethod]
         public async Task ConnectAsync_ProxyHostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
-            var connectionInfo = new ConnectionInfo("localhost", 40, "user", ProxyTypes.Http, Guid.NewGuid().ToString("N"), 80,
-                "proxyUser", "proxyPwd", new KeyboardInteractiveAuthenticationMethod("user"));
-            var sftpClient = new SftpClient(connectionInfo);
+            var connectionInfo = new ConnectionInfo("localhost",
+                                                    40,
+                                                    "user",
+                                                    ProxyTypes.Http,
+                                                    Guid.NewGuid().ToString("N"),
+                                                    80,
+                                                    "proxyUser",
+                                                    "proxyPwd",
+                                                    new KeyboardInteractiveAuthenticationMethod("user"));
 
-            try
+            using (var sftpClient = new SftpClient(connectionInfo))
             {
-                await sftpClient.ConnectAsync(default);
-                Assert.Fail();
-            }
-            catch (SocketException ex)
-            {
-                Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                try
+                {
+                    await sftpClient.ConnectAsync(cancellationToken: default)
+                                    .ConfigureAwait(continueOnCapturedContext: false);
+                    Assert.Fail();
+                }
+                catch (SocketException ex)
+                {
+                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                }
             }
         }
     }

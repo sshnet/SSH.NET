@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             try
             {
-                new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
+                _ = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -94,26 +94,27 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual(ChannelOpenMessage.MessageNumber, sshDataStream.ReadByte());
 
-            Assert.AreEqual(ChannelOpenMessage.MessageNumber, sshDataStream.ReadByte());
+                var actualChannelTypeLength = sshDataStream.ReadUInt32();
+                Assert.AreEqual((uint) target.ChannelType.Length, actualChannelTypeLength);
 
-            var actualChannelTypeLength = sshDataStream.ReadUInt32();
-            Assert.AreEqual((uint) target.ChannelType.Length, actualChannelTypeLength);
+                var actualChannelType = new byte[actualChannelTypeLength];
+                sshDataStream.Read(actualChannelType, 0, (int) actualChannelTypeLength);
+                Assert.IsTrue(target.ChannelType.SequenceEqual(actualChannelType));
 
-            var actualChannelType = new byte[actualChannelTypeLength];
-            sshDataStream.Read(actualChannelType, 0, (int) actualChannelTypeLength);
-            Assert.IsTrue(target.ChannelType.SequenceEqual(actualChannelType));
+                Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
+                Assert.AreEqual(initialWindowSize, sshDataStream.ReadUInt32());
+                Assert.AreEqual(maximumPacketSize, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
-            Assert.AreEqual(initialWindowSize, sshDataStream.ReadUInt32());
-            Assert.AreEqual(maximumPacketSize, sshDataStream.ReadUInt32());
+                var actualInfo = new byte[infoBytes.Length];
+                sshDataStream.Read(actualInfo, 0, actualInfo.Length);
+                Assert.IsTrue(infoBytes.SequenceEqual(actualInfo));
 
-            var actualInfo = new byte[infoBytes.Length];
-            sshDataStream.Read(actualInfo, 0, actualInfo.Length);
-            Assert.IsTrue(infoBytes.SequenceEqual(actualInfo));
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
 
         [TestMethod]
@@ -193,7 +194,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             Assert.AreEqual(info.ChannelType, sessionChannelOpenInfo.ChannelType);
         }
 
-
         [TestMethod]
         public void Load_X11ChannelOpenInfo()
         {
@@ -228,25 +228,28 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var channelName = "dunno_" + _random.Next().ToString(CultureInfo.InvariantCulture);
             var channelType = _ascii.GetBytes(channelName);
 
-            var sshDataStream = new SshDataStream(1 + 4 + channelType.Length + 4 + 4 + 4);
-            sshDataStream.WriteByte(ChannelOpenMessage.MessageNumber);
-            sshDataStream.Write((uint) channelType.Length);
-            sshDataStream.Write(channelType, 0, channelType.Length);
-            sshDataStream.Write(localChannelNumber);
-            sshDataStream.Write(initialWindowSize);
-            sshDataStream.Write(maximumPacketSize);
-            var bytes = sshDataStream.ToArray();
-            var target = new ChannelOpenMessage();
+            using (var sshDataStream = new SshDataStream(1 + 4 + channelType.Length + 4 + 4 + 4))
+            {
+                sshDataStream.WriteByte(ChannelOpenMessage.MessageNumber);
+                sshDataStream.Write((uint) channelType.Length);
+                sshDataStream.Write(channelType, 0, channelType.Length);
+                sshDataStream.Write(localChannelNumber);
+                sshDataStream.Write(initialWindowSize);
+                sshDataStream.Write(maximumPacketSize);
 
-            try
-            {
-                target.Load(bytes, 1, bytes.Length - 1); // skip message type
-                Assert.Fail();
-            }
-            catch (NotSupportedException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format("Channel type '{0}' is not supported.", channelName), ex.Message);
+                var bytes = sshDataStream.ToArray();
+                var target = new ChannelOpenMessage();
+
+                try
+                {
+                    target.Load(bytes, 1, bytes.Length - 1); // skip message type
+                    Assert.Fail();
+                }
+                catch (NotSupportedException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual(string.Format("Channel type '{0}' is not supported.", channelName), ex.Message);
+                }
             }
         }
     }

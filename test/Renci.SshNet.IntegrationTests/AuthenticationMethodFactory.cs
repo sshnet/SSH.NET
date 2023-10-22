@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class AuthenticationMethodFactory
+    public sealed class AuthenticationMethodFactory : IAuthenticationMethodFactory
     {
         public PasswordAuthenticationMethod CreatePowerUserPasswordAuthenticationMethod()
         {
@@ -29,7 +29,7 @@
 
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod()
         {
-            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa_with_pass", null);
+            var privateKeyFile = GetPrivateKey("Renci.SshNet.IntegrationTests.resources.client.id_rsa_with_pass", passPhrase: null);
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
@@ -74,10 +74,11 @@
         {
             var type = GetType();
             var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
+            if (resourceStream is null)
             {
                 throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
             }
+
             return resourceStream;
         }
     }

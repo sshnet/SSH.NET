@@ -2227,6 +2227,7 @@ namespace Renci.SshNet
                 #region Upload the difference
 
                 const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
+
                 do
                 {
                     var localFile = sourceFiles.Current;
@@ -2246,9 +2247,12 @@ namespace Renci.SshNet
                     if (isDifferent)
                     {
                         var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+
                         try
                         {
+#pragma warning disable CA2000 // CA2000: Use recommended dispose pattern; Remove this when we swith to newer SDK in which analyzer bug is fixed
                             using (var file = File.OpenRead(localFile.FullName))
+#pragma warning restore CA2000 // CA2000: Use recommended dispose pattern; Remove this when we swith to newer SDK in which analyzer bug is fixed
                             {
                                 InternalUploadFile(file, remoteFileName, uploadFlag, asyncResult: null, uploadCallback: null);
                             }

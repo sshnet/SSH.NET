@@ -4,10 +4,10 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    [TestClass()]
+    [TestClass]
     public class CommandAsyncResultTest : TestBase
     {
-        [TestMethod()]
+        [TestMethod]
         public void BytesSentTest()
         {
             var target = new CommandAsyncResult();
@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(expected, target.BytesSent);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void BytesReceivedTest()
         {
             var target = new CommandAsyncResult();

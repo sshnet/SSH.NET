@@ -9,7 +9,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Represents SSH command that can be executed.
     /// </summary>
     [TestClass]
-    public class SshCommandTest : IntegrationTestBase
+    public sealed class SshCommandTest : IntegrationTestBase
     {
         [TestMethod]
         public void Test_Run_SingleCommand()
@@ -150,10 +150,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cmd = client.CreateCommand(";");
                 cmd.Execute();
+
                 if (string.IsNullOrEmpty(cmd.Error))
                 {
                     Assert.Fail("Operation should fail");
                 }
+
                 Assert.IsTrue(cmd.ExitStatus > 0);
 
                 client.Disconnect();
@@ -168,10 +170,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 var cmd = client.CreateCommand(";");
                 cmd.Execute();
+
                 if (string.IsNullOrEmpty(cmd.Error))
                 {
                     Assert.Fail("Operation should fail");
                 }
+
                 Assert.IsTrue(cmd.ExitStatus > 0);
 
                 var result = ExecuteTestCommand(client);
@@ -316,13 +320,21 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var currentThreadId = Thread.CurrentThread.ManagedThreadId;
-                int callbackThreadId = 0;
+#if NET || NETSTANDARD2_1_OR_GREATER
+                var currentThreadId = Environment.CurrentManagedThreadId;
+#else
+                var currentThreadId = callbackThreadId = Thread.CurrentThread.ManagedThreadId;
+#endif // NET || NETSTANDARD2_1_OR_GREATER
 
+                var callbackThreadId = 0;
                 var cmd = client.CreateCommand("sleep 5s; echo 'test'");
                 var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
                                                     {
+#if NET || NETSTANDARD2_1_OR_GREATER
+                                                        callbackThreadId = Environment.CurrentManagedThreadId;
+#else
                                                         callbackThreadId = Thread.CurrentThread.ManagedThreadId;
+#endif // NET || NETSTANDARD2_1_OR_GREATER
                                                     }),
                                                    state: null);
                 while (!asyncResult.IsCompleted)
@@ -400,7 +412,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         /// <summary>
         /// A test for BeginExecute
         /// </summary>
-        [TestMethod()]
+        [TestMethod]
         public void BeginExecuteTest()
         {
             string expected = "123\n";

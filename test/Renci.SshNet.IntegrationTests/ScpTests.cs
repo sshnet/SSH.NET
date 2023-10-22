@@ -5,11 +5,10 @@ namespace Renci.SshNet.IntegrationTests
     // TODO SCP: UPLOAD / DOWNLOAD ZERO LENGTH FILES
     // TODO SCP: UPLOAD / DOWNLOAD EMPTY DIRECTORY
     // TODO SCP: UPLOAD DIRECTORY THAT ALREADY EXISTS ON REMOTE HOST
-
     [TestClass]
-    public class ScpTests : TestBase
+    public sealed class ScpTests : TestBase
     {
-        private IConnectionInfoFactory _connectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
         private IRemotePathTransformation _remotePathTransformation;
 
         [TestInitialize]
@@ -38,6 +37,16 @@ namespace Renci.SshNet.IntegrationTests
                                                               string remotePath,
                                                               string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -125,6 +134,16 @@ namespace Renci.SshNet.IntegrationTests
                                                          string remotePath,
                                                          string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -251,7 +270,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
@@ -326,7 +345,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
@@ -357,6 +376,11 @@ namespace Renci.SshNet.IntegrationTests
         public void Scp_Download_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                  string remotePath)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
             var localDirectory = Path.GetTempFileName();
             File.Delete(localDirectory);
             Directory.CreateDirectory(localDirectory);
@@ -458,7 +482,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
@@ -514,6 +538,16 @@ namespace Renci.SshNet.IntegrationTests
                                                                 string remotePath,
                                                                 string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(remotePath);
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(remoteFile);
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -599,6 +633,16 @@ namespace Renci.SshNet.IntegrationTests
                                                            string remotePath,
                                                            string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -684,6 +728,11 @@ namespace Renci.SshNet.IntegrationTests
         public void Scp_Download_FileInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                             string remotePath)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
             // remove complete directory if it's not the home directory of the user
             // or else remove the remote file
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -769,6 +818,16 @@ namespace Renci.SshNet.IntegrationTests
                                                        string remoteFile,
                                                        int size)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -871,6 +930,11 @@ namespace Renci.SshNet.IntegrationTests
         public void Scp_Download_Stream_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                           string remotePath)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(remotePath);
+            }
+
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
@@ -894,7 +958,7 @@ namespace Renci.SshNet.IntegrationTests
                 using (var fs = File.OpenWrite(file))
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {
-                    if (remotePathTransformation != null)
+                    if (remotePathTransformation is not null)
                     {
                         client.RemotePathTransformation = remotePathTransformation;
                     }
@@ -955,6 +1019,16 @@ namespace Renci.SshNet.IntegrationTests
                                                      string remoteFile,
                                                      int size)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             // remove complete directory if it's not the home directory of the user
@@ -1054,6 +1128,16 @@ namespace Renci.SshNet.IntegrationTests
                                                                 string remotePath,
                                                                 string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1295,6 +1379,16 @@ namespace Renci.SshNet.IntegrationTests
                                                            string remoteFile,
                                                            int size)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1406,6 +1500,16 @@ namespace Renci.SshNet.IntegrationTests
                                                               string remotePath,
                                                               string remoteFile)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1665,6 +1769,16 @@ namespace Renci.SshNet.IntegrationTests
                                                          string remoteFile,
                                                          int size)
         {
+            if (remotePath is null)
+            {
+                throw new ArgumentNullException(nameof(remotePath));
+            }
+
+            if (remoteFile is null)
+            {
+                throw new ArgumentNullException(nameof(remoteFile));
+            }
+
             var completeRemotePath = CombinePaths(remotePath, remoteFile);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1857,7 +1971,12 @@ namespace Renci.SshNet.IntegrationTests
         public void Scp_Upload_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                string remoteDirectory)
         {
-            string absoluteRemoteDirectory = GetAbsoluteRemotePath(_connectionInfoFactory, remoteDirectory);
+            if (remoteDirectory is null)
+            {
+                throw new ArgumentNullException(remoteDirectory);
+            }
+
+            var absoluteRemoteDirectory = GetAbsoluteRemotePath(_connectionInfoFactory, remoteDirectory);
 
             var remotePathFile1 = CombinePaths(remoteDirectory, "file1");
             var remotePathFile2 = CombinePaths(remoteDirectory, "file2");
@@ -1877,22 +1996,27 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.DeleteFile(remotePathSubFile1);
                 }
+
                 if (client.Exists(remotePathSubFile2))
                 {
                     client.DeleteFile(remotePathSubFile2);
                 }
+
                 if (client.Exists(remoteSubDirectory1))
                 {
                     client.DeleteDirectory(remoteSubDirectory1);
                 }
+
                 if (client.Exists(remoteSubDirectory2))
                 {
                     client.DeleteDirectory(remoteSubDirectory2);
                 }
+
                 if (client.Exists(remotePathFile1))
                 {
                     client.DeleteFile(remotePathFile1);
                 }
+
                 if (client.Exists(remotePathFile2))
                 {
                     client.DeleteFile(remotePathFile2);
@@ -2014,7 +2138,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
@@ -2024,22 +2148,27 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         client.DeleteFile(remotePathSubFile1);
                     }
+
                     if (client.Exists(remotePathSubFile2))
                     {
                         client.DeleteFile(remotePathSubFile2);
                     }
+
                     if (client.Exists(remoteSubDirectory1))
                     {
                         client.DeleteDirectory(remoteSubDirectory1);
                     }
+
                     if (client.Exists(remoteSubDirectory2))
                     {
                         client.DeleteDirectory(remoteSubDirectory2);
                     }
+
                     if (client.Exists(remotePathFile1))
                     {
                         client.DeleteFile(remotePathFile1);
                     }
+
                     if (client.Exists(remotePathFile2))
                     {
                         client.DeleteFile(remotePathFile2);
@@ -2073,6 +2202,11 @@ namespace Renci.SshNet.IntegrationTests
         public void Scp_Upload_DirectoryInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                           string remoteDirectory)
         {
+            if (remoteDirectory is null)
+            {
+                throw new ArgumentNullException(nameof(remoteDirectory));
+            }
+
             var remotePathFile1 = CombinePaths(remoteDirectory, "file1");
             var remotePathFile2 = CombinePaths(remoteDirectory, "file2");
 
@@ -2102,7 +2236,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {
-                    if (remotePathTransformation != null)
+                    if (remotePathTransformation is not null)
                     {
                         client.RemotePathTransformation = remotePathTransformation;
                     }
@@ -2125,7 +2259,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                Directory.Delete(localDirectory, true);
+                Directory.Delete(localDirectory, recursive: true);
 
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
@@ -2135,11 +2269,13 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         client.DeleteFile(remotePathFile1);
                     }
+
                     if (client.Exists(remotePathFile2))
                     {
                         client.DeleteFile(remotePathFile2);
                     }
-                    if (client.Exists((remoteDirectory)))
+
+                    if (client.Exists(remoteDirectory))
                     {
                         client.DeleteFile(remoteDirectory);
                     }
@@ -2242,12 +2378,7 @@ namespace Renci.SshNet.IntegrationTests
 
         private static IEnumerable<object[]> GetScpDownloadStreamExistingFileData()
         {
-            yield return new object[] { null, string.Empty, "file 123", 0 };
-            yield return new object[] { null, string.Empty, "file 123", 1024 };
-            yield return new object[] { RemotePathTransformation.ShellQuote, string.Empty, "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
-            yield return new object[] { null, "/home/sshnet/scp test", "file 123", 1024 };
-            yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/dir|&;<>()$`\"'sp\u0100ce \\tab\tlf\n*?[#~=%", "file123", 1024 };
-            yield return new object[] { RemotePathTransformation.ShellQuote, "/home/sshnet/scp-test", "file|&;<>()$`\"'sp\u0100ce \\tab\tlf*?[#~=%", 1024 };
+            return GetScpDownloadFileInfoExistingFileData();
         }
 
         private static IEnumerable<object[]> GetScpUploadFileStreamDirectoryDoesNotExistData()
@@ -2320,7 +2451,7 @@ namespace Renci.SshNet.IntegrationTests
             return absolutePath + "/" + fileName;
         }
 
-        private static string GetAbsoluteRemotePath(IConnectionInfoFactory connectionInfoFactory, string directoryName)
+        private static string GetAbsoluteRemotePath(LinuxVMConnectionFactory connectionInfoFactory, string directoryName)
         {
             var absolutePath = string.Empty;
 

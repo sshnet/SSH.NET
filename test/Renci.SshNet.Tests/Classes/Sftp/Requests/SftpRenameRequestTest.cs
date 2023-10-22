@@ -64,7 +64,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             request.Complete(statusResponse);
 
             Assert.AreEqual(1, statusActionInvocations.Count);
+#pragma warning disable S4158 // Empty collections should not be accessed or iterated
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
+#pragma warning restore S4158 // Empty collections should not be accessed or iterated
         }
 
         [TestMethod]

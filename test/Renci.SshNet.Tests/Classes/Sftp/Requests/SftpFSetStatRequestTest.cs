@@ -75,22 +75,23 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
+                Assert.AreEqual((byte) SftpMessageTypes.FSetStat, sshDataStream.ReadByte());
+                Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.FSetStat, sshDataStream.ReadByte());
-            Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
+                Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
+                var actualHandle = new byte[_handle.Length];
+                sshDataStream.Read(actualHandle, 0, actualHandle.Length);
+                Assert.IsTrue(_handle.SequenceEqual(actualHandle));
 
-            Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
-            var actualHandle = new byte[_handle.Length];
-            sshDataStream.Read(actualHandle, 0, actualHandle.Length);
-            Assert.IsTrue(_handle.SequenceEqual(actualHandle));
+                var actualAttributes = new byte[_attributesBytes.Length];
+                sshDataStream.Read(actualAttributes, 0, actualAttributes.Length);
+                Assert.IsTrue(_attributesBytes.SequenceEqual(actualAttributes));
 
-            var actualAttributes = new byte[_attributesBytes.Length];
-            sshDataStream.Read(actualAttributes, 0, actualAttributes.Length);
-            Assert.IsTrue(_attributesBytes.SequenceEqual(actualAttributes));
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
     }
 }

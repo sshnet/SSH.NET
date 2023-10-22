@@ -11,6 +11,7 @@ namespace Renci.SshNet.Security.Cryptography
     public class RsaDigitalSignature : CipherDigitalSignature, IDisposable
     {
         private HashAlgorithm _hash;
+        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class with the SHA-1 hash algorithm.
@@ -34,6 +35,15 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Hashes the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
@@ -43,19 +53,6 @@ namespace Renci.SshNet.Security.Cryptography
         protected override byte[] Hash(byte[] input)
         {
             return _hash.ComputeHash(input);
-        }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -81,7 +78,5 @@ namespace Renci.SshNet.Security.Cryptography
                 _isDisposed = true;
             }
         }
-
-        #endregion
     }
 }

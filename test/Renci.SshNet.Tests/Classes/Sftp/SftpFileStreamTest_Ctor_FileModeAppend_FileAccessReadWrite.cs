@@ -33,14 +33,20 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void Act()
         {
+            SftpFileStream fs = null;
+
             try
             {
-                new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
+                fs = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
                 _actualException = ex;
+            }
+            finally
+            {
+                fs?.Dispose();
             }
         }
 

@@ -21,8 +21,8 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortRemote _forwardedPort;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private SshConnectionException _actualException;
 
         [TestInitialize]
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _ = _sessionMock.Setup(p => p.ConnectionInfo)
                                 .Returns(_connectionInfoMock.Object);
@@ -61,7 +61,10 @@ namespace Renci.SshNet.Tests.Classes
             _ = _sessionMock.Setup(p => p.IsConnected)
                             .Returns(false);
 
-            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port); 
+            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address,
+                                                     (uint)_bindEndpoint.Port,
+                                                     _remoteEndpoint.Address,
+                                                     (uint)_remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
@@ -104,12 +107,12 @@ namespace Renci.SshNet.Tests.Classes
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
 
             _ = _sessionMock.Setup(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
-            
+
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                    new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize,
-                    new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress,
-                        originatorPort))));
+                               new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber,
+                                                                                               initialWindowSize,
+                                                                                               maximumPacketSize,
+                                                                                               new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress, originatorPort))));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
             _sessionMock.Verify(p => p.SendMessage(new ChannelOpenFailureMessage(channelNumber, string.Empty, ChannelOpenFailureMessage.AdministrativelyProhibited)), Times.Never);

@@ -1,9 +1,7 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class LinuxVMConnectionFactory : IConnectionInfoFactory
+    public sealed class LinuxVMConnectionFactory : IConnectionInfoFactory
     {
-        
-
         private const string ProxyHost = "127.0.0.1";
         private const int ProxyPort = 1234;
         private const string ProxyUserName = "test";
@@ -11,7 +9,6 @@
         private readonly string _host;
         private readonly int _port;
         private readonly AuthenticationMethodFactory _authenticationMethodFactory;
-
 
         public LinuxVMConnectionFactory(string sshServerHostName, ushort sshServerPort)
         {
@@ -59,4 +56,3 @@
         }
     }
 }
-

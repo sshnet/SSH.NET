@@ -25,13 +25,13 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 stream.Write(testBuffer, 0, testBuffer.Length);
 
-                Assert.AreEqual(stream.Length, testBuffer.Length);
+                Assert.AreEqual(testBuffer.Length, stream.Length);
 
                 _ = stream.Read(outputBuffer, 0, outputBuffer.Length);
 
-                Assert.AreEqual(stream.Length, 0);
+                Assert.AreEqual(0, stream.Length);
 
-                Assert.IsTrue(testBuffer.IsEqualTo(outputBuffer));
+                CollectionAssert.AreEqual(testBuffer, outputBuffer);
             }
         }
 
@@ -45,11 +45,11 @@ namespace Renci.SshNet.Tests.Classes.Common
             using (var stream = new PipeStream())
             {
                 stream.Write(testBuffer, 0, testBuffer.Length);
-                Assert.AreEqual(stream.Length, testBuffer.Length);
+                Assert.AreEqual(testBuffer.Length, stream.Length);
                 _ = stream.ReadByte();
-                Assert.AreEqual(stream.Length, testBuffer.Length - 1);
+                Assert.AreEqual(testBuffer.Length - 1, stream.Length);
                 _ = stream.ReadByte();
-                Assert.AreEqual(stream.Length, testBuffer.Length - 2);
+                Assert.AreEqual(testBuffer.Length - 2, stream.Length);
             }
         }
 
@@ -58,123 +58,137 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             const int sleepTime = 100;
 
-            var target = new PipeStream();
-            target.WriteByte(0x0a);
-            target.WriteByte(0x0d);
-            target.WriteByte(0x09);
+            using (var target = new PipeStream())
+            {
+                target.WriteByte(0x0a);
+                target.WriteByte(0x0d);
+                target.WriteByte(0x09);
 
-            var readBuffer = new byte[2];
-            var bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
-            Assert.AreEqual(2, bytesRead);
-            Assert.AreEqual(0x0a, readBuffer[0]);
-            Assert.AreEqual(0x0d, readBuffer[1]);
+                var readBuffer = new byte[2];
+                var bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
+                Assert.AreEqual(2, bytesRead);
+                Assert.AreEqual(0x0a, readBuffer[0]);
+                Assert.AreEqual(0x0d, readBuffer[1]);
 
-            var writeToStreamThread = new Thread(
-                () =>
+                var writeToStreamThread = new Thread(() =>
                     {
                         Thread.Sleep(sleepTime);
-                        var writeBuffer = new byte[] {0x05, 0x03};
+                        var writeBuffer = new byte[] { 0x05, 0x03 };
                         target.Write(writeBuffer, 0, writeBuffer.Length);
                     });
-            writeToStreamThread.Start();
+                writeToStreamThread.Start();
 
-            readBuffer = new byte[2];
-            bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
-            Assert.AreEqual(2, bytesRead);
-            Assert.AreEqual(0x09, readBuffer[0]);
-            Assert.AreEqual(0x05, readBuffer[1]);
+                readBuffer = new byte[2];
+                bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
+                Assert.AreEqual(2, bytesRead);
+                Assert.AreEqual(0x09, readBuffer[0]);
+                Assert.AreEqual(0x05, readBuffer[1]);
+            }
         }
 
         [TestMethod]
         public void SeekShouldThrowNotSupportedException()
         {
             const long offset = 0;
-            const SeekOrigin origin = new SeekOrigin();
-            var target = new PipeStream();
+            const SeekOrigin origin = default;
 
-            try
+            using (var target = new PipeStream())
             {
-                _ = target.Seek(offset, origin);
-                Assert.Fail();
+                try
+                {
+                    _ = target.Seek(offset, origin);
+                    Assert.Fail();
+                }
+                catch (NotSupportedException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                }
             }
-            catch (NotSupportedException)
-            {
-            }
-
         }
 
         [TestMethod]
         public void SetLengthShouldThrowNotSupportedException()
         {
-            var target = new PipeStream();
-
-            try
+            using (var target = new PipeStream())
             {
-                target.SetLength(1);
-                Assert.Fail();
-            }
-            catch (NotSupportedException)
-            {
+                try
+                {
+                    target.SetLength(1);
+                    Assert.Fail();
+                }
+                catch (NotSupportedException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                }
             }
         }
 
         [TestMethod]
         public void WriteTest()
         {
-            var target = new PipeStream();
+            using (var target = new PipeStream())
+            {
+                var writeBuffer = new byte[] { 0x0a, 0x05, 0x0d };
+                target.Write(writeBuffer, 0, 2);
 
-            var writeBuffer = new byte[] {0x0a, 0x05, 0x0d};
-            target.Write(writeBuffer, 0, 2);
+                writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };
+                target.Write(writeBuffer, 1, 2);
 
-            writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };
-            target.Write(writeBuffer, 1, 2);
+                var readBuffer = new byte[6];
+                var bytesRead = target.Read(readBuffer, 0, 4);
 
-            var readBuffer = new byte[6];
-            var bytesRead = target.Read(readBuffer, 0, 4);
-
-            Assert.AreEqual(4, bytesRead);
-            Assert.AreEqual(0x0a, readBuffer[0]);
-            Assert.AreEqual(0x05, readBuffer[1]);
-            Assert.AreEqual(0x04, readBuffer[2]);
-            Assert.AreEqual(0x03, readBuffer[3]);
-            Assert.AreEqual(0x00, readBuffer[4]);
-            Assert.AreEqual(0x00, readBuffer[5]);
+                Assert.AreEqual(4, bytesRead);
+                Assert.AreEqual(0x0a, readBuffer[0]);
+                Assert.AreEqual(0x05, readBuffer[1]);
+                Assert.AreEqual(0x04, readBuffer[2]);
+                Assert.AreEqual(0x03, readBuffer[3]);
+                Assert.AreEqual(0x00, readBuffer[4]);
+                Assert.AreEqual(0x00, readBuffer[5]);
+            }
         }
 
         [TestMethod]
         public void CanReadTest()
         {
-            var target = new PipeStream();
-            Assert.IsTrue(target.CanRead);
+            using (var target = new PipeStream())
+            {
+                Assert.IsTrue(target.CanRead);
+            }
         }
 
         [TestMethod]
         public void CanSeekTest()
         {
-            var target = new PipeStream(); // TODO: Initialize to an appropriate value
-            Assert.IsFalse(target.CanSeek);
+            using (var target = new PipeStream())
+            {
+                Assert.IsFalse(target.CanSeek);
+            }
         }
 
         [TestMethod]
         public void CanWriteTest()
         {
-            var target = new PipeStream();
-            Assert.IsTrue(target.CanWrite);
+            using (var target = new PipeStream())
+            {
+                Assert.IsTrue(target.CanWrite);
+            }
         }
 
         [TestMethod]
         public void LengthTest()
         {
-            var target = new PipeStream();
-            Assert.AreEqual(0L, target.Length);
-            target.Write(new byte[] { 0x0a, 0x05, 0x0d }, 0, 2);
-            Assert.AreEqual(2L, target.Length);
-            target.WriteByte(0x0a);
-            Assert.AreEqual(3L, target.Length);
-            _ = target.Read(new byte[2], 0, 2);
-            Assert.AreEqual(1L, target.Length);
-            _ = target.ReadByte();
-            Assert.AreEqual(0L, target.Length);
+            using (var target = new PipeStream())
+            {
+                Assert.AreEqual(0L, target.Length);
+                target.Write(new byte[] { 0x0a, 0x05, 0x0d }, 0, 2);
+                Assert.AreEqual(2L, target.Length);
+                target.WriteByte(0x0a);
+                Assert.AreEqual(3L, target.Length);
+                _ = target.Read(new byte[2], 0, 2);
+                Assert.AreEqual(1L, target.Length);
+                _ = target.ReadByte();
+                Assert.AreEqual(0L, target.Length);
+            }
         }
 
         /// <summary>
@@ -183,36 +197,41 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void MaxBufferLengthTest()
         {
-            var target = new PipeStream();
-            Assert.AreEqual(200 * 1024 * 1024, target.MaxBufferLength);
-            target.MaxBufferLength = 0L;
-            Assert.AreEqual(0L, target.MaxBufferLength);
+            using (var target = new PipeStream())
+            {
+                Assert.AreEqual(200 * 1024 * 1024, target.MaxBufferLength);
+                target.MaxBufferLength = 0L;
+                Assert.AreEqual(0L, target.MaxBufferLength);
+            }
         }
 
         [TestMethod]
         public void Position_GetterAlwaysReturnsZero()
         {
-            var target = new PipeStream();
-
-            Assert.AreEqual(0, target.Position);
-            target.WriteByte(0x0a);
-            Assert.AreEqual(0, target.Position);
-            _ = target.ReadByte();
-            Assert.AreEqual(0, target.Position);
+            using (var target = new PipeStream())
+            {
+                Assert.AreEqual(0, target.Position);
+                target.WriteByte(0x0a);
+                Assert.AreEqual(0, target.Position);
+                _ = target.ReadByte();
+                Assert.AreEqual(0, target.Position);
+            }
         }
 
         [TestMethod]
         public void Position_SetterAlwaysThrowsNotSupportedException()
         {
-            var target = new PipeStream();
-
-            try
+            using (var target = new PipeStream())
             {
-                target.Position = 0;
-                Assert.Fail();
-            }
-            catch (NotSupportedException)
-            {
+                try
+                {
+                    target.Position = 0;
+                    Assert.Fail();
+                }
+                catch (NotSupportedException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                }
             }
         }
     }

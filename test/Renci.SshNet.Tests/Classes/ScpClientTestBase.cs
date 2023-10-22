@@ -6,17 +6,17 @@ namespace Renci.SshNet.Tests.Classes
 {
     public abstract class ScpClientTestBase : BaseClientTestBase
     {
-        internal Mock<IRemotePathTransformation> _remotePathTransformationMock;
-        internal Mock<IChannelSession> _channelSessionMock;
-        internal Mock<PipeStream> _pipeStreamMock;
+        internal Mock<IRemotePathTransformation> RemotePathTransformationMock { get; private set; }
+        internal Mock<IChannelSession> ChannelSessionMock { get; private set; }
+        internal Mock<PipeStream> PipeStreamMock { get; private set; }
 
         protected override void CreateMocks()
         {
             base.CreateMocks();
 
-            _remotePathTransformationMock = new Mock<IRemotePathTransformation>(MockBehavior.Strict);
-            _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
-            _pipeStreamMock = new Mock<PipeStream>(MockBehavior.Strict);
+            RemotePathTransformationMock = new Mock<IRemotePathTransformation>(MockBehavior.Strict);
+            ChannelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
+            PipeStreamMock = new Mock<PipeStream>(MockBehavior.Strict);
         }
     }
 }

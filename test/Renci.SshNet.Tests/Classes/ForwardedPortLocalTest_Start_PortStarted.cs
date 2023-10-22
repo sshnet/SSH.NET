@@ -21,8 +21,8 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortLocal _forwardedPort;
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private InvalidOperationException _actualException;
 
         [TestInitialize]
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -61,8 +61,10 @@ namespace Renci.SshNet.Tests.Classes
             _ = _sessionMock.Setup(p => p.ConnectionInfo)
                             .Returns(_connectionInfoMock.Object);
 
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port,
-                _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(),
+                                                    (uint) _localEndpoint.Port,
+                                                    _remoteEndpoint.Address.ToString(),
+                                                    (uint) _remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;

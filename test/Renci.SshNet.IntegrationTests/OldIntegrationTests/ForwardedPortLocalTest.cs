@@ -4,12 +4,12 @@ using System.Globalization;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
-{    
+{
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
     [TestClass]
-    public class ForwardedPortLocalTest : IntegrationTestBase
+    public sealed class ForwardedPortLocalTest : IntegrationTestBase
     {
         [TestMethod]
         [WorkItem(713)]
@@ -22,47 +22,40 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.google.com", 80);
-                client.AddForwardedPort(port1);
-                port1.Exception += (sender, e) =>
+                var port = new ForwardedPortLocal("localhost", 8084, "www.google.com", 80);
+                client.AddForwardedPort(port);
+                port.Exception += (sender, e) =>
                     {
                         Assert.Fail(e.Exception.ToString());
                     };
 
-                port1.Start();
+                port.Start();
 
                 var hasTestedTunnel = false;
 
                 _ = ThreadPool.QueueUserWorkItem(state =>
                     {
-                        try
-                        {
-                            var url = "http://www.google.com/";
-                            Debug.WriteLine("Starting web request to \"" + url + "\"");
+                        var url = new Uri("http://www.google.com/");
+                        Debug.WriteLine("Starting web request to \"" + url + "\"");
 
-    #if NET6_0_OR_GREATER
-                            var httpClient = new HttpClient();
-                            var response = httpClient.GetAsync(url)
-                                                     .ConfigureAwait(false)
-                                                     .GetAwaiter()
-                                                     .GetResult();
-    #else
-                                var request = (HttpWebRequest) WebRequest.Create(url);
-                                var response = (HttpWebResponse) request.GetResponse();
-    #endif // NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
+                        var httpClient = new HttpClient();
+                        var response = httpClient.GetAsync(url)
+                                                 .ConfigureAwait(false)
+                                                 .GetAwaiter()
+                                                 .GetResult();
+#else
+                        var request = (HttpWebRequest) WebRequest.Create(url);
+                        var response = (HttpWebResponse) request.GetResponse();
+#endif // NET6_0_OR_GREATER
 
-                            Assert.IsNotNull(response);
+                        Assert.IsNotNull(response);
 
-                            Debug.WriteLine("Http Response status code: " + response.StatusCode.ToString());
+                        Debug.WriteLine("Http Response status code: " + response.StatusCode.ToString());
 
-                            response.Dispose();
+                        response.Dispose();
 
-                            hasTestedTunnel = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Assert.Fail(ex.ToString());
-                        }
+                        hasTestedTunnel = true;
                     });
 
                 // Wait for the web request to complete.
@@ -77,12 +70,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     _ = ThreadPool.QueueUserWorkItem(state =>
                         {
                             Debug.WriteLine("Trying to stop port forward.");
-                            port1.Stop();
+                            port.Stop();
                             Debug.WriteLine("Port forwarding stopped.");
                         });
 
                     Thread.Sleep(3000);
-                    if (port1.IsStarted)
+                    if (port.IsStarted)
                     {
                         Assert.Fail("Port forwarding not stopped.");
                     }
@@ -92,9 +85,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     Assert.Fail(ex.ToString());
                 }
 
-                client.RemoveForwardedPort(port1);
+                client.RemoveForwardedPort(port);
                 client.Disconnect();
                 Debug.WriteLine("Success.");
+
+                port.Dispose();
             }
         }
 
@@ -103,41 +98,41 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         public void Test_PortForwarding_Local_Without_Connecting()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var port = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80))
             {
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
-                client.AddForwardedPort(port1);
-                port1.Exception += (sender, e) =>
+                client.AddForwardedPort(port);
+                port.Exception += (sender, e) =>
                     {
                         Assert.Fail(e.Exception.ToString());
                     };
-                port1.Start();
+                port.Start();
 
                 var test = Parallel.For(0,
-                                 100,
-                                 counter =>
-                                 {
-                                     var start = DateTime.Now;
+                                        100,
+                                        counter =>
+                                            {
+                                                var start = DateTime.Now;
 
 #if NET6_0_OR_GREATER
-                                     var httpClient = new HttpClient();
-                                     using (var response = httpClient.GetAsync("http://localhost:8084").GetAwaiter().GetResult())
-                                     {
-                                         var data = ReadStream(response.Content.ReadAsStream());
+                                                var httpClient = new HttpClient();
+                                                using (var response = httpClient.GetAsync(new Uri("http://localhost:8084")).GetAwaiter().GetResult())
+                                                {
+                                                    var data = ReadStream(response.Content.ReadAsStream());
 #else
-                                        var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
-                                        using (var response = (HttpWebResponse) request.GetResponse())
-                                        {
-                                            var data = ReadStream(response.GetResponseStream());
+                                                var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
+                                                using (var response = (HttpWebResponse) request.GetResponse())
+                                                {
+                                                    var data = ReadStream(response.GetResponseStream());
 #endif // NET6_0_OR_GREATER
-                                         var end = DateTime.Now;
+                                                    var end = DateTime.Now;
 
-                                         Debug.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                                                                       "Request# {2}: Lenght: {0} Time: {1}",
-                                                                       data.Length,
-                                                                       end - start,
-                                                                       counter));
-                                     }
-                                 });
+                                                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                                                                                  "Request# {2}: Lenght: {0} Time: {1}",
+                                                                                  data.Length,
+                                                                                  end - start,
+                                                                                  counter));
+                                                }
+                                            });
             }
         }
 

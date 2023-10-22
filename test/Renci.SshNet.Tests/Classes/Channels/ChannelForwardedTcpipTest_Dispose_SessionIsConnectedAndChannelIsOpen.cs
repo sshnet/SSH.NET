@@ -30,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private TimeSpan _channelCloseTimeout;
         private IPEndPoint _remoteEndpoint;
         private AsyncSocketListener _remoteListener;
-        private EventWaitHandle _channelBindFinishedWaitHandle;
+        private ManualResetEvent _channelBindFinishedWaitHandle;
         private Exception _channelException;
         private IList<Socket> _connectedRegister;
         private IList<Socket> _disconnectedRegister;

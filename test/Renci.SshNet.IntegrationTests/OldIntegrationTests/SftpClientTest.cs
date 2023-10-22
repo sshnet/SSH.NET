@@ -8,9 +8,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
     [TestClass]
-    public partial class SftpClientTest
+    public sealed partial class SftpClientTest
     {
-        protected static string CalculateMD5(string fileName)
+        private static string CalculateMD5(string fileName)
         {
             using (FileStream file = new FileStream(fileName, FileMode.Open))
             {
@@ -19,10 +19,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 file.Close();
 
                 StringBuilder sb = new StringBuilder();
+
                 for (var i = 0; i < hash.Length; i++)
                 {
                     sb.Append(hash[i].ToString("x2"));
                 }
+
                 return sb.ToString();
             }
         }
@@ -40,17 +42,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         /// <summary>
         /// Helper class to help with upload and download testing
         /// </summary>
-        private class TestInfo
+        private sealed class TestInfo
         {
             public string RemoteFileName { get; set; }
 
             public string UploadedFileName { get; set; }
 
             public string DownloadedFileName { get; set; }
-
-            //public ulong UploadedBytes { get; set; }
-
-            //public ulong DownloadedBytes { get; set; }
 
             public FileStream UploadedFile { get; set; }
 

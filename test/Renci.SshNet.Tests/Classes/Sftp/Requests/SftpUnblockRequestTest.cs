@@ -56,7 +56,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             request.Complete(statusResponse);
 
             Assert.AreEqual(1, statusActionInvocations.Count);
+#pragma warning disable S4158 // Empty collections should not be accessed or iterated
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
+#pragma warning restore S4158 // Empty collections should not be accessed or iterated
         }
 
         [TestMethod]
@@ -77,21 +79,22 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
+                Assert.AreEqual((byte) SftpMessageTypes.Unblock, sshDataStream.ReadByte());
+                Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Unblock, sshDataStream.ReadByte());
-            Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
+                Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
+                var actualHandle = new byte[_handle.Length];
+                _ = sshDataStream.Read(actualHandle, 0, actualHandle.Length);
+                Assert.IsTrue(_handle.SequenceEqual(actualHandle));
 
-            Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
-            var actualHandle = new byte[_handle.Length];
-            _ = sshDataStream.Read(actualHandle, 0, actualHandle.Length);
-            Assert.IsTrue(_handle.SequenceEqual(actualHandle));
+                Assert.AreEqual(_offset, sshDataStream.ReadUInt64());
+                Assert.AreEqual(_length, sshDataStream.ReadUInt64());
 
-            Assert.AreEqual(_offset, sshDataStream.ReadUInt64());
-            Assert.AreEqual(_length, sshDataStream.ReadUInt64());
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
     }
 }

@@ -9,8 +9,8 @@ namespace Renci.SshNet.IntegrationTests.Common
         public static void Reset(this RemoteSshdConfig remoteSshdConfig)
         {
             remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, DefaultAuthenticationMethods)
-                            .WithChallengeResponseAuthentication(false)
-                            .WithKeyboardInteractiveAuthentication(false)
+                            .WithChallengeResponseAuthentication(value: false)
+                            .WithKeyboardInteractiveAuthentication(value: false)
                             .PrintMotd()
                             .WithLogLevel(LogLevel.Debug3)
                             .ClearHostKeyFiles()
@@ -22,7 +22,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                             .ClearHostKeyAlgorithms()
                             .ClearPublicKeyAcceptedAlgorithms()
                             .ClearMessageAuthenticationCodeAlgorithms()
-                            .WithUsePAM(true)
+                            .WithUsePAM(usePAM: true)
                             .Update()
                             .Restart();
         }

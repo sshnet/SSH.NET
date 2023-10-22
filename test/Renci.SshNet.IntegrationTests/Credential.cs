@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    internal class Credential
+    internal sealed class Credential
     {
         public Credential(string userName, string password)
         {

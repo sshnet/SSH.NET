@@ -52,42 +52,44 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         [TestMethod]
         public void Load()
         {
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
-            sshDataStream.Write(_responseId);
-            sshDataStream.Write(_bsize);
-            sshDataStream.Write(_frsize);
-            sshDataStream.Write(_blocks);
-            sshDataStream.Write(_bfree);
-            sshDataStream.Write(_bavail);
-            sshDataStream.Write(_files);
-            sshDataStream.Write(_ffree);
-            sshDataStream.Write(_favail);
-            sshDataStream.Write(_sid);
-            sshDataStream.Write(0x1UL);
-            sshDataStream.Write(_namemax);
+            using (var sshDataStream = new SshDataStream(4 + 1 + 4 + 88))
+            {
+                sshDataStream.Write(_responseId);
+                sshDataStream.Write(_bsize);
+                sshDataStream.Write(_frsize);
+                sshDataStream.Write(_blocks);
+                sshDataStream.Write(_bfree);
+                sshDataStream.Write(_bavail);
+                sshDataStream.Write(_files);
+                sshDataStream.Write(_ffree);
+                sshDataStream.Write(_favail);
+                sshDataStream.Write(_sid);
+                sshDataStream.Write(0x1UL);
+                sshDataStream.Write(_namemax);
 
-            var extendedReplyResponse = new SftpExtendedReplyResponse(SftpSession.MaximumSupportedVersion);
-            extendedReplyResponse.Load(sshDataStream.ToArray());
+                var extendedReplyResponse = new SftpExtendedReplyResponse(SftpSession.MaximumSupportedVersion);
+                extendedReplyResponse.Load(sshDataStream.ToArray());
 
-            Assert.AreEqual(_responseId, extendedReplyResponse.ResponseId);
+                Assert.AreEqual(_responseId, extendedReplyResponse.ResponseId);
 
-            var target = extendedReplyResponse.GetReply<StatVfsReplyInfo>();
+                var target = extendedReplyResponse.GetReply<StatVfsReplyInfo>();
 
-            Assert.IsNotNull(target.Information);
+                Assert.IsNotNull(target.Information);
 
-            var information = target.Information;
-            Assert.AreEqual(_bavail, information.AvailableBlocks);
-            Assert.AreEqual(_favail, information.AvailableNodes);
-            Assert.AreEqual(_frsize, information.BlockSize);
-            Assert.AreEqual(_bsize, information.FileSystemBlockSize);
-            Assert.AreEqual(_bfree, information.FreeBlocks);
-            Assert.AreEqual(_ffree, information.FreeNodes);
-            Assert.IsTrue(information.IsReadOnly);
-            Assert.AreEqual(_namemax, information.MaxNameLenght);
-            Assert.AreEqual(_sid, information.Sid);
-            Assert.IsTrue(information.SupportsSetUid);
-            Assert.AreEqual(_blocks, information.TotalBlocks);
-            Assert.AreEqual(_files, information.TotalNodes);
+                var information = target.Information;
+                Assert.AreEqual(_bavail, information.AvailableBlocks);
+                Assert.AreEqual(_favail, information.AvailableNodes);
+                Assert.AreEqual(_frsize, information.BlockSize);
+                Assert.AreEqual(_bsize, information.FileSystemBlockSize);
+                Assert.AreEqual(_bfree, information.FreeBlocks);
+                Assert.AreEqual(_ffree, information.FreeNodes);
+                Assert.IsTrue(information.IsReadOnly);
+                Assert.AreEqual(_namemax, information.MaxNameLenght);
+                Assert.AreEqual(_sid, information.Sid);
+                Assert.IsTrue(information.SupportsSetUid);
+                Assert.AreEqual(_blocks, information.TotalBlocks);
+                Assert.AreEqual(_files, information.TotalNodes);
+            }
         }
     }
 }

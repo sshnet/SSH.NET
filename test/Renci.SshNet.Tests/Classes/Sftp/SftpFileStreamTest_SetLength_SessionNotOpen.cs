@@ -74,14 +74,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(
-                string.Format(
-                   "Cannot access a closed SFTP session.{0}Object name: '{1}'.",
-                    Environment.NewLine,
-                    _actualException.ObjectName),
-                _actualException.Message);
+            Assert.AreEqual(string.Format("Cannot access a closed SFTP session.{0}Object name: '{1}'.", Environment.NewLine, _actualException.ObjectName),
+                            _actualException.Message);
             Assert.AreEqual(typeof(SftpFileStream).FullName, _actualException.ObjectName);
         }
-
     }
 }

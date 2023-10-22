@@ -16,8 +16,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     [TestClass]
     public class SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages
     {
-        #region SftpSession.Connect()
-
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
         private Mock<ISftpResponseFactory> _sftpResponseFactoryMock;
@@ -41,8 +39,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private byte[] _actualHandle;
         private byte[] _actualData;
 
-        #endregion SftpSession.Connect()
-
         [TestInitialize]
         public void Setup()
         {
@@ -53,8 +49,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private void SetupData()
         {
             var random = new Random();
-
-            #region SftpSession.Connect()
 
             _operationTimeout = random.Next(100, 500);
             _protocolVersion = (uint)random.Next(0, 3);
@@ -76,8 +70,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                              .WithEncoding(_encoding)
                                                              .WithFile("/ABC", SftpFileAttributes.Empty)
                                                              .Build();
-
-            #endregion SftpSession.Connect()
 
             _path = random.Next().ToString();
             _handle = CryptoAbstraction.GenerateRandom(4);
@@ -121,8 +113,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sequence = new MockSequence();
 
-            #region SftpSession.Connect()
-
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest("sftp")).Returns(true);
@@ -146,8 +136,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpResponseFactoryMock.InSequence(sequence)
                                    .Setup(p => p.Create(_protocolVersion, (byte)SftpMessageTypes.Name, _encoding))
                                    .Returns(_sftpNameResponse);
-
-            #endregion SftpSession.Connect()
 
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpOpenRequestBytes)).Callback(() =>

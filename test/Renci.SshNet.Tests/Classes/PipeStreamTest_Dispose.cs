@@ -43,8 +43,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.Flush();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -70,8 +71,9 @@ namespace Renci.SshNet.Tests.Classes
                 var value = _pipeStream.Length;
                 Assert.Fail(string.Empty + value);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -89,8 +91,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.Position = 0;
                 Assert.Fail();
             }
-            catch (NotSupportedException)
+            catch (NotSupportedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -106,8 +109,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.Read(buffer, offset, count);
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -119,8 +123,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.ReadByte();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -132,8 +137,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.Seek(0, SeekOrigin.Begin);
                 Assert.Fail();
             }
-            catch (NotSupportedException)
+            catch (NotSupportedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -145,8 +151,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.SetLength(0);
                 Assert.Fail();
             }
-            catch (NotSupportedException)
+            catch (NotSupportedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -162,8 +169,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.Write(buffer, offset, count);
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 
@@ -177,8 +185,9 @@ namespace Renci.SshNet.Tests.Classes
                 _pipeStream.WriteByte(b);
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
     }

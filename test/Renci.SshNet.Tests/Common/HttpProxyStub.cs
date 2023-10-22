@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class HttpProxyStub : IDisposable
+    public sealed class HttpProxyStub : IDisposable
     {
+        private readonly IList<byte[]> _responses;
         private readonly IPEndPoint _endPoint;
         private AsyncSocketListener _listener;
         private HttpRequestParser _httpRequestParser;
-        private readonly IList<byte[]> _responses;
 
         public HttpProxyStub(IPEndPoint endPoint)
         {
@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Common
         {
             get
             {
-                if (_httpRequestParser == null)
+                if (_httpRequestParser is null)
                 {
                     throw new InvalidOperationException("The proxy is not started.");
                 }
@@ -48,7 +48,12 @@ namespace Renci.SshNet.Tests.Common
 
         public void Stop()
         {
-            _listener?.Stop();
+            var listener = _listener;
+            if (listener is not null)
+            {
+                listener.Stop();
+                listener.Dispose();
+            }
         }
 
         public void Dispose()
@@ -151,6 +156,7 @@ namespace Renci.SshNet.Tests.Common
                 for (; position < data.Length; position++)
                 {
                     var b = data[position];
+
                     if (b == '\n')
                     {
                         var buffer = _buffer.ToArray();
@@ -169,6 +175,7 @@ namespace Renci.SshNet.Tests.Common
                         position++;
                         return Encoding.ASCII.GetString(buffer, 0, bytesInLine);
                     }
+
                     _buffer.Add(b);
                 }
 

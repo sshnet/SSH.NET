@@ -57,7 +57,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             request.Complete(statusResponse);
 
             Assert.AreEqual(1, statusActionInvocations.Count);
+#pragma warning disable S4158 // Empty collections should not be accessed or iterated
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
+#pragma warning restore S4158 // Empty collections should not be accessed or iterated
         }
 
         [TestMethod]
@@ -76,18 +78,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
+                Assert.AreEqual((byte) SftpMessageTypes.Remove, sshDataStream.ReadByte());
+                Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Remove, sshDataStream.ReadByte());
-            Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
+                Assert.AreEqual((uint) _filenameBytes.Length, sshDataStream.ReadUInt32());
+                var actualFilename = new byte[_filenameBytes.Length];
+                sshDataStream.Read(actualFilename, 0, actualFilename.Length);
+                Assert.IsTrue(_filenameBytes.SequenceEqual(actualFilename));
 
-            Assert.AreEqual((uint) _filenameBytes.Length, sshDataStream.ReadUInt32());
-            var actualFilename = new byte[_filenameBytes.Length];
-            sshDataStream.Read(actualFilename, 0, actualFilename.Length);
-            Assert.IsTrue(_filenameBytes.SequenceEqual(actualFilename));
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
     }
 }

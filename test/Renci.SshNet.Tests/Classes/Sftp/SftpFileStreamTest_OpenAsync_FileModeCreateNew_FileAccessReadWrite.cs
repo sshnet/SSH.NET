@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = (uint)_random.Next(5, 1000);
             _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
-            _cancellationToken = new CancellationToken();
+            _cancellationToken = default;
         }
 
         protected override void SetupMocks()
@@ -104,7 +104,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, _cancellationToken)).ReturnsAsync(data);
 
-            var actual = await _target.ReadAsync(buffer, 1, data.Length, _cancellationToken);
+            var actual = await _target.ReadAsync(buffer, 1, data.Length, _cancellationToken)
+                                      .ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(data.Length, actual);
             Assert.IsTrue(buffer.IsEqualTo(expected));
@@ -121,7 +122,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken)).Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken);
+            await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken)
+                         .ConfigureAwait(continueOnCapturedContext: false);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

@@ -19,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private ObjectDisposedException _actualException;
 
         [TestInitialize]
@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ConnectShouldThrowObjectDisposedException()
         {
             Assert.IsNotNull(_actualException);
-            Assert.AreEqual(string.Format("Cannot access a disposed object.{0}Object name: '{1}'.", Environment.NewLine, _actualException.ObjectName),_actualException.Message);
+            Assert.AreEqual(string.Format("Cannot access a disposed object.{0}Object name: '{1}'.", Environment.NewLine, _actualException.ObjectName), _actualException.Message);
             Assert.AreEqual(typeof(SubsystemSessionStub).FullName, _actualException.ObjectName);
         }
 

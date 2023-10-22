@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             try
             {
-                new ChannelDataMessage(localChannelNumber, data);
+                _ = new ChannelDataMessage(localChannelNumber, data);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             try
             {
-                new ChannelDataMessage(localChannelNumber, data, offset, size);
+                _ = new ChannelDataMessage(localChannelNumber, data, offset, size);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -116,17 +116,18 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual(ChannelDataMessage.MessageNumber, sshDataStream.ReadByte());
+                Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
+                Assert.AreEqual((uint) size, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual(ChannelDataMessage.MessageNumber, sshDataStream.ReadByte());
-            Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
-            Assert.AreEqual((uint) size, sshDataStream.ReadUInt32());
+                var actualData = new byte[size];
+                sshDataStream.Read(actualData, 0, size);
+                Assert.IsTrue(actualData.SequenceEqual(data.Take(offset, size)));
 
-            var actualData = new byte[size];
-            sshDataStream.Read(actualData, 0, size);
-            Assert.IsTrue(actualData.SequenceEqual(data.Take(offset, size)));
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
 
         [TestMethod]

@@ -26,7 +26,8 @@ namespace Renci.SshNet.Tests.Common
             if (expected.Count != actual.Count)
             {
                 throw new AssertFailedException(string.Format("Expected dictionary to contain {0} entries, but was {1}.",
-                                                              expected.Count, actual.Count));
+                                                              expected.Count,
+                                                              actual.Count));
             }
 
             foreach (var expectedEntry in expected)

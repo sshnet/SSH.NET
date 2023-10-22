@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    [Ignore]
+    [Ignore("To be investigated")]
     public class ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked : ChannelTestBase
     {
         private uint _localChannelNumber;
@@ -23,12 +23,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private Stopwatch _closeTimer;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
         private List<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
 
         [TestCleanup]
         public void TearDown()
         {
-            if (_channelClosedEventHandlerCompleted != null)
+            if (_channelClosedEventHandlerCompleted is not null)
             {
                 _channelClosedEventHandlerCompleted.Dispose();
                 _channelClosedEventHandlerCompleted = null;
@@ -64,6 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             new Thread(() =>
                             {
                                 Thread.Sleep(100);
+
                                 // raise ChannelCloseReceived event to set waithandle for receiving
                                 // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
                                 // sending the SSH_MSG_CHANNEL_CLOSE message to the server
@@ -89,15 +90,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _channel = new ChannelStub(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) =>
-            {
-                _channelClosedRegister.Add(args);
-                Thread.Sleep(50);
-                _channelClosedEventHandlerCompleted.Set();
-            };
+                {
+                    _channelClosedRegister.Add(args);
+                    Thread.Sleep(50);
+                    _channelClosedEventHandlerCompleted.Set();
+                };
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
-            //_channel.SendEof();
         }
 
         protected override void Act()

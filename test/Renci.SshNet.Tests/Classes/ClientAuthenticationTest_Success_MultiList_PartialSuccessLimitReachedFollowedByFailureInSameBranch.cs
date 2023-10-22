@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes
                                   });
             NoneAuthenticationMethodMock.InSequence(seq)
                                         .Setup(p => p.AllowedAuthentications)
-                                        .Returns(new[] {"password"});
+                                        .Returns(new[] { "password" });
 
             /* Enumerate supported authentication methods */
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"password", "publickey"});
+                                            .Returns(new[] { "password", "publickey" });
 
             /* Enumerate supported authentication methods */
 
@@ -102,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"keyboard-interactive"});
+                                            .Returns(new[] { "keyboard-interactive" });
 
             /* Enumerate supported authentication methods */
 

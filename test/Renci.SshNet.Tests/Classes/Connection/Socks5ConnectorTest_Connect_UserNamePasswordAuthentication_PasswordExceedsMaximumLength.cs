@@ -49,6 +49,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                         {
                                 // SOCKS version
                                 0x05,
+
                                 // Username/password authentication
                                 0x02
                         });

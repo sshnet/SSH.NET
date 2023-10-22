@@ -23,14 +23,14 @@ namespace Renci.SshNet.Tests.Classes
         private byte[] _fileContent;
         private string _fileName;
         private int _fileSize;
-        private IList<ScpUploadEventArgs> _uploadingRegister;
+        private List<ScpUploadEventArgs> _uploadingRegister;
 
         protected override void SetupData()
         {
             var random = new Random();
 
             _bufferSize = random.Next(5, 15);
-            _fileSize = _bufferSize + 2; //force uploading 2 chunks
+            _fileSize = _bufferSize + 2; // force uploading 2 chunks
             _fileContent = CreateContent(_fileSize);
             _fileName = CreateTemporaryFile(_fileContent);
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _ = ServiceFactoryMock.InSequence(sequence)
                                    .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
-                                   .Returns(_remotePathTransformationMock.Object);
+                                   .Returns(RemotePathTransformationMock.Object);
             _ = ServiceFactoryMock.InSequence(sequence)
                                    .Setup(p => p.CreateSocketFactory())
                                    .Returns(SocketFactoryMock.Object);
@@ -59,43 +59,43 @@ namespace Renci.SshNet.Tests.Classes
                             .Setup(p => p.Connect());
             _ = ServiceFactoryMock.InSequence(sequence)
                                    .Setup(p => p.CreatePipeStream())
-                                   .Returns(_pipeStreamMock.Object);
+                                   .Returns(PipeStreamMock.Object);
             _ = SessionMock.InSequence(sequence)
                             .Setup(p => p.CreateChannelSession())
-                            .Returns(_channelSessionMock.Object);
-            _ = _channelSessionMock.InSequence(sequence)
+                            .Returns(ChannelSessionMock.Object);
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.Open());
-            _ = _remotePathTransformationMock.InSequence(sequence)
+            _ = RemotePathTransformationMock.InSequence(sequence)
                                              .Setup(p => p.Transform(_remoteDirectory))
                                              .Returns(_transformedPath);
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)))
                                    .Returns(true);
-            _ = _pipeStreamMock.InSequence(sequence)
+            _ = PipeStreamMock.InSequence(sequence)
                                .Setup(p => p.ReadByte())
                                .Returns(0);
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendData(It.IsAny<byte[]>()));
-            _ = _pipeStreamMock.InSequence(sequence)
+            _ = PipeStreamMock.InSequence(sequence)
                                .Setup(p => p.ReadByte())
                                .Returns(0);
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(CreateData(string.Format("C0644 {0} {1}\n", _fileInfo.Length, _remoteFile), _connectionInfo.Encoding)))));
-            _ = _pipeStreamMock.InSequence(sequence)
+            _ = PipeStreamMock.InSequence(sequence)
                                .Setup(p => p.ReadByte())
                                .Returns(0);
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(_fileContent.Take(_bufferSize))), 0, _bufferSize));
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendData(It.Is<byte[]>(b => b.Take(0, _fileContent.Length - _bufferSize).SequenceEqual(_fileContent.Take(_bufferSize, _fileContent.Length - _bufferSize))), 0, _fileContent.Length - _bufferSize));
-            _ = _channelSessionMock.InSequence(sequence)
-                                   .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] {0}))));
-            _ = _pipeStreamMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
+                                   .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] { 0 }))));
+            _ = PipeStreamMock.InSequence(sequence)
                                .Setup(p => p.ReadByte())
                                .Returns(0);
-            _ = _channelSessionMock.InSequence(sequence)
+            _ = ChannelSessionMock.InSequence(sequence)
                                    .Setup(p => p.Dispose());
-            _ = _pipeStreamMock.InSequence(sequence)
+            _ = PipeStreamMock.InSequence(sequence)
                                .Setup(p => p.Close());
         }
 
@@ -130,19 +130,19 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendExecRequestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)), Times.Once);
+            ChannelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)), Times.Once);
         }
 
         [TestMethod]
         public void DisposeOnChannelShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.Dispose(), Times.Once);
+            ChannelSessionMock.Verify(p => p.Dispose(), Times.Once);
         }
 
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
-            _pipeStreamMock.Verify(p => p.Close(), Times.Once);
+            PipeStreamMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]
@@ -184,10 +184,12 @@ namespace Renci.SshNet.Tests.Classes
         private static string CreateTemporaryFile(byte[] content)
         {
             var tempFile = Path.GetTempFileName();
+
             using (var fs = File.OpenWrite(tempFile))
             {
                 fs.Write(content, 0, content.Length);
             }
+
             return tempFile;
         }
     }

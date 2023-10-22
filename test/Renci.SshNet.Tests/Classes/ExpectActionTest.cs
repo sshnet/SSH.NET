@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class ExpectActionTest : TestBase
     {
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_StringAndAction()
         {
             var expect = new Random().Next().ToString(CultureInfo.InvariantCulture);
@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreSame(action, target.Action);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_RegexAndAction()
         {
             var expect = new Regex("^.*");

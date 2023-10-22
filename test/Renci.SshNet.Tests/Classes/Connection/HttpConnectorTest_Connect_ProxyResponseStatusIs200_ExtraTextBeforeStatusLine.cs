@@ -96,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected override void Act()
         {
             _actual = Connector.Connect(_connectionInfo);
-            
+
             // Give some time to process all messages
             Thread.Sleep(200);
         }

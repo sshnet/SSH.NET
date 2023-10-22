@@ -16,14 +16,14 @@ namespace Renci.SshNet.Tests.Classes
     public class NetConfClientTest_Connect_NetConfSessionConnectFailure : NetConfClientTestBase
     {
         private ConnectionInfo _connectionInfo;
-        private ApplicationException _netConfSessionConnectionException;
+        private InvalidOperationException _netConfSessionConnectionException;
         private NetConfClient _netConfClient;
-        private ApplicationException _actualException;
+        private InvalidOperationException _actualException;
 
         protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
-            _netConfSessionConnectionException = new ApplicationException();
+            _netConfSessionConnectionException = new InvalidOperationException();
             _netConfClient = new NetConfClient(_connectionInfo, false, ServiceFactoryMock.Object);
         }
 
@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes
                 _netConfClient.Connect();
                 Assert.Fail();
             }
-            catch (ApplicationException ex)
+            catch (InvalidOperationException ex)
             {
                 _actualException = ex;
             }
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _netConfClient.ErrorOccurred += (sender, args) => Interlocked.Increment(ref errorOccurredSignalCount);
 
-            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new InvalidOperationException()));
 
             Assert.AreEqual(0, errorOccurredSignalCount);
         }
@@ -112,8 +112,8 @@ namespace Renci.SshNet.Tests.Classes
             var executingAssembly = Assembly.GetExecutingAssembly();
 
             using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
+            using (var privateKey = new PrivateKeyFile(s))
             {
-                var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }
         }

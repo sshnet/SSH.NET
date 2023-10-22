@@ -175,17 +175,19 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandleShouldThrowSshExceptionDetailingError()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            try
+            using (var waitHandle = new ManualResetEvent(false))
             {
-                session.WaitOnHandle(waitHandle);
-                Assert.Fail();
-            }
-            catch (SshException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("Message type 255 is not supported.", ex.Message);
+                try
+                {
+                    session.WaitOnHandle(waitHandle);
+                    Assert.Fail();
+                }
+                catch (SshException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Message type 255 is not supported.", ex.Message);
+                }
             }
         }
 
@@ -193,29 +195,33 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnFailed()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
 
-            Assert.AreEqual(WaitResult.Failed, result);
+                Assert.AreEqual(WaitResult.Failed, result);
+            }
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnFailed()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
-            Assert.AreEqual(WaitResult.Failed, result);
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(typeof(SshException), exception.GetType());
+                Assert.AreEqual(WaitResult.Failed, result);
+                Assert.IsNotNull(exception);
+                Assert.AreEqual(typeof(SshException), exception.GetType());
 
-            var sshException = exception as SshException;
-            Assert.IsNotNull(sshException);
-            Assert.IsNull(sshException.InnerException);
-            Assert.AreEqual("Message type 255 is not supported.", sshException.Message);
+                var sshException = exception as SshException;
+                Assert.IsNotNull(sshException);
+                Assert.IsNull(sshException.InnerException);
+                Assert.AreEqual("Message type 255 is not supported.", sshException.Message);
+            }
         }
 
         private static byte[] CreatePacketForUnsupportedMessageType()
@@ -225,13 +231,15 @@ namespace Renci.SshNet.Tests.Classes
             byte paddingLength = 10;
             var packetDataLength = (uint) messageLength + paddingLength + 1;
 
-            var sshDataStream = new SshDataStream(4 + 1 + messageLength + paddingLength);
-            sshDataStream.Write(packetDataLength);
-            sshDataStream.WriteByte(paddingLength);
-            sshDataStream.WriteByte(messageType);
-            sshDataStream.Write(new byte[paddingLength]);
+            using (var sshDataStream = new SshDataStream(4 + 1 + messageLength + paddingLength))
+            {
+                sshDataStream.Write(packetDataLength);
+                sshDataStream.WriteByte(paddingLength);
+                sshDataStream.WriteByte(messageType);
+                sshDataStream.Write(new byte[paddingLength]);
 
-            return sshDataStream.ToArray();
+                return sshDataStream.ToArray();
+            }
         }
     }
 }

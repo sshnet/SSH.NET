@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = (uint) _random.Next(5, 1000);
             _writeBufferSize = (uint) _random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
-            _cancellationToken = new CancellationToken();
+            _cancellationToken = default;
         }
 
         protected override void SetupMocks()
@@ -109,7 +109,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             try
             {
-                _ = await _target.ReadAsync(buffer, 0, buffer.Length);
+                _ = await _target.ReadAsync(buffer, 0, buffer.Length)
+                                 .ConfigureAwait(continueOnCapturedContext: false);
                 Assert.Fail();
             }
             catch (NotSupportedException ex)
@@ -121,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public async Task WriteShouldStartWritingAtBeginningOfFile()
+        public async Task WriteAsyncShouldStartWritingAtBeginningOfFile()
         {
             var buffer = new byte[_writeBufferSize];
 
@@ -132,7 +133,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken))
                                .Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length);
+            await _target.WriteAsync(buffer, 0, buffer.Length)
+                         .ConfigureAwait(continueOnCapturedContext: false);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0UL, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

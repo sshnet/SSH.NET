@@ -341,7 +341,9 @@ namespace Renci.SshNet
         /// intervals.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+#pragma warning disable S1133 // Deprecated code should be removed
         [Obsolete("Use KeepAliveInterval to send a keep-alive message at regular intervals.")]
+#pragma warning restore S1133 // Deprecated code should be removed
         public void SendKeepAlive()
         {
             CheckDisposed();

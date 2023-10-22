@@ -8,27 +8,29 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class ForwardedPortDynamicTest : TestBase
     {
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_HostAndPort()
         {
             var host = new Random().Next().ToString(CultureInfo.InvariantCulture);
             var port = (uint) new Random().Next(0, int.MaxValue);
 
-            var target = new ForwardedPortDynamic(host, port);
-
-            Assert.AreSame(host, target.BoundHost);
-            Assert.AreEqual(port, target.BoundPort);
+            using (var target = new ForwardedPortDynamic(host, port))
+            {
+                Assert.AreSame(host, target.BoundHost);
+                Assert.AreEqual(port, target.BoundPort);
+            }
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_Port()
         {
             var port = (uint)new Random().Next(0, int.MaxValue);
 
-            var target = new ForwardedPortDynamic(port);
-
-            Assert.AreSame(string.Empty, target.BoundHost);
-            Assert.AreEqual(port, target.BoundPort);
+            using (var target = new ForwardedPortDynamic(port))
+            {
+                Assert.AreSame(string.Empty, target.BoundHost);
+                Assert.AreEqual(port, target.BoundPort);
+            }
         }
     }
 }

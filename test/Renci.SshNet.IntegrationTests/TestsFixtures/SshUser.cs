@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
-    public class SshUser
+    public sealed class SshUser
     {
         public string UserName { get; }
 
@@ -13,4 +13,3 @@
         }
     }
 }
-

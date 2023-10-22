@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remotePacketSize;
         private ChannelStub _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
 
         protected override void SetupData()
         {

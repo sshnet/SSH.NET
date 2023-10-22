@@ -1,5 +1,13 @@
 ﻿[*.cs]
 
+#### Sonar rules ####
+
+# S125: Sections of code should not be commented out
+# https://rules.sonarsource.com/csharp/RSPEC-125
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.S125.severity = none
+
 #### SYSLIB diagnostics ####
 
 # SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
@@ -9,7 +17,59 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 
 ### StyleCop Analyzers rules ###
 
+#### Meziantou.Analyzer rules ####
+
+# MA0003: Name the parameter to improve code readability
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0003.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0003.severity = none
+
+# MA0011: Use an overload of 'ToString' that has a 'System.IFormatProvider' parameter
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0011.severity = none
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0040.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0026.severity = suggestion
+
+# MA0040: Use an overload with a CancellationToken
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0040.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0040.severity = none
+
+# MA0053: Make class sealed
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0053.severity = none
+
+# MA0060: The value returned by Stream.Read/Stream.ReadAsync is not used
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0060.md
+#
+# TODO: Remove this when issues are fixed.
+dotnet_diagnostic.MA0060.severity = none
+
+# MA0075: Do not use implicit culture-sensitive ToString
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0075.md
+dotnet_diagnostic.MA0075.severity = none
+
+# MA0110: Use the Regex source generator
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
+#
+# We do not care (much) about performance for unit tests.
+dotnet_diagnostic.MA0110.severity = none
+
 #### .NET Compiler Platform analysers rules ####
+
+# CA1031: Do not catch general exception types
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1031
+dotnet_diagnostic.CA1031.severity = suggestion
 
 # IDE0007: Use var instead of explicit type
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007

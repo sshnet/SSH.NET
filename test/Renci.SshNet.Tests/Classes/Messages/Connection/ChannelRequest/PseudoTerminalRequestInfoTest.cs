@@ -35,8 +35,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             _height = (uint) random.Next(0, int.MaxValue);
             _terminalModeValues = new Dictionary<TerminalModes, uint>
                 {
-                    {TerminalModes.CS8, 433},
-                    {TerminalModes.ECHO, 566}
+                    { TerminalModes.CS8, 433 },
+                    { TerminalModes.ECHO, 566 }
                 };
         }
 

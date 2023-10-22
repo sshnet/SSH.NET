@@ -46,8 +46,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     {
                             // Reply version (null byte)
                             0x00,
+
                             // Request granted
                             0x5a,
+
                             // Incomplete destination address
                             0x01
                     });

@@ -17,11 +17,11 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private ChannelDataEventArgs _channelDataEventArgs;
         private Exception _onDataReceivedException;
-            
+
         [TestInitialize]
         public void Setup()
         {
@@ -38,8 +38,8 @@ namespace Renci.SshNet.Tests.Classes
             _errorOccurredRegister = new List<ExceptionEventArgs>();
             _channelDataEventArgs = new ChannelDataEventArgs(
                 (uint) random.Next(0, int.MaxValue),
-                new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)});
-            _onDataReceivedException = new SystemException();
+                new[] { (byte) random.Next(byte.MinValue, byte.MaxValue) });
+            _onDataReceivedException = new InvalidOperationException();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);

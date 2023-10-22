@@ -1,6 +1,8 @@
-﻿namespace Renci.SshNet.IntegrationTests
+﻿using System.Globalization;
+
+namespace Renci.SshNet.IntegrationTests
 {
-    internal class SshConnectionDisruptor
+    internal sealed class SshConnectionDisruptor
     {
         private readonly IConnectionInfoFactory _connectionInfoFactory;
 
@@ -26,14 +28,14 @@
             var output = command.Execute();
             if (command.ExitStatus != 0)
             {
-                throw new InvalidOperationException($"Blocking user sshnet failed with exit code {command.ExitStatus}.{Environment.NewLine}{output}{Environment.NewLine}{command.Error}");
+                throw new InvalidOperationException($"Blocking user sshnet failed with exit code {command.ExitStatus.ToString(CultureInfo.InvariantCulture)}.{Environment.NewLine}{output}{Environment.NewLine}{command.Error}");
             }
 
             command = client.CreateCommand("sudo pkill -9 -U sshnet -f sshd.pam");
             output = command.Execute();
             if (command.ExitStatus != 0)
             {
-                throw new InvalidOperationException($"Killing sshd.pam service failed with exit code {command.ExitStatus}.{Environment.NewLine}{output}{Environment.NewLine}{command.Error}");
+                throw new InvalidOperationException($"Killing sshd.pam service failed with exit code {command.ExitStatus.ToString(CultureInfo.InvariantCulture)}.{Environment.NewLine}{output}{Environment.NewLine}{command.Error}");
             }
         }
     }

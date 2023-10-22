@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class LinuxAdminConnectionFactory : IConnectionInfoFactory
+    public sealed class LinuxAdminConnectionFactory : IConnectionInfoFactory
     {
         private readonly string _host;
         private readonly int _port;
@@ -19,18 +19,23 @@
 
         public ConnectionInfo Create(params AuthenticationMethod[] authenticationMethods)
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         public ConnectionInfo CreateWithProxy()
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         public ConnectionInfo CreateWithProxy(params AuthenticationMethod[] authenticationMethods)
         {
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
     }
 }
-

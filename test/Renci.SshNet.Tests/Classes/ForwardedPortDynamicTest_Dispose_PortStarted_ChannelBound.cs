@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -22,8 +25,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortDynamic _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _endpoint;
         private Socket _client;
         private IPEndPoint _remoteEndpoint;
@@ -47,16 +50,19 @@ namespace Renci.SshNet.Tests.Classes
                 _client.Dispose();
                 _client = null;
             }
+
             if (_forwardedPort != null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+
             if (_channelBindStarted != null)
             {
                 _channelBindStarted.Dispose();
                 _channelBindStarted = null;
             }
+
             if (_channelBindCompleted != null)
             {
                 _channelBindCompleted.Dispose();
@@ -162,11 +168,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BoundClientShouldNotBeClosed()
         {
-            // the forwarded port itself does not close the client connection; when the channel is closed properly
-            // it's the channel that will take care of closing the client connection
-            //
-            // we'll check if the client connection is still alive by attempting to receive, which should time out
-            // as the forwarded port (or its channel) are not sending anything
+            /*
+             * The forwarded port itself does not close the client connection; when the channel is closed properly
+             * it's the channel that will take care of closing the client connection.
+             *
+             * We'll check if the client connection is still alive by attempting to receive, which should time out
+             * as the forwarded port (or its channel) are not sending anything.
+             */
 
             var buffer = new byte[1];
 
@@ -196,10 +204,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void OpenOnChannelShouldBeInvokedOnce()
         {
-            _channelMock.Verify(
-                p =>
-                    p.Open(_remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port, _forwardedPort,
-                        It.IsAny<Socket>()), Times.Once);
+            _channelMock.Verify(p => p.Open(_remoteEndpoint.Address.ToString(),
+                                            (uint) _remoteEndpoint.Port,
+                                            _forwardedPort,
+                                            It.IsAny<Socket>()),
+                                Times.Once);
         }
 
         [TestMethod]
@@ -224,14 +233,19 @@ namespace Renci.SshNet.Tests.Classes
 
             // send SOCKS version
             client.Send(new byte[] { 0x04 }, 0, 1, SocketFlags.None);
+
             // send command byte
             client.Send(new byte[] { 0x00 }, 0, 1, SocketFlags.None);
+
             // send port
             client.Send(portBytes, 0, portBytes.Length, SocketFlags.None);
+
             // send address
             client.Send(addressBytes, 0, addressBytes.Length, SocketFlags.None);
+
             // send user name
             client.Send(userNameBytes, 0, userNameBytes.Length, SocketFlags.None);
+
             // terminate user name with null
             client.Send(new byte[] { 0x00 }, 0, 1, SocketFlags.None);
 

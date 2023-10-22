@@ -42,30 +42,28 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _serverData1 = GenerateRandom(_serverData1Length, random);
             _serverData2Length = (int) _readBufferSize; // equal to read buffer size
             _serverData2 = GenerateRandom(_serverData2Length, random);
-
-            Assert.IsTrue(_serverData1Length < _numberOfBytesToRead && _serverData1Length == _readBufferSize);
         }
 
         protected override void SetupMocks()
         {
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestOpen(_path, Flags.Read, false))
-                .Returns(_handle);
+                           .Setup(p => p.RequestOpen(_path, Flags.Read, false))
+                           .Returns(_handle);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                .Returns(_readBufferSize);
+                           .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                           .Returns(_readBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                .Returns(_writeBufferSize);
+                           .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                           .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.IsOpen)
-                .Returns(true);
+                           .Setup(p => p.IsOpen)
+                           .Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
-                .Returns(_serverData1);
+                           .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
+                           .Returns(_serverData1);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestRead(_handle, (ulong)_serverData1.Length, _readBufferSize))
-                .Returns(_serverData2);
+                           .Setup(p => p.RequestRead(_handle, (ulong)_serverData1.Length, _readBufferSize))
+                           .Returns(_serverData2);
         }
 
         [TestCleanup]

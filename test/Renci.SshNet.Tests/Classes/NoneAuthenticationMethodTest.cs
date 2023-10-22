@@ -17,38 +17,72 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("AuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("NoneAuthenticationMethod: Pass null as username.")]
-        [ExpectedException(typeof(ArgumentException))]
         public void None_Test_Pass_Null()
         {
-            new NoneAuthenticationMethod(null);
+            NoneAuthenticationMethod nam = null;
+
+            try
+            {
+                nam = new NoneAuthenticationMethod(null);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("xx", ex.ParamName);
+            }
+            finally
+            {
+                nam?.Dispose();
+            }
         }
 
         [TestMethod]
         [TestCategory("AuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("NoneAuthenticationMethod: Pass String.Empty as username.")]
-        [ExpectedException(typeof(ArgumentException))]
         public void None_Test_Pass_Whitespace()
         {
-            new NoneAuthenticationMethod(string.Empty);
+            NoneAuthenticationMethod nam = null;
+
+            try
+            {
+                nam = new NoneAuthenticationMethod(string.Empty);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("xx", ex.ParamName);
+            }
+            finally
+            {
+                nam?.Dispose();
+            }
         }
 
         [TestMethod]
         public void Name()
         {
             var username = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var target = new NoneAuthenticationMethod(username);
 
-            Assert.AreEqual("none", target.Name);
+            using (var target = new NoneAuthenticationMethod(username))
+            {
+                Assert.AreEqual("none", target.Name);
+            }
         }
 
         [TestMethod]
         public void Username()
         {
             var username = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var target = new NoneAuthenticationMethod(username);
 
-            Assert.AreSame(username, target.Username);
+            using (var target = new NoneAuthenticationMethod(username))
+            {
+                Assert.AreSame(username, target.Username);
+            }
         }
     }
 }

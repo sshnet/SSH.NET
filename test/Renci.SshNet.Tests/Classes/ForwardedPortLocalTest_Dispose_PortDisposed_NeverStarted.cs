@@ -9,8 +9,8 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortLocalTest_Dispose_PortDisposed_NeverStarted
     {
         private ForwardedPortLocal _forwardedPort;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
 
         [TestInitialize]
         public void Setup()
@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;

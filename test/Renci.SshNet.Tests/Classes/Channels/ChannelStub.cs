@@ -8,7 +8,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     internal class ChannelStub : Channel
     {
         /// <summary>
-        /// Initializes a new <see cref="ChannelStub"/> instance.
+        /// Initializes a new instance of the <see cref="ChannelStub"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             get { return ChannelTypes.X11; }
         }
 
-        public IList<Exception> OnErrorOccurredInvocations { get; private set; }
+        public List<Exception> OnErrorOccurredInvocations { get; private set; }
 
         public Exception OnCloseException { get; set; }
 
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         public Exception OnDisconnectedException { get; set; }
 
-        public Exception OnEofException{ get; set; }
+        public Exception OnEofException { get; set; }
 
         public Exception OnErrorOccurredException { get; set; }
 

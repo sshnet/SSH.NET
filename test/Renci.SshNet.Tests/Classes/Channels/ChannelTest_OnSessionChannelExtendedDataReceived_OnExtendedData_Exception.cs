@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localPacketSize;
         private uint _localChannelNumber;
         private ChannelStub _channel;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onExtendedDataException;
 
         protected override void SetupData()
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localWindowSize = (uint) random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
             _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _onExtendedDataException = new SystemException();
+            _onExtendedDataException = new InvalidOperationException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
         }
 

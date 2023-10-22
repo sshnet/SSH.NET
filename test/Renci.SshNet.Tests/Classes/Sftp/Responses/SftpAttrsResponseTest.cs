@@ -39,22 +39,24 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var attributes = CreateSftpFileAttributes();
             var attributesBytes = attributes.GetBytes();
 
-            var sshDataStream = new SshDataStream(4 + attributesBytes.Length);
-            sshDataStream.Write(_responseId);
-            sshDataStream.Write(attributesBytes, 0, attributesBytes.Length);
+            using (var sshDataStream = new SshDataStream(4 + attributesBytes.Length))
+            {
+                sshDataStream.Write(_responseId);
+                sshDataStream.Write(attributesBytes, 0, attributesBytes.Length);
 
-            target.Load(sshDataStream.ToArray());
+                target.Load(sshDataStream.ToArray());
 
-            Assert.IsNotNull(target.Attributes);
-            Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual(_responseId, target.ResponseId);
-            Assert.AreEqual(SftpMessageTypes.Attrs, target.SftpMessageType);
+                Assert.IsNotNull(target.Attributes);
+                Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
+                Assert.AreEqual(_responseId, target.ResponseId);
+                Assert.AreEqual(SftpMessageTypes.Attrs, target.SftpMessageType);
 
-            // check attributes in detail
-            Assert.AreEqual(attributes.GroupId, target.Attributes.GroupId);
-            Assert.AreEqual(attributes.LastWriteTime, target.Attributes.LastWriteTime);
-            Assert.AreEqual(attributes.LastWriteTime, target.Attributes.LastWriteTime);
-            Assert.AreEqual(attributes.UserId, target.Attributes.UserId);
+                // check attributes in detail
+                Assert.AreEqual(attributes.GroupId, target.Attributes.GroupId);
+                Assert.AreEqual(attributes.LastWriteTime, target.Attributes.LastWriteTime);
+                Assert.AreEqual(attributes.LastWriteTime, target.Attributes.LastWriteTime);
+                Assert.AreEqual(attributes.UserId, target.Attributes.UserId);
+            }
         }
 
         private SftpFileAttributes CreateSftpFileAttributes()

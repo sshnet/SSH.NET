@@ -68,7 +68,7 @@
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="size">Size in megabytes.</param>
-        protected void CreateTestFile(string fileName, int size)
+        protected static void CreateTestFile(string fileName, int size)
         {
             using (var testFile = File.Create(fileName))
             {

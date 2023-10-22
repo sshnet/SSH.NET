@@ -4,7 +4,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SCP client integration tests
     /// </summary>
     [TestClass]
-    public class ScpClientTests : IntegrationTestBase, IDisposable
+    public sealed class ScpClientTests : IntegrationTestBase, IDisposable
     {
         private readonly ScpClient _scpClient;
 
@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             var file = $"/tmp/{Guid.NewGuid()}.txt";
             var fileContent = "File content !@#$%^&*()_+{}:,./<>[];'\\|";
-        
+
             using var uploadStream = new MemoryStream(Encoding.UTF8.GetBytes(fileContent));
             _scpClient.Upload(uploadStream, file);
 

@@ -9,7 +9,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_OnSessionChannelEofReceived_Exception : ChannelTestBase
+    public class ChannelTest_OnSessionChannelEofReceived_OnEof_Exception : ChannelTestBase
     {
         private uint _localWindowSize;
         private uint _localPacketSize;
@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private ChannelStub _channel;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onEofException;
 
         protected override void SetupData()
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
             _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
             _remotePacketSize = (uint) random.Next(0, int.MaxValue);
-            _onEofException = new SystemException();
+            _onEofException = new InvalidOperationException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
         }
 

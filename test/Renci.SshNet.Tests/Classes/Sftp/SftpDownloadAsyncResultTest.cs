@@ -7,10 +7,6 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    /// <summary>
-    ///This is a test class for SftpDownloadAsyncResultTest and is intended
-    ///to contain all SftpDownloadAsyncResultTest Unit Tests
-    ///</summary>
     [TestClass]
     public class SftpDownloadAsyncResultTest : TestBase
     {
@@ -37,10 +33,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Exception exception = new IOException();
             IAsyncResult callbackResult = null;
             var target = new SftpDownloadAsyncResult(asyncResult =>
-                {
-                    downloadCompleted.Set();
-                    callbackResult = asyncResult;
-                }, state);
+                                                        {
+                                                            downloadCompleted.Set();
+                                                            callbackResult = asyncResult;
+                                                        },
+                                                     state);
 
             target.SetAsCompleted(exception, true);
 
@@ -49,6 +46,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.IsTrue(target.IsCompleted);
             Assert.IsTrue(target.CompletedSynchronously);
             Assert.IsTrue(downloadCompleted.WaitOne(TimeSpan.Zero));
+
+            downloadCompleted.Dispose();
         }
 
         [TestMethod]

@@ -121,9 +121,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            var output = new byte[length];
-            _ = ProcessBytes(input, offset, length, output, 0);
-            return output;
+            return Encrypt(input, offset, length);
         }
 
         private int ProcessBytes(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)

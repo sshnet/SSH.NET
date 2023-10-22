@@ -6,7 +6,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SFTP client integration tests
     /// </summary>
     [TestClass]
-    public class SftpClientTests : IntegrationTestBase, IDisposable
+    public sealed class SftpClientTests : IntegrationTestBase, IDisposable
     {
         private readonly SftpClient _sftpClient;
 
@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Create_directory_with_contents_and_list_it()
         {
             var testDirectory = "/home/sshnet/sshnet-test";
-            var testFileName =  "test-file.txt";
+            var testFileName = "test-file.txt";
             var testFilePath = $"{testDirectory}/{testFileName}";
             var testContent = "file content";
 
@@ -45,10 +45,10 @@ namespace Renci.SshNet.IntegrationTests
                 builder.AppendLine($"{file.FullName} {file.IsRegularFile} {file.IsDirectory}");
             }
 
-            Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True
-/home/sshnet/sshnet-test/.. False True
-/home/sshnet/sshnet-test/test-file.txt True False
-", builder.ToString());
+            Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True" + Environment.NewLine +
+                            @"/ home/sshnet/sshnet-test/.. False True" + Environment.NewLine +
+                            @"/ home/sshnet/sshnet-test/test-file.txt True False" + Environment.NewLine,
+                            builder.ToString());
         }
 
         [TestMethod]
@@ -77,13 +77,14 @@ namespace Renci.SshNet.IntegrationTests
                 builder.AppendLine($"{file.FullName} {file.IsRegularFile} {file.IsDirectory}");
             }
 
-            _sftpClient.DeleteFile(testFilePath);
+            await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None)
+                             .ConfigureAwait(false);
             _sftpClient.DeleteDirectory(testDirectory);
 
-            Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True
-/home/sshnet/sshnet-test/.. False True
-/home/sshnet/sshnet-test/test-file.txt True False
-", builder.ToString());
+            Assert.AreEqual("/home/sshnet/sshnet-test/. False True" + Environment.NewLine +
+                            "/home/sshnet/sshnet-test/.. False True" + Environment.NewLine +
+                            "/home/sshnet/sshnet-test/test-file.txt True False" + Environment.NewLine,
+                            builder.ToString());
         }
 
         [TestMethod]

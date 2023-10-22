@@ -40,13 +40,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _data = new byte[(_writeBufferSize * 2) + 15];
             _random.NextBytes(_data);
             _offset = _random.Next(1, 5);
+
             // to get multiple SSH_FXP_WRITE messages (and verify the offset is updated correctly), we make sure
             // the number of bytes to write is at least two times the write buffer size; we write a few extra bytes to
             // ensure the buffer is not empty after the writes so we can verify whether Length, Dispose and Flush
             // flush the buffer
             _count = ((int) _writeBufferSize * 2) + _random.Next(1, 5);
 
-            _expectedWrittenByteCount = (2 * _writeBufferSize);
+            _expectedWrittenByteCount = 2 * _writeBufferSize;
             _expectedBufferedByteCount = (int)(_count - _expectedWrittenByteCount);
             _expectedBufferedBytes = _data.Take(_offset + (int)_expectedWrittenByteCount, _expectedBufferedByteCount);
         }
@@ -64,9 +65,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestWrite(_handle, 0, _data, _offset, (int)_writeBufferSize, It.IsAny<AutoResetEvent>(), null));
+                           .Setup(p => p.RequestWrite(_handle, 0, _data, _offset, (int) _writeBufferSize, It.IsAny<AutoResetEvent>(), null));
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestWrite(_handle, _writeBufferSize, _data, _offset + (int)_writeBufferSize, (int)_writeBufferSize, It.IsAny<AutoResetEvent>(), null));
+                           .Setup(p => p.RequestWrite(_handle, _writeBufferSize, _data, _offset + (int) _writeBufferSize, (int) _writeBufferSize, It.IsAny<AutoResetEvent>(), null));
         }
 
         [TestCleanup]
@@ -104,8 +105,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void RequestWriteOnSftpSessionShouldBeInvokedTwice()
         {
-            SftpSessionMock.Verify(p => p.RequestWrite(_handle, 0, _data, _offset, (int)_writeBufferSize, It.IsAny<AutoResetEvent>(), null), Times.Once);
-            SftpSessionMock.Verify(p => p.RequestWrite(_handle, _writeBufferSize, _data, _offset + (int)_writeBufferSize, (int)_writeBufferSize, It.IsAny<AutoResetEvent>(), null), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWrite(_handle, 0, _data, _offset, (int) _writeBufferSize, It.IsAny<AutoResetEvent>(), null), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWrite(_handle, _writeBufferSize, _data, _offset + (int) _writeBufferSize, (int) _writeBufferSize, It.IsAny<AutoResetEvent>(), null), Times.Once);
         }
 
         [TestMethod]

@@ -5,8 +5,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 {
     internal class SftpVersionResponseBuilder
     {
+        private readonly Dictionary<string, string> _extensions;
         private uint _version;
-        private readonly IDictionary<string, string> _extensions;
 
         public SftpVersionResponseBuilder()
         {

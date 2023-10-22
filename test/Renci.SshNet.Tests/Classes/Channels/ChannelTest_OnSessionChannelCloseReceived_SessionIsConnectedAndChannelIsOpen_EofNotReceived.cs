@@ -19,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private TimeSpan _channelCloseTimeout;
-        private IList<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
         private ChannelStub _channel;
 

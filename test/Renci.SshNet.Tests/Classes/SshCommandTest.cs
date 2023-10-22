@@ -32,8 +32,8 @@ namespace Renci.SshNet.Tests.Classes
             var command = string.Format("echo {0}", testValue);
             var cmd = s.CreateCommand(command);
             var result = cmd.Execute();
-            result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
-            return result.Equals(testValue);
+            result = result.Substring(0, result.Length - 1); // Remove \n character returned by command
+            return result.Equals(testValue, StringComparison.Ordinal);
         }
     }
 }

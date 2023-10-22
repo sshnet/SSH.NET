@@ -5,11 +5,11 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class ConnectivityTests : IntegrationTestBase
+    public sealed class ConnectivityTests : IntegrationTestBase
     {
         private AuthenticationMethodFactory _authenticationMethodFactory;
-        private IConnectionInfoFactory _connectionInfoFactory;
-        private IConnectionInfoFactory _adminConnectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
+        private LinuxAdminConnectionFactory _adminConnectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
         private SshConnectionDisruptor _sshConnectionDisruptor;
 
@@ -61,13 +61,11 @@ namespace Renci.SshNet.IntegrationTests
             try
             {
                 Exception errorOccurred = null;
-                int count = 0;
+
                 using (var client = new SftpClient(_connectionInfoFactory.Create()))
                 {
                     client.ErrorOccurred += (sender, args) =>
                                                 {
-                                                    Console.WriteLine("Exception " + count++);
-                                                    Console.WriteLine(args.Exception);
                                                     errorOccurred = args.Exception;
                                                 };
                     client.Connect();
@@ -90,8 +88,9 @@ namespace Renci.SshNet.IntegrationTests
                 if (hostNetworkConnectionDisabled)
                 {
                     disruptor?.RestoreConnections();
-                    disruptor?.Dispose();
                 }
+
+                disruptor?.Dispose();
             }
         }
 
@@ -101,13 +100,8 @@ namespace Renci.SshNet.IntegrationTests
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
                 Exception errorOccurred = null;
-                int count = 0;
-                client.ErrorOccurred += (sender, args) =>
-                                            {
-                                                Console.WriteLine("Exception "+ count++);
-                                                Console.WriteLine(args.Exception);
-                                                errorOccurred = args.Exception;
-                                            };
+
+                client.ErrorOccurred += (sender, args) => errorOccurred = args.Exception;
                 client.KeepAliveInterval = new TimeSpan(0, 0, 0, 0, 50);
                 client.Connect();
 
@@ -158,13 +152,13 @@ namespace Renci.SshNet.IntegrationTests
             {
                 client.KeepAliveInterval = TimeSpan.FromSeconds(1);
                 client.OperationTimeout = TimeSpan.FromSeconds(60);
-                ManualResetEvent errorOccurredSignaled = new ManualResetEvent(false);
+                var errorOccurredSignaled = new ManualResetEvent(initialState: false);
                 Exception errorOccurred = null;
                 client.ErrorOccurred += (sender, args) =>
-                {
-                    errorOccurred = args.Exception;
-                    errorOccurredSignaled.Set();
-                };
+                    {
+                        errorOccurred = args.Exception;
+                        errorOccurredSignaled.Set();
+                    };
                 client.Connect();
 
                 var disruptor = _sshConnectionDisruptor.BreakConnections();
@@ -191,6 +185,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     disruptor.RestoreConnections();
                     disruptor.Dispose();
+                    errorOccurredSignaled.Dispose();
                 }
             }
         }
@@ -206,25 +201,12 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     Exception errorOccurred = null;
                     client.ErrorOccurred += (sender, args) => errorOccurred = args.Exception;
-
                     client.Connect();
 
                     disruptor = _sshConnectionDisruptor.BreakConnections();
                     vmNetworkConnectionDisabled = true;
 
                     WaitForConnectionInterruption(client);
-                    // disconnect while network connectivity is lost
-                    client.Disconnect();
-
-                    Assert.IsFalse(client.IsConnected);
-
-                    disruptor.RestoreConnections();
-                    vmNetworkConnectionDisabled = false;
-
-                    // connect when network connectivity is restored
-                    client.Connect();
-                    client.ChangeDirectory(client.WorkingDirectory);
-                    client.Dispose();
 
                     Assert.IsNotNull(errorOccurred);
                     Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
@@ -233,6 +215,25 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                     Assert.IsNull(connectionException.InnerException);
                     Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
+
+                    // Clear registration of exception
+                    errorOccurred = null;
+
+                    // Disconnect while network connectivity is lost
+                    client.Disconnect();
+
+                    Assert.IsFalse(client.IsConnected);
+                    Assert.IsNull(errorOccurred);
+
+                    disruptor.RestoreConnections();
+                    vmNetworkConnectionDisabled = false;
+
+                    // Connect when network connectivity is restored
+                    client.Connect();
+                    client.ChangeDirectory(client.WorkingDirectory);
+
+                    Assert.IsTrue(client.IsConnected);
+                    Assert.IsNull(errorOccurred);
                 }
             }
             finally
@@ -241,6 +242,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     disruptor.RestoreConnections();
                 }
+
                 disruptor?.Dispose();
             }
         }
@@ -250,13 +252,13 @@ namespace Renci.SshNet.IntegrationTests
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
-                ManualResetEvent errorOccurredSignaled = new ManualResetEvent(false);
+                var errorOccurredSignaled = new ManualResetEvent(initialState: false);
                 Exception errorOccurred = null;
                 client.ErrorOccurred += (sender, args) =>
-                {
-                    errorOccurred = args.Exception;
-                    errorOccurredSignaled.Set();
-                };
+                    {
+                        errorOccurred = args.Exception;
+                        errorOccurredSignaled.Set();
+                    };
                 client.Connect();
 
                 var disruptor = _sshConnectionDisruptor.BreakConnections();
@@ -283,6 +285,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     disruptor.RestoreConnections();
                     disruptor.Dispose();
+
+                    errorOccurredSignaled.Dispose();
                 }
             }
         }
@@ -292,7 +296,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
-                ManualResetEvent errorOccurredSignaled = new ManualResetEvent(false);
+                var errorOccurredSignaled = new ManualResetEvent(initialState: false);
                 Exception errorOccurred = null;
                 client.ErrorOccurred += (sender, args) =>
                 {
@@ -318,6 +322,8 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.IsNull(errorOccurred.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", errorOccurred.Message);
                 Assert.IsFalse(client.IsConnected);
+
+                errorOccurredSignaled.Dispose();
             }
         }
 
@@ -458,6 +464,5 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
         }
-
     }
 }

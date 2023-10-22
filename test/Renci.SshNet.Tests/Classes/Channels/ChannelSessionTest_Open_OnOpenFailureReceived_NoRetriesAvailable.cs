@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
-        private IList<ChannelEventArgs> _channelClosedRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private SemaphoreLight _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
@@ -62,22 +62,23 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     m.Info is SessionChannelOpenInfo)));
             SessionMock.InSequence(sequence)
                 .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
-                .Callback<WaitHandle>(
-                    w =>
-                        {
-                            SessionMock.Raise(
-                                s => s.ChannelOpenFailureReceived += null,
-                                new MessageEventArgs<ChannelOpenFailureMessage>(
-                                    new ChannelOpenFailureMessage(
-                                        _localChannelNumber,
-                                        _failureDescription,
-                                        _failureReasonCode,
-                                        _failureLanguage
-                                        )));
-                        w.WaitOne();
-                    });
-            SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
-            ConnectionInfoMock.InSequence(sequence).Setup(p => p.RetryAttempts).Returns(1);
+                .Callback<WaitHandle>(w =>
+                                        {
+                                            SessionMock.Raise(
+                                                s => s.ChannelOpenFailureReceived += null,
+                                                new MessageEventArgs<ChannelOpenFailureMessage>(
+                                                    new ChannelOpenFailureMessage(_localChannelNumber,
+                                                                                  _failureDescription,
+                                                                                  _failureReasonCode,
+                                                                                  _failureLanguage)));
+                                            w.WaitOne();
+                                        });
+            SessionMock.InSequence(sequence)
+                       .Setup(p => p.ConnectionInfo)
+                       .Returns(ConnectionInfoMock.Object);
+            ConnectionInfoMock.InSequence(sequence)
+                              .Setup(p => p.RetryAttempts)
+                              .Returns(1);
         }
 
         protected override void Arrange()
@@ -94,6 +95,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             try
             {
                 _channel.Open();
+                Assert.Fail();
             }
             catch (SshException ex)
             {

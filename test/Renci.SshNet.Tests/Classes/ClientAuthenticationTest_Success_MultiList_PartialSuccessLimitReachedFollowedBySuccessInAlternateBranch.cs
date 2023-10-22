@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     ///     o publickey
     ///     o keyboard-interactive
     /// * Partial success limit is 2
-    /// 
+    ///
     ///                    none
     ///                  (1=FAIL)
     ///                     |

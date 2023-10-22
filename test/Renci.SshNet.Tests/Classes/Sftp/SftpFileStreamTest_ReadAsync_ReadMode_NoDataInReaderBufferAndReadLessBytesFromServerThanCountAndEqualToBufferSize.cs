@@ -43,30 +43,28 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _serverData1 = GenerateRandom(_serverData1Length, random);
             _serverData2Length = (int) _readBufferSize; // equal to read buffer size
             _serverData2 = GenerateRandom(_serverData2Length, random);
-
-            Assert.IsTrue(_serverData1Length < _numberOfBytesToRead && _serverData1Length == _readBufferSize);
         }
 
         protected override void SetupMocks()
         {
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestOpenAsync(_path, Flags.Read, default))
-                .ReturnsAsync(_handle);
+                           .Setup(p => p.RequestOpenAsync(_path, Flags.Read, default))
+                           .ReturnsAsync(_handle);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                .Returns(_readBufferSize);
+                           .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                           .Returns(_readBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                .Returns(_writeBufferSize);
+                           .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                           .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.IsOpen)
-                .Returns(true);
+                           .Setup(p => p.IsOpen)
+                           .Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, default))
-                .ReturnsAsync(_serverData1);
+                           .Setup(p => p.RequestReadAsync(_handle, 0UL, _readBufferSize, default))
+                           .ReturnsAsync(_serverData1);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestReadAsync(_handle, (ulong)_serverData1.Length, _readBufferSize, default))
-                .ReturnsAsync(_serverData2);
+                           .Setup(p => p.RequestReadAsync(_handle, (ulong)_serverData1.Length, _readBufferSize, default))
+                           .ReturnsAsync(_serverData2);
         }
 
         [TestCleanup]
@@ -129,7 +127,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _buffer = new byte[numberOfBytesRemainingInReadBuffer];
 
-            var actual = await _target.ReadAsync(_buffer, 0, _buffer.Length);
+            var actual = await _target.ReadAsync(_buffer, 0, _buffer.Length).ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(_buffer.Length, actual);
             Assert.IsTrue(_serverData2.Take(_numberOfBytesToRead - _serverData1Length, _buffer.Length).IsEqualTo(_buffer));
@@ -147,7 +145,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _buffer = new byte[numberOfBytesRemainingInReadBuffer + 1];
 
-            var actual = await _target.ReadAsync(_buffer, 0, _buffer.Length);
+            var actual = await _target.ReadAsync(_buffer, 0, _buffer.Length).ConfigureAwait(continueOnCapturedContext: false);
 
             Assert.AreEqual(numberOfBytesRemainingInReadBuffer, actual);
             Assert.IsTrue(_serverData2.Take(_numberOfBytesToRead - _serverData1Length, numberOfBytesRemainingInReadBuffer).IsEqualTo(_buffer.Take(numberOfBytesRemainingInReadBuffer)));

@@ -130,7 +130,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void FlushShouldSendRemainingBytesInBufferToServer()
         {
-           var expectedBytesSent = _data.Take(_bufferSize - _bufferData.Length, _data.Length + _bufferData.Length - _bufferSize);
+            var expectedBytesSent = _data.Take(_bufferSize - _bufferData.Length, _data.Length + _bufferData.Length - _bufferSize);
             byte[] actualBytesSent = null;
 
             _channelSessionMock.InSequence(_mockSequence)

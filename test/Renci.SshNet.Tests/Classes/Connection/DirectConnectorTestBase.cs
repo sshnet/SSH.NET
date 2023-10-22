@@ -11,6 +11,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
         internal DirectConnector Connector { get; private set; }
         internal SocketFactory SocketFactory { get; private set; }
 
+        protected static ConnectionInfo CreateConnectionInfo(string hostName)
+        {
+            return new ConnectionInfo(hostName,
+                                      777,
+                                      "user",
+                                      new KeyboardInteractiveAuthenticationMethod("user"));
+        }
+
         protected virtual void CreateMocks()
         {
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
@@ -31,14 +39,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
             CreateMocks();
             SetupData();
             SetupMocks();
-        }
-
-        protected ConnectionInfo CreateConnectionInfo(string hostName)
-        {
-            return new ConnectionInfo(hostName,
-                                      777,
-                                      "user",
-                                      new KeyboardInteractiveAuthenticationMethod("user"));
         }
     }
 }

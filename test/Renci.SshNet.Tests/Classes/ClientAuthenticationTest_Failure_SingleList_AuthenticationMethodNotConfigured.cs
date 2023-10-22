@@ -6,7 +6,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotSupported : ClientAuthenticationTestBase
+    public class ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes
                                   });
             NoneAuthenticationMethodMock.InSequence(seq)
                                         .Setup(p => p.AllowedAuthentications)
-                                        .Returns(new[] {"password"});
+                                        .Returns(new[] { "password" });
 
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
 

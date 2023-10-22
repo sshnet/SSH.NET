@@ -133,18 +133,20 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            try
+            using (var waitHandle = new ManualResetEvent(false))
             {
-                session.WaitOnHandle(waitHandle);
-                Assert.Fail();
-            }
-            catch (SshConnectionException ex)
-            {
-                Assert.AreEqual(DisconnectReason.None, ex.DisconnectReason);
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("Client not connected.", ex.Message);
+                try
+                {
+                    session.WaitOnHandle(waitHandle);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.AreEqual(DisconnectReason.None, ex.DisconnectReason);
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
             }
         }
 
@@ -152,18 +154,20 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            try
+            using (var waitHandle = new ManualResetEvent(false))
             {
-                session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
-                Assert.Fail();
-            }
-            catch (SshConnectionException ex)
-            {
-                Assert.AreEqual(DisconnectReason.None, ex.DisconnectReason);
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("Client not connected.", ex.Message);
+                try
+                {
+                    session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.AreEqual(DisconnectReason.None, ex.DisconnectReason);
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
             }
         }
 
@@ -171,23 +175,27 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
 
-            Assert.AreEqual(WaitResult.Disconnected, result);
+                Assert.AreEqual(WaitResult.Disconnected, result);
+            }
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
-            Assert.AreEqual(WaitResult.Disconnected, result);
-            Assert.IsNull(exception);
+                Assert.AreEqual(WaitResult.Disconnected, result);
+                Assert.IsNull(exception);
+            }
         }
 
         [TestMethod]

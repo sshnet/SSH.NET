@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -16,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private SshException _actualException;
         private MockSequence _sequence;
 
@@ -106,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorOccuredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnSubsystemSession()
         {
-            _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new InvalidOperationException()));
 
             Assert.AreEqual(0, _errorOccurredRegister.Count);
         }

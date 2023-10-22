@@ -20,8 +20,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private MockSequence _sequence;
 
         [TestInitialize]
@@ -34,6 +34,7 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _subsystemName = random.Next().ToString(CultureInfo.InvariantCulture);
             _operationTimeout = 30000;
             _disconnectedRegister = new List<EventArgs>();

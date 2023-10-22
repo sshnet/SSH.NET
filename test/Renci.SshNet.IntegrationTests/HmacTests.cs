@@ -4,9 +4,9 @@ using Renci.SshNet.TestTools.OpenSSH;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class HmacTests : IntegrationTestBase
+    public sealed class HmacTests : IntegrationTestBase
     {
-        private IConnectionInfoFactory _connectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
         [TestInitialize]

@@ -171,22 +171,26 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnSuccessIfWaitHandleIsSignaled()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(true);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+            using (var waitHandle = new ManualResetEvent(true))
+            {
+                var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
 
-            Assert.AreEqual(WaitResult.Success, result);
+                Assert.AreEqual(WaitResult.Success, result);
+            }
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
 
-            Assert.AreEqual(WaitResult.TimedOut, result);
+                Assert.AreEqual(WaitResult.TimedOut, result);
+            }
         }
 
         [TestMethod]
@@ -211,24 +215,28 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnSuccessIfWaitHandleIsSignaled()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(true);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
+            using (var waitHandle = new ManualResetEvent(true))
+            {
+                var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
 
-            Assert.AreEqual(WaitResult.Success, result);
-            Assert.IsNull(exception);
+                Assert.AreEqual(WaitResult.Success, result);
+                Assert.IsNull(exception);
+            }
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
         {
             var session = (ISession) Session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
 
-            Assert.AreEqual(WaitResult.TimedOut, result);
-            Assert.IsNull(exception);
+                Assert.AreEqual(WaitResult.TimedOut, result);
+                Assert.IsNull(exception);
+            }
         }
 
         [TestMethod]

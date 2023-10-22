@@ -14,13 +14,13 @@ namespace Renci.SshNet.Tests.Classes
     {
         private MyClient _client;
         private ConnectionInfo _connectionInfo;
-        private ApplicationException _onConnectException;
-        private ApplicationException _actualException;
+        private InvalidOperationException _onConnectException;
+        private InvalidOperationException _actualException;
 
         protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _onConnectException = new ApplicationException();
+            _onConnectException = new InvalidOperationException();
         }
 
         protected override void SetupMocks()
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes
                 _client.Connect();
                 Assert.Fail();
             }
-            catch (ApplicationException ex)
+            catch (InvalidOperationException ex)
             {
                 _actualException = ex;
             }
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _client.ErrorOccurred += (sender, args) => Interlocked.Increment(ref errorOccurredSignalCount);
 
-            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
+            SessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new InvalidOperationException()));
 
             Assert.AreEqual(0, errorOccurredSignalCount);
         }
@@ -139,8 +139,8 @@ namespace Renci.SshNet.Tests.Classes
             var executingAssembly = Assembly.GetExecutingAssembly();
 
             using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
+            using (var privateKey = new PrivateKeyFile(s))
             {
-                var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();
             }
         }
@@ -149,7 +149,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             private int _onConnectedCount;
 
-            public MyClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory) : base(connectionInfo, ownsConnectionInfo, serviceFactory)
+            public MyClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+                : base(connectionInfo, ownsConnectionInfo, serviceFactory)
             {
             }
 
@@ -167,7 +168,5 @@ namespace Renci.SshNet.Tests.Classes
                 }
             }
         }
-
-
     }
 }

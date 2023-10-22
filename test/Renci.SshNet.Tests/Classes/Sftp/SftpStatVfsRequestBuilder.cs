@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _extendedAction = extendedAction;
             return this;
         }
-        
+
         public SftpStatVfsRequestBuilder WithStatusAction(Action<SftpStatusResponse> statusAction)
         {
             _statusAction = statusAction;

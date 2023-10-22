@@ -6,7 +6,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Represents SFTP file information
     /// </summary>
     [TestClass]
-    public class SftpFileTest : IntegrationTestBase
+    public sealed class SftpFileTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
@@ -64,7 +64,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                var file = sftp.Get(null);
+                var file = sftp.Get(path: null);
 
                 sftp.Disconnect();
             }

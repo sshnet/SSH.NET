@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private ChannelStub _channel;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onWindowAdjustException;
         private uint _bytesToAdd;
 
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteWindowSize = (uint) random.Next(1000, int.MaxValue);
             _remotePacketSize = _localWindowSize - 1;
             _bytesToAdd = (uint) random.Next(0, int.MaxValue);
-            _onWindowAdjustException = new SystemException();
+            _onWindowAdjustException = new InvalidOperationException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
         }
 

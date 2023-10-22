@@ -39,10 +39,6 @@ dotnet_diagnostic.SA1636.severity = none
 
 #### Meziantou.Analyzer rules ####
 
-# MA0001 - StringComparison is missing
-# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
-#dotnet_diagnostic.MA0001.severity = none
-
 # MA0011: IFormatProvider is missing
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
 #
@@ -62,6 +58,12 @@ dotnet_diagnostic.MA0026.severity = none
 # MA0053: Make class sealed
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
 MA0053.public_class_should_be_sealed = false
+
+# MA0055: Do not use finalizer
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0055.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0055.severity = none
 
 # MA0110: Use the Regex source generator
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md

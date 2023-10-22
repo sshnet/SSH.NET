@@ -639,9 +639,13 @@ namespace Renci.SshNet
             if (disposing)
             {
                 var key = _key;
-                if (key != null)
+                if (key is not null)
                 {
-                    ((IDisposable) key).Dispose();
+                    if (key is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+
                     _key = null;
                 }
 

@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                              .WithGroupId(_random.Next())
                                                              .WithPermissions((uint) _random.Next())
                                                              .Build();
-            _cancellationToken = new CancellationToken();
+            _cancellationToken = default;
         }
 
         protected override void SetupMocks()
@@ -71,7 +71,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _target = await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, _cancellationToken)
                                           .ConfigureAwait(continueOnCapturedContext: false);
         }
-
 
         [TestMethod]
         public void CanReadShouldReturnFalse()
@@ -122,7 +121,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             try
             {
-                _ = await _target.ReadAsync(buffer, 0, buffer.Length, _cancellationToken);
+                _ = await _target.ReadAsync(buffer, 0, buffer.Length, _cancellationToken)
+                                 .ConfigureAwait(continueOnCapturedContext: false);
                 Assert.Fail();
             }
             catch (NotSupportedException ex)
@@ -145,7 +145,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken))
                                .Returns(Task.CompletedTask);
 
-            await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken);
+            await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken)
+                         .ConfigureAwait(continueOnCapturedContext: false);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
             SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken), Times.Once);

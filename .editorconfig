@@ -529,6 +529,10 @@ dotnet_diagnostic.CA2208.severity = none
 
 #### Roslyn IDE analyser rules ####
 
+# IDE0028: Use collection initializers
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0028
+dotnet_diagnostic.IDE0028.severity = none
+
 # IDE0032: Use auto-implemented property
 #
 # For performance reasons, we do not always want to enforce the use of
@@ -582,6 +586,10 @@ dotnet_diagnostic.IDE0130.severity = none
 #
 # var inputPath = originalDossierPathList.Find(x => x.id == updatedPath.id) ?? throw new PcsException($"Path id ({updatedPath.id}) unknown in PCS for dossier id {dossierFromTs.dossier.id}", updatedPath.id);
 dotnet_diagnostic.IDE0270.severity = none
+
+# IDE0290: Use primary constructor
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0290
+dotnet_diagnostic.IDE0290.severity = none
 
 # IDE0300: Collection initialization can be simplified
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0300

@@ -9,7 +9,6 @@ using Moq;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 
-
 namespace Renci.SshNet.Tests.Classes
 {
     /// <summary>
@@ -24,9 +23,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             const string proxyHost = null;
 
-            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
-                ProxyTypes.None, proxyHost, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    proxyHost,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.IsNull(connectionInfo.ProxyHost);
         }
@@ -69,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes
                                                     int.Parse(Resources.PORT),
                                                     Resources.USERNAME,
                                                     Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreSame(proxyHost, connectionInfo.ProxyHost);
         }
@@ -90,7 +95,7 @@ namespace Renci.SshNet.Tests.Classes
                                        ++maxPort,
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -116,7 +121,7 @@ namespace Renci.SshNet.Tests.Classes
                                        --minPort,
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -132,9 +137,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             var proxyPort = new Random().Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
 
-            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
-                ProxyTypes.None, Resources.HOST, proxyPort, Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    Resources.HOST,
+                                                    proxyPort,
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreEqual(proxyPort, connectionInfo.ProxyPort);
         }
@@ -145,9 +156,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             const string proxyUsername = null;
 
-            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http,
-                    Resources.PROXY_HOST, int.Parse(Resources.PORT), proxyUsername, Resources.PASSWORD,
-                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.Http,
+                                                    Resources.PROXY_HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    proxyUsername,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.IsNull(connectionInfo.ProxyUsername);
         }
@@ -158,7 +175,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                _ = new ConnectionInfo(null,
+                _ = new ConnectionInfo(host: null,
                                        int.Parse(Resources.PORT),
                                        Resources.USERNAME,
                                        ProxyTypes.None,
@@ -166,7 +183,8 @@ namespace Renci.SshNet.Tests.Classes
                                        int.Parse(Resources.PORT),
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
+                Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
@@ -181,9 +199,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             var host = string.Empty;
 
-            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
-                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(host,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreSame(host, connectionInfo.Host);
         }
@@ -194,9 +218,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             const string host = "in_valid_host.";
 
-            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
-                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(host,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreSame(host, connectionInfo.Host);
         }
@@ -207,9 +237,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             var host = new Random().Next().ToString(CultureInfo.InvariantCulture);
 
-            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME,
-                ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(host,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreSame(host, connectionInfo.Host);
         }
@@ -230,7 +266,7 @@ namespace Renci.SshNet.Tests.Classes
                                        int.Parse(Resources.PORT),
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -256,7 +292,7 @@ namespace Renci.SshNet.Tests.Classes
                                        int.Parse(Resources.PORT),
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -272,9 +308,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             var port = new Random().Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
 
-            var connectionInfo = new ConnectionInfo(Resources.HOST, port, Resources.USERNAME, ProxyTypes.None,
-                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var connectionInfo = new ConnectionInfo(Resources.HOST,
+                                                    port,
+                                                    Resources.USERNAME,
+                                                    ProxyTypes.None,
+                                                    Resources.HOST,
+                                                    int.Parse(Resources.PORT),
+                                                    Resources.USERNAME,
+                                                    Resources.PASSWORD,
+                                                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreEqual(port, connectionInfo.Port);
         }
@@ -373,7 +415,7 @@ namespace Renci.SshNet.Tests.Classes
                                        int.Parse(Resources.PORT),
                                        Resources.USERNAME,
                                        Resources.PASSWORD,
-                                       null);
+                                       authenticationMethods: null);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)

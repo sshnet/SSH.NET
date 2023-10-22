@@ -89,6 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             // wait for the exception to be signaled by the second call to WaitAny
             _exceptionSignaled.WaitOne(5000);
+
             // allow a little time to allow SftpFileReader to process exception
             Thread.Sleep(100);
             try

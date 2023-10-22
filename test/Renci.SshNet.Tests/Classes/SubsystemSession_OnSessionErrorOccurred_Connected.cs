@@ -17,8 +17,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private ExceptionEventArgs _errorOccurredEventArgs;
         private MockSequence _sequence;
 
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes
             _operationTimeout = 30000;
             _disconnectedRegister = new List<EventArgs>();
             _errorOccurredRegister = new List<ExceptionEventArgs>();
-            _errorOccurredEventArgs = new ExceptionEventArgs(new SystemException());
+            _errorOccurredEventArgs = new ExceptionEventArgs(new InvalidOperationException());
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);

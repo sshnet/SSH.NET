@@ -25,11 +25,18 @@ namespace Renci.SshNet.Tests.Classes
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
-                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
-                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            _connectionInfo = new ConnectionInfo(Resources.HOST,
+                                                 int.Parse(Resources.PORT),
+                                                 Resources.USERNAME,
+                                                 ProxyTypes.None,
+                                                 Resources.HOST,
+                                                 int.Parse(Resources.PORT),
+                                                 Resources.USERNAME,
+                                                 Resources.PASSWORD,
+                                                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Returns(_clientAuthenticationMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication())
+                               .Returns(_clientAuthenticationMock.Object);
             _clientAuthenticationMock.Setup(p => p.Authenticate(_connectionInfo, _sessionMock.Object));
         }
 

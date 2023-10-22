@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
     public class ExtensionsTest_Reverse
     {
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Small()
         {
-            var value = new[] {0, 1, 4, 3, 7, 9};
+            var value = new[] { 0, 1, 4, 3, 7, 9 };
 
             var actual = Extensions.Reverse(value);
 

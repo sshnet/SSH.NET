@@ -639,7 +639,7 @@ namespace Renci.SshNet
 
                     // Start incoming request listener
                     // ToDo: Make message pump async, to not consume a thread for every session
-                    ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
+                    _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
                     // Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -755,7 +755,7 @@ namespace Renci.SshNet
 
             // Start incoming request listener
             // ToDo: Make message pump async, to not consume a thread for every session
-            ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
+            _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener).ConfigureAwait(false);
 
             // Wait for key exchange to be completed
             WaitOnHandle(_keyExchangeCompletedWaitHandle);

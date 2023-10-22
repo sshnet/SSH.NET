@@ -15,6 +15,36 @@ namespace Renci.SshNet.Tests.Classes.Connection
         internal Socks5Connector Connector { get; private set; }
         internal SocketFactory SocketFactory { get; private set; }
 
+        protected static ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
+        {
+            return new ConnectionInfo(IPAddress.Loopback.ToString(),
+                                      777,
+                                      "user",
+                                      ProxyTypes.Socks5,
+                                      IPAddress.Loopback.ToString(),
+                                      8122,
+                                      proxyUser,
+                                      proxyPassword,
+                                      new KeyboardInteractiveAuthenticationMethod("user"));
+        }
+
+        protected static string GenerateRandomString(int minLength, int maxLength)
+        {
+            var random = new Random();
+            var length = random.Next(minLength, maxLength);
+
+            var sb = new StringBuilder(length);
+            int offset = 'a';
+
+            for (var i = 0; i < length; i++)
+            {
+                var c = (char) random.Next(offset, offset + 26);
+                _ = sb.Append(c);
+            }
+
+            return sb.ToString();
+        }
+
         protected virtual void CreateMocks()
         {
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
@@ -35,36 +65,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
             CreateMocks();
             SetupData();
             SetupMocks();
-        }
-
-        protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
-        {
-            return new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                      777,
-                                      "user",
-                                      ProxyTypes.Socks5,
-                                      IPAddress.Loopback.ToString(),
-                                      8122,
-                                      proxyUser,
-                                      proxyPassword,
-                                      new KeyboardInteractiveAuthenticationMethod("user"));
-        }
-
-        protected static string GenerateRandomString(int minLength, int maxLength)    
-        {
-            var random = new Random();
-            var length = random.Next(minLength, maxLength);
-
-            var sb = new StringBuilder(length);
-            int offset = 'a';
-
-            for (var i = 0; i < length; i++)
-            {
-                var c = (char) random.Next(offset, offset + 26);
-                _ = sb.Append(c);
-            }
-
-            return sb.ToString();
         }
     }
 }

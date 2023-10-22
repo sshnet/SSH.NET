@@ -16,20 +16,50 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("AuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("KeyboardInteractiveAuthenticationMethod: Pass null as username.")]
-        [ExpectedException(typeof(ArgumentException))]
         public void Keyboard_Test_Pass_Null()
         {
-            new KeyboardInteractiveAuthenticationMethod(null);
+            KeyboardInteractiveAuthenticationMethod kiam = null;
+
+            try
+            {
+                kiam = new KeyboardInteractiveAuthenticationMethod(username: null);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("ddd", ex.ParamName);
+            }
+            finally
+            {
+                kiam?.Dispose();
+            }
         }
 
         [TestMethod]
         [TestCategory("AuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("KeyboardInteractiveAuthenticationMethod: Pass String.Empty as username.")]
-        [ExpectedException(typeof(ArgumentException))]
         public void Keyboard_Test_Pass_Whitespace()
         {
-            new KeyboardInteractiveAuthenticationMethod(string.Empty);
+            KeyboardInteractiveAuthenticationMethod kiam = null;
+
+            try
+            {
+                kiam = new KeyboardInteractiveAuthenticationMethod(username: string.Empty);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("ddd", ex.ParamName);
+            }
+            finally
+            {
+                kiam?.Dispose();
+            }
         }
     }
 }

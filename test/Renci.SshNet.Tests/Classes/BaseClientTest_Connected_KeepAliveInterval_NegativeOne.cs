@@ -107,7 +107,8 @@ namespace Renci.SshNet.Tests.Classes
 
         private class MyClient : BaseClient
         {
-            public MyClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory) : base(connectionInfo, ownsConnectionInfo, serviceFactory)
+            public MyClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+                : base(connectionInfo, ownsConnectionInfo, serviceFactory)
             {
             }
         }

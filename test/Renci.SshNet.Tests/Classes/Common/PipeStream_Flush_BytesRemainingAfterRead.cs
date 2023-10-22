@@ -95,19 +95,20 @@ namespace Renci.SshNet.Tests.Classes.Common
             _pipeStream.WriteByte(32);
 
             var buffer = new byte[4];
-            int bytesRead = int.MaxValue;
+            var bytesRead = int.MaxValue;
 
             Thread readThread = new Thread(() =>
-            {
-                bytesRead = _pipeStream.Read(buffer, 0, buffer.Length);
-            });
+                {
+                    bytesRead = _pipeStream.Read(buffer, 0, buffer.Length);
+                });
             readThread.Start();
 
             Assert.IsFalse(readThread.Join(500));
 
             // Thread Abort method is obsolete: https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/thread-abort-obsolete
+#pragma warning disable MA0035 // Do not use dangerous threading methods
             readThread.Abort();
-        
+#pragma warning restore MA0035 // Do not use dangerous threading methods
 
             Assert.AreEqual(int.MaxValue, bytesRead);
             Assert.AreEqual(0, buffer[0]);

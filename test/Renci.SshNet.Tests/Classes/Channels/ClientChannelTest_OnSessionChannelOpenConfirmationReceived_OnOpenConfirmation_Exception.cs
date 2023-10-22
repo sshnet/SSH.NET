@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localPacketSize;
         private uint _remoteChannelNumber;
         private ClientChannelStub _channel;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private List<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onOpenConfirmationException;
 
         [TestInitialize]
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localWindowSize = (uint) random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
             _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _onOpenConfirmationException = new SystemException();
+            _onOpenConfirmationException = new InvalidOperationException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -46,9 +46,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Act()
         {
             _sessionMock.Raise(s => s.ChannelOpenConfirmationReceived += null,
-                new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                    new ChannelOpenConfirmationMessage(_localChannelNumber, _localWindowSize, _localPacketSize,
-                        _remoteChannelNumber)));
+                               new MessageEventArgs<ChannelOpenConfirmationMessage>(
+                                    new ChannelOpenConfirmationMessage(_localChannelNumber, _localWindowSize, _localPacketSize, _remoteChannelNumber)));
         }
 
         [TestMethod]

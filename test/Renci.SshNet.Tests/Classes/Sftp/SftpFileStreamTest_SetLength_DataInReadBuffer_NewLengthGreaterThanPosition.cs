@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     /// - New length greater than client position and greater than server position
     /// </summary>
     [TestClass]
-    public class SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition : SftpFileStreamTestBase
+    public class SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreaterThanPosition : SftpFileStreamTestBase
     {
         private string _path;
         private SftpFileStream _sftpFileStream;
@@ -149,18 +149,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             SftpSessionMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(_sequence)
-                           .Setup(p => p.RequestRead(_handle,
-                                                     (uint) (_readBytes1.Length + _readBytes2.Length),
-                                                     _readBufferSize))
-                           .Returns(new byte[] {0x0f});
+                           .Setup(p => p.RequestRead(_handle, (uint) (_readBytes1.Length + _readBytes2.Length), _readBufferSize))
+                           .Returns(new byte[] { 0x0f });
 
             var byteRead = _sftpFileStream.ReadByte();
 
             Assert.AreEqual(0x0f, byteRead);
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle,
-                                                      (uint) (_readBytes1.Length + _readBytes2.Length),
-                                                      _readBufferSize),
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (uint) (_readBytes1.Length + _readBytes2.Length), _readBufferSize),
                                    Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(4));
         }

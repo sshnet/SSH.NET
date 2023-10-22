@@ -21,38 +21,42 @@ namespace Renci.SshNet.Tests.Classes
         private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
+        private ManualResetEvent _messageListenerCompleted;
 
         [TestInitialize]
         public void Setup()
         {
             Arrange();
-            Act();
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            if (_forwardedPort != null)
+            if (_forwardedPort is not null)
             {
                 _sessionMock.Setup(
                     p =>
                         p.SendMessage(
                             It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                                 g => g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
-                _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(initialState: true));
+                _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(_messageListenerCompleted);
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+
+            _messageListenerCompleted?.Dispose();
         }
 
         protected void Arrange()
         {
             var random = new Random();
+
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, 1000));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port);
+            _messageListenerCompleted = new ManualResetEvent(initialState: true);
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -81,10 +85,6 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
             _forwardedPort.Start();
-        }
-
-        protected void Act()
-        {
         }
 
         [TestMethod]

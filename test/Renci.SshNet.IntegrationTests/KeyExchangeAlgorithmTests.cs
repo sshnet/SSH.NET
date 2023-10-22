@@ -4,9 +4,9 @@ using Renci.SshNet.TestTools.OpenSSH;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class KeyExchangeAlgorithmTests : IntegrationTestBase
+    public sealed class KeyExchangeAlgorithmTests : IntegrationTestBase
     {
-        private IConnectionInfoFactory _connectionInfoFactory;
+        private LinuxVMConnectionFactory _connectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;
 
         [TestInitialize]
@@ -113,7 +113,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [Ignore]
         public void DiffieHellmanGroup18Sha512()
         {
             _remoteSshdConfig.ClearKeyExchangeAlgorithms()

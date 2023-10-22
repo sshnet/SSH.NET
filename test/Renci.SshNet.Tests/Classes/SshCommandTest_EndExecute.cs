@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshCommand_EndExecute : TestBase
+    public class SshCommandTest_EndExecute : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
@@ -35,12 +35,16 @@ namespace Renci.SshNet.Tests.Classes
         {
             var seq = new MockSequence();
 
-            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
+            _sessionMock.InSequence(seq)
+                        .Setup(p => p.CreateChannelSession())
+                        .Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(seq).Setup(p => p.Open());
-            _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText))
-                .Returns(true)
-                .Raises(c => c.Closed += null, new ChannelEventArgs(5));
-            _channelSessionMock.InSequence(seq).Setup(p => p.Dispose());
+            _channelSessionMock.InSequence(seq)
+                               .Setup(p => p.SendExecRequest(_commandText))
+                               .Returns(true)
+                               .Raises(c => c.Closed += null, new ChannelEventArgs(5));
+            _channelSessionMock.InSequence(seq)
+                               .Setup(p => p.Dispose());
 
             var asyncResult = _sshCommand.BeginExecute();
             _sshCommand.EndExecute(asyncResult);
@@ -53,12 +57,14 @@ namespace Renci.SshNet.Tests.Classes
         {
             var seq = new MockSequence();
 
-            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(seq).Setup(p => p.Open());
-            _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText))
-                .Returns(true)
-                .Raises(c => c.Closed += null, new ChannelEventArgs(5));
-            _channelSessionMock.InSequence(seq).Setup(p => p.Dispose());
+            _sessionMock.InSequence(seq)
+                        .Setup(p => p.CreateChannelSession())
+                        .Returns(_channelSessionMock.Object);
+            _channelSessionMock.InSequence(seq)
+                               .Setup(p => p.Open());
+            _channelSessionMock.InSequence(seq)
+                               .Setup(p => p.SendExecRequest(_commandText))
+                               .Returns(true);
 
             var asyncResult = _sshCommand.BeginExecute();
             _sshCommand.EndExecute(asyncResult);

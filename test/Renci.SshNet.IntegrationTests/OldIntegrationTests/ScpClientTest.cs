@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Globalization;
+using System.Security.Cryptography;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
@@ -6,7 +7,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Provides SCP client functionality.
     /// </summary>
     [TestClass]
-    public partial class ScpClientTest : IntegrationTestBase
+    public sealed partial class ScpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Scp")]
@@ -27,7 +28,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 scp.Download(Path.GetFileName(uploadedFileName), new FileInfo(downloadedFileName));
 
-                //  Calculate MD5 value
+                // Calculate MD5 value
                 var uploadedHash = CalculateMD5(uploadedFileName);
                 var downloadedHash = CalculateMD5(downloadedFileName);
 
@@ -55,7 +56,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 CreateTestFile(uploadedFileName, 1);
 
-                //  Calculate has value
+                // Calculate has value
                 using (var stream = File.OpenRead(uploadedFileName))
                 {
                     scp.Upload(stream, Path.GetFileName(uploadedFileName));
@@ -66,7 +67,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     scp.Download(Path.GetFileName(uploadedFileName), stream);
                 }
 
-                //  Calculate MD5 value
+                // Calculate MD5 value
                 var uploadedHash = CalculateMD5(uploadedFileName);
                 var downloadedHash = CalculateMD5(downloadedFileName);
 
@@ -98,7 +99,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 scp.Download(Path.GetFileName(uploadedFileName), new FileInfo(downloadedFileName));
 
-                //  Calculate MD5 value
+                // Calculate MD5 value
                 var uploadedHash = CalculateMD5(uploadedFileName);
                 var downloadedHash = CalculateMD5(downloadedFileName);
 
@@ -126,7 +127,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 CreateTestFile(uploadedFileName, 10);
 
-                //  Calculate has value
+                // Calculate has value
                 using (var stream = File.OpenRead(uploadedFileName))
                 {
                     scp.Upload(stream, Path.GetFileName(uploadedFileName));
@@ -137,7 +138,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     scp.Download(Path.GetFileName(uploadedFileName), stream);
                 }
 
-                //  Calculate MD5 value
+                // Calculate MD5 value
                 var uploadedHash = CalculateMD5(uploadedFileName);
                 var downloadedHash = CalculateMD5(downloadedFileName);
 
@@ -165,24 +166,39 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 scp.Connect();
 
-                var uploadDirectory =
-                    Directory.CreateDirectory(string.Format("{0}\\{1}", Path.GetTempPath(), Path.GetRandomFileName()));
+                var uploadDirectory =Directory.CreateDirectory(string.Format(CultureInfo.InvariantCulture,
+                                                                             "{0}\\{1}",
+                                                                             Path.GetTempPath(),
+                                                                             Path.GetRandomFileName()));
                 for (var i = 0; i < 3; i++)
                 {
-                    var subfolder = Directory.CreateDirectory(string.Format(@"{0}\folder_{1}", uploadDirectory.FullName, i));
+                    var subfolder = Directory.CreateDirectory(string.Format(CultureInfo.InvariantCulture,
+                                                                            @"{0}\folder_{1}",
+                                                                            uploadDirectory.FullName,
+                                                                            i));
 
                     for (var j = 0; j < 5; j++)
                     {
-                        CreateTestFile(string.Format(@"{0}\file_{1}", subfolder.FullName, j), 1);
+                        CreateTestFile(string.Format(CultureInfo.InvariantCulture,
+                                                     @"{0}\file_{1}",
+                                                     subfolder.FullName,
+                                                     j),
+                                       size: 1);
                     }
 
-                    CreateTestFile(string.Format(@"{0}\file_{1}", uploadDirectory.FullName, i), 1);
+                    CreateTestFile(string.Format(CultureInfo.InvariantCulture,
+                                                 @"{0}\file_{1}",
+                                                 uploadDirectory.FullName,
+                                                 i),
+                                   size: 1);
                 }
 
                 scp.Upload(uploadDirectory, "uploaded_dir");
 
-                var downloadDirectory =
-                    Directory.CreateDirectory(string.Format("{0}\\{1}", Path.GetTempPath(), Path.GetRandomFileName()));
+                var downloadDirectory = Directory.CreateDirectory(string.Format(CultureInfo.InvariantCulture,
+                                                                  "{0}\\{1}",
+                                                                  Path.GetTempPath(),
+                                                                  Path.GetRandomFileName()));
 
                 scp.Download("uploaded_dir", downloadDirectory);
 
@@ -203,6 +219,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 Assert.IsTrue(counter == uploadedFiles.Length && uploadedFiles.Length == downloadFiles.Length);
             }
+
             RemoveAllFiles();
         }
 
@@ -259,7 +276,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 }
 
                 var uploadedFiles = uploadFilenames.ToDictionary(Path.GetFileName, (filename) => 0L);
-                var downloadedFiles = uploadFilenames.ToDictionary((filename) => string.Format("{0}.down", Path.GetFileName(filename)), (filename) => 0L);
+                var downloadedFiles = uploadFilenames.ToDictionary((filename) => string.Format(CultureInfo.InvariantCulture,
+                                                                                               "{0}.down",
+                                                                                               Path.GetFileName(filename)),
+                                                                   (filename) => 0L);
 
                 scp.Uploading += (sender, e) =>
                     {
@@ -293,7 +313,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             }
         }
 
-        protected static string CalculateMD5(string fileName)
+        private static string CalculateMD5(string fileName)
         {
             using (var file = new FileStream(fileName, FileMode.Open))
             {
@@ -314,7 +334,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 for (var i = 0; i < hash.Length; i++)
                 {
-                    _ = sb.Append(i.ToString("x2"));
+                    _ = sb.Append(i.ToString("x2", CultureInfo.InvariantCulture));
                 }
 
                 return sb.ToString();

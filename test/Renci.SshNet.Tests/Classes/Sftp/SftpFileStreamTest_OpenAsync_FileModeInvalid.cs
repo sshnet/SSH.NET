@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _random = new Random();
             _path = _random.Next().ToString(CultureInfo.InvariantCulture);
-            _fileMode = 0;
+            _fileMode = (FileMode) 666;
             _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
         }

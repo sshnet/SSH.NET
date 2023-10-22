@@ -6,7 +6,7 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class RemotePathDoubleQuoteTransformationTest
     {
-        private IRemotePathTransformation _transformation;
+        private RemotePathDoubleQuoteTransformation _transformation;
 
         [TestInitialize]
         public void SetUp()

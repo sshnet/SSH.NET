@@ -123,23 +123,27 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
             var session = (ISession) _session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
 
-            Assert.AreEqual(WaitResult.Disconnected, result);
+                Assert.AreEqual(WaitResult.Disconnected, result);
+            }
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
             var session = (ISession) _session;
-            var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
-            Assert.AreEqual(WaitResult.Disconnected, result);
-            Assert.IsNull(exception);
+                Assert.AreEqual(WaitResult.Disconnected, result);
+                Assert.IsNull(exception);
+            }
         }
 
         [TestMethod]

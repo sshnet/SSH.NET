@@ -64,7 +64,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             request.Complete(statusResponse);
 
             Assert.AreEqual(1, statusActionInvocations.Count);
+#pragma warning disable S4158 // Empty collections should not be accessed or iterated
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
+#pragma warning restore S4158 // Empty collections should not be accessed or iterated
         }
 
         [TestMethod]
@@ -86,25 +88,26 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             Assert.AreEqual(expectedBytesLength, bytes.Length);
 
-            var sshDataStream = new SshDataStream(bytes);
+            using (var sshDataStream = new SshDataStream(bytes))
+            {
+                Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
+                Assert.AreEqual((byte) SftpMessageTypes.Link, sshDataStream.ReadByte());
+                Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Link, sshDataStream.ReadByte());
-            Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
+                Assert.AreEqual((uint) _newLinkPathBytes.Length, sshDataStream.ReadUInt32());
+                var actualNewLinkPath = new byte[_newLinkPathBytes.Length];
+                sshDataStream.Read(actualNewLinkPath, 0, actualNewLinkPath.Length);
+                Assert.IsTrue(_newLinkPathBytes.SequenceEqual(actualNewLinkPath));
 
-            Assert.AreEqual((uint) _newLinkPathBytes.Length, sshDataStream.ReadUInt32());
-            var actualNewLinkPath = new byte[_newLinkPathBytes.Length];
-            sshDataStream.Read(actualNewLinkPath, 0, actualNewLinkPath.Length);
-            Assert.IsTrue(_newLinkPathBytes.SequenceEqual(actualNewLinkPath));
+                Assert.AreEqual((uint) _existingPathBytes.Length, sshDataStream.ReadUInt32());
+                var actualExistingPath = new byte[_existingPathBytes.Length];
+                sshDataStream.Read(actualExistingPath, 0, actualExistingPath.Length);
+                Assert.IsTrue(_existingPathBytes.SequenceEqual(actualExistingPath));
 
-            Assert.AreEqual((uint) _existingPathBytes.Length, sshDataStream.ReadUInt32());
-            var actualExistingPath = new byte[_existingPathBytes.Length];
-            sshDataStream.Read(actualExistingPath, 0, actualExistingPath.Length);
-            Assert.IsTrue(_existingPathBytes.SequenceEqual(actualExistingPath));
+                Assert.AreEqual(1, sshDataStream.ReadByte());
 
-            Assert.AreEqual(1, sshDataStream.ReadByte());
-
-            Assert.IsTrue(sshDataStream.IsEndOfData);
+                Assert.IsTrue(sshDataStream.IsEndOfData);
+            }
         }
     }
 }

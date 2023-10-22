@@ -8,14 +8,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 {
     public abstract class SftpFileStreamAsyncTestBase
     {
-        internal Mock<ISftpSession> SftpSessionMock;
-        protected MockSequence MockSequence;
+        internal Mock<ISftpSession> SftpSessionMock { get; private set; }
+        protected MockSequence MockSequence { get; private set; }
 
         protected virtual Task ArrangeAsync()
         {
             SetupData();
             CreateMocks();
             SetupMocks();
+
             return Task.CompletedTask;
         }
 
@@ -34,34 +35,44 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestInitialize]
         public async Task SetUpAsync()
         {
-            await ArrangeAsync();
-            await ActAsync();
+            await ArrangeAsync().ConfigureAwait(continueOnCapturedContext: false);
+            await ActAsync().ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        protected static byte[] GenerateRandom(int length)
+        {
+            return GenerateRandom(length, new Random());
+        }
+
+        protected static byte[] GenerateRandom(int length, Random random)
+        {
+            if (random is null)
+            {
+                throw new ArgumentNullException(nameof(random));
+            }
+
+            var buffer = new byte[length];
+            random.NextBytes(buffer);
+            return buffer;
+        }
+
+        protected static byte[] GenerateRandom(uint length)
+        {
+            return GenerateRandom(length, new Random());
+        }
+
+        protected static byte[] GenerateRandom(uint length, Random random)
+        {
+            if (random is null)
+            {
+                throw new ArgumentNullException(nameof(random));
+            }
+
+            var buffer = new byte[length];
+            random.NextBytes(buffer);
+            return buffer;
         }
 
         protected abstract Task ActAsync();
-
-        protected byte[] GenerateRandom(int length)
-        {
-            return GenerateRandom(length, new Random());
-        }
-
-        protected byte[] GenerateRandom(int length, Random random)
-        {
-            var buffer = new byte[length];
-            random.NextBytes(buffer);
-            return buffer;
-        }
-
-        protected byte[] GenerateRandom(uint length)
-        {
-            return GenerateRandom(length, new Random());
-        }
-
-        protected byte[] GenerateRandom(uint length, Random random)
-        {
-            var buffer = new byte[length];
-            random.NextBytes(buffer);
-            return buffer;
-        }
     }
 }

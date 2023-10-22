@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -16,10 +19,11 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
-        private IList<EventArgs> _closingRegister;
-        private IList<ExceptionEventArgs> _exceptionRegister;
+        private List<EventArgs> _closingRegister;
+        private List<ExceptionEventArgs> _exceptionRegister;
         private IPEndPoint _bindEndpoint;
         private IPEndPoint _remoteEndpoint;
+        private ManualResetEvent _messageListenerCompleted;
 
         protected ForwardedPortRemote ForwardedPort { get; private set; }
 
@@ -33,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (ForwardedPort != null)
+            if (ForwardedPort is not null)
             {
                 ForwardedPort.Dispose();
                 ForwardedPort = null;
@@ -43,11 +47,13 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             ForwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port);
+            _messageListenerCompleted = new ManualResetEvent(initialState: false);
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -81,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
                     () =>
                         _sessionMock.Raise(s => s.RequestSuccessReceived += null,
                             new MessageEventArgs<RequestSuccessMessage>(new RequestSuccessMessage())));
-            _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(false));
+            _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(_messageListenerCompleted);
 
             ForwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             ForwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
@@ -111,13 +117,11 @@ namespace Renci.SshNet.Tests.Classes
             var originatorPortDisposed = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
 
-            _sessionMock.Setup(
-                p =>
-                    p.CreateChannelForwardedTcpip(channelNumberDisposed, initialWindowSizeDisposed, maximumPacketSizeDisposed)).Returns(channelMock.Object);
-            _sessionMock.Setup(
-                p =>
-                    p.SendMessage(new ChannelOpenFailureMessage(channelNumberDisposed, string.Empty,
-                        ChannelOpenFailureMessage.AdministrativelyProhibited)));
+            _sessionMock.Setup(p => p.CreateChannelForwardedTcpip(channelNumberDisposed, initialWindowSizeDisposed, maximumPacketSizeDisposed))
+                        .Returns(channelMock.Object);
+            _sessionMock.Setup(p => p.SendMessage(new ChannelOpenFailureMessage(channelNumberDisposed,
+                                                                                string.Empty,
+                                                                                ChannelOpenFailureMessage.AdministrativelyProhibited)));
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null, new ChannelOpenMessage(channelNumberDisposed, initialWindowSizeDisposed, maximumPacketSizeDisposed, new ForwardedTcpipChannelInfo(ForwardedPort.BoundHost, ForwardedPort.BoundPort, originatorAddressDisposed, originatorPortDisposed)));
 

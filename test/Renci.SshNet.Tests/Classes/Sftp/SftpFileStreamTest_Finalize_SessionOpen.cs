@@ -80,11 +80,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         private WeakReference<SftpFileStream> CreateWeakSftpFileStream()
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             var sftpFileStream = new SftpFileStream(SftpSessionMock.Object,
                                                     _path,
                                                     FileMode.OpenOrCreate,
                                                     FileAccess.ReadWrite,
                                                     (int) _bufferSize);
+#pragma warning restore CA2000 // Dispose objects before losing scope
             return new WeakReference<SftpFileStream>(sftpFileStream);
         }
     }

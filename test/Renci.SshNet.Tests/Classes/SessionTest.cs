@@ -31,16 +31,21 @@ namespace Renci.SshNet.Tests.Classes
         public void ConstructorShouldThrowArgumentNullExceptionWhenConnectionInfoIsNull()
         {
             const ConnectionInfo connectionInfo = null;
+            Session session = null;
 
             try
             {
-                _ = new Session(connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
+                session = new Session(connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("connectionInfo", ex.ParamName);
+            }
+            finally
+            {
+                session?.Dispose();
             }
         }
 
@@ -50,16 +55,21 @@ namespace Renci.SshNet.Tests.Classes
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
             IServiceFactory serviceFactory = null;
+            Session session = null;
 
             try
             {
-                _ = new Session(connectionInfo, serviceFactory, _socketFactoryMock.Object);
+                session = new Session(connectionInfo, serviceFactory, _socketFactoryMock.Object);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("serviceFactory", ex.ParamName);
+            }
+            finally
+            {
+                session?.Dispose();
             }
         }
 
@@ -69,16 +79,21 @@ namespace Renci.SshNet.Tests.Classes
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
             const ISocketFactory socketFactory = null;
+            Session session = null;
 
             try
             {
-                _ = new Session(connectionInfo, _serviceFactoryMock.Object, socketFactory);
+                session = new Session(connectionInfo, _serviceFactoryMock.Object, socketFactory);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("socketFactory", ex.ParamName);
+            }
+            finally
+            {
+                session?.Dispose();
             }
         }
 

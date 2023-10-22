@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteChannelNumber;
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
-        private IList<ChannelEventArgs> _channelClosedRegister;
+        private List<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private SemaphoreLight _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
@@ -72,12 +72,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                 SessionMock.Raise(
                                     s => s.ChannelOpenFailureReceived += null,
                                     new MessageEventArgs<ChannelOpenFailureMessage>(
-                                        new ChannelOpenFailureMessage(
-                                            _localChannelNumber,
-                                            _failureDescription,
-                                            _failureReasonCode,
-                                            _failureLanguage
-                                        )));
+                                        new ChannelOpenFailureMessage(_localChannelNumber,
+                                                                      _failureDescription,
+                                                                      _failureReasonCode,
+                                                                      _failureLanguage)));
                                 w.WaitOne();
                             });
             SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
@@ -100,11 +98,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                 SessionMock.Raise(
                                     s => s.ChannelOpenConfirmationReceived += null,
                                     new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                        new ChannelOpenConfirmationMessage(
-                                            _localChannelNumber,
-                                            _remoteWindowSize,
-                                            _remotePacketSize,
-                                            _remoteChannelNumber)));
+                                        new ChannelOpenConfirmationMessage(_localChannelNumber,
+                                                                           _remoteWindowSize,
+                                                                           _remotePacketSize,
+                                                                           _remoteChannelNumber)));
                                 w.WaitOne();
                             });
         }

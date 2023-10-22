@@ -1,6 +1,8 @@
-﻿ using System;
+﻿using System;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
@@ -55,7 +57,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual(_responseId, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Handle, target.SftpMessageType);
-
         }
     }
 }

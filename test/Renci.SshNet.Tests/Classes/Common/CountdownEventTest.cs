@@ -212,13 +212,14 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void WaitHandle_ShouldAlwaysReturnSameInstance()
         {
-            var countdownEvent = CreateCountdownEvent(1);
+            using (var countdownEvent = CreateCountdownEvent(1))
+            {
+                var waitHandleA = countdownEvent.WaitHandle;
+                Assert.IsNotNull(waitHandleA);
 
-            var waitHandleA = countdownEvent.WaitHandle;
-            Assert.IsNotNull(waitHandleA);
-
-            var waitHandleB = countdownEvent.WaitHandle;
-            Assert.AreSame(waitHandleA, waitHandleB);
+                var waitHandleB = countdownEvent.WaitHandle;
+                Assert.AreSame(waitHandleA, waitHandleB);
+            }
         }
 
         [TestMethod]
@@ -292,7 +293,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             var watch = new Stopwatch();
             watch.Start();
-            var actual = countdownEvent.Wait(timeout);
+            var actual = countdownEvent.WaitHandle.WaitOne(timeout);
             watch.Stop();
 
             Assert.IsTrue(actual);

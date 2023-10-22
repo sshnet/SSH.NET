@@ -20,7 +20,8 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void PrivateKey_Test_Pass_Null()
         {
-            new PrivateKeyAuthenticationMethod(null, null);
+            var auth = new PrivateKeyAuthenticationMethod(null, null);
+            auth.Dispose();
         }
 
         [TestMethod]
@@ -31,7 +32,8 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void PrivateKey_Test_Pass_PrivateKey_Null()
         {
-            new PrivateKeyAuthenticationMethod("username", null);
+            var auth = new PrivateKeyAuthenticationMethod("username", null);
+            auth.Dispose();
         }
 
         [TestMethod]
@@ -42,7 +44,8 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void PrivateKey_Test_Pass_Whitespace()
         {
-            new PrivateKeyAuthenticationMethod(string.Empty, null);
+            var auth = new PrivateKeyAuthenticationMethod(string.Empty, null);
+            auth.Dispose();
         }
     }
 }

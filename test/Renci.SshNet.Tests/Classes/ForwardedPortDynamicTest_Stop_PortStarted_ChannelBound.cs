@@ -46,16 +46,19 @@ namespace Renci.SshNet.Tests.Classes
                 _client.Dispose();
                 _client = null;
             }
+
             if (_forwardedPort != null)
             {
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+
             if (_channelBindStarted != null)
             {
                 _channelBindStarted.Dispose();
                 _channelBindStarted = null;
             }
+
             if (_channelBindCompleted != null)
             {
                 _channelBindCompleted.Dispose();

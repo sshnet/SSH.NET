@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
     public class ExtensionsTest_Take_OffsetAndCount
     {
         private Random _random;
@@ -42,7 +42,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             var value = CreateBuffer(16);
             const int offset = 25;
             const int count = 0;
-
 
             var actual = Extensions.Take(value, offset, count);
 
@@ -111,8 +110,11 @@ namespace Renci.SshNet.Tests.Classes.Common
                 Extensions.Take(value, offset, count);
                 Assert.Fail();
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("ddd", ex.ParamName);
             }
         }
 
@@ -128,8 +130,11 @@ namespace Renci.SshNet.Tests.Classes.Common
                 Extensions.Take(value, offset, count);
                 Assert.Fail();
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("ddd", ex.ParamName);
             }
         }
 

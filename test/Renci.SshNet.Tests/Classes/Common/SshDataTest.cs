@@ -33,17 +33,19 @@ namespace Renci.SshNet.Tests.Classes.Common
             const uint one = 123456u;
             const uint two = 456789u;
 
-            var sshDataStream = new SshDataStream(8);
-            sshDataStream.Write(one);
-            sshDataStream.Write(two);
+            using (var sshDataStream = new SshDataStream(8))
+            {
+                sshDataStream.Write(one);
+                sshDataStream.Write(two);
 
-            var sshData = sshDataStream.ToArray();
+                var sshData = sshDataStream.ToArray();
 
-            var request = new RequestSshData();
-            request.Load(sshData);
+                var request = new RequestSshData();
+                request.Load(sshData);
 
-            Assert.AreEqual(one, request.ValueOne);
-            Assert.AreEqual(two, request.ValueTwo);
+                Assert.AreEqual(one, request.ValueOne);
+                Assert.AreEqual(two, request.ValueTwo);
+            }
         }
 
         [TestMethod]
@@ -70,20 +72,22 @@ namespace Renci.SshNet.Tests.Classes.Common
             const uint one = 123456u;
             const uint two = 456789u;
 
-            var sshDataStream = new SshDataStream(11);
-            sshDataStream.WriteByte(0x05);
-            sshDataStream.WriteByte(0x07);
-            sshDataStream.WriteByte(0x0f);
-            sshDataStream.Write(one);
-            sshDataStream.Write(two);
+            using (var sshDataStream = new SshDataStream(11))
+            {
+                sshDataStream.WriteByte(0x05);
+                sshDataStream.WriteByte(0x07);
+                sshDataStream.WriteByte(0x0f);
+                sshDataStream.Write(one);
+                sshDataStream.Write(two);
 
-            var sshData = sshDataStream.ToArray();
+                var sshData = sshDataStream.ToArray();
 
-            var request = new RequestSshData();
-            request.Load(sshData, 3, sshData.Length - 3);
+                var request = new RequestSshData();
+                request.Load(sshData, 3, sshData.Length - 3);
 
-            Assert.AreEqual(one, request.ValueOne);
-            Assert.AreEqual(two, request.ValueTwo);
+                Assert.AreEqual(one, request.ValueOne);
+                Assert.AreEqual(two, request.ValueTwo);
+            }
         }
 
         private class BoolSshData : SshData
@@ -124,13 +128,11 @@ namespace Renci.SshNet.Tests.Classes.Common
             public uint ValueOne
             {
                 get { return _valueOne; }
-                set { _valueOne = value; }
             }
 
             public uint ValueTwo
             {
                 get { return _valueTwo; }
-                set { _valueTwo = value; }
             }
 
             protected override void LoadData()

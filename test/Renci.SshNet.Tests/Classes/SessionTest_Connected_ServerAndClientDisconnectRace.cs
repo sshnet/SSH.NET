@@ -35,11 +35,11 @@ namespace Renci.SshNet.Tests.Classes
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
         protected ConnectionInfo ConnectionInfo { get; private set; }
-        protected IList<EventArgs> DisconnectedRegister { get; private set; }
-        protected IList<MessageEventArgs<DisconnectMessage>> DisconnectReceivedRegister { get; private set; }
-        protected IList<ExceptionEventArgs> ErrorOccurredRegister { get; private set; }
+        protected List<EventArgs> DisconnectedRegister { get; private set; }
+        protected List<MessageEventArgs<DisconnectMessage>> DisconnectReceivedRegister { get; private set; }
+        protected List<ExceptionEventArgs> ErrorOccurredRegister { get; private set; }
         protected AsyncSocketListener ServerListener { get; private set; }
-        protected IList<byte[]> ServerBytesReceivedRegister { get; private set; }
+        protected List<byte[]> ServerBytesReceivedRegister { get; private set; }
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
@@ -96,8 +96,10 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     ServerSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
-                    // having established the connection instead of when the client has been identified
+                    /*
+                     * Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
+                     * having established the connection instead of when the client has been identified.
+                     */
 
                     var keyExchangeInitMessage = new KeyExchangeInitMessage
                         {
@@ -111,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
                             MacAlgorithmsClientToServer = Array.Empty<string>(),
                             MacAlgorithmsServerToClient = Array.Empty<string>(),
                             ServerHostKeyAlgorithms = Array.Empty<string>()
-                    };
+                        };
                     var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, compressor: null);
                     _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };
@@ -187,7 +189,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public  void Act()
+        public void Act()
         {
             for (var i = 0; i < 50; i++)
             {
@@ -223,12 +225,14 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var serviceName = _serviceName.ToArray();
 
-                var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
-                sshDataStream.WriteByte(0); // padding length
-                sshDataStream.WriteByte(ServiceAcceptMessage.MessageNumber);
-                sshDataStream.WriteBinary(serviceName);
-                return sshDataStream.ToArray();
+                using (var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length))
+                {
+                    sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
+                    sshDataStream.WriteByte(0); // padding length
+                    sshDataStream.WriteByte(ServiceAcceptMessage.MessageNumber);
+                    sshDataStream.WriteBinary(serviceName);
+                    return sshDataStream.ToArray();
+                }
             }
         }
     }

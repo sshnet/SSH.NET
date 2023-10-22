@@ -49,11 +49,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             {
                                 // Reply version (null byte)
                                 0x00,
+
                                 // Request granted
                                 0x5a,
+
                                 // Destination address port
                                 0x01,
                                 0xf0,
+
                                 // Destination address IP
                                 0x01,
                                 0x02,
@@ -100,16 +103,20 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     // SOCKS version
                     0x04,
+
                     // CONNECT request
                     0x01,
+
                     // Destination port
                     0x03,
                     0x09,
+
                     // Destination address (IPv4)
                     0x7f,
                     0x00,
                     0x00,
                     0x01,
+
                     // Proxy user
                     0x70,
                     0x72,
@@ -120,6 +127,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     0x73,
                     0x65,
                     0x72,
+
                     // Null terminator
                     0x00
                 };

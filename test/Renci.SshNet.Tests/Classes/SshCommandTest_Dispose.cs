@@ -75,8 +75,9 @@ namespace Renci.SshNet.Tests.Classes
                 _outputStream.ReadByte();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
+                Assert.IsNull(ex.InnerException);
             }
         }
 

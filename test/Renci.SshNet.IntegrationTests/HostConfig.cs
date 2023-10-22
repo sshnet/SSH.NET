@@ -3,9 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace Renci.SshNet.IntegrationTests
 {
-    class HostConfig
+    internal sealed partial class HostConfig
     {
-        private static readonly Regex HostsEntryRegEx = new Regex(@"^(?<IPAddress>[\S]+)\s+(?<HostName>[a-zA-Z]+[a-zA-Z\-\.]*[a-zA-Z]+)\s*(?<Aliases>.+)*$", RegexOptions.Singleline);
+        private static readonly Regex HostsEntryRegEx = CreateHostsEntryRegEx();
 
         public List<HostEntry> Entries { get; }
 
@@ -29,7 +29,7 @@ namespace Renci.SshNet.IntegrationTests
                     while ((line = sr.ReadLine()) != null)
                     {
                         // skip comments
-                        if (line.StartsWith("#"))
+                        if (line.StartsWith('#'))
                         {
                             continue;
                         }
@@ -69,7 +69,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 // Use linux line ending
                 sw.NewLine = "\n";
-                     
+
                 foreach (var hostEntry in Entries)
                 {
                     sw.Write(hostEntry.IPAddress);
@@ -85,9 +85,11 @@ namespace Renci.SshNet.IntegrationTests
                             {
                                 sw.Write(' ');
                             }
+
                             sw.Write(hostEntry.Aliases[i]);
                         }
                     }
+
                     sw.WriteLine();
                 }
 
@@ -97,19 +99,8 @@ namespace Renci.SshNet.IntegrationTests
                 scpClient.Upload(ms, path);
             }
         }
-    }
 
-    public class HostEntry
-    {
-        public HostEntry(IPAddress ipAddress, string hostName)
-        {
-            IPAddress = ipAddress;
-            HostName = hostName;
-            Aliases = new List<string>();
-        }
-
-        public IPAddress IPAddress { get; private set; }
-        public string HostName { get; set; }
-        public List<string> Aliases { get; }
+        [GeneratedRegex(@"^(?<IPAddress>[\S]+)\s+(?<HostName>[a-zA-Z]+[a-zA-Z\-\.]*[a-zA-Z]+)\s*(?<Aliases>.+)*$", RegexOptions.Singleline)]
+        private static partial Regex CreateHostsEntryRegEx();
     }
 }

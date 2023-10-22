@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -16,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private IList<EventArgs> _disconnectedRegister;
-        private IList<ExceptionEventArgs> _errorOccurredRegister;
+        private List<EventArgs> _disconnectedRegister;
+        private List<ExceptionEventArgs> _errorOccurredRegister;
         private InvalidOperationException _actualException;
         private MockSequence _sequence;
 
@@ -31,6 +34,7 @@ namespace Renci.SshNet.Tests.Classes
         protected void Arrange()
         {
             var random = new Random();
+
             _subsystemName = random.Next().ToString(CultureInfo.InvariantCulture);
             _operationTimeout = 30000;
             _disconnectedRegister = new List<EventArgs>();
@@ -64,7 +68,6 @@ namespace Renci.SshNet.Tests.Classes
             {
                 _actualException = ex;
             }
-
         }
 
         [TestMethod]

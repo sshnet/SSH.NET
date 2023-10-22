@@ -39,22 +39,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         [TestMethod]
         public void Load()
         {
-            var target = new SftpDataResponse(_protocolVersion);
+            using (var sshDataStream = new SshDataStream(4 + _data.Length))
+            {
+                sshDataStream.Write(_responseId);
+                sshDataStream.Write((uint) _data.Length);
+                sshDataStream.Write(_data, 0, _data.Length);
 
-            var sshDataStream = new SshDataStream(4 + _data.Length);
-            sshDataStream.Write(_responseId);
-            sshDataStream.Write((uint) _data.Length);
-            sshDataStream.Write(_data, 0, _data.Length);
+                var target = new SftpDataResponse(_protocolVersion);
+                target.Load(sshDataStream.ToArray());
 
-            var sshData = sshDataStream.ToArray();
-
-            target.Load(sshData);
-
-            Assert.IsNotNull(target.Data);
-            Assert.IsTrue(target.Data.SequenceEqual(_data));
-            Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual(_responseId, target.ResponseId);
-            Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);
+                Assert.IsNotNull(target.Data);
+                Assert.IsTrue(target.Data.SequenceEqual(_data));
+                Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
+                Assert.AreEqual(_responseId, target.ResponseId);
+                Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);
+            }
         }
     }
 }

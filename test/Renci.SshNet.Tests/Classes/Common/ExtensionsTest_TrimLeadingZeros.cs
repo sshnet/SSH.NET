@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
     public class ExtensionsTest_TrimLeadingZeros
     {
         [TestMethod]
@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldRemoveAllLeadingZeros()
         {
-            byte[] value = {0x00, 0x00, 0x0a, 0x0d};
+            byte[] value = { 0x00, 0x00, 0x0a, 0x0d };
 
             var actual = Extensions.TrimLeadingZeros(value);
 

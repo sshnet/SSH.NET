@@ -13,6 +13,11 @@ namespace Renci.SshNet.IntegrationTests
 
         protected static void FillStream(Stream stream, int size)
         {
+            if (stream is null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             var randomContent = new byte[50];
             var random = new Random();
 
@@ -30,9 +35,11 @@ namespace Renci.SshNet.IntegrationTests
 
         protected static string CreateHash(Stream stream)
         {
-            MD5 md5 = new MD5CryptoServiceProvider();
-            var hash = md5.ComputeHash(stream);
-            return Encoding.ASCII.GetString(hash);
+            using (MD5 md5 = new MD5CryptoServiceProvider())
+            {
+                var hash = md5.ComputeHash(stream);
+                return Encoding.ASCII.GetString(hash);
+            }
         }
 
         protected static string CreateHash(byte[] buffer)
@@ -70,10 +77,12 @@ namespace Renci.SshNet.IntegrationTests
         {
             var type = GetType();
             var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
+
+            if (resourceStream is null)
             {
                 throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
             }
+
             return resourceStream;
         }
     }

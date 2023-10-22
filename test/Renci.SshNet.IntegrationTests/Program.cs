@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    class Program
+    public sealed class Program
     {
 #if NETFRAMEWORK
         private static void Main()

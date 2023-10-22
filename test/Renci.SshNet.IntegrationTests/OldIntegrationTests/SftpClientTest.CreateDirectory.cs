@@ -1,12 +1,11 @@
-﻿
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : IntegrationTestBase
+    public sealed partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]

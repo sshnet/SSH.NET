@@ -1,7 +1,7 @@
 os: Ubuntu2004
 
 build_script:
-  - dotnet build
+  - dotnet build test/Renci.SshNet.IntegrationTests/
 
 test_script:
-  - dotnet test
+  - dotnet test test/Renci.SshNet.IntegrationTests/

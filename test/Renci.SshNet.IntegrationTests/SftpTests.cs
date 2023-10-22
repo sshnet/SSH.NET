@@ -5750,7 +5750,7 @@ namespace Renci.SshNet.IntegrationTests
                     catch (SshException ex)
                     {
                         Assert.IsNull(ex.InnerException);
-                        Assert.AreEqual("xxx", ex.Message);
+                        Assert.AreEqual("Failure", ex.Message);
                     }
                     finally
                     {

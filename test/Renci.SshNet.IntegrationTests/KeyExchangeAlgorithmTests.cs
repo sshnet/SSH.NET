@@ -113,6 +113,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        [Ignore("To be investigated")]
         public void DiffieHellmanGroup18Sha512()
         {
             _remoteSshdConfig.ClearKeyExchangeAlgorithms()

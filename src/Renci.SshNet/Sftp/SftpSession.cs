@@ -1366,6 +1366,9 @@ namespace Renci.SshNet.Sftp
 
                                                              _ = wait.Set();
                                                         });
+
+                SendRequest(request);
+
                 WaitOnHandle(wait, OperationTimeout);
             }
 

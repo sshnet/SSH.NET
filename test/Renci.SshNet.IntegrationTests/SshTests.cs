@@ -63,8 +63,8 @@ namespace Renci.SshNet.IntegrationTests
                     catch (ObjectDisposedException ex)
                     {
                         Assert.IsNull(ex.InnerException);
-                        Assert.AreEqual("ShellStream", ex.ObjectName);
                         Assert.AreEqual($"Cannot access a disposed object.{Environment.NewLine}Object name: '{ex.ObjectName}'.", ex.Message);
+                        Assert.AreEqual(shellStream.GetType().FullName, ex.ObjectName);
                     }
 
                     var line = shellStream.ReadLine();

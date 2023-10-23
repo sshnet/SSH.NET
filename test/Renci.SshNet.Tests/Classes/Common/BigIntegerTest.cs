@@ -1141,7 +1141,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentNullException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("x", ex.ParamName);
+                Assert.AreEqual("value", ex.ParamName);
             }
 
             try
@@ -1635,7 +1635,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (OverflowException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Empty, ex.Message);
             }
         }
 

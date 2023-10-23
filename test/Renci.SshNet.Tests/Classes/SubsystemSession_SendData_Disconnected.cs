@@ -23,6 +23,7 @@ namespace Renci.SshNet.Tests.Classes
         private List<ExceptionEventArgs> _errorOccurredRegister;
         private byte[] _data;
         private MockSequence _sequence;
+        private InvalidOperationException _actualException;
 
         [TestInitialize]
         public void Setup()
@@ -47,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
             _channelMock.InSequence(_sequence).Setup(p => p.Open());
             _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
+            _channelMock.InSequence(_sequence).Setup(p => p.Dispose());
             _channelMock.InSequence(_sequence).Setup(p => p.SendData(_data));
 
             _subsystemSession = new SubsystemSessionStub(
@@ -62,7 +63,23 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void Act()
         {
-            _subsystemSession.SendData(_data);
+            try
+            {
+                _subsystemSession.SendData(_data);
+                Assert.Fail();
+            }
+            catch (InvalidOperationException ex)
+            {
+                _actualException = ex;
+            }
+        }
+
+        public void SendShouldHaveThrownAnInvalidOperationException()
+        {
+            Assert.IsNotNull(_actualException);
+            Assert.AreEqual(typeof(InvalidOperationException), _actualException.GetType());
+            Assert.IsNull(_actualException.InnerException);
+            Assert.AreEqual("The session is not open.", _actualException.Message);
         }
 
         [TestMethod]
@@ -78,29 +95,24 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendDataOnChannelShouldBeInvokedOnce()
+        public void SendDataOnChannelShouldNeverBeInvoked()
         {
-            _channelMock.Verify(p => p.SendData(_data), Times.Once);
+            _channelMock.Verify(p => p.SendData(_data), Times.Never);
         }
 
         [TestMethod]
-        public void IsOpenShouldReturnTrueWhenChannelIsOpen()
+        public void DisposeOnChannelShouldBeInvokedOnce()
         {
-            _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
-
-            Assert.IsTrue(_subsystemSession.IsOpen);
-
-            _channelMock.Verify(p => p.IsOpen, Times.Exactly(2));
+            _channelMock.Verify(p => p.Dispose(), Times.Once);
         }
 
         [TestMethod]
-        public void IsOpenShouldReturnFalseWhenChannelIsNotOpen()
+        public void IsOpenShouldReturnFalse()
         {
-            _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(false);
-
             Assert.IsFalse(_subsystemSession.IsOpen);
 
-            _channelMock.Verify(p => p.IsOpen, Times.Exactly(2));
+            // IsOpen should not have been invoked on the channel
+            _channelMock.Verify(p => p.IsOpen, Times.Never);
         }
     }
 }

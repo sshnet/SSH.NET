@@ -53,8 +53,10 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void EndExecute_ChannelOpen_ShouldSendEofAndCloseAndDisposeChannelSession()
+        public void EndExecute_ChannelOpen_ErrorOccurredOnSession()
         {
+            var exception = new SshException();
+
             var seq = new MockSequence();
 
             _sessionMock.InSequence(seq)
@@ -64,12 +66,20 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.Open());
             _channelSessionMock.InSequence(seq)
                                .Setup(p => p.SendExecRequest(_commandText))
-                               .Returns(true);
+                               .Returns(true)
+                               .Callback(() => _sessionMock.Raise(e => e.ErrorOccured += null, new ExceptionEventArgs(exception)));
 
             var asyncResult = _sshCommand.BeginExecute();
-            _sshCommand.EndExecute(asyncResult);
 
-            _channelSessionMock.Verify(p => p.Dispose(), Times.Once);
+            try
+            {
+                _sshCommand.EndExecute(asyncResult);
+                Assert.Fail();
+            }
+            catch (SshException ex)
+            {
+                Assert.AreSame(exception, ex);
+            }
         }
     }
 }

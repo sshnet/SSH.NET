@@ -78,6 +78,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ObjectDisposedException ex)
             {
                 Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(typeof(PipeStream).FullName, ex.ObjectName);
             }
         }
 
@@ -98,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ObjectDisposedException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("XXX", ex.ObjectName);
+                Assert.AreEqual(typeof(PipeStream).FullName, ex.ObjectName);
             }
         }
 

@@ -46,7 +46,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
             _channelMock.InSequence(_sequence).Setup(p => p.Open());
             _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
 
             _subsystemSession = new SubsystemSessionStub(_sessionMock.Object,
                                                          _subsystemName,
@@ -79,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
 
             Assert.IsTrue(_subsystemSession.IsOpen);
 
-            _channelMock.Verify(p => p.IsOpen, Times.Exactly(2));
+            _channelMock.Verify(p => p.IsOpen, Times.Exactly(1));
         }
 
         [TestMethod]
@@ -89,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes
 
             Assert.IsFalse(_subsystemSession.IsOpen);
 
-            _channelMock.Verify(p => p.IsOpen, Times.Exactly(2));
+            _channelMock.Verify(p => p.IsOpen, Times.Exactly(1));
         }
 
         [TestMethod]

@@ -13,23 +13,67 @@ namespace Renci.SshNet.Tests.Classes
     public partial class PasswordAuthenticationMethodTest : TestBase
     {
         [TestMethod]
-        [TestCategory("AuthenticationMethod")]
-        [Owner("Kenneth_aa")]
-        [Description("PasswordAuthenticationMethod: Pass null as username, \"valid\" as password.")]
-        public void Password_Test_Pass_Null_Username()
+        public void Password_Test_UsernameIsEmpty()
         {
             PasswordAuthenticationMethod pam = null;
 
             try
             {
-                pam = new PasswordAuthenticationMethod(null, "valid");
+                pam = new PasswordAuthenticationMethod(username: string.Empty, password: "valid");
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(typeof(ArgumentException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
+            }
+            finally
+            {
+                pam?.Dispose();
+            }
+        }
+
+        [TestMethod]
+        public void Password_Test_UsernameIsNull()
+        {
+            PasswordAuthenticationMethod pam = null;
+
+            try
+            {
+                pam = new PasswordAuthenticationMethod(username: null, password: "valid");
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
+            }
+            finally
+            {
+                pam?.Dispose();
+            }
+        }
+
+        [TestMethod]
+        public void Password_Test_UsernameIsWhitespace()
+        {
+            PasswordAuthenticationMethod pam = null;
+
+            try
+            {
+                pam = new PasswordAuthenticationMethod(username: "   ", password: "valid");
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
             }
             finally
             {
@@ -54,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                Assert.AreEqual("s", ex.ParamName);
             }
             finally
             {
@@ -70,32 +114,6 @@ namespace Renci.SshNet.Tests.Classes
         {
             var pam = new PasswordAuthenticationMethod("valid", "valid");
             pam.Dispose();
-        }
-
-        [TestMethod]
-        [TestCategory("AuthenticationMethod")]
-        [Owner("Kenneth_aa")]
-        [Description("PasswordAuthenticationMethod: Pass String.Empty as username, \"valid\" as password.")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Password_Test_Pass_Whitespace()
-        {
-            PasswordAuthenticationMethod pam = null;
-
-            try
-            {
-                pam = new PasswordAuthenticationMethod(string.Empty, "valid");
-                Assert.Fail();
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
-            }
-            finally
-            {
-                pam?.Dispose();
-            }
         }
 
         [TestMethod]

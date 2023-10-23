@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +17,6 @@ namespace Renci.SshNet.Tests.Classes
     {
         [WorkItem(703)]
         [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
         public void Test_ConnectionInfo_Host_Is_Null()
         {
             PasswordConnectionInfo connectionInfo = null;
@@ -37,11 +37,31 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [WorkItem(703)]
         [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_ConnectionInfo_Username_Is_Null()
+        public void Test_ConnectionInfo_UsernameIsEmpty()
+        {
+            PasswordConnectionInfo connectionInfo = null;
+
+            try
+            {
+                connectionInfo = new PasswordConnectionInfo(Resources.HOST, username: string.Empty, Resources.PASSWORD);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
+            }
+            finally
+            {
+                connectionInfo?.Dispose();
+            }
+        }
+
+        [TestMethod]
+        public void Test_ConnectionInfo_UsernameIsNull()
         {
             PasswordConnectionInfo connectionInfo = null;
 
@@ -50,11 +70,12 @@ namespace Renci.SshNet.Tests.Classes
                 connectionInfo = new PasswordConnectionInfo(Resources.HOST, username: null, Resources.PASSWORD);
                 Assert.Fail();
             }
-            catch (ArgumentNullException ex)
+            catch (ArgumentException ex)
             {
-                Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
             }
             finally
             {
@@ -62,10 +83,32 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        public void Test_ConnectionInfo_UsernameIsWhitespace()
+        {
+            PasswordConnectionInfo connectionInfo = null;
+
+            try
+            {
+                connectionInfo = new PasswordConnectionInfo(Resources.HOST, username: "  ", Resources.PASSWORD);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("Cannot be null or only whitespace.", ex);
+                Assert.AreEqual("username", ex.ParamName);
+            }
+            finally
+            {
+                connectionInfo?.Dispose();
+            }
+        }
+
+
         [WorkItem(703)]
         [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
             PasswordConnectionInfo connectionInfo = null;
@@ -79,31 +122,7 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
-            }
-            finally
-            {
-                connectionInfo?.Dispose();
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [Description("Test passing whitespace to username parameter.")]
-        public void Test_ConnectionInfo_Username_Is_Whitespace()
-        {
-            PasswordConnectionInfo connectionInfo = null;
-
-            try
-            {
-                connectionInfo = _ = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
-                Assert.Fail();
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                Assert.AreEqual("s", ex.ParamName);
             }
             finally
             {
@@ -127,7 +146,8 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.AreEqual(typeof(ArgumentOutOfRangeException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture, "Specified value cannot be less than {0}.", IPEndPoint.MinPort), ex);
+                Assert.AreEqual("port", ex.ParamName);
             }
             finally
             {
@@ -151,7 +171,8 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.AreEqual(typeof(ArgumentOutOfRangeException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("X", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.", IPEndPoint.MaxPort), ex);
+                Assert.AreEqual("port", ex.ParamName);
             }
             finally
             {

@@ -110,5 +110,21 @@ namespace Renci.SshNet.Tests.Classes
         {
             SessionMock.Verify(p => p.OnDisconnecting(), Times.Once);
         }
+
+        [TestMethod]
+        public void IsConnectedThrowsObjectDisposedException()
+        {
+            try
+            {
+                _ = _netConfClient.IsConnected;
+                Assert.Fail();
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Assert.AreEqual(typeof(ObjectDisposedException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(typeof(NetConfClient).FullName, ex.ObjectName);
+            }
+        }
     }
 }

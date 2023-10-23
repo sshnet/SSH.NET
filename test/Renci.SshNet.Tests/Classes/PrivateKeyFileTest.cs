@@ -507,23 +507,85 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         /// </summary>
         [TestMethod]
-        public void ConstructorWithFileNameAndPassphrase()
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyDoesNotRequirePassphraseAndSpecifiedPassphraseIsNull()
         {
-            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.txt"))
             {
                 SaveStreamToFile(stream, _temporaryFile);
             }
 
-            var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
-            TestRsaKeyFile(privateKeyFile);
-            privateKeyFile.Dispose();
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile, passPhrase: null))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
         }
 
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         /// </summary>
         [TestMethod]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsEmpty()
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyDoesNotRequirePassphraseAndSpecifiedPassphraseIsEmpty()
+        {
+            using (var stream = GetData("Key.RSA.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile, passPhrase: string.Empty))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
+        }
+
+        /// <summary>
+        /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
+        /// </summary>
+        [TestMethod]
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyDoesNotRequirePassphraseAndSpecifiedPassphraseIsWrong()
+        {
+            using (var stream = GetData("Key.RSA.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile, passPhrase: "BAD GUESS"))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
+        }
+
+        /// <summary>
+        /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
+        /// </summary>
+        [TestMethod]
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyRequiresPassphraseAndSpecifiedPassphraseIsCorrect()
+        {
+            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345"))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
+
+            using (var stream = GetData("Key.RSA.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile, passPhrase: null))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
+        }
+
+        /// <summary>
+        /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
+        /// </summary>
+        [TestMethod]
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyRequiresPassphraseAndSpecifiedPassphraseIsEmpty()
         {
             var passphrase = string.Empty;
 
@@ -554,7 +616,7 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         /// </summary>
         [TestMethod]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsNull()
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyRequiresPassphraseAndSpecifiedPassphraseIsNull()
         {
             string passphrase = null;
 
@@ -581,20 +643,78 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        public void ConstructorWithFileNameAndPassphrase_PrivateKeyRequiresPassphraseAndSpecifiedPassphraseIsWrong()
+        {
+            var passphrase = "BAD GUESS";
+
+            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            PrivateKeyFile privateKeyFile = null;
+
+            try
+            {
+                privateKeyFile = new PrivateKeyFile(_temporaryFile, passphrase);
+                Assert.Fail();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("DER length is '82' and cannot be more than 4 bytes.", ex.Message);
+            }
+            finally
+            {
+                privateKeyFile?.Dispose();
+            }
+        }
+
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string)"/> ctor.
         /// </summary>
         [TestMethod]
-        public void ConstructorWithFileName()
+        public void ConstructorWithFileName_PrivateKeyDoesNotRequirePassphrase()
+        {
+            using (var stream = GetData("Key.RSA.txt"))
+            {
+                SaveStreamToFile(stream, _temporaryFile);
+            }
+
+            using (var privateKeyFile = new PrivateKeyFile(_temporaryFile))
+            {
+                TestRsaKeyFile(privateKeyFile);
+            }
+        }
+
+        /// <summary>
+        /// A test for <see cref="PrivateKeyFile(string)"/> ctor.
+        /// </summary>
+        [TestMethod]
+        public void ConstructorWithFileName_PrivateKeyRequiresPassphrase()
         {
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
             {
                 SaveStreamToFile(stream, _temporaryFile);
             }
 
-            var privateKeyFile = new PrivateKeyFile(_temporaryFile);
-            TestRsaKeyFile(privateKeyFile);
-            privateKeyFile.Dispose();
+            PrivateKeyFile privateKeyFile = null;
+
+            try
+            {
+                privateKeyFile = new PrivateKeyFile(_temporaryFile);
+                Assert.Fail();
+            }
+            catch (SshPassPhraseNullOrEmptyException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
+            }
+            finally
+            {
+                privateKeyFile?.Dispose();
+            }
         }
 
         /// <summary>

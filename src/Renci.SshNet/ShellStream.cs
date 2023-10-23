@@ -672,7 +672,7 @@ namespace Renci.SshNet
 #else
             if (_channel is null)
             {
-                throw new ObjectDisposedException("ShellStream");
+                throw new ObjectDisposedException(GetType().FullName);
             }
 #endif // NET7_0_OR_GREATER
 

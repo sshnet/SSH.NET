@@ -91,7 +91,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 Assert.AreEqual(typeof(ArgumentException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("xx", ex.ParamName);
+                Assert.AreEqual(string.Empty, ex.ParamName);
             }
         }
 

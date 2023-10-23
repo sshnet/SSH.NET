@@ -63,7 +63,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var cmd = client.CreateCommand("ls -l"); // very long list
                 var asynch = cmd.BeginExecute();
 
-                using (var reader = new StreamReader(cmd.OutputStream))
+                using (var reader = new StreamReader(cmd.OutputStream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
                 {
                     while (!asynch.IsCompleted)
                     {

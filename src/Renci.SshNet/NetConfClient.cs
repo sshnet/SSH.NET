@@ -248,7 +248,7 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            _netConfSession.Disconnect();
+            _netConfSession?.Disconnect();
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_netConfSession != null)
+                if (_netConfSession is not null)
                 {
                     _netConfSession.Dispose();
                     _netConfSession = null;

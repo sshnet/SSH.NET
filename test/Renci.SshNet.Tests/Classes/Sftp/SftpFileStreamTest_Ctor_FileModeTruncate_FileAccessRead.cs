@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -55,8 +56,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("Combining {0}: {1} with {2}: {3} is invalid.", nameof(FileMode), _fileMode, nameof(FileAccess), _fileAccess), _actualException.Message);
-            Assert.IsNull(_actualException.ParamName);
+            ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture,
+                                                                "Combining {0}: {1} with {2}: {3} is invalid.",
+                                                                nameof(FileMode),
+                                                                _fileMode,
+                                                                nameof(FileAccess),
+                                                                _fileAccess),
+                                                  _actualException);
+            Assert.AreEqual("mode", _actualException.ParamName);
         }
     }
 }

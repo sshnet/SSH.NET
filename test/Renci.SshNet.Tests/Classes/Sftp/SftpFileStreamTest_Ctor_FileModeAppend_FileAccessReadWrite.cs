@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -55,8 +56,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("{0} mode can be requested only when combined with write-only access.", _fileMode), _actualException.Message);
-            Assert.IsNull(_actualException.ParamName);
+            ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture,
+                                                                "{0} mode can be requested only when combined with write-only access.",
+                                                                _fileMode),
+                                                  _actualException);
+            Assert.AreEqual("mode", _actualException.ParamName);
         }
     }
 }

@@ -81,6 +81,8 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual(data3, shellStream.ReadLine());
 
                 channelDataPublishThread.Join();
+
+                _channelSessionMock.Setup(p => p.Dispose());
             }
         }
 
@@ -93,6 +95,8 @@ namespace Renci.SshNet.Tests.Classes
             {
                 shellStream.Write(text);
                 _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+
+                _channelSessionMock.Setup(p => p.Dispose());
             }
         }
 
@@ -107,6 +111,8 @@ namespace Renci.SshNet.Tests.Classes
                 _channelSessionMock.Setup(p => p.SendData(lineTerminator));
                 shellStream.WriteLine(line);
                 _channelSessionMock.Verify(p => p.SendData(lineTerminator), Times.Once);
+
+                _channelSessionMock.Setup(p => p.Dispose());
             }
         }
 

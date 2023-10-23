@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("info", ex.ParamName);
+                Assert.AreEqual("data", ex.ParamName);
             }
         }
 

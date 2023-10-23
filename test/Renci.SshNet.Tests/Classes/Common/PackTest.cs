@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(256, Pack.BigEndianToUInt16(new byte[] { 1, 0 }));
             Assert.AreEqual(257, Pack.BigEndianToUInt16(new byte[] { 1, 1 }));
             Assert.AreEqual(1025, Pack.BigEndianToUInt16(new byte[] { 4, 1 }));
-            Assert.AreEqual(ushort.MaxValue, Pack.BigEndianToUInt16([255, 255]));
+            Assert.AreEqual(ushort.MaxValue, Pack.BigEndianToUInt16(new byte[] { 255, 255 }));
         }
 
         [TestMethod]

@@ -56,7 +56,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture, 
+            ArgumentExceptionAssert.MessageEquals(string.Format(CultureInfo.InvariantCulture,
                                                                 "{0} mode can be requested only when combined with write-only access.",
                                                                 _fileMode),
                                                   _actualException);

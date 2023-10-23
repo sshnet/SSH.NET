@@ -26,13 +26,13 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
         [Benchmark]
         public byte[] Encrypt_CBC()
         {
-            return new AesCipher(_key, new CbcCipherMode(_iv), null).Encrypt(_data);
+            return new AesCipher(_key, new CbcCipherMode(_iv), padding: null).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CBC()
         {
-            return new AesCipher(_key, new CbcCipherMode(_iv), null).Decrypt(_data);
+            return new AesCipher(_key, new CbcCipherMode(_iv), padding: null).Decrypt(_data);
         }
     }
 }

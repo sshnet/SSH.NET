@@ -21,16 +21,17 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 
             using (var s = typeof(RsaCipherBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
             {
-                
-                _privateKey = (RsaKey)new PrivateKeyFile(s).Key;
-                
-                // The implementations of RsaCipher.Encrypt/Decrypt differ based on whether the supplied RsaKey has private key information
-                // or only public. So we extract out the public key information to a separate variable.
-                _publicKey = new RsaKey()
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                _privateKey = (RsaKey) new PrivateKeyFile(s).Key;
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            }
+
+            // The implementations of RsaCipher.Encrypt/Decrypt differ based on whether the supplied RsaKey has private key information
+            // or only public. So we extract out the public key information to a separate variable.
+            _publicKey = new RsaKey()
                 {
                     Public = _privateKey.Public
                 };
-            }
         }
 
         [Benchmark]
@@ -41,9 +42,9 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 
         // RSA Decrypt does not work
         // [Benchmark]
-        // public byte[] Decrypt()
-        // {
-        //     return new RsaCipher(_privateKey).Decrypt(_data);
-        // }
+        public byte[] Decrypt()
+        {
+             return new RsaCipher(_privateKey).Decrypt(_data);
+        }
     }
 }

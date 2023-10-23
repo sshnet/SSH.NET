@@ -1,5 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Benchmarks.Common
 {
     public class ExtensionsBenchmarks

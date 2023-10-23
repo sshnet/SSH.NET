@@ -16,30 +16,31 @@ namespace Renci.SshNet.Benchmarks.Common
         {
             _keyHostAlgorithm = GetKeyHostAlgorithm();
         }
+
         private static KeyHostAlgorithm GetKeyHostAlgorithm()
         {
             using (var s = typeof(RsaCipherBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
+            using (var privateKey = new PrivateKeyFile(s))
             {
-                var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();
             }
         }
 
-        [Benchmark()]
+        [Benchmark]
         public HostKeyEventArgs Constructor()
         {
             return new HostKeyEventArgs(_keyHostAlgorithm);
         }
 
-        [Benchmark()]
-        public (string, string) CalculateFingerPrintSHA256AndMD5()
+        [Benchmark]
+        public (string SHA256, string MD5) CalculateFingerPrintSHA256AndMD5()
         {
             var test = new HostKeyEventArgs(_keyHostAlgorithm);
 
             return (test.FingerPrintSHA256, test.FingerPrintMD5);
         }
 
-        [Benchmark()]
+        [Benchmark]
         public string CalculateFingerPrintSHA256()
         {
             var test = new HostKeyEventArgs(_keyHostAlgorithm);
@@ -47,7 +48,7 @@ namespace Renci.SshNet.Benchmarks.Common
             return test.FingerPrintSHA256;
         }
 
-        [Benchmark()]
+        [Benchmark]
         public byte[] CalculateFingerPrint()
         {
             var test = new HostKeyEventArgs(_keyHostAlgorithm);
@@ -55,12 +56,12 @@ namespace Renci.SshNet.Benchmarks.Common
             return test.FingerPrint;
         }
 
-        [Benchmark()]
+        [Benchmark]
         public string CalculateFingerPrintMD5()
         {
             var test = new HostKeyEventArgs(_keyHostAlgorithm);
 
-            return test.FingerPrintSHA256;
+            return test.FingerPrintMD5;
         }
     }
 }

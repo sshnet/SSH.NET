@@ -21,21 +21,31 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography
 
             using (var s = typeof(ED25519DigitalSignatureBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.OPENSSH.ED25519.txt"))
             {
+#pragma warning disable CA2000 // Dispose objects before losing scope
                 _key = (ED25519Key) new PrivateKeyFile(s).Key;
+#pragma warning restore CA2000 // Dispose objects before losing scope
             }
-            _signature = new ED25519DigitalSignature(_key).Sign(_data);
+
+            using (var digitalSignature = new ED25519DigitalSignature(_key))
+            {
+                _signature = digitalSignature.Sign(_data);
+            }
         }
 
         [Benchmark]
         public byte[] Sign()
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             return new ED25519DigitalSignature(_key).Sign(_data);
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
         [Benchmark]
         public bool Verify()
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             return new ED25519DigitalSignature(_key).Verify(_data, _signature);
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
     }
 }

@@ -106,7 +106,6 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-
         [WorkItem(703)]
         [TestMethod]
         public void Test_ConnectionInfo_Password_Is_Null()

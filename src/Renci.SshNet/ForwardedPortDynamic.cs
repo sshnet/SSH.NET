@@ -317,12 +317,6 @@ namespace Renci.SshNet
 
         private bool HandleSocks(IChannelDirectTcpip channel, Socket clientSocket, TimeSpan timeout)
         {
-#pragma warning disable IDE0039 // Use lambda instead of local function to reduce allocations
-            // Create eventhandler which is to be invoked to interrupt a blocking receive
-            // when we're closing the forwarded port.
-            EventHandler closeClientSocket = (_, args) => CloseClientSocket(clientSocket);
-#pragma warning restore IDE0039 // Use lambda instead of local function to reduce allocations
-
             Closing += closeClientSocket;
 
             try
@@ -366,6 +360,11 @@ namespace Renci.SshNet
                 // or no longer necessary
                 Closing -= closeClientSocket;
             }
+
+            void closeClientSocket(object _, EventArgs args)
+            {
+                CloseClientSocket(clientSocket);
+            };
         }
 
         private static void CloseClientSocket(Socket clientSocket)

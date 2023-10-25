@@ -34,8 +34,8 @@ namespace Renci.SshNet
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
         private static readonly byte[] SuccessConfirmationCode = { 0 };
         private static readonly byte[] ErrorConfirmationCode = { 1 };
-        private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled););
-        private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0", RegexOptions.Compiled););
+        private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
+        private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0", RegexOptions.Compiled);
 
         private IRemotePathTransformation _remotePathTransformation;
 

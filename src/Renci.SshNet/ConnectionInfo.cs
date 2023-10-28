@@ -398,8 +398,22 @@ namespace Renci.SshNet
                     { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
-                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); }},
-                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); }},
+                    {
+                        "rsa-sha2-512",
+                        data =>
+                            {
+                                var key = new RsaKey();
+                                return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
+                            }
+                    },
+                    {
+                        "rsa-sha2-256",
+                        data =>
+                            {
+                                var key = new RsaKey();
+                                return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256));
+                            }
+                    },
                     { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
                 };
@@ -470,14 +484,28 @@ namespace Renci.SshNet
             AuthenticationBanner?.Invoke(this, new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
         }
 
+        /// <summary>
+        /// Creates a <c>none</c> authentication method.
+        /// </summary>
+        /// <returns>
+        /// A <c>none</c> authentication method.
+        /// </returns>
         IAuthenticationMethod IConnectionInfoInternal.CreateNoneAuthenticationMethod()
         {
             return new NoneAuthenticationMethod(Username);
         }
 
+        /// <summary>
+        /// Gets the supported authentication methods for this connection.
+        /// </summary>
+        /// <value>
+        /// The supported authentication methods for this connection.
+        /// </value>
         IList<IAuthenticationMethod> IConnectionInfoInternal.AuthenticationMethods
         {
+#pragma warning disable S2365 // Properties should not make collection or array copies
             get { return AuthenticationMethods.Cast<IAuthenticationMethod>().ToList(); }
+#pragma warning restore S2365 // Properties should not make collection or array copies
         }
     }
 }

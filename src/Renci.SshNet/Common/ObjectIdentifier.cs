@@ -7,7 +7,9 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Describes object identifier for DER encoding.
     /// </summary>
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct ObjectIdentifier
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         /// <summary>
         /// Gets the object identifier.

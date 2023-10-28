@@ -7,7 +7,9 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Base ssh data serialization type.
     /// </summary>
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public abstract class SshData
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         internal const int DefaultCapacity = 64;
 
@@ -63,9 +65,12 @@ namespace Renci.SshNet.Common
         {
             var messageLength = BufferCapacity;
             var capacity = messageLength != -1 ? messageLength : DefaultCapacity;
-            var dataStream = new SshDataStream(capacity);
-            WriteBytes(dataStream);
-            return dataStream.ToArray();
+
+            using (var dataStream = new SshDataStream(capacity))
+            {
+                WriteBytes(dataStream);
+                return dataStream.ToArray();
+            }
         }
 
         /// <summary>
@@ -146,11 +151,13 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
         protected byte[] ReadBytes(int length)
         {
+#pragma warning disable S125 // Sections of code should not be commented out
             /*
              * Note that this also prevents allocating non-relevant lengths, such as if length is greater than _data.Count but less than int.MaxValue.
              * For the nerds, the condition translates to: if (length > data.Count && length < int.MaxValue)
              * Which probably would cause all sorts of exception, most notably OutOfMemoryException.
              */
+#pragma warning restore S125 // Sections of code should not be commented out
 
             var data = new byte[length];
             var bytesRead = _stream.Read(data, 0, length);
@@ -260,8 +267,12 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads next extension-pair data type from internal buffer.
         /// </summary>
-        /// <returns>Extensions pair dictionary.</returns>
+        /// <returns>
+        /// Extensions pair dictionary.
+        /// </returns>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         protected IDictionary<string, string> ReadExtensionPair()
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             var result = new Dictionary<string, string>();
 
@@ -373,7 +384,11 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
+#if NET || NETSTANDARD2_1_OR_GREATER
+            Write(string.Join(',', data), Ascii);
+#else
             Write(string.Join(",", data), Ascii);
+#endif // NET || NETSTANDARD2_1_OR_GREATER
         }
 
         /// <summary>

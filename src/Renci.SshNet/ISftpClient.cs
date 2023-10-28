@@ -13,7 +13,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public interface ISftpClient : IBaseClient, IDisposable
+    public interface ISftpClient : IBaseClient
     {
         /// <summary>
         /// Gets or sets the maximum size of the buffer in bytes.
@@ -78,12 +78,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is<see langword="null"/> <para>-or-</para> <paramref name="contents"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>. <para>-or-</para> <paramref name="contents"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM)
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
         /// </remarks>
         void AppendAllLines(string path, IEnumerable<string> contents);
 
@@ -239,7 +239,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <see langword="null"/> or contains only whitespace.</exception>
-        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state);
 
         /// <summary>
@@ -568,7 +568,7 @@ namespace Renci.SshNet
         void EndUploadFile(IAsyncResult asyncResult);
 
         /// <summary>
-        /// Checks whether file or directory exists;
+        /// Checks whether file or directory exists.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
@@ -592,7 +592,9 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+#pragma warning disable CA1716 // Identifiers should not match keywords
         ISftpFile Get(string path);
+#pragma warning restore CA1716 // Identifiers should not match keywords
 
         /// <summary>
         /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
@@ -898,6 +900,19 @@ namespace Renci.SshNet
         void RenameFile(string oldPath, string newPath);
 
         /// <summary>
+        /// Renames remote file from old path to new path.
+        /// </summary>
+        /// <param name="oldPath">Path to the old file location.</param>
+        /// <param name="newPath">Path to the new file location.</param>
+        /// <param name="isPosix">if set to <see langword="true"/> then perform a posix rename.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="oldPath" /> is <see langword="null"/>. <para>-or-</para> or <paramref name="newPath" /> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        void RenameFile(string oldPath, string newPath, bool isPosix);
+
+        /// <summary>
         /// Asynchronously renames remote file from old path to new path.
         /// </summary>
         /// <param name="oldPath">Path to the old file location.</param>
@@ -910,19 +925,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Renames remote file from old path to new path.
-        /// </summary>
-        /// <param name="oldPath">Path to the old file location.</param>
-        /// <param name="newPath">Path to the new file location.</param>
-        /// <param name="isPosix">if set to <see langword="true"/> then perform a posix rename.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="oldPath" /> is <see langword="null"/>. <para>-or-</para> or <paramref name="newPath" /> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        void RenameFile(string oldPath, string newPath, bool isPosix);
 
         /// <summary>
         /// Sets the date and time the specified file was last accessed.
@@ -951,7 +953,7 @@ namespace Renci.SshNet
         /// <param name="path">The file for which to set the date and time information.</param>
         /// <param name="lastWriteTimeUtc">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
         void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc);
-        
+
         /// <summary>
         /// Sets the specified <see cref="SftpFileAttributes"/> of the file on the specified path.
         /// </summary>
@@ -986,7 +988,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <see langword="null"/> or contains only whitespace.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="destinationPath"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern);
 
         /// <summary>

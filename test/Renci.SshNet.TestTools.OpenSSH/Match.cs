@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class Match
+    public sealed class Match
     {
         public Match(string[] users, string[] addresses)
         {
@@ -16,6 +16,11 @@
 
         public void WriteTo(TextWriter writer)
         {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
             writer.Write("Match ");
 
             if (Users.Length > 0)

@@ -3,14 +3,16 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements ARCH4 cipher algorithm
+    /// Implements ARCH4 cipher algorithm.
     /// </summary>
     public sealed class Arc4Cipher : StreamCipher
     {
-        private static readonly int STATE_LENGTH = 256;
+#pragma warning disable SA1310 // Field names should not contain underscore
+        private const int STATE_LENGTH = 256;
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         /// <summary>
-        ///  Holds the state of the RC4 engine
+        /// Holds the state of the RC4 engine.
         /// </summary>
         private byte[] _engineState;
 
@@ -119,21 +121,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            var output = new byte[length];
-            _ = ProcessBytes(input, offset, length, output, 0);
-            return output;
+            return Encrypt(input, offset, length);
         }
 
         private int ProcessBytes(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + inputCount) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + inputCount) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             for (var i = 0; i < inputCount; i++)

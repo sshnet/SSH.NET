@@ -3,14 +3,14 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "x11" channel type
+    /// Used to open "x11" channel type.
     /// </summary>
     internal sealed class X11ChannelOpenInfo : ChannelOpenInfo
     {
         private byte[] _originatorAddress;
 
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string Name = "x11";
 

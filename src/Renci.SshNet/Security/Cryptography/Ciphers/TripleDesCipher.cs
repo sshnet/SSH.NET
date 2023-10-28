@@ -41,12 +41,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             if (_encryptionKey1 is null || _encryptionKey2 is null || _encryptionKey3 is null)
@@ -97,12 +97,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             if (_decryptionKey1 is null || _decryptionKey2 is null || _decryptionKey3 is null)

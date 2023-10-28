@@ -7,12 +7,11 @@
     public enum TerminalModes : byte
 #pragma warning restore CA1028 // Enum Storage should be Int32
     {
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         /// <summary>
         /// Indicates end of options.
         /// </summary>
-#pragma warning disable CA1707 // Identifiers should not contain underscores
         TTY_OP_END = 0,
-#pragma warning restore CA1707 // Identifiers should not contain underscores
 
         /// <summary>
         /// Interrupt character; 255 if none.  Similarly for the other characters.  Not all of these characters are supported on all systems.
@@ -287,14 +286,11 @@
         /// <summary>
         /// Specifies the input baud rate in bits per second.
         /// </summary>
-#pragma warning disable CA1707 // Identifiers should not contain underscores
         TTY_OP_ISPEED = 128,
-#pragma warning restore CA1707 // Identifiers should not contain underscores
 
         /// <summary>
         /// Specifies the output baud rate in bits per second.
         /// </summary>
-#pragma warning disable CA1707 // Identifiers should not contain underscores
         TTY_OP_OSPEED = 129,
 #pragma warning restore CA1707 // Identifiers should not contain underscores
     }

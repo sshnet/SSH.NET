@@ -10,8 +10,9 @@ namespace Renci.SshNet
     internal interface IClientAuthentication
     {
         /// <summary>
-        /// Attempts to authentication for a given <see cref="ISession"/> using the <see cref="IConnectionInfoInternal.AuthenticationMethods"/>
-        /// of the specified <see cref="IConnectionInfoInternal"/>.
+        /// Attempts to perform authentication for a given <see cref="ISession"/> using the
+        /// <see cref="IConnectionInfoInternal.AuthenticationMethods"/> of the specified
+        /// <see cref="IConnectionInfoInternal"/>.
         /// </summary>
         /// <param name="connectionInfo">A <see cref="IConnectionInfoInternal"/> to use for authenticating.</param>
         /// <param name="session">The <see cref="ISession"/> for which to perform authentication.</param>

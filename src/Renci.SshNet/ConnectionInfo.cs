@@ -398,22 +398,10 @@ namespace Renci.SshNet
                     { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
-                    {
-                        "rsa-sha2-512",
-                        data =>
-                            {
-                                var key = new RsaKey();
-                                return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
-                            }
-                    },
-                    {
-                        "rsa-sha2-256",
-                        data =>
-                            {
-                                var key = new RsaKey();
-                                return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256));
-                            }
-                    },
+#pragma warning disable SA1107 // Code should not contain multiple statements on one line
+                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
+                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
+#pragma warning restore SA1107 // Code should not contain multiple statements on one line
                     { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
                 };

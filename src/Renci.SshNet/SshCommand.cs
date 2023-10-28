@@ -62,7 +62,9 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute OutputStream" language="C#" title="Use OutputStream to get command execution output" />
         /// </example>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream OutputStream { get; private set; }
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
         /// Gets the extended output stream.
@@ -70,7 +72,9 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute ExtendedOutputStream" language="C#" title="Use ExtendedOutputStream to get command debug execution output" />
         /// </example>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream ExtendedOutputStream { get; private set; }
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
         /// Gets the command execution result.
@@ -86,9 +90,14 @@ namespace Renci.SshNet
 
                 if (OutputStream != null && OutputStream.Length > 0)
                 {
-                    // do not dispose the StreamReader, as it would also dispose the stream
-                    var sr = new StreamReader(OutputStream, _encoding);
-                    _ = _result.Append(sr.ReadToEnd());
+                    using (var sr = new StreamReader(OutputStream,
+                                                     _encoding,
+                                                     detectEncodingFromByteOrderMarks: true,
+                                                     bufferSize: 1024,
+                                                     leaveOpen: true))
+                    {
+                        _ = _result.Append(sr.ReadToEnd());
+                    }
                 }
 
                 return _result.ToString();
@@ -111,9 +120,14 @@ namespace Renci.SshNet
 
                     if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
                     {
-                        // do not dispose the StreamReader, as it would also dispose the stream
-                        var sr = new StreamReader(ExtendedOutputStream, _encoding);
-                        _ = _error.Append(sr.ReadToEnd());
+                        using (var sr = new StreamReader(ExtendedOutputStream,
+                                                         _encoding,
+                                                         detectEncodingFromByteOrderMarks: true,
+                                                         bufferSize: 1024,
+                                                         leaveOpen: true))
+                        {
+                            _ = _error.Append(sr.ReadToEnd());
+                        }
                     }
 
                     return _error.ToString();
@@ -129,7 +143,7 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding to use for the results.</param>
-        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <see langword="null"/>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
             if (session is null)
@@ -206,7 +220,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             // Prevent from executing BeginExecute before calling EndExecute
             if (_asyncResult != null && !_asyncResult.EndCalled)
@@ -289,7 +305,7 @@ namespace Renci.SshNet
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
         /// </example>
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -322,9 +338,23 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Cancels command execution in asynchronous scenarios.
+        /// </summary>
+        public void CancelAsync()
+        {
+            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
+            {
+                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
+                _channel.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Executes command specified by <see cref="CommandText"/> property.
         /// </summary>
-        /// <returns>Command execution result</returns>
+        /// <returns>
+        /// Command execution result.
+        /// </returns>
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute" language="C#" title="Simple command execution" />
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
@@ -335,18 +365,6 @@ namespace Renci.SshNet
         public string Execute()
         {
             return EndExecute(BeginExecute(callback: null, state: null));
-        }
-
-        /// <summary>
-        /// Cancels command execution in asynchronous scenarios.
-        /// </summary>
-        public void CancelAsync()
-        {
-            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
         }
 
         /// <summary>
@@ -493,7 +511,6 @@ namespace Renci.SshNet
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
                 default:
                     throw new SshException($"Unexpected element '{signaledElement.ToString(CultureInfo.InvariantCulture)}' signaled.");
-
             }
         }
 
@@ -503,7 +520,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="channel"/> is <c>null</c>.
+        /// Does nothing when <paramref name="channel"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromEventsAndDisposeChannel(IChannel channel)
         {
@@ -535,7 +552,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

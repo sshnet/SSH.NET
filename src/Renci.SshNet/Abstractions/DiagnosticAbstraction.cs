@@ -22,11 +22,7 @@ namespace Renci.SshNet.Abstractions
         public static void Log(string text)
         {
             Loggging.TraceEvent(TraceEventType.Verbose,
-#if NET6_0_OR_GREATER
                                 System.Environment.CurrentManagedThreadId,
-#else
-                                System.Threading.Thread.CurrentThread.ManagedThreadId,
-#endif // NET6_0_OR_GREATER
                                 text);
         }
     }

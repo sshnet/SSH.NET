@@ -1,7 +1,8 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class MessageAuthenticationCodeAlgorithm
+    public sealed class MessageAuthenticationCodeAlgorithm
     {
+#pragma warning disable SA1310 // Field names should not contain underscore
         public static readonly MessageAuthenticationCodeAlgorithm HmacMd5 = new MessageAuthenticationCodeAlgorithm("hmac-md5");
         public static readonly MessageAuthenticationCodeAlgorithm HmacMd5_96 = new MessageAuthenticationCodeAlgorithm("hmac-md5-96");
         public static readonly MessageAuthenticationCodeAlgorithm HmacRipemd160 = new MessageAuthenticationCodeAlgorithm("hmac-ripemd160");
@@ -20,6 +21,7 @@
         public static readonly MessageAuthenticationCodeAlgorithm HmacSha2_512_Etm = new MessageAuthenticationCodeAlgorithm("hmac-sha2-512-etm@openssh.com");
         public static readonly MessageAuthenticationCodeAlgorithm Umac64_Etm = new MessageAuthenticationCodeAlgorithm("umac-64-etm@openssh.com");
         public static readonly MessageAuthenticationCodeAlgorithm Umac128_Etm = new MessageAuthenticationCodeAlgorithm("umac-128-etm@openssh.com");
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         public MessageAuthenticationCodeAlgorithm(string name)
         {

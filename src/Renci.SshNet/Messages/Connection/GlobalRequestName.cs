@@ -6,11 +6,12 @@
     public enum GlobalRequestName
     {
         /// <summary>
-        /// tcpip-forward
+        /// tcpip-forward.
         /// </summary>
         TcpIpForward,
+
         /// <summary>
-        /// cancel-tcpip-forward
+        /// cancel-tcpip-forward.
         /// </summary>
         CancelTcpIpForward,
     }

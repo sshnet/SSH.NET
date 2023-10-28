@@ -156,7 +156,11 @@ namespace Renci.SshNet.NetConf
                     position += match.Index + match.Length + fractionLength;
                 }
 
+#if NET7_0_OR_GREATER
+                if (Regex.IsMatch(chunk.AsSpan(position), @"\n##\n"))
+#else
                 if (Regex.IsMatch(chunk.Substring(position), @"\n##\n"))
+#endif // NET7_0_OR_GREATER
                 {
                     _ = _rpcReplyReceived.Set();
                 }

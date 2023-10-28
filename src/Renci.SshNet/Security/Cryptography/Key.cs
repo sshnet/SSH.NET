@@ -14,7 +14,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Specifies array of big integers that represent private key.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger[] _privateKey;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the default digital signature implementation for this key.
@@ -89,7 +91,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data to verify.</param>
         /// <param name="signature">The signature to verify against.</param>
-        /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> is signature was successfully verifies; otherwise <see langword="false"/>.</returns>
         public bool VerifySignature(byte[] data, byte[] signature)
         {
             return DigitalSignature.Verify(data, signature);

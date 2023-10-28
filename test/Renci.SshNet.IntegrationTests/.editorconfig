@@ -1,5 +1,59 @@
 ﻿[*.cs]
 
+#### Sonar rules ####
+
+# S108: Nested blocks of code should not be left empty
+# https://rules.sonarsource.com/csharp/RSPEC-108/
+dotnet_diagnostic.S108.severity = none
+
+# S125: Sections of code should not be commented out
+# https://rules.sonarsource.com/csharp/RSPEC-125/
+dotnet_diagnostic.S125.severity = none
+
+# S1118: Utility classes should not have public constructors
+# https://rules.sonarsource.com/csharp/RSPEC-1118/
+dotnet_diagnostic.S1118.severity = none
+
+# S1155: "Any()" should be used to test for emptiness
+# https://rules.sonarsource.com/csharp/RSPEC-1155/
+dotnet_diagnostic.S1155.severity = none
+
+# S1607: Tests should not be ignored
+# https://rules.sonarsource.com/csharp/RSPEC-1607/
+dotnet_diagnostic.S1607.severity = none
+
+# S2925: "Thread.Sleep" should not be used in tests
+# https://rules.sonarsource.com/csharp/RSPEC-2925/
+dotnet_diagnostic.S2925.severity = none
+
+# 53241: Methods should not return values that are never used
+# https://rules.sonarsource.com/csharp/RSPEC-3241/
+dotnet_diagnostic.S3241.severity = none
+
+# S3415: Assertion arguments should be passed in the correct order
+# https://rules.sonarsource.com/csharp/RSPEC-3415/
+dotnet_diagnostic.S3415.severity = none
+
+# S3881: "IDisposable" should be implemented correctly
+# https://rules.sonarsource.com/csharp/RSPEC-3881/
+dotnet_diagnostic.S3881.severity = none
+
+# S3966: Objects should not be disposed more than once
+# https://rules.sonarsource.com/csharp/RSPEC-3966/
+dotnet_diagnostic.S3966.severity = none
+
+# S4144: Methods should not have identical implementations
+# https://rules.sonarsource.com/csharp/RSPEC-4144/
+dotnet_diagnostic.S4144.severity = none
+
+# S6602: "Find" method should be used instead of the "FirstOrDefault" extension
+# https://rules.sonarsource.com/csharp/RSPEC-6602/
+dotnet_diagnostic.S6602.severity = none
+
+# S6610: "StartsWith" and "EndsWith" overloads that take a "char" should be used instead of the ones that take a "string"
+# https://rules.sonarsource.com/csharp/RSPEC-6610/
+dotnet_diagnostic.S6610.severity = none
+
 #### SYSLIB diagnostics ####
 
 # SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
@@ -9,7 +63,265 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 
 ### StyleCop Analyzers rules ###
 
+# SA1000: Keywords must be spaced correctly
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1000.md
+dotnet_diagnostic.SA1000.severity = suggestion
+
+# SA1004: Documentation lines must begin with single space
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1004.md
+dotnet_diagnostic.SA1004.severity = suggestion
+
+# SA1005: Single line comments must begin with single space
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1005.md
+dotnet_diagnostic.SA1005.severity = suggestion
+
+# SA1012: Opening braces must be spaced correctly
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1012.md
+dotnet_diagnostic.SA1012.severity = suggestion
+
+# SA1025: Code must not contain multiple whitespace in a row
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1025.md
+dotnet_diagnostic.SA1025.severity = suggestion
+
+# SA1028: Code must not contain trailing whitespace
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1028.md
+dotnet_diagnostic.SA1028.severity = suggestion
+
+# SA1111: Closing parenthesis must be on line of last parameter
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1111.md
+dotnet_diagnostic.SA1111.severity = suggestion
+
+# SA1117: Parameters must be on same line or separate lines
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1117.md
+dotnet_diagnostic.SA1117.severity = suggestion
+
+# SA1119: Statement must not use unnecessary parenthesis
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1119.md
+dotnet_diagnostic.SA1119.severity = suggestion
+
+# SA1122: Use String.Empty for empty strings
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1122.md
+dotnet_diagnostic.SA1122.severity = suggestion
+
+# SA1123:Do not place regions within elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1123.md
+dotnet_diagnostic.SA1123.severity = suggestion
+
+# SA1130: Use lambda syntax
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1130.md
+dotnet_diagnostic.SA1130.severity = suggestion
+
+# SA1133: Do not combine attributes
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1133.md
+dotnet_diagnostic.SA1133.severity = suggestion
+
+# SA1203: Constants must appear before fields
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1203.md
+dotnet_diagnostic.SA1203.severity = suggestion
+
+# SA1204: Static elements must appear before instance elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1204.md
+dotnet_diagnostic.SA1204.severity = suggestion
+
+# SA1400: Access modifier must be declared
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1400.md
+dotnet_diagnostic.SA1400.severity = suggestion
+
+# SA1401: Fields must be private
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1401.md
+dotnet_diagnostic.SA1401.severity = suggestion
+
+# SA1411: Attribute constructor must not use unnecessary parenthesis
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1411.md
+dotnet_diagnostic.SA1411.severity = suggestion
+
+# SA1505: Opening braces must not be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1505.md
+dotnet_diagnostic.SA1505.severity = suggestion
+
+# SA1507: Code must not contain multiple blank lines in a row
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1507.md
+dotnet_diagnostic.SA1507.severity = suggestion
+
+# SA1508: Closing braces must not be preceded by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1508.md
+dotnet_diagnostic.SA1508.severity = suggestion
+
+# SA1510: Chained statement blocks must not be preceded by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1510.md
+dotnet_diagnostic.SA1510.severity = suggestion
+
+# SA1512: Single line comments must not be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1512.md
+dotnet_diagnostic.SA1512.severity = suggestion
+
+# SA1513: Closing brace must be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1513.md
+dotnet_diagnostic.SA1513.severity = suggestion
+
+# SA1514: Element documentation header must be preceded by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1514.md
+dotnet_diagnostic.SA1514.severity = suggestion
+
+# SA1515: Single line comment must be preceded by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1515.md
+dotnet_diagnostic.SA1515.severity = suggestion
+
+# SA1517: Code must not contain blank lines at start of file
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1517.md
+dotnet_diagnostic.SA1517.severity = suggestion
+
+# SA1518: Use line endings correctly at end of file
+https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1518.md
+dotnet_diagnostic.SA1518.severity = suggestion
+
+# SA1626: Single line comments must not use documentation style slashes
+https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1626.md
+dotnet_diagnostic.SA1626.severity = suggestion
+
+#### Meziantou.Analyzer rules ####
+
+# MA0001: StringComparison is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
+dotnet_diagnostic.MA0001.severity = suggestion
+
+# MA0003: Add parameter name to improve readability
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0003.md
+dotnet_diagnostic.MA0003.severity = suggestion
+
+# MA0004: Use Task.ConfigureAwait(false)
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0004.md
+dotnet_diagnostic.MA0004.severity = suggestion
+
+# MA0011: IFormatProvider is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
+dotnet_diagnostic.MA0011.severity = suggestion
+
+# MA0042: Do not use blocking calls in an async method
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0042.md
+dotnet_diagnostic.MA0042.severity = suggestion
+
+# MA0043: Use nameof operator in ArgumentException
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0043.md
+dotnet_diagnostic.MA0043.severity = suggestion
+
+# MA0046: Use EventHandler<T> to declare events
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0046.md
+dotnet_diagnostic.MA0046.severity = suggestion
+
+# MA0053: Make class sealed
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
+dotnet_diagnostic.MA0053.severity = suggestion
+
+# MA0060: The value returned by Stream.Read/Stream.ReadAsync is not used
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0060.md
+dotnet_diagnostic.MA0060.severity = suggestion
+
+# MA0074: Avoid implicit culture-sensitive methods
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0074.md
+dotnet_diagnostic.MA0074.severity = suggestion
+
+# MA0075: Do not use implicit culture-sensitive ToString
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0075.md
+dotnet_diagnostic.MA0075.severity = suggestion
+
+# MA0076: Do not use implicit culture-sensitive ToString in interpolated strings
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0076.md
+dotnet_diagnostic.MA0076.severity = suggestion
+
+# MA0099 - Use Explicit enum value instead of 0
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0099.md
+dotnet_diagnostic.MA0099.severity = suggestion
+
+# MA0101: String contains an implicit end of line character
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0101.md
+dotnet_diagnostic.MA0101.severity = suggestion
+
+# MA0110: Use the Regex source generator
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
+dotnet_diagnostic.MA0110.severity = suggestion
+
 #### .NET Compiler Platform analysers rules ####
+
+# CA1031: Do not catch general exception types
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
+dotnet_diagnostic.CA1031.severity = suggestion
+
+# CA1052: Static holder types should be Static or NotInheritable
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1052
+dotnet_diagnostic.CA1052.severity = suggestion
+
+# CA1062: Validate arguments of public methods
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1062
+dotnet_diagnostic.CA1062.severity = suggestion
+
+# CA1063: Implement IDisposable correctly
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1063
+dotnet_diagnostic.CA1063.severity = suggestion
+
+# CA1307: Specify StringComparison for clarity
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1307
+dotnet_diagnostic.CA1307.severity = suggestion
+
+# CA1310: Specify StringComparison for correctness
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1310
+dotnet_diagnostic.CA1310.severity = suggestion
+
+# CA1507: Use nameof in place of string
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1507
+dotnet_diagnostic.CA1507.severity = suggestion
+
+# CA1827: Do not use Count()/LongCount() when Any() can be used
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1827
+dotnet_diagnostic.CA1827.severity = suggestion
+
+# CA1812: Avoid uninstantiated internal classes
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812
+dotnet_diagnostic.CA1812.severity = suggestion
+
+# CA1816: Call GC.SuppressFinalize correctly
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1816
+dotnet_diagnostic.CA1816.severity = suggestion
+
+# CA1822: Mark members as static
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1822
+dotnet_diagnostic.CA1822.severity = suggestion
+
+# CA1840: Use Environment.CurrentManagedThreadId instead of Thread.CurrentThread.ManagedThreadId
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1840
+dotnet_diagnostic.CA1840.severity = suggestion
+
+# CA1851: Possible multiple enumerations of IEnumerable collection
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1851
+dotnet_diagnostic.CA1851.severity = suggestion
+
+# CA1859: Use concrete types when possible for improved performance
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1859
+dotnet_diagnostic.CA1859.severity = suggestion
+
+# CA2000: Dispose objects before losing scope
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
+dotnet_diagnostic.CA2000.severity = suggestion
+
+# CA2007: Do not directly await a Task
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007
+dotnet_diagnostic.CA2007.severity = suggestion
+
+# CA2008: Do not create tasks without passing a TaskScheduler
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2008
+dotnet_diagnostic.CA2008.severity = suggestion
+
+# CA2201: Do not raise reserved exception types
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2201
+dotnet_diagnostic.CA2201.severity = suggestion
+
+# CA2213: Disposable fields should be disposed
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213
+dotnet_diagnostic.CA2213.severity = suggestion
+
+# CA2234: Pass System.Uri objects instead of strings
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2234
+dotnet_diagnostic.CA2234.severity = suggestion
 
 # IDE0007: Use var instead of explicit type
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007

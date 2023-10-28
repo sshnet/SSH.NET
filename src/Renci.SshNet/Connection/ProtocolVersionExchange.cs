@@ -23,7 +23,7 @@ namespace Renci.SshNet.Connection
     {
         private const byte Null = 0x00;
 
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled);
+        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         /// <summary>
         /// Performs the SSH protocol version exchange.
@@ -67,6 +67,16 @@ namespace Renci.SshNet.Connection
             }
         }
 
+        /// <summary>
+        /// Asynchronously performs the SSH protocol version exchange.
+        /// </summary>
+        /// <param name="clientVersion">The identification string of the SSH client.</param>
+        /// <param name="socket">A <see cref="Socket"/> connected to the server.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the SSH protocol version exchange. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the SSH identification of the server.
+        /// </returns>
         public async Task<SshIdentification> StartAsync(string clientVersion, Socket socket, CancellationToken cancellationToken)
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
@@ -120,7 +130,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         /// <returns>
-        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
+        /// The line read from the socket, or <see langword="null"/> when the remote server has shutdown and all data has been received.
         /// </returns>
         private static string SocketReadLine(Socket socket, TimeSpan timeout, List<byte> buffer)
         {

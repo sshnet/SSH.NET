@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// Specifies compression modes
+    /// Specifies compression modes.
     /// </summary>
     public enum CompressionMode
     {

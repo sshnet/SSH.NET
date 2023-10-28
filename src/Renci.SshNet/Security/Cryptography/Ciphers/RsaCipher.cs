@@ -36,7 +36,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // Calculate signature
             var bitLength = _key.Modulus.BitLength;
 
-            var paddedBlock = new byte[bitLength / 8 + (bitLength % 8 > 0 ? 1 : 0) - 1];
+            var paddedBlock = new byte[(bitLength / 8) + (bitLength % 8 > 0 ? 1 : 0) - 1];
 
             paddedBlock[0] = 0x01;
             for (var i = 1; i < paddedBlock.Length - length - 1; i++)
@@ -141,7 +141,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 var h = BigInteger.PositiveMod((mP - mQ) * _key.InverseQ, _key.P);
 
-                var m = h * _key.Q + mQ;
+                var m = (h * _key.Q) + mQ;
 
                 var rInv = BigInteger.ModInverse(random, _key.Modulus);
 

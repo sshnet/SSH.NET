@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "signal" type channel request information
+    /// Represents "signal" type channel request information.
     /// </summary>
     internal sealed class SignalRequestInfo : RequestInfo
     {

@@ -16,7 +16,6 @@ namespace Renci.SshNet.Security
             set { _serverVersion = Utf8.GetBytes(value); }
         }
 
-
         public string ClientVersion
         {
             private get { return Utf8.GetString(_clientVersion, 0, _clientVersion.Length); }

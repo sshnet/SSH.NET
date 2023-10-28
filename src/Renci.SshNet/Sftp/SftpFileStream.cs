@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ namespace Renci.SshNet.Sftp
     /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
+#pragma warning disable CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
     public class SftpFileStream : Stream
+#pragma warning restore CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
     {
         private readonly object _lock = new object();
         private readonly int _readBufferSize;
@@ -181,9 +184,9 @@ namespace Renci.SshNet.Sftp
             Name = path;
 
             _session = session;
-            _canRead = (access & FileAccess.Read) != 0;
+            _canRead = (access & FileAccess.Read) == FileAccess.Read;
             _canSeek = true;
-            _canWrite = (access & FileAccess.Write) != 0;
+            _canWrite = (access & FileAccess.Write) == FileAccess.Write;
 
             _handle = handle;
 
@@ -221,9 +224,9 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
-            _canRead = (access & FileAccess.Read) != 0;
+            _canRead = (access & FileAccess.Read) == FileAccess.Read;
             _canSeek = true;
-            _canWrite = (access & FileAccess.Write) != 0;
+            _canWrite = (access & FileAccess.Write) == FileAccess.Write;
 
             var flags = Flags.None;
 
@@ -243,20 +246,25 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException(nameof(access));
             }
 
-            if ((access & FileAccess.Read) != 0 && mode == FileMode.Append)
+            if ((access & FileAccess.Read) == FileAccess.Read && mode == FileMode.Append)
             {
-                throw new ArgumentException(string.Format("{0} mode can be requested only when combined with write-only access.", mode.ToString("G")));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "{0} mode can be requested only when combined with write-only access.",
+                                                          mode.ToString("G")),
+                                            nameof(mode));
             }
 
-            if ((access & FileAccess.Write) == 0)
+            if ((access & FileAccess.Write) != FileAccess.Write)
             {
                 if (mode is FileMode.Create or FileMode.CreateNew or FileMode.Truncate or FileMode.Append)
                 {
-                    throw new ArgumentException(string.Format("Combining {0}: {1} with {2}: {3} is invalid.",
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                              "Combining {0}: {1} with {2}: {3} is invalid.",
                                                               nameof(FileMode),
                                                               mode,
                                                               nameof(FileAccess),
-                                                              access));
+                                                              access),
+                                                nameof(mode));
                 }
             }
 
@@ -345,20 +353,25 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException(nameof(access));
             }
 
-            if ((access & FileAccess.Read) != 0 && mode == FileMode.Append)
+            if ((access & FileAccess.Read) == FileAccess.Read && mode == FileMode.Append)
             {
-                throw new ArgumentException(string.Format("{0} mode can be requested only when combined with write-only access.", mode.ToString("G")));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "{0} mode can be requested only when combined with write-only access.",
+                                                          mode.ToString("G")),
+                                            nameof(mode));
             }
 
-            if ((access & FileAccess.Write) == 0)
+            if ((access & FileAccess.Write) != FileAccess.Write)
             {
                 if (mode is FileMode.Create or FileMode.CreateNew or FileMode.Truncate or FileMode.Append)
                 {
-                    throw new ArgumentException(string.Format("Combining {0}: {1} with {2}: {3} is invalid.",
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                              "Combining {0}: {1} with {2}: {3} is invalid.",
                                                               nameof(FileMode),
                                                               mode,
                                                               nameof(FileAccess),
-                                                              access));
+                                                              access),
+                                                nameof(mode));
                 }
             }
 
@@ -1318,10 +1331,14 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_session is null, this);
+#else
             if (_session is null)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (!_session.IsOpen)
             {

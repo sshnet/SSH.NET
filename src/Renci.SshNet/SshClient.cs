@@ -27,7 +27,7 @@ namespace Renci.SshNet
         /// </value>
         private bool _isDisposed;
 
-        private Stream _inputStream;
+        private MemoryStream _inputStream;
 
         /// <summary>
         /// Gets the list of forwarded ports.
@@ -68,7 +68,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
+#pragma warning disable CA2000 // Dispose objects before losing scope
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
+#pragma warning restore CA2000 // Dispose objects before losing scope
         {
         }
 
@@ -359,12 +361,18 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
-            // TODO let shell dispose of input stream when we own the stream!
+            /*
+             * TODO Issue #1224: let shell dispose of input stream when we own the stream!
+             */
 
             _inputStream = new MemoryStream();
-            var writer = new StreamWriter(_inputStream, encoding);
-            writer.Write(input);
-            writer.Flush();
+
+            using (var writer = new StreamWriter(_inputStream, encoding, bufferSize: 1024, leaveOpen: true))
+            {
+                writer.Write(input);
+                writer.Flush();
+            }
+
             _ = _inputStream.Seek(0, SeekOrigin.Begin);
 
             return CreateShell(_inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);

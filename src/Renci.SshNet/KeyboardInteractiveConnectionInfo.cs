@@ -134,12 +134,13 @@ namespace Renci.SshNet
                     kbdInteractive.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
                 }
             }
-
         }
 
         private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
+#pragma warning disable MA0091 // Sender should be 'this' for instance events
             AuthenticationPrompt?.Invoke(sender, e);
+#pragma warning restore MA0091 // Sender should be 'this' for instance events
         }
 
         /// <summary>

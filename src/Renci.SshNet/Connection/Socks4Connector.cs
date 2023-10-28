@@ -62,21 +62,23 @@ namespace Renci.SshNet.Connection
             var addressBytes = GetSocks4DestinationAddress(hostname);
             var proxyUserBytes = GetProxyUserBytes(username);
 
-            var connectionRequest = new byte
-                [
-                    // SOCKS version number
-                    1 +
-                    // Command code
-                    1 +
-                    // Port number
-                    2 +
-                    // IP address
-                    addressBytes.Length +
-                    // Username
-                    proxyUserBytes.Length +
-                    // Null terminator
-                    1
-                ];
+            var connectionRequest = new byte[// SOCKS version number
+                                             1 +
+
+                                             // Command code
+                                             1 +
+
+                                             // Port number
+                                             2 +
+
+                                             // IP address
+                                             addressBytes.Length +
+
+                                             // Username
+                                             proxyUserBytes.Length +
+
+                                             // Null terminator
+                                             1];
 
             var index = 0;
 

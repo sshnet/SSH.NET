@@ -14,7 +14,7 @@ namespace Renci.SshNet.Messages.Transport
         private byte[] _subGroup;
 
         /// <summary>
-        /// Gets or sets the safe prime.
+        /// Gets the safe prime.
         /// </summary>
         /// <value>
         /// The safe prime.
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         /// <summary>
-        /// Gets or sets the generator for subgroup in GF(p).
+        /// Gets the generator for subgroup in GF(p).
         /// </summary>
         /// <value>
         /// The sub group.

@@ -261,11 +261,6 @@ namespace Renci.SshNet.Abstractions
             return buffer;
         }
 
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
-        }
-
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
         /// </summary>
@@ -293,7 +288,7 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = (int)readTimeout.TotalMilliseconds;
+            socket.ReceiveTimeout = (int) readTimeout.TotalMilliseconds;
 
             do
             {
@@ -328,6 +323,11 @@ namespace Renci.SshNet.Abstractions
             while (totalBytesRead < totalBytesToRead);
 
             return totalBytesRead;
+        }
+
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+        {
+            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
         }
 
         public static void Send(Socket socket, byte[] data)

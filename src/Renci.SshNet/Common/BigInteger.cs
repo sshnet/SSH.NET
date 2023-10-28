@@ -1,4 +1,6 @@
-﻿//
+﻿#pragma warning disable SA1028 // Code should not contain trailing whitespace
+#pragma warning disable SA1515 // Single-line comment should be preceded by blank line
+//
 // System.Numerics.BigInteger
 //
 // Authors:
@@ -44,6 +46,8 @@
 *
 *
 * ***************************************************************************/
+#pragma warning restore SA1515 // Single-line comment should be preceded by blank line
+#pragma warning restore SA1028 // Code should not contain trailing whitespace
 
 using System;
 using System.Collections.Generic;
@@ -106,7 +110,7 @@ namespace Renci.SshNet.Common
 
                 var msbBitCount = BitScanBackward(_data[msbIndex]) + 1;
 
-                return msbIndex * 4 * 8 + msbBitCount + ((_sign > 0) ? 0 : 1);
+                return (msbIndex * 4 * 8) + msbBitCount + ((_sign > 0) ? 0 : 1);
             }
         }
 
@@ -145,8 +149,8 @@ namespace Renci.SshNet.Common
 
                 p1 += (b / a) * p0;
                 b %= a;
-
             }
+
             return 0;
         }
 
@@ -210,7 +214,9 @@ namespace Renci.SshNet.Common
             else
             {
                 _sign = -1;
+#pragma warning disable SA1021 // Negative signs should be spaced correctly
                 _data = new[] { (uint) -value };
+#pragma warning restore SA1021 // Negative signs should be spaced correctly
             }
         }
 
@@ -419,7 +425,9 @@ namespace Renci.SshNet.Common
                 _sign = 1;
             }
 
+#pragma warning disable CA1508 // Avoid dead conditional code | this is the following bug in the analyzer rule: https://github.com/dotnet/roslyn-analyzers/issues/6991
             if (_sign == 1)
+#pragma warning restore CA1508 // Avoid dead conditional code
             {
                 while (value[len - 1] == 0)
                 {
@@ -514,8 +522,9 @@ namespace Renci.SshNet.Common
 
                 if (borrow != 0)
                 {
-                    // FIXME I believe this can't happen, can someone write a test for it?
+#pragma warning disable CA2201 // Do not raise reserved exception types
                     throw new Exception("non zero final carry");
+#pragma warning restore CA2201 // Do not raise reserved exception types
                 }
             }
         }
@@ -535,14 +544,14 @@ namespace Renci.SshNet.Common
             var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
             var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
 
-            return ((ulong) i1 | ((ulong) i2 << 32));
+            return (ulong) i1 | ((ulong) i2 << 32);
         }
 
         /// <summary>
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is an even number.
         /// </summary>
         /// <value>
-        /// <see langword="true"/> if the value of the BigInteger object is an even number; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is an even number; otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsEven
         {
@@ -768,7 +777,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator int(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -813,7 +824,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator uint(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -835,7 +848,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator short(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             var val = (int) value;
             if (val is < short.MinValue or > short.MaxValue)
@@ -854,7 +869,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator ushort(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             var val = (uint) value;
             if (val > ushort.MaxValue)
@@ -872,7 +889,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator byte(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             var val = (uint) value;
             if (val > byte.MaxValue)
@@ -891,7 +910,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator sbyte(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             var val = (int) value;
             if (val is < sbyte.MinValue or > sbyte.MaxValue)
@@ -909,7 +930,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator long(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -973,7 +996,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator ulong(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1002,7 +1027,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator double(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1041,7 +1068,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator float(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return (float) (double) value;
         }
@@ -1053,7 +1082,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator decimal(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1092,7 +1123,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(int value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1105,7 +1138,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(uint value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1117,7 +1152,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(short value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1130,7 +1167,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(ushort value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1142,20 +1181,24 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(byte value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
 
         /// <summary>
-        /// 
+        /// Defines an implicit conversion of a signed byte to a <see cref="BigInteger"/> value.
         /// </summary>
         /// <param name="value">The value to convert to a <see cref="BigInteger"/>.</param>
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(sbyte value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1167,7 +1210,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(long value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1180,7 +1225,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(ulong value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1192,7 +1239,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(double value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1204,7 +1253,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(float value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1216,7 +1267,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(decimal value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1255,7 +1308,7 @@ namespace Renci.SshNet.Common
 
             if (r > 0)
             {
-                //left > right
+                // left > right
                 return new BigInteger(left._sign, CoreSub(left._data, right._data));
             }
 
@@ -1279,7 +1332,9 @@ namespace Renci.SshNet.Common
 
             if (left._sign == 0)
             {
+#pragma warning disable SA1021 // Negative signs should be spaced correctly
                 return new BigInteger((short) -right._sign, right._data);
+#pragma warning restore SA1021 // Negative signs should be spaced correctly
             }
 
             if (left._sign == right._sign)
@@ -1351,7 +1406,7 @@ namespace Renci.SshNet.Common
                 ulong carry = 0;
                 for (var j = 0; j < b.Length; ++j)
                 {
-                    carry = carry + ((ulong) ai) * b[j] + res[k];
+                    carry = carry + (((ulong) ai) * b[j]) + res[k];
                     res[k++] = (uint)carry;
                     carry >>= 32;
                 }
@@ -1475,7 +1530,9 @@ namespace Renci.SshNet.Common
                 return value;
             }
 
+#pragma warning disable SA1021 // Negative signs should be spaced correctly
             return new BigInteger((short) -value._sign, value._data);
+#pragma warning restore SA1021 // Negative signs should be spaced correctly
         }
 
         /// <summary>
@@ -1488,7 +1545,9 @@ namespace Renci.SshNet.Common
         /// <remarks>
         /// The sign of the operand is unchanged.
         /// </remarks>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator +(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return value;
         }
@@ -1500,7 +1559,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The value of the <paramref name="value"/> parameter incremented by 1.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ++(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1534,7 +1595,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The value of the <paramref name="value"/> parameter decremented by 1.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator --(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1569,7 +1632,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>And</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator &(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1659,7 +1724,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>Or</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator |(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1749,7 +1816,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>Or</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ^(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1838,7 +1907,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The bitwise one's complement of <paramref name="value"/>.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ~(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1895,9 +1966,14 @@ namespace Renci.SshNet.Common
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
-        //returns the 0-based index of the most significant set bit
-        //returns 0 if no bit is set, so extra care when using it
-        static int BitScanBackward(uint word)
+        /// <summary>
+        /// Returns the zero-based index of the most significant set bit.
+        /// </summary>
+        /// <param name="word">The value to scan.</param>
+        /// <returns>
+        /// The zero-based index of the most significant set bit, or zero if no bit is set.
+        /// </returns>
+        private static int BitScanBackward(uint word)
         {
             for (var i = 31; i >= 0; --i)
             {
@@ -1919,7 +1995,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that has been shifted to the left by the specified number of bits.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator <<(BigInteger value, int shift)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (shift == 0 || value._data is null)
             {
@@ -1976,7 +2054,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that has been shifted to the right by the specified number of bits.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator >>(BigInteger value, int shift)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (shift == 0 || value._sign == 0)
             {
@@ -2091,7 +2171,6 @@ namespace Renci.SshNet.Common
         {
             return left.CompareTo(right) < 0;
         }
-
 
         /// <summary>
         /// Returns a value that indicates whether a 64-bit signed integer is less than a <see cref="BigInteger"/> value.
@@ -2672,7 +2751,11 @@ namespace Renci.SshNet.Common
                         return additional + baseStr;
                     }
 
+#if NET
+                    return string.Concat("-", additional, baseStr.AsSpan(1));
+#else
                     return "-" + additional + baseStr.Substring(1);
+#endif // NET
                 }
 
                 return baseStr;
@@ -2689,9 +2772,9 @@ namespace Renci.SshNet.Common
             for (var i = 0; i < v.Length; ++i)
             {
                 var word = v[i];
-                carry = (ulong)~word + carry;
-                word = (uint)carry;
-                carry = (uint)(carry >> 32);
+                carry = (ulong) ~word + carry;
+                word = (uint) carry;
+                carry = (uint) (carry >> 32);
                 res[i] = word;
             }
 
@@ -2713,7 +2796,7 @@ namespace Renci.SshNet.Common
 
             if (characterSet.Length < radix)
             {
-                throw new ArgumentException("charSet length less than radix", "characterSet");
+                throw new ArgumentException("charSet length less than radix", nameof(radix));
             }
 
             if (radix == 1)
@@ -2731,7 +2814,7 @@ namespace Renci.SshNet.Common
                 return _sign == 1 ? "1" : "-1";
             }
 
-            var digits = new List<char>(1 + _data.Length * 3 / 10);
+            var digits = new List<char>(1 + ((_data.Length * 3) / 10));
 
             BigInteger a;
             if (_sign == 1)
@@ -2910,7 +2993,9 @@ namespace Renci.SshNet.Common
             return true;
         }
 
+#pragma warning disable S4136 // Method overloads should be grouped together
         private static bool Parse(string value, NumberStyles style, IFormatProvider fp, bool tryParse, out BigInteger result, out Exception exc)
+#pragma warning restore S4136 // Method overloads should be grouped together
         {
             result = Zero;
             exc = null;
@@ -2949,16 +3034,16 @@ namespace Renci.SshNet.Common
                 return false;
             }
 
-            var allowCurrencySymbol = (style & NumberStyles.AllowCurrencySymbol) != 0;
-            var allowHexSpecifier = (style & NumberStyles.AllowHexSpecifier) != 0;
-            var allowThousands = (style & NumberStyles.AllowThousands) != 0;
-            var allowDecimalPoint = (style & NumberStyles.AllowDecimalPoint) != 0;
-            var allowParentheses = (style & NumberStyles.AllowParentheses) != 0;
-            var allowTrailingSign = (style & NumberStyles.AllowTrailingSign) != 0;
-            var allowLeadingSign = (style & NumberStyles.AllowLeadingSign) != 0;
-            var allowTrailingWhite = (style & NumberStyles.AllowTrailingWhite) != 0;
-            var allowLeadingWhite = (style & NumberStyles.AllowLeadingWhite) != 0;
-            var allowExponent = (style & NumberStyles.AllowExponent) != 0;
+            var allowCurrencySymbol = (style & NumberStyles.AllowCurrencySymbol) == NumberStyles.AllowCurrencySymbol;
+            var allowHexSpecifier = (style & NumberStyles.AllowHexSpecifier) == NumberStyles.AllowHexSpecifier;
+            var allowThousands = (style & NumberStyles.AllowThousands) == NumberStyles.AllowThousands;
+            var allowDecimalPoint = (style & NumberStyles.AllowDecimalPoint) == NumberStyles.AllowDecimalPoint;
+            var allowParentheses = (style & NumberStyles.AllowParentheses) == NumberStyles.AllowParentheses;
+            var allowTrailingSign = (style & NumberStyles.AllowTrailingSign) == NumberStyles.AllowTrailingSign;
+            var allowLeadingSign = (style & NumberStyles.AllowLeadingSign) == NumberStyles.AllowLeadingSign;
+            var allowTrailingWhite = (style & NumberStyles.AllowTrailingWhite) == NumberStyles.AllowTrailingWhite;
+            var allowLeadingWhite = (style & NumberStyles.AllowLeadingWhite) == NumberStyles.AllowLeadingWhite;
+            var allowExponent = (style & NumberStyles.AllowExponent) == NumberStyles.AllowExponent;
 
             var pos = 0;
 
@@ -3223,7 +3308,11 @@ namespace Renci.SshNet.Common
                 {
                     if (!tryParse)
                     {
-                        exc = new OverflowException("Value too large or too small. exp=" + exponent + " rem = " + remainder + " pow = " + Pow(10, -exponent));
+                        exc = new OverflowException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "Value too large or too small. exp= {0} rem = {1} pow = {2}",
+                                                                  exponent,
+                                                                  remainder,
+                                                                  Pow(10, -exponent)));
                     }
 
                     return false;
@@ -3252,20 +3341,20 @@ namespace Renci.SshNet.Common
 
         private static bool CheckStyle(NumberStyles style, bool tryParse, ref Exception exc)
         {
-            if ((style & NumberStyles.AllowHexSpecifier) != 0)
+            if ((style & NumberStyles.AllowHexSpecifier) == NumberStyles.AllowHexSpecifier)
             {
                 var ne = style ^ NumberStyles.AllowHexSpecifier;
-                if ((ne & NumberStyles.AllowLeadingWhite) != 0)
+                if ((ne & NumberStyles.AllowLeadingWhite) == NumberStyles.AllowLeadingWhite)
                 {
                     ne ^= NumberStyles.AllowLeadingWhite;
                 }
 
-                if ((ne & NumberStyles.AllowTrailingWhite) != 0)
+                if ((ne & NumberStyles.AllowTrailingWhite) == NumberStyles.AllowTrailingWhite)
                 {
                     ne ^= NumberStyles.AllowTrailingWhite;
                 }
 
-                if (ne != 0)
+                if (ne != NumberStyles.None)
                 {
                     if (!tryParse)
                     {
@@ -3424,7 +3513,7 @@ namespace Renci.SshNet.Common
             return char.IsDigit(e);
         }
 
-        private static Exception GetFormatException()
+        private static FormatException GetFormatException()
         {
             return new FormatException("Input string was not in the correct format");
         }
@@ -3545,7 +3634,9 @@ namespace Renci.SshNet.Common
             {
                 result = val;
             }
+#pragma warning disable CA1508 // Avoid dead conditional code | this is the following bug in the analyzer rule: https://github.com/dotnet/roslyn-analyzers/issues/6991
             else if (sign == -1)
+#pragma warning restore CA1508 // Avoid dead conditional code
             {
                 result = new BigInteger(-1, val._data);
             }
@@ -3836,7 +3927,6 @@ namespace Renci.SshNet.Common
                 g = x;
                 x = y % x;
                 y = g;
-
             }
 
             if (x.IsZero)
@@ -3926,7 +4016,7 @@ namespace Renci.SshNet.Common
             {
                 if ((value._data[length] & (1 << curBit)) != 0)
                 {
-                    bitCount = curBit + length * 32;
+                    bitCount = curBit + (length * 32);
                     break;
                 }
             }
@@ -4472,7 +4562,7 @@ namespace Renci.SshNet.Common
                 if (carry == 0)
                 {
                     var ex = FirstNonFfByte(word);
-                    var needExtra = (word & (1 << (ex * 8 - 1))) == 0;
+                    var needExtra = (word & (1 << ((ex * 8) - 1))) == 0;
                     var to = ex + (needExtra ? 1 : 0);
 
                     if (to != extra)
@@ -4488,7 +4578,9 @@ namespace Renci.SshNet.Common
 
                     if (needExtra)
                     {
+#pragma warning disable S1854 // Unused assignments should be removed
                         res[j++] = 0xFF;
+#pragma warning restore S1854 // Unused assignments should be removed
                     }
                 }
                 else
@@ -4498,7 +4590,9 @@ namespace Renci.SshNet.Common
                     res[j++] = (byte)(word >> 8);
                     res[j++] = (byte)(word >> 16);
                     res[j++] = (byte)(word >> 24);
+#pragma warning disable S1854 // Unused assignments should be removed
                     res[j++] = 0xFF;
+#pragma warning restore S1854 // Unused assignments should be removed
                 }
             }
 
@@ -4807,14 +4901,14 @@ namespace Renci.SshNet.Common
                 {
                     int i;
 
-                    var rr = Base * un[j + n] + un[j + n - 1];
+                    var rr = (Base * un[j + n]) + un[j + n - 1];
                     var qq = rr / vn[n - 1];
                     rr -= qq * vn[n - 1];
 
-                    for (;;)
+                    for (; ; )
                     {
                         // Estimate too big ?
-                        if ((qq >= Base) || (qq * vn[n - 2] > (rr * Base + un[j + n - 2])))
+                        if ((qq >= Base) || (qq * vn[n - 2] > ((rr * Base) + un[j + n - 2])))
                         {
                             qq--;
                             rr += (ulong)vn[n - 1];
@@ -4826,7 +4920,6 @@ namespace Renci.SshNet.Common
 
                         break;
                     }
-
 
                     // Multiply and subtract
                     long b = 0;

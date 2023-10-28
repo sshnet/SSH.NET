@@ -18,11 +18,25 @@ namespace Renci.SshNet.Messages.Transport
         public byte[] Data { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
         /// </summary>
         public IgnoreMessage()
         {
             Data = Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        public IgnoreMessage(byte[] data)
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            Data = data;
         }
 
         /// <summary>
@@ -40,20 +54,6 @@ namespace Renci.SshNet.Messages.Transport
                 capacity += Data.Length; // Data
                 return capacity;
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        public IgnoreMessage(byte[] data)
-        {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            Data = data;
         }
 
         /// <summary>

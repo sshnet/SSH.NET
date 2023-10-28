@@ -108,4 +108,3 @@ namespace Renci.SshNet.Messages.Authentication
         }
     }
 }
-

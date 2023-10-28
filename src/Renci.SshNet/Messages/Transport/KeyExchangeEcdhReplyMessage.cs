@@ -7,7 +7,7 @@
     public class KeyExchangeEcdhReplyMessage : Message
     {
         /// <summary>
-        /// Gets a string encoding an X.509v3 certificate containing the server's ECDSA public host key
+        /// Gets a string encoding an X.509v3 certificate containing the server's ECDSA public host key.
         /// </summary>
         /// <value>The host key.</value>
         public byte[] KS { get; private set; }

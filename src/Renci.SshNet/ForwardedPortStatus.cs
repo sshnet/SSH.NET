@@ -34,7 +34,9 @@ namespace Renci.SshNet
             return forwardedPortStatus._value == _value;
         }
 
+#pragma warning disable S3875 // "operator==" should not be overloaded on reference types
         public static bool operator ==(ForwardedPortStatus left, ForwardedPortStatus right)
+#pragma warning restore S3875 // "operator==" should not be overloaded on reference types
         {
             // check if lhs is null
             if (left is null)

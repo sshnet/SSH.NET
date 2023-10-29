@@ -394,7 +394,7 @@ namespace Renci.SshNet.Channels
         /// </remarks>
         private void SendChannelOpenMessage()
         {
-            // do not allow open to be ChannelOpenMessage to be sent again until we've
+            // do not allow the ChannelOpenMessage to be sent again until we've
             // had a response on the previous attempt for the current channel
             if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 1, 0) == 0)
             {

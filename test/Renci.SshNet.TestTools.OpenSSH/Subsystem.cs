@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class Subsystem
+    public sealed class Subsystem
     {
         public Subsystem(string name, string command)
         {
@@ -13,11 +13,6 @@ namespace Renci.SshNet.TestTools.OpenSSH
         public string Name { get; }
 
         public string Command { get; set; }
-
-        public void WriteTo(TextWriter writer)
-        {
-            writer.WriteLine(Name + "=" + Command);
-        }
 
         public static Subsystem FromConfig(string value)
         {
@@ -35,7 +30,18 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 return new Subsystem(name, command);
             }
 
-            throw new Exception($"'{value}' not recognized as value for Subsystem.");
+            throw new ArgumentException($"'{value}' not recognized as value for Subsystem.",
+                                        nameof(value));
+        }
+
+        public void WriteTo(TextWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            writer.WriteLine(Name + "=" + Command);
         }
     }
 }

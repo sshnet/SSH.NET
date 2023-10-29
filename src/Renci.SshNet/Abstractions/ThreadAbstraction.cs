@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Renci.SshNet.Abstractions
 {
@@ -10,18 +12,28 @@ namespace Renci.SshNet.Abstractions
         /// <param name="millisecondsTimeout">The number of milliseconds for which the thread is suspended.</param>
         public static void Sleep(int millisecondsTimeout)
         {
-            System.Threading.Thread.Sleep(millisecondsTimeout);
+            Thread.Sleep(millisecondsTimeout);
         }
 
-        public static void ExecuteThreadLongRunning(Action action)
+        /// <summary>
+        /// Creates and starts a long-running <see cref="Task"/> for the specified <see cref="Action"/>.
+        /// </summary>
+        /// <param name="action">The <see cref="Action"/> to start.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="action"/> is <see langword="null"/>.</exception>
+        /// <returns>
+        /// A task that represents the execution of the specified <see cref="Action"/>.
+        /// </returns>
+        public static Task ExecuteThreadLongRunning(Action action)
         {
             if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }
 
-            var taskCreationOptions = System.Threading.Tasks.TaskCreationOptions.LongRunning;
-            _ = System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
+            return Task.Factory.StartNew(action,
+                                         CancellationToken.None,
+                                         TaskCreationOptions.LongRunning,
+                                         TaskScheduler.Current);
         }
 
         /// <summary>
@@ -35,7 +47,7 @@ namespace Renci.SshNet.Abstractions
                 throw new ArgumentNullException(nameof(action));
             }
 
-            _ = System.Threading.ThreadPool.QueueUserWorkItem(o => action());
+            _ = ThreadPool.QueueUserWorkItem(o => action());
         }
     }
 }

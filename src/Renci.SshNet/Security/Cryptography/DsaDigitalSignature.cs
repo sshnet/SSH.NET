@@ -80,10 +80,10 @@ namespace Renci.SshNet.Security.Cryptography
             var w = BigInteger.ModInverse(s, _key.Q);
 
             // Calculate u1 = H(m)·w mod q
-            var u1 = hm * w % _key.Q;
+            var u1 = (hm * w) % _key.Q;
 
             // Calculate u2 = r * w mod q
-            var u2 = r * w % _key.Q;
+            var u2 = (r * w) % _key.Q;
 
             u1 = BigInteger.ModPow(_key.G, u1, _key.P);
             u2 = BigInteger.ModPow(_key.Y, u2, _key.P);

@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace Renci.SshNet
 {
@@ -213,7 +214,7 @@ namespace Renci.SshNet
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is nu<see langword="null"/>ll or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SftpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
@@ -448,44 +449,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Asynchronously renames remote file from old path to new path.
-        /// </summary>
-        /// <param name="oldPath">Path to the old file location.</param>
-        /// <param name="newPath">Path to the new file location.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous rename operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="oldPath"/> is <see langword="null"/>. <para>-or-</para> or <paramref name="newPath"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public async Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken)
-        {
-            CheckDisposed();
-
-            if (oldPath is null)
-            {
-                throw new ArgumentNullException(nameof(oldPath));
-            }
-
-            if (newPath is null)
-            {
-                throw new ArgumentNullException(nameof(newPath));
-            }
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var oldFullPath = await _sftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
-            var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
-            await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
-        }
-
-        /// <summary>
         /// Renames remote file from old path to new path.
         /// </summary>
         /// <param name="oldPath">Path to the old file location.</param>
@@ -527,6 +490,44 @@ namespace Renci.SshNet
             {
                 _sftpSession.RequestRename(oldFullPath, newFullPath);
             }
+        }
+
+        /// <summary>
+        /// Asynchronously renames remote file from old path to new path.
+        /// </summary>
+        /// <param name="oldPath">Path to the old file location.</param>
+        /// <param name="newPath">Path to the new file location.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous rename operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="oldPath"/> is <see langword="null"/>. <para>-or-</para> or <paramref name="newPath"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken)
+        {
+            CheckDisposed();
+
+            if (oldPath is null)
+            {
+                throw new ArgumentNullException(nameof(oldPath));
+            }
+
+            if (newPath is null)
+            {
+                throw new ArgumentNullException(nameof(newPath));
+            }
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var oldFullPath = await _sftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
+            var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
+            await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -735,7 +736,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Checks whether file or directory exists;
+        /// Checks whether file or directory exists.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
@@ -762,22 +763,24 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            // using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
-            // been clear on how the server should respond when the specified path is not present on
-            // the server:
-            //
-            // SSH 1 to 4:
-            // No mention of how the server should respond if the path is not present on the server.
-            //
-            // SSH 5:
-            // The server SHOULD fail the request if the path is not present on the server.
-            //
-            // SSH 6:
-            // Draft 06: The server SHOULD fail the request if the path is not present on the server.
-            // Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
-            //
-            // Note that SSH 6 (draft 06 and forward) allows for more control options, but we
-            // currently only support up to v3.
+            /*
+             * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
+             * been clear on how the server should respond when the specified path is not present on
+             * the server:
+             *
+             * SSH 1 to 4:
+             * No mention of how the server should respond if the path is not present on the server.
+             *
+             * SSH 5:
+             * The server SHOULD fail the request if the path is not present on the server.
+             *
+             * SSH 6:
+             * Draft 06: The server SHOULD fail the request if the path is not present on the server.
+             * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
+             *
+             * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
+             * currently only support up to v3.
+             */
 
             try
             {
@@ -1233,12 +1236,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is<see langword="null"/> <para>-or-</para> <paramref name="contents"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>. <para>-or-</para> <paramref name="contents"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM)
+        /// The characters are written to the file using UTF-8 encoding without a byte-order mark (BOM).
         /// </remarks>
         public void AppendAllLines(string path, IEnumerable<string> contents)
         {
@@ -1710,10 +1713,13 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string[] ReadAllLines(string path, Encoding encoding)
         {
-            // we use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
-            // for the SftpFileStream; may want to revisit this later
+            /*
+             * We use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
+             * for the SftpFileStream. We may want to revisit this later.
+             */
 
             var lines = new List<string>();
+
             using (var stream = new StreamReader(OpenRead(path), encoding))
             {
                 while (!stream.EndOfStream)
@@ -1721,6 +1727,7 @@ namespace Renci.SshNet
                     lines.Add(stream.ReadLine());
                 }
             }
+
             return lines.ToArray();
         }
 
@@ -1752,8 +1759,10 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string ReadAllText(string path, Encoding encoding)
         {
-            // we use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
-            // for the SftpFileStream; may want to revisit this later
+            /*
+             * We use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
+             * for the SftpFileStream. We may want to revisit this later.
+             */
 
             using (var stream = new StreamReader(OpenRead(path), encoding))
             {
@@ -2074,15 +2083,6 @@ namespace Renci.SshNet
             _sftpSession.RequestSetStat(fullPath, fileAttributes);
         }
 
-        // Please don't forget this when you implement these methods: <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        //public FileSecurity GetAccessControl(string path);
-        //public FileSecurity GetAccessControl(string path, AccessControlSections includeSections);
-        //public DateTime GetCreationTime(string path);
-        //public DateTime GetCreationTimeUtc(string path);
-        //public void SetAccessControl(string path, FileSecurity fileSecurity);
-        //public void SetCreationTime(string path, DateTime creationTime);
-        //public void SetCreationTimeUtc(string path, DateTime creationTimeUtc);
-
         #endregion // File Methods
 
         #region SynchronizeDirectories
@@ -2099,7 +2099,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <see langword="null"/> or contains only whitespace.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="destinationPath"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
             if (sourcePath is null)
@@ -2128,7 +2128,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <see langword="null"/> or contains only whitespace.</exception>
-        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state)
         {
             if (sourcePath is null)
@@ -2180,7 +2180,7 @@ namespace Renci.SshNet
             return ar.EndInvoke();
         }
 
-        private IEnumerable<FileInfo> InternalSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, SftpSynchronizeDirectoriesAsyncResult asynchResult)
+        private List<FileInfo> InternalSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, SftpSynchronizeDirectoriesAsyncResult asynchResult)
         {
             if (!Directory.Exists(sourcePath))
             {
@@ -2228,8 +2228,7 @@ namespace Renci.SshNet
                     var isDifferent = true;
                     if (destDict.TryGetValue(localFile.Name, out var remoteFile))
                     {
-                        //  TODO:   Use md5 to detect a difference
-                        //ltang: File exists at the destination => Using filesize to detect the difference
+                        // File exists at the destination, use filesize to detect if there's a difference
                         isDifferent = localFile.Length != remoteFile.Length;
                     }
 
@@ -2238,7 +2237,9 @@ namespace Renci.SshNet
                         var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
                         try
                         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
                             using (var file = File.OpenRead(localFile.FullName))
+#pragma warning restore CA2000 // Dispose objects before losing scope
                             {
                                 InternalUploadFile(file, remoteFileName, uploadFlag, asyncResult: null, uploadCallback: null);
                             }
@@ -2273,7 +2274,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private IEnumerable<ISftpFile> InternalListDirectory(string path, Action<int> listCallback)
+        private List<ISftpFile> InternalListDirectory(string path, Action<int> listCallback)
         {
             if (path is null)
             {
@@ -2291,7 +2292,11 @@ namespace Renci.SshNet
 
             var basePath = fullPath;
 
-            if (!basePath.EndsWith("/"))
+#if NET || NETSTANDARD2_1_OR_GREATER
+            if (!basePath.EndsWith('/'))
+#else
+            if (!basePath.EndsWith("/", StringComparison.Ordinal))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 basePath = string.Format("{0}/", fullPath);
             }
@@ -2309,10 +2314,10 @@ namespace Renci.SshNet
                                             f.Value));
                 }
 
-                //  Call callback to report number of files read
+                // Call callback to report number of files read
                 if (listCallback is not null)
                 {
-                    //  Execute callback on different thread
+                    // Execute callback on different thread
                     ThreadAbstraction.ExecuteThread(() => listCallback(result.Count));
                 }
 
@@ -2377,10 +2382,10 @@ namespace Renci.SshNet
 
                     if (downloadCallback is not null)
                     {
-                        // copy offset to ensure it's not modified between now and execution of callback
+                        // Copy offset to ensure it's not modified between now and execution of callback
                         var downloadOffset = totalBytesRead;
 
-                        //  Execute callback on different thread
+                        // Execute callback on different thread
                         ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
                     }
                 }
@@ -2447,10 +2452,10 @@ namespace Renci.SshNet
                                 _ = Interlocked.Decrement(ref expectedResponses);
                                 _ = responseReceivedWaitHandle.Set();
 
-                                //  Call callback to report number of bytes written
+                                // Call callback to report number of bytes written
                                 if (uploadCallback is not null)
                                 {
-                                    //  Execute callback on different thread
+                                    // Execute callback on different thread
                                     ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
                                 }
                             }
@@ -2464,13 +2469,14 @@ namespace Renci.SshNet
                 }
                 else if (expectedResponses > 0)
                 {
-                    //  Wait for expectedResponses to change
+                    // Wait for expectedResponses to change
                     _sftpSession.WaitOnHandle(responseReceivedWaitHandle, _operationTimeout);
                 }
             }
             while (expectedResponses > 0 || bytesRead > 0);
 
             _sftpSession.RequestClose(handle);
+            responseReceivedWaitHandle.Dispose();
         }
 
         /// <summary>
@@ -2501,7 +2507,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)

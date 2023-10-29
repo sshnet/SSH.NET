@@ -30,7 +30,7 @@ namespace Renci.SshNet.Abstractions
         /// An array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
         /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <see langword="null"/>.</exception>
         /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static IPAddress[] GetHostAddresses(string hostNameOrAddress)
         {
@@ -97,7 +97,7 @@ namespace Renci.SshNet.Abstractions
         /// A task with result of an array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
         /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <see langword="null"/>.</exception>
         /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static Task<IPAddress[]> GetHostAddressesAsync(string hostNameOrAddress)
         {

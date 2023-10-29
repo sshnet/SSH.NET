@@ -21,7 +21,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this session is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this session is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this session is open; otherwise, <see langword="false"/>.
         /// </value>
         bool IsOpen { get; }
 
@@ -54,8 +54,8 @@ namespace Renci.SshNet
         /// <param name="waitHandle">The handle to wait for.</param>
         /// <param name="millisecondsTimeout">To number of milliseconds to wait for <paramref name="waitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="waitHandle"/> received a signal within the specified timeout;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="waitHandle"/> received a signal within the specified timeout;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>

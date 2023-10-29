@@ -28,7 +28,7 @@ namespace Renci.SshNet.Abstractions
         /// </summary>
         /// <param name="socket">The <see cref="Socket"/> to check.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="socket"/> can be written to; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="socket"/> can be written to; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool CanWrite(Socket socket)
         {

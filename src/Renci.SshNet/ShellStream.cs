@@ -41,7 +41,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
-        /// <c>true</c> if data is available to be read; otherwise, <c>false</c>.
+        /// <see langword="true"/> if data is available to be read; otherwise, <see langword="false"/>.
         /// </value>
         public bool DataAvailable
         {
@@ -119,7 +119,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanRead
         {
@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanSeek
         {
@@ -141,7 +141,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanWrite
         {
@@ -209,7 +209,7 @@ namespace Renci.SshNet
         /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
@@ -264,7 +264,7 @@ namespace Renci.SshNet
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
@@ -511,7 +511,7 @@ namespace Renci.SshNet
         /// <param name="text">The text to expect.</param>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// The text available in the shell that ends with expected text, or <c>null</c> if the specified time has elapsed.
+        /// The text available in the shell that ends with expected text, or <see langword="null"/> if the specified time has elapsed.
         /// </returns>
         public string Expect(string text, TimeSpan timeout)
         {
@@ -537,7 +537,7 @@ namespace Renci.SshNet
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
         /// The text available in the shell that contains all the text that ends with expected expression,
-        /// or <c>null</c> if the specified time has elapsed.
+        /// or <see langword="null"/> if the specified time has elapsed.
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
@@ -598,7 +598,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// The line read from the shell, or <c>null</c> when no input is received for the specified timeout.
+        /// The line read from the shell, or <see langword="null"/> when no input is received for the specified timeout.
         /// </returns>
         public string ReadLine(TimeSpan timeout)
         {
@@ -672,7 +672,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="text">The text to be written to the shell.</param>
         /// <remarks>
-        /// If <paramref name="text"/> is <c>null</c>, nothing is written.
+        /// If <paramref name="text"/> is <see langword="null"/>, nothing is written.
         /// </remarks>
         public void Write(string text)
         {
@@ -695,7 +695,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="line">The line to be written to the shell.</param>
         /// <remarks>
-        /// If <paramref name="line"/> is <c>null</c>, only the line terminator is written.
+        /// If <paramref name="line"/> is <see langword="null"/>, only the line terminator is written.
         /// </remarks>
         public void WriteLine(string line)
         {
@@ -705,7 +705,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases the unmanaged resources used by the <see cref="Stream"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -746,7 +746,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {

@@ -89,7 +89,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data to verify.</param>
         /// <param name="signature">The signature to verify against.</param>
-        /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> is signature was successfully verifies; otherwise <see langword="false"/>.</returns>
         public bool VerifySignature(byte[] data, byte[] signature)
         {
             return DigitalSignature.Verify(data, signature);

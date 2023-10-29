@@ -248,10 +248,10 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the session is connected.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the session is connected; otherwise, <see langword="false"/>.
         /// </value>
         /// <remarks>
-        /// This methods returns <c>true</c> in all but the following cases:
+        /// This methods returns <see langword="true"/> in all but the following cases:
         /// <list type="bullet">
         ///     <item>
         ///         <description>The <see cref="Session"/> is disposed.</description>
@@ -292,7 +292,7 @@ namespace Renci.SshNet
         /// Gets the session id.
         /// </summary>
         /// <value>
-        /// The session id, or <c>null</c> if the client has not been authenticated.
+        /// The session id, or <see langword="null"/> if the client has not been authenticated.
         /// </value>
         public byte[] SessionId { get; private set; }
 
@@ -536,9 +536,9 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
         /// <param name="socketFactory">A factory to create <see cref="Socket"/> instances.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
         internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
             if (connectionInfo is null)
@@ -1128,11 +1128,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         private bool TrySendMessage(Message message)
@@ -1158,7 +1158,7 @@ namespace Renci.SshNet
         /// Receives the message from the server.
         /// </summary>
         /// <returns>
-        /// The incoming SSH message, or <c>null</c> if the connection with the SSH server was closed.
+        /// The incoming SSH message, or <see langword="null"/> if the connection with the SSH server was closed.
         /// </returns>
         /// <remarks>
         /// We need no locking here since all messages are read by a single thread.
@@ -1721,12 +1721,12 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the socket is connected; otherwise, <see langword="false"/>.
         /// </returns>
         /// <remarks>
         /// <para>
         /// As a first check we verify whether <see cref="Socket.Connected"/> is
-        /// <c>true</c>. However, this only returns the state of the socket as of
+        /// <see langword="true"/>. However, this only returns the state of the socket as of
         /// the last I/O operation.
         /// </para>
         /// <para>
@@ -1738,15 +1738,15 @@ namespace Renci.SshNet
         /// with mode <see cref="SelectMode.SelectRead"/>:
         /// <list type="bullet">
         ///     <item>
-        ///         <description><c>true</c> if data is available for reading;</description>
+        ///         <description><see langword="true"/> if data is available for reading;</description>
         ///     </item>
         ///     <item>
-        ///         <description><c>true</c> if the connection has been closed, reset, or terminated; otherwise, returns <c>false</c>.</description>
+        ///         <description><see langword="true"/> if the connection has been closed, reset, or terminated; otherwise, returns <see langword="false"/>.</description>
         ///     </item>
         /// </list>
         /// </para>
         /// <para>
-        /// <c>Conclusion:</c> when the return value is <c>true</c> - but no data is available for reading - then
+        /// <c>Conclusion:</c> when the return value is <see langword="true"/> - but no data is available for reading - then
         /// the socket is no longer connected.
         /// </para>
         /// <para>
@@ -1974,7 +1974,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -2122,11 +2122,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         bool ISession.TrySendMessage(Message message)

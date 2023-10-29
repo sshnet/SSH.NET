@@ -55,7 +55,7 @@ namespace Renci.SshNet.Sftp.Requests
         /// <param name="requestId">The request id.</param>
         /// <param name="newLinkPath">Specifies the path name of the new link to create.</param>
         /// <param name="existingPath">Specifies the path of a target object to which the newly created link will refer.  In the case of a symbolic link, this path may not exist.</param>
-        /// <param name="isSymLink">if set to <c>false</c> the link should be a hard link, or a second directory entry referring to the same file or directory object.</param>
+        /// <param name="isSymLink">if set to <see langword="false"/> the link should be a hard link, or a second directory entry referring to the same file or directory object.</param>
         /// <param name="statusAction">The status action.</param>
         public SftpLinkRequest(uint protocolVersion, uint requestId, string newLinkPath, string existingPath, bool isSymLink, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)

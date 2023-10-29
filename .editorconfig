@@ -488,6 +488,12 @@ dotnet_diagnostic.CA1510.severity = none
 # Since we do not enable any of the Sonar rules by default, we'll leave CA1725 enabled.
 dotnet_diagnostic.CA1725.severity = error
 
+# CA1825: Avoid zero-length array allocations
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
+#
+# This is a duplicate of MA0005.
+dotnet_diagnostic.CA1825.severity = none
+
 # CA1819: Properties should not return arrays
 #
 # Arrays offer better performance than collections.

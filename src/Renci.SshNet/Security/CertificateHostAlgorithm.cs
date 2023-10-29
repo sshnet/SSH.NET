@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns><c>true</c> if signature was successfully verified; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.</returns>
         /// <exception cref="NotImplementedException"></exception>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {

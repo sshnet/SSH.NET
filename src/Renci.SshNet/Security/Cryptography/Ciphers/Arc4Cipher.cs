@@ -33,8 +33,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="Arc4Cipher" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="dischargeFirstBytes">if set to <c>true</c> will disharged first 1536 bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+        /// <param name="dischargeFirstBytes">if set to <see langword="true"/> will disharged first 1536 bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <see langword="null"/>.</exception>
         public Arc4Cipher(byte[] key, bool dischargeFirstBytes)
             : base(key)
         {

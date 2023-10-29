@@ -18,7 +18,7 @@ namespace Renci.SshNet.Common
         /// Gets or sets a value indicating whether host key can be trusted.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if host key can be trusted; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if host key can be trusted; otherwise, <see langword="false"/>.
         /// </value>
         public bool CanTrust { get; set; }
 

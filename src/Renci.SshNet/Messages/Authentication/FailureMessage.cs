@@ -25,7 +25,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// Gets a value indicating whether authentication is partially successful.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if partially successful; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if partially successful; otherwise, <see langword="false"/>.
         /// </value>
         public bool PartialSuccess { get; private set; }
 

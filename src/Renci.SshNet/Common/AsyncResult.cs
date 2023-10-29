@@ -35,8 +35,8 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public bool EndInvokeCalled { get; private set; }
 
@@ -179,7 +179,7 @@ namespace Renci.SshNet.Common
         /// Marks asynchronous operation as completed.
         /// </summary>
         /// <param name="result">The result.</param>
-        /// <param name="completedSynchronously">if set to <c>true</c> [completed synchronously].</param>
+        /// <param name="completedSynchronously">if set to <see langword="true"/> [completed synchronously].</param>
         public void SetAsCompleted(TResult result, bool completedSynchronously)
         {
             // Save the asynchronous operation's result

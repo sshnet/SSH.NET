@@ -165,7 +165,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a socket.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if file represents a socket; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if file represents a socket; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSocket { get; private set; }
 
@@ -173,7 +173,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a symbolic link.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a symbolic link; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSymbolicLink { get; private set; }
 
@@ -181,7 +181,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a regular file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a regular file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a regular file; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsRegularFile { get; private set; }
 
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a block device.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a block device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsBlockDevice { get; private set; }
 
@@ -197,7 +197,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a directory.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a directory; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsDirectory { get; private set; }
 
@@ -205,7 +205,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a character device.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a character device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsCharacterDevice { get; private set; }
 
@@ -213,7 +213,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a named pipe.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a named pipe; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsNamedPipe { get; private set; }
 
@@ -221,7 +221,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanRead { get; set; }
 
@@ -229,7 +229,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanWrite { get; set; }
 
@@ -237,7 +237,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanExecute { get; set; }
 
@@ -245,7 +245,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanRead { get; set; }
 
@@ -253,7 +253,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanWrite { get; set; }
 
@@ -261,7 +261,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanExecute { get; set; }
 
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanRead { get; set; }
 
@@ -277,7 +277,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanWrite { get; set; }
 
@@ -285,7 +285,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanExecute { get; set; }
 

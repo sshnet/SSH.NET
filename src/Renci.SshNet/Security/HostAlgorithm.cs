@@ -36,7 +36,7 @@
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> is signature was successfully verifies; otherwise <see langword="false"/>.</returns>
         public abstract bool VerifySignature(byte[] data, byte[] signature);
     }
 }

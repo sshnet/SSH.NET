@@ -86,7 +86,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether connection is authenticated.
         /// </summary>
         /// <value>
-        /// <c>true</c> if connection is authenticated; otherwise, <c>false</c>.
+        /// <see langword="true"/> if connection is authenticated; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsAuthenticated { get; private set; }
 
@@ -252,10 +252,10 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is a zero-length string.</exception>
-        /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is <see langword="null"/>, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
             : this(host, DefaultPort, username, ProxyTypes.None, proxyHost: null, 0, proxyUsername: null, proxyPassword: null, authenticationMethods)
@@ -269,10 +269,10 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is <see langword="null"/>, a zero-length string or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
             : this(host, port, username, ProxyTypes.None, proxyHost: null, 0, proxyUsername: null, proxyPassword: null, authenticationMethods)
@@ -291,12 +291,12 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is <see langword="null"/>, a zero-length string or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyHost" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyHost" /> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyPort" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
@@ -445,8 +445,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session to be authenticated.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="session"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {

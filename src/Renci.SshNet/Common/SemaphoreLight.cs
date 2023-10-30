@@ -130,7 +130,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Infinite(-1) to wait indefinitely.</param>
         /// <returns>
-        /// <c>true</c> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Wait(int millisecondsTimeout)
         {
@@ -148,7 +148,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely.</param>
         /// <returns>
-        /// <c>true</c> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Wait(TimeSpan timeout)
         {
@@ -227,7 +227,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected void Dispose(bool disposing)
         {
             if (disposing)

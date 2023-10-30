@@ -79,7 +79,7 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="DirectTcpipChannelInfo"/> class from the
         /// specified data.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public DirectTcpipChannelInfo(byte[] data)
         {
             Load(data);

@@ -13,7 +13,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
         internal PortForwardEventArgs(string host, uint port)
         {

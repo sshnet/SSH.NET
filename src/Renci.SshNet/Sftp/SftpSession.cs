@@ -417,7 +417,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns <see langword="null"/> instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
         public byte[] RequestOpen(string path, Flags flags, bool nullOnError = false)
         {
@@ -519,7 +519,7 @@ namespace Renci.SshNet.Sftp
         /// If all available data has been read, the <see cref="EndOpen(SftpOpenAsyncResult)"/> method completes
         /// immediately and returns zero bytes.
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndOpen(SftpOpenAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -631,7 +631,7 @@ namespace Renci.SshNet.Sftp
         /// Handles the end of an asynchronous close.
         /// </summary>
         /// <param name="asyncResult">An <see cref="SftpCloseAsyncResult"/> that represents an asynchronous call.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public void EndClose(SftpCloseAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -709,7 +709,7 @@ namespace Renci.SshNet.Sftp
         /// If all available data has been read, the <see cref="EndRead(SftpReadAsyncResult)"/> method completes
         /// immediately and returns zero bytes.
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndRead(SftpReadAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -977,7 +977,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The file attributes.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -1006,7 +1006,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_FSTAT request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns <see langword="null"/> instead of throwing an exception.</param>
         /// <returns>
         /// File attributes.
         /// </returns>
@@ -1131,7 +1131,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_OPENDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns <see langword="null"/> instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
         public byte[] RequestOpenDir(string path, bool nullOnError = false)
         {
@@ -1385,7 +1385,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_REALPATH request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns null instead of throwing an exception.</param>
         /// <returns>
         /// The absolute path.
         /// </returns>
@@ -1485,7 +1485,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The absolute path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndRealPath(SftpRealPathAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -1514,7 +1514,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns null instead of throwing an exception.</param>
         /// <returns>
         /// File attributes.
         /// </returns>
@@ -1585,7 +1585,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The file attributes.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult)
         {
             if (asyncResult is null)
@@ -1681,7 +1681,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_READLINK request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> returns null instead of throwing an exception.</param>
         /// <returns></returns>
         internal KeyValuePair<string, SftpFileAttributes>[] RequestReadLink(string path, bool nullOnError = false)
         {
@@ -1809,7 +1809,7 @@ namespace Renci.SshNet.Sftp
         /// Performs statvfs@openssh.com extended request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
         /// A <see cref="SftpFileSytemInformation"/> for the specified path.
         /// </returns>
@@ -1887,7 +1887,7 @@ namespace Renci.SshNet.Sftp
         /// Performs fstatvfs@openssh.com extended request.
         /// </summary>
         /// <param name="handle">The file handle.</param>
-        /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
+        /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
         /// A <see cref="SftpFileSytemInformation"/> for the specified path.
         /// </returns>

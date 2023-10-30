@@ -120,7 +120,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -134,7 +134,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c> or empty, or <paramref name="passPhrase"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty, or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -158,7 +158,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             Open(privateKey, passPhrase);
@@ -389,7 +389,7 @@ namespace Renci.SshNet
         /// <param name="passPhrase">Decryption pass phrase.</param>
         /// <param name="binarySalt">Decryption binary salt.</param>
         /// <returns>Decrypted byte array.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <see langword="null"/>.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             if (cipherInfo is null)
@@ -614,7 +614,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

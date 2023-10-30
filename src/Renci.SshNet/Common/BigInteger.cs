@@ -392,7 +392,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="BigInteger"/> structure using the values in a byte array.
         /// </summary>
         /// <param name="value">An array of <see cref="byte"/> values in little-endian order.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         [CLSCompliant(false)]
         public BigInteger(byte[] value)
         {
@@ -542,7 +542,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is an even number.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the BigInteger object is an even number; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the BigInteger object is an even number; otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsEven
         {
@@ -553,8 +553,8 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is <see cref="One"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is <see cref="One"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is <see cref="One"/>;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsOne
         {
@@ -672,8 +672,8 @@ namespace Renci.SshNet.Common
         /// Gets a value Indicating whether the value of the current <see cref="BigInteger"/> object is a power of two.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is a power of two;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is a power of two;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsPowerOfTwo
         {
@@ -709,8 +709,8 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is <see cref="Zero"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is <see cref="Zero"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is <see cref="Zero"/>;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsZero
         {
@@ -2072,7 +2072,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(BigInteger left, BigInteger right)
         {
@@ -2085,7 +2085,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if left is <paramref name="left"/> than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if left is <paramref name="left"/> than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(BigInteger left, long right)
         {
@@ -2099,8 +2099,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(long left, BigInteger right)
         {
@@ -2113,7 +2113,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <(BigInteger left, ulong right)
@@ -2127,7 +2127,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <(ulong left, BigInteger right)
@@ -2142,8 +2142,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(BigInteger left, BigInteger right)
         {
@@ -2157,8 +2157,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(BigInteger left, long right)
         {
@@ -2171,8 +2171,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(long left, BigInteger right)
         {
@@ -2186,8 +2186,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <=(BigInteger left, ulong right)
@@ -2202,8 +2202,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <=(ulong left, BigInteger right)
@@ -2218,8 +2218,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(BigInteger left, BigInteger right)
         {
@@ -2232,8 +2232,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(BigInteger left, long right)
         {
@@ -2246,8 +2246,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(long left, BigInteger right)
         {
@@ -2260,8 +2260,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >(BigInteger left, ulong right)
@@ -2275,8 +2275,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >(ulong left, BigInteger right)
@@ -2291,8 +2291,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(BigInteger left, BigInteger right)
         {
@@ -2306,8 +2306,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(BigInteger left, long right)
         {
@@ -2321,8 +2321,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(long left, BigInteger right)
         {
@@ -2336,8 +2336,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >=(BigInteger left, ulong right)
@@ -2352,8 +2352,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >=(ulong left, BigInteger right)
@@ -2367,8 +2367,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(BigInteger left, BigInteger right)
         {
@@ -2381,8 +2381,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(BigInteger left, long right)
         {
@@ -2395,8 +2395,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(long left, BigInteger right)
         {
@@ -2409,8 +2409,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator ==(BigInteger left, ulong right)
@@ -2424,8 +2424,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator ==(ulong left, BigInteger right)
@@ -2439,8 +2439,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(BigInteger left, BigInteger right)
         {
@@ -2453,8 +2453,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(BigInteger left, long right)
         {
@@ -2467,8 +2467,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(long left, BigInteger right)
         {
@@ -2481,8 +2481,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator !=(BigInteger left, ulong right)
@@ -2496,8 +2496,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator !=(ulong left, BigInteger right)
@@ -2510,9 +2510,9 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="obj">The object to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="obj"/> parameter is a <see cref="BigInteger"/> object or a type capable
+        /// <see langword="true"/> if the <paramref name="obj"/> parameter is a <see cref="BigInteger"/> object or a type capable
         /// of implicit conversion to a <see cref="BigInteger"/> value, and its value is equal to the value of the
-        /// current <see cref="BigInteger"/> object; otherwise, <c>false</c>.
+        /// current <see cref="BigInteger"/> object; otherwise, <see langword="false"/>.
         /// </returns>
         public override readonly bool Equals(object obj)
         {
@@ -2530,8 +2530,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The object to compare.</param>
         /// <returns>
-        /// <c>true</c> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public readonly bool Equals(BigInteger other)
         {
@@ -2564,7 +2564,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The signed 64-bit integer value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the signed 64-bit integer and the current instance have the same value; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the signed 64-bit integer and the current instance have the same value; otherwise, <see langword="false"/>.
         /// </returns>
         public readonly bool Equals(long other)
         {
@@ -2576,7 +2576,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The unsigned 64-bit integer to compare.</param>
         /// <returns>
-        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public readonly bool Equals(ulong other)
@@ -2795,7 +2795,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that is equivalent to the number specified in the <paramref name="value"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> is not in the correct format.</exception>
         public static BigInteger Parse(string value)
         {
@@ -2820,7 +2820,7 @@ namespace Renci.SshNet.Common
         /// <para>-or-</para>
         /// <para><paramref name="style"/> includes the <see cref="NumberStyles.AllowHexSpecifier"/> or <see cref="NumberStyles.HexNumber"/> flag along with another value.</para>
         /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> does not comply with the input pattern specified by <see cref="NumberStyles"/>.</exception>
         public static BigInteger Parse(string value, NumberStyles style)
         {
@@ -2835,7 +2835,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that is equivalent to the number specified in the <paramref name="value"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> is not in the correct format.</exception>
         public static BigInteger Parse(string value, IFormatProvider provider)
         {
@@ -2856,7 +2856,7 @@ namespace Renci.SshNet.Common
         /// <para>-or-</para>
         /// <para><paramref name="style"/> includes the <see cref="NumberStyles.AllowHexSpecifier"/> or <see cref="NumberStyles.HexNumber"/> flag along with another value.</para>
         /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> does not comply with the input pattern specified by <see cref="NumberStyles"/>.</exception>
         public static BigInteger Parse(string value, NumberStyles style, IFormatProvider provider)
         {
@@ -2873,11 +2873,11 @@ namespace Renci.SshNet.Common
         /// returns a value that indicates whether the conversion succeeded.
         /// </summary>
         /// <param name="value">The string representation of a number.</param>
-        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or zero (0) if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <c>null</c> or is not of the correct format. This parameter is passed uninitialized.</param>
+        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or zero (0) if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <see langword="null"/> or is not of the correct format. This parameter is passed uninitialized.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="value"/> was converted successfully; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="value"/> was converted successfully; otherwise, <see langword="false"/>.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         public static bool TryParse(string value, out BigInteger result)
         {
             return Parse(value, tryParse: true, out result, out _);
@@ -2890,9 +2890,9 @@ namespace Renci.SshNet.Common
         /// <param name="value">The string representation of a number.</param>
         /// <param name="style">A bitwise combination of enumeration values that indicates the style elements that can be present in <paramref name="value"/>.</param>
         /// <param name="provider">An object that supplies culture-specific formatting information about <paramref name="value"/>.</param>
-        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or <see cref="Zero"/> if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <c>null</c> or is not of the correct format. This parameter is passed uninitialized.</param>
+        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or <see cref="Zero"/> if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <see langword="null"/> or is not of the correct format. This parameter is passed uninitialized.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="value"/> was converted successfully; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="value"/> was converted successfully; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// <para><paramref name="style"/> is not a <see cref="NumberStyles"/> value.</para>

@@ -83,7 +83,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The file name part of <paramref name="path"/>.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>
         /// If <paramref name="path"/> contains no forward slash, then <paramref name="path"/>
@@ -122,7 +122,7 @@ namespace Renci.SshNet.Common
         /// The directory part of the specified <paramref name="path"/>, or <c>.</c> if <paramref name="path"/>
         /// does not contain any directory information.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         public static string GetDirectoryName(string path)
         {
             if (path is null)

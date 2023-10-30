@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Connection;
+using Renci.SshNet.NetConf;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
 
@@ -14,7 +16,24 @@ namespace Renci.SshNet
     /// </summary>
     internal partial interface IServiceFactory
     {
+        /// <summary>
+        /// Creates an <see cref="IClientAuthentication"/>.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IClientAuthentication"/>.
+        /// </returns>
         IClientAuthentication CreateClientAuthentication();
+
+        /// <summary>
+        /// Creates a new <see cref="INetConfSession"/> in a given <see cref="ISession"/>
+        /// and with the specified operation timeout.
+        /// </summary>
+        /// <param name="session">The <see cref="ISession"/> to create the <see cref="INetConfSession"/> in.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.</param>
+        /// <returns>
+        /// An <see cref="INetConfSession"/>.
+        /// </returns>
+        INetConfSession CreateNetConfSession(ISession session, int operationTimeout);
 
         /// <summary>
         /// Creates a new <see cref="ISession"/> with the specified <see cref="ConnectionInfo"/> and
@@ -25,8 +44,8 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="ISession"/> for the specified <see cref="ConnectionInfo"/>.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
         ISession CreateSession(ConnectionInfo connectionInfo, ISocketFactory socketFactory);
 
         /// <summary>
@@ -34,7 +53,7 @@ namespace Renci.SshNet
         /// the specified operation timeout and encoding.
         /// </summary>
         /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
-        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="sftpMessageFactory">The factory to use for creating SFTP messages.</param>
         /// <returns>
@@ -59,13 +78,29 @@ namespace Renci.SshNet
         /// <returns>
         /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
         IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms);
 
+        /// <summary>
+        /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
+        /// buffer size.
+        /// </summary>
+        /// <param name="fileName">The file to read.</param>
+        /// <param name="sftpSession">The SFTP session to use.</param>
+        /// <param name="bufferSize">The size of buffer.</param>
+        /// <returns>
+        /// An <see cref="ISftpFileReader"/>.
+        /// </returns>
         ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
 
+        /// <summary>
+        /// Creates a new <see cref="ISftpResponseFactory"/> instance.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ISftpResponseFactory"/>.
+        /// </returns>
         ISftpResponseFactory CreateSftpResponseFactory();
 
         /// <summary>

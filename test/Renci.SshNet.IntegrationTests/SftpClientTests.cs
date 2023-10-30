@@ -35,11 +35,11 @@ namespace Renci.SshNet.IntegrationTests
 
             // Check if ListDirectory works
             var expectedFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>()
-            {
-                ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
-                ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
-                ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
-            };
+                {
+                    ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
+                };
 
             var actualFiles = _sftpClient.ListDirectory(testDirectory)
                 .Select(f => (f.FullName, f.IsRegularFile, f.IsDirectory))
@@ -70,11 +70,11 @@ namespace Renci.SshNet.IntegrationTests
 
             // Check if ListDirectory works
             var expectedFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>()
-            {
-                ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
-                ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
-                ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
-            };
+                {
+                    ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
+                };
 
             var actualFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>();
 

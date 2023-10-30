@@ -52,8 +52,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="password"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="password"/> is <see langword="null"/>.</exception>
         public PasswordAuthenticationMethod(string username, string password)
             : this(username, Encoding.UTF8.GetBytes(password))
         {
@@ -64,8 +64,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="password"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="password"/> is <see langword="null"/>.</exception>
         public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
@@ -85,7 +85,7 @@ namespace Renci.SshNet
         /// <returns>
         /// Result of authentication  process.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> is <see langword="null"/>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
             if (session is null)
@@ -181,7 +181,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

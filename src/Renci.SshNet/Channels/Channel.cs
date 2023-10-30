@@ -29,8 +29,8 @@ namespace Renci.SshNet.Channels
         /// Holds a value indicating whether the SSH_MSG_CHANNEL_CLOSE has been sent to the remote party.
         /// </summary>
         /// <value>
-        /// <c>true</c> when a SSH_MSG_CHANNEL_CLOSE message has been sent to the other party;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> when a SSH_MSG_CHANNEL_CLOSE message has been sent to the other party;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         private bool _closeMessageSent;
 
@@ -39,8 +39,8 @@ namespace Renci.SshNet.Channels
         /// party.
         /// </summary>
         /// <value>
-        /// <c>true</c> when a SSH_MSG_CHANNEL_CLOSE message has been received from the other party;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> when a SSH_MSG_CHANNEL_CLOSE message has been received from the other party;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         private bool _closeMessageReceived;
 
@@ -48,8 +48,8 @@ namespace Renci.SshNet.Channels
         /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been received from the other party.
         /// </summary>
         /// <value>
-        /// <c>true</c> when a SSH_MSG_CHANNEL_EOF message has been received from the other party;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> when a SSH_MSG_CHANNEL_EOF message has been received from the other party;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         private bool _eofMessageReceived;
 
@@ -57,8 +57,8 @@ namespace Renci.SshNet.Channels
         /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the remote party.
         /// </summary>
         /// <value>
-        /// <c>true</c> when a SSH_MSG_CHANNEL_EOF message has been sent to the remote party;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> when a SSH_MSG_CHANNEL_EOF message has been sent to the remote party;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         private bool _eofMessageSent;
 
@@ -221,7 +221,7 @@ namespace Renci.SshNet.Channels
         /// Gets or sets a value indicating whether this channel is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this channel is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this channel is open; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsOpen { get; protected set; }
 
@@ -264,7 +264,7 @@ namespace Renci.SshNet.Channels
         /// Gets a value indicating whether the session is connected.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the session is connected; otherwise, <see langword="false"/>.
         /// </value>
         protected bool IsConnected
         {
@@ -459,11 +459,11 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         private bool TrySendMessage(Message message)
@@ -824,7 +824,7 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_isDisposed && disposing)

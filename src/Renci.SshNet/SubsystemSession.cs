@@ -67,7 +67,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this session is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this session is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this session is open; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsOpen
         {
@@ -80,7 +80,7 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="operationTimeout">The number of milliseconds to wait for a given operation to complete, or -1 to wait indefinitely.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <see langword="null"/>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
             if (session is null)
@@ -264,8 +264,8 @@ namespace Renci.SshNet
         /// <param name="waitHandle">The handle to wait for.</param>
         /// <param name="millisecondsTimeout">To number of milliseconds to wait for <paramref name="waitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="waitHandle"/> received a signal within the specified timeout;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="waitHandle"/> received a signal within the specified timeout;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
@@ -473,7 +473,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
@@ -498,7 +498,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

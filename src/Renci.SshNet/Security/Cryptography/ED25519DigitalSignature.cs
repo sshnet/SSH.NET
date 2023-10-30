@@ -16,7 +16,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="ED25519DigitalSignature" /> class.
         /// </summary>
         /// <param name="key">The ED25519Key key.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public ED25519DigitalSignature(ED25519Key key)
         {
             if (key is null)
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns>
-        /// <c>true</c> if signature was successfully verified; otherwise <c>false</c>.
+        /// <see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Invalid signature.</exception>
         public override bool Verify(byte[] input, byte[] signature)
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

@@ -66,12 +66,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="status">The status to transition from.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="status"/> has been changed to <see cref="Stopping"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="status"/> has been changed to <see cref="Stopping"/>; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Cannot transition <paramref name="status"/> to <see cref="Stopping"/>.</exception>
         /// <remarks>
         /// While a transition from <see cref="Stopped"/> to <see cref="Stopping"/> is not possible, this method will
-        /// return <c>false</c> for any such attempts.  This is related to concurrency.
+        /// return <see langword="false"/> for any such attempts.  This is related to concurrency.
         /// </remarks>
         public static bool ToStopping(ref ForwardedPortStatus status)
         {
@@ -114,12 +114,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="status">The status to transition from.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="status"/> has been changed to <see cref="Starting"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="status"/> has been changed to <see cref="Starting"/>; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Cannot transition <paramref name="status"/> to <see cref="Starting"/>.</exception>
         /// <remarks>
         /// While a transition from <see cref="Started"/> to <see cref="Starting"/> is not possible, this method will
-        /// return <c>false</c> for any such attempts.  This is related to concurrency.
+        /// return <see langword="false"/> for any such attempts.  This is related to concurrency.
         /// </remarks>
         public static bool ToStarting(ref ForwardedPortStatus status)
         {

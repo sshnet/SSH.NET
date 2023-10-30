@@ -55,7 +55,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="sftpSession">The SFT session.</param>
         /// <param name="chunkSize">The size of a individual read-ahead chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
-        /// <param name="fileSize">The size of the file, if known; otherwise, <c>null</c>.</param>
+        /// <param name="fileSize">The size of the file, if known; otherwise, <see langword="null"/>.</param>
         public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
             _handle = handle;
@@ -222,7 +222,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         private void Dispose(bool disposing)
         {
             if (_disposingOrDisposed)
@@ -355,7 +355,7 @@ namespace Renci.SshNet.Sftp
         /// Returns a value indicating whether the read-ahead loop should be continued.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the read-ahead loop should be continued; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the read-ahead loop should be continued; otherwise, <see langword="false"/>.
         /// </returns>
         private bool ContinueReadAhead()
         {

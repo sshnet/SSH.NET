@@ -25,7 +25,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this client is connected to the server.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this client is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this client is connected; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         bool IsConnected { get; }

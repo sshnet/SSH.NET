@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for remote port forwarding.
     /// </summary>
-    public class ForwardedPortRemote : ForwardedPort, IDisposable
+    public class ForwardedPortRemote : ForwardedPort
     {
         private ForwardedPortStatus _status;
         private bool _requestStatus;
@@ -24,7 +24,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
-        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
+        /// <see langword="true"/> if port forwarding is started; otherwise, <see langword="false"/>.
         /// </value>
         public override bool IsStarted
         {
@@ -80,8 +80,8 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="hostAddress">The host address.</param>
         /// <param name="port">The port.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="boundHostAddress"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="hostAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHostAddress"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="hostAddress"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
@@ -229,10 +229,14 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected override void CheckDisposed()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
         }
 
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)
@@ -285,6 +289,7 @@ namespace Renci.SshNet
                                 }
                                 catch (ObjectDisposedException)
                                 {
+                                    // Ignore any ObjectDisposedException
                                 }
                             }
                         });
@@ -335,18 +340,9 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (_isDisposed)

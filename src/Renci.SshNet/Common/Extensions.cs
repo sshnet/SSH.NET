@@ -141,7 +141,7 @@ namespace Renci.SshNet.Common
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="offset"/> is zero and <paramref name="count"/> equals the length of <paramref name="value"/>,
         /// then <paramref name="value"/> is returned.
@@ -176,7 +176,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A <see cref="byte"/> array that contains the specified number of bytes at the start of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="count"/> equals the length of <paramref name="value"/>, then <paramref name="value"/>
         /// is returned.

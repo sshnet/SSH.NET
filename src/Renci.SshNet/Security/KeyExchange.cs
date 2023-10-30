@@ -297,7 +297,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="host">The host algorithm.</param>
         /// <returns>
-        /// <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the specified host can be trusted; otherwise, <see langword="false"/>.
         /// </returns>
         protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
@@ -513,7 +513,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
         }

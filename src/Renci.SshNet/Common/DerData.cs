@@ -26,7 +26,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether end of data is reached.
         /// </summary>
         /// <value>
-        /// <c>true</c> if end of data is reached; otherwise, <c>false</c>.
+        /// <see langword="true"/> if end of data is reached; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsEndOfData
         {

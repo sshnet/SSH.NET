@@ -33,7 +33,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this shell is started.
         /// </summary>
         /// <value>
-        /// <c>true</c> if started is started; otherwise, <c>false</c>.
+        /// <see langword="true"/> if started is started; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsStarted { get; private set; }
 
@@ -232,7 +232,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
@@ -259,7 +259,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)

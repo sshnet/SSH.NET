@@ -21,6 +21,10 @@ MA0053.public_class_should_be_sealed = false
 
 #### .NET Compiler Platform analysers rules ####
 
+# CA1030: Use events where appropriate
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1030
+dotnet_diagnostic.CA10310.severity = none
+
 # CA1031: Do not catch general exception types
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
 dotnet_diagnostic.CA1031.severity = none

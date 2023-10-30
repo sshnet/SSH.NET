@@ -20,7 +20,7 @@ namespace Renci.SshNet.Compression
         /// Gets or sets a value indicating whether compression is active.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if compression is active; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if compression is active; otherwise, <see langword="false"/>.
         /// </value>
         protected bool IsActive { get; set; }
 
@@ -144,7 +144,7 @@ namespace Renci.SshNet.Compression
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

@@ -23,7 +23,7 @@ namespace Renci.SshNet.Abstractions
         /// Fills an array of bytes with a cryptographically strong random sequence of values.
         /// </summary>
         /// <param name="data">The array to fill with cryptographically strong random bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// The length of the byte array determines how many random bytes are produced.
         /// </remarks>

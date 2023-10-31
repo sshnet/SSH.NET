@@ -134,7 +134,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads all data left in internal buffer at current position.
         /// </summary>
-        /// <returns>An array of bytes containing the remaining data in the internal buffer.</returns>
+        /// <returns>
+        /// An array of bytes containing the remaining data in the internal buffer.
+        /// </returns>
         protected byte[] ReadBytes()
         {
             var bytesLength = (int) (_stream.Length - _stream.Position);
@@ -147,18 +149,12 @@ namespace Renci.SshNet.Common
         /// Reads next specified number of bytes data type from internal buffer.
         /// </summary>
         /// <param name="length">Number of bytes to read.</param>
-        /// <returns>An array of bytes that was read from the internal buffer.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
+        /// <returns>
+        /// An array of bytes that was read from the internal buffer.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the number of bytes available to be read.</exception>
         protected byte[] ReadBytes(int length)
         {
-#pragma warning disable S125 // Sections of code should not be commented out
-            /*
-             * Note that this also prevents allocating non-relevant lengths, such as if length is greater than _data.Count but less than int.MaxValue.
-             * For the nerds, the condition translates to: if (length > data.Count && length < int.MaxValue)
-             * Which probably would cause all sorts of exception, most notably OutOfMemoryException.
-             */
-#pragma warning restore S125 // Sections of code should not be commented out
-
             var data = new byte[length];
             var bytesRead = _stream.Read(data, 0, length);
 
@@ -173,7 +169,10 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads next byte data type from internal buffer.
         /// </summary>
-        /// <returns>Byte read.</returns>
+        /// <returns>
+        /// The <see cref="byte"/> read.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected byte ReadByte()
         {
             var byteRead = _stream.ReadByte();
@@ -191,6 +190,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="bool"/> that was read.
         /// </returns>
+        /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected bool ReadBoolean()
         {
             return ReadByte() != 0;
@@ -202,6 +202,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="ushort"/> that was read.
         /// </returns>
+        /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected ushort ReadUInt16()
         {
             return Pack.BigEndianToUInt16(ReadBytes(2));
@@ -213,6 +214,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="uint"/> that was read.
         /// </returns>
+        /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected uint ReadUInt32()
         {
             return Pack.BigEndianToUInt32(ReadBytes(4));
@@ -224,6 +226,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="ulong"/> that was read.
         /// </returns>
+        /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected ulong ReadUInt64()
         {
             return Pack.BigEndianToUInt64(ReadBytes(8));

@@ -2237,9 +2237,9 @@ namespace Renci.SshNet
                         var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
                         try
                         {
-#pragma warning disable CA2000 // Dispose objects before losing scope
+#pragma warning disable CA2000 // Dispose objects before losing scope; false positive
                             using (var file = File.OpenRead(localFile.FullName))
-#pragma warning restore CA2000 // Dispose objects before losing scope
+#pragma warning restore CA2000 // Dispose objects before losing scope; false positive
                             {
                                 InternalUploadFile(file, remoteFileName, uploadFlag, asyncResult: null, uploadCallback: null);
                             }

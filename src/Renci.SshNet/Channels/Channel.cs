@@ -159,9 +159,7 @@ namespace Renci.SshNet.Channels
             {
                 if (!_remoteChannelNumber.HasValue)
                 {
-#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                     throw CreateRemoteChannelInfoNotAvailableException();
-#pragma warning restore S2372 // Exceptions should not be thrown from property getters
                 }
 
                 return _remoteChannelNumber.Value;

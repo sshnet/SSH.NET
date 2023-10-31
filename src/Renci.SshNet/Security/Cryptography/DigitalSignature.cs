@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns><c>True</c> if signature was successfully verified; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.</returns>
         public abstract bool Verify(byte[] input, byte[] signature);
 
         /// <summary>

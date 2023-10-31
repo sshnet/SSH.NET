@@ -88,7 +88,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether this instance is read only.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance is read only; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this instance is read only; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsReadOnly
         {
@@ -99,7 +99,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether [supports set uid].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [supports set uid]; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if [supports set uid]; otherwise, <see langword="false"/>.
         /// </value>
         public bool SupportsSetUid
         {

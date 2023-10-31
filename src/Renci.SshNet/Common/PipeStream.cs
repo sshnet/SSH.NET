@@ -81,7 +81,7 @@ namespace Renci.SshNet.Common
         /// Setting to true will remove the possibility of ending a stream reader prematurely.
         /// </remarks>
         /// <value>
-        /// <c>true</c> if block last read method before the buffer is empty; otherwise, <c>false</c>.
+        /// <see langword="true"/> if block last read method before the buffer is empty; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public bool BlockLastReadBuffer
@@ -175,7 +175,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException">The sum of offset and count is larger than the buffer length.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
@@ -264,7 +264,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The sum of offset and count is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)
@@ -317,7 +317,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         /// <remarks>
         /// Disposing a <see cref="PipeStream"/> will interrupt blocking read and write operations.
         /// </remarks>
@@ -350,7 +350,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanSeek
         {
@@ -361,7 +361,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanWrite
         {

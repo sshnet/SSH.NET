@@ -120,7 +120,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         /// <returns>
-        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
+        /// The line read from the socket, or <see langword="null"/> when the remote server has shutdown and all data has been received.
         /// </returns>
         private static string SocketReadLine(Socket socket, TimeSpan timeout, List<byte> buffer)
         {

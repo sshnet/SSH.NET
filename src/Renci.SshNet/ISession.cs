@@ -17,7 +17,7 @@ namespace Renci.SshNet
     internal interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets or sets the connection info.
+        /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
@@ -86,6 +86,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
+        /// <param name="remoteChannelNumber">The number of the remote channel.</param>
+        /// <param name="remoteWindowSize">The window size of the remote channel.</param>
+        /// <param name="remoteChannelDataPacketSize">The data packet size of the remote channel.</param>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>

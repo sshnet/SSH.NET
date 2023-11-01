@@ -102,6 +102,24 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Writes string data to the SSH data stream using the specified encoding.
+        /// </summary>
+        /// <param name="s">The string data to write.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="s"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
+        public void Write(string s, Encoding encoding)
+        {
+            if (encoding is null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
+
+            var bytes = encoding.GetBytes(s);
+            WriteBinary(bytes, 0, bytes.Length);
+        }
+
+        /// <summary>
         /// Reads a byte array from the SSH data stream.
         /// </summary>
         /// <returns>
@@ -147,24 +165,6 @@ namespace Renci.SshNet.Common
         {
             Write((uint) count);
             Write(buffer, offset, count);
-        }
-
-        /// <summary>
-        /// Writes string data to the SSH data stream using the specified encoding.
-        /// </summary>
-        /// <param name="s">The string data to write.</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="s"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
-        public void Write(string s, Encoding encoding)
-        {
-            if (encoding is null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
-
-            var bytes = encoding.GetBytes(s);
-            WriteBinary(bytes, 0, bytes.Length);
         }
 
         /// <summary>

@@ -17,7 +17,9 @@ namespace Renci.SshNet
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(initialState: false);
+#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables
         private bool _isSignatureRequired;
+#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables
         private bool _isDisposed;
 
         /// <summary>
@@ -168,7 +170,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)

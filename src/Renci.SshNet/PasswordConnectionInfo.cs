@@ -6,7 +6,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides connection information when password authentication method is used
+    /// Provides connection information when password authentication method is used.
     /// </summary>
     /// <example>
     ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using username and password" />
@@ -260,7 +260,9 @@ namespace Renci.SshNet
 
         private void AuthenticationMethod_PasswordExpired(object sender, AuthenticationPasswordChangeEventArgs e)
         {
+#pragma warning disable MA0091 // Sender should be 'this' for instance events
             PasswordExpired?.Invoke(sender, e);
+#pragma warning restore MA0091 // Sender should be 'this' for instance events
         }
 
         /// <summary>

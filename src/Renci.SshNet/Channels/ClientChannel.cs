@@ -49,7 +49,7 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Send message to open a channel.
         /// </summary>
-        /// <param name="message">Message to send</param>
+        /// <param name="message">Message to send.</param>
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>

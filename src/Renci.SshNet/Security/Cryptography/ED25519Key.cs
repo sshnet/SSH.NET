@@ -11,17 +11,21 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class ED25519Key : Key, IDisposable
     {
-        private ED25519DigitalSignature _digitalSignature;
-
-        private byte[] _publicKey = new byte[Ed25519.PublicKeySizeInBytes];
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable SX1309 // Field names should begin with underscore
         private readonly byte[] privateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
+#pragma warning restore SX1309 // Field names should begin with underscore
 #pragma warning restore IDE1006 // Naming Styles
+        private ED25519DigitalSignature _digitalSignature;
+        private byte[] _publicKey = new byte[Ed25519.PublicKeySizeInBytes];
         private bool _isDisposed;
 
         /// <summary>
-        /// Gets the Key String.
+        /// Gets the name of the key.
         /// </summary>
+        /// <returns>
+        /// The name of the key.
+        /// </returns>
         public override string ToString()
         {
             return "ssh-ed25519";
@@ -132,7 +136,7 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)

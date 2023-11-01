@@ -24,9 +24,9 @@ namespace Renci.SshNet
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
-        private EventWaitHandle _dataReaderTaskCompleted;
+        private ManualResetEvent _dataReaderTaskCompleted;
         private IChannelSession _channel;
-        private EventWaitHandle _channelClosedWaitHandle;
+        private AutoResetEvent _channelClosedWaitHandle;
         private Stream _input;
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Renci.SshNet
                         var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
                         var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
 
-                        if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
+                        if (WaitHandle.WaitAny(new[] { readWaitHandle, _channelClosedWaitHandle }) == 0)
                         {
                             var read = readTask.GetAwaiter().GetResult();
                             _channel.SendData(buffer, 0, read);

@@ -83,7 +83,7 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
@@ -98,81 +98,81 @@ namespace Renci.SshNet.Security.Cryptography
                 _isDisposed = true;
             }
         }
-    }
 
-    internal sealed class SshDataSignature : SshData
-    {
-        private readonly int _signature_size;
-
-        private byte[] _signature_r;
-        private byte[] _signature_s;
-
-        public byte[] Signature
+        private sealed class SshDataSignature : SshData
         {
-            get
+            private readonly int _signature_size;
+
+            private byte[] _signature_r;
+            private byte[] _signature_s;
+
+            public byte[] Signature
             {
-                var signature = new byte[_signature_size];
-                Buffer.BlockCopy(_signature_r, 0, signature, 0, _signature_r.Length);
-                Buffer.BlockCopy(_signature_s, 0, signature, _signature_r.Length, _signature_s.Length);
-                return signature;
-            }
-            set
-            {
-                var signed_r = new byte[_signature_size / 2];
-                Buffer.BlockCopy(value, 0, signed_r, 0, signed_r.Length);
-                _signature_r = signed_r.ToBigInteger2().ToByteArray().Reverse();
+                get
+                {
+                    var signature = new byte[_signature_size];
+                    Buffer.BlockCopy(_signature_r, 0, signature, 0, _signature_r.Length);
+                    Buffer.BlockCopy(_signature_s, 0, signature, _signature_r.Length, _signature_s.Length);
+                    return signature;
+                }
+                set
+                {
+                    var signed_r = new byte[_signature_size / 2];
+                    Buffer.BlockCopy(value, 0, signed_r, 0, signed_r.Length);
+                    _signature_r = signed_r.ToBigInteger2().ToByteArray().Reverse();
 
-                var signed_s = new byte[_signature_size / 2];
-                Buffer.BlockCopy(value, signed_r.Length, signed_s, 0, signed_s.Length);
-                _signature_s = signed_s.ToBigInteger2().ToByteArray().Reverse();
-            }
-        }
-
-        public SshDataSignature(int sig_size)
-        {
-            _signature_size = sig_size;
-        }
-
-        public SshDataSignature(byte[] data, int sig_size)
-        {
-            _signature_size = sig_size;
-            Load(data);
-        }
-
-        protected override void LoadData()
-        {
-            _signature_r = ReadBinary().TrimLeadingZeros().Pad(_signature_size / 2);
-            _signature_s = ReadBinary().TrimLeadingZeros().Pad(_signature_size / 2);
-        }
-
-        protected override void SaveData()
-        {
-            WriteBinaryString(_signature_r.ToBigInteger2().ToByteArray().Reverse());
-            WriteBinaryString(_signature_s.ToBigInteger2().ToByteArray().Reverse());
-        }
-
-        public new byte[] ReadBinary()
-        {
-            var length = ReadUInt32();
-
-            if (length > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
+                    var signed_s = new byte[_signature_size / 2];
+                    Buffer.BlockCopy(value, signed_r.Length, signed_s, 0, signed_s.Length);
+                    _signature_s = signed_s.ToBigInteger2().ToByteArray().Reverse();
+                }
             }
 
-            return ReadBytes((int)length);
-        }
-
-        protected override int BufferCapacity
-        {
-            get
+            public SshDataSignature(int sig_size)
             {
-                var capacity = base.BufferCapacity;
-                capacity += 4; // r length
-                capacity += _signature_r.Length; // signature r
-                capacity += 4; // s length
-                capacity += _signature_s.Length; // signature s
-                return capacity;
+                _signature_size = sig_size;
+            }
+
+            public SshDataSignature(byte[] data, int sig_size)
+            {
+                _signature_size = sig_size;
+                Load(data);
+            }
+
+            protected override void LoadData()
+            {
+                _signature_r = ReadBinary().TrimLeadingZeros().Pad(_signature_size / 2);
+                _signature_s = ReadBinary().TrimLeadingZeros().Pad(_signature_size / 2);
+            }
+
+            protected override void SaveData()
+            {
+                WriteBinaryString(_signature_r.ToBigInteger2().ToByteArray().Reverse());
+                WriteBinaryString(_signature_s.ToBigInteger2().ToByteArray().Reverse());
+            }
+
+            public new byte[] ReadBinary()
+            {
+                var length = ReadUInt32();
+
+                if (length > int.MaxValue)
+                {
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
+                }
+
+                return ReadBytes((int) length);
+            }
+
+            protected override int BufferCapacity
+            {
+                get
+                {
+                    var capacity = base.BufferCapacity;
+                    capacity += 4; // r length
+                    capacity += _signature_r.Length; // signature r
+                    capacity += 4; // s length
+                    capacity += _signature_s.Length; // signature s
+                    return capacity;
+                }
             }
         }
     }

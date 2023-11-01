@@ -74,10 +74,14 @@ namespace Renci.SshNet.Sftp
 
         public byte[] Read()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_disposingOrDisposed, this);
+#else
             if (_disposingOrDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (_exception is not null)
             {
@@ -168,7 +172,9 @@ namespace Renci.SshNet.Sftp
 
             var bytesToCatchUp = nextChunk.Offset - _offset;
 
-            // TODO: break loop and interrupt blocking wait in case of exception
+            /*
+             * TODO: break loop and interrupt blocking wait in case of exception
+             */
 
             var read = _sftpSession.RequestRead(_handle, _offset, (uint) bytesToCatchUp);
             if (read.Length == 0)

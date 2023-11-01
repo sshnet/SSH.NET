@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class Cipher
+    public sealed class Cipher
     {
         public static readonly Cipher TripledesCbc = new Cipher("3des-cbc");
         public static readonly Cipher Aes128Cbc = new Cipher("aes128-cbc");

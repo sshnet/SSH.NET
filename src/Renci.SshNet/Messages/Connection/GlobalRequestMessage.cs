@@ -23,7 +23,7 @@
         /// Gets a value indicating whether message reply should be sent..
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if message reply should be sent; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if message reply should be sent; otherwise, <see langword="false"/>.
         /// </value>
         public bool WantReply { get; private set; }
 

@@ -13,7 +13,9 @@ namespace Renci.SshNet
         /// <value>
         /// The name of the authentication method.
         /// </value>
+#pragma warning disable CA2119 // Seal methods that satisfy private interfaces
         public abstract string Name { get; }
+#pragma warning restore CA2119 // Seal methods that satisfy private interfaces
 
         /// <summary>
         /// Gets connection username.

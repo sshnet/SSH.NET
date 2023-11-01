@@ -184,9 +184,7 @@ namespace Renci.SshNet.Channels
             {
                 if (!_remotePacketSize.HasValue)
                 {
-#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                     throw CreateRemoteChannelInfoNotAvailableException();
-#pragma warning restore S2372 // Exceptions should not be thrown from property getters
                 }
 
                 return _remotePacketSize.Value;
@@ -209,9 +207,7 @@ namespace Renci.SshNet.Channels
             {
                 if (!_remoteWindowSize.HasValue)
                 {
-#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                     throw CreateRemoteChannelInfoNotAvailableException();
-#pragma warning restore S2372 // Exceptions should not be thrown from property getters
                 }
 
                 return _remoteWindowSize.Value;

@@ -82,9 +82,7 @@ namespace Renci.SshNet.Common
 #else
                 if (_isDisposed)
                 {
-#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                     throw CreateObjectDisposedException();
-#pragma warning restore S2372 // Exceptions should not be thrown from property getters
                 }
 #endif // NET7_0_OR_GREATER
 
@@ -396,9 +394,7 @@ namespace Renci.SshNet.Common
 #else
                 if (_isDisposed)
                 {
-#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                     throw CreateObjectDisposedException();
-#pragma warning restore S2372 // Exceptions should not be thrown from property getters
                 }
 #endif // NET7_0_OR_GREATER
 

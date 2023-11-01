@@ -705,7 +705,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 return _aesCSP.Decrypt(input, offset, length);
             }
 
-            return base.Encrypt(input, offset, length);
+            return base.Decrypt(input, offset, length);
         }
 
         private uint[] GenerateWorkingKey(bool isEncryption, byte[] key)

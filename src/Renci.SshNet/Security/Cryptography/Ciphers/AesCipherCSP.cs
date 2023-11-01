@@ -4,9 +4,6 @@ using CSP = System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    // allow ECB in this class
-#pragma warning disable CA5358
-
     /// <summary>
     /// AES cipher implementation using the accelerated AesCryptoServiceProvider
     /// This CSP makes use of AES-NI instructions if available (faster, less CPU usage).
@@ -128,7 +125,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 using var aesProvider = CSP.Aes.Create();
                 aesProvider.BlockSize = _blockSize * 8;
                 aesProvider.KeySize = key.Length * 8;
+#pragma warning disable CA5358 // allow ECB
                 aesProvider.Mode = _isCTRMode ? CSP.CipherMode.ECB : CSP.CipherMode.CBC;    // CTR uses ECB
+#pragma warning restore CA5358
                 aesProvider.Padding = CSP.PaddingMode.None;
                 aesProvider.Key = key;
                 aesProvider.IV = iv;

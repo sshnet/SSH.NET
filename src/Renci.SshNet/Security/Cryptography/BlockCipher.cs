@@ -76,7 +76,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             if (length % _blockSize > 0)
             {
-                    if (_padding is null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
@@ -135,17 +135,18 @@ namespace Renci.SshNet.Security.Cryptography
         {
             if (length % _blockSize > 0)
             {
-                    if (_padding is null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
 
-                    input = _padding.Pad(_blockSize, input, offset, length);
-                    offset = 0;
-                    length = input.Length;
+                input = _padding.Pad(_blockSize, input, offset, length);
+                offset = 0;
+                length = input.Length;
             }
 
             var output = new byte[length];
+
             var writtenBytes = 0;
             for (var i = 0; i < length / _blockSize; i++)
             {

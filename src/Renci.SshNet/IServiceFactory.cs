@@ -83,7 +83,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
         IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
 
-                /// <summary>
+        /// <summary>
         /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
         /// buffer size.
         /// </summary>

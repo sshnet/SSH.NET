@@ -63,14 +63,17 @@ namespace Renci.SshNet.Sftp
             _sftpSession = sftpSession;
             _chunkSize = chunkSize;
             _fileSize = fileSize;
-            _offset = offset;
-            _readAheadOffset = offset;
             _semaphore = new SemaphoreLight(maxPendingReads);
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();
             _readAheadCompleted = new ManualResetEvent(initialState: false);
             _disposingWaitHandle = new ManualResetEvent(initialState: false);
             _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
+
+            // When resuming a download (offset > 0), set the initial offset of the remote file to
+            // the same offset as the local output file. Read-ahead also starts at the same offset.
+            _offset = offset;
+            _readAheadOffset = offset;
 
             StartReadAhead();
         }

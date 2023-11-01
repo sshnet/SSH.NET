@@ -164,6 +164,8 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
+
+                // calculate maxPendingReads based on remaining size, not total filesize (needed for resume support)
                 maxPendingReads = Math.Min(10, (int) Math.Ceiling((double)(fileSize - (long)offset) / chunkSize) + 1);
             }
             catch (SshException ex)

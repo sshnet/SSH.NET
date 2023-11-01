@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Connection
         /// Gets or sets a value indicating whether reply message is needed.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if reply message is needed; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if reply message is needed; otherwise, <see langword="false"/>.
         /// </value>
         public bool WantReply { get; protected set; }
 

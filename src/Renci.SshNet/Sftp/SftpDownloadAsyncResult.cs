@@ -6,7 +6,7 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Encapsulates the results of an asynchronous download operation.
     /// </summary>
-    public class SftpDownloadAsyncResult :  AsyncResult
+    public class SftpDownloadAsyncResult : AsyncResult
     {
         /// <summary>
         /// Gets or sets a value indicating whether to cancel asynchronous download operation.

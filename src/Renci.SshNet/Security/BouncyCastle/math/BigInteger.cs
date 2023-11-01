@@ -648,7 +648,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math
 
             int nBytes = GetByteLength(sizeInBits);
             byte[] b = new byte[nBytes];
+#pragma warning disable CA5394 // Do not use insecure randomness
             random.NextBytes(b);
+#pragma warning restore CA5394 // Do not use insecure randomness
 
             // strip off any excess bits in the MSB
             int xBits = BitsPerByte * nBytes - sizeInBits;
@@ -658,6 +660,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math
             this.sign = this.magnitude.Length < 1 ? 0 : 1;
         }
 
+#pragma warning disable CA5394 // Do not use insecure randomness
         public BigInteger(
             int		bitLength,
             int		certainty,
@@ -716,6 +719,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math
                 }
             }
         }
+#pragma warning restore CA5394 // Do not use insecure randomness
 
         public BigInteger Abs()
         {

@@ -13,8 +13,14 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="ChannelRequestEventArgs"/> class.
         /// </summary>
         /// <param name="info">Request information.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/>.</exception>
         public ChannelRequestEventArgs(RequestInfo info)
         {
+            if (info is null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             Info = info;
         }
 

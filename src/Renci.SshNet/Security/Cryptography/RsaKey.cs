@@ -5,15 +5,19 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains RSA private and public key
+    /// Contains the RSA private and public key.
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
         private bool _isDisposed;
+        private RsaDigitalSignature _digitalSignature;
 
         /// <summary>
-        /// Gets the Key String.
+        /// Gets the name of the key.
         /// </summary>
+        /// <returns>
+        /// The name of the key.
+        /// </returns>
         public override string ToString()
         {
             return "ssh-rsa";
@@ -22,6 +26,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the modulus.
         /// </summary>
+        /// <value>
+        /// The modulus.
+        /// </value>
         public BigInteger Modulus
         {
             get
@@ -33,6 +40,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the exponent.
         /// </summary>
+        /// <value>
+        /// The exponent.
+        /// </value>
         public BigInteger Exponent
         {
             get
@@ -44,6 +54,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the D.
         /// </summary>
+        /// <value>
+        /// The D.
+        /// </value>
         public BigInteger D
         {
             get
@@ -60,6 +73,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the P.
         /// </summary>
+        /// <value>
+        /// The P.
+        /// </value>
         public BigInteger P
         {
             get
@@ -69,7 +85,6 @@ namespace Renci.SshNet.Security
                     return _privateKey[3];
                 }
 
-
                 return BigInteger.Zero;
             }
         }
@@ -77,6 +92,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the Q.
         /// </summary>
+        /// <value>
+        /// The Q.
+        /// </value>
         public BigInteger Q
         {
             get
@@ -93,6 +111,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the DP.
         /// </summary>
+        /// <value>
+        /// The DP.
+        /// </value>
         public BigInteger DP
         {
             get
@@ -109,6 +130,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the DQ.
         /// </summary>
+        /// <value>
+        /// The DQ.
+        /// </value>
         public BigInteger DQ
         {
             get
@@ -125,6 +149,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the inverse Q.
         /// </summary>
+        /// <value>
+        /// The inverse Q.
+        /// </value>
         public BigInteger InverseQ
         {
             get
@@ -152,10 +179,8 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private RsaDigitalSignature _digitalSignature;
-
         /// <summary>
-        /// <inheritdoc cref="Key.DigitalSignature"/>
+        /// Gets the digital signature implementation for this key.
         /// </summary>
         /// <returns>
         /// An implementation of an RSA digital signature using the SHA-1 hash algorithm.
@@ -253,7 +278,7 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)

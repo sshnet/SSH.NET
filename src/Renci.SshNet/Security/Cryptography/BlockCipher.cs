@@ -69,7 +69,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The data.</param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
         /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
-        /// <returns>Encrypted data</returns>
+        /// <returns>
+        /// The encrypted data.
+        /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             if (length % _blockSize > 0)
@@ -112,7 +114,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// Decrypts the specified data.
         /// </summary>
         /// <param name="input">The data.</param>
-        /// <returns>Decrypted data</returns>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
         public override byte[] Decrypt(byte[] input)
         {
             return Decrypt(input, 0, input.Length);

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class PublicKeyAlgorithm
+    public sealed class PublicKeyAlgorithm
     {
         public static readonly PublicKeyAlgorithm SshEd25519 = new PublicKeyAlgorithm("ssh-ed25519");
         public static readonly PublicKeyAlgorithm SshEd25519CertV01OpenSSH = new PublicKeyAlgorithm("ssh-ed25519-cert-v01@openssh.com");

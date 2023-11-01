@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class KeyExchangeAlgorithm
+    public sealed class KeyExchangeAlgorithm
     {
         public static readonly KeyExchangeAlgorithm DiffieHellmanGroup1Sha1 = new KeyExchangeAlgorithm("diffie-hellman-group1-sha1");
         public static readonly KeyExchangeAlgorithm DiffieHellmanGroup14Sha1 = new KeyExchangeAlgorithm("diffie-hellman-group14-sha1");
@@ -15,7 +15,6 @@
         public static readonly KeyExchangeAlgorithm Curve25519Sha256 = new KeyExchangeAlgorithm("curve25519-sha256");
         public static readonly KeyExchangeAlgorithm Curve25519Sha256Libssh = new KeyExchangeAlgorithm("curve25519-sha256@libssh.org");
         public static readonly KeyExchangeAlgorithm Sntrup4591761x25519Sha512 = new KeyExchangeAlgorithm("sntrup4591761x25519-sha512@tinyssh.org");
-
 
         public KeyExchangeAlgorithm(string name)
         {

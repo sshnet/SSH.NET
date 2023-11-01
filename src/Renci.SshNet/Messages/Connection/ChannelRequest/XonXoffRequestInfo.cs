@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "xon-xoff" type channel request information
+    /// Represents "xon-xoff" type channel request information.
     /// </summary>
     internal sealed class XonXoffRequestInfo : RequestInfo
     {
@@ -25,7 +25,7 @@
         /// Gets or sets a value indicating whether client can do.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if client can do; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if client can do; otherwise, <see langword="false"/>.
         /// </value>
         public bool ClientCanDo { get; set; }
 

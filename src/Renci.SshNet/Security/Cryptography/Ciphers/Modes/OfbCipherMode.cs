@@ -75,6 +75,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             return EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-
+        }
     }
 }

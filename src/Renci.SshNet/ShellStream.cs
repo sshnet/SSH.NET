@@ -282,6 +282,7 @@ namespace Renci.SshNet
                                     {
                                         _ = _expect.Dequeue();
                                     }
+
                                     _ = _incoming.Dequeue();
                                 }
 
@@ -384,6 +385,7 @@ namespace Renci.SshNet
                             {
                                 _ = _expect.Dequeue();
                             }
+
                             _ = _incoming.Dequeue();
                         }
 
@@ -489,7 +491,7 @@ namespace Renci.SshNet
 
                                     if (match.Success)
                                     {
-                                        var returnLength = (_incoming.Count - _expect.Count) + match.Index + match.Length;
+                                        var returnLength = _incoming.Count - _expect.Count + match.Index + match.Length;
                                         returnText = _encoding.GetString(_incoming.ToArray(), 0, returnLength);
 
                                             // Remove processed items from the queue
@@ -499,6 +501,7 @@ namespace Renci.SshNet
                                             {
                                                 _ = _expect.Dequeue();
                                             }
+
                                             _ = _incoming.Dequeue();
                                         }
 
@@ -607,6 +610,7 @@ namespace Renci.SshNet
                             {
                                 _ = _expect.Dequeue();
                             }
+
                             _ = _incoming.Dequeue();
                         }
 
@@ -643,7 +647,7 @@ namespace Renci.SshNet
             lock (_incoming)
             {
                 text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                _expect.Clear();                
+                _expect.Clear();
                 _incoming.Clear();
             }
 
@@ -677,6 +681,7 @@ namespace Renci.SshNet
                     {
                         _ = _expect.Dequeue();
                     }
+
                     buffer[offset + i] = _incoming.Dequeue();
                 }
             }
@@ -832,6 +837,7 @@ namespace Renci.SshNet
                     {
                         _ = _expect.Dequeue();
                     }
+
                     _expect.Enqueue(b);
                 }
             }

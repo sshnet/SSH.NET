@@ -273,9 +273,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// Extensions pair dictionary.
         /// </returns>
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
-        protected IDictionary<string, string> ReadExtensionPair()
-#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+        protected Dictionary<string, string> ReadExtensionPair()
         {
             var result = new Dictionary<string, string>();
 

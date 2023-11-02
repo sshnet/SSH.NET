@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Numerics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -101,7 +102,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return Modulus.BitLength;
+                return (int)Modulus.GetBitLength();
             }
         }
 

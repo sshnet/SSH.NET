@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Numerics;
+
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
@@ -23,7 +24,7 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeDhReplyMessageReceived += Session_KeyExchangeDhReplyMessageReceived;
 
             _prime = GroupPrime;
-            _group = new BigInteger(new byte[] { 2 });
+            _group = 2;
 
             PopulateClientExchangeValue();
 

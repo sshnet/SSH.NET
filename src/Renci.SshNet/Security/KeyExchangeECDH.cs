@@ -95,7 +95,7 @@ namespace Renci.SshNet.Security
 
             var agreement = _impl.CalculateAgreement(serverExchangeValue);
 
-            SharedKey = agreement.ToBigInteger2().ToByteArray().Reverse();
+            SharedKey = agreement.ToBigInteger2().ToByteArray(isBigEndian: true);
         }
 
         /// <inheritdoc/>

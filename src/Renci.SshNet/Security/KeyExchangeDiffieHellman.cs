@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Numerics;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -109,14 +111,26 @@ namespace Renci.SshNet.Security
             do
             {
                 // Create private component
-                _privateExponent = BigInteger.Random(privateExponentSize);
+                _privateExponent = RandomBigInt(privateExponentSize);
 
                 // Generate public component
                 clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
             }
             while (clientExchangeValue < 1 || clientExchangeValue > (_prime - 1));
 
-            _clientExchangeValue = clientExchangeValue.ToByteArray().Reverse();
+            _clientExchangeValue = clientExchangeValue.ToByteArray(isBigEndian: true);
+        }
+
+        /// <summary>
+        /// Generates a new, random <see cref="BigInteger"/> of the specified length.
+        /// </summary>
+        /// <param name="bitLength">The number of bits for the new number.</param>
+        /// <returns>A random number of the specified length.</returns>
+        private static BigInteger RandomBigInt(int bitLength)
+        {
+            var bytesArray = CryptoAbstraction.GenerateRandom((bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0));
+            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
+            return new BigInteger(bytesArray);
         }
 
         /// <summary>
@@ -129,7 +143,7 @@ namespace Renci.SshNet.Security
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            SharedKey = BigInteger.ModPow(serverExchangeValue.ToBigInteger(), _privateExponent, _prime).ToByteArray().Reverse();
+            SharedKey = BigInteger.ModPow(serverExchangeValue.ToBigInteger(), _privateExponent, _prime).ToByteArray(isBigEndian: true);
             _signature = signature;
         }
     }

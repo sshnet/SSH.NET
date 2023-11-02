@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 using Renci.SshNet.Common;
 
@@ -38,13 +39,13 @@ namespace Renci.SshNet.Security
         public BigInteger Prime
         {
             private get { return _prime.ToBigInteger(); }
-            set { _prime = value.ToByteArray().Reverse(); }
+            set { _prime = value.ToByteArray(isBigEndian: true); }
         }
 
         public BigInteger SubGroup
         {
             private get { return _subGroup.ToBigInteger(); }
-            set { _subGroup = value.ToByteArray().Reverse(); }
+            set { _subGroup = value.ToByteArray(isBigEndian: true); }
         }
 
         public byte[] ClientExchangeValue { get; set; }

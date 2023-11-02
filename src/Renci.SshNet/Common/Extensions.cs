@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 
 using Renci.SshNet.Abstractions;
@@ -14,7 +15,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Collection of different extension methods.
     /// </summary>
-    internal static partial class Extensions
+    internal static class Extensions
     {
         internal static byte[] ToArray(this ServiceName serviceName)
         {
@@ -45,9 +46,13 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this byte[] data)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return new BigInteger(data, isBigEndian: true);
+#else
             var reversed = new byte[data.Length];
             Buffer.BlockCopy(data, 0, reversed, 0, data.Length);
             return new BigInteger(reversed.Reverse());
+#endif
         }
 
         /// <summary>
@@ -55,16 +60,21 @@ namespace Renci.SshNet.Common
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return new BigInteger(data, isBigEndian: true, isUnsigned: true);
+#else
             if ((data[0] & (1 << 7)) != 0)
             {
                 var buf = new byte[data.Length + 1];
                 Buffer.BlockCopy(data, 0, buf, 1, data.Length);
-                data = buf;
+                return new BigInteger(buf.Reverse());
             }
 
             return data.ToBigInteger();
+#endif
         }
 
+#if NETFRAMEWORK || NETSTANDARD2_0
         public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
         {
             var data = bigInt.ToByteArray();
@@ -81,6 +91,15 @@ namespace Renci.SshNet.Common
 
             return data;
         }
+#endif
+
+#if !NET6_0_OR_GREATER
+        public static long GetBitLength(this BigInteger bigint)
+        {
+            // Taken from https://github.com/dotnet/runtime/issues/31308
+            return (long)Math.Ceiling(BigInteger.Log(bigint.Sign < 0 ? -bigint : bigint + 1, 2));
+        }
+#endif
 
         // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
         public static byte[] ExportKeyParameter(this BigInteger value, int length)

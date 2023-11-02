@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 #endif // NETFRAMEWORK
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -207,12 +208,16 @@ namespace Renci.SshNet.Security
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
                 var q = new byte[1 + qx.Length + qy.Length];
-                Buffer.SetByte(q, 0, 4);
+                q[0] = 0x04;
                 Buffer.BlockCopy(qx, 0, q, 1, qx.Length);
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                return new[] { new BigInteger(curve, isBigEndian: true), new BigInteger(q, isBigEndian: true) };
+#else
                 return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
+#endif
             }
         }
 
@@ -249,10 +254,10 @@ namespace Renci.SshNet.Security
                 throw new ArgumentException($"Invalid ECDSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
             }
 
-            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray().Reverse());
+            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray(isBigEndian: true));
             var curve_oid = GetCurveOid(curve_s);
 
-            var publickey = publicKeyData.Keys[1].ToByteArray().Reverse();
+            var publickey = publicKeyData.Keys[1].ToByteArray(isBigEndian: true);
             Import(curve_oid, publickey, privatekey: null);
         }
 

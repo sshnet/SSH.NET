@@ -43,7 +43,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return BoundHostAddress.ToString();
+                return BoundHostAddress?.ToString() ?? string.Empty;
             }
         }
 
@@ -86,11 +86,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
         {
-            if (boundHostAddress is null)
-            {
-                throw new ArgumentNullException(nameof(boundHostAddress));
-            }
-
             if (hostAddress is null)
             {
                 throw new ArgumentNullException(nameof(hostAddress));
@@ -116,7 +111,7 @@ namespace Renci.SshNet
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
         /// </example>
         public ForwardedPortRemote(uint boundPort, string host, uint port)
-            : this(string.Empty, boundPort, host, port)
+            : this(boundHost: null, boundPort, host, port)
         {
         }
 
@@ -128,7 +123,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
-            : this(DnsAbstraction.GetHostAddresses(boundHost)[0],
+            : this(boundHost == null ? null : DnsAbstraction.GetHostAddresses(boundHost)[0],
                    boundPort,
                    DnsAbstraction.GetHostAddresses(host)[0],
                    port)

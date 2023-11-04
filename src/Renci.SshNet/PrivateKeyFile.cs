@@ -531,7 +531,14 @@ namespace Renci.SshNet
                         throw new SshException("Cipher '" + cipherName + "' is not supported for an OpenSSH key.");
                 }
 
-                privateKeyBytes = cipher.Decrypt(privateKeyBytes);
+                try
+                {
+                    privateKeyBytes = cipher.Decrypt(privateKeyBytes);
+                }
+                finally
+                {
+                    cipher.Dispose();
+                }
             }
 
             // validate private key length

@@ -1,0 +1,142 @@
+// Used to generate tests in AesCipherTest.cs
+
+// The script works by running "openssl enc [...]" (via WSL) to generate the
+// expected encrypted values, and also verifies those values against the .NET
+// BCL implementation as an extra validation before generating the tests.
+
+Dictionary<string, (string, CipherMode?)> modes = new()
+{
+    ["ecb"] = ("mode: null", CipherMode.ECB),
+    ["cbc"] = ("new CbcCipherMode((byte[])iv.Clone())", CipherMode.CBC),
+    ["cfb"] = ("new CfbCipherMode((byte[])iv.Clone())", CipherMode.CFB),
+    ["ctr"] = ("new CtrCipherMode((byte[])iv.Clone())", null),
+    ["ofb"] = ("new OfbCipherMode((byte[])iv.Clone())", CipherMode.OFB),
+};
+
+Random random = new(123);
+
+using IndentedTextWriter tw = new(Console.Out);
+
+foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
+{
+    foreach (int keySize in new int[] { 128, 192, 256 })
+    {
+        foreach (int inputLength in new int[] { 16, 32, 64 })
+        {
+            byte[] input = new byte[inputLength];
+            random.NextBytes(input);
+
+            byte[] key = new byte[keySize / 8];
+            random.NextBytes(key);
+
+            byte[] iv = new byte[16];
+            random.NextBytes(iv);
+
+            StringBuilder openSslCmd = new();
+
+            openSslCmd.Append($"echo -n -e '{string.Join("", input.Select(b => $"\\x{b:x2}"))}' |");
+            openSslCmd.Append($" openssl enc -e -aes-{keySize}-{mode}");
+            openSslCmd.Append($" -K {Convert.ToHexString(key)}");
+            if (mode != "ecb")
+            {
+                openSslCmd.Append($" -iv {Convert.ToHexString(iv)}");
+            }
+            openSslCmd.Append(" -nopad");
+
+            ProcessStartInfo pi = new("wsl", openSslCmd.ToString())
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+
+            byte[] expected;
+            string error;
+
+            using (MemoryStream ms = new())
+            {
+                var p = Process.Start(pi);
+                p.StandardOutput.BaseStream.CopyTo(ms);
+                error = p.StandardError.ReadToEnd();
+
+                p.WaitForExit();
+
+                expected = ms.ToArray();
+            }
+
+            tw.WriteLine("[TestMethod]");
+            tw.WriteLine($"public void AES_{mode.ToUpper()}_{keySize}_Length{inputLength}()");
+            tw.WriteLine("{");
+            tw.Indent++;
+
+            WriteBytes(input);
+            WriteBytes(key);
+            if (mode != "ecb")
+            {
+                WriteBytes(iv);
+            }
+            tw.WriteLine();
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                tw.WriteLine($"// {openSslCmd}");
+                tw.WriteLine($"Assert.Fail(@\"{error}\");");
+
+                tw.Indent--;
+                tw.WriteLine("}");
+                tw.WriteLine();
+                continue;
+            }
+
+            tw.WriteLine($"// {openSslCmd} | hd"); // pipe to hexdump
+            WriteBytes(expected);
+            tw.WriteLine();
+            tw.WriteLine($"var actual = new AesCipher(key, {modeCode}, padding: null).Encrypt(input);");
+            tw.WriteLine();
+            tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
+
+            if (bclMode is not null and not CipherMode.OFB)
+            {
+                // Verify the OpenSSL result is the same as the .NET BCL, just to be sure
+                Aes bcl = Aes.Create();
+                bcl.Key = key;
+                bcl.IV = iv;
+                bcl.Mode = bclMode.Value;
+                bcl.Padding = PaddingMode.None;
+                bcl.FeedbackSize = 128; // .NET is CFB8 by default, OpenSSL is CFB128
+                byte[] bclBytes = bcl.CreateEncryptor().TransformFinalBlock(input, 0, input.Length);
+
+                if (!bclBytes.AsSpan().SequenceEqual(expected))
+                {
+                    tw.WriteLine();
+                    tw.WriteLine(@"Assert.Inconclusive(@""OpenSSL does not match the .NET BCL");
+                    tw.Indent++;
+                    tw.WriteLine($@"OpenSSL: {Convert.ToHexString(expected)}");
+                    tw.WriteLine($@"BCL:     {Convert.ToHexString(bclBytes)}"");");
+                    tw.Indent--;
+                }
+            }
+
+            tw.WriteLine();
+            tw.WriteLine($"var decrypted = new AesCipher(key, {modeCode}, padding: null).Decrypt(actual);");
+            tw.WriteLine();
+            tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
+
+            tw.Indent--;
+            tw.WriteLine("}");
+            tw.WriteLine();
+        }
+    }
+}
+
+void WriteBytes(byte[] bytes, [CallerArgumentExpression(nameof(bytes))] string name = null)
+{
+    tw.WriteLine($"var {name} = new byte[]");
+    tw.WriteLine("{");
+    tw.Indent++;
+    foreach (byte[] chunk in bytes.Chunk(16))
+    {
+        tw.WriteLine(string.Join(", ", chunk.Select(b => $"0x{b:x2}")) + ',');
+    }
+    tw.Indent--;
+    tw.WriteLine("};");
+}

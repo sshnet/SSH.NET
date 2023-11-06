@@ -18,7 +18,7 @@
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>Encrypted data.</returns>
-        public byte[] Encrypt(byte[] input)
+        public virtual byte[] Encrypt(byte[] input)
         {
             return Encrypt(input, 0, input.Length);
         }
@@ -41,7 +41,10 @@
         /// <returns>
         /// The decrypted data.
         /// </returns>
-        public abstract byte[] Decrypt(byte[] input);
+        public virtual byte[] Decrypt(byte[] input)
+        {
+            return Decrypt(input, 0, input.Length);
+        }
 
         /// <summary>
         /// Decrypts the specified input.

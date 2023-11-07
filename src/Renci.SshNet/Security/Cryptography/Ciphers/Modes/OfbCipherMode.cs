@@ -1,7 +1,4 @@
-﻿#pragma warning disable CA5358 // Review cipher mode usage with cryptography experts
-#pragma warning disable IDE0005 // Using directive is unnecessary
-
-using System;
+﻿using System;
 using System.Globalization;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
@@ -11,36 +8,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
     /// </summary>
     public class OfbCipherMode : CipherMode
     {
-        // NetStandard 2.0: The CNG supports OFB mode
-#if NETSTANDARD2_0
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OfbCipherMode"/> class.
-        /// </summary>
-        /// <param name="iv">The iv.</param>
-        public OfbCipherMode(byte[] iv)
-            : base(iv, System.Security.Cryptography.CipherMode.OFB)
-        {
-        }
-
-#else   // NetStandard 2.1 and above: The CNG does not support OFB mode, OFB implementated using ECB as base
-
         private readonly byte[] _ivOutput;
 
         /// <summary>
-        /// Gets a value indicating whether to process arrays in one go using CNG provider
-        /// Set to False to process arrays block by block.
-        /// </summary>
-        protected override bool SupportsMultipleBlocks
-        {
-            get { return false; }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="OfbCipherMode"/> class.
         /// </summary>
         /// <param name="iv">The iv.</param>
         public OfbCipherMode(byte[] iv)
-            : base(iv, System.Security.Cryptography.CipherMode.ECB)
+            : base(iv)
         {
             _ivOutput = new byte[iv.Length];
         }
@@ -58,31 +33,31 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < BlockSize)
+            if (inputBuffer.Length - inputOffset < _blockSize)
             {
                 throw new ArgumentException("Invalid input buffer");
             }
 
-            if (outputBuffer.Length - outputOffset < BlockSize)
+            if (outputBuffer.Length - outputOffset < _blockSize)
             {
                 throw new ArgumentException("Invalid output buffer");
             }
 
-            if (inputCount != BlockSize)
+            if (inputCount != _blockSize)
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", BlockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
             }
 
-            _ = base.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
+            _ = Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
             Buffer.BlockCopy(_ivOutput, 0, IV, 0, IV.Length);
 
-            for (var i = 0; i < BlockSize; i++)
+            for (var i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte) (_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
 
-            return BlockSize;
+            return _blockSize;
         }
 
         /// <summary>
@@ -100,6 +75,5 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         {
             return EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
-#endif
     }
 }

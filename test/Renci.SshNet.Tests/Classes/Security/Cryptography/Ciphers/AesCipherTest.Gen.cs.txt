@@ -6,11 +6,11 @@
 
 Dictionary<string, (string, CipherMode?)> modes = new()
 {
-    ["ecb"] = ("mode: null", CipherMode.ECB),
-    ["cbc"] = ("new CbcCipherMode((byte[])iv.Clone())", CipherMode.CBC),
-    ["cfb"] = ("new CfbCipherMode((byte[])iv.Clone())", CipherMode.CFB),
-    ["ctr"] = ("new CtrCipherMode((byte[])iv.Clone())", null),
-    ["ofb"] = ("new OfbCipherMode((byte[])iv.Clone())", CipherMode.OFB),
+    ["ecb"] = ("iv: null, AesCipherMode.AES", CipherMode.ECB),
+    ["cbc"] = ("(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
+    ["cfb"] = ("(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
+    ["ctr"] = ("(byte[])iv.Clone(), AesCipherMode.CTR", null),
+    ["ofb"] = ("(byte[])iv.Clone(), AesCipherMode.OFB", CipherMode.OFB),
 };
 
 Random random = new(123);
@@ -90,7 +90,7 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
             tw.WriteLine($"// {openSslCmd} | hd"); // pipe to hexdump
             WriteBytes(expected);
             tw.WriteLine();
-            tw.WriteLine($"var actual = new AesCipher(key, {modeCode}, padding: null).Encrypt(input);");
+            tw.WriteLine($"var actual = new AesCipher(key, {modeCode}, pkcs7Padding: false).Encrypt(input);");
             tw.WriteLine();
             tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
 
@@ -117,7 +117,7 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
             }
 
             tw.WriteLine();
-            tw.WriteLine($"var decrypted = new AesCipher(key, {modeCode}, padding: null).Decrypt(actual);");
+            tw.WriteLine($"var decrypted = new AesCipher(key, {modeCode}, pkcs7Padding: false).Decrypt(actual);");
             tw.WriteLine();
             tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
 

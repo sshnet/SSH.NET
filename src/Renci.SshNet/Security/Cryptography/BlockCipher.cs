@@ -60,7 +60,7 @@ namespace Renci.SshNet.Security.Cryptography
             _mode = mode;
             _padding = padding;
 
-            _mode?.Init(key, blockSize, padding);
+            _mode?.Init(this);
         }
 
         /// <summary>
@@ -108,6 +108,18 @@ namespace Renci.SshNet.Security.Cryptography
             }
 
             return output;
+        }
+
+        /// <summary>
+        /// Decrypts the specified data.
+        /// </summary>
+        /// <param name="input">The data.</param>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
+        public override byte[] Decrypt(byte[] input)
+        {
+            return Decrypt(input, 0, input.Length);
         }
 
         /// <summary>

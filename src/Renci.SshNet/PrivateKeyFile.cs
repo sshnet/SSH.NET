@@ -226,13 +226,13 @@ namespace Renci.SshNet
                         cipher = new CipherInfo(64, (key, iv) => new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "AES-128-CBC":
-                        cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     case "AES-192-CBC":
-                        cipher = new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     case "AES-256-CBC":
-                        cipher = new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     default:
                         throw new SshException(string.Format(CultureInfo.InvariantCulture, "Private key cipher \"{0}\" is not supported.", cipherName));
@@ -522,10 +522,10 @@ namespace Renci.SshNet
                 switch (cipherName)
                 {
                     case "aes256-cbc":
-                        cipher = new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
+                        cipher = new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false);
                         break;
                     case "aes256-ctr":
-                        cipher = new AesCipher(key, new CtrCipherMode(iv), new PKCS7Padding());
+                        cipher = new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false);
                         break;
                     default:
                         throw new SshException("Cipher '" + cipherName + "' is not supported for an OpenSSH key.");

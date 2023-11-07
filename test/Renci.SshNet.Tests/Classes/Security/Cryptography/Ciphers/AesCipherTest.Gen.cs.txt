@@ -6,7 +6,7 @@
 
 Dictionary<string, (string, CipherMode?)> modes = new()
 {
-    ["ecb"] = ("iv: null, AesCipherMode.AES", CipherMode.ECB),
+    ["ecb"] = ("iv: null, AesCipherMode.ECB", CipherMode.ECB),
     ["cbc"] = ("(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
     ["cfb"] = ("(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
     ["ctr"] = ("(byte[])iv.Clone(), AesCipherMode.CTR", null),

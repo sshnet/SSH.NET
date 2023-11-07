@@ -21,6 +21,17 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>preview-All</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <!--
+            To locally enable analyzers during build, create a 'Directory.Build.props.user'
+            file with the following content next to the current file:
+
+            <Project>
+                <PropertyGroup>
+                    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+                </PropertyGroup>
+            </Project>
+        -->
+        <RunAnalyzersDuringBuild Condition="'$(RunAnalyzersDuringBuild)'==''">false</RunAnalyzersDuringBuild>
     </PropertyGroup>
 
     <!--

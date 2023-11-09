@@ -90,7 +90,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if (_blockMode is not null)
             {
-                _ecbHelper = new AesCipher(key, pkcs7Padding: false);    // no padding
+                _ecbHelper = new AesCipher(key, pkcs7Padding: false);    // ECB with no padding
                 _blockMode.Init(_ecbHelper);
             }
 
@@ -220,6 +220,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // fast crypto using the BCL CryptoServiceProvider/CNG
             if (_blockMode is null && _encryptor.CanTransformMultipleBlocks)
             {
+                if (_aes.Padding == PaddingMode.None)
+                {
+                    var output = new byte[length];
+                    _ = _encryptor.TransformBlock(input, offset, length, output, 0);
+                    return output;
+                }
+
                 return _encryptor.TransformFinalBlock(input, offset, length);
             }
 
@@ -246,6 +253,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // fast crypto using the BCL CryptoServiceProvider/CNG
             if (_blockMode is null && _decryptor.CanTransformMultipleBlocks)
             {
+                if (_aes.Padding == PaddingMode.None)
+                {
+                    var output = new byte[length];
+                    _ = _decryptor.TransformBlock(input, offset, length, output, 0);
+                    return output;
+                }
+
                 return _decryptor.TransformFinalBlock(input, offset, length);
             }
 
@@ -286,8 +300,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             var counter = CTRCreateCounterArray(count);
-            var aesCounter = _encryptor.TransformFinalBlock(counter, 0, counter.Length);
-            var output = ArrayXOR(aesCounter, data, offset, length);
+            var ouput = new byte[counter.Length];
+            _ = _encryptor.TransformBlock(counter, 0, counter.Length, ouput, 0);
+            var output = ArrayXOR(ouput, data, offset, length);
+
+            // adjust output for non-blocksized lengths
+            if (output.Length > length)
+            {
+                Array.Resize(ref output, length);
+            }
 
             return output;
         }
@@ -400,12 +421,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // copy uint[] to byte[]
             var output = counter;
             Buffer.BlockCopy(counterwords, 0, output, 0, length);
-
-            // adjust output for non-aligned lengths
-            if (output.Length > length)
-            {
-                Array.Resize(ref output, length);
-            }
 
             return output;
         }

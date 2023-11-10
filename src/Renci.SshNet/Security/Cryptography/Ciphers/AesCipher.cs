@@ -43,6 +43,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public sealed class AesCipher : BlockCipher, IDisposable
     {
+        private const int BLOCKSIZE = 16;
+
         private readonly AesCipherMode _aesMode;
         private readonly CipherMode _blockMode;
 
@@ -75,7 +77,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public AesCipher(byte[] key, byte[] iv, AesCipherMode mode, bool pkcs7Padding = false)
-            : base(key, 16, mode: null, padding: pkcs7Padding ? new PKCS7Padding() : null)
+            : base(key, BLOCKSIZE, mode: null, padding: pkcs7Padding ? new PKCS7Padding() : null)
         {
             var keySize = key.Length * 8;
 
@@ -85,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             _aesMode = mode;
-            iv = iv?.Take(16) ?? new byte[16];
+            iv = iv?.Take(BLOCKSIZE) ?? new byte[BLOCKSIZE];
             var bclMode = GetBCLMode(mode, iv, out _blockMode);
 
             if (_blockMode is not null)
@@ -95,8 +97,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             _aes = Aes.Create();
-            _aes.BlockSize = 128;
-            _aes.FeedbackSize = 128;
+            _aes.BlockSize = BLOCKSIZE * 8;
+            _aes.FeedbackSize = BLOCKSIZE * 8;
             _aes.Mode = bclMode;
             _aes.Padding = pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None;
             _aes.Key = key;
@@ -299,80 +301,84 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 count++;
             }
 
-            var counter = CTRCreateCounterArray(count);
-            var ouput = new byte[counter.Length];
-            _ = _encryptor.TransformBlock(counter, 0, counter.Length, ouput, 0);
-            var output = ArrayXOR(ouput, data, offset, length);
+            var buffer = new byte[count * BlockSize];
+            CTRCreateCounterArray(buffer);
+            _ = _encryptor.TransformBlock(buffer, 0, buffer.Length, buffer, 0);
+            ArrayXOR(buffer, data, offset, length);
 
             // adjust output for non-blocksized lengths
-            if (output.Length > length)
+            if (buffer.Length > length)
             {
-                Array.Resize(ref output, length);
+                Array.Resize(ref buffer, length);
             }
 
-            return output;
+            return buffer;
         }
 
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
 
         // creates the Counter array filled with incrementing copies of IV
-        private byte[] CTRCreateCounterArray(int blocks)
+        private void CTRCreateCounterArray(byte[] buffer)
         {
-            var bytes = new byte[blocks * 16];
-            var counter = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
+            var counter = MemoryMarshal.Cast<byte, uint>(buffer.AsSpan());
 
             // fill array with IV, increment by 1 for each copy
-            for (var i = 0; i < counter.Length; i += 4)
+            var len = counter.Length;
+            for (var i = 0; i < len; i += 4)
             {
-                // write IV to buffer (big endian)
                 counter[i] = _packedIV[0];
                 counter[i + 1] = _packedIV[1];
                 counter[i + 2] = _packedIV[2];
                 counter[i + 3] = _packedIV[3];
 
-                // increment IV (little endian - swap, increment, swap back)
-                uint j = 3;
-                do
+                // increment IV (little endian)
+                if (_packedIV[3] < 0xFF000000u)
                 {
-                    _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
+                    _packedIV[3] += 0x01000000u;
                 }
-                while (_packedIV[j] == 0 && --j >= 0);
+                else
+                {
+                    uint j = 3;
+                    do
+                    {
+                        _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
+                    }
+                    while (_packedIV[j] == 0 && --j >= 0);
+                }
             }
-
-            return bytes;
         }
 
         // XOR 2 arrays using Vector<byte>
-        private static byte[] ArrayXOR(byte[] counter, byte[] data, int offset, int length)
+        private static void ArrayXOR(byte[] buffer, byte[] data, int offset, int length)
         {
-            for (var loopOffset = 0; length > 0; length -= Vector<byte>.Count)
+            var vectorSize = Vector<byte>.Count;
+            for (var loopOffset = 0; length > 0; length -= vectorSize)
             {
-                if (length >= Vector<byte>.Count)
+                if (length >= vectorSize)
                 {
-                    var v = new Vector<byte>(counter, loopOffset) ^ new Vector<byte>(data, offset + loopOffset);
-                    v.CopyTo(counter, loopOffset);
-                    loopOffset += Vector<byte>.Count;
+                    var v = new Vector<byte>(buffer, loopOffset) ^ new Vector<byte>(data, offset + loopOffset);
+                    v.CopyTo(buffer, loopOffset);
+                    loopOffset += vectorSize;
                 }
                 else
                 {
                     for (var i = 0; i < length; i++)
                     {
-                        counter[loopOffset] ^= data[offset + loopOffset];
+                        buffer[loopOffset] ^= data[offset + loopOffset];
                         loopOffset++;
                     }
                 }
             }
-
-            return counter;
         }
 
 #else
         // creates the Counter array filled with incrementing copies of IV
-        private byte[] CTRCreateCounterArray(int blocks)
+        private void CTRCreateCounterArray(byte[] buffer)
         {
             // fill array with IV, increment by 1 for each copy
-            var counter = new uint[blocks * 4];
-            for (var i = 0; i < counter.Length; i += 4)
+            var words = buffer.Length / 4;
+            var counter = new uint[words];
+            for (var i = 0; i < words; i += 4)
             {
                 // write IV to buffer (big endian)
                 counter[i] = _packedIV[0];
@@ -380,23 +386,28 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 counter[i + 2] = _packedIV[2];
                 counter[i + 3] = _packedIV[3];
 
-                // increment IV (little endian - swap, increment, swap back)
-                uint j = 3;
-                do
+                // increment IV (little endian)
+                if (_packedIV[3] < 0xFF000000u)
                 {
-                    _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
+                    _packedIV[3] += 0x01000000u;
                 }
-                while (_packedIV[j] == 0 && --j >= 0);
+                else
+                {
+                    uint j = 3;
+                    do
+                    {
+                        _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
+                    }
+                    while (_packedIV[j] == 0 && --j >= 0);
+                }
             }
 
             // copy uint[] to byte[]
-            var counterBytes = new byte[blocks * 16];
-            Buffer.BlockCopy(counter, 0, counterBytes, 0, counterBytes.Length);
-            return counterBytes;
+            Buffer.BlockCopy(counter, 0, buffer, 0, buffer.Length);
         }
 
         // XOR 2 arrays using Uint[] and blockcopy
-        private static byte[] ArrayXOR(byte[] counter, byte[] data, int offset, int length)
+        private static void ArrayXOR(byte[] buffer, byte[] data, int offset, int length)
         {
             var words = length / 4;
             if (length % 4 != 0)
@@ -409,20 +420,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Buffer.BlockCopy(data, offset, datawords, 0, length);
 
             // convert encrypted IV counter to words
-            var counterwords = new uint[words];
-            Buffer.BlockCopy(counter, 0, counterwords, 0, length);
+            var bufferwords = new uint[words];
+            Buffer.BlockCopy(buffer, 0, bufferwords, 0, length);
 
             // XOR encrypted Counter with input data
             for (var i = 0; i < words; i++)
             {
-                counterwords[i] = counterwords[i] ^ datawords[i];
+                bufferwords[i] = bufferwords[i] ^ datawords[i];
             }
 
             // copy uint[] to byte[]
-            var output = counter;
-            Buffer.BlockCopy(counterwords, 0, output, 0, length);
-
-            return output;
+            Buffer.BlockCopy(bufferwords, 0, buffer, 0, length);
         }
 
 #endif

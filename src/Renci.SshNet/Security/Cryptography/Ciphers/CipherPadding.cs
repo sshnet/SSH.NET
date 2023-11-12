@@ -54,5 +54,12 @@
         /// The padded data array.
         /// </returns>
         public abstract byte[] Pad(byte[] input, int offset, int length, int paddinglength);
+
+        /// <summary>
+        /// Calculates the length of the input with padding removed, if any.
+        /// </summary>
+        /// <param name="input">The byte input possibly containing padding.</param>
+        /// <returns>The length of the data without padding.</returns>
+        public abstract int GetUnpaddedLength(byte[] input);
     }
 }

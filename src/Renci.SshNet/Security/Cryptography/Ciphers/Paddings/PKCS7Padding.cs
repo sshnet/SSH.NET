@@ -45,5 +45,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
 
             return output;
         }
+
+        /// <inheritdoc/>
+        public override int GetUnpaddedLength(byte[] input)
+        {
+            var paddingLength = input[input.Length - 1];
+
+            for (var i = input.Length - 1; i >= input.Length - paddingLength; i--)
+            {
+                if (i < 0 || input[i] != paddingLength)
+                {
+                    // This is not valid PKCS7 padding. Just return the full length
+                    // assuming the ciphertext is not actually padded.
+                    return input.Length;
+                }
+            }
+
+            return input.Length - paddingLength;
+        }
     }
 }

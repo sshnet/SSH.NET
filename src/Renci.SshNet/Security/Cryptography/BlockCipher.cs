@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -74,17 +75,17 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            if (length % _blockSize > 0)
-            {
-                if (_padding is null)
-                {
-                    throw new ArgumentException("data");
-                }
+            var paddingLength = _blockSize - (length % _blockSize);
 
-                var paddingLength = _blockSize - (length % _blockSize);
+            if (_padding is not null)
+            {
                 input = _padding.Pad(input, offset, length, paddingLength);
-                length += paddingLength;
+                length = input.Length;
                 offset = 0;
+            }
+            else if (paddingLength != _blockSize)
+            {
+                throw new ArgumentException("The specified plaintext size is not valid for the padding and block size.");
             }
 
             var output = new byte[length];
@@ -133,14 +134,17 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            if (length % _blockSize > 0)
-            {
-                if (_padding is null)
-                {
-                    throw new ArgumentException("data");
-                }
+            var originalLength = length;
 
-                input = _padding.Pad(_blockSize, input, offset, length);
+            if (length % _blockSize != 0)
+            {
+                // Resize the input to allow decrypting non-block-sized inputs
+                // in a block-by-block manner.
+                var tmpInput = new byte[length + _blockSize - (length % _blockSize)];
+
+                Buffer.BlockCopy(input, offset, tmpInput, 0, length);
+
+                input = tmpInput;
                 offset = 0;
                 length = input.Length;
             }
@@ -163,6 +167,36 @@ namespace Renci.SshNet.Security.Cryptography
             if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
+            }
+
+            // Do a dance around padding to satisfy the cases where _padding
+            // has been specified but the plaintext is not actually padded,
+            // and where a non-block-sized input has been given so we have
+            // increased the length above.
+
+            if (length > originalLength)
+            {
+                // The input was a non-block-sized length, so it was not padded.
+                // Just resize back to the original length and return.
+
+                Array.Resize(ref output, originalLength);
+            }
+            else if (_padding is not null)
+            {
+                var unpaddedLength = _padding.GetUnpaddedLength(output);
+
+                if (unpaddedLength < length)
+                {
+                    // _padding has been specified and the plaintext does have
+                    // valid padding. Remove it.
+
+                    Array.Resize(ref output, unpaddedLength);
+                }
+                else
+                {
+                    // _padding has been specified but the plaintext is not padded.
+                    // Do nothing.
+                }
             }
 
             return output;

@@ -1,6 +1,4 @@
-﻿#pragma warning disable CA5358 // Review cipher mode usage with cryptography experts
-
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
@@ -63,13 +61,13 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
         [Benchmark]
         public byte[] Encrypt_ECB()
         {
-            return new AesCipher(_key).Encrypt(_data);
+            return new AesCipher(_key, null, AesCipherMode.ECB, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_ECB()
         {
-            return new AesCipher(_key).Decrypt(_data);
+            return new AesCipher(_key, null, AesCipherMode.ECB, false).Decrypt(_data);
         }
     }
 }

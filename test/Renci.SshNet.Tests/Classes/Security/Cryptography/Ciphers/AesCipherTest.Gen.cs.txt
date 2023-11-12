@@ -4,20 +4,20 @@
 // expected encrypted values, and also verifies those values against the .NET
 // BCL implementation as an extra validation before generating the tests.
 
-Dictionary<string, (string, CipherMode?)> modes = new()
+Dictionary<string, (string, string, CipherMode?)> modes = new()
 {
-    ["ecb"] = ("iv: null, AesCipherMode.ECB", CipherMode.ECB),
-    ["cbc"] = ("(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
-    ["cfb"] = ("(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
-    ["ctr"] = ("(byte[])iv.Clone(), AesCipherMode.CTR", null),
-    ["ofb"] = ("(byte[])iv.Clone(), AesCipherMode.OFB", CipherMode.OFB),
+    ["ecb"] = ("mode: null", "iv: null, AesCipherMode.ECB", CipherMode.ECB),
+    ["cbc"] = ("new CbcCipherMode((byte[])iv.Clone())", "(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
+    ["cfb"] = ("new CfbCipherMode((byte[])iv.Clone())", "(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
+    ["ctr"] = ("new CtrCipherMode((byte[])iv.Clone())", "(byte[])iv.Clone(), AesCipherMode.CTR", null),
+    ["ofb"] = ("new OfbCipherMode((byte[])iv.Clone())", "(byte[])iv.Clone(), AesCipherMode.OFB", CipherMode.OFB),
 };
 
 Random random = new(123);
 
 using IndentedTextWriter tw = new(Console.Out);
 
-foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
+foreach ((string mode, (string ctor1Code, string ctor2Code, CipherMode? bclMode)) in modes)
 {
     foreach (int keySize in new int[] { 128, 192, 256 })
     {
@@ -90,8 +90,7 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
             tw.WriteLine($"// {openSslCmd} | hd"); // pipe to hexdump
             WriteBytes(expected);
             tw.WriteLine();
-            tw.WriteLine($"var actual = new AesCipher(key, {modeCode}, pkcs7Padding: false).Encrypt(input);");
-            tw.WriteLine();
+            tw.WriteLine($"var actual = new AesCipher(key, {ctor1Code}, padding: null).Encrypt(input);");
             tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
 
             if (bclMode is not null and not CipherMode.OFB)
@@ -117,9 +116,14 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
             }
 
             tw.WriteLine();
-            tw.WriteLine($"var decrypted = new AesCipher(key, {modeCode}, pkcs7Padding: false).Decrypt(actual);");
-            tw.WriteLine();
+            tw.WriteLine($"var decrypted = new AesCipher(key, {ctor1Code}, padding: null).Decrypt(actual);");
             tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
+            tw.WriteLine();
+            tw.WriteLine($"var actual2 = new AesCipher(key, {ctor2Code}, pkcs7Padding: false).Encrypt(input);");
+            tw.WriteLine($"CollectionAssert.AreEqual(expected, actual2);");
+            tw.WriteLine();
+            tw.WriteLine($"var decrypted2 = new AesCipher(key, {ctor2Code}, pkcs7Padding: false).Decrypt(actual);");
+            tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted2);");
 
             tw.Indent--;
             tw.WriteLine("}");

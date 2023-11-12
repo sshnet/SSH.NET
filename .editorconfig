@@ -291,6 +291,9 @@ dotnet_diagnostic.SA1520.severity = none
 # We do not use file headers.
 dotnet_diagnostic.SA1633.severity = none
 
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
+
 # SA1648: <inheritdoc> must be used with inheriting class
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
@@ -554,6 +557,18 @@ dotnet_code_quality.CA1859.api_surface = all
 #
 # This is similar to, but less powerful than, MA0015.
 dotnet_diagnostic.CA2208.severity = none
+
+# CA5358: Do Not Use Unsafe Cipher Modes / Review cipher mode usage with cryptography experts
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5358
+#
+# We use ECB mode as the basis for other modes (e.g. CTR)
+dotnet_diagnostic.CA5358.severity = none
+
+# CA5401: Do not use CreateEncryptor with non-default IV
+# https://learn.microsoft.com/en-gb/dotnet/fundamentals/code-analysis/quality-rules/ca5401
+#
+# We need to specify the IV.
+dotnet_diagnostic.CA5401.severity = none
 
 #### Roslyn IDE analyser rules ####
 

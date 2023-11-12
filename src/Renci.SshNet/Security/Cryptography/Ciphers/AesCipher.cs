@@ -25,12 +25,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var aes = Aes.Create();
             aes.Key = key;
-
-            if (mode is not null)
-            {
-                aes.IV = mode.IV;
-            }
-
 #pragma warning disable CA5358 // Do not use unsafe cipher modes; this is the basis for other modes.
             aes.Mode = System.Security.Cryptography.CipherMode.ECB;
 #pragma warning restore CA5358 // Do not use unsafe cipher modes

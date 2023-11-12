@@ -566,7 +566,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.txt"))
             {
-                _ = new PrivateKeyFile(stream, "password");
+                _ = new PrivateKeyFile(stream, "12345");
             }
         }
 

@@ -28,6 +28,9 @@ dotnet_diagnostic.S1854.severity = none
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0089.md
 dotnet_diagnostic.MA0089.severity = suggestion
 
+#MA0136 - Raw String contains an implicit end of line character
+dotnet_diagnostic.MA0136.severity = none
+
 #### StyleCop rules ####
 
 # SA1202: Elements must be ordered by access

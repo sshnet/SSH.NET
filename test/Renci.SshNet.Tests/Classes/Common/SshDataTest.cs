@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -86,6 +88,55 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(two, request.ValueTwo);
         }
 
+        [TestMethod]
+        public void ReadBytes_Length_LengthEqualsNumberOfBytesAvailable()
+        {
+            MySshData sshData = new MySshData();
+
+            sshData.Load(new byte[] { 0x01, 0x0d, 0x0a, 0x07, 0x0b }, 0, 4);
+            sshData.Write(new byte[] { 0x09, 0x03, 0x06, 0x0b }, 0, 3);
+
+            var bytes = sshData.ReadBytes(1);
+
+            CollectionAssert.AreEqual(new byte[] { 0x07 }, bytes);
+        }
+
+        [TestMethod]
+        public void ReadBytes_Length_LengthIsGreaterThanNumberOfBytesAvailable()
+        {
+            MySshData sshData = new MySshData();
+
+            sshData.Load(new byte[] { 0x01, 0x0d, 0x0a }, 0, 3);
+
+            try
+            {
+                sshData.ReadBytes(4);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentOutOfRangeException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("length", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ReadBytes_Length_LengthIsLessThanNumberOfBytesAvailable()
+        {
+            MySshData sshData = new MySshData();
+
+            sshData.Load(new byte[] { 0x05, 0x07, 0x02, 0x0b, 0x0a, 0x0d }, 0, 5);
+
+            var bytes = sshData.ReadBytes(2);
+
+            CollectionAssert.AreEqual(new byte[] { 0x05, 0x07 }, bytes);
+
+            bytes = sshData.ReadBytes(3);
+
+            CollectionAssert.AreEqual(new byte[] { 0x02, 0x0b, 0x0a }, bytes);
+        }
+
         private class BoolSshData : SshData
         {
             private readonly bool _value;
@@ -143,6 +194,27 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 Write(ValueOne);
                 Write(ValueTwo);
+            }
+        }
+
+        private class MySshData : SshData
+        {
+            protected override void LoadData()
+            {
+            }
+
+            protected override void SaveData()
+            {
+            }
+
+            public new byte[] ReadBytes(int length)
+            {
+                return base.ReadBytes(length);
+            }
+
+            public new void Write(byte[] buffer, int offset, int count)
+            {
+                base.Write(buffer, offset, count);
             }
         }
     }

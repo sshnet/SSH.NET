@@ -1,0 +1,23 @@
+﻿[*.cs]
+
+#### Meziantou.Analyzer rules ####
+
+# MA0001: StringComparison is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
+#
+# TODO: Re-enable when issues are fixed
+dotnet_diagnostic.MA0001.severity = suggestion
+
+# MA0110: Use the Regex source generator
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
+dotnet_diagnostic.MA0110.severity = none
+
+#### .NET Compiler Platform analysers rules ####
+
+# CA1307: Specify StringComparison for clarity
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1307
+dotnet_diagnostic.CA1307.severity = none
+
+# CA1822: Mark members as static
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1822
+dotnet_code_quality.CA1822.api_surface = none

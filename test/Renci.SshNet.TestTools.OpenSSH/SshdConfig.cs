@@ -6,9 +6,10 @@ using Renci.SshNet.TestTools.OpenSSH.Formatters;
 
 namespace Renci.SshNet.TestTools.OpenSSH
 {
-    public class SshdConfig
+    public sealed class SshdConfig
     {
-        private static readonly Regex MatchRegex = new Regex($@"\s*Match\s+(User\s+(?<users>[\S]+))?\s*(Address\s+(?<addresses>[\S]+))?\s*", RegexOptions.Compiled);
+        private static readonly Regex MatchRegex = new Regex($@"\s*Match\s+(User\s+(?<users>[\S]+))?\s*(Address\s+(?<addresses>[\S]+))?\s*",
+                                                             RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         private readonly SubsystemFormatter _subsystemFormatter;
         private readonly Int32Formatter _int32Formatter;
@@ -50,7 +51,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// <value>
         /// A list of private host key files used by sshd.
         /// </value>
-        public List<string> HostKeyFiles { get; set; }
+        public List<string> HostKeyFiles { get; }
 
         /// <summary>
         /// Gets or sets a value specifying whether challenge-response authentication is allowed.
@@ -143,8 +144,83 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// </value>
         public bool? AllowTcpForwarding { get; set; }
 
+        public static SshdConfig LoadFrom(Stream stream, Encoding encoding)
+        {
+            using (var sr = new StreamReader(stream, encoding))
+            {
+                var sshdConfig = new SshdConfig();
+
+                Match? currentMatchConfiguration = null;
+
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    // Skip empty lines
+                    if (line.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    // Skip comments
+                    if (line[0] == '#')
+                    {
+                        continue;
+                    }
+
+                    var match = MatchRegex.Match(line);
+                    if (match.Success)
+                    {
+                        var usersGroup = match.Groups["users"];
+                        var addressesGroup = match.Groups["addresses"];
+                        var users = usersGroup.Success ? usersGroup.Value.Split(',') : Array.Empty<string>();
+                        var addresses = addressesGroup.Success ? addressesGroup.Value.Split(',') : Array.Empty<string>();
+
+                        currentMatchConfiguration = new Match(users, addresses);
+                        sshdConfig.Matches.Add(currentMatchConfiguration);
+                        continue;
+                    }
+
+                    if (currentMatchConfiguration != null)
+                    {
+                        ProcessMatchOption(currentMatchConfiguration, line);
+                    }
+                    else
+                    {
+                        ProcessGlobalOption(sshdConfig, line);
+                    }
+                }
+
+                if (sshdConfig.Ciphers == null)
+                {
+                    // Obtain supported ciphers using ssh -Q cipher
+                }
+
+                if (sshdConfig.KeyExchangeAlgorithms == null)
+                {
+                    // Obtain supports key exchange algorithms using ssh -Q kex
+                }
+
+                if (sshdConfig.HostKeyAlgorithms == null)
+                {
+                    // Obtain supports host key algorithms using ssh -Q key
+                }
+
+                if (sshdConfig.MessageAuthenticationCodeAlgorithms == null)
+                {
+                    // Obtain supported MACs using ssh -Q mac
+                }
+
+                return sshdConfig;
+            }
+        }
+
         public void SaveTo(TextWriter writer)
         {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
             writer.WriteLine("Protocol " + Protocol);
             writer.WriteLine("Port " + _int32Formatter.Format(Port));
             if (HostKeyFiles.Count > 0)
@@ -215,81 +291,10 @@ namespace Renci.SshNet.TestTools.OpenSSH
             {
                 writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(",", PublicKeyAcceptedAlgorithms.Select(c => c.Name).ToArray()));
             }
-            
+
             foreach (var match in Matches)
             {
                 _matchFormatter.Format(match, writer);
-            }
-        }
-
-        public static SshdConfig LoadFrom(Stream stream, Encoding encoding)
-        {
-            using (var sr = new StreamReader(stream, encoding))
-            {
-                var sshdConfig = new SshdConfig();
-
-                Match? currentMatchConfiguration = null;
-
-                string? line;
-                while ((line = sr.ReadLine()) != null)
-                {
-                    // Skip empty lines
-                    if (line.Length == 0)
-                    {
-                        continue;
-                    }
-
-                    // Skip comments
-                    if (line[0] == '#')
-                    {
-                        continue;
-                    }
-
-                    var match = MatchRegex.Match(line);
-                    if (match.Success)
-                    {
-                        var usersGroup = match.Groups["users"];
-                        var addressesGroup = match.Groups["addresses"];
-                        var users = usersGroup.Success ? usersGroup.Value.Split(',') : Array.Empty<string>();
-                        var addresses = addressesGroup.Success ? addressesGroup.Value.Split(',') : Array.Empty<string>();
-
-                        currentMatchConfiguration = new Match(users, addresses);
-                        sshdConfig.Matches.Add(currentMatchConfiguration);
-                        continue;
-                    }
-
-                    if (currentMatchConfiguration != null)
-                    {
-                        ProcessMatchOption(currentMatchConfiguration, line);
-                    }
-                    else
-                    {
-                        ProcessGlobalOption(sshdConfig, line);
-                    }
-                }
-
-                if (sshdConfig.Ciphers == null)
-                {
-                    // Obtain supported ciphers using ssh -Q cipher
-                }
-
-                if (sshdConfig.KeyExchangeAlgorithms == null)
-                {
-                    // Obtain supports key exchange algorithms using ssh -Q kex
-                }
-
-                if (sshdConfig.HostKeyAlgorithms == null)
-                {
-                    // Obtain supports host key algorithms using ssh -Q key
-                }
-
-                if (sshdConfig.MessageAuthenticationCodeAlgorithms == null)
-                {
-                    // Obtain supported MACs using ssh -Q mac 
-                }
-
-
-                return sshdConfig;
             }
         }
 
@@ -315,7 +320,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.Port = ToInt(value);
                     break;
                 case "HostKey":
-                    sshdConfig.HostKeyFiles = ParseCommaSeparatedValue(value);
+                    ParseCommaSeparatedValue(sshdConfig.HostKeyFiles, value);
                     break;
                 case "ChallengeResponseAuthentication":
                     sshdConfig.ChallengeResponseAuthentication = ToBool(value);
@@ -324,7 +329,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.KeyboardInteractiveAuthentication = ToBool(value);
                     break;
                 case "LogLevel":
-                    sshdConfig.LogLevel = (LogLevel) Enum.Parse(typeof(LogLevel), value, true);
+                    sshdConfig.LogLevel = Enum.Parse<LogLevel>(value, ignoreCase: true);
                     break;
                 case "Subsystem":
                     sshdConfig.Subsystems.Add(Subsystem.FromConfig(value));
@@ -382,7 +387,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "GatewayPorts":
                     break;
                 default:
-                    throw new Exception($"Global option '{name}' is not implemented.");
+                    throw new NotSupportedException($"Global option '{name}' is not supported.");
             }
         }
 
@@ -399,10 +404,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var cipherNames = value.Split(',');
             var ciphers = new List<Cipher>(cipherNames.Length);
+
             foreach (var cipherName in cipherNames)
             {
                 ciphers.Add(new Cipher(cipherName.Trim()));
             }
+
             return ciphers;
         }
 
@@ -410,21 +417,30 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var kexNames = value.Split(',');
             var keyExchangeAlgorithms = new List<KeyExchangeAlgorithm>(kexNames.Length);
+
             foreach (var kexName in kexNames)
             {
                 keyExchangeAlgorithms.Add(new KeyExchangeAlgorithm(kexName.Trim()));
             }
+
             return keyExchangeAlgorithms;
         }
 
         public static List<PublicKeyAlgorithm> ParsePublicKeyAcceptedAlgorithms(string value)
         {
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             var publicKeyAlgorithmNames = value.Split(',');
             var publicKeyAlgorithms = new List<PublicKeyAlgorithm>(publicKeyAlgorithmNames.Length);
+
             foreach (var publicKeyAlgorithmName in publicKeyAlgorithmNames)
             {
                 publicKeyAlgorithms.Add(new PublicKeyAlgorithm(publicKeyAlgorithmName.Trim()));
             }
+
             return publicKeyAlgorithms;
         }
 
@@ -432,10 +448,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var algorithmNames = value.Split(',');
             var hostKeyAlgorithms = new List<HostKeyAlgorithm>(algorithmNames.Length);
+
             foreach (var algorithmName in algorithmNames)
             {
                 hostKeyAlgorithms.Add(new HostKeyAlgorithm(algorithmName.Trim()));
             }
+
             return hostKeyAlgorithms;
         }
 
@@ -443,10 +461,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
         {
             var macNames = value.Split(',');
             var macAlgorithms = new List<MessageAuthenticationCodeAlgorithm>(macNames.Length);
+
             foreach (var algorithmName in macNames)
             {
                 macAlgorithms.Add(new MessageAuthenticationCodeAlgorithm(algorithmName.Trim()));
             }
+
             return macAlgorithms;
         }
 
@@ -472,15 +492,14 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     matchConfiguration.AuthenticationMethods = value;
                     break;
                 default:
-                    throw new Exception($"Match option '{name}' is not implemented.");
+                    throw new NotSupportedException($"Match option '{name}' is not supported.");
             }
         }
 
-
-        private static List<string> ParseCommaSeparatedValue(string value)
+        private static void ParseCommaSeparatedValue(List<string> list, string value)
         {
             var values = value.Split(',');
-            return new List<string>(values);
+            list.AddRange(values);
         }
 
         private static bool ToBool(string value)
@@ -492,7 +511,8 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "no":
                     return false;
                 default:
-                    throw new Exception($"Value '{value}' cannot be mapped to a boolean.");
+                    throw new ArgumentException($"Value '{value}' cannot be mapped to a boolean.",
+                                                nameof(value));
             }
         }
 

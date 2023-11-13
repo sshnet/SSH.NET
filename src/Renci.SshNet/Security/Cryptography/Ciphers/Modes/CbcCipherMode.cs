@@ -4,7 +4,7 @@ using System.Globalization;
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 {
     /// <summary>
-    /// Implements CBC cipher mode
+    /// Implements CBC cipher mode.
     /// </summary>
     public class CbcCipherMode : CipherMode
     {

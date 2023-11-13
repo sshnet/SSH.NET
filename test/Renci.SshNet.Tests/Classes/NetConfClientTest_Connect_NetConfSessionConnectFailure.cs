@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +8,7 @@ using Moq;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -109,9 +109,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private static KeyHostAlgorithm GetKeyHostAlgorithm()
         {
-            var executingAssembly = Assembly.GetExecutingAssembly();
-
-            using (var s = executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", "Key.RSA.txt")))
+            using (var s = TestBase.GetData("Key.RSA.txt"))
             {
                 var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();

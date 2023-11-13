@@ -3,12 +3,12 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "session" channel type
+    /// Used to open "session" channel type.
     /// </summary>
     internal sealed class SessionChannelOpenInfo : ChannelOpenInfo
     {
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string Name = "session";
 

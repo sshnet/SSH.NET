@@ -6,7 +6,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Light implementation of SemaphoreSlim.
     /// </summary>
-    public class SemaphoreLight : IDisposable
+    public sealed class SemaphoreLight : IDisposable
     {
         private readonly object _lock = new object();
         private ManualResetEvent _waitHandle;
@@ -228,7 +228,7 @@ namespace Renci.SshNet.Common
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {

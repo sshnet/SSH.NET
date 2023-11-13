@@ -155,10 +155,14 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Flush()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_channel is null, this);
+#else
             if (_channel is null)
             {
-                throw new ObjectDisposedException("ShellStream");
+                throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (_outgoing.Count > 0)
             {
@@ -200,36 +204,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
-        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
-        /// <returns>
-        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
-        /// </returns>
-        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="IOException">An I/O error occurs.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            var i = 0;
-
-            lock (_incoming)
-            {
-                for (; i < count && _incoming.Count > 0; i++)
-                {
-                    buffer[offset + i] = _incoming.Dequeue();
-                }
-            }
-
-            return i;
-        }
-
-        /// <summary>
         /// This method is not supported.
         /// </summary>
         /// <param name="offset">A byte offset relative to the <paramref name="origin"/> parameter.</param>
@@ -255,31 +229,6 @@ namespace Renci.SshNet
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
-        /// <param name="count">The number of bytes to be written to the current stream.</param>
-        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="IOException">An I/O error occurs.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            foreach (var b in buffer.Take(offset, count))
-            {
-                if (_outgoing.Count == _bufferSize)
-                {
-                    Flush();
-                }
-
-                _outgoing.Enqueue(b);
-            }
         }
 
         /// <summary>
@@ -349,148 +298,6 @@ namespace Renci.SshNet
                 }
             }
             while (!expectedFound);
-        }
-
-        /// <summary>
-        /// Begins the expect.
-        /// </summary>
-        /// <param name="expectActions">The expect actions.</param>
-        /// <returns>
-        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
-        /// </returns>
-        public IAsyncResult BeginExpect(params ExpectAction[] expectActions)
-        {
-            return BeginExpect(TimeSpan.Zero, callback: null, state: null, expectActions);
-        }
-
-        /// <summary>
-        /// Begins the expect.
-        /// </summary>
-        /// <param name="callback">The callback.</param>
-        /// <param name="expectActions">The expect actions.</param>
-        /// <returns>
-        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
-        /// </returns>
-        public IAsyncResult BeginExpect(AsyncCallback callback, params ExpectAction[] expectActions)
-        {
-            return BeginExpect(TimeSpan.Zero, callback, state: null, expectActions);
-        }
-
-        /// <summary>
-        /// Begins the expect.
-        /// </summary>
-        /// <param name="callback">The callback.</param>
-        /// <param name="state">The state.</param>
-        /// <param name="expectActions">The expect actions.</param>
-        /// <returns>
-        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
-        /// </returns>
-        public IAsyncResult BeginExpect(AsyncCallback callback, object state, params ExpectAction[] expectActions)
-        {
-            return BeginExpect(TimeSpan.Zero, callback, state, expectActions);
-        }
-
-        /// <summary>
-        /// Begins the expect.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        /// <param name="callback">The callback.</param>
-        /// <param name="state">The state.</param>
-        /// <param name="expectActions">The expect actions.</param>
-        /// <returns>
-        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
-        /// </returns>
-        public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback callback, object state, params ExpectAction[] expectActions)
-        {
-            var text = string.Empty;
-
-            // Create new AsyncResult object
-            var asyncResult = new ExpectAsyncResult(callback, state);
-
-            // Execute callback on different thread
-            ThreadAbstraction.ExecuteThread(() =>
-            {
-                string expectActionResult = null;
-                try
-                {
-                    do
-                    {
-                        lock (_incoming)
-                        {
-                            if (_incoming.Count > 0)
-                            {
-                                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                            }
-
-                            if (text.Length > 0)
-                            {
-                                foreach (var expectAction in expectActions)
-                                {
-                                    var match = expectAction.Expect.Match(text);
-
-                                    if (match.Success)
-                                    {
-                                        var result = text.Substring(0, match.Index + match.Length);
-
-                                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
-                                        {
-                                            // Remove processed items from the queue
-                                            _ = _incoming.Dequeue();
-                                        }
-
-                                        expectAction.Action(result);
-                                        callback?.Invoke(asyncResult);
-                                        expectActionResult = result;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (expectActionResult != null)
-                        {
-                            break;
-                        }
-
-                        if (timeout.Ticks > 0)
-                        {
-                            if (!_dataReceived.WaitOne(timeout))
-                            {
-                                callback?.Invoke(asyncResult);
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            _ = _dataReceived.WaitOne();
-                        }
-                    }
-                    while (true);
-
-                    asyncResult.SetAsCompleted(expectActionResult, completedSynchronously: true);
-                }
-                catch (Exception exp)
-                {
-                    asyncResult.SetAsCompleted(exp, completedSynchronously: true);
-                }
-            });
-
-            return asyncResult;
-        }
-
-        /// <summary>
-        /// Ends the execute.
-        /// </summary>
-        /// <param name="asyncResult">The async result.</param>
-        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
-        public string EndExpect(IAsyncResult asyncResult)
-        {
-            if (asyncResult is not ExpectAsyncResult ar || ar.EndInvokeCalled)
-            {
-                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
-            }
-
-            // Wait for operation to complete, then return result or throw exception
-            return ar.EndInvoke();
         }
 
         /// <summary>
@@ -583,6 +390,153 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Begins the expect.
+        /// </summary>
+        /// <param name="expectActions">The expect actions.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        public IAsyncResult BeginExpect(params ExpectAction[] expectActions)
+        {
+            return BeginExpect(TimeSpan.Zero, callback: null, state: null, expectActions);
+        }
+
+        /// <summary>
+        /// Begins the expect.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <param name="expectActions">The expect actions.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        public IAsyncResult BeginExpect(AsyncCallback callback, params ExpectAction[] expectActions)
+        {
+            return BeginExpect(TimeSpan.Zero, callback, state: null, expectActions);
+        }
+
+        /// <summary>
+        /// Begins the expect.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <param name="state">The state.</param>
+        /// <param name="expectActions">The expect actions.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        public IAsyncResult BeginExpect(AsyncCallback callback, object state, params ExpectAction[] expectActions)
+        {
+            return BeginExpect(TimeSpan.Zero, callback, state, expectActions);
+        }
+
+        /// <summary>
+        /// Begins the expect.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="state">The state.</param>
+        /// <param name="expectActions">The expect actions.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+        public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback callback, object state, params ExpectAction[] expectActions)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+        {
+            var text = string.Empty;
+
+            // Create new AsyncResult object
+            var asyncResult = new ExpectAsyncResult(callback, state);
+
+            // Execute callback on different thread
+            ThreadAbstraction.ExecuteThread(() =>
+            {
+                string expectActionResult = null;
+                try
+                {
+                    do
+                    {
+                        lock (_incoming)
+                        {
+                            if (_incoming.Count > 0)
+                            {
+                                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                            }
+
+                            if (text.Length > 0)
+                            {
+                                foreach (var expectAction in expectActions)
+                                {
+                                    var match = expectAction.Expect.Match(text);
+
+                                    if (match.Success)
+                                    {
+                                        var result = text.Substring(0, match.Index + match.Length);
+
+                                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                        {
+                                            // Remove processed items from the queue
+                                            _ = _incoming.Dequeue();
+                                        }
+
+                                        expectAction.Action(result);
+                                        callback?.Invoke(asyncResult);
+                                        expectActionResult = result;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (expectActionResult != null)
+                        {
+                            break;
+                        }
+
+                        if (timeout.Ticks > 0)
+                        {
+                            if (!_dataReceived.WaitOne(timeout))
+                            {
+                                callback?.Invoke(asyncResult);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            _ = _dataReceived.WaitOne();
+                        }
+                    }
+                    while (true);
+
+                    asyncResult.SetAsCompleted(expectActionResult, completedSynchronously: true);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, completedSynchronously: true);
+                }
+            });
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Ends the execute.
+        /// </summary>
+        /// <param name="asyncResult">The async result.</param>
+        /// <returns>
+        /// Text available in the shell that ends with expected text.
+        /// </returns>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        public string EndExpect(IAsyncResult asyncResult)
+        {
+            if (asyncResult is not ExpectAsyncResult ar || ar.EndInvokeCalled)
+            {
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+            }
+
+            // Wait for operation to complete, then return result or throw exception
+            return ar.EndInvoke();
+        }
+
+        /// <summary>
         /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
         /// </summary>
         /// <returns>
@@ -668,6 +622,36 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
+        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+        /// <returns>
+        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+        /// </returns>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var i = 0;
+
+            lock (_incoming)
+            {
+                for (; i < count && _incoming.Count > 0; i++)
+                {
+                    buffer[offset + i] = _incoming.Dequeue();
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>
         /// Writes the specified text to the shell.
         /// </summary>
         /// <param name="text">The text to be written to the shell.</param>
@@ -681,13 +665,42 @@ namespace Renci.SshNet
                 return;
             }
 
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_channel is null, this);
+#else
             if (_channel is null)
             {
-                throw new ObjectDisposedException("ShellStream");
+                throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             var data = _encoding.GetBytes(text);
             _channel.SendData(data);
+        }
+
+        /// <summary>
+        /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            foreach (var b in buffer.Take(offset, count))
+            {
+                if (_outgoing.Count == _bufferSize)
+                {
+                    Flush();
+                }
+
+                _outgoing.Enqueue(b);
+            }
         }
 
         /// <summary>

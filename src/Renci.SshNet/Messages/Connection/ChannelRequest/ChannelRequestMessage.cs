@@ -17,7 +17,10 @@
         /// </value>
         public string RequestName
         {
-            get { return _requestName; }
+            get
+            {
+                return _requestName;
+            }
             private set
             {
                 _requestName = value;
@@ -53,7 +56,7 @@
         /// </summary>
         public ChannelRequestMessage()
         {
-            //  Required for dynamically loading request type when it comes from the server
+            // Required for dynamically loading request type when it comes from the server
         }
 
         /// <summary>

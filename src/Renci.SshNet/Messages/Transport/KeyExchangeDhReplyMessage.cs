@@ -7,7 +7,7 @@
     public class KeyExchangeDhReplyMessage : Message
     {
         /// <summary>
-        /// Gets server public host key and certificates
+        /// Gets server public host key and certificates.
         /// </summary>
         /// <value>The host key.</value>
         public byte[] HostKey { get; private set; }

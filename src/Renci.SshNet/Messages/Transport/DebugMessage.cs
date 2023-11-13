@@ -13,7 +13,7 @@
         /// Gets a value indicating whether the message to be always displayed.
         /// </summary>
         /// <value>
-        /// 	<see langword="true"/> if the message always to be displayed; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if the message always to be displayed; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsAlwaysDisplay { get; private set; }
 

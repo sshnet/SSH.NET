@@ -156,7 +156,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can write into this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if owner can write into this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if owner can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         bool OwnerCanWrite { get; set; }
 
@@ -164,7 +164,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can execute this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if owner can execute this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if owner can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         bool OwnerCanExecute { get; set; }
 
@@ -172,7 +172,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can read from this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if group members can read from this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if group members can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         bool GroupCanRead { get; set; }
 
@@ -180,7 +180,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can write into this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if group members can write into this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if group members can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         bool GroupCanWrite { get; set; }
 
@@ -188,7 +188,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can execute this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if group members can execute this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if group members can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         bool GroupCanExecute { get; set; }
 
@@ -196,7 +196,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can read from this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if others can read from this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if others can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         bool OthersCanRead { get; set; }
 
@@ -204,7 +204,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can write into this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if others can write into this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if others can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         bool OthersCanWrite { get; set; }
 
@@ -212,7 +212,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can execute this file.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if others can execute this file; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if others can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         bool OthersCanExecute { get; set; }
 

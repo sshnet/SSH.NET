@@ -48,7 +48,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="DerData"/> class.
         /// </summary>
         /// <param name="data">DER encoded data.</param>
-        /// <param name="construct">its a construct</param>
+        /// <param name="construct">its a construct.</param>
         public DerData(byte[] data, bool construct = false)
         {
             _data = new List<byte>(data);

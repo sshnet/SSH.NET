@@ -32,7 +32,7 @@
         public bool IsSingleConnection { get; set; }
 
         /// <summary>
-        /// Gets or sets the authentication protocol.
+        /// Gets the authentication protocol.
         /// </summary>
         /// <value>
         /// The authentication protocol.

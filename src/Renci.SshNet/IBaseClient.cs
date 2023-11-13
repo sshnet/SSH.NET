@@ -10,7 +10,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
     /// </summary>
-    public interface IBaseClient
+    public interface IBaseClient : IDisposable
     {
         /// <summary>
         /// Gets the connection info.
@@ -86,11 +86,6 @@ namespace Renci.SshNet
         /// </summary>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         void Disconnect();
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        void Dispose();
 
         /// <summary>
         /// Sends a keep-alive message to the server.

@@ -12,7 +12,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private sealed class CtrImpl : BlockCipher, IDisposable
         {
             private readonly Aes _aes;
-            private readonly byte[] _iv;
             private readonly uint[] _packedIV;
             private readonly ICryptoTransform _encryptor;
 
@@ -28,7 +27,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _aes = aes;
                 _encryptor = aes.CreateEncryptor();
 
-                _iv = iv;
                 _packedIV = GetPackedIV(iv);
             }
 

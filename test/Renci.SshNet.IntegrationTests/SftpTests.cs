@@ -25,19 +25,8 @@ namespace Renci.SshNet.IntegrationTests
             _remotePathTransformation = RemotePathTransformation.ShellQuote;
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetSftpUploadFileFileStreamData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Sftp_Upload_DirectoryInfo_ExistingFile()
-        {
-            foreach (var data in GetSftpUploadFileFileStreamData())
-            {
-                Sftp_UploadFile_FileStream((int) data[0]);
-            }
-        }
-#endif
         public void Sftp_UploadFile_FileStream(int size)
         {
             var file = CreateTempFile(size);
@@ -300,7 +289,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 try
                 {
-                    using (var imageStream = GetResourceStream("Renci.SshNet.IntegrationTests.resources.issue #70.png"))
+                    using (var imageStream = GetData("resources.issue #70.png"))
                     {
                         using (var fs = client.Create(remoteFile))
                         {
@@ -6299,17 +6288,6 @@ namespace Renci.SshNet.IntegrationTests
             }
 
             return textBytes;
-        }
-
-        private static Stream GetResourceStream(string resourceName)
-        {
-            var type = typeof(SftpTests);
-            var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
-            {
-                throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
-            }
-            return resourceStream;
         }
 
         private static decimal CalculateTransferSpeed(long length, long elapsedMilliseconds)

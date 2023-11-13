@@ -8,7 +8,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize
+    public class ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanMaxPendingReadsTimesChunkSize
     {
         private ServiceFactory _serviceFactory;
         private Mock<ISftpSession> _sftpSessionMock;
@@ -22,18 +22,20 @@ namespace Renci.SshNet.Tests.Classes
         private SftpFileAttributes _fileAttributes;
         private long _fileSize;
         private ISftpFileReader _actual;
+        private int _maxPendingReads;
 
         private void SetupData()
         {
             var random = new Random();
 
+            _maxPendingReads = 100;
             _bufferSize = (uint)random.Next(1, int.MaxValue);
             _openAsyncResult = new SftpOpenAsyncResult(null, null);
             _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
             _statAsyncResult = new SFtpStatAsyncResult(null, null);
             _fileName = random.Next().ToString();
             _chunkSize = (uint) random.Next(1000, 5000);
-            _fileSize = _chunkSize * random.Next(11, 50);
+            _fileSize = _chunkSize * random.Next(_maxPendingReads + 1, _maxPendingReads * 2);
             _fileAttributes = new SftpFileAttributesBuilder().WithSize(_fileSize).Build();
         }
 
@@ -63,7 +65,7 @@ namespace Renci.SshNet.Tests.Classes
                             .Setup(p => p.EndLStat(_statAsyncResult))
                             .Returns(_fileAttributes);
             _sftpSessionMock.InSequence(seq)
-                            .Setup(p => p.CreateFileReader(_handle, _sftpSessionMock.Object, _chunkSize, 10, _fileSize))
+                            .Setup(p => p.CreateFileReader(_handle, _sftpSessionMock.Object, _chunkSize, _maxPendingReads, _fileSize))
                             .Returns(_sftpFileReaderMock.Object);
         }
 

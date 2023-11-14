@@ -307,12 +307,12 @@ namespace Renci.SshNet
         /// Blocks the current thread until the specified <see cref="WaitHandle"/> gets signaled, using a
         /// 32-bit signed integer to specify the time interval in milliseconds.
         /// </summary>
-        /// <param name="waitHandle1">The first handle to wait for.</param>
-        /// <param name="waitHandle2">The second handle to wait for.</param>
+        /// <param name="waitHandleA">The first handle to wait for.</param>
+        /// <param name="waitHandleB">The second handle to wait for.</param>
         /// <param name="millisecondsTimeout">To number of milliseconds to wait for a <see cref="WaitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <returns>
-        /// <c>0</c> if <paramref name="waitHandle1"/> received a signal within the specified timeout, and <c>1</c>
-        /// if <paramref name="waitHandle2"/> received a signal within the specified timeout.
+        /// <c>0</c> if <paramref name="waitHandleA"/> received a signal within the specified timeout, and <c>1</c>
+        /// if <paramref name="waitHandleB"/> received a signal within the specified timeout.
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
@@ -324,19 +324,19 @@ namespace Renci.SshNet
         /// or session event.
         /// </para>
         /// <para>
-        /// When both <paramref name="waitHandle1"/> and <paramref name="waitHandle2"/> are signaled during the call,
+        /// When both <paramref name="waitHandleA"/> and <paramref name="waitHandleB"/> are signaled during the call,
         /// then <c>0</c> is returned.
         /// </para>
         /// </remarks>
-        public int WaitAny(WaitHandle waitHandle1, WaitHandle waitHandle2, int millisecondsTimeout)
+        public int WaitAny(WaitHandle waitHandleA, WaitHandle waitHandleB, int millisecondsTimeout)
         {
             var waitHandles = new[]
                 {
                     _errorOccuredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
-                    waitHandle1,
-                    waitHandle2
+                    waitHandleA,
+                    waitHandleB
                 };
 
             var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
@@ -547,10 +547,14 @@ namespace Renci.SshNet
 
         private void EnsureNotDisposed()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
         }
     }
 }

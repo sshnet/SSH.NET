@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
+    /// <summary>
+    /// Represents a mechanism to authenticate a given client.
+    /// </summary>
     internal sealed class ClientAuthentication : IClientAuthentication
     {
         private readonly int _partialSuccessLimit;
@@ -37,11 +42,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Attempts to authentication for a given <see cref="ISession"/> using the <see cref="IConnectionInfoInternal.AuthenticationMethods"/>
-        /// of the specified <see cref="IConnectionInfoInternal"/>.
+        /// Attempts to perform authentication for a given <see cref="ISession"/> using the
+        /// <see cref="IConnectionInfoInternal.AuthenticationMethods"/> of the specified
+        /// <see cref="IConnectionInfoInternal"/>.
         /// </summary>
         /// <param name="connectionInfo">A <see cref="IConnectionInfoInternal"/> to use for authenticating.</param>
         /// <param name="session">The <see cref="ISession"/> for which to perform authentication.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> or <paramref name="session"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshAuthenticationException">Failed to authenticate the client.</exception>
         public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {
             if (connectionInfo is null)
@@ -102,8 +110,14 @@ namespace Renci.SshNet
             var matchingAuthenticationMethods = authenticationState.GetSupportedAuthenticationMethods(allowedAuthenticationMethods);
             if (matchingAuthenticationMethods.Count == 0)
             {
-                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).",
-                                                                                       string.Join(",", allowedAuthenticationMethods)));
+                authenticationException = new SshAuthenticationException(string.Format(CultureInfo.InvariantCulture,
+                                                                                       "No suitable authentication method found to complete authentication ({0}).",
+#if NET || NETSTANDARD2_1_OR_GREATER
+                                                                                       string.Join(',', allowedAuthenticationMethods)))
+#else
+                                                                                       string.Join(",", allowedAuthenticationMethods)))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+                ;
                 return false;
             }
 
@@ -113,7 +127,7 @@ namespace Renci.SshNet
                 // methods after a partial success
                 if (authenticationState.GetPartialSuccessCount(authenticationMethod) >= _partialSuccessLimit)
                 {
-                    // TODO Get list of all authentication methods that have reached the partial success limit?
+                    /* TODO Get list of all authentication methods that have reached the partial success limit? */
 
                     authenticationException = new SshAuthenticationException(string.Format("Reached authentication attempt limit for method ({0}).",
                                                                                            authenticationMethod.Name));
@@ -195,7 +209,7 @@ namespace Renci.SshNet
             {
                 if (_authenticationMethodPartialSuccessRegister.TryGetValue(authenticationMethod, out var partialSuccessCount))
                 {
-                    _authenticationMethodPartialSuccessRegister[authenticationMethod] = ++partialSuccessCount;
+                    _authenticationMethodPartialSuccessRegister[authenticationMethod] = partialSuccessCount + 1;
                 }
                 else
                 {

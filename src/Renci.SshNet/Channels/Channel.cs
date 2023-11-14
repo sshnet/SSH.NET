@@ -16,13 +16,14 @@ namespace Renci.SshNet.Channels
     internal abstract class Channel : IChannel
     {
         private readonly object _serverWindowSizeLock = new object();
+        private readonly object _messagingLock = new object();
         private readonly uint _initialWindowSize;
+        private readonly ISession _session;
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(initialState: false);
         private uint? _remoteWindowSize;
         private uint? _remoteChannelNumber;
         private uint? _remotePacketSize;
-        private readonly ISession _session;
         private bool _isDisposed;
 
         /// <summary>
@@ -497,7 +498,7 @@ namespace Renci.SshNet.Channels
                 throw CreateChannelClosedException();
             }
 
-            lock (this)
+            lock (_messagingLock)
             {
                 _session.SendMessage(new ChannelEofMessage(RemoteChannelNumber));
                 _eofMessageSent = true;
@@ -525,7 +526,7 @@ namespace Renci.SshNet.Channels
              * message causing the server to disconnect the session.
              */
 
-            lock (this)
+            lock (_messagingLock)
             {
                 // Send EOF message first the following conditions are met:
                 // * we have not sent a SSH_MSG_CHANNEL_EOF message
@@ -704,7 +705,6 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-
                     if (_session.ConnectionInfo.ChannelRequests.TryGetValue(e.Message.RequestName, out var requestInfo))
                     {
                         // Load request specific data
@@ -832,7 +832,7 @@ namespace Renci.SshNet.Channels
                 Close();
 
                 var session = _session;
-                if (session != null)
+                if (session is not null)
                 {
                     session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
                     session.ChannelDataReceived -= OnChannelData;
@@ -847,14 +847,14 @@ namespace Renci.SshNet.Channels
                 }
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
-                if (channelClosedWaitHandle != null)
+                if (channelClosedWaitHandle is not null)
                 {
                     _channelClosedWaitHandle = null;
                     channelClosedWaitHandle.Dispose();
                 }
 
                 var channelServerWindowAdjustWaitHandle = _channelServerWindowAdjustWaitHandle;
-                if (channelServerWindowAdjustWaitHandle != null)
+                if (channelServerWindowAdjustWaitHandle is not null)
                 {
                     _channelServerWindowAdjustWaitHandle = null;
                     channelServerWindowAdjustWaitHandle.Dispose();

@@ -361,10 +361,12 @@ namespace Renci.SshNet
                 Closing -= closeClientSocket;
             }
 
-            void closeClientSocket(object _, EventArgs args)
+#pragma warning disable SA1300 // Element should begin with upper-case letter
+            void closeClientSocket(object sender, EventArgs args)
             {
                 CloseClientSocket(clientSocket);
-            };
+            }
+#pragma warning restore SA1300 // Element should begin with upper-case letter
         }
 
         private static void CloseClientSocket(Socket clientSocket)

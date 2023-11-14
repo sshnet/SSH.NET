@@ -49,7 +49,7 @@ namespace Renci.SshNet.Connection
             {
                 SocketAbstraction.Connect(socket, ep, timeout);
 
-                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                const int socketBufferSize = 10 * Session.MaximumSshPacketSize;
                 socket.SendBufferSize = socketBufferSize;
                 socket.ReceiveBufferSize = socketBufferSize;
                 return socket;

@@ -12,7 +12,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets authentication responses.
         /// </summary>
-        public IList<string> Responses { get; private set; }
+        public List<string> Responses { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -48,6 +48,7 @@ namespace Renci.SshNet.Messages.Authentication
         protected override void SaveData()
         {
             Write((uint) Responses.Count);
+
             foreach (var response in Responses)
             {
                 Write(response);

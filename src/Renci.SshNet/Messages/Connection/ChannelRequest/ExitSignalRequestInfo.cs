@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "exit-signal" type channel request information
+    /// Represents "exit-signal" type channel request information.
     /// </summary>
     internal sealed class ExitSignalRequestInfo : RequestInfo
     {
@@ -10,7 +10,7 @@
         private byte[] _language;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "exit-signal";
 
@@ -41,7 +41,7 @@
         /// Gets a value indicating whether core is dumped.
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if core is dumped; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if core is dumped; otherwise, <see langword="false"/>.
         /// </value>
         public bool CoreDumped { get; private set; }
 

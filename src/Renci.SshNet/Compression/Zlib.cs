@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// Represents "zlib" compression implementation
+    /// Represents "zlib" compression implementation.
     /// </summary>
     internal sealed class Zlib : Compressor
     {
@@ -14,7 +14,7 @@
         }
 
         /// <summary>
-        /// Initializes the algorithm
+        /// Initializes the algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         public override void Init(Session session)

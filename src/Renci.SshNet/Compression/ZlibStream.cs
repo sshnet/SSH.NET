@@ -1,11 +1,16 @@
 ﻿using System.IO;
 
+#pragma warning disable S125 // Sections of code should not be commented out
+#pragma warning disable SA1005 // Single line comments should begin with single space
+
 namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Implements Zlib compression algorithm.
     /// </summary>
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public class ZlibStream
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
         //private readonly Ionic.Zlib.ZlibStream _baseStream;
 
@@ -45,5 +50,9 @@ namespace Renci.SshNet.Compression
         {
             //this._baseStream.Write(buffer, offset, count);
         }
+#pragma warning restore SA1005 // Single line comments should begin with single space
     }
 }
+
+#pragma warning restore SA1005 // Single line comments should begin with single space
+#pragma warning restore S125 // Sections of code should not be commented out

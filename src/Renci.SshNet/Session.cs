@@ -122,6 +122,12 @@ namespace Renci.SshNet
         private readonly object _socketDisposeLock = new object();
 
         /// <summary>
+        /// Holds an object that is used to ensure only a single thread can connect
+        /// and lazy initialize the <see cref="SessionSemaphore"/> at any given time.
+        /// </summary>
+        private readonly object _connectAndLazySemaphoreInitLock = new object();
+
+        /// <summary>
         /// Holds metadata about session messages.
         /// </summary>
         private SshMessageFactory _sshMessageFactory;
@@ -192,6 +198,10 @@ namespace Renci.SshNet
 
         private SemaphoreLight _sessionSemaphore;
 
+        private bool _isDisconnectMessageSent;
+
+        private uint _nextChannelNumber;
+
         /// <summary>
         /// Holds connection socket.
         /// </summary>
@@ -209,7 +219,7 @@ namespace Renci.SshNet
             {
                 if (_sessionSemaphore is null)
                 {
-                    lock (this)
+                    lock (_connectAndLazySemaphoreInitLock)
                     {
                         _sessionSemaphore ??= new SemaphoreLight(ConnectionInfo.MaxSessions);
                     }
@@ -218,10 +228,6 @@ namespace Renci.SshNet
                 return _sessionSemaphore;
             }
         }
-
-        private bool _isDisconnectMessageSent;
-
-        private uint _nextChannelNumber;
 
         /// <summary>
         /// Gets the next channel number.
@@ -235,7 +241,7 @@ namespace Renci.SshNet
             {
                 uint result;
 
-                lock (this)
+                lock (_connectAndLazySemaphoreInitLock)
                 {
                     result = _nextChannelNumber++;
                 }
@@ -586,7 +592,7 @@ namespace Renci.SshNet
                     return;
                 }
 
-                lock (this)
+                lock (_connectAndLazySemaphoreInitLock)
                 {
                     // If connected don't connect again
                     if (IsConnected)
@@ -635,7 +641,7 @@ namespace Renci.SshNet
 
                     // Start incoming request listener
                     // ToDo: Make message pump async, to not consume a thread for every session
-                    ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
+                    _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
                     if (ConnectionInfo.InitiateKeyExchange)
                     {
@@ -752,7 +758,7 @@ namespace Renci.SshNet
 
             // Start incoming request listener
             // ToDo: Make message pump async, to not consume a thread for every session
-            ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
+            _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
             // Wait for key exchange to be completed
             WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -1262,8 +1268,8 @@ namespace Renci.SshNet
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
-                // TODO add IsEqualTo overload that takes left+right index and number of bytes to compare;
-                // TODO that way we can eliminate the extra allocation of the Take above
+                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
+                // TODO That way we can eliminate the extra allocation of the Take above.
                 if (!serverHash.IsEqualTo(clientHash))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
@@ -1274,10 +1280,10 @@ namespace Renci.SshNet
             {
                 data = _serverDecompression.Decompress(data, messagePayloadOffset, messagePayloadLength);
 
-                // data now only contains the decompressed payload, and as such the offset is reset to zero
+                // Data now only contains the decompressed payload, and as such the offset is reset to zero
                 messagePayloadOffset = 0;
 
-                // the length of the payload is now the complete decompressed content
+                // The length of the payload is now the complete decompressed content
                 messagePayloadLength = data.Length;
             }
 
@@ -1290,10 +1296,10 @@ namespace Renci.SshNet
         {
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
-            // send the disconnect message, but ignore the outcome
+            // Send the disconnect message, but ignore the outcome
             _ = TrySendMessage(disconnectMessage);
 
-            // mark disconnect message sent regardless of whether the send sctually succeeded
+            // Mark disconnect message sent regardless of whether the send sctually succeeded
             _isDisconnectMessageSent = true;
         }
 
@@ -1445,12 +1451,9 @@ namespace Renci.SshNet
             _serverDecompression = _keyExchange.CreateDecompressor();
 
             // Dispose of old KeyExchange object as it is no longer needed.
-            if (_keyExchange != null)
-            {
-                _keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
-                _keyExchange.Dispose();
-                _keyExchange = null;
-            }
+            _keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
+            _keyExchange.Dispose();
+            _keyExchange = null;
 
             // Enable activated messages that are not key exchange related
             _sshMessageFactory.EnableActivatedMessages();
@@ -2064,6 +2067,13 @@ namespace Renci.SshNet
             get { return ConnectionInfo; }
         }
 
+        /// <summary>
+        /// Gets a <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete.
+        /// </summary>
+        /// <value>
+        /// A <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete, or
+        /// <see langword="null"/> when the session has not been connected.
+        /// </value>
         WaitHandle ISession.MessageListenerCompleted
         {
             get { return _messageListenerCompleted; }
@@ -2094,6 +2104,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
+        /// <param name="remoteChannelNumber">The number of the remote channel.</param>
+        /// <param name="remoteWindowSize">The window size of the remote channel.</param>
+        /// <param name="remoteChannelDataPacketSize">The data packet size of the remote channel.</param>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>

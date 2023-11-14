@@ -4,7 +4,7 @@ using System.Globalization;
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 {
     /// <summary>
-    /// Implements CFB cipher mode
+    /// Implements CFB cipher mode.
     /// </summary>
     public class CfbCipherMode : CipherMode
     {

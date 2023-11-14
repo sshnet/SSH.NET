@@ -871,7 +871,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms
+        /// InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms.
         /// </summary>
         /// <param name="a">A.</param>
         /// <param name="b">The b.</param>

@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
 {
     /// <summary>
-    /// Implements PKCS7 cipher padding
+    /// Implements PKCS7 cipher padding.
     /// </summary>
     public class PKCS7Padding : CipherPadding
     {

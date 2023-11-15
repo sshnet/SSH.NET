@@ -47,7 +47,6 @@ namespace Renci.SshNet.Tests.Classes
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
         internal SshIdentification ServerIdentification { get; set; }
-        protected virtual bool CallSessionConnectWhenArrange { get; set; } = true;
 
         [TestInitialize]
         public void Setup()
@@ -181,7 +180,7 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                            .Returns(() => ServerIdentification);
+                                            .Returns(ServerIdentification);
             _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
             _ = _keyExchangeMock.Setup(p => p.Name)
                                 .Returns(_keyExchangeAlgorithm);
@@ -213,10 +212,7 @@ namespace Renci.SshNet.Tests.Classes
             SetupData();
             SetupMocks();
 
-            if (CallSessionConnectWhenArrange)
-            {
-                Session.Connect();
-            }
+            Session.Connect();
         }
 
         protected virtual void ClientAuthentication_Callback()

@@ -313,20 +313,20 @@ namespace Renci.SshNet
             get
             {
                 _clientInitMessage ??= new KeyExchangeInitMessage
-                {
-                    KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                    ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                    EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                    EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                    MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                    MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                    CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                    CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                    LanguagesClientToServer = new[] { string.Empty },
-                    LanguagesServerToClient = new[] { string.Empty },
-                    FirstKexPacketFollows = false,
-                    Reserved = 0
-                };
+                    {
+                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        LanguagesClientToServer = new[] { string.Empty },
+                        LanguagesServerToClient = new[] { string.Empty },
+                        FirstKexPacketFollows = false,
+                        Reserved = 0
+                    };
 
                 return _clientInitMessage;
             }
@@ -1192,7 +1192,7 @@ namespace Renci.SshNet
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
             var blockSize = _serverCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
 
-            var serverMacLength = _serverMac != null ? _serverMac.HashSize / 8 : 0;
+            var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
 
             byte[] data;
             uint packetLength;

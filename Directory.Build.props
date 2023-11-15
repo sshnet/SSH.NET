@@ -6,7 +6,7 @@
     -->
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Renci.SshNet.snk</AssemblyOriginatorKeyFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <LangVersion>latest</LangVersion>
         <WarningLevel>9999</WarningLevel>
@@ -18,7 +18,7 @@
         Code analysis properties.
     -->
     <PropertyGroup>
-        <EnableNETAnalyzers>false</EnableNETAnalyzers>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>preview-All</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
@@ -34,11 +34,9 @@
         Use fixed version of analyzers.
     -->
     <ItemGroup>
-        <!--
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0-preview1.23165.1" PrivateAssets="all" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.54" PrivateAssets="all" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.55.0.65544" PrivateAssets="all" />
-        -->        
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.103" PrivateAssets="all" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.12.0.78982" PrivateAssets="all" />
     </ItemGroup>
 </Project>

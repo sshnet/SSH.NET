@@ -77,6 +77,12 @@ dotnet_diagnostic.S1172.severity = none
 # This is a duplicate of IDE0059.
 dotnet_diagnostic.S1481.severity = none
 
+# S1854: Unused assignments should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1854
+#
+# This is a duplicate of IDE0059.
+dotnet_diagnostic.S1854.severity = none
+
 # S2259: Null pointers should not be dereferenced
 # https://rules.sonarsource.com/csharp/RSPEC-2259
 #
@@ -167,6 +173,12 @@ dotnet_diagnostic.S3928.severity = none
 #
 # This is a duplicate of CA2002, and partial duplicate of MA0064.
 dotnet_diagnostic.S3998.severity = none
+
+# S4070: Non-flags enums should not be marked with "FlagsAttribute"
+# https://rules.sonarsource.com/csharp/RSPEC-4070
+#
+# This is a duplicate of MA0062.
+dotnet_diagnostic.S4070.severity = none
 
 # S4456: Parameter validation in yielding methods should be wrapped
 # https://rules.sonarsource.com/csharp/RSPEC-4456
@@ -364,6 +376,14 @@ dotnet_diagnostic.MA0018.severity = none
 # No strong need for this, and may negatively affect performance.
 dotnet_diagnostic.MA0021.severity = none
 
+# MA0025: Implement the functionality instead of throwing NotImplementedException
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0031.md
+dotnet_diagnostic.MA0025.severity = none
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = suggestion
+
 # MA0031: Optimize Enumerable.Count() usage
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0031.md
 #
@@ -436,6 +456,12 @@ dotnet_diagnostic.MA0112.severity = error
 # instead of a base class or interface.
 dotnet_diagnostic.CA1002.severity = none
 
+# CA1003: Use generic event handler instances
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1003
+#
+# Similar to MA0046.
+dotnet_diagnostic.CA1003.severity = none
+
 # CA1008: Enums should have zero value
 #
 # TODO: To be discussed. Having a zero value offers a performance advantage.
@@ -460,6 +486,10 @@ dotnet_diagnostic.CA1051.severity = none
 # By default, this diagnostic is only reported for public types.
 dotnet_code_quality.CA1052.api_surface = all
 
+# CA1065: Do not raise exceptions in unexpected locations
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1065
+dotnet_diagnostic.CA1065.severity = none
+
 # CA1303: Do not pass literals as localized parameters
 #
 # We don't care about localization.
@@ -472,6 +502,10 @@ dotnet_diagnostic.CA1303.severity = none
 #
 # Submitted https://github.com/dotnet/roslyn-analyzers/issues/6096 to fix CA1305.
 dotnet_diagnostic.CA1305.severity = none
+
+# CA1309: Use ordinal StringComparison
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1309
+dotnet_diagnostic.CA1309.severity = none
 
 # CA1510: Use ArgumentNullException throw helper
 #
@@ -487,6 +521,12 @@ dotnet_diagnostic.CA1510.severity = none
 #
 # Since we do not enable any of the Sonar rules by default, we'll leave CA1725 enabled.
 dotnet_diagnostic.CA1725.severity = error
+
+# CA1825: Avoid zero-length array allocations
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
+#
+# This is a duplicate of MA0005.
+dotnet_diagnostic.CA1825.severity = none
 
 # CA1819: Properties should not return arrays
 #
@@ -570,6 +610,22 @@ dotnet_diagnostic.IDE0130.severity = none
 #
 # var inputPath = originalDossierPathList.Find(x => x.id == updatedPath.id) ?? throw new PcsException($"Path id ({updatedPath.id}) unknown in PCS for dossier id {dossierFromTs.dossier.id}", updatedPath.id);
 dotnet_diagnostic.IDE0270.severity = none
+
+# IDE0290: Use primary constructor
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0290
+dotnet_diagnostic.IDE0290.severity = none
+
+# IDE0300: Collection initialization can be simplified
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0300
+#
+# TODO: Discuss whether we want to start using this
+dotnet_diagnostic.IDE0300.severity = none
+
+# IDE0301: Simplify collection initialization
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0301
+#
+# TODO: Discuss whether we want to start using this
+dotnet_diagnostic.IDE0301.severity = none
 
 #### .NET Compiler Platform code style rules ####
 

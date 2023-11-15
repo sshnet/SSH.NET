@@ -41,7 +41,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
-        /// <c>true</c> if data is available to be read; otherwise, <c>false</c>.
+        /// <see langword="true"/> if data is available to be read; otherwise, <see langword="false"/>.
         /// </value>
         public bool DataAvailable
         {
@@ -119,7 +119,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanRead
         {
@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanSeek
         {
@@ -141,7 +141,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanWrite
         {
@@ -155,10 +155,14 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Flush()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_channel is null, this);
+#else
             if (_channel is null)
             {
-                throw new ObjectDisposedException("ShellStream");
+                throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (_outgoing.Count > 0)
             {
@@ -200,36 +204,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
-        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
-        /// <returns>
-        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
-        /// </returns>
-        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="IOException">An I/O error occurs.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            var i = 0;
-
-            lock (_incoming)
-            {
-                for (; i < count && _incoming.Count > 0; i++)
-                {
-                    buffer[offset + i] = _incoming.Dequeue();
-                }
-            }
-
-            return i;
-        }
-
-        /// <summary>
         /// This method is not supported.
         /// </summary>
         /// <param name="offset">A byte offset relative to the <paramref name="origin"/> parameter.</param>
@@ -255,31 +229,6 @@ namespace Renci.SshNet
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
-        /// <param name="count">The number of bytes to be written to the current stream.</param>
-        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="IOException">An I/O error occurs.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            foreach (var b in buffer.Take(offset, count))
-            {
-                if (_outgoing.Count == _bufferSize)
-                {
-                    Flush();
-                }
-
-                _outgoing.Enqueue(b);
-            }
         }
 
         /// <summary>
@@ -352,6 +301,95 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Expects the expression specified by text.
+        /// </summary>
+        /// <param name="text">The text to expect.</param>
+        /// <returns>
+        /// Text available in the shell that ends with expected text.
+        /// </returns>
+        public string Expect(string text)
+        {
+            return Expect(new Regex(Regex.Escape(text)), Session.InfiniteTimeSpan);
+        }
+
+        /// <summary>
+        /// Expects the expression specified by text.
+        /// </summary>
+        /// <param name="text">The text to expect.</param>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// <returns>
+        /// The text available in the shell that ends with expected text, or <see langword="null"/> if the specified time has elapsed.
+        /// </returns>
+        public string Expect(string text, TimeSpan timeout)
+        {
+            return Expect(new Regex(Regex.Escape(text)), timeout);
+        }
+
+        /// <summary>
+        /// Expects the expression specified by regular expression.
+        /// </summary>
+        /// <param name="regex">The regular expression to expect.</param>
+        /// <returns>
+        /// The text available in the shell that contains all the text that ends with expected expression.
+        /// </returns>
+        public string Expect(Regex regex)
+        {
+            return Expect(regex, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Expects the expression specified by regular expression.
+        /// </summary>
+        /// <param name="regex">The regular expression to expect.</param>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// <returns>
+        /// The text available in the shell that contains all the text that ends with expected expression,
+        /// or <see langword="null"/> if the specified time has elapsed.
+        /// </returns>
+        public string Expect(Regex regex, TimeSpan timeout)
+        {
+            var text = string.Empty;
+
+            while (true)
+            {
+                lock (_incoming)
+                {
+                    if (_incoming.Count > 0)
+                    {
+                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                    }
+
+                    var match = regex.Match(text);
+
+                    if (match.Success)
+                    {
+                        // Remove processed items from the queue
+                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                        {
+                            _ = _incoming.Dequeue();
+                        }
+
+                        break;
+                    }
+                }
+
+                if (timeout.Ticks > 0)
+                {
+                    if (!_dataReceived.WaitOne(timeout))
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    _ = _dataReceived.WaitOne();
+                }
+            }
+
+            return text;
+        }
+
+        /// <summary>
         /// Begins the expect.
         /// </summary>
         /// <param name="expectActions">The expect actions.</param>
@@ -400,7 +438,9 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
         /// </returns>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback callback, object state, params ExpectAction[] expectActions)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             var text = string.Empty;
 
@@ -481,6 +521,9 @@ namespace Renci.SshNet
         /// Ends the execute.
         /// </summary>
         /// <param name="asyncResult">The async result.</param>
+        /// <returns>
+        /// Text available in the shell that ends with expected text.
+        /// </returns>
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExpect(IAsyncResult asyncResult)
         {
@@ -491,95 +534,6 @@ namespace Renci.SshNet
 
             // Wait for operation to complete, then return result or throw exception
             return ar.EndInvoke();
-        }
-
-        /// <summary>
-        /// Expects the expression specified by text.
-        /// </summary>
-        /// <param name="text">The text to expect.</param>
-        /// <returns>
-        /// Text available in the shell that ends with expected text.
-        /// </returns>
-        public string Expect(string text)
-        {
-            return Expect(new Regex(Regex.Escape(text)), Session.InfiniteTimeSpan);
-        }
-
-        /// <summary>
-        /// Expects the expression specified by text.
-        /// </summary>
-        /// <param name="text">The text to expect.</param>
-        /// <param name="timeout">Time to wait for input.</param>
-        /// <returns>
-        /// The text available in the shell that ends with expected text, or <c>null</c> if the specified time has elapsed.
-        /// </returns>
-        public string Expect(string text, TimeSpan timeout)
-        {
-            return Expect(new Regex(Regex.Escape(text)), timeout);
-        }
-
-        /// <summary>
-        /// Expects the expression specified by regular expression.
-        /// </summary>
-        /// <param name="regex">The regular expression to expect.</param>
-        /// <returns>
-        /// The text available in the shell that contains all the text that ends with expected expression.
-        /// </returns>
-        public string Expect(Regex regex)
-        {
-            return Expect(regex, TimeSpan.Zero);
-        }
-
-        /// <summary>
-        /// Expects the expression specified by regular expression.
-        /// </summary>
-        /// <param name="regex">The regular expression to expect.</param>
-        /// <param name="timeout">Time to wait for input.</param>
-        /// <returns>
-        /// The text available in the shell that contains all the text that ends with expected expression,
-        /// or <c>null</c> if the specified time has elapsed.
-        /// </returns>
-        public string Expect(Regex regex, TimeSpan timeout)
-        {
-            var text = string.Empty;
-
-            while (true)
-            {
-                lock (_incoming)
-                {
-                    if (_incoming.Count > 0)
-                    {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                    }
-
-                    var match = regex.Match(text);
-
-                    if (match.Success)
-                    {
-                        // Remove processed items from the queue
-                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
-                        {
-                            _ = _incoming.Dequeue();
-                        }
-
-                        break;
-                    }
-                }
-
-                if (timeout.Ticks > 0)
-                {
-                    if (!_dataReceived.WaitOne(timeout))
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    _ = _dataReceived.WaitOne();
-                }
-            }
-
-            return text;
         }
 
         /// <summary>
@@ -598,7 +552,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// The line read from the shell, or <c>null</c> when no input is received for the specified timeout.
+        /// The line read from the shell, or <see langword="null"/> when no input is received for the specified timeout.
         /// </returns>
         public string ReadLine(TimeSpan timeout)
         {
@@ -668,11 +622,41 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
+        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+        /// <returns>
+        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+        /// </returns>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var i = 0;
+
+            lock (_incoming)
+            {
+                for (; i < count && _incoming.Count > 0; i++)
+                {
+                    buffer[offset + i] = _incoming.Dequeue();
+                }
+            }
+
+            return i;
+        }
+
+        /// <summary>
         /// Writes the specified text to the shell.
         /// </summary>
         /// <param name="text">The text to be written to the shell.</param>
         /// <remarks>
-        /// If <paramref name="text"/> is <c>null</c>, nothing is written.
+        /// If <paramref name="text"/> is <see langword="null"/>, nothing is written.
         /// </remarks>
         public void Write(string text)
         {
@@ -681,13 +665,42 @@ namespace Renci.SshNet
                 return;
             }
 
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_channel is null, this);
+#else
             if (_channel is null)
             {
-                throw new ObjectDisposedException("ShellStream");
+                throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             var data = _encoding.GetBytes(text);
             _channel.SendData(data);
+        }
+
+        /// <summary>
+        /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            foreach (var b in buffer.Take(offset, count))
+            {
+                if (_outgoing.Count == _bufferSize)
+                {
+                    Flush();
+                }
+
+                _outgoing.Enqueue(b);
+            }
         }
 
         /// <summary>
@@ -695,7 +708,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="line">The line to be written to the shell.</param>
         /// <remarks>
-        /// If <paramref name="line"/> is <c>null</c>, only the line terminator is written.
+        /// If <paramref name="line"/> is <see langword="null"/>, only the line terminator is written.
         /// </remarks>
         public void WriteLine(string line)
         {
@@ -705,7 +718,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases the unmanaged resources used by the <see cref="Stream"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -746,7 +759,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {

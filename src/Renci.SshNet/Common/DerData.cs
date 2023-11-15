@@ -26,7 +26,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether end of data is reached.
         /// </summary>
         /// <value>
-        /// <c>true</c> if end of data is reached; otherwise, <c>false</c>.
+        /// <see langword="true"/> if end of data is reached; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsEndOfData
         {
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="DerData"/> class.
         /// </summary>
         /// <param name="data">DER encoded data.</param>
-        /// <param name="construct">its a construct</param>
+        /// <param name="construct">its a construct.</param>
         public DerData(byte[] data, bool construct = false)
         {
             _data = new List<byte>(data);

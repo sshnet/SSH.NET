@@ -3,14 +3,16 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements ARCH4 cipher algorithm
+    /// Implements ARCH4 cipher algorithm.
     /// </summary>
     public sealed class Arc4Cipher : StreamCipher
     {
-        private static readonly int STATE_LENGTH = 256;
+#pragma warning disable SA1310 // Field names should not contain underscore
+        private const int STATE_LENGTH = 256;
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         /// <summary>
-        ///  Holds the state of the RC4 engine
+        /// Holds the state of the RC4 engine.
         /// </summary>
         private byte[] _engineState;
 
@@ -33,8 +35,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="Arc4Cipher" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="dischargeFirstBytes">if set to <c>true</c> will disharged first 1536 bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+        /// <param name="dischargeFirstBytes">if set to <see langword="true"/> will disharged first 1536 bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <see langword="null"/>.</exception>
         public Arc4Cipher(byte[] key, bool dischargeFirstBytes)
             : base(key)
         {
@@ -119,21 +121,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            var output = new byte[length];
-            _ = ProcessBytes(input, offset, length, output, 0);
-            return output;
+            return Encrypt(input, offset, length);
         }
 
         private int ProcessBytes(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + inputCount) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + inputCount) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             for (var i = 0; i < inputCount; i++)

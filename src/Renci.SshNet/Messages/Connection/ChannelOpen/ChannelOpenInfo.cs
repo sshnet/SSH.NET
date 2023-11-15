@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Base class for open channel messages
+    /// Base class for open channel messages.
     /// </summary>
     public abstract class ChannelOpenInfo : SshData
     {

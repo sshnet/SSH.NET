@@ -23,7 +23,7 @@
         /// Gets a value indicating whether message reply should be sent..
         /// </summary>
         /// <value>
-        ///   <c>true</c> if message reply should be sent; otherwise, <c>false</c>.
+        /// <see langword="true"/> if message reply should be sent; otherwise, <see langword="false"/>.
         /// </value>
         public bool WantReply { get; private set; }
 
@@ -56,7 +56,7 @@
         /// Initializes a new instance of the <see cref="GlobalRequestMessage"/> class.
         /// </summary>
         /// <param name="requestName">Name of the request.</param>
-        /// <param name="wantReply">if set to <c>true</c> [want reply].</param>
+        /// <param name="wantReply">if set to <see langword="true"/> [want reply].</param>
         internal GlobalRequestMessage(byte[] requestName, bool wantReply)
         {
             _requestName = requestName;

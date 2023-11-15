@@ -134,12 +134,13 @@ namespace Renci.SshNet
                     kbdInteractive.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
                 }
             }
-
         }
 
         private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
+#pragma warning disable MA0091 // Sender should be 'this' for instance events
             AuthenticationPrompt?.Invoke(sender, e);
+#pragma warning restore MA0091 // Sender should be 'this' for instance events
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

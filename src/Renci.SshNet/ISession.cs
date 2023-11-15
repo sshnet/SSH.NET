@@ -261,6 +261,11 @@ namespace Renci.SshNet
         event EventHandler<ExceptionEventArgs> ErrorOccured;
 
         /// <summary>
+        /// Occurs when SSH identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs> SshIdentificationReceived;
+
+        /// <summary>
         /// Occurs when host key received.
         /// </summary>
         event EventHandler<HostKeyEventArgs> HostKeyReceived;

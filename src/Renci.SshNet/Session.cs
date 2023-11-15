@@ -313,20 +313,20 @@ namespace Renci.SshNet
             get
             {
                 _clientInitMessage ??= new KeyExchangeInitMessage
-                    {
-                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        LanguagesClientToServer = new[] { string.Empty },
-                        LanguagesServerToClient = new[] { string.Empty },
-                        FirstKexPacketFollows = false,
-                        Reserved = 0
-                    };
+                {
+                    KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                    ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                    EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                    EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                    MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                    MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                    CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                    CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                    LanguagesClientToServer = new[] { string.Empty },
+                    LanguagesServerToClient = new[] { string.Empty },
+                    FirstKexPacketFollows = false,
+                    Reserved = 0
+                };
 
                 return _clientInitMessage;
             }
@@ -365,6 +365,11 @@ namespace Renci.SshNet
         /// Occurs when session has been disconnected from the server.
         /// </summary>
         public event EventHandler<EventArgs> Disconnected;
+
+        /// <summary>
+        /// Occurs when SSH identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs> SshIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.
@@ -624,12 +629,7 @@ namespace Renci.SshNet
                                                          DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    if ((serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.5") || serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6"))
-                        && !serverIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6.1"))
-                    {
-                        _ = ConnectionInfo.KeyExchangeAlgorithms.Remove("curve25519-sha256");
-                        _ = ConnectionInfo.KeyExchangeAlgorithms.Remove("curve25519-sha256@libssh.org");
-                    }
+                    SshIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
                     // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
@@ -742,6 +742,8 @@ namespace Renci.SshNet
                 throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
                                                     DisconnectReason.ProtocolVersionNotSupported);
             }
+
+            SshIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
             // Register Transport response messages
             RegisterMessage("SSH_MSG_DISCONNECT");
@@ -1190,7 +1192,7 @@ namespace Renci.SshNet
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
             var blockSize = _serverCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
 
-            var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
+            var serverMacLength = _serverMac != null ? _serverMac.HashSize / 8 : 0;
 
             byte[] data;
             uint packetLength;

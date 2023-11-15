@@ -154,6 +154,11 @@ namespace Renci.SshNet
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>
+        /// Occurs when SSH identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs> SshIdentificationReceived;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
@@ -390,6 +395,11 @@ namespace Renci.SshNet
             HostKeyReceived?.Invoke(this, e);
         }
 
+        private void Session_SshIdentificationReceived(object sender, SshIdentificationEventArgs e)
+        {
+            SshIdentificationReceived?.Invoke(this, e);
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -532,6 +542,7 @@ namespace Renci.SshNet
         private ISession CreateAndConnectSession()
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.SshIdentificationReceived += Session_SshIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -550,6 +561,7 @@ namespace Renci.SshNet
         private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.SshIdentificationReceived += Session_SshIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -569,6 +581,7 @@ namespace Renci.SshNet
         {
             session.ErrorOccured -= Session_ErrorOccured;
             session.HostKeyReceived -= Session_HostKeyReceived;
+            session.SshIdentificationReceived -= Session_SshIdentificationReceived;
             session.Dispose();
         }
 

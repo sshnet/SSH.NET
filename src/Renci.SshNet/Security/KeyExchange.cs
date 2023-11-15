@@ -183,11 +183,9 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server cipher.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerEncryption,
-                                                    Session.ToHex(serverKey),
-                                                    Session.ToHex(serverVector)));
+                                                    Session.ConnectionInfo.CurrentServerEncryption));
 
             // Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);
@@ -210,6 +208,10 @@ namespace Renci.SshNet.Security
 
             clientKey = GenerateSessionKey(SharedKey, ExchangeHash, clientKey, _clientCipherInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client cipher.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientEncryption));
+
             // Create client cipher
             return _clientCipherInfo.Cipher(clientKey, clientVector);
         }
@@ -230,6 +232,10 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'F', sessionId)),
                                                _serverHashInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server hmac algorithm.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentServerHmacAlgorithm));
+
             return _serverHashInfo.HashAlgorithm(serverKey);
         }
 
@@ -249,6 +255,10 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'E', sessionId)),
                                                _clientHashInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client hmac algorithm.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientHmacAlgorithm));
+
             return _clientHashInfo.HashAlgorithm(clientKey);
         }
 
@@ -264,6 +274,10 @@ namespace Renci.SshNet.Security
             {
                 return null;
             }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client compressor.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientCompressionAlgorithm));
 
             var compressor = _compressionType.CreateInstance<Compressor>();
 
@@ -284,6 +298,10 @@ namespace Renci.SshNet.Security
             {
                 return null;
             }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server decompressor.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentServerCompressionAlgorithm));
 
             var decompressor = _decompressionType.CreateInstance<Compressor>();
 

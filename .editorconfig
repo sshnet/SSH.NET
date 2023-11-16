@@ -557,6 +557,13 @@ dotnet_diagnostic.CA2208.severity = none
 
 #### Roslyn IDE analyser rules ####
 
+# IDE0028: Simplify collection initialization; and
+# IDE0305: Simplify collection initialization
+#
+# Temporarily suppressing collection expression recommendations coming from .NET 8 SDK
+dotnet_diagnostic.IDE0028.severity = none
+dotnet_diagnostic.IDE0305.severity = none
+
 # IDE0032: Use auto-implemented property
 #
 # For performance reasons, we do not always want to enforce the use of

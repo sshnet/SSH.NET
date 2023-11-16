@@ -367,6 +367,11 @@ namespace Renci.SshNet
         public event EventHandler<EventArgs> Disconnected;
 
         /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
+
+        /// <summary>
         /// Occurs when host key received.
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
@@ -616,13 +621,15 @@ namespace Renci.SshNet
                     ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
                     ConnectionInfo.ClientVersion = ClientVersion;
 
-                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
 
                     if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
                     {
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
                                                          DisconnectReason.ProtocolVersionNotSupported);
                     }
+
+                    ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
                     // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
@@ -733,13 +740,15 @@ namespace Renci.SshNet
             ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
             ConnectionInfo.ClientVersion = ClientVersion;
 
-            DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+            DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
 
             if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
             {
                 throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
                                                     DisconnectReason.ProtocolVersionNotSupported);
             }
+
+            ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
             // Register Transport response messages
             RegisterMessage("SSH_MSG_DISCONNECT");
@@ -1402,6 +1411,8 @@ namespace Renci.SshNet
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Performing {1} key exchange.", ToHex(SessionId), ConnectionInfo.CurrentKeyExchangeAlgorithm));
+
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
             // Start the algorithm implementation
@@ -1430,6 +1441,16 @@ namespace Renci.SshNet
             SessionId ??= _keyExchange.ExchangeHash;
 
             // Dispose of old ciphers and hash algorithms
+            if (_serverCipher is IDisposable disposableServerCipher)
+            {
+                disposableServerCipher.Dispose();
+            }
+
+            if (_clientCipher is IDisposable disposableClientCipher)
+            {
+                disposableClientCipher.Dispose();
+            }
+
             if (_serverMac != null)
             {
                 _serverMac.Dispose();
@@ -2015,6 +2036,16 @@ namespace Renci.SshNet
                 {
                     keyExchangeCompletedWaitHandle.Dispose();
                     _keyExchangeCompletedWaitHandle = null;
+                }
+
+                if (_serverCipher is IDisposable disposableServerCipher)
+                {
+                    disposableServerCipher.Dispose();
+                }
+
+                if (_clientCipher is IDisposable disposableClientCipher)
+                {
+                    disposableClientCipher.Dispose();
                 }
 
                 var serverMac = _serverMac;

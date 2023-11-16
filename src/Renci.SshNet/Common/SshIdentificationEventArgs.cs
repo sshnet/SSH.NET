@@ -5,7 +5,7 @@ using Renci.SshNet.Connection;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for the SshIdentificationReceived events.
+    /// Provides data for the ServerIdentificationReceived events.
     /// </summary>
     public class SshIdentificationEventArgs : EventArgs
     {

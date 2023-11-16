@@ -367,6 +367,11 @@ namespace Renci.SshNet
         public event EventHandler<EventArgs> Disconnected;
 
         /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
+
+        /// <summary>
         /// Occurs when host key received.
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
@@ -624,6 +629,8 @@ namespace Renci.SshNet
                                                          DisconnectReason.ProtocolVersionNotSupported);
                     }
 
+                    ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
+
                     // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
                     RegisterMessage("SSH_MSG_IGNORE");
@@ -735,6 +742,8 @@ namespace Renci.SshNet
                 throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
                                                     DisconnectReason.ProtocolVersionNotSupported);
             }
+
+            ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
             // Register Transport response messages
             RegisterMessage("SSH_MSG_DISCONNECT");

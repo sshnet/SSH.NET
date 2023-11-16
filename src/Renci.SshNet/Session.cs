@@ -1427,6 +1427,16 @@ namespace Renci.SshNet
             SessionId ??= _keyExchange.ExchangeHash;
 
             // Dispose of old ciphers and hash algorithms
+            if (_serverCipher is IDisposable disposableServerCipher)
+            {
+                disposableServerCipher.Dispose();
+            }
+
+            if (_clientCipher is IDisposable disposableClientCipher)
+            {
+                disposableClientCipher.Dispose();
+            }
+
             if (_serverMac != null)
             {
                 _serverMac.Dispose();
@@ -2012,6 +2022,16 @@ namespace Renci.SshNet
                 {
                     keyExchangeCompletedWaitHandle.Dispose();
                     _keyExchangeCompletedWaitHandle = null;
+                }
+
+                if (_serverCipher is IDisposable disposableServerCipher)
+                {
+                    disposableServerCipher.Dispose();
+                }
+
+                if (_clientCipher is IDisposable disposableClientCipher)
+                {
+                    disposableClientCipher.Dispose();
                 }
 
                 var serverMac = _serverMac;

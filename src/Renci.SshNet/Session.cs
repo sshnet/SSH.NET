@@ -367,9 +367,9 @@ namespace Renci.SshNet
         public event EventHandler<EventArgs> Disconnected;
 
         /// <summary>
-        /// Occurs when SSH identification received.
+        /// Occurs when server identification received.
         /// </summary>
-        public event EventHandler<SshIdentificationEventArgs> SshIdentificationReceived;
+        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.
@@ -629,7 +629,7 @@ namespace Renci.SshNet
                                                          DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    SshIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
+                    ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
                     // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
@@ -743,7 +743,7 @@ namespace Renci.SshNet
                                                     DisconnectReason.ProtocolVersionNotSupported);
             }
 
-            SshIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
+            ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
 
             // Register Transport response messages
             RegisterMessage("SSH_MSG_DISCONNECT");

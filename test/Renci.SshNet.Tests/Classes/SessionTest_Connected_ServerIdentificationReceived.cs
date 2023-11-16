@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes
 
             CallSessionConnectWhenArrange = false;
 
-            Session.SshIdentificationReceived += (s, e) =>
+            Session.ServerIdentificationReceived += (s, e) =>
             {
                 if ((e.SshIdentification.SoftwareVersion.StartsWith("OpenSSH_6.5", System.StringComparison.Ordinal) || e.SshIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6", System.StringComparison.Ordinal))
                        && !e.SshIdentification.SoftwareVersion.StartsWith("OpenSSH_6.6.1", System.StringComparison.Ordinal))

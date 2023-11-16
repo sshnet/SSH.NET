@@ -154,9 +154,9 @@ namespace Renci.SshNet
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>
-        /// Occurs when SSH identification received.
+        /// Occurs when server identification received.
         /// </summary>
-        public event EventHandler<SshIdentificationEventArgs> SshIdentificationReceived;
+        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
@@ -395,9 +395,9 @@ namespace Renci.SshNet
             HostKeyReceived?.Invoke(this, e);
         }
 
-        private void Session_SshIdentificationReceived(object sender, SshIdentificationEventArgs e)
+        private void Session_ServerIdentificationReceived(object sender, SshIdentificationEventArgs e)
         {
-            SshIdentificationReceived?.Invoke(this, e);
+            ServerIdentificationReceived?.Invoke(this, e);
         }
 
         /// <summary>
@@ -542,7 +542,7 @@ namespace Renci.SshNet
         private ISession CreateAndConnectSession()
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
-            session.SshIdentificationReceived += Session_SshIdentificationReceived;
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -561,7 +561,7 @@ namespace Renci.SshNet
         private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
-            session.SshIdentificationReceived += Session_SshIdentificationReceived;
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -581,7 +581,7 @@ namespace Renci.SshNet
         {
             session.ErrorOccured -= Session_ErrorOccured;
             session.HostKeyReceived -= Session_HostKeyReceived;
-            session.SshIdentificationReceived -= Session_SshIdentificationReceived;
+            session.ServerIdentificationReceived -= Session_ServerIdentificationReceived;
             session.Dispose();
         }
 

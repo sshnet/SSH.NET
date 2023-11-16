@@ -616,7 +616,7 @@ namespace Renci.SshNet
                     ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
                     ConnectionInfo.ClientVersion = ClientVersion;
 
-                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
 
                     if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
                     {
@@ -728,7 +728,7 @@ namespace Renci.SshNet
             ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
             ConnectionInfo.ClientVersion = ClientVersion;
 
-            DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+            DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
 
             if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
             {
@@ -1396,6 +1396,8 @@ namespace Renci.SshNet
                                                              message.KeyExchangeAlgorithms);
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Performing {1} key exchange.", ToHex(SessionId), ConnectionInfo.CurrentKeyExchangeAlgorithm));
 
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 

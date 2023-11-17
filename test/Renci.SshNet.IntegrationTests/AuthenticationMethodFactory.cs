@@ -69,7 +69,7 @@
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, new PrivateKeyFile(memoryStream));
         }
 
-        public PasswordAuthenticationMethod CreateRegulatUserPasswordAuthenticationMethod()
+        public PasswordAuthenticationMethod CreateRegularUserPasswordAuthenticationMethod()
         {
             return new PasswordAuthenticationMethod(Users.Regular.UserName, Users.Regular.Password);
         }

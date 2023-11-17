@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Base class for asymmetric cipher algorithms
+    /// Base class for asymmetric cipher algorithms.
     /// </summary>
     public abstract class Key
     {
         /// <summary>
-        /// Specifies array of big integers that represent private key
+        /// Specifies array of big integers that represent private key.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
         protected BigInteger[] _privateKey;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
-        /// Gets the key specific digital signature.
+        /// Gets the default digital signature implementation for this key.
         /// </summary>
-        protected abstract DigitalSignature DigitalSignature { get; }
+        protected internal abstract DigitalSignature DigitalSignature { get; }
 
         /// <summary>
         /// Gets or sets the public key.
@@ -37,16 +40,23 @@ namespace Renci.SshNet.Security
         public abstract int KeyLength { get; }
 
         /// <summary>
+        /// Gets or sets the key comment.
+        /// </summary>
+        public string Comment { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Key"/> class.
         /// </summary>
         /// <param name="data">DER encoded private key data.</param>
         protected Key(byte[] data)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             var der = new DerData(data);
-            der.ReadBigInteger(); // skip version
+            _ = der.ReadBigInteger(); // skip version
 
             var keys = new List<BigInteger>();
             while (!der.IsEndOfData)
@@ -81,7 +91,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data to verify.</param>
         /// <param name="signature">The signature to verify against.</param>
-        /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
+        /// <returns><see langword="true"/> is signature was successfully verifies; otherwise <see langword="false"/>.</returns>
         public bool VerifySignature(byte[] data, byte[] signature)
         {
             return DigitalSignature.Verify(data, signature);

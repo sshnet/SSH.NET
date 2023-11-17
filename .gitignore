@@ -15,10 +15,13 @@ src/TestResults/
 packages/
 
 # Visual Studio 2015 cache/options directory 
-src/.vs/
+.vs/
 
 # Expanded/resolved project.json files
 project.lock.json
 
 # Build outputs
 build/target/
+
+# Benchmark results
+BenchmarkDotNet.Artifacts/

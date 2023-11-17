@@ -4,21 +4,21 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements CAST cipher algorithm
+    /// Implements CAST cipher algorithm.
     /// </summary>
     public sealed class CastCipher : BlockCipher
     {
-        private static readonly int MaxRounds = 16;
+        private const int MaxRounds = 16;
 
-        private static readonly int RedRounds = 12;
+        private const int RedRounds = 12;
 
         /// <summary>
-        /// The rotating round key
+        /// The rotating round key.
         /// </summary>
         private readonly int[] _kr = new int[17];
 
         /// <summary>
-        /// The masking round key
+        /// The masking round key.
         /// </summary>
         private readonly uint[] _km = new uint[17];
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public CastCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
@@ -38,7 +38,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var keySize = key.Length * 8;
 
             if (!(keySize >= 40 && keySize <= 128 && keySize % 8 == 0))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
 
             SetKey(key);
         }
@@ -56,9 +58,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            // process the input block
-            // batch the units up into a 32 bit chunk and go for it
-            // the array is in bytes, the increment is 8x8 bits = 64
+            /*
+             * process the input block
+             * batch the units up into a 32 bit chunk and go for it
+             * the array is in bytes, the increment is 8x8 bits = 64
+             */
 
             var l0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
             var r0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
@@ -573,7 +577,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F1(uint d, uint kmi, int kri)
         {
             var I = kmi + d;
@@ -587,7 +590,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F2(uint d, uint kmi, int kri)
         {
             var I = kmi ^ d;
@@ -601,7 +603,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F3(uint d, uint kmi, int kri)
         {
             var I = kmi - d;
@@ -625,6 +626,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var rp = ri;        // equivalent to R[i-1]
 
                 li = rp;
+
                 switch (i)
                 {
                     case 1:
@@ -648,6 +650,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     case 12:
                     case 15:
                         ri = lp ^ F3(rp, _km[i], _kr[i]);
+                        break;
+                    default:
+                        // We should never get here as max. rounds is 16
                         break;
                 }
             }
@@ -666,6 +671,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var rp = ri;        // equivalent to R[i-1]
 
                 li = rp;
+
                 switch (i)
                 {
                     case 1:
@@ -689,6 +695,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     case 12:
                     case 15:
                         ri = lp ^ F3(rp, _km[i], _kr[i]);
+                        break;
+                    default:
+                        // We should never get here as max. rounds is 16
                         break;
                 }
             }

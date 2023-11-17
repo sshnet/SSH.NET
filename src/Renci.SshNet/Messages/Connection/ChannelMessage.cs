@@ -32,14 +32,14 @@ namespace Renci.SshNet.Messages.Connection
         }
 
         /// <summary>
-        /// Initializes a new <see cref="ChannelMessage"/>.
+        /// Initializes a new instance of the <see cref="ChannelMessage"/> class.
         /// </summary>
         protected ChannelMessage()
         {
         }
 
         /// <summary>
-        /// Initializes a new <see cref="ChannelMessage"/> with the specified local channel number.
+        /// Initializes a new instance of the <see cref="ChannelMessage"/> class with the specified local channel number.
         /// </summary>
         /// <param name="localChannelNumber">The local channel number.</param>
         protected ChannelMessage(uint localChannelNumber)
@@ -64,10 +64,10 @@ namespace Renci.SshNet.Messages.Connection
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// Returns a <see cref="string"/> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/> that represents this instance.
+        /// A <see cref="string"/> that represents this instance.
         /// </returns>
         public override string ToString()
         {

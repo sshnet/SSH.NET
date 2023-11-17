@@ -1,5 +1,4 @@
-﻿
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_REQUEST_FAILURE message.

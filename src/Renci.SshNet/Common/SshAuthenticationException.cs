@@ -18,7 +18,6 @@ namespace Renci.SshNet.Common
         /// </summary>
         public SshAuthenticationException()
         {
-
         }
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace Renci.SshNet.Common
         public SshAuthenticationException(string message)
             : base(message)
         {
-
         }
 
         /// <summary>
@@ -36,8 +34,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public SshAuthenticationException(string message, Exception innerException) :
-            base(message, innerException)
+        public SshAuthenticationException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 
@@ -47,8 +45,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
-        /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <c>null</c>.</exception>
-        /// <exception cref="SerializationException">The class name is <c>null</c> or <see cref="Exception.HResult"/> is zero (0). </exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <see langword="null"/>.</exception>
+        /// <exception cref="SerializationException">The class name is <see langword="null"/> or <see cref="Exception.HResult"/> is zero (0). </exception>
         protected SshAuthenticationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

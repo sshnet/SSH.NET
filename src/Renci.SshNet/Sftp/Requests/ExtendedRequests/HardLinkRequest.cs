@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class HardLinkRequest : SftpExtendedRequest
+    internal sealed class HardLinkRequest : SftpExtendedRequest
     {
         private byte[] _oldPath;
         private byte[] _newPath;

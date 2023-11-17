@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Sftp.Responses
 {
-    internal class StatVfsReplyInfo : ExtendedReplyInfo
+    internal sealed class StatVfsReplyInfo : ExtendedReplyInfo
     {
         public SftpFileSytemInformation Information { get; private set; }
 
@@ -18,8 +18,7 @@ namespace Renci.SshNet.Sftp.Responses
                                                        stream.ReadUInt64(), // AvailableNodes
                                                        stream.ReadUInt64(), // Sid
                                                        stream.ReadUInt64(), // Flags
-                                                       stream.ReadUInt64()  // MaxNameLenght
-                                                       );
+                                                       stream.ReadUInt64()); // MaxNameLenght
         }
     }
 }

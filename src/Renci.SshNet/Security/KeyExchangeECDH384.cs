@@ -4,7 +4,7 @@ using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECDH384 : KeyExchangeECDH
+    internal sealed class KeyExchangeECDH384 : KeyExchangeECDH
     {
         /// <summary>
         /// Gets algorithm name.
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {

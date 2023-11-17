@@ -11,7 +11,6 @@
         /// </summary>
         public ChannelEofMessage()
         {
-
         }
 
         /// <summary>

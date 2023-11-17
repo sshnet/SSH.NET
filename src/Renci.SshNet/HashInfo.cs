@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Holds information about key size and cipher to use
+    /// Holds information about key size and cipher to use.
     /// </summary>
     public class HashInfo
     {
@@ -23,14 +23,14 @@ namespace Renci.SshNet
         public Func<byte[], HashAlgorithm> HashAlgorithm { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CipherInfo"/> class.
+        /// Initializes a new instance of the <see cref="HashInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>
         /// <param name="hash">The hash algorithm to use for a given key.</param>
         public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
         {
             KeySize = keySize;
-            HashAlgorithm = key => (hash(key.Take(KeySize / 8)));
+            HashAlgorithm = key => hash(key.Take(KeySize / 8));
         }
     }
 }

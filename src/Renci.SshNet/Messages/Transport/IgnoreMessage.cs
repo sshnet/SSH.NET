@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -19,11 +18,25 @@ namespace Renci.SshNet.Messages.Transport
         public byte[] Data { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
         /// </summary>
         public IgnoreMessage()
         {
-            Data = Array<byte>.Empty;
+            Data = Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        public IgnoreMessage(byte[] data)
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            Data = data;
         }
 
         /// <summary>
@@ -44,18 +57,6 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        public IgnoreMessage(byte[] data)
-        {
-            if (data == null)
-                throw new ArgumentNullException("data");
-
-            Data = data;
-        }
-
-        /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()
@@ -64,7 +65,7 @@ namespace Renci.SshNet.Messages.Transport
             if (dataLength > (DataStream.Length - DataStream.Position))
             {
                 DiagnosticAbstraction.Log("SSH_MSG_IGNORE: Length exceeds data bytes, data ignored.");
-                Data = Array<byte>.Empty;
+                Data = Array.Empty<byte>();
             }
             else if (dataLength > int.MaxValue)
             {

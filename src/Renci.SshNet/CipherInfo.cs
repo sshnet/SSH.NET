@@ -5,7 +5,7 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Holds information about key size and cipher to use
+    /// Holds information about key size and cipher to use.
     /// </summary>
     public class CipherInfo
     {
@@ -30,7 +30,7 @@ namespace Renci.SshNet
         public CipherInfo(int keySize, Func<byte[], byte[], Cipher> cipher)
         {
             KeySize = keySize;
-            Cipher = (key, iv) => (cipher(key.Take(KeySize / 8), iv));
+            Cipher = (key, iv) => cipher(key.Take(KeySize / 8), iv);
         }
     }
 }

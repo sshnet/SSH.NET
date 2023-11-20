@@ -108,23 +108,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // XOR 2 arrays using Vector<byte>
             private static void ArrayXOR(byte[] buffer, byte[] data, int offset, int length)
             {
-                var vectorSize = Vector<byte>.Count;
-                for (var loopOffset = 0; length > 0; length -= vectorSize)
+                var i = 0;
+
+                var oneVectorFromEnd = length - Vector<byte>.Count;
+                for (; i <= oneVectorFromEnd; i += Vector<byte>.Count)
                 {
-                    if (length >= vectorSize)
-                    {
-                        var v = new Vector<byte>(buffer, loopOffset) ^ new Vector<byte>(data, offset + loopOffset);
-                        v.CopyTo(buffer, loopOffset);
-                        loopOffset += vectorSize;
-                    }
-                    else
-                    {
-                        for (var i = 0; i < length; i++)
-                        {
-                            buffer[loopOffset] ^= data[offset + loopOffset];
-                            loopOffset++;
-                        }
-                    }
+                    var v = new Vector<byte>(buffer, i) ^ new Vector<byte>(data, offset + i);
+                    v.CopyTo(buffer, i);
+                }
+
+                for (; i < length; i++)
+                {
+                    buffer[i] ^= data[offset + i];
                 }
             }
 

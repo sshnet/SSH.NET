@@ -263,6 +263,9 @@ dotnet_diagnostic.SA1413.severity = none
 # This is a duplicate of IDE0011.
 dotnet_diagnostic.SA1503.severity = none
 
+# SA1512: Single line comments should not be followed by a blank line
+dotnet_diagnostic.SA1512.severity = none
+
 # SA1516: Elements must be separated by blank line
 #
 # When enabled, a diagnostic is produced for properties with both a get and set accessor.

@@ -9,11 +9,13 @@ namespace Renci.SshNet.Abstractions
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class DiagnosticAbstraction
     {
-#if DEBUG
         /// <summary>
         /// The <see cref="TraceSource"/> instance used by SSH.NET.
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// Currently, the library only traces events when compiled in Debug mode.
+        /// </para>
         /// <para>
         /// Configuration on .NET Core must be done programmatically, e.g.
         /// <code>
@@ -49,7 +51,6 @@ namespace Renci.SshNet.Abstractions
         /// </para>
         /// </remarks>
         public static readonly TraceSource Source = new TraceSource("SshNet.Logging");
-#endif
 
         /// <summary>
         /// Logs a message to <see cref="Source"/> at the <see cref="TraceEventType.Verbose"/>

@@ -95,25 +95,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i + 8), _ivLower);
                     BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i), _ivUpper);
 
-<<<<<<< HEAD
                     _ivLower += 1;
                     _ivUpper += (_ivLower == 0) ? 1UL : 0UL;
-=======
-                    // increment IV (little endian)
-                    if (_packedIV[3] < 0xFF000000u)
-                    {
-                        _packedIV[3] += 0x01000000u;
-                    }
-                    else
-                    {
-                        var j = 3;
-                        do
-                        {
-                            _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
-                        }
-                        while (_packedIV[j] == 0 && --j >= 0);
-                    }
->>>>>>> 6529a6383a24023fb900f9d922d7591cf3bc66b1
                 }
             }
 

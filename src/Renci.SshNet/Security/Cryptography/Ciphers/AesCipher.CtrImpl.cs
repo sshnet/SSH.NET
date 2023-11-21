@@ -1,7 +1,7 @@
 ﻿using System;
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+using System.Buffers.Binary;
 using System.Numerics;
-using System.Runtime.InteropServices;
 #endif
 using System.Security.Cryptography;
 
@@ -12,8 +12,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private sealed class CtrImpl : BlockCipher, IDisposable
         {
             private readonly Aes _aes;
-            private readonly uint[] _packedIV;
+
             private readonly ICryptoTransform _encryptor;
+
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            private ulong _ivUpper; // The upper 64 bits of the IV
+            private ulong _ivLower; // The lower 64 bits of the IV
+#else
+            // The same on netfx
+            private readonly uint[] _packedIV;
+#endif
 
             public CtrImpl(
                 byte[] key,
@@ -27,7 +35,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _aes = aes;
                 _encryptor = aes.CreateEncryptor();
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                _ivLower = BinaryPrimitives.ReadUInt64BigEndian(iv.AsSpan(8));
+                _ivUpper = BinaryPrimitives.ReadUInt64BigEndian(iv);
+#else
                 _packedIV = GetPackedIV(iv);
+#endif
             }
 
             public override byte[] Encrypt(byte[] input, int offset, int length)
@@ -74,20 +87,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
 
-            // creates the Counter array filled with incrementing copies of IV
+             // creates the Counter array filled with incrementing copies of IV
             private void CTRCreateCounterArray(byte[] buffer)
             {
-                var counter = MemoryMarshal.Cast<byte, uint>(buffer.AsSpan());
-
-                // fill array with IV, increment by 1 for each copy
-                var len = counter.Length;
-                for (var i = 0; i < len; i += 4)
+                for (var i = 0; i < buffer.Length; i += 16)
                 {
-                    counter[i] = _packedIV[0];
-                    counter[i + 1] = _packedIV[1];
-                    counter[i + 2] = _packedIV[2];
-                    counter[i + 3] = _packedIV[3];
+                    BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i + 8), _ivLower);
+                    BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i), _ivUpper);
 
+<<<<<<< HEAD
+                    _ivLower += 1;
+                    _ivUpper += (_ivLower == 0) ? 1UL : 0UL;
+=======
                     // increment IV (little endian)
                     if (_packedIV[3] < 0xFF000000u)
                     {
@@ -102,6 +113,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                         }
                         while (_packedIV[j] == 0 && --j >= 0);
                     }
+>>>>>>> 6529a6383a24023fb900f9d922d7591cf3bc66b1
                 }
             }
 
@@ -185,8 +197,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 Buffer.BlockCopy(bufferwords, 0, buffer, 0, length);
             }
 
-#endif
-
             // pack the IV into an array of uint[4]
             private static uint[] GetPackedIV(byte[] iv)
             {
@@ -204,6 +214,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 x = (x >> 16) | (x << 16);
                 return ((x & 0xFF00FF00) >> 8) | ((x & 0x00FF00FF) << 8);
             }
+#endif
 
             private void Dispose(bool disposing)
             {

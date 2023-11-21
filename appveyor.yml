@@ -7,6 +7,6 @@ build_script:
 test_script:
 - mkdir artifacts
 - docker build -t sshtest --no-cache -f ./test/Renci.SshNet.IntegrationTests/Dockerfile . --progress=plain
-- docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v artifacts:/src/test/Renci.SshNet.IntegrationTests/artifacts -t sshtest
+- docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v artifacts:/src/test/Renci.SshNet.IntegrationTests/artifacts -t sshtest
 - ls artifacts
   

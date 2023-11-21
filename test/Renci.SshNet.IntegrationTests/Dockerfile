@@ -1,50 +1,33 @@
-FROM alpine:latest
+FROM mcr.microsoft.com/dotnet/sdk:7.0.403-bullseye-slim AS build
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBCONF_NOWARNINGS="yes"
+ARG BUILD_CONFIGURATION=Debug
+ENV http_proxy=http://proxy-dmz.intel.com:912/
+ENV https_proxy=http://proxy-dmz.intel.com:912/
+ENV no_proxy=intel.com,localhost
 
-COPY --chown=root:root server/ssh /etc/ssh/
-COPY --chown=root:root server/script /opt/sshnet
-COPY user/sshnet /home/sshnet/.ssh
+RUN curl -fsSL https://get.docker.com -o get-docker.sh \
+    && sh get-docker.sh
 
-RUN apk update && apk upgrade --no-cache && \
-    apk add --no-cache syslog-ng && \
-    # install and configure sshd
-    apk add --no-cache openssh && \
-    # install openssh-server-pam to allow for keyboard-interactive authentication
-    apk add --no-cache openssh-server-pam && \
-    dos2unix /etc/ssh/* && \
-    chmod 400 /etc/ssh/ssh*key && \
-    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
-    sed -i 's/#LogLevel\s*INFO/LogLevel DEBUG3/' /etc/ssh/sshd_config && \
-    # Set the default RSA key
-    echo 'HostKey /etc/ssh/ssh_host_rsa_key' >> /etc/ssh/sshd_config && \
-    chmod 646 /etc/ssh/sshd_config && \
-    # install and configure sudo
-    apk add --no-cache sudo && \
-    addgroup sudo && \
-    # allow root to run any command
-    echo 'root ALL=(ALL) ALL' > /etc/sudoers && \
-    # allow everyone in the 'sudo' group to run any command without a password
-    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-    # add user to run most of the integration tests
-    adduser -D sshnet && \
-    passwd -u sshnet && \
-    echo 'sshnet:ssh4ever' | chpasswd && \
-    dos2unix /home/sshnet/.ssh/* && \
-    chown -R sshnet:sshnet /home/sshnet && \
-    chmod -R 700 /home/sshnet/.ssh && \
-    chmod -R 644 /home/sshnet/.ssh/authorized_keys && \
-    # add user to administer container (update configs, restart sshd)
-    adduser -D sshnetadm && \
-    passwd -u sshnetadm && \
-    echo 'sshnetadm:ssh4ever' | chpasswd && \
-    addgroup sshnetadm sudo && \
-    dos2unix /opt/sshnet/* && \
-    # install shadow package; we use chage command in this package to expire/unexpire password of the sshnet user
-    apk add --no-cache shadow && \
-    # allow us to use telnet command; we use this in the remote port forwarding tests
-    apk --no-cache add busybox-extras && \
-    # install full-fledged ps command
-    apk add --no-cache procps
+WORKDIR /src
 
-EXPOSE 22 22
+COPY ["test/Directory.Build.props", "test/"]
+COPY ["Directory.Build.props", "."]
+COPY ["test/Renci.SshNet.IntegrationTests/Dockerfile.TestServer", "test/Renci.SshNet.IntegrationTests/"]
+COPY ["test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj", "test/Renci.SshNet.IntegrationTests/"]
+COPY ["test/Renci.SshNet.TestTools.OpenSSH/Renci.SshNet.TestTools.OpenSSH.csproj", "test/Renci.SshNet.TestTools.OpenSSH/"]
+COPY ["src/Renci.SshNet/Renci.SshNet.csproj", "src/Renci.SshNet/"]
+RUN dotnet restore "./test/Renci.SshNet.IntegrationTests/./Renci.SshNet.IntegrationTests.csproj"
 
-ENTRYPOINT ["/opt/sshnet/start.sh"]
+COPY . .
+
+run ls test/Renci.SshNet.IntegrationTests/
+
+WORKDIR "/src/test/Renci.SshNet.IntegrationTests"
+RUN dotnet build "./Renci.SshNet.IntegrationTests.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+WORKDIR "/src/test/Renci.SshNet.IntegrationTests"
+ENV https_proxy=
+ENV http_proxy=
+CMD ["dotnet", "test", "--no-restore", "--no-build", "-o", "/app/build", "--results-directory", "artifacts", "--logger", "console;verbosity=detailed", "--logger", "liquid.md;LogFileName=TestReport.md", "-p:CollectCoverage=true", "-p:CoverletOutputFormat=cobertura", "-p:CoverletOutput=artifacts/coverage.xml", "Renci.SshNet.IntegrationTests.csproj"]
+

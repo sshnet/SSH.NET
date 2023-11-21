@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
-
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
@@ -38,16 +34,16 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", "Verbose");
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
+// for testing purpose only
+//             DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", "Verbose");
+//             DiagnosticAbstraction.Source.Listeners.Remove("Default");
+//             DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
 
             _sshServerImage = new ImageFromDockerfileBuilder()
                 .WithName("renci-ssh-tests-server-image")
                 .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))
-                .WithDockerfile("Dockerfile")
+                .WithDockerfile("Dockerfile.TestServer")
                 .WithDeleteIfExists(true)
-                
                 .Build();
 
             await _sshServerImage.CreateAsync();

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Renci.SshNet.IntegrationTests": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

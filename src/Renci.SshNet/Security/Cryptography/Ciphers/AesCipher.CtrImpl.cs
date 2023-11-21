@@ -95,7 +95,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     }
                     else
                     {
-                        uint j = 3;
+                        var j = 3;
                         do
                         {
                             _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);
@@ -145,7 +145,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     }
                     else
                     {
-                        uint j = 3;
+                        var j = 3;
                         do
                         {
                             _packedIV[j] = SwapEndianness(SwapEndianness(_packedIV[j]) + 1);

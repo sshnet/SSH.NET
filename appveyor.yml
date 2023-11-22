@@ -1,5 +1,8 @@
 os: Ubuntu2204
 
+services:
+- docker
+
 #for testing purposes only
 build_script:
   - dotnet build test/Renci.SshNet.IntegrationTests/

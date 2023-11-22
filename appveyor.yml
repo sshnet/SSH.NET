@@ -9,7 +9,6 @@ build_script:
 
 test_script:
 - mkdir artifacts
-- docker build -t sshtest --no-cache -f ./test/Renci.SshNet.IntegrationTests/Dockerfile . --progress=plain
-- docker run --rm -v /var/run/docker.sock.raw:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v artifacts:/src/test/Renci.SshNet.IntegrationTests/artifacts -t sshtest
+- dotnet test --no-restore --no-build --results-directory artifacts --logger console;verbosity=detailed --logger liquid.md;LogFileName=TestReport.md -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 - ls artifacts
   

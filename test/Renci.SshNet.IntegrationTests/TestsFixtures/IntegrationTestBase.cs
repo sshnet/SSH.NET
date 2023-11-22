@@ -59,6 +59,10 @@
 
         private void ShowInfrastructureInformation()
         {
+            Console.WriteLine($"HTTP_PROXY: {Environment.GetEnvironmentVariable("HTTP_PROXY")}");
+            Console.WriteLine($"HTTPS_PROXY: {Environment.GetEnvironmentVariable("HTTPS_PROXY")}");
+            Console.WriteLine($"NO_PROXY: {Environment.GetEnvironmentVariable("NO_PROXY")}");
+
             Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
             Console.WriteLine($"SSH Server port: {_infrastructureFixture.SshServerPort}");
         }

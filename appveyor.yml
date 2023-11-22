@@ -9,6 +9,6 @@ build_script:
 
 test_script:
 - mkdir artifacts
-- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger console;verbosity=detailed --logger liquid.md;LogFileName=TestReport.md -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger "console;verbosity=detailed" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 - ls artifacts
   

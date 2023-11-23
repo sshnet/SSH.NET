@@ -37,6 +37,8 @@
                 }
             }
 
+            Thread.Sleep(250);
+
             return this;
         }
     }

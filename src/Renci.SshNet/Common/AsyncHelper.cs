@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Renci.SshNet.Common
 {
+#pragma warning disable CA2008
     internal static class AsyncHelper
     {
         private static readonly TaskFactory MyTaskFactory = new TaskFactory(
@@ -37,4 +38,5 @@ namespace Renci.SshNet.Common
             }).Unwrap().GetAwaiter().GetResult();
         }
     }
+#pragma warning restore CA2008
 }

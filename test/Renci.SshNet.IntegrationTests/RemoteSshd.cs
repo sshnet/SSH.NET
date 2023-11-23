@@ -37,7 +37,7 @@
                 }
             }
 
-            Thread.Sleep(250);
+            Thread.Sleep(300);
 
             return this;
         }

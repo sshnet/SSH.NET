@@ -8,18 +8,15 @@ build_script:
   - dotnet build test/Renci.SshNet.IntegrationTests/ -c Debug
 
 test_script:
-- ip link show
-#- mkdir artifacts
-#- sudo tcpdump -i any -c15000 -w artifacts/tcpdump.pcap -v -U &
-#- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger "console;verbosity=detailed" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
-#- killall tcpdump
-#- ls artifacts
+- mkdir artifacts
+- sudo tcpdump -i docker0 -w artifacts/tcpdump.pcap -U &
+- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger "console;verbosity=detailed" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+- killall tcpdump
+- ls artifacts
   
-#on_failure:
-#  - sh: appveyor PushArtifact artifacts/tcpdump.pcap
+on_failure:
+  - sh: appveyor PushArtifact artifacts/tcpdump.pcap
 
-#artifacts:
-#  - path: artifacts
-#    name: artifacts
-#  - path: artifact.txt 
-#    name: artifact.txt 
+artifacts:
+  - path: artifacts
+    name: artifacts

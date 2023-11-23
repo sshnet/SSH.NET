@@ -9,9 +9,9 @@ build_script:
 
 test_script:
 - mkdir artifacts
-- echo 'hello' > artifact.txt 
-- sudo tcpdump -i any -c1000 -w artifacts/tcpdump.pcap -v &
+- sudo tcpdump -i any -c1000 -w artifacts/tcpdump.pcap -v -U ssh &
 - dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger "console;verbosity=detailed" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+killall tcpdump
 - ls artifacts
   
 on_failure:

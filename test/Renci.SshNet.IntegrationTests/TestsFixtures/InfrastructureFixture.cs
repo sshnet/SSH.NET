@@ -38,7 +38,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", "Verbose");
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(TraceEventType.Information));
             DiagnosticAbstraction.Source.Listeners.Remove("Default");
             DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
 

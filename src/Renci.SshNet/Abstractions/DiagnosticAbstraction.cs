@@ -57,12 +57,13 @@ namespace Renci.SshNet.Abstractions
         /// level.
         /// </summary>
         /// <param name="text">The message to log.</param>
+        /// <param name="type">The trace event type.</param>
         [Conditional("DEBUG")]
-        public static void Log(string text)
+        public static void Log(string text, TraceEventType type = TraceEventType.Information)
         {
-            Source.TraceEvent(TraceEventType.Verbose,
-                                System.Environment.CurrentManagedThreadId,
-                                text);
+            Source.TraceEvent(type,
+                              System.Environment.CurrentManagedThreadId,
+                              text);
         }
     }
 }

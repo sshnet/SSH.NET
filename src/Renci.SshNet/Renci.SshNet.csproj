@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_DNS_SYNC;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_RIPEMD160</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION;FEATURE_DNS_SYNC;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_RIPEMD160</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' ">
@@ -18,6 +18,15 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SOCKET_TAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_EAP;FEATURE_DNS_SYNC;FEATURE_DNS_APM;FEATURE_DNS_TAP</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DNS_SYNC;FEATURE_DNS_APM;FEATURE_DNS_TAP</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' ">
+      <DefineConstants>$(DefineConstants);FEATURE_SOCKET_EAP</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' ">
+      <DefineConstants>$(DefineConstants);FEATURE_SOCKET_TAP</DefineConstants>
+  </PropertyGroup>
+
 </Project>

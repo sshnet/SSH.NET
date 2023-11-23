@@ -15,11 +15,8 @@ test_script:
 - ls artifacts
   
 on_failure:
-  artifacts:
-    - path: artifacts
-      name: artifacts
-    - path: artifact.txt 
-      name: artifact.txt 
+  - sh: appveyor PushArtifact artifact.txt 
+  - sh: appveyor PushArtifact artifacts/tcpdump.pcap
 
 artifacts:
   - path: artifacts

@@ -15,7 +15,6 @@ test_script:
 - ls artifacts
   
 on_failure:
-  - sh: appveyor PushArtifact artifact.txt 
   - sh: appveyor PushArtifact artifacts/tcpdump.pcap
 
 artifacts:

@@ -88,14 +88,14 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         protected void EnableTracing()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(TraceEventType.Verbose));
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
             DiagnosticAbstraction.Source.Listeners.Remove("Default");
             DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
         }
 
         protected void DisableTracing()
         {
-            DiagnosticAbstraction.Source.Switch = null;
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
             DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
         }
     }

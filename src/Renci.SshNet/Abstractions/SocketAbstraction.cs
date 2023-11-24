@@ -59,31 +59,7 @@ namespace Renci.SshNet.Abstractions
 
         private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
-#if FEATURE_SOCKET_TAP
-            AsyncHelper.RunSync(async () =>
-            {
-                using var ctsTs = new CancellationTokenSource(connectTimeout);
-
-                try
-                {
-                    await socket.ConnectAsync(remoteEndpoint, ctsTs.Token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw new SshOperationTimeoutException(
-                        string.Format(CultureInfo.InvariantCulture,
-                                      "Connection failed to establish within {0:F0} milliseconds.",
-                                      connectTimeout.TotalMilliseconds));
-                }
-                finally
-                {
-                    if (!socket.Connected && ownsSocket)
-                    {
-                        socket.Dispose();
-                    }
-                }
-            });
-#elif FEATURE_SOCKET_EAP
+#if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
                 {
@@ -137,8 +113,18 @@ namespace Renci.SshNet.Abstractions
 
             // dispose SocketAsyncEventArgs
             args.Dispose();
+#elif FEATURE_SOCKET_APM
+            var connectResult = socket.BeginConnect(remoteEndpoint, null, null);
+            if (!connectResult.AsyncWaitHandle.WaitOne(connectTimeout, false))
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                    "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
+            socket.EndConnect(connectResult);
+#elif FEATURE_SOCKET_TAP
+            if (!socket.ConnectAsync(remoteEndpoint).Wait(connectTimeout))
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                    "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
 #else
-#error Connecting to a remote endpoint is not implemented.
+            #error Connecting to a remote endpoint is not implemented.
 #endif
         }
 
@@ -339,16 +325,9 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
         {
-#if FEATURE_SOCKET_TAP
-            Memory<byte> memory = buffer;
-            return socket.ReceiveAsync(memory, SocketFlags.None, cancellationToken).AsTask();
-#elif FEATURE_SOCKET_EAP
-            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
-#else
-#error Reading from a remote endpoint is not implemented.
-#endif
+            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
         }
 
         public static void Send(Socket socket, byte[] data)

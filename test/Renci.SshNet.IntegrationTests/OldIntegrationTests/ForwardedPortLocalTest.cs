@@ -3,25 +3,13 @@
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
-{    
+{
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
     [TestClass]
     public class ForwardedPortLocalTest : IntegrationTestBase
     {
-        [TestInitialize]
-        public void SetUp()
-        {
-            EnableTracing();
-        }
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            DisableTracing();
-        }
-
         [TestMethod]
         [WorkItem(713)]
         [Owner("Kenneth_aa")]

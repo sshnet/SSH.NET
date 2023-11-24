@@ -1,5 +1,4 @@
-﻿#if FEATURE_SOCKET_EAP
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -91,23 +90,23 @@ namespace Renci.SshNet.Abstractions
         }
 
         public static async Task ConnectAsync(this Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
-         {
-             cancellationToken.ThrowIfCancellationRequested();
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-             using (var args = new AwaitableSocketAsyncEventArgs())
-             {
-                 args.RemoteEndPoint = remoteEndpoint;
+            using (var args = new AwaitableSocketAsyncEventArgs())
+            {
+                args.RemoteEndPoint = remoteEndpoint;
 
- #if NET || NETSTANDARD2_1_OR_GREATER
-                 await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
- #else
-                 using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
- #endif // NET || NETSTANDARD2_1_OR_GREATER
-                 {
-                     await args.ExecuteAsync(socket.ConnectAsync);
-                 }
-             }
-         }
+#if NET || NETSTANDARD2_1_OR_GREATER
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+                {
+                    await args.ExecuteAsync(socket.ConnectAsync);
+                }
+            }
+        }
 
         public static async Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
         {
@@ -131,4 +130,3 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
-#endif

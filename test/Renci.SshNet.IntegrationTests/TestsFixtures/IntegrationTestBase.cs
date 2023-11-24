@@ -1,4 +1,8 @@
-﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
+﻿using System.Diagnostics;
+
+using Renci.SshNet.Abstractions;
+
+namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     /// <summary>
     /// The base class for integration tests
@@ -59,10 +63,6 @@
 
         private void ShowInfrastructureInformation()
         {
-            Console.WriteLine($"HTTP_PROXY: {Environment.GetEnvironmentVariable("HTTP_PROXY")}");
-            Console.WriteLine($"HTTPS_PROXY: {Environment.GetEnvironmentVariable("HTTPS_PROXY")}");
-            Console.WriteLine($"NO_PROXY: {Environment.GetEnvironmentVariable("NO_PROXY")}");
-
             Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
             Console.WriteLine($"SSH Server port: {_infrastructureFixture.SshServerPort}");
         }
@@ -84,6 +84,19 @@
                     testFile.Write(buffer, 0, buffer.Length);
                 }
             }
+        }
+
+        protected void EnableTracing()
+        {
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(TraceEventType.Verbose));
+            DiagnosticAbstraction.Source.Listeners.Remove("Default");
+            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
+        }
+
+        protected void DisableTracing()
+        {
+            DiagnosticAbstraction.Source.Switch = null;
+            DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

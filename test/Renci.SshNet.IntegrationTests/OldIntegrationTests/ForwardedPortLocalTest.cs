@@ -10,6 +10,18 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     [TestClass]
     public class ForwardedPortLocalTest : IntegrationTestBase
     {
+        [TestInitialize]
+        public void SetUp()
+        {
+            EnableTracing();
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            DisableTracing();
+        }
+
         [TestMethod]
         [WorkItem(713)]
         [Owner("Kenneth_aa")]
@@ -21,7 +33,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                using var port1 = new ForwardedPortLocal("localhost", 8084, "www.google.com", 80);
+                using var port1 = new ForwardedPortLocal("localhost", 8085, "www.google.com", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
                 {

@@ -38,10 +38,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(TraceEventType.Information));
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
-
             _sshServerImage = new ImageFromDockerfileBuilder()
                 .WithName("renci-ssh-tests-server-image")
                 .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))

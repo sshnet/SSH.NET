@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 namespace Renci.SshNet.Common
 {
 #pragma warning disable CA2008
+
+    /// <summary>
+    /// AsyncHelper based on https://github.com/aspnet/AspNetIdentity/blob/main/src/Microsoft.AspNet.Identity.Core/AsyncHelper.cs
+    /// </summary>
     internal static class AsyncHelper
     {
         private static readonly TaskFactory MyTaskFactory = new TaskFactory(

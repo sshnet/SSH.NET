@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
-
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {

@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -48,6 +49,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
+                Thread.Sleep(500);
                 _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }

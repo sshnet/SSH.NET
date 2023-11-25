@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -52,6 +53,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
+                Thread.Sleep(500);
                 _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }

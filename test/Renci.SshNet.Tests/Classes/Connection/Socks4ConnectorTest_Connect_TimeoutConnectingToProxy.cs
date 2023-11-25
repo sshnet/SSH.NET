@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             var random = new Random();
 
             _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(5, 10));
             _stopWatch = new Stopwatch();
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _actualException = null;

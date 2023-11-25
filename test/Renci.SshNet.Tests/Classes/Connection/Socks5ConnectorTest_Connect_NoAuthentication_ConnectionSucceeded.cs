@@ -174,8 +174,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     0x00,
                     0x01,
                     // Destination port
-                    0x03,
-                    0x09
+                    0x04,
+                    0x05
 
                 };
 

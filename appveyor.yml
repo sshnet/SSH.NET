@@ -26,7 +26,7 @@ for:
     only:
       - image: Ubuntu2204
 
-  build_script:
+  test_script:
     - sh: >-
        echo Ubuntu unit and integration tests for .NET 7
       
@@ -35,7 +35,7 @@ for:
     only:
       - image: Visual Studio 2022
 
-  build_script:
+  test_script:
     - ps: >-
        echo Windows only unit tests for .NET 7 and .NET 4.8
   

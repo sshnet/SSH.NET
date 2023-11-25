@@ -1,18 +1,44 @@
-os: Ubuntu2204
+image:
+ - Ubuntu2204
+ - Visual Studio 2022
 
 services:
 - docker
 
+before_build:
+  - mkdir artifacts
+
 #for testing purposes only
 build_script:
-  - dotnet build test/Renci.SshNet.IntegrationTests/ -c Debug
+  - echo build script
+#  - dotnet build Renci.SshNet.sln -c Debug
 
-test_script:
-- mkdir artifacts
+#test_script:
+#- mkdir artifacts
 #- sudo tcpdump -i docker0 -w artifacts/tcpdump.pcap -U &
-- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+#- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 #- killall tcpdump
-- ls artifacts
+#- ls artifacts
+
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu2204
+
+  build_script:
+    - sh: >-
+      echo Ubuntu unit and integration tests for .NET 7
+      
+for:
+-
+  matrix:
+    only:
+      - image: Visual Studio 2022
+
+  build_script:
+    - ps: >-
+      echo Windows only unit tests for .NET 7 and .NET 4.8
   
 #on_failure:
 #  - sh: appveyor PushArtifact artifacts/tcpdump.pcap

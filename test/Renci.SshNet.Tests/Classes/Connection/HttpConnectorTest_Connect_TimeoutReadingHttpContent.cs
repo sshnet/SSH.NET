@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             var random = new Random();
 
             _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                                 777,
+                                                 1026,
                                                  "user",
                                                  ProxyTypes.Http,
                                                  IPAddress.Loopback.ToString(),

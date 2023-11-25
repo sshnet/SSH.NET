@@ -1,9 +1,9 @@
 image:
- - Ubuntu2204
- - Visual Studio 2022
+  - Ubuntu2204
+  - Visual Studio 2022
 
 services:
-- docker
+  - docker
 
 before_build:
   - mkdir artifacts
@@ -28,9 +28,8 @@ for:
 
   build_script:
     - sh: >-
-      echo Ubuntu unit and integration tests for .NET 7
+       echo Ubuntu unit and integration tests for .NET 7
       
-for:
 -
   matrix:
     only:
@@ -38,7 +37,7 @@ for:
 
   build_script:
     - ps: >-
-      echo Windows only unit tests for .NET 7 and .NET 4.8
+       echo Windows only unit tests for .NET 7 and .NET 4.8
   
 #on_failure:
 #  - sh: appveyor PushArtifact artifacts/tcpdump.pcap

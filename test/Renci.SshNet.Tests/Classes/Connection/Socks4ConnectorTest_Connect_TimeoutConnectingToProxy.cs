@@ -49,7 +49,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                Thread.Sleep(500);
                 _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
@@ -60,6 +59,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             finally
             {
                 _stopWatch.Stop();
+
+                // Give some time to process all messages
+                Thread.Sleep(200);
             }
         }
 

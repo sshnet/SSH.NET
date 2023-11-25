@@ -10,15 +10,7 @@ before_build:
 
 #for testing purposes only
 build_script:
-  - echo build script
-#  - dotnet build Renci.SshNet.sln -c Debug
-
-#test_script:
-#- mkdir artifacts
-#- sudo tcpdump -i docker0 -w artifacts/tcpdump.pcap -U &
-#- dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=TestReport.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
-#- killall tcpdump
-#- ls artifacts
+  - dotnet build Renci.SshNet.sln -c Debug
 
 for:
 -
@@ -28,7 +20,10 @@ for:
 
   test_script:
     - sh: >-
-       echo Ubuntu unit and integration tests for .NET 7
+       echo "Run unit tests"
+       dotnet test -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+       echo "Run integration tests:
+       dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_integration_test_net_7_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
       
 -
   matrix:
@@ -37,11 +32,11 @@ for:
 
   test_script:
     - ps: >-
-       echo Windows only unit tests for .NET 7 and .NET 4.8
+       echo "Run unit tests for .NET 7.0"
+       dotnet test -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+       echo "Run unit tests for .NET Framework 4.8"
+       dotnet test -f net48 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
   
-#on_failure:
-#  - sh: appveyor PushArtifact artifacts/tcpdump.pcap
-
 artifacts:
   - path: artifacts
     name: artifacts

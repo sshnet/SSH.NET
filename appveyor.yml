@@ -38,7 +38,7 @@ for:
     - ps: echo "Run unit tests for .NET 7.0"
     - ps: dotnet test --filter ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - netsh trace stop
-    - wget https://github.com/microsoft/etl2pcapng/releases/download/v1.11.0/etl2pcapng.exe
+    - curl -vLo https://github.com/microsoft/etl2pcapng/releases/download/v1.11.0/etl2pcapng.exe
     - ls
     - .\etl2pcapng.exe trace.etl artifacts/tcpdump.pcap
 #    - ps: echo "Run unit tests for .NET Framework 4.6.2"

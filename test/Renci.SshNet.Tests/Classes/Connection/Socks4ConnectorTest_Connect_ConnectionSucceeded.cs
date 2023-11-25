@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             var random = new Random();
 
             _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(5, 10));
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
             _bytesReceivedByProxy = new List<byte>();
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _actual = null;

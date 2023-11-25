@@ -24,7 +24,7 @@ for:
     - sh: echo "Run integration tests"
     - sh: dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_integration_test_net_7_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
       
--
+#-
   #matrix:
   #  only:
   #    - image: Visual Studio 2022

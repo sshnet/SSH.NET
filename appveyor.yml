@@ -40,7 +40,7 @@ for:
     - netsh trace stop
     - ps: Invoke-WebRequest https://github.com/microsoft/etl2pcapng/releases/download/v1.11.0/etl2pcapng.exe -OutFile etl1pcapng.exe
     - ls
-    - .\etl2pcapng.exe trace.etl artifacts/tcpdump.pcap
+    - ps: .\etl2pcapng.exe trace.etl artifacts/tcpdump.pcap
 #    - ps: echo "Run unit tests for .NET Framework 4.6.2"
 #    - ps: dotnet test -f net462 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 

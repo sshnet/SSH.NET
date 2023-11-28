@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

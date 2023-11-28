@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     0x01,
                     // Destination port
                     0x04,
-                    0x01,
+                    0x06,
                     // Destination address (IPv4)
                     0x7f,
                     0x00,

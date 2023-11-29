@@ -81,7 +81,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
 
         [TestMethodForPlatform(nameof(OSPlatform.Linux))]
-        public void ConnectShouldHaveThrownSshOperationTimeoutExceptionOnLinux()
+        public void ConnectShouldHaveThrownSocketExceptionOnLinux()
         {
             Assert.IsNull(_actualException.InnerException);
             Assert.IsInstanceOfType<SocketException>(_actualException);

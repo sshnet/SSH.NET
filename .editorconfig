@@ -91,6 +91,9 @@ dotnet_diagnostic.S1944.severity = none
 
 # S2053: Hashes should include an unpredictable salt
 # https://rules.sonarsource.com/csharp/RSPEC-2053/
+#
+# Disabled due to build performance impact /
+# We need to specify the salt.
 dotnet_diagnostic.S2053.severity = none
 
 # S2259: Null pointers should not be dereferenced
@@ -114,7 +117,8 @@ dotnet_diagnostic.S2551.severity = none
 # S2583: Conditionally executed code should be reachable
 # https://rules.sonarsource.com/csharp/RSPEC-2583
 #
-# Disabled due to build performance impact.
+# Disabled due to build performance impact /
+# This rule produces false errors in, for example, for loops.
 dotnet_diagnostic.S2583.severity = none
 
 # S2699: Tests should include assertions
@@ -214,6 +218,8 @@ dotnet_diagnostic.S3928.severity = none
 
 # S3949: Calculations should not overflow
 # https://rules.sonarsource.com/csharp/RSPEC-3949/
+#
+# Disabled due to build performance impact.
 dotnet_diagnostic.S3949.severity = none
 
 # S3998: Threads should not lock on objects with weak identity
@@ -255,10 +261,6 @@ dotnet_diagnostic.S4487.severity = none
 #
 # This is a partial duplicate of MA0067, and we do not want to report the use of 'default' for a Guid as error.
 dotnet_diagnostic.S4581.severity = none
-
-# S4663: Comments should not be empty
-# https://rules.sonarsource.com/csharp/RSPEC-4663/
-dotnet_diagnostic.S4663.severity = none
 
 # S4830: Server certificates should be verified during SSL/TLS connections
 # https://rules.sonarsource.com/csharp/RSPEC-4830/
@@ -352,6 +354,8 @@ dotnet_diagnostic.SA1413.severity = none
 dotnet_diagnostic.SA1503.severity = none
 
 # SA1512: Single-line comments should not be followed by a blank line
+#
+# Blank lines can improve readability.
 dotnet_diagnostic.SA1512.severity = none
 
 # SA1516: Elements must be separated by blank line
@@ -663,14 +667,10 @@ dotnet_diagnostic.CA5390.severity = none
 
 # CA5401: Do not use CreateEncryptor with non-default IV
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5401
-#
-# We need to specify the IV.
 dotnet_diagnostic.CA5401.severity = none
 
 # CA5402: Use CreateEncryptor with the default IV
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5402
-#
-# We need to specify the IV.
 dotnet_diagnostic.CA5402.severity = none
 
 # CA5403: Do not hard-code certificate

@@ -15,7 +15,7 @@ for:
       
   before_build:
     - sh: mkdir artifacts  
-    - sh: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --Version '7.0.403'
+    - sh: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin ./dotnet-install.sh --runtime dotnet --version '7.0.403'
     
   build_script:
     - echo build
@@ -41,7 +41,7 @@ for:
   before_build:
     - ps: mkdir artifacts
     # Run a separate PowerShell process because the script calls exit, so it will end the current PowerShell session.
-    - ps: powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) --Version '7.0.403'"
+    - ps: powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) --Version 7.0.403"
   
   build_script:
     - echo build

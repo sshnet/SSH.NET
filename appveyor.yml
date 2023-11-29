@@ -8,19 +8,20 @@ services:
 before_build:
   - mkdir artifacts
 
-build_script:
-  - dotnet build Renci.SshNet.sln -c Debug -f net7.0
-
 for:
 -
   matrix:
     only:
       - image: Ubuntu2204
+      
+  build_script:
+    - dotnet build Renci.SshNet.sln -c Debug -f net7.0
   
   test_script:
     - sh: echo "Run unit tests"
 #    - sudo tcpdump -i docker0 -w artifacts/tcpdump.pcap -U &
-    - sh: dotnet test --filter ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - sh: dotnet test -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+#    - sh: dotnet test --filter ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 #    - killall tcpdump
     - sh: echo "Run integration tests"
     - sh: dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_integration_test_net_7_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
@@ -32,6 +33,9 @@ for:
   matrix:
     only:
       - image: Visual Studio 2022
+  
+  build_script:
+    - dotnet build Renci.SshNet.sln -c Debug
   
   test_script:
 #    - netsh trace start capture=yes tracefile=trace.etl

@@ -4,14 +4,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class TestMethodForPlatformAttribute : TestMethodAttribute
+    public sealed class TestMethodForPlatformAttribute : TestMethodAttribute
     {
         public TestMethodForPlatformAttribute(string platform)
         {
             Platform = OSPlatform.Create(platform);
         }
 
-        public OSPlatform Platform { get; set; }
+        public OSPlatform Platform { get; }
 
         public override TestResult[] Execute(ITestMethod testMethod)
         {

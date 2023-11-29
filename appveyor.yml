@@ -12,6 +12,9 @@ for:
   matrix:
     only:
       - image: Ubuntu2204
+  
+  environment:
+    APPVEYOR_BAKE_IMAGE: Ubuntu2204_dotnet_7_0_403  
       
   install:
     - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0=7.0.403-1
@@ -36,7 +39,10 @@ for:
   matrix:
     only:
       - image: Visual Studio 2022
-  
+    
+  environment:
+    APPVEYOR_BAKE_IMAGE: Visual_Studio_2022_dotnet_7_0_403  
+    
   install:
     - ps: choco install dotnet-7.0-sdk --version=7.0.403
   

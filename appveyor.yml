@@ -17,7 +17,7 @@ for:
     - sh: curl -sSL https://dot.net/v1/dotnet-install.sh | sudo bash /dev/stdin --version 7.0.403
       
   before_build:
-    - sh: mkdir artifacts  
+    - sh: mkdir artifacts -p
           
   build_script:
     - echo build
@@ -44,7 +44,7 @@ for:
     - ps: choco install dotnet-7.0-sdk --version=7.0.403
   
   before_build:
-    - ps: mkdir artifacts
+    - ps: mkdir artifacts -f
     # Run a separate PowerShell process because the script calls exit, so it will end the current PowerShell session.
     #- ps: powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) --channel 7.0"
   

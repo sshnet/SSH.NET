@@ -8,14 +8,14 @@ namespace Renci.SshNet.Tests.Common
     {
         public TestMethodForPlatformAttribute(string platform)
         {
-            Platform = OSPlatform.Create(platform);
+            Platform = platform;
         }
 
-        public OSPlatform Platform { get; }
+        public string Platform { get; }
 
         public override TestResult[] Execute(ITestMethod testMethod)
         {
-            if (RuntimeInformation.IsOSPlatform(Platform))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create(Platform)))
             {
                 return base.Execute(testMethod);
             }

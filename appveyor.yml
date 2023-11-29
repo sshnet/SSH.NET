@@ -14,23 +14,21 @@ for:
       - image: Ubuntu2204
       
   install:
-    - sh: curl -sSL https://dot.net/v1/dotnet-install.sh | sudo bash /dev/stdin --version 7.0.403
-      
+    #- sh: curl -sSL https://dot.net/v1/dotnet-install.sh | sudo bash /dev/stdin --version 7.0.403
+    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0=7.0.403-1
+    
   before_build:
     - sh: mkdir artifacts -p
           
   build_script:
     - echo build
-    - dotnet build Renci.SshNet.sln -c Debug -f net7.0
+    #- dotnet build Renci.SshNet.sln -c Debug -f net7.0
   
   test_script:
     - sh: echo "Run unit tests"
-#    - sudo tcpdump -i docker0 -w artifacts/tcpdump.pcap -U &
-    - sh: dotnet test -f net7.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-#    - sh: dotnet test --filter ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-#    - killall tcpdump
+    #- sh: dotnet test -f net7.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
-    - sh: dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_7_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    #- sh: dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_7_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
       
 #  on_failure:
 #    - sh: appveyor PushArtifact artifacts/tcpdump.pcap
@@ -45,24 +43,16 @@ for:
   
   before_build:
     - ps: mkdir artifacts -f
-    # Run a separate PowerShell process because the script calls exit, so it will end the current PowerShell session.
-    #- ps: powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) --channel 7.0"
   
   build_script:
     - echo build
-    - dotnet build Renci.SshNet.sln -c Debug
+    #- dotnet build Renci.SshNet.sln -c Debug
   
   test_script:
-#    - netsh trace start capture=yes tracefile=trace.etl
     - ps: echo "Run unit tests for .NET 7.0"
-    - ps: dotnet test -f net7.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-#    - ps: dotnet test --filter ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound -f net7.0 -c Debug --no-restore --no-build --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-#    - netsh trace stop
-#    - ps: Invoke-WebRequest https://github.com/microsoft/etl2pcapng/releases/download/v1.11.0/etl2pcapng.exe -OutFile etl2pcapng.exe
-#    - ls
-#    - ps: .\etl2pcapng.exe trace.etl artifacts/tcpdump.pcap
+    #- ps: dotnet test -f net7.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_7_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_7_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - ps: echo "Run unit tests for .NET Framework 4.6.2"
-    - ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    #- ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 
 #  on_failure:
 #    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap

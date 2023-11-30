@@ -53,6 +53,14 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
             SshServerPort = _sshServer.GetMappedPublicPort(22);
             SshServerHostName = _sshServer.Hostname;
+
+            // Socket fails on Linux, reporting inability early. This is the Linux behavior by design.
+            // https://github.com/dotnet/runtime/issues/47484#issuecomment-769239699
+            // At this point we have to wait until the ssh server in the container is available
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                Thread.Sleep(300);
+            }
         }
 
         public async Task DisposeAsync()

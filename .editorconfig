@@ -65,6 +65,12 @@ dotnet_diagnostic.S1135.severity = none
 # We sometimes return null to avoid allocating an empty List<T>.
 dotnet_diagnostic.S1168.severity = none
 
+# S1144: Unused private types or members should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1144
+#
+# This is a duplicate of IDE0051.
+dotnet_diagnostic.S1144.severity = none
+
 # S1172: Unused method parameters should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1172
 #
@@ -88,6 +94,12 @@ dotnet_diagnostic.S1854.severity = none
 #
 # The analysis is not precise enough, leading to false positives.
 dotnet_diagnostic.S2259.severity = none
+
+# S2292: Trivial properties should be auto-implemented
+# https://rules.sonarsource.com/csharp/RSPEC-2292
+#
+# This is a duplicate of IDE0032.
+dotnet_diagnostic.S2292.severity = none
 
 # S2445: Blocks should be synchronized on read-only fields
 # https://rules.sonarsource.com/csharp/RSPEC-2445
@@ -150,11 +162,29 @@ dotnet_diagnostic.S3267.severity = none
 # consider enabling S3376 in favor of MA0058.
 dotnet_diagnostic.S3376.severity = none
 
+# S3442: "abstract" classes should not have "public" constructors
+# https://rules.sonarsource.com/csharp/RSPEC-3442
+#
+# This is a duplicate of MA0017.
+dotnet_diagnostic.S3442.severity = none
+
+# S3450: Parameters with "[DefaultParameterValue]" attributes should also be marked "[Optional]"
+# https://rules.sonarsource.com/csharp/RSPEC-3450
+#
+# This is a duplicate of MA0087.
+dotnet_diagnostic.S3450.severity = none
+
 # S3871: Exception types should be "public"
 # https://rules.sonarsource.com/csharp/RSPEC-3871
 #
 # This is a duplicate of CA1064.
 dotnet_diagnostic.S3871.severity = none
+
+# S3903: Types should be defined in named namespaces
+# https://rules.sonarsource.com/csharp/RSPEC-3903
+#
+# This is a duplicate of MA0047.
+dotnet_diagnostic.S3903.severity = none
 
 # S3925: "ISerializable" should be implemented correctly
 # https://rules.sonarsource.com/csharp/RSPEC-3925

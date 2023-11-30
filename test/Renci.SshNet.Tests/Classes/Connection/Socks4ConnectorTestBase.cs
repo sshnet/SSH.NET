@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                      777,
+                                      1030,
                                       "user",
                                       ProxyTypes.Socks4,
                                       IPAddress.Loopback.ToString(),

@@ -65,6 +65,12 @@ dotnet_diagnostic.S1135.severity = none
 # We sometimes return null to avoid allocating an empty List<T>.
 dotnet_diagnostic.S1168.severity = none
 
+# S1144: Unused private types or members should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1144
+#
+# This is a duplicate of IDE0051.
+dotnet_diagnostic.S1144.severity = none
+
 # S1172: Unused method parameters should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1172
 #
@@ -88,6 +94,12 @@ dotnet_diagnostic.S1854.severity = none
 #
 # The analysis is not precise enough, leading to false positives.
 dotnet_diagnostic.S2259.severity = none
+
+# S2292: Trivial properties should be auto-implemented
+# https://rules.sonarsource.com/csharp/RSPEC-2292
+#
+# This is a duplicate of IDE0032.
+dotnet_diagnostic.S2292.severity = none
 
 # S2445: Blocks should be synchronized on read-only fields
 # https://rules.sonarsource.com/csharp/RSPEC-2445
@@ -150,11 +162,29 @@ dotnet_diagnostic.S3267.severity = none
 # consider enabling S3376 in favor of MA0058.
 dotnet_diagnostic.S3376.severity = none
 
+# S3442: "abstract" classes should not have "public" constructors
+# https://rules.sonarsource.com/csharp/RSPEC-3442
+#
+# This is a duplicate of MA0017.
+dotnet_diagnostic.S3442.severity = none
+
+# S3450: Parameters with "[DefaultParameterValue]" attributes should also be marked "[Optional]"
+# https://rules.sonarsource.com/csharp/RSPEC-3450
+#
+# This is a duplicate of MA0087.
+dotnet_diagnostic.S3450.severity = none
+
 # S3871: Exception types should be "public"
 # https://rules.sonarsource.com/csharp/RSPEC-3871
 #
 # This is a duplicate of CA1064.
 dotnet_diagnostic.S3871.severity = none
+
+# S3903: Types should be defined in named namespaces
+# https://rules.sonarsource.com/csharp/RSPEC-3903
+#
+# This is a duplicate of MA0047.
+dotnet_diagnostic.S3903.severity = none
 
 # S3925: "ISerializable" should be implemented correctly
 # https://rules.sonarsource.com/csharp/RSPEC-3925
@@ -290,6 +320,9 @@ dotnet_diagnostic.SA1520.severity = none
 #
 # We do not use file headers.
 dotnet_diagnostic.SA1633.severity = none
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
 
 # SA1648: <inheritdoc> must be used with inheriting class
 #
@@ -554,6 +587,18 @@ dotnet_code_quality.CA1859.api_surface = all
 #
 # This is similar to, but less powerful than, MA0015.
 dotnet_diagnostic.CA2208.severity = none
+
+# CA5358: Do Not Use Unsafe Cipher Modes / Review cipher mode usage with cryptography experts
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5358
+#
+# We use ECB mode as the basis for other modes (e.g. CTR)
+dotnet_diagnostic.CA5358.severity = none
+
+# CA5401: Do not use CreateEncryptor with non-default IV
+# https://learn.microsoft.com/en-gb/dotnet/fundamentals/code-analysis/quality-rules/ca5401
+#
+# We need to specify the IV.
+dotnet_diagnostic.CA5401.severity = none
 
 #### Roslyn IDE analyser rules ####
 

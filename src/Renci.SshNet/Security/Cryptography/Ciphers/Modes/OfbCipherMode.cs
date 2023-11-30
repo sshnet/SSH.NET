@@ -50,13 +50,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 
             _ = Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
+            Buffer.BlockCopy(_ivOutput, 0, IV, 0, IV.Length);
+
             for (var i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte) (_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
-
-            Buffer.BlockCopy(IV, _blockSize, IV, 0, IV.Length - _blockSize);
-            Buffer.BlockCopy(outputBuffer, outputOffset, IV, IV.Length - _blockSize, _blockSize);
 
             return _blockSize;
         }

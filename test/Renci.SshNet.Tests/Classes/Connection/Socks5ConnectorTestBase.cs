@@ -40,7 +40,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                      777,
+                                      1029,
                                       "user",
                                       ProxyTypes.Socks5,
                                       IPAddress.Loopback.ToString(),

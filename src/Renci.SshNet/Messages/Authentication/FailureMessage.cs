@@ -60,5 +60,13 @@ namespace Renci.SshNet.Messages.Authentication
         {
             session.OnUserAuthenticationFailureReceived(this);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+#pragma warning disable MA0089 // Optimize string method usage
+            return $"SSH_MSG_USERAUTH_FAILURE {string.Join(",", AllowedAuthentications)} ({nameof(PartialSuccess)}:{PartialSuccess})";
+#pragma warning restore MA0089 // Optimize string method usage
+        }
     }
 }

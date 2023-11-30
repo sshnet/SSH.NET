@@ -59,7 +59,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             // At this point we have to wait until the ssh server in the container is available
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                Thread.Sleep(300);
+                await Task.Delay(300);
             }
         }
 

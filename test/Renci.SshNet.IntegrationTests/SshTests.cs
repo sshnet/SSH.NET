@@ -616,8 +616,8 @@ namespace Renci.SshNet.IntegrationTests
             var hostAddresses = Dns.GetHostAddresses(Dns.GetHostName());
             var ipv4HostAddress = hostAddresses.First(p => p.AddressFamily == AddressFamily.InterNetwork);
 
-            var endpoint1 = new IPEndPoint(ipv4HostAddress, 666);
-            var endpoint2 = new IPEndPoint(ipv4HostAddress, 667);
+            var endpoint1 = new IPEndPoint(ipv4HostAddress, 10000);
+            var endpoint2 = new IPEndPoint(ipv4HostAddress, 10001);
 
             var bytesReceivedOnListener1 = new List<byte>();
             var bytesReceivedOnListener2 = new List<byte>();
@@ -635,7 +635,7 @@ namespace Renci.SshNet.IntegrationTests
                 client.Connect();
 
                 var forwardedPort1 = new ForwardedPortRemote(IPAddress.Loopback,
-                                                             10000,
+                                                             10002,
                                                              endpoint1.Address,
                                                              (uint)endpoint1.Port);
                 forwardedPort1.Exception += (sender, args) => Console.WriteLine(@"forwardedPort1 exception: " + args.Exception);
@@ -643,7 +643,7 @@ namespace Renci.SshNet.IntegrationTests
                 forwardedPort1.Start();
 
                 var forwardedPort2 = new ForwardedPortRemote(IPAddress.Loopback,
-                                                             10001,
+                                                             10003,
                                                              endpoint2.Address,
                                                              (uint)endpoint2.Port);
                 forwardedPort2.Exception += (sender, args) => Console.WriteLine(@"forwardedPort2 exception: " + args.Exception);

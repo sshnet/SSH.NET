@@ -193,8 +193,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
             expectedSocksRequest.Add(0x00);
             expectedSocksRequest.Add(0x01);
             // Destination port
-            expectedSocksRequest.Add(0x03);
-            expectedSocksRequest.Add(0x09);
+            expectedSocksRequest.Add(0x04);
+            expectedSocksRequest.Add(0x05);
 
             var errorText = string.Format("Expected:{0}{1}{0}but was:{0}{2}",
                                           Environment.NewLine,

@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             watch.Stop();
 
-            Assert.IsTrue(watch.ElapsedMilliseconds > 200);
+            Assert.IsTrue(watch.ElapsedMilliseconds >= 200);
             Assert.IsTrue(watch.ElapsedMilliseconds < 250);
         }
 

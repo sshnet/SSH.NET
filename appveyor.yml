@@ -12,7 +12,7 @@ for:
       - image: Ubuntu2204
 
   install:
-    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
+    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0=8.0.100-1
     
   before_build:
     - sh: mkdir artifacts -p

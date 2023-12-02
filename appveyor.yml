@@ -23,15 +23,15 @@ for:
 
   test_script:
     - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-build --collect="Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - sh: dotnet test -f net8.0 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
-    - sh: dotnet test -c Debug --no-build --collect="Code Coverage" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - sh: dotnet test -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   after_test:
     - ps: |
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
-        .\codecov.exe -f *.coverage.xml
+        .\codecov.exe -f *.coverage.*.xml
 
 #  on_failure:
 #    - sh: appveyor PushArtifact artifacts/tcpdump.pcap
@@ -53,12 +53,12 @@ for:
 
   test_script:
     - ps: echo "Run unit tests for .NET 8.0"
-    - ps: dotnet test -f net8.0 -c Debug --no-build --collect="Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: dotnet test -f net8.0 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - ps: echo "Run unit tests for .NET Framework 4.6.2"
-    - ps: dotnet test -f net462 -c Debug --no-build --collect="Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: dotnet test -f net462 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 
   after_test:
-    - ps: .\codecov.exe -f *.coverage.xml
+    - ps: .\codecov.exe -f *.coverage.*.xml
 
 #  on_failure:
 #    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap

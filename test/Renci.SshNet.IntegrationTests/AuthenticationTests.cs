@@ -161,7 +161,7 @@ namespace Renci.SshNet.IntegrationTests
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod());
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 try
@@ -187,7 +187,7 @@ namespace Renci.SshNet.IntegrationTests
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod());
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
@@ -205,7 +205,7 @@ namespace Renci.SshNet.IntegrationTests
                              .Restart();
 
             var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethod(),
-                                                               _authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod());
+                                                               _authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
@@ -243,7 +243,7 @@ namespace Renci.SshNet.IntegrationTests
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod(),
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod(),
                                                                _authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey());
             using (var client = new SftpClient(connectionInfo))
             {
@@ -275,14 +275,14 @@ namespace Renci.SshNet.IntegrationTests
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod(),
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod(),
                                                                _authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
             }
 
-            connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod());
+            connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
@@ -297,13 +297,13 @@ namespace Renci.SshNet.IntegrationTests
                              .Update()
                              .Restart();
 
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod());
+            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod());
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
             }
 
-            connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegulatUserPasswordAuthenticationMethod(),
+            connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPasswordAuthenticationMethod(),
                                                            _authenticationMethodFactory.CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey());
             using (var client = new SftpClient(connectionInfo))
             {
@@ -422,6 +422,36 @@ namespace Renci.SshNet.IntegrationTests
 
             Assert.AreEqual(connectionInfo.Host, SshServerHostName);
             Assert.AreEqual(connectionInfo.Username, User.UserName);
+        }
+
+        [TestMethod]
+        public void KeyboardInteractive_NoResponseSet_ThrowsSshAuthenticationException()
+        {
+            // ...instead of a cryptic ArgumentNullException
+            // https://github.com/sshnet/SSH.NET/issues/382
+
+            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "keyboard-interactive")
+                             .WithChallengeResponseAuthentication(true)
+                             .WithKeyboardInteractiveAuthentication(true)
+                             .WithUsePAM(true)
+                             .Update()
+                             .Restart();
+
+            var connectionInfo = _connectionInfoFactory.Create(new KeyboardInteractiveAuthenticationMethod(Users.Regular.UserName));
+
+            using (var client = new SftpClient(connectionInfo))
+            {
+                try
+                {
+                    client.Connect();
+                    Assert.Fail();
+                }
+                catch (SshAuthenticationException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.IsTrue(ex.Message.StartsWith("AuthenticationPrompt.Response is null for prompt \"Password: \""), $"Message was \"{ex.Message}\"");
+                }
+            }
         }
     }
 }

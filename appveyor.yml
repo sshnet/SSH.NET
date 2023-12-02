@@ -23,9 +23,9 @@ for:
 
   test_script:
     - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - sh: dotnet test -f net8.0 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true  test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
-    - sh: dotnet test -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - sh: dotnet test -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   after_test:
     - ps: |
@@ -53,9 +53,9 @@ for:
 
   test_script:
     - ps: echo "Run unit tests for .NET 8.0"
-    - ps: dotnet test -f net8.0 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: dotnet test -f net8.0 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - ps: echo "Run unit tests for .NET Framework 4.6.2"
-    - ps: dotnet test -f net462 -c Debug --no-build --collect "XPlat Code Coverage" test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: dotnet test -f net462 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 
   after_test:
     - ps: .\codecov.exe -f *.coverage.*.xml

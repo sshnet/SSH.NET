@@ -19,7 +19,7 @@ for:
           
   build_script:
     - echo build
-    - dotnet build Renci.SshNet.sln -c Debug -f net8.0
+    - dotnet build Renci.SshNet.sln -c Debug -f net8.0 /p:ContinuousIntegrationBuild=true;EmbedUntrackedSources=true
 
   test_script:
     - echo "Run unit tests"

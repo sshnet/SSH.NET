@@ -28,9 +28,9 @@ for:
     - dotnet test -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   after_test:
-    - curl -Os https://cli.codecov.io/latest/linux/codecov
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - sudo chmod +x codecov
-    - ./codecov.exe -f *.coverage.*.xml
+    - ./codecov -f *.coverage.*.xml
 
 #  on_failure:
 #    - sh: appveyor PushArtifact artifacts/tcpdump.pcap

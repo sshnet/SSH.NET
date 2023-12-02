@@ -30,7 +30,7 @@ for:
   after_test:
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - sudo chmod +x codecov
-    - ./codecov -f *.coverage.*.xml
+    - ./codecov
 
 #  on_failure:
 #    - sh: appveyor PushArtifact artifacts/tcpdump.pcap
@@ -60,7 +60,7 @@ for:
     - ps: |
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
-        .\codecov.exe -f *.coverage.*.xml
+        .\codecov.exe
 
 #  on_failure:
 #    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap

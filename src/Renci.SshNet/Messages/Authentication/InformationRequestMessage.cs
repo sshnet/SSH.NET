@@ -29,7 +29,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets information request prompts.
         /// </summary>
-        public IEnumerable<AuthenticationPrompt> Prompts { get; private set; }
+        public IReadOnlyList<AuthenticationPrompt> Prompts { get; private set; }
 
         /// <summary>
         /// Called when type specific data need to be loaded.

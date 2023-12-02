@@ -158,10 +158,14 @@ namespace Renci.SshNet.Common
             var data = new byte[length];
             var bytesRead = _stream.Read(data, 0, length);
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(length, bytesRead);
+#else
             if (bytesRead < length)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
+#endif
 
             return data;
         }

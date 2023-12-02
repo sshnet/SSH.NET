@@ -519,6 +519,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -528,7 +532,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -660,6 +664,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -669,7 +677,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -951,10 +959,14 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
+#else
             if (value < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
+#endif
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -1005,6 +1017,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -1014,7 +1030,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -1104,6 +1120,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -1113,7 +1133,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>SSH.NET</PackageId>
     <Title>SSH.NET</Title>
     <Version>2023.0.1</Version>

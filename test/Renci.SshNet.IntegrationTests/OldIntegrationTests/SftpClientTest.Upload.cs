@@ -230,15 +230,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 sftp.Disconnect();
 
                 Assert.IsTrue(hashMatches, "Hash does not match");
-                if (!uploadDownloadSizeOk)
-                {
-                    // TODO https://github.com/sshnet/SSH.NET/issues/1253
-                    Assert.Inconclusive("Uploaded and downloaded bytes should match, but test is not stable");
-                }
-                else
-                {
-                    Assert.IsTrue(uploadDownloadSizeOk, "Uploaded and downloaded bytes does not match");
-                }
+                Assert.IsTrue(uploadDownloadSizeOk, "Uploaded and downloaded bytes does not match");
             }
         }
 

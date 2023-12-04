@@ -11,7 +11,7 @@
     <Title>SSH.NET</Title>
     <Version>2023.0.1</Version>
     <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
-    <Copyright>Copyright © Renci 2010-2023</Copyright>
+    <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Renci</Authors>
     <PackageIcon>SS-NET-icon-h500.png</PackageIcon>

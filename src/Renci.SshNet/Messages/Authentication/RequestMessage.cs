@@ -106,6 +106,11 @@ namespace Renci.SshNet.Messages.Authentication
         {
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_REQUEST ({MethodName})";
+        }
     }
 }
-

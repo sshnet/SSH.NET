@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
     /// </summary>
-    public abstract class BaseClient : IBaseClient, IDisposable
+    public abstract class BaseClient : IBaseClient
     {
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.
@@ -152,6 +152,11 @@ namespace Renci.SshNet
         ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
         /// </example>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
@@ -341,7 +346,9 @@ namespace Renci.SshNet
         /// intervals.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+#pragma warning disable S1133 // Deprecated code should be removed
         [Obsolete("Use KeepAliveInterval to send a keep-alive message at regular intervals.")]
+#pragma warning restore S1133 // Deprecated code should be removed
         public void SendKeepAlive()
         {
             CheckDisposed();
@@ -388,13 +395,16 @@ namespace Renci.SshNet
             HostKeyReceived?.Invoke(this, e);
         }
 
+        private void Session_ServerIdentificationReceived(object sender, SshIdentificationEventArgs e)
+        {
+            ServerIdentificationReceived?.Invoke(this, e);
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            DiagnosticAbstraction.Log("Disposing client.");
-
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
@@ -412,14 +422,17 @@ namespace Renci.SshNet
 
             if (disposing)
             {
+                DiagnosticAbstraction.Log("Disposing client.");
+
                 Disconnect();
 
-                if (_ownsConnectionInfo && _connectionInfo != null)
+                if (_ownsConnectionInfo && _connectionInfo is not null)
                 {
                     if (_connectionInfo is IDisposable connectionInfoDisposable)
                     {
                         connectionInfoDisposable.Dispose();
                     }
+
                     _connectionInfo = null;
                 }
 
@@ -433,10 +446,14 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">THe current instance is disposed.</exception>
         protected void CheckDisposed()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
         }
 
         /// <summary>
@@ -525,6 +542,7 @@ namespace Renci.SshNet
         private ISession CreateAndConnectSession()
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -543,6 +561,7 @@ namespace Renci.SshNet
         private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -562,6 +581,7 @@ namespace Renci.SshNet
         {
             session.ErrorOccured -= Session_ErrorOccured;
             session.HostKeyReceived -= Session_HostKeyReceived;
+            session.ServerIdentificationReceived -= Session_ServerIdentificationReceived;
             session.Dispose();
         }
 

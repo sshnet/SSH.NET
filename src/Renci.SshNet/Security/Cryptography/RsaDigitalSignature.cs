@@ -19,7 +19,8 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="rsaKey">The RSA key.</param>
         public RsaDigitalSignature(RsaKey rsaKey)
             : this(rsaKey, HashAlgorithmName.SHA1)
-        { }
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
@@ -65,7 +66,7 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)

@@ -3,7 +3,7 @@
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
-{    
+{
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
@@ -21,7 +21,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.google.com", 80);
+                using var port1 = new ForwardedPortLocal("localhost", 8085, "www.google.com", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
                 {
@@ -102,7 +102,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
+                using var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
                 {

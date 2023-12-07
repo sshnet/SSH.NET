@@ -6,7 +6,7 @@
     internal sealed class RequestMessageNone : RequestMessage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestMessagePassword"/> class.
+        /// Initializes a new instance of the <see cref="RequestMessageNone"/> class.
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>

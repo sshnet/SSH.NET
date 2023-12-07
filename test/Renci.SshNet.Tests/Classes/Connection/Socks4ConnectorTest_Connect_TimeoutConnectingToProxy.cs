@@ -5,6 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
+
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -12,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class Socks4ConnectorTest_Connect_TimeoutConnectingToProxy : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
-        private SshOperationTimeoutException _actualException;
+        private Exception _actualException;
         private Socket _clientSocket;
         private Stopwatch _stopWatch;
 
@@ -55,21 +58,34 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _actualException = ex;
             }
+            catch (SocketException ex)
+            {
+                _actualException = ex;
+            }
             finally
             {
                 _stopWatch.Stop();
             }
         }
 
-        [TestMethod]
-        public void ConnectShouldHaveThrownSshOperationTimeoutException()
+        [TestMethodForPlatform(nameof(OSPlatform.Windows))]
+        public void ConnectShouldHaveThrownSshOperationTimeoutExceptionOnWindows()
         {
             Assert.IsNull(_actualException.InnerException);
+            Assert.IsInstanceOfType<SshOperationTimeoutException>(_actualException);
             Assert.AreEqual(string.Format(CultureInfo.InvariantCulture, "Connection failed to establish within {0} milliseconds.", _connectionInfo.Timeout.TotalMilliseconds), _actualException.Message);
         }
 
-        [TestMethod]
-        public void ConnectShouldHaveRespectedTimeout()
+        [TestMethodForPlatform(nameof(OSPlatform.Linux))]
+        public void ConnectShouldHaveThrownSshOperationTimeoutExceptionOnLinux()
+        {
+            Assert.IsNull(_actualException.InnerException);
+            Assert.IsInstanceOfType<SocketException>(_actualException);
+            Assert.AreEqual("Connection refused", _actualException.Message);
+        }
+
+        [TestMethodForPlatform(nameof(OSPlatform.Windows))]
+        public void ConnectShouldHaveRespectedTimeoutOnWindows()
         {
             var errorText = string.Format("Elapsed: {0}, Timeout: {1}",
                                           _stopWatch.ElapsedMilliseconds,

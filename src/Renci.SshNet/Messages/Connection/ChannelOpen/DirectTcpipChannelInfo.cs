@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "direct-tcpip" channel type
+    /// Used to open "direct-tcpip" channel type.
     /// </summary>
     internal sealed class DirectTcpipChannelInfo : ChannelOpenInfo
     {
@@ -11,7 +11,7 @@ namespace Renci.SshNet.Messages.Connection
         private byte[] _originatorAddress;
 
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string NAME = "direct-tcpip";
 

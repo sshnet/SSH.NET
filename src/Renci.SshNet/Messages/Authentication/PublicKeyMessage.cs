@@ -60,5 +60,11 @@
             WriteBinaryString(PublicKeyAlgorithmName);
             WriteBinaryString(PublicKeyData);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_PK_OK ({Ascii.GetString(PublicKeyAlgorithmName)})";
+        }
     }
 }

@@ -361,11 +361,13 @@ namespace Renci.SshNet
 
             Encryptions = new Dictionary<string, CipherInfo>
                 {
-                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
+                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
                     { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
                     { "blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), padding: null)) },
                     { "twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
                     { "twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
@@ -375,8 +377,6 @@ namespace Renci.SshNet
                     { "arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
                     { "arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
                     { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
-                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
@@ -399,8 +399,10 @@ namespace Renci.SshNet
                     { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
                     { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
-                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); }},
-                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); }},
+#pragma warning disable SA1107 // Code should not contain multiple statements on one line
+                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
+                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
+#pragma warning restore SA1107 // Code should not contain multiple statements on one line
                     { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
                 };
@@ -471,14 +473,28 @@ namespace Renci.SshNet
             AuthenticationBanner?.Invoke(this, new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
         }
 
+        /// <summary>
+        /// Creates a <c>none</c> authentication method.
+        /// </summary>
+        /// <returns>
+        /// A <c>none</c> authentication method.
+        /// </returns>
         IAuthenticationMethod IConnectionInfoInternal.CreateNoneAuthenticationMethod()
         {
             return new NoneAuthenticationMethod(Username);
         }
 
+        /// <summary>
+        /// Gets the supported authentication methods for this connection.
+        /// </summary>
+        /// <value>
+        /// The supported authentication methods for this connection.
+        /// </value>
         IList<IAuthenticationMethod> IConnectionInfoInternal.AuthenticationMethods
         {
+#pragma warning disable S2365 // Properties should not make collection or array copies
             get { return AuthenticationMethods.Cast<IAuthenticationMethod>().ToList(); }
+#pragma warning restore S2365 // Properties should not make collection or array copies
         }
     }
 }

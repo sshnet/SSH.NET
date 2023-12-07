@@ -1,4 +1,8 @@
-﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
+﻿using System.Diagnostics;
+
+using Renci.SshNet.Abstractions;
+
+namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     /// <summary>
     /// The base class for integration tests
@@ -80,6 +84,19 @@
                     testFile.Write(buffer, 0, buffer.Length);
                 }
             }
+        }
+
+        protected void EnableTracing()
+        {
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
+            DiagnosticAbstraction.Source.Listeners.Remove("Default");
+            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
+        }
+
+        protected void DisableTracing()
+        {
+            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
+            DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

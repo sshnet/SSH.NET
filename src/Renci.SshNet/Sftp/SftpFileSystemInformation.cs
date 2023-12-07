@@ -5,10 +5,14 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.
     /// </summary>
+#pragma warning disable SA1649 // File name should match first type name
     public class SftpFileSytemInformation
+#pragma warning restore SA1649 // File name should match first type name
     {
+#pragma warning disable SA1310 // Field names should not contain underscore
         internal const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
         internal const ulong SSH_FXE_STATVFS_ST_NOSUID = 0x2;
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         private readonly ulong _flag;
 
@@ -99,7 +103,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether [supports set uid].
         /// </summary>
         /// <value>
-        ///   <see langword="true"/> if [supports set uid]; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if [supports set uid]; otherwise, <see langword="false"/>.
         /// </value>
         public bool SupportsSetUid
         {

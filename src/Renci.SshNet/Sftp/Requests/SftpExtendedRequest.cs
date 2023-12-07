@@ -15,7 +15,10 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Name
         {
-            get { return _name; }
+            get
+            {
+                return _name;
+            }
             private set
             {
                 _name = value;

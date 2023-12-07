@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
@@ -104,17 +104,28 @@ namespace Renci.SshNet
             }
 
             // find an algorithm that is supported by both client and server
-            var keyExchangeAlgorithmType = (from c in clientAlgorithms
+            var keyExchangeAlgorithm = (from c in clientAlgorithms
                                             from s in serverAlgorithms
                                             where s == c.Key
-                                            select c.Value).FirstOrDefault();
+                                            select c).FirstOrDefault();
 
-            if (keyExchangeAlgorithmType is null)
+            if (Diagnostics.IsEnabled(TraceEventType.Information))
+            {
+                if (Diagnostics.IsEnabled(TraceEventType.Verbose))
+                {
+                    Diagnostics.Log($"Key exchange algorithm: we offer {string.Join(",", clientAlgorithms.Keys)}", TraceEventType.Verbose);
+                    Diagnostics.Log($"Key exchange algorithm: they offer {string.Join(",", serverAlgorithms)}", TraceEventType.Verbose);
+                }
+
+                Diagnostics.Log($"Key exchange algorithm: using {keyExchangeAlgorithm.Key}", TraceEventType.Information);
+            }
+
+            if (keyExchangeAlgorithm.Key is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
+            return keyExchangeAlgorithm.Value.CreateInstance<IKeyExchange>();
         }
 
         /// <summary>
@@ -170,7 +181,10 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
+                if (Diagnostics.IsEnabled(TraceEventType.Error))
+                {
+                    Diagnostics.Log($"Failed to obtain size of file. Allowing maximum {maxPendingReads} pending reads: {ex}", TraceEventType.Error);
+                }
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);

@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
@@ -554,9 +554,9 @@ namespace Renci.SshNet.Channels
                         // SSH_MSG_CHANNEL_CLOSE as response to a SSH_MSG_CHANNEL_CLOSE sent by the
                         // server
                         var closeWaitResult = _session.TryWait(_channelClosedWaitHandle, ConnectionInfo.ChannelCloseTimeout);
-                        if (closeWaitResult != WaitResult.Success)
+                        if (closeWaitResult != WaitResult.Success && Diagnostics.IsEnabled(TraceEventType.Warning))
                         {
-                            DiagnosticAbstraction.Log(string.Format("Wait for channel close not successful: {0:G}.", closeWaitResult));
+                            Diagnostics.Log($"Wait for channel close not successful: {closeWaitResult}.", TraceEventType.Warning);
                         }
                     }
                 }

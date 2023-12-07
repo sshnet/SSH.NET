@@ -571,6 +571,17 @@ MA0053.exceptions_should_be_sealed = true
 # Also report diagnostic for types that define (new) virtual members.
 MA0053.class_with_virtual_member_shoud_be_sealed = true
 
+# MA0076: Do not use implicit culture-sensitive ToString in interpolated strings
+#
+# Interpolated strings have performance benefits.
+dotnet_diagnostic.MA0076.severity = none
+
+# MA0089: Optimize string method usage
+#
+# Duplicate of CA1865-CA1867 /
+# For string.Join, results in verbose code for very little gain.
+dotnet_diagnostic.MA0089.severity = none
+
 # MA0112: Use 'Count > 0' instead of 'Any()'
 #
 # This rule is disabled by default, hence we need to explicitly enable it.

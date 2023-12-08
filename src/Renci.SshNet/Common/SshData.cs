@@ -243,7 +243,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="string"/> that was read.
         /// </returns>
-        protected string ReadString(Encoding encoding)
+        protected string ReadString(Encoding encoding = null)
         {
             return _stream.ReadString(encoding);
         }

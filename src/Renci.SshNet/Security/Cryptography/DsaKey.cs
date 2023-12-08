@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
@@ -15,57 +16,27 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the P.
         /// </summary>
-        public BigInteger P
-        {
-            get
-            {
-                return _privateKey[0];
-            }
-        }
+        public BigInteger P { get; }
 
         /// <summary>
         /// Gets the Q.
         /// </summary>
-        public BigInteger Q
-        {
-            get
-            {
-                return _privateKey[1];
-            }
-        }
+        public BigInteger Q { get; }
 
         /// <summary>
         /// Gets the G.
         /// </summary>
-        public BigInteger G
-        {
-            get
-            {
-                return _privateKey[2];
-            }
-        }
+        public BigInteger G { get; }
 
         /// <summary>
         /// Gets public key Y.
         /// </summary>
-        public BigInteger Y
-        {
-            get
-            {
-                return _privateKey[3];
-            }
-        }
+        public BigInteger Y { get; }
 
         /// <summary>
         /// Gets private key X.
         /// </summary>
-        public BigInteger X
-        {
-            get
-            {
-                return _privateKey[4];
-            }
-        }
+        public BigInteger X { get; }
 
         /// <summary>
         /// Gets the length of the key.
@@ -94,10 +65,16 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the DSA public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array whose values are:
+        /// <list>
+        /// <item><term>0</term><description><see cref="P"/></description></item>
+        /// <item><term>1</term><description><see cref="Q"/></description></item>
+        /// <item><term>2</term><description><see cref="G"/></description></item>
+        /// <item><term>3</term><description><see cref="Y"/></description></item>
+        /// </list>
         /// </value>
         public override BigInteger[] Public
         {
@@ -105,35 +82,53 @@ namespace Renci.SshNet.Security
             {
                 return new[] { P, Q, G, Y };
             }
-            set
-            {
-                if (value.Length != 4)
-                {
-                    throw new InvalidOperationException("Invalid public key.");
-                }
+        }
 
-                _privateKey = value;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DsaKey"/> class.
+        /// </summary>
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public DsaKey(SshKeyData publicKeyData)
+        {
+            if (publicKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(publicKeyData));
             }
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DsaKey"/> class.
-        /// </summary>
-        public DsaKey()
-        {
-            _privateKey = new BigInteger[5];
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DsaKey"/> class.
-        /// </summary>
-        /// <param name="data">DER encoded private key data.</param>
-        public DsaKey(byte[] data)
-            : base(data)
-        {
-            if (_privateKey.Length != 5)
+            if (publicKeyData.Name != "ssh-dss" || publicKeyData.Keys.Length != 4)
             {
-                throw new InvalidOperationException("Invalid private key.");
+                throw new ArgumentException($"Invalid DSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
+            }
+
+            P = publicKeyData.Keys[0];
+            Q = publicKeyData.Keys[1];
+            G = publicKeyData.Keys[2];
+            Y = publicKeyData.Keys[3];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DsaKey"/> class.
+        /// </summary>
+        /// <param name="privateKeyData">DER encoded private key data.</param>
+        public DsaKey(byte[] privateKeyData)
+        {
+            if (privateKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(privateKeyData));
+            }
+
+            var der = new DerData(privateKeyData);
+            _ = der.ReadBigInteger(); // skip version
+
+            P = der.ReadBigInteger();
+            Q = der.ReadBigInteger();
+            G = der.ReadBigInteger();
+            Y = der.ReadBigInteger();
+            X = der.ReadBigInteger();
+
+            if (!der.IsEndOfData)
+            {
+                throw new InvalidOperationException("Invalid private key (expected EOF).");
             }
         }
 
@@ -147,7 +142,11 @@ namespace Renci.SshNet.Security
         /// <param name="x">The x.</param>
         public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
         {
-            _privateKey = new BigInteger[5] { p, q, g, y, x };
+            P = p;
+            Q = q;
+            G = g;
+            Y = y;
+            X = x;
         }
 
         /// <summary>

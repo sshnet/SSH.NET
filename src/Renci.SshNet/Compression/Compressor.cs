@@ -1,25 +1,26 @@
-﻿using Renci.SshNet.Security;
+﻿using System;
 using System.IO;
-using System;
+
+using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// Represents base class for compression algorithm implementation
+    /// Represents base class for compression algorithm implementation.
     /// </summary>
     public abstract class Compressor : Algorithm, IDisposable
     {
         private readonly ZlibStream _compressor;
         private readonly ZlibStream _decompressor;
-
         private MemoryStream _compressorStream;
         private MemoryStream _decompressorStream;
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets or sets a value indicating whether compression is active.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if compression is active; otherwise, <c>false</c>.
+        /// <see langword="true"/> if compression is active; otherwise, <see langword="false"/>.
         /// </value>
         protected bool IsActive { get; set; }
 
@@ -41,7 +42,7 @@ namespace Renci.SshNet.Compression
         }
 
         /// <summary>
-        /// Initializes the algorithm
+        /// Initializes the algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         public virtual void Init(Session session)
@@ -53,7 +54,9 @@ namespace Renci.SshNet.Compression
         /// Compresses the specified data.
         /// </summary>
         /// <param name="data">Data to compress.</param>
-        /// <returns>Compressed data</returns>
+        /// <returns>
+        /// The compressed data.
+        /// </returns>
         public virtual byte[] Compress(byte[] data)
         {
             return Compress(data, 0, data.Length);
@@ -73,7 +76,9 @@ namespace Renci.SshNet.Compression
             if (!IsActive)
             {
                 if (offset == 0 && length == data.Length)
+                {
                     return data;
+                }
 
                 var buffer = new byte[length];
                 Buffer.BlockCopy(data, offset, buffer, 0, length);
@@ -113,7 +118,9 @@ namespace Renci.SshNet.Compression
             if (!IsActive)
             {
                 if (offset == 0 && length == data.Length)
+                {
                     return data;
+                }
 
                 var buffer = new byte[length];
                 Buffer.BlockCopy(data, offset, buffer, 0, length);
@@ -127,27 +134,25 @@ namespace Renci.SshNet.Compression
             return _decompressorStream.ToArray();
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -175,9 +180,7 @@ namespace Renci.SshNet.Compression
         /// </summary>
         ~Compressor()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

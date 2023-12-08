@@ -1,14 +1,14 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "subsystem" type channel request information
+    /// Represents "subsystem" type channel request information.
     /// </summary>
-    internal class SubsystemRequestInfo : RequestInfo
+    internal sealed class SubsystemRequestInfo : RequestInfo
     {
         private byte[] _subsystemName;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "subsystem";
 

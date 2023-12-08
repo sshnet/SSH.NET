@@ -5,14 +5,19 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains RSA private and public key
+    /// Contains the RSA private and public key.
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
+        private bool _isDisposed;
+        private RsaDigitalSignature _digitalSignature;
 
         /// <summary>
-        /// Gets the Key String.
+        /// Gets the name of the key.
         /// </summary>
+        /// <returns>
+        /// The name of the key.
+        /// </returns>
         public override string ToString()
         {
             return "ssh-rsa";
@@ -21,6 +26,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the modulus.
         /// </summary>
+        /// <value>
+        /// The modulus.
+        /// </value>
         public BigInteger Modulus
         {
             get
@@ -32,6 +40,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the exponent.
         /// </summary>
+        /// <value>
+        /// The exponent.
+        /// </value>
         public BigInteger Exponent
         {
             get
@@ -43,12 +54,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the D.
         /// </summary>
+        /// <value>
+        /// The D.
+        /// </value>
         public BigInteger D
         {
             get
             {
                 if (_privateKey.Length > 2)
+                {
                     return _privateKey[2];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -56,12 +73,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the P.
         /// </summary>
+        /// <value>
+        /// The P.
+        /// </value>
         public BigInteger P
         {
             get
             {
                 if (_privateKey.Length > 3)
+                {
                     return _privateKey[3];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -69,12 +92,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the Q.
         /// </summary>
+        /// <value>
+        /// The Q.
+        /// </value>
         public BigInteger Q
         {
             get
             {
                 if (_privateKey.Length > 4)
+                {
                     return _privateKey[4];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -82,12 +111,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the DP.
         /// </summary>
+        /// <value>
+        /// The DP.
+        /// </value>
         public BigInteger DP
         {
             get
             {
                 if (_privateKey.Length > 5)
+                {
                     return _privateKey[5];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -95,12 +130,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the DQ.
         /// </summary>
+        /// <value>
+        /// The DQ.
+        /// </value>
         public BigInteger DQ
         {
             get
             {
                 if (_privateKey.Length > 6)
+                {
                     return _privateKey[6];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -108,12 +149,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the inverse Q.
         /// </summary>
+        /// <value>
+        /// The inverse Q.
+        /// </value>
         public BigInteger InverseQ
         {
             get
             {
                 if (_privateKey.Length > 7)
+                {
                     return _privateKey[7];
+                }
+
                 return BigInteger.Zero;
             }
         }
@@ -132,18 +179,18 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private RsaDigitalSignature _digitalSignature;
         /// <summary>
-        /// Gets the digital signature.
+        /// Gets the digital signature implementation for this key.
         /// </summary>
-        protected override DigitalSignature DigitalSignature
+        /// <returns>
+        /// An implementation of an RSA digital signature using the SHA-1 hash algorithm.
+        /// </returns>
+        protected internal override DigitalSignature DigitalSignature
         {
             get
             {
-                if (_digitalSignature == null)
-                {
-                    _digitalSignature = new RsaDigitalSignature(this);
-                }
+                _digitalSignature ??= new RsaDigitalSignature(this);
+
                 return _digitalSignature;
             }
         }
@@ -163,7 +210,9 @@ namespace Renci.SshNet.Security
             set
             {
                 if (value.Length != 2)
+                {
                     throw new InvalidOperationException("Invalid private key.");
+                }
 
                 _privateKey = new[] { value[1], value[0] };
             }
@@ -174,7 +223,6 @@ namespace Renci.SshNet.Security
         /// </summary>
         public RsaKey()
         {
-
         }
 
         /// <summary>
@@ -185,7 +233,9 @@ namespace Renci.SshNet.Security
             : base(data)
         {
             if (_privateKey.Length != 8)
+            {
                 throw new InvalidOperationException("Invalid private key.");
+            }
         }
 
         /// <summary>
@@ -199,44 +249,44 @@ namespace Renci.SshNet.Security
         /// <param name="inverseQ">The inverse Q.</param>
         public RsaKey(BigInteger modulus, BigInteger exponent, BigInteger d, BigInteger p, BigInteger q, BigInteger inverseQ)
         {
-            _privateKey = new BigInteger[8];
-            _privateKey[0] = modulus;
-            _privateKey[1] = exponent;
-            _privateKey[2] = d;
-            _privateKey[3] = p;
-            _privateKey[4] = q;
-            _privateKey[5] = PrimeExponent(d, p);
-            _privateKey[6] = PrimeExponent(d, q);
-            _privateKey[7] = inverseQ;
+            _privateKey = new BigInteger[8]
+                {
+                    modulus,
+                    exponent,
+                    d,
+                    p,
+                    q,
+                    PrimeExponent(d, p),
+                    PrimeExponent(d, q),
+                    inverseQ
+                };
         }
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
         {
-            BigInteger pe = prime - new BigInteger(1);
+            var pe = prime - new BigInteger(1);
             return privateExponent % pe;
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -257,9 +307,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         ~RsaKey()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

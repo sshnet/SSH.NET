@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Renci.SshNet.Abstractions
 {
@@ -10,29 +12,28 @@ namespace Renci.SshNet.Abstractions
         /// <param name="millisecondsTimeout">The number of milliseconds for which the thread is suspended.</param>
         public static void Sleep(int millisecondsTimeout)
         {
-#if FEATURE_THREAD_SLEEP
-            System.Threading.Thread.Sleep(millisecondsTimeout);
-#elif FEATURE_THREAD_TAP
-            System.Threading.Tasks.Task.Delay(millisecondsTimeout).GetAwaiter().GetResult();
-#else
-            #error Suspend of the current thread is not implemented.
-#endif
+            Thread.Sleep(millisecondsTimeout);
         }
 
-        public static void ExecuteThreadLongRunning(Action action)
+        /// <summary>
+        /// Creates and starts a long-running <see cref="Task"/> for the specified <see cref="Action"/>.
+        /// </summary>
+        /// <param name="action">The <see cref="Action"/> to start.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="action"/> is <see langword="null"/>.</exception>
+        /// <returns>
+        /// A task that represents the execution of the specified <see cref="Action"/>.
+        /// </returns>
+        public static Task ExecuteThreadLongRunning(Action action)
         {
-            if (action == null)
-                throw new ArgumentNullException("action");
-
-#if FEATURE_THREAD_TAP
-            var taskCreationOptions = System.Threading.Tasks.TaskCreationOptions.LongRunning;
-            System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
-#else
-            new System.Threading.Thread(() => action())
+            if (action is null)
             {
-                IsBackground = true
-            }.Start();
-#endif
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            return Task.Factory.StartNew(action,
+                                         CancellationToken.None,
+                                         TaskCreationOptions.LongRunning,
+                                         TaskScheduler.Current);
         }
 
         /// <summary>
@@ -41,16 +42,12 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-#if FEATURE_THREAD_THREADPOOL
-            if (action == null)
-                throw new ArgumentNullException("action");
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
-            System.Threading.ThreadPool.QueueUserWorkItem(o => action());
-#elif FEATURE_THREAD_TAP
-            System.Threading.Tasks.Task.Run(action);
-#else
-            #error Execution of action in a separate thread is not implemented.
-#endif
+            _ = ThreadPool.QueueUserWorkItem(o => action());
         }
     }
 }

@@ -3,10 +3,15 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "forwarded-tcpip" channel type
+    /// Used to open "forwarded-tcpip" channel type.
     /// </summary>
-    internal class ForwardedTcpipChannelInfo : ChannelOpenInfo
+    internal sealed class ForwardedTcpipChannelInfo : ChannelOpenInfo
     {
+        /// <summary>
+        /// Specifies channel open type.
+        /// </summary>
+        public const string NAME = "forwarded-tcpip";
+
         private byte[] _connectedAddress;
         private byte[] _originatorAddress;
 
@@ -14,15 +19,15 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="ForwardedTcpipChannelInfo"/> class from the
         /// specified data.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public ForwardedTcpipChannelInfo(byte[] data)
         {
             Load(data);
         }
 
         /// <summary>
-        /// Initializes a new <see cref="ForwardedTcpipChannelInfo"/> instance with the specified connector
-        /// address and port, and originator address and port.
+        /// Initializes a new instance of the <see cref="ForwardedTcpipChannelInfo"/> class with the
+        /// specified connector address and port, and originator address and port.
         /// </summary>
         public ForwardedTcpipChannelInfo(string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
         {
@@ -31,11 +36,6 @@ namespace Renci.SshNet.Messages.Connection
             OriginatorAddress = originatorAddress;
             OriginatorPort = originatorPort;
         }
-
-        /// <summary>
-        /// Specifies channel open type
-        /// </summary>
-        public const string NAME = "forwarded-tcpip";
 
         /// <summary>
         /// Gets the type of the channel to open.
@@ -51,6 +51,9 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the connected address.
         /// </summary>
+        /// <value>
+        /// The connected address.
+        /// </value>
         public string ConnectedAddress
         {
             get { return Utf8.GetString(_connectedAddress, 0, _connectedAddress.Length); }
@@ -60,11 +63,17 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the connected port.
         /// </summary>
+        /// <value>
+        /// The connected port.
+        /// </value>
         public uint ConnectedPort { get; private set; }
 
         /// <summary>
         /// Gets the originator address.
         /// </summary>
+        /// <value>
+        /// The originator address.
+        /// </value>
         public string OriginatorAddress
         {
             get { return Utf8.GetString(_originatorAddress, 0, _originatorAddress.Length); }
@@ -74,6 +83,9 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the originator port.
         /// </summary>
+        /// <value>
+        /// The originator port.
+        /// </value>
         public uint OriginatorPort { get; private set; }
 
         /// <summary>

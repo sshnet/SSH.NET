@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Renci.SshNet.Common;
 using System.IO;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
@@ -16,11 +17,11 @@ namespace Renci.SshNet.Sftp
         public int FilesRead { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpListDirectoryAsyncResult" /> class.
+        /// Initializes a new instance of the <see cref="SftpSynchronizeDirectoriesAsyncResult" /> class.
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        public SftpSynchronizeDirectoriesAsyncResult(AsyncCallback asyncCallback, Object state)
+        public SftpSynchronizeDirectoriesAsyncResult(AsyncCallback asyncCallback, object state)
             : base(asyncCallback, state)
         {
         }

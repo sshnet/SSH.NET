@@ -62,7 +62,6 @@
         /// </summary>
         public ChannelOpenFailureMessage()
         {
-
         }
 
         /// <summary>

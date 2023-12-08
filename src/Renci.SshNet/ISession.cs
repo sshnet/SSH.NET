@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
-#if FEATURE_TAP
-using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet
 {
@@ -18,7 +17,7 @@ namespace Renci.SshNet
     internal interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets or sets the connection info.
+        /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
@@ -27,7 +26,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the session is connected.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the session is connected; otherwise, <see langword="false"/>.
         /// </value>
         bool IsConnected { get; }
 
@@ -44,7 +43,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <value>
         /// A <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete, or
-        /// <c>null</c> when the session has not been connected.
+        /// <see langword="null"/> when the session has not been connected.
         /// </value>
         WaitHandle MessageListenerCompleted { get; }
 
@@ -57,7 +56,6 @@ namespace Renci.SshNet
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         void Connect();
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects to the server.
         /// </summary>
@@ -68,7 +66,6 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         Task ConnectAsync(CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Create a new SSH session channel.
@@ -89,6 +86,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
+        /// <param name="remoteChannelNumber">The number of the remote channel.</param>
+        /// <param name="remoteWindowSize">The window size of the remote channel.</param>
+        /// <param name="remoteChannelDataPacketSize">The data packet size of the remote channel.</param>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>
@@ -128,11 +128,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         bool TrySendMessage(Message message);
@@ -259,6 +259,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         event EventHandler<ExceptionEventArgs> ErrorOccured;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.

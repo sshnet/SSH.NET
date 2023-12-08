@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -14,16 +11,31 @@ namespace Renci.SshNet.Messages.Transport
         internal const byte MessageNumber = 2;
 
         /// <summary>
-        /// Gets ignore message data if any.
+        /// Gets ignore message data if this message has been initialised
+        /// with data to be sent. Otherwise, returns an empty array.
         /// </summary>
         public byte[] Data { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
         /// </summary>
         public IgnoreMessage()
         {
-            Data = Array<byte>.Empty;
+            Data = Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        public IgnoreMessage(byte[] data)
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            Data = data;
         }
 
         /// <summary>
@@ -44,37 +56,11 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        public IgnoreMessage(byte[] data)
-        {
-            if (data == null)
-                throw new ArgumentNullException("data");
-
-            Data = data;
-        }
-
-        /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()
         {
-            var dataLength = ReadUInt32();
-            if (dataLength > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
-            }
-
-            if (dataLength > (DataStream.Length - DataStream.Position))
-            {
-                DiagnosticAbstraction.Log("SSH_MSG_IGNORE: Length exceeds data bytes, data ignored.");
-                Data = Array<byte>.Empty;
-            }
-            else
-            {
-                Data = ReadBytes((int) dataLength);
-            }
+            // Do nothing - this data is supposed to be ignored.
         }
 
         /// <summary>

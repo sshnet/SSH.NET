@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -9,35 +8,36 @@ using System.Threading.Tasks;
 namespace Renci.SshNet.Abstractions
 {
     // Async helpers based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/
-
     internal static class SocketExtensions
     {
-        sealed class SocketAsyncEventArgsAwaitable : SocketAsyncEventArgs, INotifyCompletion
+        private sealed class AwaitableSocketAsyncEventArgs : SocketAsyncEventArgs, INotifyCompletion
         {
-            private readonly static Action SENTINEL = () => { };
+            private static readonly Action SENTINEL = () => { };
 
-            private bool isCancelled;
-            private Action continuationAction;
+            private bool _isCancelled;
+            private Action _continuationAction;
 
-            public SocketAsyncEventArgsAwaitable()
+            public AwaitableSocketAsyncEventArgs()
             {
-                Completed += delegate { SetCompleted(); };
+                Completed += (sender, e) => SetCompleted();
             }
 
-            public SocketAsyncEventArgsAwaitable ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
+            public AwaitableSocketAsyncEventArgs ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
             {
                 if (!func(this))
                 {
                     SetCompleted();
                 }
+
                 return this;
             }
 
             public void SetCompleted()
             {
                 IsCompleted = true;
-                var continuation = continuationAction ?? Interlocked.CompareExchange(ref continuationAction, SENTINEL, null);
-                if (continuation != null)
+
+                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, comparand: null);
+                if (continuation is not null)
                 {
                     continuation();
                 }
@@ -45,40 +45,46 @@ namespace Renci.SshNet.Abstractions
 
             public void SetCancelled()
             {
-                isCancelled = true;
+                _isCancelled = true;
                 SetCompleted();
             }
 
-            public SocketAsyncEventArgsAwaitable GetAwaiter() { return this; }
+#pragma warning disable S1144 // Unused private types or members should be removed
+            public AwaitableSocketAsyncEventArgs GetAwaiter()
+#pragma warning restore S1144 // Unused private types or members should be removed
+            {
+                return this;
+            }
 
             public bool IsCompleted { get; private set; }
 
             void INotifyCompletion.OnCompleted(Action continuation)
             {
-                if (continuationAction == SENTINEL || Interlocked.CompareExchange(ref continuationAction, continuation, null) == SENTINEL)
+                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, comparand: null) == SENTINEL)
                 {
                     // We have already completed; run continuation asynchronously
-                    Task.Run(continuation);
+                    _ = Task.Run(continuation);
                 }
             }
 
+#pragma warning disable S1144 // Unused private types or members should be removed
             public void GetResult()
+#pragma warning restore S1144 // Unused private types or members should be removed
             {
-                if (isCancelled)
+                if (_isCancelled)
                 {
                     throw new TaskCanceledException();
                 }
-                else if (IsCompleted)
-                {
-                    if (SocketError != SocketError.Success)
-                    {
-                        throw new SocketException((int)SocketError);
-                    }
-                }
-                else
+
+                if (!IsCompleted)
                 {
                     // We don't support sync/async
                     throw new InvalidOperationException("The asynchronous operation has not yet completed.");
+                }
+
+                if (SocketError != SocketError.Success)
+                {
+                    throw new SocketException((int)SocketError);
                 }
             }
         }
@@ -87,11 +93,15 @@ namespace Renci.SshNet.Abstractions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new SocketAsyncEventArgsAwaitable())
+            using (var args = new AwaitableSocketAsyncEventArgs())
             {
                 args.RemoteEndPoint = remoteEndpoint;
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, false))
+#if NET || NETSTANDARD2_1_OR_GREATER
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ConnectAsync);
                 }
@@ -102,11 +112,15 @@ namespace Renci.SshNet.Abstractions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new SocketAsyncEventArgsAwaitable())
+            using (var args = new AwaitableSocketAsyncEventArgs())
             {
                 args.SetBuffer(buffer, offset, length);
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, false))
+#if NET || NETSTANDARD2_1_OR_GREATER
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ReceiveAsync);
                 }
@@ -116,4 +130,3 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
-#endif

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 #if FEATURE_DNS_SYNC
 #elif FEATURE_DNS_APM
@@ -28,16 +25,16 @@ namespace Renci.SshNet.Abstractions
         /// <summary>
         /// Returns the Internet Protocol (IP) addresses for the specified host.
         /// </summary>
-        /// <param name="hostNameOrAddress">The host name or IP address to resolve</param>
+        /// <param name="hostNameOrAddress">The host name or IP address to resolve.</param>
         /// <returns>
         /// An array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
         /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <see langword="null"/>.</exception>
         /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static IPAddress[] GetHostAddresses(string hostNameOrAddress)
         {
-            // TODO Eliminate sync variant, and implement timeout
+            /* TODO Eliminate sync variant, and implement timeout */
 
 #if FEATURE_DNS_SYNC
             return Dns.GetHostAddresses(hostNameOrAddress);
@@ -92,22 +89,19 @@ namespace Renci.SshNet.Abstractions
 #endif
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Returns the Internet Protocol (IP) addresses for the specified host.
         /// </summary>
-        /// <param name="hostNameOrAddress">The host name or IP address to resolve</param>
+        /// <param name="hostNameOrAddress">The host name or IP address to resolve.</param>
         /// <returns>
         /// A task with result of an array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
         /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <see langword="null"/>.</exception>
         /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static Task<IPAddress[]> GetHostAddressesAsync(string hostNameOrAddress)
         {
             return Dns.GetHostAddressesAsync(hostNameOrAddress);
         }
-#endif
-
     }
 }

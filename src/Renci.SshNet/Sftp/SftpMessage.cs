@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
+
 using Renci.SshNet.Common;
-using System.Globalization;
 
 namespace Renci.SshNet.Sftp
 {
@@ -44,7 +45,7 @@ namespace Renci.SshNet.Sftp
             var startPosition = stream.Position;
 
             // skip 4 bytes for the length of the SFTP message data
-            stream.Seek(sizeOfDataLengthBytes, SeekOrigin.Current);
+            _ = stream.Seek(sizeOfDataLengthBytes, SeekOrigin.Current);
 
             // write the SFTP message data to the stream
             base.WriteBytes(stream);

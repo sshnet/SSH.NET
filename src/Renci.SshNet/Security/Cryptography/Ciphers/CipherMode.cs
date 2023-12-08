@@ -3,10 +3,12 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Base class for cipher mode implementations
+    /// Base class for cipher mode implementations.
     /// </summary>
     public abstract class CipherMode
     {
+#pragma warning disable SA1401 // Fields should be private
+#pragma warning disable SA1306 // Field names should begin with lower-case letter
         /// <summary>
         /// Gets the cipher.
         /// </summary>
@@ -21,6 +23,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Holds block size of the cipher.
         /// </summary>
         protected int _blockSize;
+#pragma warning restore SA1306 // Field names should begin with lower-case letter
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherMode"/> class.

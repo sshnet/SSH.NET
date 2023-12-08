@@ -7,10 +7,10 @@ namespace Renci.SshNet.Messages.Transport
     /// Represents SSH_MSG_KEXECDH_INIT message.
     /// </summary>
     [Message("SSH_MSG_KEX_ECDH_INIT", 30)]
-    internal class KeyExchangeEcdhInitMessage : Message, IKeyExchangedAllowed
+    internal sealed class KeyExchangeEcdhInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
-        /// Gets the client's ephemeral contribution to the ECDH exchange, encoded as an octet string
+        /// Gets the client's ephemeral contribution to the ECDH exchange, encoded as an octet string.
         /// </summary>
         public byte[] QC { get; private set; }
 

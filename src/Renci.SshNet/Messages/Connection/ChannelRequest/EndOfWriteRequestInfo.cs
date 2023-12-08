@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "eow@openssh.com" type channel request information
+    /// Represents "eow@openssh.com" type channel request information.
     /// </summary>
     public class EndOfWriteRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "eow@openssh.com";
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Cryptography;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
@@ -14,13 +13,24 @@ namespace Renci.SshNet.Security.Cryptography
         private HashAlgorithm _hash;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
+        /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class with the SHA-1 hash algorithm.
         /// </summary>
         /// <param name="rsaKey">The RSA key.</param>
         public RsaDigitalSignature(RsaKey rsaKey)
-            : base(new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
+            : this(rsaKey, HashAlgorithmName.SHA1)
         {
-            _hash = CryptoAbstraction.CreateSHA1();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
+        /// </summary>
+        /// <param name="rsaKey">The RSA key.</param>
+        /// <param name="hashAlgorithmName">The hash algorithm to use in the digital signature.</param>
+        public RsaDigitalSignature(RsaKey rsaKey, HashAlgorithmName hashAlgorithmName)
+            : base(ObjectIdentifier.FromHashAlgorithmName(hashAlgorithmName), new RsaCipher(rsaKey))
+        {
+            _hash = CryptoConfig.CreateFromName(hashAlgorithmName.Name) as HashAlgorithm
+                ?? throw new ArgumentException($"Could not create {nameof(HashAlgorithm)} from `{hashAlgorithmName}`.", nameof(hashAlgorithmName));
         }
 
         /// <summary>
@@ -44,18 +54,20 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -76,7 +88,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         ~RsaDigitalSignature()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         #endregion

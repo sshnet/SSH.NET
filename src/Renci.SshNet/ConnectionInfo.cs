@@ -378,19 +378,21 @@ namespace Renci.SshNet
                     { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
                 };
 
+#pragma warning disable IDE0200 // Remove unnecessary lambda expression; We want to prevent instantiating the HashAlgorithm objects.
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    { "hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5) },
-                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
-                    { "hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1) },
-                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
-                    { "hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256) },
-                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
-                    { "hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512) },
+                    { "hmac-sha2-256", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key)) },
+                    { "hmac-sha2-512", new HashInfo(64 * 8, key => CryptoAbstraction.CreateHMACSHA512(key)) },
                     { "hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96)) },
-                    { "hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
-                    { "hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
+                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
+                    { "hmac-ripemd160", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key)) },
+                    { "hmac-ripemd160@openssh.com", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key)) },
+                    { "hmac-sha1", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key)) },
+                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
+                    { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key)) },
+                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
                 };
+#pragma warning restore IDE0200 // Remove unnecessary lambda expression
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {

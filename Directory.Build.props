@@ -27,7 +27,7 @@
         Add the stylecop config to each project.
     -->
   <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" Visible="false" />
   </ItemGroup>
 
   <!--

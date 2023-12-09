@@ -87,7 +87,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Some server may restrict number to prevent authentication attacks.
         /// </remarks>
-        private static readonly SemaphoreLight AuthenticationConnection = new SemaphoreLight(3);
+        private static readonly SemaphoreSlim AuthenticationConnection = new SemaphoreSlim(3);
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -196,7 +196,7 @@ namespace Renci.SshNet
 
         private Compressor _clientCompression;
 
-        private SemaphoreLight _sessionSemaphore;
+        private SemaphoreSlim _sessionSemaphore;
 
         private bool _isDisconnectMessageSent;
 
@@ -213,7 +213,7 @@ namespace Renci.SshNet
         /// <value>
         /// The session semaphore.
         /// </value>
-        public SemaphoreLight SessionSemaphore
+        public SemaphoreSlim SessionSemaphore
         {
             get
             {
@@ -221,7 +221,7 @@ namespace Renci.SshNet
                 {
                     lock (_connectAndLazySemaphoreInitLock)
                     {
-                        _sessionSemaphore ??= new SemaphoreLight(ConnectionInfo.MaxSessions);
+                        _sessionSemaphore ??= new SemaphoreSlim(ConnectionInfo.MaxSessions);
                     }
                 }
 

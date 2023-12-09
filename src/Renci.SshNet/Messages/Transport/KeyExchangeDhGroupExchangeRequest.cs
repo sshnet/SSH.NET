@@ -3,10 +3,25 @@
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REQUEST", MessageNumber)]
     internal sealed class KeyExchangeDhGroupExchangeRequest : Message, IKeyExchangedAllowed
     {
-        internal const byte MessageNumber = 34;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 34;
+            }
+        }
 
         /// <summary>
         /// Gets the minimum size, in bits, of an acceptable group.

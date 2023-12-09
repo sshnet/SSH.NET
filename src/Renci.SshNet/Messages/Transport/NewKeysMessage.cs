@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_NEWKEYS message.
     /// </summary>
-    [Message("SSH_MSG_NEWKEYS", 21)]
     public class NewKeysMessage : Message, IKeyExchangedAllowed
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_NEWKEYS";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 21;
+            }
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

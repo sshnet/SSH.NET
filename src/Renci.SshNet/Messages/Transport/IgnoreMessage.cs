@@ -5,10 +5,25 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_IGNORE message.
     /// </summary>
-    [Message("SSH_MSG_IGNORE", MessageNumber)]
     public class IgnoreMessage : Message
     {
-        internal const byte MessageNumber = 2;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_IGNORE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 2;
+            }
+        }
 
         /// <summary>
         /// Gets ignore message data if this message has been initialised

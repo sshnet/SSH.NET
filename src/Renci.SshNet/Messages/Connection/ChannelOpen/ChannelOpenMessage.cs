@@ -6,12 +6,27 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_OPEN message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_OPEN", MessageNumber)]
     public class ChannelOpenMessage : Message
     {
-        internal const byte MessageNumber = 90;
-
         private byte[] _infoBytes;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_OPEN";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 90;
+            }
+        }
 
         /// <summary>
         /// Gets the type of the channel as ASCII encoded byte array.

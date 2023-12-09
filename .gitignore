@@ -5,7 +5,7 @@ test/**/bin/**
 test/**/obj/**
 
 # MSTest test Results
-src/TestResults/
+TestResults/
 
 # User-specific files 
 *.suo

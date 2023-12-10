@@ -4,7 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+#if !NET
 using System.Text;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -1176,7 +1178,7 @@ namespace Renci.SshNet
             {
                 if (Diagnostics.IsEnabled(TraceEventType.Error))
                 {
-                    Diagnostics.Log($"Failure sending message '{message.GetType().Name}' to server: '{message}' => {ex}", TraceEventType.Error);
+                    Diagnostics.Log($"[{ToHex(SessionId)}] Failure sending message '{message.GetType().Name}' to server: '{message}' => {ex}", TraceEventType.Error);
                 }
 
                 if (ex is SshException or SocketException)
@@ -1744,21 +1746,6 @@ namespace Renci.SshNet
             return message;
         }
 
-        private static string ToHex(byte[] bytes, int offset)
-        {
-            var byteCount = bytes.Length - offset;
-
-            var builder = new StringBuilder(bytes.Length * 2);
-
-            for (var i = offset; i < byteCount; i++)
-            {
-                var b = bytes[i];
-                _ = builder.Append(b.ToString("X2"));
-            }
-
-            return builder.ToString();
-        }
-
         internal static string ToHex(byte[] bytes)
         {
             if (bytes is null)
@@ -1766,7 +1753,19 @@ namespace Renci.SshNet
                 return null;
             }
 
-            return ToHex(bytes, 0);
+#if NET
+            return Convert.ToHexString(bytes);
+#else
+            var builder = new StringBuilder(bytes.Length * 2);
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                var b = bytes[i];
+                _ = builder.Append(b.ToString("X2"));
+            }
+
+            return builder.ToString();
+#endif
         }
 
         /// <summary>

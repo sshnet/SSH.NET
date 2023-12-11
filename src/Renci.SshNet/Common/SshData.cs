@@ -221,7 +221,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected uint ReadUInt32()
         {
-            return Pack.BigEndianToUInt32(ReadBytes(4));
+            return _stream.ReadUInt32();
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected ulong ReadUInt64()
         {
-            return Pack.BigEndianToUInt64(ReadBytes(8));
+            return _stream.ReadUInt64();
         }
 
         /// <summary>

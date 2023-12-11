@@ -119,7 +119,7 @@ namespace Renci.SshNet
         /// This is also used to ensure that <see cref="_socket"/> will not be disposed
         /// while performing a given operation or set of operations on <see cref="_socket"/>.
         /// </remarks>
-        private readonly object _socketDisposeLock = new object();
+        private readonly SemaphoreSlim _socketDisposeLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can connect
@@ -1127,12 +1127,14 @@ namespace Renci.SshNet
         /// </para>
         /// <para>
         /// This method is only to be used when the connection is established, as the locking
-        /// overhead is not required while establising the connection.
+        /// overhead is not required while establishing the connection.
         /// </para>
         /// </remarks>
         private void SendPacket(byte[] packet, int offset, int length)
         {
-            lock (_socketDisposeLock)
+            _socketDisposeLock.Wait();
+
+            try
             {
                 if (!_socket.IsConnected())
                 {
@@ -1140,6 +1142,10 @@ namespace Renci.SshNet
                 }
 
                 SocketAbstraction.Send(_socket, packet, offset, length);
+            }
+            finally
+            {
+                _ = _socketDisposeLock.Release();
             }
         }
 
@@ -1791,7 +1797,9 @@ namespace Renci.SshNet
         /// </remarks>
         private bool IsSocketConnected()
         {
-            lock (_socketDisposeLock)
+            _socketDisposeLock.Wait();
+
+            try
             {
                 if (!_socket.IsConnected())
                 {
@@ -1803,6 +1811,10 @@ namespace Renci.SshNet
                     var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
                     return !(connectionClosedOrDataAvailable && _socket.Available == 0);
                 }
+            }
+            finally
+            {
+                _ = _socketDisposeLock.Release();
             }
         }
 
@@ -1830,7 +1842,9 @@ namespace Renci.SshNet
         {
             if (_socket != null)
             {
-                lock (_socketDisposeLock)
+                _socketDisposeLock.Wait();
+
+                try
                 {
                     if (_socket != null)
                     {
@@ -1860,6 +1874,10 @@ namespace Renci.SshNet
                         DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
                     }
+                }
+                finally
+                {
+                    _ = _socketDisposeLock.Release();
                 }
             }
         }

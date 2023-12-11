@@ -222,11 +222,12 @@ namespace Renci.SshNet.Tests.Classes
             public byte[] Build()
             {
                 var serviceName = _serviceName.ToArray();
+                var target = new ServiceAcceptMessage();
 
                 var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
                 sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
                 sshDataStream.WriteByte(0); // padding length
-                sshDataStream.WriteByte(ServiceAcceptMessage.MessageNumber);
+                sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);
                 return sshDataStream.ToArray();
             }

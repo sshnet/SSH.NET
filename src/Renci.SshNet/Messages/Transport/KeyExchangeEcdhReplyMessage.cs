@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_KEXECDH_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEX_ECDH_REPLY", 31)]
     public class KeyExchangeEcdhReplyMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_ECDH_REPLY";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 31;
+            }
+        }
+
         /// <summary>
         /// Gets a string encoding an X.509v3 certificate containing the server's ECDSA public host key.
         /// </summary>

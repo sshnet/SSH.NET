@@ -158,10 +158,14 @@ namespace Renci.SshNet.Common
             var data = new byte[length];
             var bytesRead = _stream.Read(data, 0, length);
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(length, bytesRead);
+#else
             if (bytesRead < length)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
+#endif
 
             return data;
         }
@@ -217,7 +221,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected uint ReadUInt32()
         {
-            return Pack.BigEndianToUInt32(ReadBytes(4));
+            return _stream.ReadUInt32();
         }
 
         /// <summary>
@@ -229,7 +233,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected ulong ReadUInt64()
         {
-            return Pack.BigEndianToUInt64(ReadBytes(8));
+            return _stream.ReadUInt64();
         }
 
         /// <summary>

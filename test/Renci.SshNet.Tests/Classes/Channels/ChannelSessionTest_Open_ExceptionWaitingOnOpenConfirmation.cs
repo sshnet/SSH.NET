@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localPacketSize;
         private IList<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
-        private SemaphoreLight _sessionSemaphore;
+        private SemaphoreSlim _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
         private Exception _waitOnConfirmationException;
         private SystemException _actualException;
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localWindowSize = (uint) random.Next(2000, 3000);
             _localPacketSize = (uint) random.Next(1000, 2000);
             _initialSessionSemaphoreCount = random.Next(10, 20);
-            _sessionSemaphore = new SemaphoreLight(_initialSessionSemaphoreCount);
+            _sessionSemaphore = new SemaphoreSlim(_initialSessionSemaphoreCount);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _waitOnConfirmationException = new SystemException();

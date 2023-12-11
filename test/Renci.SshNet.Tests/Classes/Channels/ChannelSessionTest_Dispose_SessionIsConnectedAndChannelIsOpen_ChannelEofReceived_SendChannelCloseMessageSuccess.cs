@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private IList<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private ChannelSession _channel;
-        private SemaphoreLight _sessionSemaphore;
+        private SemaphoreSlim _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
 
         protected override void SetupData()
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _initialSessionSemaphoreCount = random.Next(10, 20);
-            _sessionSemaphore = new SemaphoreLight(_initialSessionSemaphoreCount);
+            _sessionSemaphore = new SemaphoreSlim(_initialSessionSemaphoreCount);
         }
 
         protected override void SetupMocks()

@@ -14,7 +14,7 @@ namespace Renci.SshNet.Common
         /// <param name="instruction">The instruction.</param>
         /// <param name="language">The language.</param>
         /// <param name="prompts">The information request prompts.</param>
-        public AuthenticationPromptEventArgs(string username, string instruction, string language, IEnumerable<AuthenticationPrompt> prompts)
+        public AuthenticationPromptEventArgs(string username, string instruction, string language, IReadOnlyList<AuthenticationPrompt> prompts)
             : base(username)
         {
             Instruction = instruction;
@@ -35,6 +35,6 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets server information request prompts.
         /// </summary>
-        public IEnumerable<AuthenticationPrompt> Prompts { get; }
+        public IReadOnlyList<AuthenticationPrompt> Prompts { get; }
     }
 }

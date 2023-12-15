@@ -89,6 +89,13 @@ namespace Renci.SshNet.Tests.Classes
                     var newKeysMessage = new NewKeysMessage();
                     var newKeys = newKeysMessage.GetPacket(8, null);
                     _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+
+                    if (!_authenticationStarted)
+                    {
+                        var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication).Build();
+                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
+                        _authenticationStarted = true;
+                    }
                 };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
@@ -118,13 +125,6 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.BytesReceived += (received, socket) =>
                 {
                     ServerBytesReceivedRegister.Add(received);
-
-                    if (!_authenticationStarted)
-                    {
-                        var serviceAcceptMessage =ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication).Build();
-                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
-                        _authenticationStarted = true;
-                    }
                 };
 
             ServerListener.Start();
@@ -156,7 +156,7 @@ namespace Renci.SshNet.Tests.Classes
                                    .Returns(_keyExchangeMock.Object);
             _ = _keyExchangeMock.Setup(p => p.Name)
                                 .Returns(_keyExchangeAlgorithm);
-            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
+            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
             _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())

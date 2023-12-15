@@ -38,8 +38,9 @@ namespace Renci.SshNet.Security
         /// Starts the key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        void Start(Session session, KeyExchangeInitMessage message);
+        /// <param name="message">The key exchange init message received from the server.</param>
+        /// <param name="sendClientInitMessage">Whether to send a key exchange init message in response.</param>
+        void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage);
 
         /// <summary>
         /// Finishes the key exchange algorithm.

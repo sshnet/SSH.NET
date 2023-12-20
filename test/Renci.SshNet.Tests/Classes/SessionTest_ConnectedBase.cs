@@ -49,6 +49,12 @@ namespace Renci.SshNet.Tests.Classes
         internal SshIdentification ServerIdentification { get; set; }
         protected bool CallSessionConnectWhenArrange { get; set; }
 
+        /// <summary>
+        /// Should the "server" wait for the client kexinit before sending its own.
+        /// A regression test simulating e.g. cisco devices.
+        /// </summary>
+        protected bool WaitForClientKeyExchangeInit { get; set; }
+
         [TestInitialize]
         public void Setup()
         {
@@ -59,16 +65,16 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void TearDown()
         {
-            if (ServerSocket != null)
-            {
-                ServerSocket.Dispose();
-                ServerSocket = null;
-            }
-
             if (ServerListener != null)
             {
                 ServerListener.Dispose();
                 ServerListener = null;
+            }
+
+            if (ServerSocket != null)
+            {
+                ServerSocket.Dispose();
+                ServerSocket = null;
             }
 
             if (Session != null)
@@ -134,34 +140,49 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     ServerSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
+                    // Since we're mocking the protocol version exchange, we'll immediately start KEX upon
                     // having established the connection instead of when the client has been identified
 
-                    var keyExchangeInitMessage = new KeyExchangeInitMessage
-                        {
-                            CompressionAlgorithmsClientToServer = new string[0],
-                            CompressionAlgorithmsServerToClient = new string[0],
-                            EncryptionAlgorithmsClientToServer = new string[0],
-                            EncryptionAlgorithmsServerToClient = new string[0],
-                            KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
-                            LanguagesClientToServer = new string[0],
-                            LanguagesServerToClient = new string[0],
-                            MacAlgorithmsClientToServer = new string[0],
-                            MacAlgorithmsServerToClient = new string[0],
-                            ServerHostKeyAlgorithms = new string[0]
-                        };
-                    var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
-                    _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+                    if (!WaitForClientKeyExchangeInit)
+                    {
+                        SendKeyExchangeInit();
+                    }
                 };
             ServerListener.BytesReceived += (received, socket) =>
                 {
                     ServerBytesReceivedRegister.Add(received);
+
+                    if (WaitForClientKeyExchangeInit && received.Length > 5 && received[5] == 20)
+                    {
+                        // This is the KEXINIT. Send one back.
+                        SendKeyExchangeInit();
+                        WaitForClientKeyExchangeInit = false;
+                    }
                 };
             ServerListener.Start();
 
             ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
 
             CallSessionConnectWhenArrange = true;
+
+            void SendKeyExchangeInit()
+            {
+                var keyExchangeInitMessage = new KeyExchangeInitMessage
+                {
+                    CompressionAlgorithmsClientToServer = new string[0],
+                    CompressionAlgorithmsServerToClient = new string[0],
+                    EncryptionAlgorithmsClientToServer = new string[0],
+                    EncryptionAlgorithmsServerToClient = new string[0],
+                    KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
+                    LanguagesClientToServer = new string[0],
+                    LanguagesServerToClient = new string[0],
+                    MacAlgorithmsClientToServer = new string[0],
+                    MacAlgorithmsServerToClient = new string[0],
+                    ServerHostKeyAlgorithms = new string[0]
+                };
+                var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
+                _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+            }
         }
 
         private void CreateMocks()

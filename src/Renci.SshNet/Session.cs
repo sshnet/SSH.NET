@@ -1788,9 +1788,17 @@ namespace Renci.SshNet
         /// when the value of <see cref="Socket.Available"/> is obtained. To workaround this issue
         /// we synchronize reads from the <see cref="Socket"/>.
         /// </para>
+        /// <para>
+        /// We assume the socket is still connected if the read lock cannot be acquired immediately.
+        /// In this case, we just return <see langword="true"/> without actually waiting to acquire
+        /// the lock. We don't want to wait for the read lock if another thread already has it because
+        /// there are cases where the other thread holding the lock can be waiting indefinitely for
+        /// a socket read operation to complete.
+        /// </para>
         /// </remarks>
         private bool IsSocketConnected()
         {
+#pragma warning disable S2222 // Locks should be released on all paths
             lock (_socketDisposeLock)
             {
                 if (!_socket.IsConnected())
@@ -1798,12 +1806,22 @@ namespace Renci.SshNet
                     return false;
                 }
 
-                lock (_socketReadLock)
+                if (!Monitor.TryEnter(_socketReadLock))
+                {
+                    return true;
+                }
+
+                try
                 {
                     var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
                     return !(connectionClosedOrDataAvailable && _socket.Available == 0);
                 }
+                finally
+                {
+                    Monitor.Exit(_socketReadLock);
+                }
             }
+#pragma warning restore S2222 // Locks should be released on all paths
         }
 
         /// <summary>

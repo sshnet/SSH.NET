@@ -221,6 +221,9 @@ namespace Renci.SshNet.Common
                 return true;
             }
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return left.AsSpan().SequenceEqual(right);
+#else
             if (left.Length != right.Length)
             {
                 return false;
@@ -235,6 +238,7 @@ namespace Renci.SshNet.Common
             }
 
             return true;
+#endif
         }
 
         /// <summary>

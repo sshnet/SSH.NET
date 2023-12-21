@@ -249,12 +249,14 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads the next <see cref="string"/> data type from the SSH data stream.
         /// </summary>
-        /// <param name="encoding">The character encoding to use.</param>
+        /// <param name="encoding">The character encoding to use. Defaults to <see cref="Encoding.UTF8"/>.</param>
         /// <returns>
         /// The <see cref="string"/> read from the SSH data stream.
         /// </returns>
-        public string ReadString(Encoding encoding)
+        public string ReadString(Encoding encoding = null)
         {
+            encoding ??= Encoding.UTF8;
+
             var length = ReadUInt32();
 
             if (length > int.MaxValue)

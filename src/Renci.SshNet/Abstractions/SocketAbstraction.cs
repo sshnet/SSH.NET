@@ -325,10 +325,17 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+#if NET6_0_OR_GREATER
+        public static async Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
-            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
+            return await socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken).ConfigureAwait(false);
         }
+#else
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        {
+            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
+        }
+#endif
 
         public static void Send(Socket socket, byte[] data)
         {

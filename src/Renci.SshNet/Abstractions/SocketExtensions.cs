@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NET6_0_OR_GREATER
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -130,3 +131,4 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
+#endif

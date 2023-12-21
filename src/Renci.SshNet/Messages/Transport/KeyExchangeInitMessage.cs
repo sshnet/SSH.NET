@@ -5,7 +5,6 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEXINIT message.
     /// </summary>
-    [Message("SSH_MSG_KEXINIT", 20)]
     public class KeyExchangeInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
@@ -19,6 +18,24 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         #region Message Properties
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEXINIT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 20;
+            }
+        }
 
         /// <summary>
         /// Gets session cookie.

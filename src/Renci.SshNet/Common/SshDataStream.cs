@@ -188,8 +188,14 @@ namespace Renci.SshNet.Common
         /// </returns>
         public uint ReadUInt32()
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            Span<byte> span = stackalloc byte[4];
+            ReadBytes(span);
+            return System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(span);
+#else
             var data = ReadBytes(4);
             return Pack.BigEndianToUInt32(data);
+#endif // NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         }
 
         /// <summary>
@@ -200,8 +206,14 @@ namespace Renci.SshNet.Common
         /// </returns>
         public ulong ReadUInt64()
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            Span<byte> span = stackalloc byte[8];
+            ReadBytes(span);
+            return System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(span);
+#else
             var data = ReadBytes(8);
             return Pack.BigEndianToUInt64(data);
+#endif // NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         }
 
         /// <summary>
@@ -266,5 +278,21 @@ namespace Renci.SshNet.Common
 
             return data;
         }
+
+#if NETSTANDARD2_1 || NET6_0_OR_GREATER
+        /// <summary>
+        /// Reads data into the specified <paramref name="buffer" />.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="buffer"/> is larger than the total of bytes available.</exception>
+        private void ReadBytes(Span<byte> buffer)
+        {
+            var bytesRead = Read(buffer);
+            if (bytesRead < buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(buffer), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", buffer.Length, bytesRead));
+            }
+        }
+#endif // NETSTANDARD2_1 || NET6_0_OR_GREATER
     }
 }

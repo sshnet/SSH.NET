@@ -160,12 +160,7 @@ namespace Renci.SshNet
         /// <summary>
         /// WaitHandle to signal that key exchange was completed.
         /// </summary>
-        private EventWaitHandle _keyExchangeCompletedWaitHandle = new ManualResetEvent(initialState: false);
-
-        /// <summary>
-        /// WaitHandle to signal that key exchange is in progress.
-        /// </summary>
-        private bool _keyExchangeInProgress;
+        private ManualResetEventSlim _keyExchangeCompletedWaitHandle = new ManualResetEventSlim(initialState: false);
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread.
@@ -643,6 +638,11 @@ namespace Renci.SshNet
                     // Some server implementations might sent this message first, prior to establishing encryption algorithm
                     RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
+                    // Send our key exchange init.
+                    // We need to do this before starting the message listener to avoid the case where we receive the server
+                    // key exchange init and we continue the key exchange before having sent our own init.
+                    SendMessage(ClientInitMessage);
+
                     // Mark the message listener threads as started
                     _ = _messageListenerCompleted.Reset();
 
@@ -651,7 +651,7 @@ namespace Renci.SshNet
                     _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
                     // Wait for key exchange to be completed
-                    WaitOnHandle(_keyExchangeCompletedWaitHandle);
+                    WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
 
                     // If sessionId is not set then its not connected
                     if (SessionId is null)
@@ -757,6 +757,11 @@ namespace Renci.SshNet
             // Some server implementations might sent this message first, prior to establishing encryption algorithm
             RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
+            // Send our key exchange init.
+            // We need to do this before starting the message listener to avoid the case where we receive the server
+            // key exchange init and we continue the key exchange before having sent our own init.
+            SendMessage(ClientInitMessage);
+
             // Mark the message listener threads as started
             _ = _messageListenerCompleted.Reset();
 
@@ -765,7 +770,7 @@ namespace Renci.SshNet
             _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
             // Wait for key exchange to be completed
-            WaitOnHandle(_keyExchangeCompletedWaitHandle);
+            WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
 
             // If sessionId is not set then its not connected
             if (SessionId is null)
@@ -1046,10 +1051,10 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (_keyExchangeInProgress && message is not IKeyExchangedAllowed)
+            if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
             {
                 // Wait for key exchange to be completed
-                WaitOnHandle(_keyExchangeCompletedWaitHandle);
+                WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
             }
 
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
@@ -1394,9 +1399,15 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="KeyExchangeInitMessage"/> message.</param>
         internal void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
-            _keyExchangeInProgress = true;
+            // If _keyExchangeCompletedWaitHandle is already set, then this is a key
+            // re-exchange initiated by the server, and we need to send our own init
+            // message.
+            // Otherwise, the wait handle is not set and this received init is part of the
+            // initial connection for which we have already sent our init, so we shouldn't
+            // send another one.
+            var sendClientInitMessage = _keyExchangeCompletedWaitHandle.IsSet;
 
-            _ = _keyExchangeCompletedWaitHandle.Reset();
+            _keyExchangeCompletedWaitHandle.Reset();
 
             // Disable messages that are not key exchange related
             _sshMessageFactory.DisableNonKeyExchangeMessages();
@@ -1411,7 +1422,7 @@ namespace Renci.SshNet
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
             // Start the algorithm implementation
-            _keyExchange.Start(this, message);
+            _keyExchange.Start(this, message, sendClientInitMessage);
 
             KeyExchangeInitReceived?.Invoke(this, new MessageEventArgs<KeyExchangeInitMessage>(message));
         }
@@ -1477,9 +1488,7 @@ namespace Renci.SshNet
             NewKeysReceived?.Invoke(this, new MessageEventArgs<NewKeysMessage>(message));
 
             // Signal that key exchange completed
-            _ = _keyExchangeCompletedWaitHandle.Set();
-
-            _keyExchangeInProgress = false;
+            _keyExchangeCompletedWaitHandle.Set();
         }
 
         /// <summary>
@@ -1967,7 +1976,7 @@ namespace Renci.SshNet
         private void Reset()
         {
             _ = _exceptionWaitHandle?.Reset();
-            _ = _keyExchangeCompletedWaitHandle?.Reset();
+            _keyExchangeCompletedWaitHandle?.Reset();
             _ = _messageListenerCompleted?.Set();
 
             SessionId = null;
@@ -1975,7 +1984,6 @@ namespace Renci.SshNet
             _isDisconnecting = false;
             _isAuthenticated = false;
             _exception = null;
-            _keyExchangeInProgress = false;
         }
 
         private static SshConnectionException CreateConnectionAbortedByServerException()

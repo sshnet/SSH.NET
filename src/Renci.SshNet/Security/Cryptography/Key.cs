@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
@@ -12,24 +9,17 @@ namespace Renci.SshNet.Security
     public abstract class Key
     {
         /// <summary>
-        /// Specifies array of big integers that represent private key.
-        /// </summary>
-#pragma warning disable SA1401 // Fields should be private
-        protected BigInteger[] _privateKey;
-#pragma warning restore SA1401 // Fields should be private
-
-        /// <summary>
         /// Gets the default digital signature implementation for this key.
         /// </summary>
         protected internal abstract DigitalSignature DigitalSignature { get; }
 
         /// <summary>
-        /// Gets or sets the public key.
+        /// Gets the public key.
         /// </summary>
         /// <value>
         /// The public.
         /// </value>
-        public abstract BigInteger[] Public { get; set; }
+        public abstract BigInteger[] Public { get; }
 
         /// <summary>
         /// Gets the length of the key.
@@ -43,36 +33,6 @@ namespace Renci.SshNet.Security
         /// Gets or sets the key comment.
         /// </summary>
         public string Comment { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Key"/> class.
-        /// </summary>
-        /// <param name="data">DER encoded private key data.</param>
-        protected Key(byte[] data)
-        {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            var der = new DerData(data);
-            _ = der.ReadBigInteger(); // skip version
-
-            var keys = new List<BigInteger>();
-            while (!der.IsEndOfData)
-            {
-                keys.Add(der.ReadBigInteger());
-            }
-
-            _privateKey = keys.ToArray();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Key"/> class.
-        /// </summary>
-        protected Key()
-        {
-        }
 
         /// <summary>
         /// Signs the specified data with the key.

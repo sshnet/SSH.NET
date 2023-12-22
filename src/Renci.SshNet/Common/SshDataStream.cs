@@ -62,8 +62,14 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="uint"/> data to write.</param>
         public void Write(uint value)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            Span<byte> bytes = stackalloc byte[4];
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
+            Write(bytes);
+#else
             var bytes = Pack.UInt32ToBigEndian(value);
             Write(bytes, 0, bytes.Length);
+#endif
         }
 
         /// <summary>
@@ -72,8 +78,14 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="ulong"/> data to write.</param>
         public void Write(ulong value)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            Span<byte> bytes = stackalloc byte[8];
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(bytes, value);
+            Write(bytes);
+#else
             var bytes = Pack.UInt64ToBigEndian(value);
             Write(bytes, 0, bytes.Length);
+#endif
         }
 
         /// <summary>
@@ -181,6 +193,24 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Reads the next <see cref="ushort"/> data type from the SSH data stream.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="ushort"/> read from the SSH data stream.
+        /// </returns>
+        public ushort ReadUInt16()
+        {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            Span<byte> bytes = stackalloc byte[2];
+            ReadBytes(bytes);
+            return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(bytes);
+#else
+            var data = ReadBytes(2);
+            return Pack.BigEndianToUInt16(data);
+#endif
+        }
+
+        /// <summary>
         /// Reads the next <see cref="uint"/> data type from the SSH data stream.
         /// </summary>
         /// <returns>
@@ -219,12 +249,14 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads the next <see cref="string"/> data type from the SSH data stream.
         /// </summary>
-        /// <param name="encoding">The character encoding to use.</param>
+        /// <param name="encoding">The character encoding to use. Defaults to <see cref="Encoding.UTF8"/>.</param>
         /// <returns>
         /// The <see cref="string"/> read from the SSH data stream.
         /// </returns>
-        public string ReadString(Encoding encoding)
+        public string ReadString(Encoding encoding = null)
         {
+            encoding ??= Encoding.UTF8;
+
             var length = ReadUInt32();
 
             if (length > int.MaxValue)
@@ -264,11 +296,10 @@ namespace Renci.SshNet.Common
         /// An array of bytes that was read from the internal buffer.
         /// </returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
-        private byte[] ReadBytes(int length)
+        internal byte[] ReadBytes(int length)
         {
             var data = new byte[length];
             var bytesRead = Read(data, 0, length);
-
             if (bytesRead < length)
             {
                 throw new ArgumentOutOfRangeException(nameof(length), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", length, bytesRead));

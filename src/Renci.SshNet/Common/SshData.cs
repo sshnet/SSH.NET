@@ -155,19 +155,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the number of bytes available to be read.</exception>
         protected byte[] ReadBytes(int length)
         {
-            var data = new byte[length];
-            var bytesRead = _stream.Read(data, 0, length);
-
-#if NET8_0_OR_GREATER
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(length, bytesRead);
-#else
-            if (bytesRead < length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length));
-            }
-#endif
-
-            return data;
+            return _stream.ReadBytes(length);
         }
 
         /// <summary>
@@ -209,7 +197,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="InvalidOperationException">Attempt to read past the end of the stream.</exception>
         protected ushort ReadUInt16()
         {
-            return Pack.BigEndianToUInt16(ReadBytes(2));
+            return _stream.ReadUInt16();
         }
 
         /// <summary>
@@ -243,7 +231,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The <see cref="string"/> that was read.
         /// </returns>
-        protected string ReadString(Encoding encoding)
+        protected string ReadString(Encoding encoding = null)
         {
             return _stream.ReadString(encoding);
         }

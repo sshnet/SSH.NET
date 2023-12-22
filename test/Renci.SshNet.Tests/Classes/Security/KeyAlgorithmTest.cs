@@ -86,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes.Security
 
             CollectionAssert.AreEqual(expectedEncodedSignatureBytes, keyAlgorithm.Sign(data));
 
-            keyAlgorithm = new KeyHostAlgorithm("ssh-rsa", new RsaKey(), GetRsaPublicKeyBytes());
+            keyAlgorithm = new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(GetRsaPublicKeyBytes())));
             Assert.IsTrue(keyAlgorithm.VerifySignature(data, expectedEncodedSignatureBytes));
         }
 
@@ -126,8 +126,8 @@ namespace Renci.SshNet.Tests.Classes.Security
 
             CollectionAssert.AreEqual(expectedEncodedSignatureBytes, keyAlgorithm.Sign(data));
 
-            key = new RsaKey();
-            keyAlgorithm = new KeyHostAlgorithm("rsa-sha2-256", key, GetRsaPublicKeyBytes(), new RsaDigitalSignature(key, HashAlgorithmName.SHA256));
+            key = new RsaKey(new SshKeyData(GetRsaPublicKeyBytes()));
+            keyAlgorithm = new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256));
             Assert.IsTrue(keyAlgorithm.VerifySignature(data, expectedEncodedSignatureBytes));
         }
 
@@ -167,8 +167,8 @@ namespace Renci.SshNet.Tests.Classes.Security
 
             CollectionAssert.AreEqual(expectedEncodedSignatureBytes, keyAlgorithm.Sign(data));
 
-            key = new RsaKey();
-            keyAlgorithm = new KeyHostAlgorithm("rsa-sha2-512", key, GetRsaPublicKeyBytes(), new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
+            key = new RsaKey(new SshKeyData(GetRsaPublicKeyBytes()));
+            keyAlgorithm = new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
             Assert.IsTrue(keyAlgorithm.VerifySignature(data, expectedEncodedSignatureBytes));
         }
 

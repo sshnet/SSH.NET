@@ -573,12 +573,14 @@ namespace Renci.SshNet
             switch (keyType)
             {
                 case "ssh-ed25519":
-                    // public key
-                    publicKey = privateKeyReader.ReadBignum2();
+                    // https://datatracker.ietf.org/doc/html/draft-miller-ssh-agent-11#section-3.2.3
 
-                    // private key
+                    // ENC(A)
+                    _ = privateKeyReader.ReadBignum2();
+
+                    // k || ENC(A)
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
-                    parsedKey = new ED25519Key(publicKey.Reverse(), unencryptedPrivateKey);
+                    parsedKey = new ED25519Key(unencryptedPrivateKey);
                     break;
                 case "ecdsa-sha2-nistp256":
                 case "ecdsa-sha2-nistp384":

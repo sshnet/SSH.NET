@@ -64,6 +64,23 @@ namespace Renci.SshNet.Common
             return data.ToBigInteger();
         }
 
+        public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
+        {
+            var data = bigInt.ToByteArray();
+
+            if (isUnsigned && data[data.Length - 1] == 0)
+            {
+                data = data.Take(data.Length - 1);
+            }
+
+            if (isBigEndian)
+            {
+                _ = data.Reverse();
+            }
+
+            return data;
+        }
+
         /// <summary>
         /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
         /// </summary>

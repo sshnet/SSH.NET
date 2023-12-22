@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -53,12 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             // Also verify RsaKey uses SHA-1 by default
             CollectionAssert.AreEqual(expectedSignedBytes, rsaKey.Sign(data));
 
-            // The following fails due to the _isPrivate decision in RsaCipher.Transform. Is that really correct?
-            //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
-
-            // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default));
-            Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
+            Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
         }
 
         [TestMethod]
@@ -93,15 +87,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
                 0xc4, 0xc3, 0x75, 0x51, 0x5f, 0xb7, 0x7c, 0xbc, 0x55, 0x8d, 0x05, 0xc7, 0xed, 0xc7, 0x52, 0x4a
             }, signedBytes);
 
-
-            // The following fails due to the _isPrivate decision in RsaCipher.Transform. Is that really correct?
-            //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
-
-            // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(
-                new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default),
-                HashAlgorithmName.SHA256);
-            Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
+            Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
         }
 
         [TestMethod]
@@ -136,23 +122,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
                 0xa0, 0x23, 0x08, 0x80, 0xa6, 0x37, 0x70, 0x06, 0xcc, 0x8f, 0xf4, 0xa0, 0x74, 0x53, 0x26, 0x38
             }, signedBytes);
 
-            // The following fails due to the _isPrivate decision in RsaCipher.Transform. Is that really correct?
-            //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
-
-            // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(
-                new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default),
-                HashAlgorithmName.SHA512);
-            Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
-        }
-
-        [TestMethod]
-        public void Constructor_InvalidHashAlgorithm_ThrowsArgumentException()
-        {
-            ArgumentException exception = Assert.ThrowsException<ArgumentException>(
-                () => new RsaDigitalSignature(GetRsaKey(), new HashAlgorithmName("invalid")));
-
-            Assert.AreEqual("hashAlgorithmName", exception.ParamName);
+            Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
         }
 
         private static RsaKey GetRsaKey()

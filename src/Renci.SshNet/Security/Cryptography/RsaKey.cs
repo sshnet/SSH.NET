@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
@@ -11,7 +13,7 @@ namespace Renci.SshNet.Security
     public class RsaKey : Key, IDisposable
     {
         private bool _isDisposed;
-        private RsaDigitalSignature _digitalSignature;
+        private RsaDigitalSignature? _digitalSignature;
 
         /// <summary>
         /// Gets the name of the key.
@@ -23,6 +25,8 @@ namespace Renci.SshNet.Security
         {
             return "ssh-rsa";
         }
+
+        internal RSA RSA { get; }
 
         /// <summary>
         /// Gets the modulus.
@@ -151,6 +155,9 @@ namespace Renci.SshNet.Security
 
             Exponent = publicKeyData.Keys[0];
             Modulus = publicKeyData.Keys[1];
+
+            RSA = RSA.Create();
+            RSA.ImportParameters(GetRSAParameters());
         }
 
         /// <summary>
@@ -180,6 +187,9 @@ namespace Renci.SshNet.Security
             {
                 throw new InvalidOperationException("Invalid private key (expected EOF).");
             }
+
+            RSA = RSA.Create();
+            RSA.ImportParameters(GetRSAParameters());
         }
 
         /// <summary>
@@ -201,6 +211,64 @@ namespace Renci.SshNet.Security
             DP = PrimeExponent(d, p);
             DQ = PrimeExponent(d, q);
             InverseQ = inverseQ;
+
+            RSA = RSA.Create();
+            RSA.ImportParameters(GetRSAParameters());
+        }
+
+        internal RSAParameters GetRSAParameters()
+        {
+            // Specification of the RSAParameters fields (taken from the CryptographicException
+            // thrown when not done correctly):
+
+            // Exponent and Modulus are required. If D is present, it must have the same length
+            // as Modulus. If D is present, P, Q, DP, DQ, and InverseQ are required and must
+            // have half the length of Modulus, rounded up, otherwise they must be omitted.
+
+            // See also https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/RSAKeyFormatHelper.cs#L42
+
+            if (D.IsZero)
+            {
+                // Public key
+                return new RSAParameters()
+                {
+                    Modulus = Modulus.ToByteArray(isUnsigned: true, isBigEndian: true),
+                    Exponent = Exponent.ToByteArray(isUnsigned: true, isBigEndian: true),
+                };
+            }
+
+            var n = Modulus.ToByteArray(isUnsigned: true, isBigEndian: true);
+            var halfModulusLength = (n.Length + 1) / 2;
+
+            return new RSAParameters()
+            {
+                Modulus = n,
+                Exponent = Exponent.ToByteArray(isUnsigned: true, isBigEndian: true),
+                D = ExportKeyParameter(D, n.Length),
+                P = ExportKeyParameter(P, halfModulusLength),
+                Q = ExportKeyParameter(Q, halfModulusLength),
+                DP = ExportKeyParameter(DP, halfModulusLength),
+                DQ = ExportKeyParameter(DQ, halfModulusLength),
+                InverseQ = ExportKeyParameter(InverseQ, halfModulusLength),
+            };
+        }
+
+        // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
+        private static byte[] ExportKeyParameter(BigInteger value, int length)
+        {
+            var target = value.ToByteArray(isUnsigned: true, isBigEndian: true);
+
+            // The BCL crypto is expecting exactly-sized byte arrays (sized to "length").
+            // If our byte array is smaller than required, then size it up.
+            // Otherwise, just return as is: if it is too large, we'll let the BCL throw the error.
+            if (target.Length < length)
+            {
+                var correctlySized = new byte[length];
+                Buffer.BlockCopy(target, 0, correctlySized, length - target.Length, target.Length);
+                return correctlySized;
+            }
+
+            return target;
         }
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
@@ -231,24 +299,11 @@ namespace Renci.SshNet.Security
 
             if (disposing)
             {
-                var digitalSignature = _digitalSignature;
-                if (digitalSignature != null)
-                {
-                    digitalSignature.Dispose();
-                    _digitalSignature = null;
-                }
-
-                _isDisposed = true;
+                _digitalSignature?.Dispose();
+                RSA?.Dispose();
             }
-        }
 
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="RsaKey"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~RsaKey()
-        {
-            Dispose(disposing: false);
+            _isDisposed = true;
         }
     }
 }

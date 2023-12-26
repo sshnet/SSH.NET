@@ -57,10 +57,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
 
             // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(new RsaKey()
-            {
-                Public = rsaKey.Public
-            });
+            var digitalSignaturePublic = new RsaDigitalSignature(new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default));
             Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
         }
 
@@ -101,10 +98,9 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
 
             // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(new RsaKey()
-            {
-                Public = rsaKey.Public
-            }, HashAlgorithmName.SHA256);
+            var digitalSignaturePublic = new RsaDigitalSignature(
+                new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default),
+                HashAlgorithmName.SHA256);
             Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
         }
 
@@ -144,10 +140,9 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             //Assert.IsTrue(digitalSignature.Verify(data, signedBytes));
 
             // 'Workaround': use a key with no private key information
-            var digitalSignaturePublic = new RsaDigitalSignature(new RsaKey()
-            {
-                Public = rsaKey.Public
-            }, HashAlgorithmName.SHA512);
+            var digitalSignaturePublic = new RsaDigitalSignature(
+                new RsaKey(rsaKey.Modulus, rsaKey.Exponent, default, default, default, default),
+                HashAlgorithmName.SHA512);
             Assert.IsTrue(digitalSignaturePublic.Verify(data, signedBytes));
         }
 
@@ -155,7 +150,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         public void Constructor_InvalidHashAlgorithm_ThrowsArgumentException()
         {
             ArgumentException exception = Assert.ThrowsException<ArgumentException>(
-                () => new RsaDigitalSignature(new RsaKey(), new HashAlgorithmName("invalid")));
+                () => new RsaDigitalSignature(GetRsaKey(), new HashAlgorithmName("invalid")));
 
             Assert.AreEqual("hashAlgorithmName", exception.ParamName);
         }

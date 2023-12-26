@@ -290,12 +290,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     callbackCalled = true;
                 }), null);
-                while (!asyncResult.IsCompleted)
-                {
-                    Thread.Sleep(100);
-                }
 
                 cmd.EndExecute(asyncResult);
+
+                Thread.Sleep(100);
 
                 Assert.IsTrue(callbackCalled);
 
@@ -318,12 +316,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     callbackThreadId = Thread.CurrentThread.ManagedThreadId;
                 }), null);
-                while (!asyncResult.IsCompleted)
-                {
-                    Thread.Sleep(100);
-                }
 
                 cmd.EndExecute(asyncResult);
+
+                Thread.Sleep(100);
 
                 Assert.AreNotEqual(currentThreadId, callbackThreadId);
 

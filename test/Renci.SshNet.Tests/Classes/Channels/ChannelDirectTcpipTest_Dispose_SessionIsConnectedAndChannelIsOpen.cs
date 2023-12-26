@@ -175,6 +175,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Act()
         {
             _channel?.Dispose();
+
+            Thread.Sleep(200);
         }
 
         [TestMethod]

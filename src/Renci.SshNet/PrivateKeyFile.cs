@@ -250,11 +250,11 @@ namespace Renci.SshNet
                 case "RSA":
                     var rsaKey = new RsaKey(decryptedData);
                     _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);
@@ -268,11 +268,11 @@ namespace Renci.SshNet
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
                     if (_key is RsaKey parsedRsaKey)
                     {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
                     else
                     {
@@ -337,11 +337,11 @@ namespace Renci.SshNet
                         var p = reader.ReadBigIntWithBits(); // q
                         var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {

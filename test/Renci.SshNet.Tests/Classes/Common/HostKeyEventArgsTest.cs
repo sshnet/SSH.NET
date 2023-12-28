@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             using (var s = GetData("Key.RSA.txt"))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
+                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.Single(x => x.Name == "rsa-sha2-512");
             }
         }
 

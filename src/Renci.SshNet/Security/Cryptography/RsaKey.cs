@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
@@ -29,13 +30,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The modulus.
         /// </value>
-        public BigInteger Modulus
-        {
-            get
-            {
-                return _privateKey[0];
-            }
-        }
+        public BigInteger Modulus { get; }
 
         /// <summary>
         /// Gets the exponent.
@@ -43,13 +38,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The exponent.
         /// </value>
-        public BigInteger Exponent
-        {
-            get
-            {
-                return _privateKey[1];
-            }
-        }
+        public BigInteger Exponent { get; }
 
         /// <summary>
         /// Gets the D.
@@ -57,18 +46,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The D.
         /// </value>
-        public BigInteger D
-        {
-            get
-            {
-                if (_privateKey.Length > 2)
-                {
-                    return _privateKey[2];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger D { get; }
 
         /// <summary>
         /// Gets the P.
@@ -76,18 +54,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The P.
         /// </value>
-        public BigInteger P
-        {
-            get
-            {
-                if (_privateKey.Length > 3)
-                {
-                    return _privateKey[3];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger P { get; }
 
         /// <summary>
         /// Gets the Q.
@@ -95,18 +62,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The Q.
         /// </value>
-        public BigInteger Q
-        {
-            get
-            {
-                if (_privateKey.Length > 4)
-                {
-                    return _privateKey[4];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger Q { get; }
 
         /// <summary>
         /// Gets the DP.
@@ -114,18 +70,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The DP.
         /// </value>
-        public BigInteger DP
-        {
-            get
-            {
-                if (_privateKey.Length > 5)
-                {
-                    return _privateKey[5];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger DP { get; }
 
         /// <summary>
         /// Gets the DQ.
@@ -133,18 +78,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The DQ.
         /// </value>
-        public BigInteger DQ
-        {
-            get
-            {
-                if (_privateKey.Length > 6)
-                {
-                    return _privateKey[6];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger DQ { get; }
 
         /// <summary>
         /// Gets the inverse Q.
@@ -152,18 +86,7 @@ namespace Renci.SshNet.Security
         /// <value>
         /// The inverse Q.
         /// </value>
-        public BigInteger InverseQ
-        {
-            get
-            {
-                if (_privateKey.Length > 7)
-                {
-                    return _privateKey[7];
-                }
-
-                return BigInteger.Zero;
-            }
-        }
+        public BigInteger InverseQ { get; }
 
         /// <summary>
         /// Gets the length of the key.
@@ -196,10 +119,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the RSA public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array with <see cref="Exponent"/> at index 0, and <see cref="Modulus"/>
+        /// at index 1.
         /// </value>
         public override BigInteger[] Public
         {
@@ -207,34 +131,54 @@ namespace Renci.SshNet.Security
             {
                 return new[] { Exponent, Modulus };
             }
-            set
-            {
-                if (value.Length != 2)
-                {
-                    throw new InvalidOperationException("Invalid private key.");
-                }
+        }
 
-                _privateKey = new[] { value[1], value[0] };
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RsaKey"/> class.
+        /// </summary>
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public RsaKey(SshKeyData publicKeyData)
+        {
+            if (publicKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(publicKeyData));
             }
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RsaKey"/> class.
-        /// </summary>
-        public RsaKey()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RsaKey"/> class.
-        /// </summary>
-        /// <param name="data">DER encoded private key data.</param>
-        public RsaKey(byte[] data)
-            : base(data)
-        {
-            if (_privateKey.Length != 8)
+            if (publicKeyData.Name != "ssh-rsa" || publicKeyData.Keys.Length != 2)
             {
-                throw new InvalidOperationException("Invalid private key.");
+                throw new ArgumentException($"Invalid RSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
+            }
+
+            Exponent = publicKeyData.Keys[0];
+            Modulus = publicKeyData.Keys[1];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RsaKey"/> class.
+        /// </summary>
+        /// <param name="privateKeyData">DER encoded private key data.</param>
+        public RsaKey(byte[] privateKeyData)
+        {
+            if (privateKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(privateKeyData));
+            }
+
+            var der = new DerData(privateKeyData);
+            _ = der.ReadBigInteger(); // skip version
+
+            Modulus = der.ReadBigInteger();
+            Exponent = der.ReadBigInteger();
+            D = der.ReadBigInteger();
+            P = der.ReadBigInteger();
+            Q = der.ReadBigInteger();
+            DP = der.ReadBigInteger();
+            DQ = der.ReadBigInteger();
+            InverseQ = der.ReadBigInteger();
+
+            if (!der.IsEndOfData)
+            {
+                throw new InvalidOperationException("Invalid private key (expected EOF).");
             }
         }
 
@@ -249,22 +193,19 @@ namespace Renci.SshNet.Security
         /// <param name="inverseQ">The inverse Q.</param>
         public RsaKey(BigInteger modulus, BigInteger exponent, BigInteger d, BigInteger p, BigInteger q, BigInteger inverseQ)
         {
-            _privateKey = new BigInteger[8]
-                {
-                    modulus,
-                    exponent,
-                    d,
-                    p,
-                    q,
-                    PrimeExponent(d, p),
-                    PrimeExponent(d, q),
-                    inverseQ
-                };
+            Modulus = modulus;
+            Exponent = exponent;
+            D = d;
+            P = p;
+            Q = q;
+            DP = PrimeExponent(d, p);
+            DQ = PrimeExponent(d, q);
+            InverseQ = inverseQ;
         }
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
         {
-            var pe = prime - new BigInteger(1);
+            var pe = prime - BigInteger.One;
             return privateExponent % pe;
         }
 

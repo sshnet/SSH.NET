@@ -43,25 +43,16 @@ namespace Renci.SshNet
         /// <value>
         /// The command timeout.
         /// </value>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute CommandTimeout" language="C#" title="Specify command execution timeout" />
-        /// </example>
         public TimeSpan CommandTimeout { get; set; }
 
         /// <summary>
         /// Gets the command exit status.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand ExitStatus" language="C#" title="Get command execution exit status" />
-        /// </example>
         public int ExitStatus { get; private set; }
 
         /// <summary>
         /// Gets the output stream.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute OutputStream" language="C#" title="Use OutputStream to get command execution output" />
-        /// </example>
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream OutputStream { get; private set; }
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
@@ -69,9 +60,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the extended output stream.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute ExtendedOutputStream" language="C#" title="Use ExtendedOutputStream to get command debug execution output" />
-        /// </example>
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream ExtendedOutputStream { get; private set; }
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
@@ -79,9 +67,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the command execution result.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Result" language="C#" title="Running simple command" />
-        /// </example>
         public string Result
         {
             get
@@ -107,9 +92,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the command execution error.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
-        /// </example>
         public string Error
         {
             get
@@ -177,9 +159,6 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
-        /// </example>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
@@ -301,9 +280,6 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>Command execution result.</returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
-        /// </example>
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndExecute(IAsyncResult asyncResult)
@@ -355,11 +331,6 @@ namespace Renci.SshNet
         /// <returns>
         /// Command execution result.
         /// </returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute" language="C#" title="Simple command execution" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute CommandTimeout" language="C#" title="Specify command execution timeout" />
-        /// </example>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute()

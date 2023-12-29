@@ -5,7 +5,7 @@ test/**/bin/**
 test/**/obj/**
 
 # MSTest test Results
-src/TestResults/
+TestResults/
 
 # User-specific files 
 *.suo
@@ -15,7 +15,7 @@ src/TestResults/
 packages/
 
 # Visual Studio 2015 cache/options directory 
-src/.vs/
+.vs/
 
 # Expanded/resolved project.json files
 project.lock.json

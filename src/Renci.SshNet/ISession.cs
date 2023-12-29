@@ -17,7 +17,7 @@ namespace Renci.SshNet
     internal interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets or sets the connection info.
+        /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
@@ -26,7 +26,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the session is connected.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the session is connected; otherwise, <see langword="false"/>.
         /// </value>
         bool IsConnected { get; }
 
@@ -36,14 +36,14 @@ namespace Renci.SshNet
         /// <value>
         /// The session semaphore.
         /// </value>
-        SemaphoreLight SessionSemaphore { get; }
+        SemaphoreSlim SessionSemaphore { get; }
 
         /// <summary>
         /// Gets a <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete.
         /// </summary>
         /// <value>
         /// A <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete, or
-        /// <c>null</c> when the session has not been connected.
+        /// <see langword="null"/> when the session has not been connected.
         /// </value>
         WaitHandle MessageListenerCompleted { get; }
 
@@ -86,6 +86,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
+        /// <param name="remoteChannelNumber">The number of the remote channel.</param>
+        /// <param name="remoteWindowSize">The window size of the remote channel.</param>
+        /// <param name="remoteChannelDataPacketSize">The data packet size of the remote channel.</param>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>
@@ -125,11 +128,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         bool TrySendMessage(Message message);
@@ -256,6 +259,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         event EventHandler<ExceptionEventArgs> ErrorOccured;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.

@@ -15,3 +15,6 @@
 *.nupkg binary
 *.pdf binary
 *.snk binary
+
+# Ensure key files have LF endings for easier usage with ssh-keygen
+test/Data/* eol=lf

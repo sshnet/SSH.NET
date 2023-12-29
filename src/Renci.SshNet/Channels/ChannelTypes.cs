@@ -1,5 +1,4 @@
-﻿
-namespace Renci.SshNet.Channels
+﻿namespace Renci.SshNet.Channels
 {
     /// <summary>
     /// Lists channel types as defined by the protocol.
@@ -7,19 +6,22 @@ namespace Renci.SshNet.Channels
     internal enum ChannelTypes
     {
         /// <summary>
-        /// session
+        /// Session.
         /// </summary>
         Session,
+
         /// <summary>
-        /// x11
+        /// X11.
         /// </summary>
         X11,
+
         /// <summary>
-        /// forwarded-tcpip
+        /// Forwarded-tcpip.
         /// </summary>
         ForwardedTcpip,
+
         /// <summary>
-        /// direct-tcpip
+        /// Direct-tcpip.
         /// </summary>
         DirectTcpip
     }

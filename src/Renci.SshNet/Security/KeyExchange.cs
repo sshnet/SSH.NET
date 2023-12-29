@@ -13,7 +13,7 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents base class for different key exchange algorithm implementations
+    /// Represents base class for different key exchange algorithm implementations.
     /// </summary>
     public abstract class KeyExchange : Algorithm, IKeyExchange
     {
@@ -61,16 +61,15 @@ namespace Renci.SshNet.Security
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public virtual void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public virtual void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             Session = session;
 
-            SendMessage(session.ClientInitMessage);
+            if (sendClientInitMessage)
+            {
+                SendMessage(session.ClientInitMessage);
+            }
 
             // Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
@@ -183,11 +182,9 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server cipher.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerEncryption,
-                                                    Session.ToHex(serverKey),
-                                                    Session.ToHex(serverVector)));
+                                                    Session.ConnectionInfo.CurrentServerEncryption));
 
             // Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);
@@ -210,6 +207,10 @@ namespace Renci.SshNet.Security
 
             clientKey = GenerateSessionKey(SharedKey, ExchangeHash, clientKey, _clientCipherInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client cipher.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientEncryption));
+
             // Create client cipher
             return _clientCipherInfo.Cipher(clientKey, clientVector);
         }
@@ -230,6 +231,10 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'F', sessionId)),
                                                _serverHashInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server hmac algorithm.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentServerHmacAlgorithm));
+
             return _serverHashInfo.HashAlgorithm(serverKey);
         }
 
@@ -249,6 +254,10 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'E', sessionId)),
                                                _clientHashInfo.KeySize / 8);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client hmac algorithm.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientHmacAlgorithm));
+
             return _clientHashInfo.HashAlgorithm(clientKey);
         }
 
@@ -264,6 +273,10 @@ namespace Renci.SshNet.Security
             {
                 return null;
             }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client compressor.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentClientCompressionAlgorithm));
 
             var compressor = _compressionType.CreateInstance<Compressor>();
 
@@ -285,6 +298,10 @@ namespace Renci.SshNet.Security
                 return null;
             }
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server decompressor.",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentServerCompressionAlgorithm));
+
             var decompressor = _decompressionType.CreateInstance<Compressor>();
 
             decompressor.Init(Session);
@@ -297,7 +314,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="host">The host algorithm.</param>
         /// <returns>
-        /// <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the specified host can be trusted; otherwise, <see langword="false"/>.
         /// </returns>
         protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
@@ -511,9 +528,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
         }

@@ -28,7 +28,7 @@ namespace Renci.SshNet.Abstractions
         /// </summary>
         /// <param name="socket">The <see cref="Socket"/> to check.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="socket"/> can be written to; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="socket"/> can be written to; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool CanWrite(Socket socket)
         {
@@ -261,11 +261,6 @@ namespace Renci.SshNet.Abstractions
             return buffer;
         }
 
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
-        }
-
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
         /// </summary>
@@ -293,7 +288,7 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = (int)readTimeout.TotalMilliseconds;
+            socket.ReceiveTimeout = (int) readTimeout.TotalMilliseconds;
 
             do
             {
@@ -329,6 +324,18 @@ namespace Renci.SshNet.Abstractions
 
             return totalBytesRead;
         }
+
+#if NET6_0_OR_GREATER
+        public static async Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        {
+            return await socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken).ConfigureAwait(false);
+        }
+#else
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        {
+            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
+        }
+#endif
 
         public static void Send(Socket socket, byte[] data)
         {

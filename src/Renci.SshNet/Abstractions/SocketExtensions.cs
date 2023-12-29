@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NET6_0_OR_GREATER
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -10,24 +11,25 @@ namespace Renci.SshNet.Abstractions
     // Async helpers based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/
     internal static class SocketExtensions
     {
-        private sealed class SocketAsyncEventArgsAwaitable : SocketAsyncEventArgs, INotifyCompletion
+        private sealed class AwaitableSocketAsyncEventArgs : SocketAsyncEventArgs, INotifyCompletion
         {
             private static readonly Action SENTINEL = () => { };
 
             private bool _isCancelled;
             private Action _continuationAction;
 
-            public SocketAsyncEventArgsAwaitable()
+            public AwaitableSocketAsyncEventArgs()
             {
-                Completed += delegate { SetCompleted(); };
+                Completed += (sender, e) => SetCompleted();
             }
 
-            public SocketAsyncEventArgsAwaitable ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
+            public AwaitableSocketAsyncEventArgs ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
             {
                 if (!func(this))
                 {
                     SetCompleted();
                 }
+
                 return this;
             }
 
@@ -48,7 +50,9 @@ namespace Renci.SshNet.Abstractions
                 SetCompleted();
             }
 
-            public SocketAsyncEventArgsAwaitable GetAwaiter()
+#pragma warning disable S1144 // Unused private types or members should be removed
+            public AwaitableSocketAsyncEventArgs GetAwaiter()
+#pragma warning restore S1144 // Unused private types or members should be removed
             {
                 return this;
             }
@@ -64,7 +68,9 @@ namespace Renci.SshNet.Abstractions
                 }
             }
 
+#pragma warning disable S1144 // Unused private types or members should be removed
             public void GetResult()
+#pragma warning restore S1144 // Unused private types or members should be removed
             {
                 if (_isCancelled)
                 {
@@ -88,11 +94,15 @@ namespace Renci.SshNet.Abstractions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new SocketAsyncEventArgsAwaitable())
+            using (var args = new AwaitableSocketAsyncEventArgs())
             {
                 args.RemoteEndPoint = remoteEndpoint;
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, useSynchronizationContext: false))
+#if NET || NETSTANDARD2_1_OR_GREATER
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ConnectAsync);
                 }
@@ -103,11 +113,15 @@ namespace Renci.SshNet.Abstractions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new SocketAsyncEventArgsAwaitable())
+            using (var args = new AwaitableSocketAsyncEventArgs())
             {
                 args.SetBuffer(buffer, offset, length);
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, useSynchronizationContext: false))
+#if NET || NETSTANDARD2_1_OR_GREATER
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ReceiveAsync);
                 }
@@ -117,3 +131,4 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
+#endif

@@ -19,7 +19,8 @@ for:
           
   build_script:
     - echo build
-    - dotnet build Renci.SshNet.sln -c Debug -f net8.0
+    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   test_script:
     - sh: echo "Run unit tests"

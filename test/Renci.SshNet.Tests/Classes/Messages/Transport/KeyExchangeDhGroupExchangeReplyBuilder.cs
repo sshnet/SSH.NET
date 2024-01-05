@@ -41,7 +41,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         public byte[] Build()
         {
             var sshDataStream = new SshDataStream(0);
-            sshDataStream.WriteByte(KeyExchangeDhGroupExchangeReply.MessageNumber);
+            var target = new KeyExchangeDhGroupExchangeReply();
+            sshDataStream.WriteByte(target.MessageNumber);
             sshDataStream.Write((uint)(4 + _hostKeyAlgorithm.Length + _hostKeys.Length));
             sshDataStream.Write((uint) _hostKeyAlgorithm.Length);
             sshDataStream.Write(_hostKeyAlgorithm, 0, _hostKeyAlgorithm.Length);

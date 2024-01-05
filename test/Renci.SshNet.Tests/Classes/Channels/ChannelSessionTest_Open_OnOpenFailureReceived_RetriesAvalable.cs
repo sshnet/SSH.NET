@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remotePacketSize;
         private IList<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
-        private SemaphoreLight _sessionSemaphore;
+        private SemaphoreSlim _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
         private uint _failureReasonCode;
         private string _failureDescription;
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
             _remotePacketSize = (uint) random.Next(0, int.MaxValue);
             _initialSessionSemaphoreCount = random.Next(10, 20);
-            _sessionSemaphore = new SemaphoreLight(_initialSessionSemaphoreCount);
+            _sessionSemaphore = new SemaphoreSlim(_initialSessionSemaphoreCount);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 

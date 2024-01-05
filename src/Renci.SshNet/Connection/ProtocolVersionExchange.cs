@@ -187,7 +187,7 @@ namespace Renci.SshNet.Connection
             // to be processed by subsequent invocations.
             while (true)
             {
-                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, 0, data.Length, cancellationToken).ConfigureAwait(false);
+                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new SshConnectionException("The connection was closed by the remote host.");

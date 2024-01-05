@@ -1,42 +1,41 @@
 <Project>
-    <Import Project="$(MSBuildThisFileFullPath).user" Condition="Exists('$(MSBuildThisFileFullPath).user')" />
-    
-    <!--
+  <Import Project="$(MSBuildThisFileFullPath).user" Condition="Exists('$(MSBuildThisFileFullPath).user')" />
+
+  <!--
         Assembly Info properties that apply to all projects/assemblies.
     -->
-    <PropertyGroup>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Renci.SshNet.snk</AssemblyOriginatorKeyFile>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <LangVersion>latest</LangVersion>
-        <WarningLevel>9999</WarningLevel>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-    </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Renci.SshNet.snk</AssemblyOriginatorKeyFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <WarningLevel>9999</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
 
-    <!--
+  <!--
         Code analysis properties.
     -->
-    <PropertyGroup>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <AnalysisLevel>preview-All</AnalysisLevel>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>preview-All</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
 
-    <!--
+  <!--
         Add the stylecop config to each project.
     -->
-    <ItemGroup>
-        <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
-    </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" Visible="false" />
+  </ItemGroup>
 
-    <!--
+  <!--
         Use fixed version of analyzers.
     -->
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0-preview1.23165.1" PrivateAssets="all" />
-        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.103" PrivateAssets="all" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.12.0.78982" PrivateAssets="all" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.103" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.16.0.82469" PrivateAssets="all" />
+  </ItemGroup>
 </Project>

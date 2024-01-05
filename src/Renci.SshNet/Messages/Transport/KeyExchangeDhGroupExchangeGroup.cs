@@ -5,13 +5,28 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_GROUP message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_GROUP", MessageNumber)]
     public class KeyExchangeDhGroupExchangeGroup : Message
     {
-        internal const byte MessageNumber = 31;
-
         private byte[] _safePrime;
         private byte[] _subGroup;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_GROUP";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 31;
+            }
+        }
 
         /// <summary>
         /// Gets the safe prime.

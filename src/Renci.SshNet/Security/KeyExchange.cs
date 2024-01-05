@@ -61,16 +61,15 @@ namespace Renci.SshNet.Security
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public virtual void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public virtual void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             Session = session;
 
-            SendMessage(session.ClientInitMessage);
+            if (sendClientInitMessage)
+            {
+                SendMessage(session.ClientInitMessage);
+            }
 
             // Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys

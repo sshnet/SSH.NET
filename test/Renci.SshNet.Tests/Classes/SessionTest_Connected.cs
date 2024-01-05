@@ -45,6 +45,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendMessageShouldSendPacketToServer()
         {
+            Thread.Sleep(100);
+
             ServerBytesReceivedRegister.Clear();
 
             Session.SendMessage(_ignoreMessage);
@@ -123,6 +125,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_SendMessageShouldSendPacketToServer()
         {
+            Thread.Sleep(100);
+
             var session = (ISession) Session;
             ServerBytesReceivedRegister.Clear();
 
@@ -137,6 +141,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldSendPacketToServerAndReturnTrue()
         {
+            Thread.Sleep(100);
+
             var session = (ISession) Session;
             ServerBytesReceivedRegister.Clear();
 

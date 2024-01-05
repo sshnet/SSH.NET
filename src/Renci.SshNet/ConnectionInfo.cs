@@ -145,9 +145,6 @@ namespace Renci.SshNet
         /// <value>
         /// The connection timeout. The default value is 30 seconds.
         /// </value>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
-        /// </example>
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
@@ -191,9 +188,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
-        /// </example>
         public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 
         /// <summary>
@@ -379,32 +373,34 @@ namespace Renci.SshNet
                     { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
                 };
 
+#pragma warning disable IDE0200 // Remove unnecessary lambda expression; We want to prevent instantiating the HashAlgorithm objects.
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    { "hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5) },
-                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
-                    { "hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1) },
-                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
-                    { "hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256) },
-                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
-                    { "hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512) },
+                    { "hmac-sha2-256", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key)) },
+                    { "hmac-sha2-512", new HashInfo(64 * 8, key => CryptoAbstraction.CreateHMACSHA512(key)) },
                     { "hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96)) },
-                    { "hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
-                    { "hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
+                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
+                    { "hmac-ripemd160", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key)) },
+                    { "hmac-ripemd160@openssh.com", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key)) },
+                    { "hmac-sha1", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key)) },
+                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
+                    { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key)) },
+                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
                 };
+#pragma warning restore IDE0200 // Remove unnecessary lambda expression
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
-                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data) },
-                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
-                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
-                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
+                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(new SshKeyData(data))) },
 #pragma warning disable SA1107 // Code should not contain multiple statements on one line
-                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
-                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
+                    { "rsa-sha2-512", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
+                    { "rsa-sha2-256", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
-                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
-                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
+                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(data))) },
+                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))) },
                 };
 
             CompressionAlgorithms = new Dictionary<string, Func<Compressor>>

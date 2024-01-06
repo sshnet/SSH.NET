@@ -73,7 +73,7 @@ namespace Renci.SshNet.Connection
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false))[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));

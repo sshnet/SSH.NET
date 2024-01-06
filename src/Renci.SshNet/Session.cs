@@ -1862,7 +1862,9 @@ namespace Renci.SshNet
 
                 try
                 {
+#pragma warning disable CA1508 // Avoid dead conditional code; Value could have been changed by another thread.
                     if (_socket != null)
+#pragma warning restore CA1508 // Avoid dead conditional code
                     {
                         if (_socket.Connected)
                         {

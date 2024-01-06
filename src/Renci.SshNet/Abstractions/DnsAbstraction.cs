@@ -1,22 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-
-#if FEATURE_DNS_SYNC
-#elif FEATURE_DNS_APM
-using Renci.SshNet.Common;
-#elif FEATURE_DNS_TAP
-#elif FEATURE_DEVICEINFORMATION_APM
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using Microsoft.Phone.Net.NetworkInformation;
-#elif FEATURE_DATAGRAMSOCKET
-using System.Collections.Generic;
-using Windows.Networking;
-using Windows.Networking.Sockets;
-#endif
+using System.Threading.Tasks;
 
 namespace Renci.SshNet.Abstractions
 {
@@ -36,57 +22,7 @@ namespace Renci.SshNet.Abstractions
         {
             /* TODO Eliminate sync variant, and implement timeout */
 
-#if FEATURE_DNS_SYNC
             return Dns.GetHostAddresses(hostNameOrAddress);
-#elif FEATURE_DNS_APM
-            var asyncResult = Dns.BeginGetHostAddresses(hostNameOrAddress, null, null);
-            if (!asyncResult.AsyncWaitHandle.WaitOne(Session.InfiniteTimeSpan))
-                throw new SshOperationTimeoutException("Timeout resolving host name.");
-            return Dns.EndGetHostAddresses(asyncResult);
-#elif FEATURE_DNS_TAP
-            return Dns.GetHostAddressesAsync(hostNameOrAddress).GetAwaiter().GetResult();
-#else
-            IPAddress address;
-            if (IPAddress.TryParse(hostNameOrAddress, out address))
-                return new [] { address};
-
-#if FEATURE_DEVICEINFORMATION_APM
-            var resolveCompleted = new ManualResetEvent(false);
-            NameResolutionResult nameResolutionResult = null;
-            DeviceNetworkInformation.ResolveHostNameAsync(new DnsEndPoint(hostNameOrAddress, 0), result =>
-            {
-                nameResolutionResult = result;
-                resolveCompleted.Set();
-            }, null);
-
-            // wait until address is resolved
-            resolveCompleted.WaitOne();
-
-            if (nameResolutionResult.NetworkErrorCode == NetworkError.Success)
-            {
-                var addresses = new List<IPAddress>(nameResolutionResult.IPEndPoints.Select(p => p.Address).Distinct());
-                return addresses.ToArray();
-            }
-            throw new SocketException((int)nameResolutionResult.NetworkErrorCode);
-#elif FEATURE_DATAGRAMSOCKET
-
-            // TODO we may need to only return those IP addresses that are supported on the current system
-            // TODO http://wojciechkulik.pl/csharp/winrt-how-to-detect-supported-ip-versions
-
-            var endpointPairs = DatagramSocket.GetEndpointPairsAsync(new HostName(hostNameOrAddress), "").GetAwaiter().GetResult();
-            var addresses = new List<IPAddress>();
-            foreach (var endpointPair in endpointPairs)
-            {
-                if (endpointPair.RemoteHostName.Type == HostNameType.Ipv4 || endpointPair.RemoteHostName.Type == HostNameType.Ipv6)
-                    addresses.Add(IPAddress.Parse(endpointPair.RemoteHostName.CanonicalName));
-            }
-            if (addresses.Count == 0)
-                throw new SocketException((int) System.Net.Sockets.SocketError.HostNotFound);
-            return addresses.ToArray();
-#else
-            throw new NotSupportedException("Resolving hostname to IP address is not implemented.");
-#endif // FEATURE_DEVICEINFORMATION_APM
-#endif
         }
 
         /// <summary>

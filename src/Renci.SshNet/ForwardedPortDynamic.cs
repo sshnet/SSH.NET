@@ -159,7 +159,7 @@ namespace Renci.SshNet
             var ip = IPAddress.Any;
             if (!string.IsNullOrEmpty(BoundHost))
             {
-                ip = DnsAbstraction.GetHostAddresses(BoundHost)[0];
+                ip = Dns.GetHostAddresses(BoundHost)[0];
             }
 
             var ep = new IPEndPoint(ip, (int) BoundPort);

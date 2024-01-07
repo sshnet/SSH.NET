@@ -37,6 +37,10 @@
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net7.0</OutputDirectory>
 			<Moniker>net7.0</Moniker>
 		</TargetFrameworkModern>
+		<TargetFrameworkModern Include=".NET 8.0">
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net8.0</OutputDirectory>
+			<Moniker>net8.0</Moniker>
+		</TargetFrameworkModern>
 	</ItemGroup>
 
 	<Target Name="CleanModern" DependsOnTargets="CleanSolutionModern">

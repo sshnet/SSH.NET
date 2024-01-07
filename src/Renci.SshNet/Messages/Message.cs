@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.IO;
+﻿using System.IO;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -13,11 +12,16 @@ namespace Renci.SshNet.Messages
     public abstract class Message : SshData
     {
         /// <summary>
-        /// Gets the size of the message in bytes.
+        /// Gets the message name as defined in RFC 4250.
         /// </summary>
-        /// <value>
-        /// The size of the messages in bytes.
-        /// </value>
+        public abstract string MessageName { get; }
+
+        /// <summary>
+        /// Gets the message number as defined in RFC 4250.
+        /// </summary>
+        public abstract byte MessageNumber { get; }
+
+        /// <inheritdoc />
         protected override int BufferCapacity
         {
             get
@@ -26,28 +30,11 @@ namespace Renci.SshNet.Messages
             }
         }
 
-        /// <summary>
-        /// Writes the message to the specified <see cref="SshDataStream"/>.
-        /// </summary>
-        /// <param name="stream">The <see cref="SshDataStream"/> to write the message to.</param>
+        /// <inheritdoc />
         protected override void WriteBytes(SshDataStream stream)
         {
-            var enumerator = GetType().GetCustomAttributes<MessageAttribute>(inherit: true).GetEnumerator();
-            try
-            {
-                if (!enumerator.MoveNext())
-                {
-                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", GetType().AssemblyQualifiedName));
-                }
-
-                var messageAttribute = enumerator.Current;
-                stream.WriteByte(messageAttribute.Number);
-                base.WriteBytes(stream);
-            }
-            finally
-            {
-                enumerator.Dispose();
-            }
+            stream.WriteByte(MessageNumber);
+            base.WriteBytes(stream);
         }
 
         internal byte[] GetPacket(byte paddingMultiplier, Compressor compressor)
@@ -163,23 +150,10 @@ namespace Renci.SshNet.Messages
             return paddingLength;
         }
 
-        /// <summary>
-        /// Returns a <see cref="string"/> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string"/> that represents this instance.
-        /// </returns>
+        /// <inheritdoc />
         public override string ToString()
         {
-            using (var enumerator = GetType().GetCustomAttributes<MessageAttribute>(inherit: true).GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                {
-                    return string.Format(CultureInfo.CurrentCulture, "'{0}' without Message attribute.", GetType().FullName);
-                }
-
-                return enumerator.Current.Name;
-            }
+            return MessageName;
         }
 
         /// <summary>

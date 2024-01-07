@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-using Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 
@@ -18,7 +17,7 @@ namespace Renci.SshNet.Benchmarks.Common
         }
         private static KeyHostAlgorithm GetKeyHostAlgorithm()
         {
-            using (var s = typeof(RsaCipherBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
+            using (var s = typeof(HostKeyEventArgsBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
             {
                 var privateKey = new PrivateKeyFile(s);
                 return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();

@@ -198,7 +198,7 @@ namespace Renci.SshNet
 
         private void InternalStart()
         {
-            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
+            var addr = Dns.GetHostAddresses(BoundHost)[0];
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };

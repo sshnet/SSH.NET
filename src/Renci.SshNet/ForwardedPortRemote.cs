@@ -125,9 +125,9 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
-            : this(DnsAbstraction.GetHostAddresses(boundHost)[0],
+            : this(Dns.GetHostAddresses(boundHost)[0],
                    boundPort,
-                   DnsAbstraction.GetHostAddresses(host)[0],
+                   Dns.GetHostAddresses(host)[0],
                    port)
         {
         }

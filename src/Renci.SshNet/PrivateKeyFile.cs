@@ -20,9 +20,6 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents private key information.
     /// </summary>
-    /// <example>
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
-    /// </example>
     /// <remarks>
     /// <para>
     /// The following private keys are supported:
@@ -68,14 +65,14 @@ namespace Renci.SshNet
     public class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
-            RegexOptions.Compiled | RegexOptions.Multiline);
+                                                                  RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;
         private bool _isDisposed;
 
         /// <summary>
-        /// The supported host algorithms for this key file.
+        /// Gets the supported host algorithms for this key file.
         /// </summary>
         public IReadOnlyCollection<HostAlgorithm> HostKeyAlgorithms
         {
@@ -120,7 +117,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -134,7 +131,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c> or empty, or <paramref name="passPhrase"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty, or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -158,7 +155,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             Open(privateKey, passPhrase);
@@ -226,16 +223,16 @@ namespace Renci.SshNet
                         cipher = new CipherInfo(64, (key, iv) => new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "AES-128-CBC":
-                        cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     case "AES-192-CBC":
-                        cipher = new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     case "AES-256-CBC":
-                        cipher = new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));
                         break;
                     default:
-                        throw new SshException(string.Format(CultureInfo.CurrentCulture, "Private key cipher \"{0}\" is not supported.", cipherName));
+                        throw new SshException(string.Format(CultureInfo.InvariantCulture, "Private key cipher \"{0}\" is not supported.", cipherName));
                 }
 
                 decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
@@ -250,9 +247,11 @@ namespace Renci.SshNet
                 case "RSA":
                     var rsaKey = new RsaKey(decryptedData);
                     _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
-                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);
@@ -266,14 +265,17 @@ namespace Renci.SshNet
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
                     if (_key is RsaKey parsedRsaKey)
                     {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     }
                     else
                     {
                         _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
                     }
+
                     break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
@@ -309,7 +311,9 @@ namespace Renci.SshNet
                         throw new SshException(string.Format("Cipher method '{0}' is not supported.", cipherName));
                     }
 
-                    // TODO: Create two specific data types to avoid using SshDataReader class
+                    /*
+                     * TODO: Create two specific data types to avoid using SshDataReader class.
+                     */
 
                     reader = new SshDataReader(keyData);
 
@@ -330,9 +334,11 @@ namespace Renci.SshNet
                         var p = reader.ReadBigIntWithBits(); // q
                         var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {
@@ -341,6 +347,7 @@ namespace Renci.SshNet
                         {
                             throw new SshException("Invalid private key");
                         }
+
                         var p = reader.ReadBigIntWithBits();
                         var g = reader.ReadBigIntWithBits();
                         var q = reader.ReadBigIntWithBits();
@@ -353,6 +360,7 @@ namespace Renci.SshNet
                     {
                         throw new NotSupportedException(string.Format("Key type '{0}' is not supported.", keyType));
                     }
+
                     break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
@@ -389,7 +397,7 @@ namespace Renci.SshNet
         /// <param name="passPhrase">Decryption pass phrase.</param>
         /// <param name="binarySalt">Decryption binary salt.</param>
         /// <returns>Decrypted byte array.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <see langword="null"/>.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             if (cipherInfo is null)
@@ -436,8 +444,8 @@ namespace Renci.SshNet
         /// Parses an OpenSSH V1 key file (i.e. ED25519 key) according to the the key spec:
         /// https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key.
         /// </summary>
-        /// <param name="keyFileData">the key file data (i.e. base64 encoded data between the header/footer)</param>
-        /// <param name="passPhrase">passphrase or null if there isn't one</param>
+        /// <param name="keyFileData">The key file data (i.e. base64 encoded data between the header/footer).</param>
+        /// <param name="passPhrase">Passphrase or <see langword="null"/> if there isn't one.</param>
         /// <returns>
         /// The OpenSSH V1 key.
         /// </returns>
@@ -511,16 +519,23 @@ namespace Renci.SshNet
                 switch (cipherName)
                 {
                     case "aes256-cbc":
-                        cipher = new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
+                        cipher = new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false);
                         break;
                     case "aes256-ctr":
-                        cipher = new AesCipher(key, new CtrCipherMode(iv), new PKCS7Padding());
+                        cipher = new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false);
                         break;
                     default:
                         throw new SshException("Cipher '" + cipherName + "' is not supported for an OpenSSH key.");
                 }
 
-                privateKeyBytes = cipher.Decrypt(privateKeyBytes);
+                try
+                {
+                    privateKeyBytes = cipher.Decrypt(privateKeyBytes);
+                }
+                finally
+                {
+                    cipher.Dispose();
+                }
             }
 
             // validate private key length
@@ -540,7 +555,10 @@ namespace Renci.SshNet
             var checkInt2 = (int) privateKeyReader.ReadUInt32();
             if (checkInt1 != checkInt2)
             {
-                throw new SshException("The random check bytes of the OpenSSH key do not match (" + checkInt1 + " <->" + checkInt2 + ").");
+                throw new SshException(string.Format(CultureInfo.InvariantCulture,
+                                                     "The random check bytes of the OpenSSH key do not match ({0} <-> {1}).",
+                                                     checkInt1.ToString(CultureInfo.InvariantCulture),
+                                                     checkInt2.ToString(CultureInfo.InvariantCulture)));
             }
 
             // key type
@@ -552,12 +570,14 @@ namespace Renci.SshNet
             switch (keyType)
             {
                 case "ssh-ed25519":
-                    // public key
-                    publicKey = privateKeyReader.ReadBignum2();
+                    // https://datatracker.ietf.org/doc/html/draft-miller-ssh-agent-11#section-3.2.3
 
-                    // private key
+                    // ENC(A)
+                    _ = privateKeyReader.ReadBignum2();
+
+                    // k || ENC(A)
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
-                    parsedKey = new ED25519Key(publicKey.Reverse(), unencryptedPrivateKey);
+                    parsedKey = new ED25519Key(unencryptedPrivateKey);
                     break;
                 case "ecdsa-sha2-nistp256":
                 case "ecdsa-sha2-nistp384":
@@ -595,7 +615,8 @@ namespace Renci.SshNet
             {
                 if ((int) padding[i] != i + 1)
                 {
-                    throw new SshException("Padding of openssh key format contained wrong byte at position: " + i);
+                    throw new SshException("Padding of openssh key format contained wrong byte at position: " +
+                                           i.ToString(CultureInfo.InvariantCulture));
                 }
             }
 
@@ -614,7 +635,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

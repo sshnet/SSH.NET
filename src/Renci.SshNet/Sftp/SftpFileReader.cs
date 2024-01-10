@@ -16,7 +16,7 @@ namespace Renci.SshNet.Sftp
         private readonly byte[] _handle;
         private readonly ISftpSession _sftpSession;
         private readonly uint _chunkSize;
-        private readonly SemaphoreLight _semaphore;
+        private readonly SemaphoreSlim _semaphore;
         private readonly object _readLock;
         private readonly ManualResetEvent _disposingWaitHandle;
         private readonly ManualResetEvent _readAheadCompleted;
@@ -55,14 +55,14 @@ namespace Renci.SshNet.Sftp
         /// <param name="sftpSession">The SFT session.</param>
         /// <param name="chunkSize">The size of a individual read-ahead chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
-        /// <param name="fileSize">The size of the file, if known; otherwise, <c>null</c>.</param>
+        /// <param name="fileSize">The size of the file, if known; otherwise, <see langword="null"/>.</param>
         public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
             _handle = handle;
             _sftpSession = sftpSession;
             _chunkSize = chunkSize;
             _fileSize = fileSize;
-            _semaphore = new SemaphoreLight(maxPendingReads);
+            _semaphore = new SemaphoreSlim(maxPendingReads);
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();
             _readAheadCompleted = new ManualResetEvent(initialState: false);
@@ -74,10 +74,14 @@ namespace Renci.SshNet.Sftp
 
         public byte[] Read()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_disposingOrDisposed, this);
+#else
             if (_disposingOrDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (_exception is not null)
             {
@@ -168,7 +172,9 @@ namespace Renci.SshNet.Sftp
 
             var bytesToCatchUp = nextChunk.Offset - _offset;
 
-            // TODO: break loop and interrupt blocking wait in case of exception
+            /*
+             * TODO: break loop and interrupt blocking wait in case of exception
+             */
 
             var read = _sftpSession.RequestRead(_handle, _offset, (uint) bytesToCatchUp);
             if (read.Length == 0)
@@ -227,7 +233,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         private void Dispose(bool disposing)
         {
             if (_disposingOrDisposed)
@@ -360,7 +366,7 @@ namespace Renci.SshNet.Sftp
         /// Returns a value indicating whether the read-ahead loop should be continued.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the read-ahead loop should be continued; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the read-ahead loop should be continued; otherwise, <see langword="false"/>.
         /// </returns>
         private bool ContinueReadAhead()
         {

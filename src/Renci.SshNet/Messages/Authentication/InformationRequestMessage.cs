@@ -8,9 +8,26 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_INFO_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_INFO_REQUEST", 60)]
     internal sealed class InformationRequestMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_INFO_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 60;
+            }
+        }
+
         /// <summary>
         /// Gets information request name.
         /// </summary>
@@ -29,7 +46,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets information request prompts.
         /// </summary>
-        public IEnumerable<AuthenticationPrompt> Prompts { get; private set; }
+        public IReadOnlyList<AuthenticationPrompt> Prompts { get; private set; }
 
         /// <summary>
         /// Called when type specific data need to be loaded.

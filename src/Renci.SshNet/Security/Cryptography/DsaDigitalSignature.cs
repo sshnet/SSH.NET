@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="DsaDigitalSignature" /> class.
         /// </summary>
         /// <param name="key">The DSA key.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public DsaDigitalSignature(DsaKey key)
         {
             if (key is null)
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns>
-        /// <c>true</c> if signature was successfully verified; otherwise <c>false</c>.
+        /// <see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Invalid signature.</exception>
         public override bool Verify(byte[] input, byte[] signature)
@@ -80,10 +80,10 @@ namespace Renci.SshNet.Security.Cryptography
             var w = BigInteger.ModInverse(s, _key.Q);
 
             // Calculate u1 = H(m)·w mod q
-            var u1 = hm * w % _key.Q;
+            var u1 = (hm * w) % _key.Q;
 
             // Calculate u2 = r * w mod q
-            var u2 = r * w % _key.Q;
+            var u2 = (r * w) % _key.Q;
 
             u1 = BigInteger.ModPow(_key.G, u1, _key.P);
             u2 = BigInteger.ModPow(_key.Y, u2, _key.P);
@@ -173,7 +173,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

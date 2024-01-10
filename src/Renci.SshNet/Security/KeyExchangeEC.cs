@@ -4,13 +4,14 @@ namespace Renci.SshNet.Security
 {
     internal abstract class KeyExchangeEC : KeyExchange
     {
+#pragma warning disable SA1401 // Fields should be private
         /// <summary>
-        /// Specifies client payload
+        /// Specifies client payload.
         /// </summary>
         protected byte[] _clientPayload;
 
         /// <summary>
-        /// Specifies server payload
+        /// Specifies server payload.
         /// </summary>
         protected byte[] _serverPayload;
 
@@ -33,6 +34,7 @@ namespace Renci.SshNet.Security
         /// Specifies signature data.
         /// </summary>
         protected byte[] _signature;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.
@@ -76,14 +78,10 @@ namespace Renci.SshNet.Security
             return ValidateExchangeHash(_hostKey, _signature);
         }
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();

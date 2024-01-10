@@ -3,7 +3,6 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_SUCCESS message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_SUCCESS", 99)]
     public class ChannelSuccessMessage : ChannelMessage
     {
         /// <summary>
@@ -11,7 +10,6 @@
         /// </summary>
         public ChannelSuccessMessage()
         {
-
         }
 
         /// <summary>
@@ -21,6 +19,24 @@
         public ChannelSuccessMessage(uint localChannelNumber)
             : base(localChannelNumber)
         {
+        }
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_SUCCESS";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 99;
+            }
         }
 
         internal override void Process(Session session)

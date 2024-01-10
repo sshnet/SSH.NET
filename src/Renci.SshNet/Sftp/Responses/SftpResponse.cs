@@ -14,7 +14,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            
+
             ResponseId = ReadUInt32();
         }
 

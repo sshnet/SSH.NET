@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
 using Renci.SshNet.Abstractions;
@@ -30,10 +31,13 @@ namespace Renci.SshNet.Connection
                 {
                     // SOCKS version number
                     0x05,
+
                     // Number of supported authentication methods
                     0x02,
+
                     // No authentication
                     0x00,
+
                     // Username/Password authentication
                     0x02
                 };
@@ -156,19 +160,20 @@ namespace Renci.SshNet.Connection
                 throw new ProxyException("Proxy password is too long.");
             }
 
-            var authenticationRequest = new byte
-                [
-                    // Version of the negotiation
-                    1 +
-                    // Length of the username
-                    1 +
-                    // Username
-                    username.Length +
-                    // Length of the password
-                    1 +
-                    // Password
-                    password.Length
-                ];
+            var authenticationRequest = new byte[// Version of the negotiation
+                                                 1 +
+
+                                                 // Length of the username
+                                                 1 +
+
+                                                 // Username
+                                                 username.Length +
+
+                                                 // Length of the password
+                                                 1 +
+
+                                                 // Password
+                                                 password.Length];
 
             var index = 0;
 
@@ -195,21 +200,23 @@ namespace Renci.SshNet.Connection
         {
             var addressBytes = GetSocks5DestinationAddress(hostname, out var addressType);
 
-            var connectionRequest = new byte
-                [
-                    // SOCKS version number
-                    1 +
-                    // Command code
-                    1 +
-                    // Reserved
-                    1 +
-                    // Address type
-                    1 +
-                    // Address
-                    addressBytes.Length +
-                    // Port number
-                    2
-                ];
+            var connectionRequest = new byte[// SOCKS version number
+                                             1 +
+
+                                             // Command code
+                                             1 +
+
+                                             // Reserved
+                                             1 +
+
+                                             // Address type
+                                             1 +
+
+                                             // Address
+                                             addressBytes.Length +
+
+                                             // Port number
+                                             2];
 
             var index = 0;
 
@@ -237,7 +244,7 @@ namespace Renci.SshNet.Connection
 
         private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
         {
-            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+            var ip = Dns.GetHostAddresses(hostname)[0];
 
             byte[] address;
 

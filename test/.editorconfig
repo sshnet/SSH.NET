@@ -1,6 +1,10 @@
 ﻿[*.cs]
 
-# Sonar rules
+#### Sonar rules ####
+
+# S1215: ""GC.Collect" should not be called
+# https://rules.sonarsource.com/csharp/RSPEC-1215
+dotnet_diagnostic.S1215.severity = none
 
 # S1854: Unused assignments should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1854
@@ -17,6 +21,15 @@
 #
 # For unit tests, we do not care about this diagnostic.
 dotnet_diagnostic.S1854.severity = none
+
+#### Meziantou.Analyzer rules ####
+
+# MA0089: Optimize string method usage
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0089.md
+dotnet_diagnostic.MA0089.severity = suggestion
+
+#MA0136 - Raw String contains an implicit end of line character
+dotnet_diagnostic.MA0136.severity = none
 
 #### StyleCop rules ####
 
@@ -95,6 +108,18 @@ dotnet_diagnostic.CA1001.severity = none
 # We frequently use underscores in test classes and test methods.
 dotnet_diagnostic.CA1707.severity = none
 
+# CA1824: Mark assemblies with NeutralResourcesLanguageAttribute
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1824
+#
+# We do not care (much) about performance for tests.
+dotnet_diagnostic.CA1824.severity = none
+
+# CA1835: Prefer the memory-based overloads of ReadAsync/WriteAsync methods in stream-based classes
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1835
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1835.severity = none
+
 # CA1711: Identifiers should not have incorrect suffix
 #
 # We frequently define test classes and test method with a suffix that refers to a type.
@@ -104,6 +129,16 @@ dotnet_diagnostic.CA1711.severity = none
 #
 # We do not care about this for unit tests.
 dotnet_diagnostic.CA1720.severity = none
+
+# CA1861: Avoid constant arrays as arguments
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1861.severity = none
+
+# CA5351: Do not use broken cryptographic algorithms
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA5351.severity = none
 
 # CA5394: Do not use insecure randomness
 #

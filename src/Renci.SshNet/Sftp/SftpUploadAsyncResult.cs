@@ -13,7 +13,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether to cancel asynchronous upload operation.
         /// </summary>
         /// <value>
-        /// <c>true</c> if upload operation to be canceled; otherwise, <c>false</c>.
+        /// <see langword="true"/> if upload operation to be canceled; otherwise, <see langword="false"/>.
         /// </value>
         /// <remarks>
         /// Upload operation will be canceled after finishing uploading current buffer.

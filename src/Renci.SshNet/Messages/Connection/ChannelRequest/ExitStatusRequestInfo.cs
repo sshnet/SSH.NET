@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "exit-status" type channel request information
+    /// Represents "exit-status" type channel request information.
     /// </summary>
     internal sealed class ExitStatusRequestInfo : RequestInfo
     {
@@ -30,7 +30,7 @@
         {
             get
             {
-                 var capacity = base.BufferCapacity;
+                var capacity = base.BufferCapacity;
                 capacity += 4; // ExitStatus
                 return capacity;
             }

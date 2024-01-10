@@ -193,13 +193,5 @@ namespace Renci.SshNet.Security.Cryptography
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="DsaDigitalSignature"/> class.
-        /// </summary>
-        ~DsaDigitalSignature()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

@@ -535,15 +535,6 @@ namespace Renci.SshNet.Security
         {
         }
 
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyExchange"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~KeyExchange()
-        {
-            Dispose(disposing: false);
-        }
-
         #endregion
     }
 }

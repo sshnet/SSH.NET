@@ -201,13 +201,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PasswordAuthenticationMethod"/> class.
-        /// </summary>
-        ~PasswordAuthenticationMethod()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

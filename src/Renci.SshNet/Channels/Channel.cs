@@ -863,13 +863,5 @@ namespace Renci.SshNet.Channels
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="Channel"/> class.
-        /// </summary>
-        ~Channel()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

@@ -82,15 +82,6 @@ namespace Renci.SshNet.Security.Cryptography
             }
         }
 
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="RsaDigitalSignature"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~RsaDigitalSignature()
-        {
-            Dispose(disposing: false);
-        }
-
         #endregion
     }
 }

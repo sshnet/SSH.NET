@@ -173,14 +173,5 @@ namespace Renci.SshNet.Compression
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the <see cref="Compressor"/> is reclaimed
-        /// by garbage collection.
-        /// </summary>
-        ~Compressor()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

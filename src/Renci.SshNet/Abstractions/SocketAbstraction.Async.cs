@@ -26,6 +26,7 @@ namespace Renci.SshNet.Abstractions
             }
 
             return SendAsyncCore(socket, data, cancellationToken);
+
             static async ValueTask SendAsyncCore(Socket socket, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
             {
                 do

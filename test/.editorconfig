@@ -130,6 +130,11 @@ dotnet_diagnostic.CA1711.severity = none
 # We do not care about this for unit tests.
 dotnet_diagnostic.CA1720.severity = none
 
+# CA1861: Avoid constant arrays as arguments
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1861.severity = none
+
 # CA5351: Do not use broken cryptographic algorithms
 #
 # We do not care about this for unit tests.

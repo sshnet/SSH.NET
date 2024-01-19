@@ -38,7 +38,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
         protected Socket SocketConnect(string host, int port, TimeSpan timeout)
         {
-            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
+            var ipAddress = Dns.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
@@ -73,7 +73,12 @@ namespace Renci.SshNet.Connection
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+#if NET6_0_OR_GREATER
+            var ipAddress = (await Dns.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false))[0];
+#else
+            var ipAddress = (await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+#endif
+
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));

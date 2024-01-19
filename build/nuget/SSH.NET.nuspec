@@ -17,10 +17,10 @@
         <tags>ssh scp sftp</tags>
         <dependencies>
           <group targetFramework="net462">
-            <dependency id="Microsoft.Bcl.AsyncInterfaces" version="[8.0.0]" />
+            <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" />
           </group>
           <group targetFramework="netstandard2.0">
-            <dependency id="Microsoft.Bcl.AsyncInterfaces" version="[8.0.0]" />
+            <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" />
             <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
           </group>          
           <group targetFramework="netstandard2.1">

@@ -385,6 +385,8 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "AuthorizedKeysFile":
                 case "PasswordAuthentication":
                 case "GatewayPorts":
+                // Had to add this otherwise docker container setup in integration test fails.
+                case "Include":
                     break;
                 default:
                     throw new NotSupportedException($"Global option '{name}' is not supported.");

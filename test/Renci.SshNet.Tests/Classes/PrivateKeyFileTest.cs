@@ -1,4 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿// Excluding these tests on net462 platform, beacuse using MD5 hash throws: System.InvalidOperationException:
+// 'This implementation is not part of the Windows Platform FIPS validated cryptographic algorithms.'
+#if !NET462_TARGET_FRAMEWORK
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using System;
@@ -695,3 +699,5 @@ namespace Renci.SshNet.Tests.Classes
         }
     }
 }
+
+#endif

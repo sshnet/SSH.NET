@@ -128,6 +128,8 @@ namespace Renci.SshNet.Common
 
             _channel.SendData(buffer, offset, count);
             _totalPosition += count;
+
+            // Must send EOF, otherwise SshCommand.EndExecute never gets called.
             _channel.SendEof();
         }
 

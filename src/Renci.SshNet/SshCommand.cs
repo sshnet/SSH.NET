@@ -65,6 +65,11 @@ namespace Renci.SshNet
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
+        /// Gets the input stream.
+        /// </summary>
+        public Stream InputStream { get; private set; }
+
+        /// <summary>
         /// Gets the command execution result.
         /// </summary>
         public string Result
@@ -252,6 +257,10 @@ namespace Renci.SshNet
 
             _channel = CreateChannel();
             _channel.Open();
+
+            // Initialize the input stream
+            InputStream = new ChannelInputStream(_channel);
+
             _ = _channel.SendExecRequest(CommandText);
 
             return _asyncResult;
@@ -550,6 +559,13 @@ namespace Renci.SshNet
                 {
                     UnsubscribeFromEventsAndDisposeChannel(channel);
                     _channel = null;
+                }
+
+                var inputStream = InputStream;
+                if (inputStream != null)
+                {
+                    inputStream.Dispose();
+                    InputStream = null;
                 }
 
                 var outputStream = OutputStream;

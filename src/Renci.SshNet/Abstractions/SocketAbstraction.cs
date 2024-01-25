@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Abstractions
 {
-    internal static class SocketAbstraction
+    internal static partial class SocketAbstraction
     {
         public static bool CanRead(Socket socket)
         {
@@ -311,12 +311,7 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-#if NET6_0_OR_GREATER
-        public static async Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
-        {
-            return await socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken).ConfigureAwait(false);
-        }
-#else
+#if NET6_0_OR_GREATER == false
         public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
             return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);

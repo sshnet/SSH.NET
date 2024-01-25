@@ -11,7 +11,7 @@
 
 	<ItemGroup>
 		<VisualStudioVersionModern Include="2022">
-			<SolutionFile>$(MSBuildThisFileDirectory)..\src\Renci.SshNet.sln</SolutionFile>
+			<SolutionFile>$(MSBuildThisFileDirectory)..\Renci.SshNet.sln</SolutionFile>
 			<VisualStudioVersion>17.0</VisualStudioVersion>
 		</VisualStudioVersionModern>
 	</ItemGroup>

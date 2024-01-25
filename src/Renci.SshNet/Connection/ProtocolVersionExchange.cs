@@ -81,7 +81,11 @@ namespace Renci.SshNet.Connection
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
             // when the connection has been established
+#if NET6_0_OR_GREATER
+            await SocketAbstraction.SendAsync(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"), cancellationToken).ConfigureAwait(false);
+#else
             SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+#endif // NET6_0_OR_GREATER
 
             var bytesReceived = new List<byte>();
 

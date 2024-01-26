@@ -158,10 +158,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    if (Diagnostics.IsEnabled(TraceEventType.Warning))
-                    {
-                        Diagnostics.Log("Failure shutting down socket: " + ex, TraceEventType.Warning);
-                    }
+                    Diagnostic.Log("Failure shutting down socket: " + ex, TraceEventType.Warning);
                 }
             }
         }

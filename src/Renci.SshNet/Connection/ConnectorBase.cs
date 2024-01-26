@@ -42,10 +42,7 @@ namespace Renci.SshNet.Connection
             var ipAddress = Dns.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            if (Diagnostics.IsEnabled(TraceEventType.Information))
-            {
-                Diagnostics.Log($"Initiating connection to '{host}:{port}'.", TraceEventType.Information);
-            }
+            Diagnostic.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port), TraceEventType.Information);
 
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -85,10 +82,7 @@ namespace Renci.SshNet.Connection
 
             var ep = new IPEndPoint(ipAddress, port);
 
-            if (Diagnostics.IsEnabled(TraceEventType.Information))
-            {
-                Diagnostics.Log($"Initiating connection to '{host}:{port}'.", TraceEventType.Information);
-            }
+            Diagnostic.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port), TraceEventType.Information);
 
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try

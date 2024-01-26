@@ -86,15 +86,15 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         protected void EnableTracing()
         {
-            Diagnostics.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
-            Diagnostics.Source.Listeners.Remove("Default");
-            Diagnostics.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
+            Diagnostic.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
+            Diagnostic.Source.Listeners.Remove("Default");
+            Diagnostic.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
         }
 
         protected void DisableTracing()
         {
-            Diagnostics.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
-            Diagnostics.Source.Listeners.Remove("TestConsoleLogger");
+            Diagnostic.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
+            Diagnostic.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

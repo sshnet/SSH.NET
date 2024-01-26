@@ -279,10 +279,7 @@ namespace Renci.SshNet.Sftp
                     }
                     catch (Exception ex)
                     {
-                        if (Diagnostics.IsEnabled(TraceEventType.Error))
-                        {
-                            Diagnostics.Log("Failure closing handle: " + ex, TraceEventType.Error);
-                        }
+                        Diagnostic.Log("Failure closing handle: " + ex, TraceEventType.Error);
                     }
                 }
             }

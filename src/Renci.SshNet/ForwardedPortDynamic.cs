@@ -414,7 +414,7 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                Diagnostics.Log("Timeout waiting for pending channels in dynamic forwarded port to close.", TraceEventType.Warning);
+                Diagnostic.Log("Timeout waiting for pending channels in dynamic forwarded port to close.", TraceEventType.Warning);
             }
         }
 

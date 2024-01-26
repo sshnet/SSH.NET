@@ -191,10 +191,7 @@ namespace Renci.SshNet
         {
             _exception = error;
 
-            if (Diagnostics.IsEnabled(TraceEventType.Warning))
-            {
-                Diagnostics.Log("Raised exception: " + error, TraceEventType.Warning);
-            }
+            Diagnostic.Log("Raised exception: " + error, TraceEventType.Warning);
 
             _ = _errorOccuredWaitHandle?.Set();
 

@@ -554,9 +554,9 @@ namespace Renci.SshNet.Channels
                         // SSH_MSG_CHANNEL_CLOSE as response to a SSH_MSG_CHANNEL_CLOSE sent by the
                         // server
                         var closeWaitResult = _session.TryWait(_channelClosedWaitHandle, ConnectionInfo.ChannelCloseTimeout);
-                        if (closeWaitResult != WaitResult.Success && Diagnostics.IsEnabled(TraceEventType.Warning))
+                        if (closeWaitResult != WaitResult.Success)
                         {
-                            Diagnostics.Log($"Wait for channel close not successful: {closeWaitResult}.", TraceEventType.Warning);
+                            Diagnostic.Log(string.Format("Wait for channel close not successful: {0:G}.", closeWaitResult), TraceEventType.Warning);
                         }
                     }
                 }

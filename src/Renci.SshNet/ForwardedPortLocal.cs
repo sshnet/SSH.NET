@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -400,7 +399,7 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                Diagnostics.Log("Timeout waiting for pending channels in local forwarded port to close.", TraceEventType.Warning);
+                Diagnostic.Log("Timeout waiting for pending channels in local forwarded port to close.", TraceEventType.Warning);
             }
         }
 

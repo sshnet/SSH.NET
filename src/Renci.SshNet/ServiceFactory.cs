@@ -98,16 +98,13 @@ namespace Renci.SshNet
                                             where s == c.Key
                                             select c).FirstOrDefault();
 
-            if (Diagnostics.IsEnabled(TraceEventType.Information))
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
             {
-                if (Diagnostics.IsEnabled(TraceEventType.Verbose))
-                {
-                    Diagnostics.Log($"Key exchange algorithm: we offer {string.Join(",", clientAlgorithms.Keys)}", TraceEventType.Verbose);
-                    Diagnostics.Log($"Key exchange algorithm: they offer {string.Join(",", serverAlgorithms)}", TraceEventType.Verbose);
-                }
-
-                Diagnostics.Log($"Key exchange algorithm: using {keyExchangeAlgorithm.Key}", TraceEventType.Information);
+                Diagnostic.Log($"Key exchange algorithm: we offer {clientAlgorithms.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"Key exchange algorithm: they offer {serverAlgorithms.Join(",")}", TraceEventType.Verbose);
             }
+
+            Diagnostic.Log($"Key exchange algorithm: using {keyExchangeAlgorithm.Key}", TraceEventType.Information);
 
             if (keyExchangeAlgorithm.Value is null)
             {
@@ -170,10 +167,7 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                if (Diagnostics.IsEnabled(TraceEventType.Error))
-                {
-                    Diagnostics.Log($"Failed to obtain size of file. Allowing maximum {maxPendingReads} pending reads: {ex}", TraceEventType.Error);
-                }
+                Diagnostic.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex), TraceEventType.Error);
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);

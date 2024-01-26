@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides access to the <see cref="System.Diagnostics"/> internals of SSH.NET.
     /// </summary>
-    public static class Diagnostics
+    public static class Diagnostic
     {
         /// <summary>
         /// The <see cref="TraceSource"/> instance used by SSH.NET.

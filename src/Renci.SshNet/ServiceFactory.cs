@@ -79,19 +79,8 @@ namespace Renci.SshNet
             return new PipeStream();
         }
 
-        /// <summary>
-        /// Negotiates a key exchange algorithm, and creates a <see cref="IKeyExchange" /> for the negotiated
-        /// algorithm.
-        /// </summary>
-        /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where key is the name of the algorithm, and value is the type implementing this algorithm.</param>
-        /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
-        /// <returns>
-        /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
-        public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
+        /// <inheritdoc/>
+        public IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms)
         {
             if (clientAlgorithms is null)
             {
@@ -120,12 +109,12 @@ namespace Renci.SshNet
                 Diagnostics.Log($"Key exchange algorithm: using {keyExchangeAlgorithm.Key}", TraceEventType.Information);
             }
 
-            if (keyExchangeAlgorithm.Key is null)
+            if (keyExchangeAlgorithm.Value is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithm.Value.CreateInstance<IKeyExchange>();
+            return keyExchangeAlgorithm.Value();
         }
 
         /// <summary>

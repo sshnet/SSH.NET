@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual(ChannelDataMessage.MessageNumber, sshDataStream.ReadByte());
+            Assert.AreEqual(target.MessageNumber, sshDataStream.ReadByte());
             Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
             Assert.AreEqual((uint) size, sshDataStream.ReadUInt32());
 

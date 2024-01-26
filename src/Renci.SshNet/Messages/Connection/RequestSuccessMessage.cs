@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_REQUEST_SUCCESS message.
     /// </summary>
-    [Message("SSH_MSG_REQUEST_SUCCESS", 81)]
     public class RequestSuccessMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_REQUEST_SUCCESS";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 81;
+            }
+        }
+
         /// <summary>
         /// Gets the bound port.
         /// </summary>

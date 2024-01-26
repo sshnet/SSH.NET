@@ -21,8 +21,8 @@ namespace Renci.SshNet.Security
         private CipherInfo _serverCipherInfo;
         private HashInfo _clientHashInfo;
         private HashInfo _serverHashInfo;
-        private Type _compressionType;
-        private Type _decompressionType;
+        private Func<Compressor> _compressorFactory;
+        private Func<Compressor> _decompressorFactory;
 
         /// <summary>
         /// Gets the session.
@@ -61,16 +61,15 @@ namespace Renci.SshNet.Security
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public virtual void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public virtual void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             Session = session;
 
-            SendMessage(session.ClientInitMessage);
+            if (sendClientInitMessage)
+            {
+                SendMessage(session.ClientInitMessage);
+            }
 
             var sessionId = Diagnostics.IsEnabled(TraceEventType.Verbose) ? Session.ToHex(Session.SessionId) : null;
 
@@ -192,8 +191,8 @@ namespace Renci.SshNet.Security
             _serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
             _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
             _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
-            _compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
-            _decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
+            _compressorFactory = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
+            _decompressorFactory = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }
 
         /// <summary>
@@ -329,7 +328,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public Compressor CreateCompressor()
         {
-            if (_compressionType is null)
+            if (_compressorFactory is null)
             {
                 return null;
             }
@@ -342,7 +341,7 @@ namespace Renci.SshNet.Security
                                 TraceEventType.Information);
             }
 
-            var compressor = _compressionType.CreateInstance<Compressor>();
+            var compressor = _compressorFactory();
 
             compressor.Init(Session);
 
@@ -357,7 +356,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public Compressor CreateDecompressor()
         {
-            if (_decompressionType is null)
+            if (_decompressorFactory is null)
             {
                 return null;
             }
@@ -370,7 +369,7 @@ namespace Renci.SshNet.Security
                                 TraceEventType.Information);
             }
 
-            var decompressor = _decompressionType.CreateInstance<Compressor>();
+            var decompressor = _decompressorFactory();
 
             decompressor.Init(Session);
 

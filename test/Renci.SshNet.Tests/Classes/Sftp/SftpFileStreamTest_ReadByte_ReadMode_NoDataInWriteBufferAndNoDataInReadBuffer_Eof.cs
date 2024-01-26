@@ -25,8 +25,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _path = random.Next().ToString();
             _handle = GenerateRandom(1, random);
             _bufferSize = (uint) random.Next(1, 1000);
-            _readBufferSize = (uint) random.Next(0, 1000);
-            _writeBufferSize = (uint) random.Next(0, 1000);
+            _readBufferSize = (uint) random.Next(1, 1000);
+            _writeBufferSize = (uint) random.Next(1, 1000);
         }
 
         protected override void SetupMocks()

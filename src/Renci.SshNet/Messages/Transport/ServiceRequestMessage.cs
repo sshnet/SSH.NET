@@ -6,10 +6,27 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_SERVICE_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_SERVICE_REQUEST", 5)]
     public class ServiceRequestMessage : Message
     {
         private readonly byte[] _serviceName;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_SERVICE_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 5;
+            }
+        }
 
         /// <summary>
         /// Gets the name of the service.

@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_KEXDH_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEXDH_REPLY", 31)]
     public class KeyExchangeDhReplyMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEXDH_REPLY";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 31;
+            }
+        }
+
         /// <summary>
         /// Gets server public host key and certificates.
         /// </summary>

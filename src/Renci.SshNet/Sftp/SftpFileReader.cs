@@ -16,7 +16,7 @@ namespace Renci.SshNet.Sftp
         private readonly byte[] _handle;
         private readonly ISftpSession _sftpSession;
         private readonly uint _chunkSize;
-        private readonly SemaphoreLight _semaphore;
+        private readonly SemaphoreSlim _semaphore;
         private readonly object _readLock;
         private readonly ManualResetEvent _disposingWaitHandle;
         private readonly ManualResetEvent _readAheadCompleted;
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Sftp
             _sftpSession = sftpSession;
             _chunkSize = chunkSize;
             _fileSize = fileSize;
-            _semaphore = new SemaphoreLight(maxPendingReads);
+            _semaphore = new SemaphoreSlim(maxPendingReads);
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();
             _readAheadCompleted = new ManualResetEvent(initialState: false);

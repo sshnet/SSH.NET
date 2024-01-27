@@ -31,8 +31,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _path = random.Next().ToString();
             _handle = new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)};
             _bufferSize = (uint) random.Next(1, 1000);
-            _readBufferSize = (uint) random.Next(0, 1000);
-            _writeBufferSize = (uint) random.Next(0, 1000);
+            _readBufferSize = (uint) random.Next(1, 1000);
+            _writeBufferSize = (uint) random.Next(1, 1000);
 
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 

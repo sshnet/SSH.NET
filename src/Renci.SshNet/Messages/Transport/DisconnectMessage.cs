@@ -3,11 +3,28 @@
     /// <summary>
     /// Represents SSH_MSG_DISCONNECT message.
     /// </summary>
-    [Message("SSH_MSG_DISCONNECT", 1)]
     public class DisconnectMessage : Message, IKeyExchangedAllowed
     {
         private byte[] _description;
         private byte[] _language;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_DISCONNECT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 1;
+            }
+        }
 
         /// <summary>
         /// Gets disconnect reason code.

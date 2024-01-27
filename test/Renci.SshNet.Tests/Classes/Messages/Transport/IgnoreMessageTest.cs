@@ -68,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual(IgnoreMessage.MessageNumber, sshDataStream.ReadByte());
+            Assert.AreEqual(request.MessageNumber, sshDataStream.ReadByte());
             Assert.AreEqual((uint) _data.Length, sshDataStream.ReadUInt32());
 
             var actualData = new byte[_data.Length];

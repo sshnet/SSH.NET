@@ -2,13 +2,18 @@
 
 using Renci.SshNet.IntegrationTests.TestsFixtures;
 
-namespace Renci.SshNet.Benchmarks.IntegrationBenchmarks
+namespace Renci.SshNet.IntegrationBenchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob]
-    public class Test : IntegrationBenchmarkBase
+    public class SshClientBenchmark : IntegrationBenchmarkBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
+
+        public SshClientBenchmark()
+        {
+            _infrastructureFixture = InfrastructureFixture.Instance;
+        }
 
         [GlobalSetup]
         public async Task Setup()
@@ -20,11 +25,6 @@ namespace Renci.SshNet.Benchmarks.IntegrationBenchmarks
         public async Task Cleanup()
         {
             await GlobalCleanup().ConfigureAwait(false);
-        }
-
-        public Test()
-        {
-            _infrastructureFixture = InfrastructureFixture.Instance;
         }
 
         [Benchmark]

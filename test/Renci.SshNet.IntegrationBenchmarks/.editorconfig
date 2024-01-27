@@ -1,0 +1,72 @@
+﻿[*.cs]
+
+#### Sonar rules ####
+
+# S125: Sections of code should not be commented out
+https://rules.sonarsource.com/csharp/RSPEC-125/
+dotnet_diagnostic.S125.severity = suggestion
+
+# S1118: Utility classes should not have public constructors
+# https://rules.sonarsource.com/csharp/RSPEC-1118/
+dotnet_diagnostic.S1118.severity = suggestion
+
+# S1450: Private fields only used as local variables in methods should become local variables
+# https://rules.sonarsource.com/csharp/RSPEC-1450/
+dotnet_diagnostic.S1450.severity = suggestion
+
+# S4144: Methods should not have identical implementations
+# https://rules.sonarsource.com/csharp/RSPEC-4144/
+dotnet_diagnostic.S4144.severity = suggestion
+
+#### SYSLIB diagnostics ####
+
+
+#### StyleCop Analyzers rules ####
+
+# SA1028: Code must not contain trailing whitespace
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1028.md
+dotnet_diagnostic.SA1028.severity = suggestion
+
+# SA1414: Tuple types in signatures should have element names
+https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1414.md
+dotnet_diagnostic.SA1414.severity = suggestion
+
+# SA1400: Access modifier must be declared
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1400.md
+dotnet_diagnostic.SA1400.severity = suggestion
+
+# SA1401: Fields must be private
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1401.md
+dotnet_diagnostic.SA1401.severity = suggestion
+
+# SA1411: Attribute constructor must not use unnecessary parenthesis
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1411.md
+dotnet_diagnostic.SA1411.severity = suggestion
+
+# SA1505: Opening braces must not be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1505.md
+dotnet_diagnostic.SA1505.severity = suggestion
+
+# SA1512: Single line comments must not be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1512.md
+dotnet_diagnostic.SA1512.severity = suggestion
+
+# SA1513: Closing brace must be followed by blank line
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1513.md
+dotnet_diagnostic.SA1513.severity = suggestion
+
+#### Meziantou.Analyzer rules ####
+
+# MA0003: Add parameter name to improve readability
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0003.md
+dotnet_diagnostic.MA0003.severity = suggestion
+
+# MA0053: Make class sealed
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
+dotnet_diagnostic.MA0053.severity = suggestion
+
+#### .NET Compiler Platform analysers rules ####
+
+# CA2000: Dispose objects before losing scope
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
+dotnet_diagnostic.CA2000.severity = suggestion

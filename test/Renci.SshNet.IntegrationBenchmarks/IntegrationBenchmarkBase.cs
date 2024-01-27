@@ -1,6 +1,6 @@
 ﻿using Renci.SshNet.IntegrationTests.TestsFixtures;
 
-namespace Renci.SshNet.Benchmarks.IntegrationBenchmarks
+namespace Renci.SshNet.IntegrationBenchmarks
 {
     public class IntegrationBenchmarkBase
     {
@@ -9,6 +9,7 @@ namespace Renci.SshNet.Benchmarks.IntegrationBenchmarks
         {
             await InfrastructureFixture.Instance.InitializeAsync().ConfigureAwait(false);
         }
+
         public async Task GlobalCleanup()
         {
             await InfrastructureFixture.Instance.DisposeAsync().ConfigureAwait(false);

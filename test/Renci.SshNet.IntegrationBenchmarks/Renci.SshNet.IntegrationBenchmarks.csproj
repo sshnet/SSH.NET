@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,8 +15,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
+    <ProjectReference Include="..\Renci.SshNet.IntegrationTests\Renci.SshNet.IntegrationTests.csproj" />
   </ItemGroup>
-
+    
   <ItemGroup>
     <EmbeddedResource Include="..\Data\*" LinkBase="Data" />
   </ItemGroup>

@@ -129,9 +129,7 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             ReadOnlySpan<char> value = s;
             var count = encoding.GetByteCount(value);
-            Span<byte> bytes = count <= 256
-                ? stackalloc byte[count]
-                : new byte[count]
+            var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
             encoding.GetBytes(value, bytes);
             Write((uint) count);
             Write(bytes);

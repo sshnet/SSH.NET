@@ -29,10 +29,14 @@
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" Visible="false" />
   </ItemGroup>
 
-  <!--
+<!--
         Use fixed version of analyzers.
     -->
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+      <PrivateAssets>all</PrivateAssets>
+      <Version>3.6.133</Version>
+    </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
     <PackageReference Include="Meziantou.Analyzer" Version="2.0.103" PrivateAssets="all" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.16.0.82469" PrivateAssets="all" />

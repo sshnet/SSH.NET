@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_EOF message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_EOF", 96)]
     public class ChannelEofMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_EOF";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 96;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelEofMessage"/> class.
         /// </summary>

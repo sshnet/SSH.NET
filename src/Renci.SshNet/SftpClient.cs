@@ -583,7 +583,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return InternalListDirectory(path, listCallback);
+            return InternalListDirectory(path, asyncResult: null, listCallback);
         }
 
         /// <summary>
@@ -666,12 +666,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    var result = InternalListDirectory(path, count =>
-                    {
-                        asyncResult.Update(count);
-
-                        listCallback?.Invoke(count);
-                    });
+                    var result = InternalListDirectory(path, asyncResult, listCallback);
 
                     asyncResult.SetAsCompleted(result, completedSynchronously: false);
                 }
@@ -898,12 +893,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalDownloadFile(path, output, asyncResult, offset =>
-                    {
-                        asyncResult.Update(offset);
-
-                        downloadCallback?.Invoke(offset);
-                    });
+                    InternalDownloadFile(path, output, asyncResult, downloadCallback);
 
                     asyncResult.SetAsCompleted(exception: null, completedSynchronously: false);
                 }
@@ -1131,11 +1121,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalUploadFile(input, path, flags, asyncResult, offset =>
-                        {
-                            asyncResult.Update(offset);
-                            uploadCallback?.Invoke(offset);
-                        });
+                    InternalUploadFile(input, path, flags, asyncResult, uploadCallback);
 
                     asyncResult.SetAsCompleted(exception: null, completedSynchronously: false);
                 }
@@ -2200,7 +2186,7 @@ namespace Renci.SshNet
 
                 #region Existing Files at The Destination
 
-                var destFiles = InternalListDirectory(destinationPath, listCallback: null);
+                var destFiles = InternalListDirectory(destinationPath, asyncResult: null, listCallback: null);
                 var destDict = new Dictionary<string, ISftpFile>();
                 foreach (var destFile in destFiles)
                 {
@@ -2268,13 +2254,14 @@ namespace Renci.SshNet
         /// Internals the list directory.
         /// </summary>
         /// <param name="path">The path.</param>
+        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
         /// <param name="listCallback">The list callback.</param>
         /// <returns>
         /// A list of files in the specfied directory.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private List<ISftpFile> InternalListDirectory(string path, Action<int> listCallback)
+        private List<ISftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult asyncResult, Action<int> listCallback)
         {
             if (path is null)
             {
@@ -2313,6 +2300,8 @@ namespace Renci.SshNet
                                             string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key),
                                             f.Value));
                 }
+
+                asyncResult?.Update(result.Count);
 
                 // Call callback to report number of files read
                 if (listCallback is not null)
@@ -2379,6 +2368,8 @@ namespace Renci.SshNet
                     output.Write(data, 0, data.Length);
 
                     totalBytesRead += (ulong) data.Length;
+
+                    asyncResult?.Update(totalBytesRead);
 
                     if (downloadCallback is not null)
                     {
@@ -2451,6 +2442,8 @@ namespace Renci.SshNet
                             {
                                 _ = Interlocked.Decrement(ref expectedResponses);
                                 _ = responseReceivedWaitHandle.Set();
+
+                                asyncResult?.Update(writtenBytes);
 
                                 // Call callback to report number of bytes written
                                 if (uploadCallback is not null)

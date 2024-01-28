@@ -81,7 +81,11 @@ namespace Renci.SshNet.Connection
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
             // when the connection has been established
+#if NET6_0_OR_GREATER
+            await SocketAbstraction.SendAsync(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"), cancellationToken).ConfigureAwait(false);
+#else
             SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+#endif // NET6_0_OR_GREATER
 
             var bytesReceived = new List<byte>();
 
@@ -187,7 +191,7 @@ namespace Renci.SshNet.Connection
             // to be processed by subsequent invocations.
             while (true)
             {
-                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, 0, data.Length, cancellationToken).ConfigureAwait(false);
+                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new SshConnectionException("The connection was closed by the remote host.");

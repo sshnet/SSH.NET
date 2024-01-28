@@ -58,9 +58,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
-        /// </example>
         public ForwardedPortLocal(uint boundPort, string host, uint port)
             : this(string.Empty, boundPort, host, port)
         {
@@ -201,7 +198,7 @@ namespace Renci.SshNet
 
         private void InternalStart()
         {
-            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
+            var addr = Dns.GetHostAddresses(BoundHost)[0];
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };

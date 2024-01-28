@@ -36,7 +36,7 @@ namespace Renci.SshNet
         /// <value>
         /// The session semaphore.
         /// </value>
-        SemaphoreLight SessionSemaphore { get; }
+        SemaphoreSlim SessionSemaphore { get; }
 
         /// <summary>
         /// Gets a <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete.

@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual(ChannelOpenMessage.MessageNumber, sshDataStream.ReadByte());
+            Assert.AreEqual(target.MessageNumber, sshDataStream.ReadByte());
 
             var actualChannelTypeLength = sshDataStream.ReadUInt32();
             Assert.AreEqual((uint) target.ChannelType.Length, actualChannelTypeLength);
@@ -225,16 +225,16 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
             var channelName = "dunno_" + _random.Next().ToString(CultureInfo.InvariantCulture);
             var channelType = _ascii.GetBytes(channelName);
+            var target = new ChannelOpenMessage();
 
             var sshDataStream = new SshDataStream(1 + 4 + channelType.Length + 4 + 4 + 4);
-            sshDataStream.WriteByte(ChannelOpenMessage.MessageNumber);
+            sshDataStream.WriteByte(target.MessageNumber);
             sshDataStream.Write((uint) channelType.Length);
             sshDataStream.Write(channelType, 0, channelType.Length);
             sshDataStream.Write(localChannelNumber);
             sshDataStream.Write(initialWindowSize);
             sshDataStream.Write(maximumPacketSize);
             var bytes = sshDataStream.ToArray();
-            var target = new ChannelOpenMessage();
 
             try
             {

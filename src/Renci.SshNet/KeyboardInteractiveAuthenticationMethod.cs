@@ -125,9 +125,19 @@ namespace Renci.SshNet
 
                         var informationResponse = new InformationResponseMessage();
 
-                        foreach (var response in from r in eventArgs.Prompts orderby r.Id ascending select r.Response)
+                        foreach (var prompt in eventArgs.Prompts.OrderBy(r => r.Id))
                         {
-                            informationResponse.Responses.Add(response);
+                            if (prompt.Response is null)
+                            {
+                                throw new SshAuthenticationException(
+                                    $"{nameof(AuthenticationPrompt)}.{nameof(prompt.Response)} is null for " +
+                                    $"prompt \"{prompt.Request}\". You can set this by subscribing to " +
+                                    $"{nameof(KeyboardInteractiveAuthenticationMethod)}.{nameof(AuthenticationPrompt)} " +
+                                    $"and inspecting the {nameof(AuthenticationPromptEventArgs.Prompts)} property " +
+                                    $"of the event args.");
+                            }
+
+                            informationResponse.Responses.Add(prompt.Response);
                         }
 
                         // Send information response message

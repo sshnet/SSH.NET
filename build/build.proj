@@ -11,7 +11,7 @@
 
 	<ItemGroup>
 		<VisualStudioVersionModern Include="2022">
-			<SolutionFile>$(MSBuildThisFileDirectory)..\src\Renci.SshNet.sln</SolutionFile>
+			<SolutionFile>$(MSBuildThisFileDirectory)..\Renci.SshNet.sln</SolutionFile>
 			<VisualStudioVersion>17.0</VisualStudioVersion>
 		</VisualStudioVersionModern>
 	</ItemGroup>
@@ -36,6 +36,10 @@
 		<TargetFrameworkModern Include=".NET 7.0">
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net7.0</OutputDirectory>
 			<Moniker>net7.0</Moniker>
+		</TargetFrameworkModern>
+		<TargetFrameworkModern Include=".NET 8.0">
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net8.0</OutputDirectory>
+			<Moniker>net8.0</Moniker>
 		</TargetFrameworkModern>
 	</ItemGroup>
 

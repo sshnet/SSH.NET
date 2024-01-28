@@ -5,11 +5,6 @@ VisualStudioVersion = 17.5.33326.253
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{94EE3919-19FA-4D9B-8DA9-249050B15232}"
-	ProjectSection(SolutionItems) = preProject
-		build\nuget\SSH.NET.nuspec = build\nuget\SSH.NET.nuspec
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandcastle", "sandcastle", "{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1}"
 	ProjectSection(SolutionItems) = preProject
 		build\sandcastle\SSH.NET.shfbproj = build\sandcastle\SSH.NET.shfbproj
@@ -202,7 +197,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D} = {04E8CC26-116E-4116-9558-7ED542548E70}
-		{94EE3919-19FA-4D9B-8DA9-249050B15232} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
 		{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
 		{D21A4D03-0AC2-4613-BB6D-74D2D16A72CC} = {04E8CC26-116E-4116-9558-7ED542548E70}
 		{2F4155AA-750A-4D33-B2E6-ED06660016CE} = {04E8CC26-116E-4116-9558-7ED542548E70}

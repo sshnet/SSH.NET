@@ -83,7 +83,7 @@
 	</Target>
 	
 	<Target Name="CreateNuGetPackage" DependsOnTargets="ValidatePackage;CheckNuGetPackageDirectory;CheckReleaseVersion">
-		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -Version &quot;$(ReleaseVersion)&quot; -Properties &quot;copyright=2012-$([System.DateTime]::Now.Year), RENCI&quot; -BasePath &quot;$(NuGetPackageDirectory)&quot; -NonInteractive"/>
+		<Exec Command="dotnet pack $(MSBuildThisFileDirectory)..\src\Renci.SshNet\Renci.SshNet.csproj --no-build --output &quot;$(MSBuildThisFileDirectory)target&quot;"/>
 	</Target>
 	
 	<Target Name="GenerateHelpFile" DependsOnTargets="CheckReleaseVersion">

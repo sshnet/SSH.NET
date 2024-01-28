@@ -1,8 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Renci.SshNet</AssemblyName>
+    <Product>SSH.NET</Product>
+    <AssemblyTitle>SSH.NET</AssemblyTitle>
     <TargetFrameworks>net462;netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>SSH.NET</PackageId>
+    <Title>SSH.NET</Title>
+    <Version>2023.0.1</Version>
+    <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
+    <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Renci</Authors>
+    <PackageIcon>SS-NET-icon-h500.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>ssh; scp; sftp</PackageTags>
+    <PackageReleaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/$(Version)</PackageReleaseNotes>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
@@ -22,4 +39,16 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\logo\png\SS-NET-icon-h500.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>

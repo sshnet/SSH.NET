@@ -25,7 +25,6 @@
     <PackageReference Include="SSH.NET" Version="2023.0.0" ExcludeAssets="All" />
 
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
-    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
     <PackageReference Include="coverlet.msbuild" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

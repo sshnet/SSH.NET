@@ -12,20 +12,25 @@ for:
       - image: Ubuntu2204
 
   install:
-    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0=8.0.100-1
+    - sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0=8.0.100-1
     
-  before_build:
-    - sh: mkdir artifacts -p
+#  before_build:
+#    - sh: mkdir artifacts -p
           
   build_script:
     - echo build
     - dotnet build Renci.SshNet.sln -c Debug -f net8.0
 
   test_script:
-    - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-    - sh: echo "Run integration tests"
-    - sh: dotnet test -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - echo "Run unit tests"
+    - dotnet test -f net8.0 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true  test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - echo "Run integration tests"
+    - dotnet test -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+
+  after_test:
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - sudo chmod +x codecov
+    - ./codecov
 
 #  on_failure:
 #    - sh: appveyor PushArtifact artifacts/tcpdump.pcap
@@ -36,24 +41,30 @@ for:
       - image: Visual Studio 2022
 
   install:
-    - ps: choco install dotnet-8.0-sdk --version=8.0.100
+    - choco install dotnet-8.0-sdk --version=8.0.100
 
-  before_build:
-    - ps: mkdir artifacts -f
+#  before_build:
+#    - ps: mkdir artifacts -f
 
   build_script:
     - echo build
     - dotnet build Renci.SshNet.sln -c Debug
 
   test_script:
-    - ps: echo "Run unit tests for .NET 8.0"
-    - ps: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-    - ps: echo "Run unit tests for .NET Framework 4.6.2"
-    - ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - echo "Run unit tests for .NET 8.0"
+    - dotnet test -f net8.0 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - echo "Run unit tests for .NET Framework 4.6.2"
+    - dotnet test -f net462 -c Debug --no-build --logger Appveyor --logger "console;verbosity=normal" --collect "XPlat Code Coverage" /p:UseSourceLink=true test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+
+  after_test:
+    - ps: |
+        $ProgressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+        .\codecov.exe
 
 #  on_failure:
 #    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap
 
-artifacts:
-  - path: artifacts
-    name: artifacts
+#  artifacts:
+#    - path: artifacts
+#      name: artifacts

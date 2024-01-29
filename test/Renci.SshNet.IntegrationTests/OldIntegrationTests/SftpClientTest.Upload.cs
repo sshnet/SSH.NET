@@ -78,9 +78,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestCategory("Sftp")]
         public void Test_Sftp_Multiple_Async_Upload_And_Download_10Files_5MB_Each()
         {
-            // Works for up to 2 files, but fails for more files (on my machine).
-            // I get either "Renci.SshNet.Common.SshException: Channel was closed" or timeout exception.
-            var maxFiles = 2;
+            var maxFiles = 10;
             var maxSize = 5;
 
             RemoveAllFiles();

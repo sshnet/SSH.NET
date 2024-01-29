@@ -45,10 +45,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(2048, target.KeyLength);
         }
 
-// Excluding on net462 platform, because using MD5 hash throws: System.InvalidOperationException:
-// 'This implementation is not part of the Windows Platform FIPS validated cryptographic algorithms.'
-#if !NET462_TARGET_FRAMEWORK
-
         /// <summary>
         ///A test for MD5 calculation in HostKeyEventArgs Constructor
         ///</summary>
@@ -62,8 +58,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("92:ea:54:a1:01:f9:95:9c:71:d9:bb:51:b2:55:f8:d9", target.FingerPrintMD5);
 
         }
-
-#endif
 
         /// <summary>
         ///A test for SHA256 calculation in HostKeyEventArgs Constructor

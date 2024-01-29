@@ -3,10 +3,6 @@
     <TargetFrameworks>net462;net6.0;net7.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);NET462_TARGET_FRAMEWORK</DefineConstants>
-  </PropertyGroup>
-  
   <ItemGroup>
     <EmbeddedResource Include="..\Data\*" LinkBase="Data" />
   </ItemGroup>

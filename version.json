@@ -16,5 +16,5 @@
     "branchName" : "master",
     "versionIncrement" : "build",
     "firstUnstableTag" : "beta"
-  },
+  }
 }

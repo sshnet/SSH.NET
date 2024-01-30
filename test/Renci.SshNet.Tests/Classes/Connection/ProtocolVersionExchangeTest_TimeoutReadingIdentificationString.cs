@@ -52,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected void Arrange()
         {
-            _clientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
+            _clientVersion = "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion;
             _timeout = TimeSpan.FromMilliseconds(200);
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _dataReceivedByServer = new List<byte>();

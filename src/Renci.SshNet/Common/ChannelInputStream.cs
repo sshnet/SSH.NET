@@ -128,9 +128,6 @@ namespace Renci.SshNet.Common
 
             _channel.SendData(buffer, offset, count);
             _totalPosition += count;
-
-            // Must send EOF, otherwise SshCommand.EndExecute never gets called.
-            _channel.SendEof();
         }
 
         /// <summary>
@@ -142,16 +139,18 @@ namespace Renci.SshNet.Common
         /// </remarks>
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
             if (!_isDisposed)
             {
                 _isDisposed = true;
-                if (_totalPosition > 0 && _channel.IsOpen)
+
+                // Closing the InputStream requires sending EOF.
+                if (_totalPosition > 0 && _channel?.IsOpen == true)
                 {
                     _channel.SendEof();
                 }
             }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

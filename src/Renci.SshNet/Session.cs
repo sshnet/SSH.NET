@@ -119,7 +119,7 @@ namespace Renci.SshNet
         /// This is also used to ensure that <see cref="_socket"/> will not be disposed
         /// while performing a given operation or set of operations on <see cref="_socket"/>.
         /// </remarks>
-        private readonly object _socketDisposeLock = new object();
+        private readonly SemaphoreSlim _socketDisposeLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can connect
@@ -1127,12 +1127,14 @@ namespace Renci.SshNet
         /// </para>
         /// <para>
         /// This method is only to be used when the connection is established, as the locking
-        /// overhead is not required while establising the connection.
+        /// overhead is not required while establishing the connection.
         /// </para>
         /// </remarks>
         private void SendPacket(byte[] packet, int offset, int length)
         {
-            lock (_socketDisposeLock)
+            _socketDisposeLock.Wait();
+
+            try
             {
                 if (!_socket.IsConnected())
                 {
@@ -1140,6 +1142,10 @@ namespace Renci.SshNet
                 }
 
                 SocketAbstraction.Send(_socket, packet, offset, length);
+            }
+            finally
+            {
+                _ = _socketDisposeLock.Release();
             }
         }
 
@@ -1788,21 +1794,43 @@ namespace Renci.SshNet
         /// when the value of <see cref="Socket.Available"/> is obtained. To workaround this issue
         /// we synchronize reads from the <see cref="Socket"/>.
         /// </para>
+        /// <para>
+        /// We assume the socket is still connected if the read lock cannot be acquired immediately.
+        /// In this case, we just return <see langword="true"/> without actually waiting to acquire
+        /// the lock. We don't want to wait for the read lock if another thread already has it because
+        /// there are cases where the other thread holding the lock can be waiting indefinitely for
+        /// a socket read operation to complete.
+        /// </para>
         /// </remarks>
         private bool IsSocketConnected()
         {
-            lock (_socketDisposeLock)
+            _socketDisposeLock.Wait();
+
+            try
             {
                 if (!_socket.IsConnected())
                 {
                     return false;
                 }
 
-                lock (_socketReadLock)
+                if (!Monitor.TryEnter(_socketReadLock))
+                {
+                    return true;
+                }
+
+                try
                 {
                     var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
                     return !(connectionClosedOrDataAvailable && _socket.Available == 0);
                 }
+                finally
+                {
+                    Monitor.Exit(_socketReadLock);
+                }
+            }
+            finally
+            {
+                _ = _socketDisposeLock.Release();
             }
         }
 
@@ -1830,9 +1858,13 @@ namespace Renci.SshNet
         {
             if (_socket != null)
             {
-                lock (_socketDisposeLock)
+                _socketDisposeLock.Wait();
+
+                try
                 {
+#pragma warning disable CA1508 // Avoid dead conditional code; Value could have been changed by another thread.
                     if (_socket != null)
+#pragma warning restore CA1508 // Avoid dead conditional code
                     {
                         if (_socket.Connected)
                         {
@@ -1860,6 +1892,10 @@ namespace Renci.SshNet
                         DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
                     }
+                }
+                finally
+                {
+                    _ = _socketDisposeLock.Release();
                 }
             }
         }

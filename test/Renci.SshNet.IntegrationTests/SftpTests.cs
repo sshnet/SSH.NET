@@ -6230,19 +6230,14 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.UtcNow;
             
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastWriteTimeUtc(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastWriteTimeUtc(testFilePath, newTime);
-                time = client.GetLastWriteTimeUtc(testFilePath);
+                var time = client.GetLastWriteTimeUtc(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }

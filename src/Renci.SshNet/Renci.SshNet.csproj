@@ -1,23 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Renci.SshNet</AssemblyName>
+    <Product>SSH.NET</Product>
+    <AssemblyTitle>SSH.NET</AssemblyTitle>
     <TargetFrameworks>net462;netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_DNS_SYNC;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_RIPEMD160</DefineConstants>
+  <PropertyGroup>
+    <PackageId>SSH.NET</PackageId>
+    <Title>SSH.NET</Title>
+    <Version>2023.0.1</Version>
+    <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
+    <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Renci</Authors>
+    <PackageIcon>SS-NET-icon-h500.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>ssh; scp; sftp</PackageTags>
+    <PackageReleaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/$(Version)</PackageReleaseNotes>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0' ">
+  <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_RIPEMD160</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1')) ">
     <PackageReference Include="SshNet.Security.Cryptography" Version="[1.3.0]" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SOCKET_TAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_EAP;FEATURE_DNS_SYNC;FEATURE_DNS_APM;FEATURE_DNS_TAP</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\images\logo\png\SS-NET-icon-h500.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>

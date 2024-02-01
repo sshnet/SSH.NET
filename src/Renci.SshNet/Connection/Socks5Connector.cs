@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
 using Renci.SshNet.Abstractions;
@@ -243,7 +244,7 @@ namespace Renci.SshNet.Connection
 
         private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
         {
-            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+            var ip = Dns.GetHostAddresses(hostname)[0];
 
             byte[] address;
 

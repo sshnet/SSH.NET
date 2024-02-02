@@ -80,7 +80,12 @@ namespace Renci.SshNet
                 throw new InvalidOperationException($"The input stream can be used only after calling BeginExecute and before calling EndExecute.");
             }
 
-            _inputStream ??= new ChannelInputStream(_channel);
+            if (_inputStream != null)
+            {
+                throw new InvalidOperationException($"The input stream already exists.");
+            }
+
+            _inputStream = new ChannelInputStream(_channel);
             return _inputStream;
         }
 

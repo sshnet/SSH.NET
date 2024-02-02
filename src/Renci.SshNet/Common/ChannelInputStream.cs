@@ -8,7 +8,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// ChannelInputStream is a one direction stream intended for channel data.
     /// </summary>
-    public class ChannelInputStream : Stream
+    internal sealed class ChannelInputStream : Stream
     {
         /// <summary>
         /// Channel to send data to.
@@ -134,9 +134,6 @@ namespace Renci.SshNet.Common
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        /// <remarks>
-        /// Disposing a <see cref="PipeStream"/> will interrupt blocking read and write operations.
-        /// </remarks>
         protected override void Dispose(bool disposing)
         {
             if (!_isDisposed)
@@ -144,7 +141,7 @@ namespace Renci.SshNet.Common
                 _isDisposed = true;
 
                 // Closing the InputStream requires sending EOF.
-                if (_totalPosition > 0 && _channel?.IsOpen == true)
+                if (disposing && _totalPosition > 0 && _channel?.IsOpen == true)
                 {
                     _channel.SendEof();
                 }

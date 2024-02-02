@@ -7,6 +7,7 @@ using System.Text;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Security;
@@ -46,7 +47,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
+        public IDictionary<string, Func<IKeyExchange>> KeyExchangeAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets supported encryptions for this connection.
@@ -71,7 +72,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported compression algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Type> CompressionAlgorithms { get; private set; }
+        public IDictionary<string, Func<Compressor>> CompressionAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets the supported channel requests for this connection.
@@ -337,19 +338,19 @@ namespace Renci.SshNet
             MaxSessions = 10;
             Encoding = Encoding.UTF8;
 
-            KeyExchangeAlgorithms = new Dictionary<string, Type>
+            KeyExchangeAlgorithms = new Dictionary<string, Func<IKeyExchange>>
                 {
-                    { "curve25519-sha256", typeof(KeyExchangeECCurve25519) },
-                    { "curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519) },
-                    { "ecdh-sha2-nistp256", typeof(KeyExchangeECDH256) },
-                    { "ecdh-sha2-nistp384", typeof(KeyExchangeECDH384) },
-                    { "ecdh-sha2-nistp521", typeof(KeyExchangeECDH521) },
-                    { "diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256) },
-                    { "diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1) },
-                    { "diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512) },
-                    { "diffie-hellman-group14-sha256", typeof(KeyExchangeDiffieHellmanGroup14Sha256) },
-                    { "diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1) },
-                    { "diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1) },
+                    { "curve25519-sha256", () => new KeyExchangeECCurve25519() },
+                    { "curve25519-sha256@libssh.org", () => new KeyExchangeECCurve25519() },
+                    { "ecdh-sha2-nistp256", () => new KeyExchangeECDH256() },
+                    { "ecdh-sha2-nistp384", () => new KeyExchangeECDH384() },
+                    { "ecdh-sha2-nistp521", () => new KeyExchangeECDH521() },
+                    { "diffie-hellman-group-exchange-sha256", () => new KeyExchangeDiffieHellmanGroupExchangeSha256() },
+                    { "diffie-hellman-group-exchange-sha1", () => new KeyExchangeDiffieHellmanGroupExchangeSha1() },
+                    { "diffie-hellman-group16-sha512", () => new KeyExchangeDiffieHellmanGroup16Sha512() },
+                    { "diffie-hellman-group14-sha256", () => new KeyExchangeDiffieHellmanGroup14Sha256() },
+                    { "diffie-hellman-group14-sha1", () => new KeyExchangeDiffieHellmanGroup14Sha1() },
+                    { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
             Encryptions = new Dictionary<string, CipherInfo>
@@ -402,7 +403,7 @@ namespace Renci.SshNet
                     { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))) },
                 };
 
-            CompressionAlgorithms = new Dictionary<string, Type>
+            CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
                 {
                     { "none", null },
                 };

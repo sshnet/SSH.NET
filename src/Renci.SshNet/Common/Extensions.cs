@@ -93,23 +93,6 @@ namespace Renci.SshNet.Common
             Debug.WriteLine(sb.ToString());
         }
 
-        /// <summary>
-        /// Creates an instance of the specified type using that type's default constructor.
-        /// </summary>
-        /// <typeparam name="T">The type to create.</typeparam>
-        /// <param name="type">Type of the instance to create.</param>
-        /// <returns>A reference to the newly created object.</returns>
-        internal static T CreateInstance<T>(this Type type)
-            where T : class
-        {
-            if (type is null)
-            {
-                return null;
-            }
-
-            return Activator.CreateInstance(type) as T;
-        }
-
         internal static void ValidatePort(this uint value, string argument)
         {
             if (value > IPEndPoint.MaxPort)

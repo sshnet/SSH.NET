@@ -33,7 +33,13 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.48-alpha" PrivateAssets="all" />
+    <!--
+    3.7.57-alpha comes from the project's CI feed as defined in nuget.config,
+    in order to pick up https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029.
+    When a newer version is published to nuget.org, update the version here and delete
+    nuget.config (or just the CI feed).
+    -->
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.57-alpha" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1')) ">

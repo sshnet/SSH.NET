@@ -385,6 +385,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "AuthorizedKeysFile":
                 case "PasswordAuthentication":
                 case "GatewayPorts":
+                case "Include":
                     break;
                 default:
                     throw new NotSupportedException($"Global option '{name}' is not supported.");

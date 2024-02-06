@@ -31,6 +31,7 @@ namespace Renci.SshNet
         private StringBuilder _error;
         private bool _hasError;
         private bool _isDisposed;
+        private ChannelInputStream _inputStream;
 
         /// <summary>
         /// Gets the command text.
@@ -63,6 +64,30 @@ namespace Renci.SshNet
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream ExtendedOutputStream { get; private set; }
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
+
+        /// <summary>
+        /// Creates and returns the input stream for the command.
+        /// </summary>
+        /// <returns>
+        /// The stream that can be used to transfer data to the command's input stream.
+        /// </returns>
+ #pragma warning disable CA1859 // Use concrete types when possible for improved performance
+        public Stream CreateInputStream()
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+        {
+            if (_channel == null)
+            {
+                throw new InvalidOperationException($"The input stream can be used only after calling BeginExecute and before calling EndExecute.");
+            }
+
+            if (_inputStream != null)
+            {
+                throw new InvalidOperationException($"The input stream already exists.");
+            }
+
+            _inputStream = new ChannelInputStream(_channel);
+            return _inputStream;
+        }
 
         /// <summary>
         /// Gets the command execution result.
@@ -217,7 +242,6 @@ namespace Renci.SshNet
                     AsyncState = state,
                 };
 
-            // When command re-executed again, create a new channel
             if (_channel is not null)
             {
                 throw new SshException("Invalid operation.");
@@ -252,6 +276,7 @@ namespace Renci.SshNet
 
             _channel = CreateChannel();
             _channel.Open();
+
             _ = _channel.SendExecRequest(CommandText);
 
             return _asyncResult;
@@ -300,6 +325,8 @@ namespace Renci.SshNet
                 {
                     throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
                 }
+
+                _inputStream?.Close();
 
                 // wait for operation to complete (or time out)
                 WaitOnHandle(_asyncResult.AsyncWaitHandle);
@@ -550,6 +577,13 @@ namespace Renci.SshNet
                 {
                     UnsubscribeFromEventsAndDisposeChannel(channel);
                     _channel = null;
+                }
+
+                var inputStream = _inputStream;
+                if (inputStream != null)
+                {
+                    inputStream.Dispose();
+                    _inputStream = null;
                 }
 
                 var outputStream = OutputStream;

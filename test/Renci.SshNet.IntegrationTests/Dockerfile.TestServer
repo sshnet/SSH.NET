@@ -10,7 +10,8 @@ RUN apk update && apk upgrade --no-cache && \
     apk add --no-cache openssh && \
     # install openssh-server-pam to allow for keyboard-interactive authentication
     apk add --no-cache openssh-server-pam && \
-    dos2unix /etc/ssh/* && \
+    # must not use * for dos2unix parameter otherwise it tries to process folders too and fails
+    dos2unix /etc/ssh/ssh*key && \
     chmod 400 /etc/ssh/ssh*key && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     sed -i 's/#LogLevel\s*INFO/LogLevel DEBUG3/' /etc/ssh/sshd_config && \
@@ -28,7 +29,8 @@ RUN apk update && apk upgrade --no-cache && \
     adduser -D sshnet && \
     passwd -u sshnet && \
     echo 'sshnet:ssh4ever' | chpasswd && \
-    dos2unix /home/sshnet/.ssh/* && \
+    # must not use * for dos2unix parameter otherwise it tries to process folders too and fails
+    dos2unix /home/sshnet/.ssh/*_key* && \
     chown -R sshnet:sshnet /home/sshnet && \
     chmod -R 700 /home/sshnet/.ssh && \
     chmod -R 644 /home/sshnet/.ssh/authorized_keys && \

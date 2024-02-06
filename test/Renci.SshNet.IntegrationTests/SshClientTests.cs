@@ -34,7 +34,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 using (var inputStream = command.CreateInputStream())
                 {
-                    inputStream.Write(inputByteArray);
+                    inputStream.Write(inputByteArray, 0, inputByteArray.Length);
                 }
 
                 command.EndExecute(asyncResult);

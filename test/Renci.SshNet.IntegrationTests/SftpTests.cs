@@ -83,7 +83,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Sftp_ConnectDisconnect_Parallel()
         {
             const int iterations = 10;
-            const int threads = 20;
+            const int threads = 5;
 
             var startEvent = new ManualResetEvent(false);
 

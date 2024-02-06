@@ -4,9 +4,7 @@
     {
         public static DateTime TruncateToWholeSeconds(this DateTime dateTime)
         {
-            return dateTime.AddMilliseconds(-dateTime.Millisecond)
-                           .AddMicroseconds(-dateTime.Microsecond)
-                           .AddTicks(-(dateTime.Nanosecond / 100));
+            return new DateTime(dateTime.Ticks - (dateTime.Ticks % TimeSpan.TicksPerSecond), dateTime.Kind);
         }
     }
 }

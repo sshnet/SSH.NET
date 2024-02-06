@@ -29,7 +29,11 @@ namespace Renci.SshNet.IntegrationTests
                     while ((line = sr.ReadLine()) != null)
                     {
                         // skip comments
+#if NET
                         if (line.StartsWith('#'))
+#else
+                        if (line.StartsWith("#"))
+#endif
                         {
                             continue;
                         }

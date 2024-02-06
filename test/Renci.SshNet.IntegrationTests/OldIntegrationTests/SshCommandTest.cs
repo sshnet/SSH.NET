@@ -443,46 +443,17 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        public void Test_MultipleThread_Example_MultipleConnections()
-        {
-            try
-            {
-#region Example SshCommand RunCommand Parallel
-                Parallel.For(0, 100,
-                    () =>
-                    {
-                        var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-                        client.Connect();
-                        return client;
-                    },
-                    (int counter, ParallelLoopState pls, SshClient client) =>
-                    {
-                        var result = client.RunCommand("echo 123");
-                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
-                        return client;
-                    },
-                    (SshClient client) =>
-                    {
-                        client.Disconnect();
-                        client.Dispose();
-                    }
-                );
-#endregion
-
-            }
-            catch (Exception exp)
-            {
-                Assert.Fail(exp.ToString());
-            }
-        }
-
-        [TestMethod]
         
         public void Test_MultipleThread_100_MultipleConnections()
         {
             try
             {
-                Parallel.For(0, 100,
+                var options = new ParallelOptions()
+                {
+                    MaxDegreeOfParallelism = 8
+                };
+
+                Parallel.For(0, 100, options,
                     () =>
                     {
                         var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);

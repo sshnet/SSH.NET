@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -317,7 +317,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log("Disconnecting client.");
+            Diagnostic.Log("Disconnecting client.", TraceEventType.Verbose);
 
             CheckDisposed();
 
@@ -416,7 +416,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                DiagnosticAbstraction.Log("Disposing client.");
+                Diagnostic.Log("Disposing client.", TraceEventType.Verbose);
 
                 Disconnect();
 

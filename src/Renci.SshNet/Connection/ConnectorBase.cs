@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace Renci.SshNet.Connection
             var ipAddress = Dns.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+            Diagnostic.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port), TraceEventType.Information);
 
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -81,7 +82,7 @@ namespace Renci.SshNet.Connection
 
             var ep = new IPEndPoint(ipAddress, port);
 
-            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+            Diagnostic.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port), TraceEventType.Information);
 
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try

@@ -315,5 +315,12 @@ namespace Renci.SshNet.Common
 
             return socket.Connected;
         }
+
+        internal static string Join(this IEnumerable<string> values, string separator)
+        {
+            // A sly way to prevent analyzers asking to "use an overload with a char parameter"
+            // which is not available on all targets.
+            return string.Join(separator, values);
+        }
     }
 }

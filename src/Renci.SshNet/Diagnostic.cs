@@ -1,28 +1,24 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Diagnostics;
 
-namespace Renci.SshNet.Abstractions
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides access to the <see cref="System.Diagnostics"/> internals of SSH.NET.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class DiagnosticAbstraction
+    public static class Diagnostic
     {
         /// <summary>
         /// The <see cref="TraceSource"/> instance used by SSH.NET.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Currently, the library only traces events when compiled in Debug mode.
-        /// </para>
-        /// <para>
         /// Configuration on .NET Core must be done programmatically, e.g.
         /// <code>
-        /// DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", "Verbose");
-        /// DiagnosticAbstraction.Source.Listeners.Remove("Default");
-        /// DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
-        /// DiagnosticAbstraction.Source.Listeners.Add(new TextWriterTraceListener("trace.log"));
+        /// Diagnostics.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
+        /// Diagnostics.Source.Listeners.Remove("Default");
+        /// Diagnostics.Source.Listeners.Add(new ConsoleTraceListener());
+        /// Diagnostics.Source.Listeners.Add(new TextWriterTraceListener("SshNetTrace.log"));
         /// </code>
         /// </para>
         /// <para>
@@ -53,17 +49,19 @@ namespace Renci.SshNet.Abstractions
         public static readonly TraceSource Source = new TraceSource("SshNet.Logging");
 
         /// <summary>
-        /// Logs a message to <see cref="Source"/> at the <see cref="TraceEventType.Verbose"/>
-        /// level.
+        /// Logs a message to <see cref="Source"/> with the specified event type.
         /// </summary>
         /// <param name="text">The message to log.</param>
-        /// <param name="type">The trace event type.</param>
-        [Conditional("DEBUG")]
-        public static void Log(string text, TraceEventType type = TraceEventType.Verbose)
+        /// <param name="eventType">The trace event type.</param>
+        public static void Log(string text, TraceEventType eventType)
         {
-            Source.TraceEvent(type,
-                              System.Environment.CurrentManagedThreadId,
-                              text);
+            Source.TraceEvent(eventType, Environment.CurrentManagedThreadId, text);
+        }
+
+        /// <inheritdoc cref="SourceSwitch.ShouldTrace(TraceEventType)" />
+        public static bool IsEnabled(TraceEventType eventType)
+        {
+            return Source.Switch.ShouldTrace(eventType);
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages;
@@ -71,11 +71,19 @@ namespace Renci.SshNet.Security
                 SendMessage(session.ClientInitMessage);
             }
 
-            // Determine encryption algorithm
+            var sessionId = Session.ToHex(Session.SessionId);
+
+            // Determine client encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer
                                                  where a == b
                                                  select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] Encryption client to server: we offer {session.ConnectionInfo.Encryptions.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] Encryption client to server: they offer {message.EncryptionAlgorithmsClientToServer.Join(",")}", TraceEventType.Verbose);
+            }
 
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
             {
@@ -84,11 +92,18 @@ namespace Renci.SshNet.Security
 
             session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;
 
-            // Determine encryption algorithm
+            // Determine server encryption algorithm
             var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsServerToClient
                                                  where a == b
                                                  select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] Encryption server to client: we offer {session.ConnectionInfo.Encryptions.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] Encryption server to client: they offer {message.EncryptionAlgorithmsServerToClient.Join(",")}", TraceEventType.Verbose);
+            }
+
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
                 throw new SshConnectionException("Server decryption algorithm not found", DisconnectReason.KeyExchangeFailed);
@@ -101,6 +116,13 @@ namespace Renci.SshNet.Security
                                            from a in message.MacAlgorithmsClientToServer
                                            where a == b
                                            select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] MAC client to server: we offer {session.ConnectionInfo.HmacAlgorithms.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] MAC client to server: they offer {message.MacAlgorithmsClientToServer.Join(",")}", TraceEventType.Verbose);
+            }
+
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
                 throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
@@ -113,6 +135,13 @@ namespace Renci.SshNet.Security
                                            from a in message.MacAlgorithmsServerToClient
                                            where a == b
                                            select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] MAC server to client: we offer {session.ConnectionInfo.HmacAlgorithms.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] MAC server to client: they offer {message.MacAlgorithmsServerToClient.Join(",")}", TraceEventType.Verbose);
+            }
+
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {
                 throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
@@ -124,7 +153,14 @@ namespace Renci.SshNet.Security
             var compressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
                                             from a in message.CompressionAlgorithmsClientToServer
                                             where a == b
-                                            select a).LastOrDefault();
+                                            select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] Compression client to server: we offer {session.ConnectionInfo.CompressionAlgorithms.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] Compression client to server: they offer {message.CompressionAlgorithmsClientToServer.Join(",")}", TraceEventType.Verbose);
+            }
+
             if (string.IsNullOrEmpty(compressionAlgorithmName))
             {
                 throw new SshConnectionException("Compression algorithm not found", DisconnectReason.KeyExchangeFailed);
@@ -136,7 +172,14 @@ namespace Renci.SshNet.Security
             var decompressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
                                               from a in message.CompressionAlgorithmsServerToClient
                                               where a == b
-                                              select a).LastOrDefault();
+                                              select a).FirstOrDefault();
+
+            if (Diagnostic.IsEnabled(TraceEventType.Verbose))
+            {
+                Diagnostic.Log($"[{sessionId}] Compression server to client: we offer {session.ConnectionInfo.CompressionAlgorithms.Keys.Join(",")}", TraceEventType.Verbose);
+                Diagnostic.Log($"[{sessionId}] Compression server to client: they offer {message.CompressionAlgorithmsClientToServer.Join(",")}", TraceEventType.Verbose);
+            }
+
             if (string.IsNullOrEmpty(decompressionAlgorithmName))
             {
                 throw new SshConnectionException("Decompression algorithm not found", DisconnectReason.KeyExchangeFailed);
@@ -182,9 +225,13 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server cipher.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} server cipher.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerEncryption));
+                                                    Session.ConnectionInfo.CurrentServerEncryption),
+                                                    TraceEventType.Information);
+            }
 
             // Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);
@@ -207,9 +254,13 @@ namespace Renci.SshNet.Security
 
             clientKey = GenerateSessionKey(SharedKey, ExchangeHash, clientKey, _clientCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client cipher.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} client cipher.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentClientEncryption));
+                                                    Session.ConnectionInfo.CurrentClientEncryption),
+                                                    TraceEventType.Information);
+            }
 
             // Create client cipher
             return _clientCipherInfo.Cipher(clientKey, clientVector);
@@ -231,9 +282,13 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'F', sessionId)),
                                                _serverHashInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server hmac algorithm.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} server hmac algorithm.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerHmacAlgorithm));
+                                                    Session.ConnectionInfo.CurrentServerHmacAlgorithm),
+                                                    TraceEventType.Information);
+            }
 
             return _serverHashInfo.HashAlgorithm(serverKey);
         }
@@ -254,9 +309,13 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'E', sessionId)),
                                                _clientHashInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client hmac algorithm.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} client hmac algorithm.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentClientHmacAlgorithm));
+                                                    Session.ConnectionInfo.CurrentClientHmacAlgorithm),
+                                                    TraceEventType.Information);
+            }
 
             return _clientHashInfo.HashAlgorithm(clientKey);
         }
@@ -274,9 +333,13 @@ namespace Renci.SshNet.Security
                 return null;
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} client compressor.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} client compressor.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentClientCompressionAlgorithm));
+                                                    Session.ConnectionInfo.CurrentClientCompressionAlgorithm),
+                                                    TraceEventType.Information);
+            }
 
             var compressor = _compressorFactory();
 
@@ -298,9 +361,13 @@ namespace Renci.SshNet.Security
                 return null;
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating {1} server decompressor.",
+            if (Diagnostic.IsEnabled(TraceEventType.Information))
+            {
+                Diagnostic.Log(string.Format("[{0}] Creating {1} server decompressor.",
                                                     Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerCompressionAlgorithm));
+                                                    Session.ConnectionInfo.CurrentServerCompressionAlgorithm),
+                                                    TraceEventType.Information);
+            }
 
             var decompressor = _decompressorFactory();
 

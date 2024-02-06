@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 
-using Renci.SshNet.Abstractions;
-
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     /// <summary>
@@ -88,15 +86,15 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         protected void EnableTracing()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
+            Diagnostic.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
+            Diagnostic.Source.Listeners.Remove("Default");
+            Diagnostic.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
         }
 
         protected void DisableTracing()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
-            DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
+            Diagnostic.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
+            Diagnostic.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

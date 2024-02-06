@@ -112,5 +112,11 @@
         {
             session.OnDisconnectReceived(this);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_DISCONNECT ({ReasonCode}) {Description}";
+        }
     }
 }

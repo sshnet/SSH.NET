@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -191,7 +191,7 @@ namespace Renci.SshNet
         {
             _exception = error;
 
-            DiagnosticAbstraction.Log("Raised exception: " + error);
+            Diagnostic.Log("Raised exception: " + error, TraceEventType.Warning);
 
             _ = _errorOccuredWaitHandle?.Set();
 

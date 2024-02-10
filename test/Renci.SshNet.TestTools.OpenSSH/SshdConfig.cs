@@ -329,7 +329,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.KeyboardInteractiveAuthentication = ToBool(value);
                     break;
                 case "LogLevel":
-                    sshdConfig.LogLevel = Enum.Parse<LogLevel>(value, ignoreCase: true);
+                    sshdConfig.LogLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value, ignoreCase: true);
                     break;
                 case "Subsystem":
                     sshdConfig.Subsystems.Add(Subsystem.FromConfig(value));
@@ -385,6 +385,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "AuthorizedKeysFile":
                 case "PasswordAuthentication":
                 case "GatewayPorts":
+                case "Include":
                     break;
                 default:
                     throw new NotSupportedException($"Global option '{name}' is not supported.");

@@ -42,7 +42,8 @@ namespace Renci.SshNet.Tests.Classes
                 width: 800,
                 height: 600,
                 terminalModeValues: null,
-                bufferSize: 1024);
+                bufferSize: 1024,
+                expectSize: 1024);
         }
 
         [TestMethod]

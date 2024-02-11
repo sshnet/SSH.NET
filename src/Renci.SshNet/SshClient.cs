@@ -416,7 +416,7 @@ namespace Renci.SshNet
         /// </remarks>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
-            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, (int)columns, terminalModeValues: null);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, bufferSize * 2, terminalModeValues: null);
         }
 
         /// <summary>
@@ -478,7 +478,7 @@ namespace Renci.SshNet
         {
             EnsureSessionIsOpen();
 
-            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, (int)columns, terminalModeValues);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, bufferSize * 2, terminalModeValues);
         }
 
         /// <summary>

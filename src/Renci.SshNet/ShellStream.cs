@@ -261,7 +261,7 @@ namespace Renci.SshNet
                 {
                     if (_expect.Count > 0)
                     {
-                        matchText = Encoding.ASCII.GetString(_expect.ToArray(), 0, _expect.Count);
+                        matchText = _encoding.GetString(_expect.ToArray(), 0, _expect.Count);
                     }
 
                     if (matchText.Length > 0)
@@ -272,10 +272,10 @@ namespace Renci.SshNet
 
                             if (match.Success)
                             {
-                                var returnLength = _incoming.Count - _expect.Count + match.Index + match.Length;
-                                var returnText = _encoding.GetString(_incoming.ToArray(), 0, returnLength);
+                                var returnText = matchText.Substring(0, match.Index + match.Length);
+                                var returnLength = _encoding.GetByteCount(returnText);
 
-                                    // Remove processed items from the queue
+                                // Remove processed items from the queue
                                 for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
                                 {
                                     if (_expect.Count == _incoming.Count)
@@ -368,15 +368,15 @@ namespace Renci.SshNet
                 {
                     if (_expect.Count > 0)
                     {
-                        matchText = Encoding.ASCII.GetString(_expect.ToArray(), 0, _expect.Count);
+                        matchText = _encoding.GetString(_expect.ToArray(), 0, _expect.Count);
                     }
 
                     var match = regex.Match(matchText);
 
                     if (match.Success)
                     {
-                        var returnLength = _incoming.Count - _expect.Count + match.Index + match.Length;
-                        returnText = _encoding.GetString(_incoming.ToArray(), 0, returnLength);
+                        returnText = matchText.Substring(0, match.Index + match.Length);
+                        var returnLength = _encoding.GetByteCount(result);
 
                         // Remove processed items from the queue
                         for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
@@ -480,7 +480,7 @@ namespace Renci.SshNet
                         {
                             if (_expect.Count > 0)
                             {
-                                matchText = Encoding.ASCII.GetString(_expect.ToArray(), 0, _expect.Count);
+                                matchText = _encoding.GetString(_expect.ToArray(), 0, _expect.Count);
                             }
 
                             if (matchText.Length > 0)
@@ -491,10 +491,10 @@ namespace Renci.SshNet
 
                                     if (match.Success)
                                     {
-                                        var returnLength = _incoming.Count - _expect.Count + match.Index + match.Length;
-                                        returnText = _encoding.GetString(_incoming.ToArray(), 0, returnLength);
+                                        returnText = matchText.Substring(0, match.Index + match.Length);
+                                        var returnLength = _encoding.GetByteCount(returnText);
 
-                                            // Remove processed items from the queue
+                                        // Remove processed items from the queue
                                         for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
                                         {
                                             if (_expect.Count == _incoming.Count)

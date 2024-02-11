@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.TestsFixtures;
 
 namespace Renci.SshNet.IntegrationBenchmarks
@@ -8,6 +9,11 @@ namespace Renci.SshNet.IntegrationBenchmarks
     [SimpleJob]
     public class SshClientBenchmark : IntegrationBenchmarkBase
     {
+        private static readonly Dictionary<TerminalModes, uint> ShellStreamTerminalModes = new Dictionary<TerminalModes, uint>
+        {
+            { TerminalModes.ECHO, 0 }
+        };
+
         private readonly InfrastructureFixture _infrastructureFixture;
         private SshClient? _sshClient;
 
@@ -64,6 +70,35 @@ namespace Renci.SshNet.IntegrationBenchmarks
         public string RunCommand()
         {
             return _sshClient!.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").Result;
+        }
+
+        [Benchmark]
+        public string ShellStreamReadLine()
+        {
+            using (var shellStream = _sshClient!.CreateShellStream("xterm", 80, 24, 800, 600, 1024, ShellStreamTerminalModes))
+            {
+                shellStream.WriteLine("for i in $(seq 500); do echo \"Within cells. Interlinked. $i\"; sleep 0.001; done; echo \"Username:\";");
+
+                while (true)
+                {
+                    var line = shellStream.ReadLine();
+
+                    if (line.EndsWith("500", StringComparison.Ordinal))
+                    {
+                        return line;
+                    }
+                }
+            }
+        }
+
+        [Benchmark]
+        public string ShellStreamExpect()
+        {
+            using (var shellStream = _sshClient!.CreateShellStream("xterm", 80, 24, 800, 600, 1024, ShellStreamTerminalModes))
+            {
+                shellStream.WriteLine("for i in $(seq 500); do echo \"Within cells. Interlinked. $i\"; sleep 0.001; done; echo \"Username:\";");
+                return shellStream.Expect("Username:");
+            }
         }
     }
 }

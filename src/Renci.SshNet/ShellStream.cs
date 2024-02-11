@@ -376,7 +376,7 @@ namespace Renci.SshNet
                     if (match.Success)
                     {
                         returnText = matchText.Substring(0, match.Index + match.Length);
-                        var returnLength = _encoding.GetByteCount(result);
+                        var returnLength = _encoding.GetByteCount(returnText);
 
                         // Remove processed items from the queue
                         for (var i = 0; i < returnLength && _incoming.Count > 0; i++)

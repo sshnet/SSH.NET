@@ -159,15 +159,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Ignore] // Fails because it returns the whole buffer i.e. "Hello World!\r\n12345"
-        // We might actually want to keep that behaviour, but just make the documentation clearer.
-        // The Expect documentation says:
-        // "The text available in the shell that contains all the text that ends with expected expression."
-        // Does that mean
-        // 1. the returned string ends with the expected expression; or
-        // 2. the returned string is all the text in the buffer, which is guaranteed to contain the expected expression?
-        // The current behaviour is closer to 2. I think the documentation implies 1.
-        // Either way, there are bugs.
         public void Expect()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello "));
@@ -181,10 +172,6 @@ namespace Renci.SshNet.Tests.Classes
             // Case 1 above.
             Assert.AreEqual("Hello World!\r\n123", _shellStream.Expect("123")); // Fails, returns "Hello World!\r\n12345"
             Assert.AreEqual("45", _shellStream.Read()); // Passes, but should probably fail and return ""
-
-            // Case 2 above.
-            Assert.AreEqual("Hello World!\r\n12345", _shellStream.Expect("123")); // Passes
-            Assert.AreEqual("", _shellStream.Read()); // Fails, returns "45"
         }
 
         [TestMethod]
@@ -213,7 +200,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Ignore]
         public void Expect_Regex_MultiByte()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("𐓏𐓘𐓻𐓘𐓻𐓟 𐒻𐓟"));
@@ -223,13 +209,22 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Ignore]
         public void Expect_String_MultiByte()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("hello 你好"));
 
             Assert.AreEqual("hello 你好", _shellStream.Expect("你好"));
             Assert.AreEqual("", _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Expect_String_non_ASCII_characters()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello, こんにちは, Bonjour"));
+
+            Assert.AreEqual("Hello, こ", _shellStream.Expect(new Regex(@"[^\u0000-\u007F]")));
+
+            Assert.AreEqual("んにちは, Bonjour", _shellStream.Read());
         }
 
         [TestMethod]

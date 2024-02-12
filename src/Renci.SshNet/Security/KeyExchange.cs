@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -103,7 +102,7 @@ namespace Renci.SshNet.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
-                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException("Client HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
@@ -221,7 +220,7 @@ namespace Renci.SshNet.Security
         /// <returns>
         /// The server-side hash algorithm.
         /// </returns>
-        public HashAlgorithm CreateServerHash()
+        public HMAC CreateServerHash()
         {
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
@@ -235,7 +234,7 @@ namespace Renci.SshNet.Security
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentServerHmacAlgorithm));
 
-            return _serverHashInfo.HashAlgorithm(serverKey);
+            return _serverHashInfo.HMAC(serverKey);
         }
 
         /// <summary>
@@ -244,7 +243,7 @@ namespace Renci.SshNet.Security
         /// <returns>
         /// The client-side hash algorithm.
         /// </returns>
-        public HashAlgorithm CreateClientHash()
+        public HMAC CreateClientHash()
         {
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
@@ -258,7 +257,7 @@ namespace Renci.SshNet.Security
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentClientHmacAlgorithm));
 
-            return _clientHashInfo.HashAlgorithm(clientKey);
+            return _clientHashInfo.HMAC(clientKey);
         }
 
         /// <summary>

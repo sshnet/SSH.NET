@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -172,9 +171,9 @@ namespace Renci.SshNet
 
         private IKeyExchange _keyExchange;
 
-        private HashAlgorithm _serverMac;
+        private HMAC _serverMac;
 
-        private HashAlgorithm _clientMac;
+        private HMAC _clientMac;
 
         private Cipher _clientCipher;
 
@@ -1063,20 +1062,43 @@ namespace Renci.SshNet
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
-                if (_clientMac != null)
+                if (_clientMac != null && !_clientMac.ETM)
                 {
                     // write outbound packet sequence to start of packet data
                     Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
 
                     // calculate packet hash
-                    hash = _clientMac.ComputeHash(packetData);
+                    hash = _clientMac.HashAlgorithm.ComputeHash(packetData);
                 }
 
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
-                    packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
-                    packetDataOffset = 0;
+                    if (_clientMac != null && _clientMac.ETM)
+                    {
+                        var packetDataLengthFieldSize = 4;
+
+                        var encryptedData = _clientCipher.Encrypt(packetData, packetDataOffset + packetDataLengthFieldSize, packetData.Length - packetDataOffset - packetDataLengthFieldSize);
+
+                        packetData = new byte[packetDataOffset + packetDataLengthFieldSize + encryptedData.Length];
+
+                        // write outbound packet sequence to start of packet data
+                        Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+
+                        // write packet data length field
+                        Pack.UInt32ToBigEndian((uint) encryptedData.Length, packetData, packetDataOffset);
+
+                        // write encrypted data
+                        Buffer.BlockCopy(encryptedData, 0, packetData, packetDataOffset + packetDataLengthFieldSize, encryptedData.Length);
+
+                        // calculate packet hash
+                        hash = _clientMac.HashAlgorithm.ComputeHash(packetData);
+                    }
+                    else
+                    {
+                        packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
+                        packetDataOffset = 0;
+                    }
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -1197,7 +1219,7 @@ namespace Renci.SshNet
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
             var blockSize = _serverCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
 
-            var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
+            var serverMacLength = _serverMac != null ? _serverMac.HashAlgorithm.HashSize/8 : 0;
 
             byte[] data;
             uint packetLength;
@@ -1215,7 +1237,7 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null)
+                if (_serverCipher != null && !_serverMac.ETM)
                 {
                     firstBlock = _serverCipher.Decrypt(firstBlock);
                 }
@@ -1257,6 +1279,20 @@ namespace Renci.SshNet
                 }
             }
 
+            // validate encrypted message against MAC
+            if (_serverMac != null && _serverMac.ETM)
+            {
+                var clientHash = _serverMac.HashAlgorithm.ComputeHash(data, 0, data.Length - serverMacLength);
+                var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
+
+                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
+                // TODO That way we can eliminate the extra allocation of the Take above.
+                if (!serverHash.IsEqualTo(clientHash))
+                {
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+                }
+            }
+
             if (_serverCipher != null)
             {
                 var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
@@ -1271,10 +1307,10 @@ namespace Renci.SshNet
             var messagePayloadLength = (int) packetLength - paddingLength - paddingLengthFieldLength;
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
-            // validate message against MAC
-            if (_serverMac != null)
+            // validate decrypted message against MAC
+            if (_serverMac != null && !_serverMac.ETM)
             {
-                var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
+                var clientHash = _serverMac.HashAlgorithm.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
                 // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.

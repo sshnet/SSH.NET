@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet
 {
@@ -20,17 +20,22 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the cipher.
         /// </summary>
-        public Func<byte[], HashAlgorithm> HashAlgorithm { get; private set; }
+        public Func<byte[], HMAC> HMAC { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether Encrypt-then-MAC or not.
+        /// </summary>
+        public bool ETM { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HashInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>
         /// <param name="hash">The hash algorithm to use for a given key.</param>
-        public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
+        public HashInfo(int keySize, Func<byte[], HMAC> hash)
         {
             KeySize = keySize;
-            HashAlgorithm = key => hash(key.Take(KeySize / 8));
+            HMAC = key => hash(key.Take(KeySize / 8));
         }
     }
 }

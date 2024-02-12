@@ -376,6 +376,7 @@ namespace Renci.SshNet
 #pragma warning disable IDE0200 // Remove unnecessary lambda expression; We want to prevent instantiating the HashAlgorithm objects.
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
+                    /* Encrypt-and-MAC (encrypt-and-authenticate) variants */
                     { "hmac-sha2-256", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key)) },
                     { "hmac-sha2-512", new HashInfo(64 * 8, key => CryptoAbstraction.CreateHMACSHA512(key)) },
                     { "hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96)) },
@@ -386,6 +387,9 @@ namespace Renci.SshNet
                     { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
                     { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key)) },
                     { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
+                    /* Encrypt-then-MAC variants */
+                    { "hmac-sha2-256-etm@openssh.com", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, etm: true)) },
+                    { "hmac-sha2-512-etm@openssh.com", new HashInfo(64 * 8, key => CryptoAbstraction.CreateHMACSHA512(key, etm: true)) },
                 };
 #pragma warning restore IDE0200 // Remove unnecessary lambda expression
 

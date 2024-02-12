@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -216,9 +215,9 @@ namespace Renci.SshNet.Tests.Classes
             _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
                                 .Returns((Cipher) null);
             _ = _keyExchangeMock.Setup(p => p.CreateServerHash())
-                                .Returns((HashAlgorithm) null);
+                                .Returns((HMAC) null);
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash())
-                                .Returns((HashAlgorithm) null);
+                                .Returns((HMAC) null);
             _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
                                 .Returns((Compressor) null);
             _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())

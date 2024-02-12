@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
@@ -69,7 +68,7 @@ namespace Renci.SshNet.Security
         /// <returns>
         /// The server hash algorithm.
         /// </returns>
-        HashAlgorithm CreateServerHash();
+        HMAC CreateServerHash();
 
         /// <summary>
         /// Creates the client-side hash algorithm to use.
@@ -77,7 +76,7 @@ namespace Renci.SshNet.Security
         /// <returns>
         /// The client hash algorithm.
         /// </returns>
-        HashAlgorithm CreateClientHash();
+        HMAC CreateClientHash();
 
         /// <summary>
         /// Creates the compression algorithm to use to deflate data.

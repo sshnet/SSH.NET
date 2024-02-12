@@ -84,6 +84,16 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize, int expectSize)
         {
+            if (bufferSize <= 0)
+            {
+                throw new ArgumentException($"{nameof(bufferSize)} must be between 1 and {int.MaxValue}.");
+            }
+
+            if (expectSize <= 0)
+            {
+                throw new ArgumentException($"{nameof(expectSize)} must be between 1 and {int.MaxValue}.");
+            }
+
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
             _bufferSize = bufferSize;

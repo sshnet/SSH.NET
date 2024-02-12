@@ -44,7 +44,7 @@ namespace Renci.SshNet.IntegrationTests
                 // if the channel would not be properly closed
                 for (var i = 0; i < connectionInfo.MaxSessions + 1; i++)
                 {
-                    using (var stream = client.CreateShellStream("vt220", 20, 20, 20, 20, 0))
+                    using (var stream = client.CreateShellStream("vt220", 20, 20, 20, 20, 20))
                     {
                         stream.WriteLine("echo test");
                         stream.ReadLine();

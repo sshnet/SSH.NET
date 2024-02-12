@@ -407,7 +407,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when nonzero). Pixel dimensions refer
@@ -436,7 +436,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
@@ -467,7 +467,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
@@ -499,7 +499,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer

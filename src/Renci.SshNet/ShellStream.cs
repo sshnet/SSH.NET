@@ -282,19 +282,14 @@ namespace Renci.SshNet
 
                             if (match.Success)
                             {
-                                var returnText = matchText.Substring(0, match.Index + match.Length);
-                                var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                                var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                                var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                                 // Remove processed items from the queue
-                                for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
-                                {
-                                    if (_expect.Count == _incoming.Count)
-                                    {
-                                        _ = _expect.Dequeue();
-                                    }
-
-                                    _ = _incoming.Dequeue();
-                                }
+                                var returnText = SyncQueuesAndReturn(returnLength);
 
                                 expectAction.Action(returnText);
                                 expectedFound = true;
@@ -385,19 +380,14 @@ namespace Renci.SshNet
 
                     if (match.Success)
                     {
-                        returnText = matchText.Substring(0, match.Index + match.Length);
-                        var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                        var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                        var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                         // Remove processed items from the queue
-                        for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
-                        {
-                            if (_expect.Count == _incoming.Count)
-                            {
-                                _ = _expect.Dequeue();
-                            }
-
-                            _ = _incoming.Dequeue();
-                        }
+                        returnText = SyncQueuesAndReturn(returnLength);
 
                         break;
                     }
@@ -501,19 +491,14 @@ namespace Renci.SshNet
 
                                     if (match.Success)
                                     {
-                                        returnText = matchText.Substring(0, match.Index + match.Length);
-                                        var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                                        var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                                        var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                                         // Remove processed items from the queue
-                                        for (var i = 0; i < returnLength && _incoming.Count > 0; i++)
-                                        {
-                                            if (_expect.Count == _incoming.Count)
-                                            {
-                                                _ = _expect.Dequeue();
-                                            }
-
-                                            _ = _incoming.Dequeue();
-                                        }
+                                        returnText = SyncQueuesAndReturn(returnLength);
 
                                         expectAction.Action(returnText);
                                         callback?.Invoke(asyncResult);
@@ -614,15 +599,7 @@ namespace Renci.SshNet
                         var bytesProcessed = _encoding.GetByteCount(text + CrLf);
 
                         // remove processed bytes from the queue
-                        for (var i = 0; i < bytesProcessed; i++)
-                        {
-                            if (_expect.Count == _incoming.Count)
-                            {
-                                _ = _expect.Dequeue();
-                            }
-
-                            _ = _incoming.Dequeue();
-                        }
+                        SyncQueuesAndDequeue(bytesProcessed);
 
                         break;
                     }
@@ -687,7 +664,7 @@ namespace Renci.SshNet
             {
                 for (; i < count && _incoming.Count > 0; i++)
                 {
-                    if (_expect.Count == _incoming.Count)
+                    if (_incoming.Count == _expect.Count)
                     {
                         _ = _expect.Dequeue();
                     }
@@ -868,6 +845,38 @@ namespace Renci.SshNet
         private void OnDataReceived(byte[] data)
         {
             DataReceived?.Invoke(this, new ShellDataEventArgs(data));
+        }
+
+        private string SyncQueuesAndReturn(int bytesToDequeue)
+        {
+            string incomingText;
+
+            lock (_incoming)
+            {
+                var incomingLength = _incoming.Count - _expect.Count + bytesToDequeue;
+                incomingText = _encoding.GetString(_incoming.ToArray(), 0, incomingLength);
+
+                SyncQueuesAndDequeue(bytesToDequeue);
+            }
+
+            return incomingText;
+        }
+
+        private void SyncQueuesAndDequeue(int bytesToDequeue)
+        {
+            lock (_incoming)
+            {
+                while (_incoming.Count > _expect.Count)
+                {
+                    _ = _incoming.Dequeue();
+                }
+
+                for (var count = 0; count < bytesToDequeue && _incoming.Count > 0; count++)
+                {
+                    _ = _incoming.Dequeue();
+                    _ = _expect.Dequeue();
+                }
+            }
         }
     }
 }

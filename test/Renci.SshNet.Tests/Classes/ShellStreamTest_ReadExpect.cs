@@ -17,6 +17,8 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class ShellStreamTest_ReadExpect
     {
+        private const int BufferSize = 1024;
+        private const int ExpectSize = BufferSize * 2;
         private ShellStream _shellStream;
         private ChannelSessionStub _channelSessionStub;
 
@@ -42,8 +44,8 @@ namespace Renci.SshNet.Tests.Classes
                 width: 800,
                 height: 600,
                 terminalModeValues: null,
-                bufferSize: 1024,
-                expectSize: 2048);
+                bufferSize: BufferSize,
+                expectSize: ExpectSize);
         }
 
         [TestMethod]
@@ -242,6 +244,31 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual($"{new string('a', 100)}{new string('b', 1000)}Hello, こんにちは, Bonjour", _shellStream.Expect($"{new string('b', 1000)}Hello, こんにちは, Bonjour"));
 
             Assert.AreEqual($"{new string('c', 100)}", _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Expect_String_DequeueChecks()
+        {
+            const string expected = "ccccc";
+
+            // Prime buffer
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string(' ', BufferSize)));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string(' ', ExpectSize)));
+
+            // Test data
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('a', 100)));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('b', 100)));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(expected));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('d', 100)));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('e', 100)));
+
+            // Expected result
+            var expectedResult = $"{new string(' ', BufferSize)}{new string(' ', ExpectSize)}{new string('a', 100)}{new string('b', 100)}{expected}";
+            var expectedRead = $"{new string('d', 100)}{new string('e', 100)}";
+
+            Assert.AreEqual(expectedResult, _shellStream.Expect(expected));
+
+            Assert.AreEqual(expectedRead, _shellStream.Read());
         }
 
         [TestMethod]

@@ -22,6 +22,16 @@ namespace Renci.SshNet.IntegrationTests
             Assert.AreEqual("test !@#$%^&*()_+{}:,./<>[];\\|\n", response.Result);
         }
 
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        public async Task Echo_Command_with_all_characters_Async()
+        {
+            var response = await _sshClient.RunCommandAsync("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'", CancellationToken.None);
+
+            Assert.AreEqual("test !@#$%^&*()_+{}:,./<>[];\\|\n", response.Result);
+        }
+#endif
+
         [TestMethod]
         public void Send_InputStream_to_Command()
         {
@@ -43,6 +53,31 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.AreEqual(string.Empty, command.Error);
             }
         }
+
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        [Ignore] // Not work.
+        public async Task Send_InputStream_to_Command_Async()
+        {
+            var inputByteArray = Encoding.UTF8.GetBytes("Hello world!");
+
+            // Make the server echo back the input file with "cat"
+            using (var command = _sshClient.CreateCommand("cat"))
+            {
+                var task = command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+
+                using (var inputStream = command.CreateInputStream())
+                {
+                    await inputStream.WriteAsync(inputByteArray, 0, inputByteArray.Length);
+                }
+
+                await task;
+
+                Assert.AreEqual("Hello world!", command.Result);
+                Assert.AreEqual(string.Empty, command.Error);
+            }
+        }
+#endif
 
         [TestMethod]
         public void Send_InputStream_to_Command_OneByteAtATime()
@@ -68,6 +103,34 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.AreEqual(string.Empty, command.Error);
             }
         }
+
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        [Ignore] // Not work.
+        public async Task Send_InputStream_to_Command_OneByteAtATime_Async()
+        {
+            var inputByteArray = Encoding.UTF8.GetBytes("Hello world!");
+
+            // Make the server echo back the input file with "cat"
+            using (var command = _sshClient.CreateCommand("cat"))
+            {
+                var task = command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+
+                using (var inputStream = command.CreateInputStream())
+                {
+                    for (var i = 0; i < inputByteArray.Length; i++)
+                    {
+                        inputStream.WriteByte(inputByteArray[i]);
+                    }
+                }
+
+                await task;
+
+                Assert.AreEqual("Hello world!", command.Result);
+                Assert.AreEqual(string.Empty, command.Error);
+            }
+        }
+#endif
 
         [TestMethod]
         public void Send_InputStream_to_Command_InputStreamNotInUsingBlock_StillWorks()

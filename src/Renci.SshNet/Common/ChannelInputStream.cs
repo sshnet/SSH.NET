@@ -1,5 +1,9 @@
 ﻿using System;
 using System.IO;
+#if NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+#endif
 
 using Renci.SshNet.Channels;
 
@@ -129,6 +133,60 @@ namespace Renci.SshNet.Common
             _channel.SendData(buffer, offset, count);
             _totalPosition += count;
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">The sum of offset and count is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            if (offset + count > buffer.Length)
+            {
+                throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
+            }
+
+            if (offset < 0 || count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset), "offset or count is negative.");
+            }
+
+            if (_isDisposed)
+            {
+                throw CreateObjectDisposedException();
+            }
+
+            if (count == 0)
+            {
+                return;
+            }
+
+            await _channel.SendDataAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+            _totalPosition += count;
+        }
+
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+#pragma warning disable CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+            await WriteAsync(buffer.ToArray(), 0, buffer.Length, cancellationToken: cancellationToken).ConfigureAwait(false);
+#pragma warning restore CA1835 // Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+        }
+#endif
 
         /// <summary>
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.

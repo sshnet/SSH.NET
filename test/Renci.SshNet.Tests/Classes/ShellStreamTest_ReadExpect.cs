@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -270,6 +271,13 @@ namespace Renci.SshNet.Tests.Classes
             {
             }
 
+#if NET6_0_OR_GREATER
+            public Task OpenAsync(CancellationToken token)
+            {
+                throw new NotImplementedException();
+            }
+#endif
+
             public event EventHandler<ChannelDataEventArgs> DataReceived;
             public event EventHandler<ChannelEventArgs> Closed;
 #pragma warning disable 0067
@@ -288,11 +296,20 @@ namespace Renci.SshNet.Tests.Classes
 
             public bool IsOpen => throw new NotImplementedException();
 
+#if NET6_0_OR_GREATER
+            public Task<bool> SendExecRequestAsync(string command, CancellationToken token)
+            {
+                throw new NotImplementedException();
+            }
+#endif
+
             public bool SendBreakRequest(uint breakLength) => throw new NotImplementedException();
 
             public void SendData(byte[] data) => throw new NotImplementedException();
 
             public void SendData(byte[] data, int offset, int size) => throw new NotImplementedException();
+
+            public Task SendDataAsync(byte[] data, int offset, int size, CancellationToken token) => throw new NotImplementedException();
 
             public bool SendEndOfWriteRequest() => throw new NotImplementedException();
 

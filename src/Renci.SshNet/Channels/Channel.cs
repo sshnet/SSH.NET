@@ -2,6 +2,9 @@
 using System.Globalization;
 using System.Net.Sockets;
 using System.Threading;
+#if NET6_0_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -354,6 +357,51 @@ namespace Renci.SshNet.Channels
             }
         }
 
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
+        /// </summary>
+        /// <param name="data">An array of <see cref="byte"/> containing the payload to send.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking data from.</param>
+        /// <param name="size">The number of bytes of <paramref name="data"/> to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <remarks>
+        /// <para>
+        /// When the size of the data to send exceeds the maximum packet size or the remote window
+        /// size does not allow the full data to be sent, then this method will send the data in
+        /// multiple chunks and will wait for the remote window size to be adjusted when it's zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH servers
+        /// that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
+        public async Task SendDataAsync(byte[] data, int offset, int size, CancellationToken token)
+        {
+            // send channel messages only while channel is open
+            if (!IsOpen)
+            {
+                return;
+            }
+
+            var totalBytesToSend = size;
+            while (totalBytesToSend > 0)
+            {
+                var sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
+
+                var channelDataMessage = new ChannelDataMessage(RemoteChannelNumber,
+                                                                data,
+                                                                offset,
+                                                                sizeOfCurrentMessage);
+                await _session.SendMessageAsync(channelDataMessage, token).ConfigureAwait(false);
+
+                totalBytesToSend -= sizeOfCurrentMessage;
+                offset += sizeOfCurrentMessage;
+            }
+        }
+#endif
+
         /// <summary>
         /// Called when channel window need to be adjust.
         /// </summary>
@@ -486,6 +534,25 @@ namespace Renci.SshNet.Channels
 
             _session.SendMessage(message);
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends SSH message to the server.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        protected async Task SendMessageAsync(Message message, CancellationToken token)
+        {
+            // Send channel messages only while channel is open
+            if (!IsOpen)
+            {
+                return;
+            }
+
+            await _session.SendMessageAsync(message, token).ConfigureAwait(false);
+        }
+#endif
 
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+#if NET6_0_OR_GREATER
+using System.Threading.Tasks;
+#endif
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -86,6 +89,37 @@ namespace Renci.SshNet.Channels
                 throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
             }
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Opens the channel.
+        /// </summary>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        public async Task OpenAsync(CancellationToken token)
+        {
+            // Try to open channel several times
+            while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
+            {
+                await SendChannelOpenMessageAsync(token).ConfigureAwait(false);
+                try
+                {
+                    WaitOnHandle(_channelOpenResponseWaitHandle);
+                }
+                catch (Exception)
+                {
+                    // avoid leaking session semaphore
+                    ReleaseSemaphore();
+                    throw;
+                }
+            }
+
+            if (!IsOpen)
+            {
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
+            }
+        }
+#endif
 
         /// <summary>
         /// Called when channel is opened by the server.
@@ -201,6 +235,23 @@ namespace Renci.SshNet.Channels
             WaitOnHandle(_channelRequestResponse);
             return _channelRequestSucces;
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends the exec request.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation with
+        /// value <see langword="true"/> if request was successful; otherwise <see langword="false"/>.</returns>
+        public async Task<bool> SendExecRequestAsync(string command, CancellationToken token)
+        {
+            _ = _channelRequestResponse.Reset();
+            await SendMessageAsync(new ChannelRequestMessage(RemoteChannelNumber, new ExecRequestInfo(command, ConnectionInfo.Encoding)), token).ConfigureAwait(false);
+            WaitOnHandle(_channelRequestResponse);
+            return _channelRequestSucces;
+        }
+#endif
 
         /// <summary>
         /// Sends the exec request.
@@ -405,6 +456,63 @@ namespace Renci.SshNet.Channels
                                                    new SessionChannelOpenInfo()));
             }
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends the channel open message.
+        /// </summary>
+        /// <param name="token">The cancellation token.</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// <para>
+        /// When a session semaphore for this instance has not yet been obtained by this or any other thread,
+        /// the thread will block until such a semaphore is available and send a <see cref="ChannelOpenMessage"/>
+        /// to the remote host.
+        /// </para>
+        /// <para>
+        /// Note that the session semaphore is released in any of the following cases:
+        /// <list type="bullet">
+        ///   <item>
+        ///     <description>A <see cref="ChannelOpenFailureMessage"/> is received for the channel being opened.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The remote host does not respond to the <see cref="ChannelOpenMessage"/> within the configured <see cref="ConnectionInfo.Timeout"/>.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The remote host closes the channel.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The <see cref="ChannelSession"/> is disposed.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>A socket error occurs sending a message to the remote host.</description>
+        ///   </item>
+        /// </list>
+        /// </para>
+        /// <para>
+        /// If the session semaphore was already obtained for this instance (and not released), then this method
+        /// immediately returns control to the caller. This should only happen when another thread has obtain the
+        /// session semaphore and already sent the <see cref="ChannelOpenMessage"/>, but the remote host did not
+        /// confirmed or rejected attempt to open the channel.
+        /// </para>
+        /// </remarks>
+        private async Task SendChannelOpenMessageAsync(CancellationToken token)
+        {
+            // do not allow the ChannelOpenMessage to be sent again until we've
+            // had a response on the previous attempt for the current channel
+            if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 1, 0) == 0)
+            {
+                await SessionSemaphore.WaitAsync(token).ConfigureAwait(true);
+                await SendMessageAsync(new ChannelOpenMessage(LocalChannelNumber,
+                                                              LocalWindowSize,
+                                                              LocalPacketSize,
+                                                              new SessionChannelOpenInfo()),
+                                       token).ConfigureAwait(false);
+            }
+        }
+#endif
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

@@ -102,7 +102,7 @@ namespace Renci.SshNet
         /// This is also used to ensure that <see cref="_outboundPacketSequence"/> is
         /// incremented atomatically.
         /// </remarks>
-        private readonly object _socketWriteLock = new object();
+        private readonly SemaphoreSlim _socketWriteLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can dispose
@@ -749,7 +749,12 @@ namespace Renci.SshNet
                 // Send our key exchange init.
                 // We need to do this before starting the message listener to avoid the case where we receive the server
                 // key exchange init and we continue the key exchange before having sent our own init.
+
+#if NET6_0_OR_GREATER
+                await SendMessageAsync(ClientInitMessage, cancellationToken).ConfigureAwait(false);
+#else
                 SendMessage(ClientInitMessage);
+#endif
 
                 // Mark the message listener threads as started
                 _ = _messageListenerCompleted.Reset();
@@ -769,7 +774,11 @@ namespace Renci.SshNet
                 }
 
                 // Request user authorization service
+#if NET6_0_OR_GREATER
+                await SendMessageAsync(new ServiceRequestMessage(ServiceName.UserAuthentication), cancellationToken).ConfigureAwait(false);
+#else
                 SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
+#endif
 
                 // Wait for service to be accepted
                 WaitOnHandle(_serviceAccepted);
@@ -1058,7 +1067,8 @@ namespace Renci.SshNet
 
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
-            lock (_socketWriteLock)
+            _socketWriteLock.Wait();
+            try
             {
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
@@ -1103,9 +1113,104 @@ namespace Renci.SshNet
                 //
                 // the server will use it to verify the data integrity, and as such the order in
                 // which messages are sent must follow the outbound packet sequence number
+#if NET6_0_OR_GREATER
+                _ = Interlocked.Increment(ref _outboundPacketSequence);
+#else
                 _outboundPacketSequence++;
+#endif
+            }
+            finally
+            {
+                _ = _socketWriteLock.Release();
             }
         }
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        internal async Task SendMessageAsync(Message message, CancellationToken token)
+        {
+            if (!_socket.CanWrite())
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
+            {
+                // Wait for key exchange to be completed
+                WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
+            }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+
+            var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
+
+            // take a write lock to ensure the outbound packet sequence number is incremented
+            // atomically, and only after the packet has actually been sent
+            await _socketWriteLock.WaitAsync(token).ConfigureAwait(false);
+            try
+            {
+                byte[] hash = null;
+                var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
+
+                if (_clientMac != null)
+                {
+                    // write outbound packet sequence to start of packet data
+                    Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+
+                    // calculate packet hash
+                    hash = _clientMac.ComputeHash(packetData);
+                }
+
+                // Encrypt packet data
+                if (_clientCipher != null)
+                {
+                    packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
+                    packetDataOffset = 0;
+                }
+
+                if (packetData.Length > MaximumSshPacketSize)
+                {
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                                                                      "Packet is too big. Maximum packet size is {0} bytes.",
+                                                                      MaximumSshPacketSize));
+                }
+
+                var packetLength = packetData.Length - packetDataOffset;
+                if (hash is null)
+                {
+                    await SendPacketAsync(packetData.AsMemory(packetDataOffset, packetLength), token).ConfigureAwait(false);
+                }
+                else
+                {
+                    var data = new byte[packetLength + hash.Length];
+                    Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
+                    Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
+                    await SendPacketAsync(data.AsMemory(), token).ConfigureAwait(false);
+                }
+
+                // increment the packet sequence number only after we're sure the packet has
+                // been sent; even though it's only used for the MAC, it needs to be incremented
+                // for each package sent.
+                //
+                // the server will use it to verify the data integrity, and as such the order in
+                // which messages are sent must follow the outbound packet sequence number
+                _ = Interlocked.Increment(ref _outboundPacketSequence);
+            }
+            finally
+            {
+                _ = _socketWriteLock.Release();
+            }
+        }
+
+#endif
 
         /// <summary>
         /// Sends an SSH packet to the server.
@@ -1142,6 +1247,44 @@ namespace Renci.SshNet
                 _ = _socketDisposeLock.Release();
             }
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends an SSH packet to the server.
+        /// </summary>
+        /// <param name="data">A read only byte memory containing the packet to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected to the server.</exception>
+        /// <remarks>
+        /// <para>
+        /// The send is performed in a dispose lock to avoid <see cref="NullReferenceException"/>
+        /// and/or <see cref="ObjectDisposedException"/> when sending the packet.
+        /// </para>
+        /// <para>
+        /// This method is only to be used when the connection is established, as the locking
+        /// overhead is not required while establishing the connection.
+        /// </para>
+        /// </remarks>
+        private async Task SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken token)
+        {
+            await _socketDisposeLock.WaitAsync(token).ConfigureAwait(false);
+
+            try
+            {
+                if (!_socket.IsConnected())
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                await SocketAbstraction.SendAsync(_socket, data, token).ConfigureAwait(false);
+            }
+            finally
+            {
+                _ = _socketDisposeLock.Release();
+            }
+        }
+#endif
 
         /// <summary>
         /// Sends a message to the server.
@@ -2198,6 +2341,22 @@ namespace Renci.SshNet
         {
             SendMessage(message);
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        async Task ISession.SendMessageAsync(Message message, CancellationToken token)
+        {
+            await SendMessageAsync(message, token).ConfigureAwait(false);
+        }
+#endif
 
         /// <summary>
         /// Sends a message to the server.

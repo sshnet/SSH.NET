@@ -1,4 +1,9 @@
 ﻿using System;
+#if NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+#endif
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -102,6 +107,30 @@ namespace Renci.SshNet.Channels
         /// </para>
         /// </remarks>
         void SendData(byte[] data, int offset, int size);
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
+        /// </summary>
+        /// <param name="data">An array of <see cref="byte"/> containing the payload to send.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking data from.</param>
+        /// <param name="size">The number of bytes of <paramref name="data"/> to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>The task.</returns>
+        /// <remarks>
+        /// <para>
+        /// When the size of the data to send exceeds the maximum packet size or the remote window
+        /// size does not allow the full data to be sent, then this method will send the data in
+        /// multiple chunks and will wait for the remote window size to be adjusted when it's zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH servers
+        /// that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
+        Task SendDataAsync(byte[] data, int offset, int size, CancellationToken token);
+#endif
 
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.

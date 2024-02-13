@@ -12,15 +12,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="HMAC"/> class.
         /// </summary>
         /// <param name="hashAlgorithm">The hash algorithm.</param>
-        public HMAC(HashAlgorithm hashAlgorithm)
-            : this(hashAlgorithm, etm: false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HMAC"/> class.
-        /// </summary>
-        /// <param name="hashAlgorithm">The hash algorithm.</param>
         /// <param name="etm"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         public HMAC(
             HashAlgorithm hashAlgorithm,

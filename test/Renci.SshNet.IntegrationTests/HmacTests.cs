@@ -59,6 +59,30 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void HmacMd5_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacMd5Etm);
+        }
+
+        [TestMethod]
+        public void HmacMd5_96_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacMd5_96_Etm);
+        }
+
+        [TestMethod]
+        public void HmacSha1_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha1Etm);
+        }
+
+        [TestMethod]
+        public void HmacSha1_96_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha1_96_Etm);
+        }
+
+        [TestMethod]
         public void HmacSha2_256_Etm()
         {
             DoTest(MessageAuthenticationCodeAlgorithm.HmacSha2_256_Etm);

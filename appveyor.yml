@@ -28,9 +28,6 @@ for:
     - sh: echo "Run integration tests"
     - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
-#  on_failure:
-#    - sh: appveyor PushArtifact artifacts/tcpdump.pcap
-
 -
   matrix:
     only:
@@ -51,9 +48,6 @@ for:
     - ps: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - ps: echo "Run unit tests for .NET Framework 4.6.2"
     - ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-
-#  on_failure:
-#    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap
 
 artifacts:
   - path: artifacts

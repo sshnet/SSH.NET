@@ -42,7 +42,8 @@ namespace Renci.SshNet.Tests.Classes
                 width: 800,
                 height: 600,
                 terminalModeValues: null,
-                bufferSize: 1024);
+                bufferSize: 1024,
+                expectSize: 2048);
         }
 
         [TestMethod]
@@ -225,6 +226,22 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual("Hello, こ", _shellStream.Expect(new Regex(@"[^\u0000-\u007F]")));
 
             Assert.AreEqual("んにちは, Bonjour", _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Expect_String_LargeExpect()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('a', 100)));
+            for (var i = 0; i < 10; i++)
+            {
+                _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('b', 100)));
+            }
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello, こんにちは, Bonjour"));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('c', 100)));
+
+            Assert.AreEqual($"{new string('a', 100)}{new string('b', 1000)}Hello, こんにちは, Bonjour", _shellStream.Expect($"{new string('b', 1000)}Hello, こんにちは, Bonjour"));
+
+            Assert.AreEqual($"{new string('c', 100)}", _shellStream.Read());
         }
 
         [TestMethod]

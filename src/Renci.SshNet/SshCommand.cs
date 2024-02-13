@@ -32,6 +32,7 @@ namespace Renci.SshNet
         private bool _hasError;
         private bool _isDisposed;
         private ChannelInputStream _inputStream;
+        private TimeSpan _commandTimeout;
 
         /// <summary>
         /// Gets the command text.
@@ -44,7 +45,19 @@ namespace Renci.SshNet
         /// <value>
         /// The command timeout.
         /// </value>
-        public TimeSpan CommandTimeout { get; set; }
+        public TimeSpan CommandTimeout
+        {
+            get
+            {
+                return _commandTimeout;
+            }
+            set
+            {
+                _commandTimeout.EnsureValidTimeout();
+
+                _commandTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets the command exit status.

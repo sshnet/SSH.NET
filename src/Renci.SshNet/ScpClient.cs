@@ -38,6 +38,7 @@ namespace Renci.SshNet
         private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0", RegexOptions.Compiled);
 
         private IRemotePathTransformation _remotePathTransformation;
+        private TimeSpan _operationTimeout;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -46,7 +47,19 @@ namespace Renci.SshNet
         /// The timeout to wait until an operation completes. The default value is negative
         /// one (-1) milliseconds, which indicates an infinite time-out period.
         /// </value>
-        public TimeSpan OperationTimeout { get; set; }
+        public TimeSpan OperationTimeout
+        {
+            get
+            {
+                return _operationTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout();
+
+                _operationTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the size of the buffer.

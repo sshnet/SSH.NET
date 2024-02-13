@@ -43,6 +43,8 @@ namespace Renci.SshNet
         /// 1 second.
         /// </value>
         private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
+        private TimeSpan _timeout;
+        private TimeSpan _channelCloseTimeout;
 
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
@@ -145,7 +147,19 @@ namespace Renci.SshNet
         /// <value>
         /// The connection timeout. The default value is 30 seconds.
         /// </value>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout();
+
+                _timeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
@@ -157,7 +171,19 @@ namespace Renci.SshNet
         /// If a server does not send a <c>SSH_MSG_CHANNEL_CLOSE</c> message before the specified timeout
         /// elapses, the channel will be closed immediately.
         /// </remarks>
-        public TimeSpan ChannelCloseTimeout { get; set; }
+        public TimeSpan ChannelCloseTimeout
+        {
+            get
+            {
+                return _channelCloseTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout();
+
+                _channelCloseTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the character encoding.

@@ -86,7 +86,9 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.IsNull(ex.InnerException);
                 ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
+#if NET21_OR_GREATER || NET6_0_OR_GREATER
                 Assert.AreEqual("value", ex.ParamName);
+#endif
             }
         }
 
@@ -105,7 +107,9 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.IsNull(ex.InnerException);
                 ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
+#if NET21_OR_GREATER || NET6_0_OR_GREATER
                 Assert.AreEqual("value", ex.ParamName);
+#endif
             }
         }
     }

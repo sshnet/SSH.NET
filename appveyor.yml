@@ -56,7 +56,5 @@ for:
 #    - ps: Push-AppveyorArtifact artifacts/tcpdump.pcap
 
 artifacts:
-  - path: 'src\**\*.nupkg'
-  - path: 'src\**\*.snupkg'
   - path: artifacts
     name: artifacts

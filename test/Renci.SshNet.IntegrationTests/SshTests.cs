@@ -71,16 +71,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(line);
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
-                    // TODO: ReadLine should return null when the buffer is empty and the channel has been closed (issue #672)
-                    try
-                    {
-                        line = shellStream.ReadLine();
-                        Assert.Fail(line);
-                    }
-                    catch (NullReferenceException)
-                    {
-
-                    }
+                    Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
                 }
             }
         }
@@ -90,7 +81,6 @@ namespace Renci.SshNet.IntegrationTests
         /// </summary>
         [TestMethod]
         [Category("Reproduction Tests")]
-        [Ignore]
         public void Ssh_ShellStream_IntermittendOutput()
         {
             const string remoteFile = "/home/sshnet/test.sh";
@@ -131,8 +121,8 @@ namespace Renci.SshNet.IntegrationTests
                     using (var shellStream = sshClient.CreateShellStream("xterm", 80, 24, 800, 600, 1024, terminalModes))
                     {
                         shellStream.WriteLine(remoteFile);
-                        Thread.Sleep(1200);
-                        using (var reader = new StreamReader(shellStream, new UTF8Encoding(false), false, 10))
+                        shellStream.WriteLine("exit");
+                        using (var reader = new StreamReader(shellStream))
                         {
                             var lines = new List<string>();
                             string line = null;

@@ -107,12 +107,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void BufferSizeOfShellStreamShouldBeValuePassedToCreateShellStream()
-        {
-            Assert.AreEqual(_bufferSize, _shellStream.BufferSize);
-        }
-
-        [TestMethod]
         public void SendPseudoTerminalRequestShouldHaveBeenInvokedOnce()
         {
             _channelSessionMock.Verify(p => p.SendPseudoTerminalRequest(_terminalName,

@@ -71,26 +71,48 @@ namespace Renci.SshNet.Tests.Classes
 
         [DataTestMethod]
         [DataRow("\r\n")]
-        //[DataRow("\r")] These currently fail.
-        //[DataRow("\n")]
+        [DataRow("\r")]
+        [DataRow("\n")]
         public void ReadLine(string newLine)
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello "));
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("World!"));
 
-            // We specify a nonzero timeout to avoid waiting infinitely.
-            Assert.IsNull(_shellStream.ReadLine(TimeSpan.FromTicks(1)));
+            // We specify a timeout to avoid waiting infinitely.
+            Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
 
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(newLine));
 
-            Assert.AreEqual("Hello World!", _shellStream.ReadLine(TimeSpan.FromTicks(1)));
-            Assert.IsNull(_shellStream.ReadLine(TimeSpan.FromTicks(1)));
+            Assert.AreEqual("Hello World!", _shellStream.ReadLine(TimeSpan.Zero));
+            Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
 
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Second line!" + newLine + "Third line!" + newLine));
 
-            Assert.AreEqual("Second line!", _shellStream.ReadLine(TimeSpan.FromTicks(1)));
-            Assert.AreEqual("Third line!", _shellStream.ReadLine(TimeSpan.FromTicks(1)));
-            Assert.IsNull(_shellStream.ReadLine(TimeSpan.FromTicks(1)));
+            Assert.AreEqual("Second line!", _shellStream.ReadLine(TimeSpan.Zero));
+            Assert.AreEqual("Third line!", _shellStream.ReadLine(TimeSpan.Zero));
+            Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
+
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Last line!")); // no newLine at the end
+
+            Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
+
+            _channelSessionStub.Close();
+
+            Assert.AreEqual("Last line!", _shellStream.ReadLine(TimeSpan.Zero));
+        }
+
+        [TestMethod]
+        public void ReadLine_DifferentTerminators()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello\rWorld!\nWhat's\r\ngoing\n\ron?\n"));
+
+            Assert.AreEqual("Hello", _shellStream.ReadLine());
+            Assert.AreEqual("World!", _shellStream.ReadLine());
+            Assert.AreEqual("What's", _shellStream.ReadLine());
+            Assert.AreEqual("going", _shellStream.ReadLine());
+            Assert.AreEqual("", _shellStream.ReadLine());
+            Assert.AreEqual("on?", _shellStream.ReadLine());
+            Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
         }
 
         [DataTestMethod]
@@ -108,54 +130,31 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Ignore] // Currently returns 0 immediately
-        public void Read_NonEmptyArray_OnlyReturnsZeroAfterClose()
+        public async Task Read_NonEmptyArray_OnlyReturnsZeroAfterClose()
         {
-            Task closeTask = Task.Run(async () =>
-            {
-                // For the test to have meaning, we should be in
-                // the call to Read before closing the channel.
-                // Impose a short delay to make that more likely.
-                await Task.Delay(50);
+            Task<int> readTask = _shellStream.ReadAsync(new byte[16], 0, 16);
 
-                _channelSessionStub.Close();
-            });
+            await Task.Delay(50);
 
-            Assert.AreEqual(0, _shellStream.Read(new byte[16], 0, 16));
-            Assert.AreEqual(TaskStatus.RanToCompletion, closeTask.Status);
+            Assert.IsFalse(readTask.IsCompleted);
+
+            _channelSessionStub.Close();
+
+            Assert.AreEqual(0, await readTask);
         }
 
         [TestMethod]
-        [Ignore] // Currently returns 0 immediately
-        public void Read_EmptyArray_OnlyReturnsZeroWhenDataAvailable()
+        public async Task Read_EmptyArray_OnlyReturnsZeroWhenDataAvailable()
         {
-            Task receiveTask = Task.Run(async () =>
-            {
-                // For the test to have meaning, we should be in
-                // the call to Read before receiving the data.
-                // Impose a short delay to make that more likely.
-                await Task.Delay(50);
+            Task<int> readTask = _shellStream.ReadAsync(Array.Empty<byte>(), 0, 0);
 
-                _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello World!"));
-            });
+            await Task.Delay(50);
 
-            Assert.AreEqual(0, _shellStream.Read(Array.Empty<byte>(), 0, 0));
-            Assert.AreEqual(TaskStatus.RanToCompletion, receiveTask.Status);
-        }
+            Assert.IsFalse(readTask.IsCompleted);
 
-        [TestMethod]
-        [Ignore] // Currently hangs
-        public void ReadLine_NoData_ReturnsNullAfterClose()
-        {
-            Task closeTask = Task.Run(async () =>
-            {
-                await Task.Delay(50);
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello World!"));
 
-                _channelSessionStub.Close();
-            });
-
-            Assert.IsNull(_shellStream.ReadLine());
-            Assert.AreEqual(TaskStatus.RanToCompletion, closeTask.Status);
+            Assert.AreEqual(0, await readTask);
         }
 
         [TestMethod]
@@ -164,14 +163,24 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello "));
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("World!"));
 
-            Assert.IsNull(_shellStream.Expect("123", TimeSpan.FromTicks(1)));
+            Assert.IsNull(_shellStream.Expect("123", TimeSpan.Zero));
 
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("\r\n12345"));
 
-            // Both of these cases fail
-            // Case 1 above.
-            Assert.AreEqual("Hello World!\r\n123", _shellStream.Expect("123")); // Fails, returns "Hello World!\r\n12345"
-            Assert.AreEqual("45", _shellStream.Read()); // Passes, but should probably fail and return ""
+            Assert.AreEqual("Hello World!\r\n123", _shellStream.Expect("123"));
+            Assert.AreEqual("45", _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Read_AfterDispose_StillWorks()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello World!"));
+
+            _shellStream.Dispose();
+            _shellStream.Dispose(); // Check that multiple Dispose is OK.
+
+            Assert.AreEqual("Hello World!", _shellStream.ReadLine());
+            Assert.IsNull(_shellStream.ReadLine());
         }
 
         [TestMethod]

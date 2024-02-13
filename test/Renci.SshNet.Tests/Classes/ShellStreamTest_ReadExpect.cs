@@ -263,7 +263,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('e', 100)));
 
             // Expected result
-            var expectedResult = $"{new string(' ', ExpectSize - 405)}{new string('a', 100)}{new string('b', 100)}{expected}";
+            var expectedResult = $"{new string(' ', BufferSize)}{new string(' ', ExpectSize)}{new string('a', 100)}{new string('b', 100)}{expected}";
             var expectedRead = $"{new string('d', 100)}{new string('e', 100)}";
 
             Assert.AreEqual(expectedResult, _shellStream.Expect(expected));

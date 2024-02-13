@@ -282,11 +282,14 @@ namespace Renci.SshNet
 
                             if (match.Success)
                             {
-                                var returnText = matchText.Substring(0, match.Index + match.Length);
-                                var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                                var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                                var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                                 // Remove processed items from the queue
-                                SyncQueuesAndDequeue(returnLength);
+                                var returnText = SyncQueuesAndReturn(returnLength);
 
                                 expectAction.Action(returnText);
                                 expectedFound = true;
@@ -377,11 +380,14 @@ namespace Renci.SshNet
 
                     if (match.Success)
                     {
-                        returnText = matchText.Substring(0, match.Index + match.Length);
-                        var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                        var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                        var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                         // Remove processed items from the queue
-                        SyncQueuesAndDequeue(returnLength);
+                        returnText = SyncQueuesAndReturn(returnLength);
 
                         break;
                     }
@@ -485,11 +491,14 @@ namespace Renci.SshNet
 
                                     if (match.Success)
                                     {
-                                        returnText = matchText.Substring(0, match.Index + match.Length);
-                                        var returnLength = _encoding.GetByteCount(returnText);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                                        var returnLength = _encoding.GetByteCount(matchText.AsSpan(0, match.Index + match.Length));
+#else
+                                        var returnLength = _encoding.GetByteCount(matchText.Substring(0, match.Index + match.Length));
+#endif
 
                                         // Remove processed items from the queue
-                                        SyncQueuesAndDequeue(returnLength);
+                                        returnText = SyncQueuesAndReturn(returnLength);
 
                                         expectAction.Action(returnText);
                                         callback?.Invoke(asyncResult);
@@ -836,6 +845,21 @@ namespace Renci.SshNet
         private void OnDataReceived(byte[] data)
         {
             DataReceived?.Invoke(this, new ShellDataEventArgs(data));
+        }
+
+        private string SyncQueuesAndReturn(int bytesToDequeue)
+        {
+            string incomingText;
+
+            lock (_incoming)
+            {
+                var incomingLength = _incoming.Count - _expect.Count + bytesToDequeue;
+                incomingText = _encoding.GetString(_incoming.ToArray(), 0, incomingLength);
+
+                SyncQueuesAndDequeue(bytesToDequeue);
+            }
+
+            return incomingText;
         }
 
         private void SyncQueuesAndDequeue(int bytesToDequeue)

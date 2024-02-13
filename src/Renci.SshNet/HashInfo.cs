@@ -23,11 +23,6 @@ namespace Renci.SshNet
         public Func<byte[], HMAC> HMAC { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether Encrypt-then-MAC or not.
-        /// </summary>
-        public bool ETM { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="HashInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>

@@ -88,10 +88,14 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
+#else
             if (bufferSize <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(bufferSize));
             }
+#endif
 
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
@@ -244,9 +248,41 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="timeout">Time to wait for input. Must non-negative or equal to -1 millisecond (for infinite timeout).</param>
         /// <param name="expectActions">The expected expressions and actions to perform, if the specified time elapsed and expected condition have not met, that method will exit without executing any action.</param>
+        /// <remarks>
+        /// If a TimeSpan representing -1 millisecond is specified for the <paramref name="timeout"/> parameter,
+        /// this method blocks indefinitely until either the regex matches the data in the buffer, or the stream
+        /// is closed (via disposal or via the underlying channel closing).
+        /// </remarks>
         public void Expect(TimeSpan timeout, params ExpectAction[] expectActions)
         {
-            _ = ExpectRegex(timeout, expectActions);
+            _ = ExpectRegex(timeout, windowSize: -1, expectActions);
+        }
+
+        /// <summary>
+        /// Expects the specified expression and performs action when one is found.
+        /// </summary>
+        /// <param name="timeout">Time to wait for input. Must non-negative or equal to -1 millisecond (for infinite timeout).</param>
+        /// <param name="windowSize">The amount of data to consider from the most recent data in the buffer, or -1 to always search the entire buffer.</param>
+        /// <param name="expectActions">The expected expressions and actions to perform, if the specified time elapsed and expected condition have not met, that method will exit without executing any action.</param>
+        /// <remarks>
+        /// <para>
+        /// If a TimeSpan representing -1 millisecond is specified for the <paramref name="timeout"/> parameter,
+        /// this method blocks indefinitely until either the regex matches the data in the buffer, or the stream
+        /// is closed (via disposal or via the underlying channel closing).
+        /// </para>
+        /// <para>
+        /// Use the <paramref name="windowSize"/> parameter to constrain the search space to a fixed-size rolling window at the end of the buffer.
+        /// This can reduce the amount of work done in cases where lots of output from the shell is expected to be received before the matching expression is found.
+        /// </para>
+        /// <para>
+        /// Note: in situations with high volumes of data and a small value for <paramref name="windowSize"/>, some data may not be searched through.
+        /// It is recommended to set <paramref name="windowSize"/> to a large enough value to be able to search all data as it comes in,
+        /// but which still places a limit on the amount of work needed.
+        /// </para>
+        /// </remarks>
+        public void Expect(TimeSpan timeout, int windowSize, params ExpectAction[] expectActions)
+        {
+            _ = ExpectRegex(timeout, windowSize, expectActions);
         }
 
         /// <summary>
@@ -267,14 +303,17 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="text">The text to expect.</param>
         /// <param name="timeout">Time to wait for input. Must non-negative or equal to -1 millisecond (for infinite timeout).</param>
+        /// <param name="windowSize">The amount of data to consider from the most recent data in the buffer, or -1 to always search the entire buffer.</param>
         /// <returns>
         /// The text available in the shell up to and including the expected expression,
         /// or <see langword="null"/> if the specified time has elapsed or the stream is closed
         /// without a match.
         /// </returns>
-        public string? Expect(string text, TimeSpan timeout)
+        /// <remarks><inheritdoc cref="Expect(TimeSpan, int, ExpectAction[])"/></remarks>
+        public string? Expect(string text, TimeSpan timeout, int windowSize = -1)
         {
             ValidateTimeout(timeout);
+            ValidateWindowSize(windowSize);
 
             var timeoutTime = DateTime.Now.Add(timeout);
 
@@ -286,17 +325,23 @@ namespace Renci.SshNet
                 {
                     AssertValid();
 
+                    var searchHead = windowSize == -1
+                        ? _head
+                        : Math.Max(_tail - windowSize, _head);
+
+                    Debug.Assert(_head <= searchHead && searchHead <= _tail);
+
 #if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfMatch = _buffer.IndexOf(expectBytes, _head, _tail - _head);
+                    var indexOfMatch = _buffer.IndexOf(expectBytes, searchHead, _tail - searchHead);
 #else
-                    var indexOfMatch = _buffer.AsSpan(_head, _tail - _head).IndexOf(expectBytes);
+                    var indexOfMatch = _buffer.AsSpan(searchHead, _tail - searchHead).IndexOf(expectBytes);
 #endif
 
                     if (indexOfMatch >= 0)
                     {
-                        var returnText = _encoding.GetString(_buffer, _head, indexOfMatch + expectBytes.Length);
+                        var returnText = _encoding.GetString(_buffer, _head, searchHead - _head + indexOfMatch + expectBytes.Length);
 
-                        _head += indexOfMatch + expectBytes.Length;
+                        _head = searchHead + indexOfMatch + expectBytes.Length;
 
                         AssertValid();
 
@@ -343,24 +388,24 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="regex">The regular expression to expect.</param>
         /// <param name="timeout">Time to wait for input. Must non-negative or equal to -1 millisecond (for infinite timeout).</param>
+        /// <param name="windowSize">The amount of data to consider from the most recent data in the buffer, or -1 to always search the entire buffer.</param>
         /// <returns>
         /// The text available in the shell up to and including the expected expression,
         /// or <see langword="null"/> if the specified timeout has elapsed or the stream
         /// is closed without a match.
         /// </returns>
         /// <remarks>
-        /// If a TimeSpan representing -1 millisecond is specified for the <paramref name="timeout"/> parameter,
-        /// this method blocks indefinitely until either the regex matches the data in the buffer, or the stream
-        /// is closed (via disposal or via the underlying channel closing).
+        /// <inheritdoc cref="Expect(TimeSpan, int, ExpectAction[])"/>
         /// </remarks>
-        public string? Expect(Regex regex, TimeSpan timeout)
+        public string? Expect(Regex regex, TimeSpan timeout, int windowSize = -1)
         {
-            return ExpectRegex(timeout, [new ExpectAction(regex, s => { })]);
+            return ExpectRegex(timeout, windowSize, [new ExpectAction(regex, s => { })]);
         }
 
-        private string? ExpectRegex(TimeSpan timeout, ExpectAction[] expectActions)
+        private string? ExpectRegex(TimeSpan timeout, int windowSize, ExpectAction[] expectActions)
         {
             ValidateTimeout(timeout);
+            ValidateWindowSize(windowSize);
 
             var timeoutTime = DateTime.Now.Add(timeout);
 
@@ -372,22 +417,27 @@ namespace Renci.SshNet
 
                     var bufferText = _encoding.GetString(_buffer, _head, _tail - _head);
 
+                    var searchStart = windowSize == -1
+                        ? 0
+                        : Math.Max(bufferText.Length - windowSize, 0);
+
                     foreach (var expectAction in expectActions)
                     {
 #if NET7_0_OR_GREATER
-                        var matchEnumerator = expectAction.Expect.EnumerateMatches(bufferText);
+                        var matchEnumerator = expectAction.Expect.EnumerateMatches(bufferText.AsSpan(searchStart));
 
                         if (matchEnumerator.MoveNext())
                         {
                             var match = matchEnumerator.Current;
+
+                            var returnText = bufferText.Substring(0, searchStart + match.Index + match.Length);
 #else
-                        var match = expectAction.Expect.Match(bufferText);
+                        var match = expectAction.Expect.Match(bufferText, searchStart);
 
                         if (match.Success)
                         {
-#endif
                             var returnText = bufferText.Substring(0, match.Index + match.Length);
-
+#endif
                             _head += _encoding.GetByteCount(returnText);
 
                             AssertValid();
@@ -471,7 +521,23 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback? callback, object? state, params ExpectAction[] expectActions)
         {
-            return TaskToAsyncResult.Begin(Task.Run(() => ExpectRegex(timeout, expectActions)), callback, state);
+            return BeginExpect(timeout, windowSize: -1, callback, state, expectActions);
+        }
+
+        /// <summary>
+        /// Begins the expect.
+        /// </summary>
+        /// <param name="timeout">The timeout. Must non-negative or equal to -1 millisecond (for infinite timeout).</param>
+        /// <param name="windowSize">The amount of data to consider from the most recent data in the buffer, or -1 to always search the entire buffer.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="state">The state.</param>
+        /// <param name="expectActions">The expect actions.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        public IAsyncResult BeginExpect(TimeSpan timeout, int windowSize, AsyncCallback? callback, object? state, params ExpectAction[] expectActions)
+        {
+            return TaskToAsyncResult.Begin(Task.Run(() => ExpectRegex(timeout, windowSize, expectActions)), callback, state);
         }
 
         /// <summary>
@@ -641,7 +707,15 @@ namespace Renci.SshNet
         {
             if (timeout < TimeSpan.Zero && timeout != Timeout.InfiniteTimeSpan)
             {
-                throw new ArgumentOutOfRangeException(nameof(timeout), "Value must non-negative or equal to -1 millisecond (for infinite timeout)");
+                throw new ArgumentOutOfRangeException(nameof(timeout), "Value must be non-negative or equal to -1 millisecond (for infinite timeout)");
+            }
+        }
+
+        private static void ValidateWindowSize(int windowSize)
+        {
+            if (windowSize is <= 0 and not -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(windowSize), "Value must be positive or equal to -1 (for no window)");
             }
         }
 

@@ -228,7 +228,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Expect_String_non_ASCII_characters()
+        public void Expect_Regex_non_ASCII_characters()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello, こんにちは, Bonjour"));
 
@@ -254,14 +254,12 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Expect_String_DequeueChecks()
+        public void Expect_String_WithWindow()
         {
-            const int ExpectSize = BufferSize * 2;
             const string expected = "ccccc";
 
             // Prime buffer
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string(' ', BufferSize)));
-            _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string(' ', ExpectSize)));
 
             // Test data
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('a', 100)));
@@ -271,12 +269,32 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('e', 100)));
 
             // Expected result
-            var expectedResult = $"{new string(' ', BufferSize)}{new string(' ', ExpectSize)}{new string('a', 100)}{new string('b', 100)}{expected}";
+            var expectedResult = $"{new string(' ', BufferSize)}{new string('a', 100)}{new string('b', 100)}{expected}";
             var expectedRead = $"{new string('d', 100)}{new string('e', 100)}";
 
-            Assert.AreEqual(expectedResult, _shellStream.Expect(expected));
+            Assert.AreEqual(expectedResult, _shellStream.Expect(expected, TimeSpan.Zero, windowSize: 250));
 
             Assert.AreEqual(expectedRead, _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Expect_Regex_WithWindow()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("0123456789"));
+
+            Assert.AreEqual("01234567", _shellStream.Expect(new Regex(@"\d"), TimeSpan.Zero, windowSize: 3));
+
+            Assert.AreEqual("89", _shellStream.Read());
+        }
+
+        [TestMethod]
+        public void Expect_Regex_WithWindow_non_ASCII_characters()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello, こんにちは, Bonjour"));
+
+            Assert.AreEqual("Hello, こんにち", _shellStream.Expect(new Regex(@"[^\u0000-\u007F]"), TimeSpan.Zero, windowSize: 11));
+
+            Assert.AreEqual("は, Bonjour", _shellStream.Read());
         }
 
         [TestMethod]

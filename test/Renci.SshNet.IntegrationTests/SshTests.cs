@@ -85,13 +85,13 @@ namespace Renci.SshNet.IntegrationTests
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
-            var expectedResult = string.Join("\n",
-                                             "Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 5 ",
-                                             "Line 6");
+            List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 5 ",
+                                          "Line 6",
+                                          "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -130,8 +130,8 @@ namespace Renci.SshNet.IntegrationTests
                             {
                                 lines.Add(line);
                             }
-                            Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
-                            Assert.AreEqual(expectedResult, string.Join("\n", lines));
+
+                            CollectionAssert.AreEqual(expectedLines, lines, string.Join("\n", lines));
                         }
                     }
                 }

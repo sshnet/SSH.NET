@@ -187,6 +187,7 @@ namespace Renci.SshNet
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="expectSize">The size of the expect buffer.</param>
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -194,16 +195,16 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+        public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize, int expectSize)
         {
-            return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+            return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize, expectSize);
         }
 
         /// <summary>

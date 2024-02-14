@@ -114,7 +114,13 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha2-512
 * hmac-sha2-512-96
 * hmac-ripemd160
-* hmac-ripemd160<span></span>@openssh.com
+* hmac-ripemd160@openssh.com
+* hmac-md5-etm@openssh.com
+* hmac-md5-96-etm@openssh.com
+* hmac-sha1-etm@openssh.com
+* hmac-sha1-96-etm@openssh.com
+* hmac-sha2-256-etm@openssh.com
+* hmac-sha2-512-etm@openssh.com
 
 ## Framework Support
 **SSH.NET** supports the following target frameworks:

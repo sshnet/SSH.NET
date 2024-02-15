@@ -254,7 +254,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Expect_String_WithWindow()
+        public void Expect_String_WithLookback()
         {
             const string expected = "ccccc";
 
@@ -272,27 +272,27 @@ namespace Renci.SshNet.Tests.Classes
             var expectedResult = $"{new string(' ', BufferSize)}{new string('a', 100)}{new string('b', 100)}{expected}";
             var expectedRead = $"{new string('d', 100)}{new string('e', 100)}";
 
-            Assert.AreEqual(expectedResult, _shellStream.Expect(expected, TimeSpan.Zero, windowSize: 250));
+            Assert.AreEqual(expectedResult, _shellStream.Expect(expected, TimeSpan.Zero, lookback: 250));
 
             Assert.AreEqual(expectedRead, _shellStream.Read());
         }
 
         [TestMethod]
-        public void Expect_Regex_WithWindow()
+        public void Expect_Regex_WithLookback()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("0123456789"));
 
-            Assert.AreEqual("01234567", _shellStream.Expect(new Regex(@"\d"), TimeSpan.Zero, windowSize: 3));
+            Assert.AreEqual("01234567", _shellStream.Expect(new Regex(@"\d"), TimeSpan.Zero, lookback: 3));
 
             Assert.AreEqual("89", _shellStream.Read());
         }
 
         [TestMethod]
-        public void Expect_Regex_WithWindow_non_ASCII_characters()
+        public void Expect_Regex_WithLookback_non_ASCII_characters()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello, こんにちは, Bonjour"));
 
-            Assert.AreEqual("Hello, こんにち", _shellStream.Expect(new Regex(@"[^\u0000-\u007F]"), TimeSpan.Zero, windowSize: 11));
+            Assert.AreEqual("Hello, こんにち", _shellStream.Expect(new Regex(@"[^\u0000-\u007F]"), TimeSpan.Zero, lookback: 11));
 
             Assert.AreEqual("は, Bonjour", _shellStream.Read());
         }

@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net48;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,9 +17,9 @@
     <!--
         Testcontainers has a dependency on SSH.NET which causes build warnings during assembly resolution:      
         
-            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2023.0.1.0, Culture=neutral
+            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2023.0.2.0, Culture=neutral
             , PublicKeyToken=1cee9f8bde3db106" and "Renci.SshNet, Version=2023.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db
-            106". Choosing "Renci.SshNet, Version=2023.0.1.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
+            106". Choosing "Renci.SshNet, Version=2023.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
              
         To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
     -->

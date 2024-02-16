@@ -112,7 +112,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void NoDataShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -121,15 +121,15 @@ namespace Renci.SshNet.Tests.Classes
             byte[] bytesSent = null;
 
             _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(It.IsAny<byte[]>()))
-                               .Callback<byte[]>(data => bytesSent = data);
+                               .Setup(p => p.SendData(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                               .Callback<byte[], int, int>((data, offset, count) => bytesSent = data.Take(offset, count));
 
             _shellStream.Flush();
 
             Assert.IsNotNull(bytesSent);
             Assert.IsTrue(_data.Take(_offset, _count).IsEqualTo(bytesSent));
 
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Once);
+            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }
     }
 }

@@ -93,9 +93,9 @@ namespace Renci.SshNet.Tests.Classes
                                    .Setup(p => p.SendShellRequest())
                                    .Returns(true);
             _ = _channelSessionMock.InSequence(_mockSequence)
-                                   .Setup(p => p.SendData(_expectedBytesSent1));
+                                   .Setup(p => p.SendData(_expectedBytesSent1, 0, _bufferSize));
             _ = _channelSessionMock.InSequence(_mockSequence)
-                                   .Setup(p => p.SendData(_expectedBytesSent2));
+                                   .Setup(p => p.SendData(_expectedBytesSent2, 0, _bufferSize));
         }
 
         private void Arrange()
@@ -122,8 +122,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BufferShouldHaveBeenFlushedTwice()
         {
-            _channelSessionMock.Verify(p => p.SendData(_expectedBytesSent1), Times.Once);
-            _channelSessionMock.Verify(p => p.SendData(_expectedBytesSent2), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
@@ -132,11 +131,14 @@ namespace Renci.SshNet.Tests.Classes
             var expectedBytesSent = _data.Take(_bufferSize * 2, _data.Length - (_bufferSize * 2));
 
             _ = _channelSessionMock.InSequence(_mockSequence)
-                                   .Setup(p => p.SendData(expectedBytesSent));
+                                   .Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(expectedBytesSent.Length).IsEqualTo(expectedBytesSent)),
+                                       0,
+                                       expectedBytesSent.Length));
 
             _shellStream.Flush();
 
-            _channelSessionMock.Verify(p => p.SendData(expectedBytesSent), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

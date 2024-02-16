@@ -112,18 +112,21 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void NoDataShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
         public void FlushShouldSendWrittenBytesToServer()
         {
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_data));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(_data.Length).IsEqualTo(_data)),
+                                       0,
+                                       _data.Length));
 
             _shellStream.Flush();
 
-            _channelSessionMock.Verify(p => p.SendData(_data), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

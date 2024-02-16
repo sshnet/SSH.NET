@@ -71,16 +71,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(line);
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
-                    // TODO: ReadLine should return null when the buffer is empty and the channel has been closed (issue #672)
-                    try
-                    {
-                        line = shellStream.ReadLine();
-                        Assert.Fail(line);
-                    }
-                    catch (NullReferenceException)
-                    {
-
-                    }
+                    Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
                 }
             }
         }
@@ -90,18 +81,17 @@ namespace Renci.SshNet.IntegrationTests
         /// </summary>
         [TestMethod]
         [Category("Reproduction Tests")]
-        [Ignore]
         public void Ssh_ShellStream_IntermittendOutput()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
-            var expectedResult = string.Join("\n",
-                                             "Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 5 ",
-                                             "Line 6");
+            List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                          "Line 5 ",
+                                          "Line 6",
+                                          "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -131,8 +121,8 @@ namespace Renci.SshNet.IntegrationTests
                     using (var shellStream = sshClient.CreateShellStream("xterm", 80, 24, 800, 600, 1024, terminalModes))
                     {
                         shellStream.WriteLine(remoteFile);
-                        Thread.Sleep(1200);
-                        using (var reader = new StreamReader(shellStream, new UTF8Encoding(false), false, 10))
+                        shellStream.WriteLine("exit");
+                        using (var reader = new StreamReader(shellStream))
                         {
                             var lines = new List<string>();
                             string line = null;
@@ -140,8 +130,8 @@ namespace Renci.SshNet.IntegrationTests
                             {
                                 lines.Add(line);
                             }
-                            Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
-                            Assert.AreEqual(expectedResult, string.Join("\n", lines));
+
+                            CollectionAssert.AreEqual(expectedLines, lines, string.Join("\n", lines));
                         }
                     }
                 }

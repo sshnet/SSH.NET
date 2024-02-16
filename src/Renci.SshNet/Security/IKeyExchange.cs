@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
@@ -65,18 +66,20 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the server-side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The server hash algorithm.
         /// </returns>
-        HMAC CreateServerHash();
+        HashAlgorithm CreateServerHash(out bool isEncryptThenMAC);
 
         /// <summary>
         /// Creates the client-side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The client hash algorithm.
         /// </returns>
-        HMAC CreateClientHash();
+        HashAlgorithm CreateClientHash(out bool isEncryptThenMAC);
 
         /// <summary>
         /// Creates the compression algorithm to use to deflate data.

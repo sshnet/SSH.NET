@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -217,11 +218,14 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the server side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The server-side hash algorithm.
         /// </returns>
-        public HMAC CreateServerHash()
+        public HashAlgorithm CreateServerHash(out bool isEncryptThenMAC)
         {
+            isEncryptThenMAC = _serverHashInfo.IsEncryptThenMAC;
+
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
 
@@ -234,17 +238,20 @@ namespace Renci.SshNet.Security
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentServerHmacAlgorithm));
 
-            return _serverHashInfo.HMAC(serverKey);
+            return _serverHashInfo.HashAlgorithm(serverKey);
         }
 
         /// <summary>
         /// Creates the client side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The client-side hash algorithm.
         /// </returns>
-        public HMAC CreateClientHash()
+        public HashAlgorithm CreateClientHash(out bool isEncryptThenMAC)
         {
+            isEncryptThenMAC = _clientHashInfo.IsEncryptThenMAC;
+
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
 
@@ -257,7 +264,7 @@ namespace Renci.SshNet.Security
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentClientHmacAlgorithm));
 
-            return _clientHashInfo.HMAC(clientKey);
+            return _clientHashInfo.HashAlgorithm(clientKey);
         }
 
         /// <summary>

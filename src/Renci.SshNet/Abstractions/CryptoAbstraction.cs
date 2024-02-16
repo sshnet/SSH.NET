@@ -84,75 +84,75 @@ namespace Renci.SshNet.Abstractions
         }
 #endif // FEATURE_HASH_RIPEMD160
 
-        public static HMAC CreateHMACMD5(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
         {
 #pragma warning disable CA5351 // Do not use broken cryptographic algorithms
-            return new HMAC(new System.Security.Cryptography.HMACMD5(key), etm);
+            return new System.Security.Cryptography.HMACMD5(key);
 #pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
-        public static HMAC CreateHMACMD5(byte[] key, int hashSize, bool etm)
+        public static HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
         {
 #pragma warning disable CA5351 // Do not use broken cryptographic algorithms
-            return new HMAC(new HMACMD5(key, hashSize), etm);
+            return new HMACMD5(key, hashSize);
 #pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
-        public static HMAC CreateHMACSHA1(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
         {
 #pragma warning disable CA5350 // Do not use weak cryptographic algorithms
-            return new HMAC(new System.Security.Cryptography.HMACSHA1(key), etm);
+            return new System.Security.Cryptography.HMACSHA1(key);
 #pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
-        public static HMAC CreateHMACSHA1(byte[] key, int hashSize, bool etm)
+        public static HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
         {
 #pragma warning disable CA5350 // Do not use weak cryptographic algorithms
-            return new HMAC(new HMACSHA1(key, hashSize), etm);
+            return new HMACSHA1(key, hashSize);
 #pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
-        public static HMAC CreateHMACSHA256(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
         {
-            return new HMAC(new System.Security.Cryptography.HMACSHA256(key), etm);
+            return new System.Security.Cryptography.HMACSHA256(key);
         }
 
-        public static HMAC CreateHMACSHA256(byte[] key, int hashSize, bool etm)
+        public static HMACSHA256 CreateHMACSHA256(byte[] key, int hashSize)
         {
-            return new HMAC(new HMACSHA256(key, hashSize), etm);
+            return new HMACSHA256(key, hashSize);
         }
 
-        public static HMAC CreateHMACSHA384(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key)
         {
-            return new HMAC(new System.Security.Cryptography.HMACSHA384(key), etm);
+            return new System.Security.Cryptography.HMACSHA384(key);
         }
 
-        public static HMAC CreateHMACSHA384(byte[] key, int hashSize, bool etm)
+        public static HMACSHA384 CreateHMACSHA384(byte[] key, int hashSize)
         {
-            return new HMAC(new HMACSHA384(key, hashSize), etm);
+            return new HMACSHA384(key, hashSize);
         }
 
-        public static HMAC CreateHMACSHA512(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key)
         {
-            return new HMAC(new System.Security.Cryptography.HMACSHA512(key), etm);
+            return new System.Security.Cryptography.HMACSHA512(key);
         }
 
-        public static HMAC CreateHMACSHA512(byte[] key, int hashSize, bool etm)
+        public static HMACSHA512 CreateHMACSHA512(byte[] key, int hashSize)
         {
-            return new HMAC(new HMACSHA512(key, hashSize), etm);
+            return new HMACSHA512(key, hashSize);
         }
 
 #if FEATURE_HMAC_RIPEMD160
-        public static HMAC CreateHMACRIPEMD160(byte[] key, bool etm)
+        public static System.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
         {
 #pragma warning disable CA5350 // Do not use weak cryptographic algorithms
-            return new HMAC(new System.Security.Cryptography.HMACRIPEMD160(key), etm);
+            return new System.Security.Cryptography.HMACRIPEMD160(key);
 #pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 #else
-        public static HMAC CreateHMACRIPEMD160(byte[] key, bool etm)
+        public static global::SshNet.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
         {
-            return new HMAC(new global::SshNet.Security.Cryptography.HMACRIPEMD160(key), etm);
+            return new global::SshNet.Security.Cryptography.HMACRIPEMD160(key);
         }
 #endif // FEATURE_HMAC_RIPEMD160
     }

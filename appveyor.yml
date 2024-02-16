@@ -33,9 +33,6 @@ for:
     only:
       - image: Visual Studio 2022
 
-  install:
-    - ps: choco install dotnet-8.0-sdk --version=8.0.100
-
   before_build:
     - ps: mkdir artifacts -f
 

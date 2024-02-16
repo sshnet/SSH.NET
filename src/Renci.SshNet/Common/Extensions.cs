@@ -261,6 +261,44 @@ namespace Renci.SshNet.Common
             return value;
         }
 
+#if NETFRAMEWORK || NETSTANDARD2_0
+        public static int IndexOf(this byte[] array, byte[] value, int startIndex, int count)
+        {
+            if (value.Length > count)
+            {
+                return -1;
+            }
+
+            if (value.Length == 0)
+            {
+                return 0;
+            }
+
+            for (var i = startIndex; i < startIndex + count - value.Length + 1; i++)
+            {
+                if (MatchesAtIndex(i))
+                {
+                    return i - startIndex;
+                }
+            }
+
+            return -1;
+
+            bool MatchesAtIndex(int i)
+            {
+                for (var j = 0; j < value.Length; j++)
+                {
+                    if (array[i + j] != value[j])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+#endif
+
         /// <summary>
         /// Pads with leading zeros if needed.
         /// </summary>

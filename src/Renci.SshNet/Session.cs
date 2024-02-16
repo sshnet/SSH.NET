@@ -176,6 +176,10 @@ namespace Renci.SshNet
 
         private HashAlgorithm _clientMac;
 
+        private bool _serverEtm;
+
+        private bool _clientEtm;
+
         private Cipher _clientCipher;
 
         private Cipher _serverCipher;
@@ -1054,7 +1058,7 @@ namespace Renci.SshNet
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
-            var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientMac != null && _clientEtm);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
@@ -1063,7 +1067,7 @@ namespace Renci.SshNet
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
-                if (_clientMac != null)
+                if (_clientMac != null && !_clientEtm)
                 {
                     // write outbound packet sequence to start of packet data
                     Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
@@ -1075,8 +1079,29 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
-                    packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
-                    packetDataOffset = 0;
+                    if (_clientMac != null && _clientEtm)
+                    {
+                        // The length of the "packet length" field in bytes
+                        const int packetLengthFieldLength = 4;
+
+                        var encryptedData = _clientCipher.Encrypt(packetData, packetDataOffset + packetLengthFieldLength, packetData.Length - packetDataOffset - packetLengthFieldLength);
+
+                        Array.Resize(ref packetData, packetDataOffset + packetLengthFieldLength + encryptedData.Length);
+
+                        // write outbound packet sequence to start of packet data
+                        Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+
+                        // write encrypted data
+                        Buffer.BlockCopy(encryptedData, 0, packetData, packetDataOffset + packetLengthFieldLength, encryptedData.Length);
+
+                        // calculate packet hash
+                        hash = _clientMac.ComputeHash(packetData);
+                    }
+                    else
+                    {
+                        packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
+                        packetDataOffset = 0;
+                    }
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -1194,8 +1219,22 @@ namespace Renci.SshNet
             // The length of the "padding length" field in bytes
             const int paddingLengthFieldLength = 1;
 
-            // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
-            var blockSize = _serverCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            int blockSize;
+
+            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes
+            // The "packet length" field is not encrypted in ETM.
+            if (_serverMac != null && _serverEtm)
+            {
+                blockSize = (byte) 4;
+            }
+            else if (_serverCipher != null)
+            {
+                blockSize = Math.Max((byte) 8, _serverCipher.MinimumSize);
+            }
+            else
+            {
+                blockSize = (byte) 8;
+            }
 
             var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
 
@@ -1215,7 +1254,7 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null)
+                if (_serverCipher != null && (_serverMac == null || !_serverEtm))
                 {
                     firstBlock = _serverCipher.Decrypt(firstBlock);
                 }
@@ -1257,6 +1296,20 @@ namespace Renci.SshNet
                 }
             }
 
+            // validate encrypted message against MAC
+            if (_serverMac != null && _serverEtm)
+            {
+                var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
+                var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
+
+                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
+                // TODO That way we can eliminate the extra allocation of the Take above.
+                if (!serverHash.IsEqualTo(clientHash))
+                {
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+                }
+            }
+
             if (_serverCipher != null)
             {
                 var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
@@ -1271,8 +1324,8 @@ namespace Renci.SshNet
             var messagePayloadLength = (int) packetLength - paddingLength - paddingLengthFieldLength;
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
-            // validate message against MAC
-            if (_serverMac != null)
+            // validate decrypted message against MAC
+            if (_serverMac != null && !_serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
@@ -1472,8 +1525,8 @@ namespace Renci.SshNet
             // Update negotiated algorithms
             _serverCipher = _keyExchange.CreateServerCipher();
             _clientCipher = _keyExchange.CreateClientCipher();
-            _serverMac = _keyExchange.CreateServerHash();
-            _clientMac = _keyExchange.CreateClientHash();
+            _serverMac = _keyExchange.CreateServerHash(out _serverEtm);
+            _clientMac = _keyExchange.CreateClientHash(out _clientEtm);
             _clientCompression = _keyExchange.CreateCompressor();
             _serverDecompression = _keyExchange.CreateDecompressor();
 

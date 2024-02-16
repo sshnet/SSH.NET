@@ -37,7 +37,7 @@ namespace Renci.SshNet.Messages
             base.WriteBytes(stream);
         }
 
-        internal byte[] GetPacket(byte paddingMultiplier, Compressor compressor)
+        internal byte[] GetPacket(byte paddingMultiplier, Compressor compressor, bool isEncryptThenMAC = false)
         {
             const int outboundPacketSequenceSize = 4;
 
@@ -78,7 +78,9 @@ namespace Renci.SshNet.Messages
                     var packetLength = messageLength + 4 + 1;
 
                     // determine the padding length
-                    var paddingLength = GetPaddingLength(paddingMultiplier, packetLength);
+                    // in Encrypt-then-MAC mode, the length field is not encrypted, so we should keep it out of the
+                    // padding length calculation
+                    var paddingLength = GetPaddingLength(paddingMultiplier, isEncryptThenMAC ? packetLength - 4 : packetLength);
 
                     // add padding bytes
                     var paddingBytes = new byte[paddingLength];
@@ -104,7 +106,9 @@ namespace Renci.SshNet.Messages
                 var packetLength = messageLength + 4 + 1;
 
                 // determine the padding length
-                var paddingLength = GetPaddingLength(paddingMultiplier, packetLength);
+                // in Encrypt-then-MAC mode, the length field is not encrypted, so we should keep it out of the
+                // padding length calculation
+                var paddingLength = GetPaddingLength(paddingMultiplier, isEncryptThenMAC ? packetLength - 4 : packetLength);
 
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
 

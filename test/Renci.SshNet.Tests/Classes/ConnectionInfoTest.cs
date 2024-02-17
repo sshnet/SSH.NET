@@ -277,6 +277,84 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
+        public void Test_ConnectionInfo_Timeout_Valid()
+        {
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+                                                    Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                                                    Resources.PASSWORD, new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            try
+            {
+                connectionInfo.Timeout = TimeSpan.FromMilliseconds(-2);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("Timeout", ex.ParamName);
+            }
+
+            connectionInfo.Timeout = TimeSpan.FromMilliseconds(-1);
+            Assert.AreEqual(connectionInfo.Timeout, TimeSpan.FromMilliseconds(-1));
+
+            connectionInfo.Timeout = TimeSpan.FromMilliseconds(int.MaxValue);
+            Assert.AreEqual(connectionInfo.Timeout, TimeSpan.FromMilliseconds(int.MaxValue));
+
+            try
+            {
+                connectionInfo.Timeout = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("Timeout", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void Test_ConnectionInfo_ChannelCloseTimeout_Valid()
+        {
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+                                                    Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                                                    Resources.PASSWORD, new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            try
+            {
+                connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds(-2);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("ChannelCloseTimeout", ex.ParamName);
+            }
+
+            connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds(-1);
+            Assert.AreEqual(connectionInfo.ChannelCloseTimeout, TimeSpan.FromMilliseconds(-1));
+
+            connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
+            Assert.AreEqual(connectionInfo.ChannelCloseTimeout, TimeSpan.FromMilliseconds(int.MaxValue));
+
+            try
+            {
+                connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("ChannelCloseTimeout", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
         public void ConstructorShouldThrowArgumentExceptionhenUsernameIsNull()
         {
             const string username = null;

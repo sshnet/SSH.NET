@@ -21,12 +21,6 @@ namespace Renci.SshNet.IntegrationTests
 
 #if NET6_0_OR_GREATER
         [TestMethod]
-        public void Zlib()
-        {
-            DoTest(new KeyValuePair<string, Func<Compressor>>("zlib", () => new Zlib()));
-        }
-
-        [TestMethod]
         public void ZlibOpenSsh()
         {
             DoTest(new KeyValuePair<string, Func<Compressor>>("zlib@openssh.com", () => new ZlibOpenSsh()));

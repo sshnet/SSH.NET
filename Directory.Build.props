@@ -11,6 +11,7 @@
     <LangVersion>latest</LangVersion>
     <WarningLevel>9999</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>IDE0005</NoWarn>
   </PropertyGroup>
 
   <!--

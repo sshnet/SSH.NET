@@ -1,5 +1,5 @@
 ﻿using System;
-#if NET21_OR_GREATER || NET6_0_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif
 
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Common
         /// Thrown when <paramref name="timeSpan"/> does not represent a value between -1 and <see cref="int.MaxValue"/>, inclusive.
         /// </exception>
         public static int AsTimeout(this TimeSpan timeSpan,
-#if NET21_OR_GREATER || NET6_0_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER
                                     [CallerArgumentExpression(nameof(timeSpan))]
 #endif
                                     string callerMemberName = "")
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Common
         /// Thrown when <paramref name="timeSpan"/> does not represent a value between -1 and <see cref="int.MaxValue"/>, inclusive.
         /// </exception>
         public static void EnsureValidTimeout(this TimeSpan timeSpan,
-#if NET21_OR_GREATER || NET6_0_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER
                                     [CallerArgumentExpression(nameof(timeSpan))]
 #endif
                                     string callerMemberName = "")

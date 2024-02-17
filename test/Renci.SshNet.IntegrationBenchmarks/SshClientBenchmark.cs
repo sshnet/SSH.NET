@@ -81,7 +81,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
 
                 while (true)
                 {
-                    var line = shellStream.ReadLine();
+                    var line = shellStream.ReadLine()!;
 
                     if (line.EndsWith("500", StringComparison.Ordinal))
                     {
@@ -92,7 +92,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
         }
 
         [Benchmark]
-        public string ShellStreamExpect()
+        public string? ShellStreamExpect()
         {
             using (var shellStream = _sshClient!.CreateShellStream("xterm", 80, 24, 800, 600, 1024, ShellStreamTerminalModes))
             {

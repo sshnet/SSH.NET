@@ -122,6 +122,14 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha2-256-etm<span></span>@openssh.com
 * hmac-sha2-512-etm<span></span>@openssh.com
 
+
+## Compression
+
+**SSH.NET** supports the following compression algorithms:
+* none (default)
+* zlib<span></span>@openssh.com (.NET 6 and higher)
+* zlib (.NET 6 and higher)
+
 ## Framework Support
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)

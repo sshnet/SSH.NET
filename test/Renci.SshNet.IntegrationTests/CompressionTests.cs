@@ -24,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests
         public void ZlibOpenSsh()
         {
             DoTest(new KeyValuePair<string, Func<Compressor>>("zlib@openssh.com", () => new ZlibOpenSsh()));
-        } 
+        }
 #endif
 
         private void DoTest(KeyValuePair<string, Func<Compressor>> compressor)

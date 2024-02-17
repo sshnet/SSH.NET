@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// Represents "zlib@openssh.org" compression implementation.
+    /// Represents "zlib@openssh.com" compression implementation.
     /// </summary>
     public class ZlibOpenSsh : Compressor
     {
@@ -12,7 +12,7 @@ namespace Renci.SshNet.Compression
         /// </summary>
         public override string Name
         {
-            get { return "zlib@openssh.org"; }
+            get { return "zlib@openssh.com"; }
         }
 
         /// <summary>

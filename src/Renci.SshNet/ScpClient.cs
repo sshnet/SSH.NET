@@ -55,7 +55,7 @@ namespace Renci.SshNet
             }
             set
             {
-                value.EnsureValidTimeout();
+                value.EnsureValidTimeout(nameof(OperationTimeout));
 
                 _operationTimeout = value;
             }

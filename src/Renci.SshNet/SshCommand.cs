@@ -53,7 +53,7 @@ namespace Renci.SshNet
             }
             set
             {
-                value.EnsureValidTimeout();
+                value.EnsureValidTimeout(nameof(CommandTimeout));
 
                 _commandTimeout = value;
             }

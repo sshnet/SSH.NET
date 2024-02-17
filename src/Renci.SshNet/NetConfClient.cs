@@ -36,7 +36,7 @@ namespace Renci.SshNet
             }
             set
             {
-                _operationTimeout = value.AsTimeout();
+                _operationTimeout = value.AsTimeout(nameof(OperationTimeout));
             }
         }
 

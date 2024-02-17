@@ -59,7 +59,7 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
-                _operationTimeout = value.AsTimeout();
+                _operationTimeout = value.AsTimeout(nameof(OperationTimeout));
             }
         }
 

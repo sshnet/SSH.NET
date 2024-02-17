@@ -101,7 +101,7 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            timeout.EnsureValidTimeout();
+            timeout.EnsureValidTimeout(nameof(timeout));
 
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {

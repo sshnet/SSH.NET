@@ -43,6 +43,7 @@ namespace Renci.SshNet
         /// 1 second.
         /// </value>
         private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
+
         private TimeSpan _timeout;
         private TimeSpan _channelCloseTimeout;
 
@@ -155,7 +156,7 @@ namespace Renci.SshNet
             }
             set
             {
-                value.EnsureValidTimeout();
+                value.EnsureValidTimeout(nameof(Timeout));
 
                 _timeout = value;
             }
@@ -179,7 +180,7 @@ namespace Renci.SshNet
             }
             set
             {
-                value.EnsureValidTimeout();
+                value.EnsureValidTimeout(nameof(ChannelCloseTimeout));
 
                 _channelCloseTimeout = value;
             }

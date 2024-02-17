@@ -185,7 +185,7 @@ namespace Renci.SshNet.Sftp
             }
             set
             {
-                _timeout.EnsureValidTimeout();
+                value.EnsureValidTimeout();
 
                 _timeout = value;
             }

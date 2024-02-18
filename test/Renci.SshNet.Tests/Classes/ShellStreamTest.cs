@@ -86,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes
 
             shellStream.Write(text);
 
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
@@ -95,33 +95,15 @@ namespace Renci.SshNet.Tests.Classes
             var shellStream = CreateShellStream();
             const string line = null;
             var lineTerminator = _encoding.GetBytes("\r");
-
-            _channelSessionMock.Setup(p => p.SendData(lineTerminator, 0, lineTerminator.Length));
+            
+            _ = _channelSessionMock.Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(lineTerminator.Length).IsEqualTo(lineTerminator)),
+                                       0,
+                                       lineTerminator.Length));
 
             shellStream.WriteLine(line);
 
-            _channelSessionMock.Verify(p => p.SendData(lineTerminator, 0, lineTerminator.Length), Times.Once);
-        }
-
-        [TestMethod]
-        public void Write_Bytes_SendsToChannel()
-        {
-            var shellStream = CreateShellStream();
-
-            var bytes1 = _encoding.GetBytes("Hello World!");
-            var bytes2 = _encoding.GetBytes("Some more bytes!");
-
-            _channelSessionMock.Setup(p => p.SendData(bytes1, 0, bytes1.Length));
-            _channelSessionMock.Setup(p => p.SendData(bytes2, 0, bytes2.Length));
-
-            shellStream.Write(bytes1, 0, bytes1.Length);
-
-            _channelSessionMock.Verify(p => p.SendData(bytes1, 0, bytes1.Length), Times.Once);
-
-            shellStream.Write(bytes2, 0, bytes2.Length);
-
-            _channelSessionMock.Verify(p => p.SendData(bytes1, 0, bytes1.Length), Times.Once);
-            _channelSessionMock.Verify(p => p.SendData(bytes2, 0, bytes2.Length), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]

@@ -408,8 +408,6 @@ namespace Renci.SshNet
                     { "hmac-sha2-512", new HashInfo(64*8, key => CryptoAbstraction.CreateHMACSHA512(key), isEncryptThenMAC: false) },
                     { "hmac-sha2-512-96", new HashInfo(64*8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96), isEncryptThenMAC: false) },
                     { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96), isEncryptThenMAC: false) },
-                    { "hmac-ripemd160", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key), isEncryptThenMAC: false) },
-                    { "hmac-ripemd160@openssh.com", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key), isEncryptThenMAC: false) },
                     { "hmac-sha1", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key), isEncryptThenMAC: false) },
                     { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96), isEncryptThenMAC: false) },
                     { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key), isEncryptThenMAC: false) },

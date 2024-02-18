@@ -26,9 +26,12 @@ namespace Renci.SshNet
 
         private readonly object _sync = new object();
 
-        private byte[] _buffer;
-        private int _head; // The index from which the data starts in _buffer.
-        private int _tail; // The index at which to add new data into _buffer.
+        private readonly byte[] _writeBuffer;
+        private int _writeLength; // The length of the data in _writeBuffer.
+
+        private byte[] _readBuffer;
+        private int _readHead; // The index from which the data starts in _readBuffer.
+        private int _readTail; // The index at which to add new data into _readBuffer.
         private bool _disposed;
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace Renci.SshNet
                 lock (_sync)
                 {
                     AssertValid();
-                    return _tail != _head;
+                    return _readTail != _readHead;
                 }
             }
         }
@@ -64,11 +67,11 @@ namespace Renci.SshNet
         private void AssertValid()
         {
             Debug.Assert(Monitor.IsEntered(_sync), $"Should be in lock on {nameof(_sync)}");
-            Debug.Assert(_head >= 0, $"{nameof(_head)} should be non-negative but is {_head}");
-            Debug.Assert(_tail >= 0, $"{nameof(_tail)} should be non-negative but is {_tail}");
-            Debug.Assert(_head < _buffer.Length || _buffer.Length == 0, $"{nameof(_head)} should be < {nameof(_buffer)}.Length but is {_head}");
-            Debug.Assert(_tail <= _buffer.Length, $"{nameof(_tail)} should be <= {nameof(_buffer)}.Length but is {_tail}");
-            Debug.Assert(_head <= _tail, $"Should have {nameof(_head)} <= {nameof(_tail)} but have {_head} <= {_tail}");
+            Debug.Assert(_readHead >= 0, $"{nameof(_readHead)} should be non-negative but is {_readHead}");
+            Debug.Assert(_readTail >= 0, $"{nameof(_readTail)} should be non-negative but is {_readTail}");
+            Debug.Assert(_readHead < _readBuffer.Length || _readBuffer.Length == 0, $"{nameof(_readHead)} should be < {nameof(_readBuffer)}.Length but is {_readHead}");
+            Debug.Assert(_readTail <= _readBuffer.Length, $"{nameof(_readTail)} should be <= {nameof(_readBuffer)}.Length but is {_readTail}");
+            Debug.Assert(_readHead <= _readTail, $"Should have {nameof(_readHead)} <= {nameof(_readTail)} but have {_readHead} <= {_readTail}");
         }
 #pragma warning restore MA0076 // Do not use implicit culture-sensitive ToString in interpolated strings
 
@@ -108,7 +111,8 @@ namespace Renci.SshNet
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
 
-            _buffer = new byte[bufferSize];
+            _readBuffer = new byte[bufferSize];
+            _writeBuffer = new byte[bufferSize];
 
             try
             {
@@ -178,6 +182,15 @@ namespace Renci.SshNet
         /// </summary>
         public override void Flush()
         {
+            ThrowIfDisposed();
+
+            Debug.Assert(_writeLength >= 0 && _writeLength <= _writeBuffer.Length);
+
+            if (_writeLength > 0)
+            {
+                _channel.SendData(_writeBuffer, 0, _writeLength);
+                _writeLength = 0;
+            }
         }
 
         /// <summary>
@@ -191,7 +204,7 @@ namespace Renci.SshNet
                 lock (_sync)
                 {
                     AssertValid();
-                    return _tail - _head;
+                    return _readTail - _readHead;
                 }
             }
         }
@@ -326,22 +339,22 @@ namespace Renci.SshNet
                     AssertValid();
 
                     var searchHead = lookback == -1
-                        ? _head
-                        : Math.Max(_tail - lookback, _head);
+                        ? _readHead
+                        : Math.Max(_readTail - lookback, _readHead);
 
-                    Debug.Assert(_head <= searchHead && searchHead <= _tail);
+                    Debug.Assert(_readHead <= searchHead && searchHead <= _readTail);
 
 #if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfMatch = _buffer.IndexOf(expectBytes, searchHead, _tail - searchHead);
+                    var indexOfMatch = _readBuffer.IndexOf(expectBytes, searchHead, _readTail - searchHead);
 #else
-                    var indexOfMatch = _buffer.AsSpan(searchHead, _tail - searchHead).IndexOf(expectBytes);
+                    var indexOfMatch = _readBuffer.AsSpan(searchHead, _readTail - searchHead).IndexOf(expectBytes);
 #endif
 
                     if (indexOfMatch >= 0)
                     {
-                        var returnText = _encoding.GetString(_buffer, _head, searchHead - _head + indexOfMatch + expectBytes.Length);
+                        var returnText = _encoding.GetString(_readBuffer, _readHead, searchHead - _readHead + indexOfMatch + expectBytes.Length);
 
-                        _head = searchHead + indexOfMatch + expectBytes.Length;
+                        _readHead = searchHead + indexOfMatch + expectBytes.Length;
 
                         AssertValid();
 
@@ -415,7 +428,7 @@ namespace Renci.SshNet
                 {
                     AssertValid();
 
-                    var bufferText = _encoding.GetString(_buffer, _head, _tail - _head);
+                    var bufferText = _encoding.GetString(_readBuffer, _readHead, _readTail - _readHead);
 
                     var searchStart = lookback == -1
                         ? 0
@@ -438,7 +451,7 @@ namespace Renci.SshNet
                         {
                             var returnText = bufferText.Substring(0, match.Index + match.Length);
 #endif
-                            _head += _encoding.GetByteCount(returnText);
+                            _readHead += _encoding.GetByteCount(returnText);
 
                             AssertValid();
 
@@ -604,29 +617,29 @@ namespace Renci.SshNet
                     AssertValid();
 
 #if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfCr = _buffer.IndexOf(_carriageReturnBytes, _head, _tail - _head);
+                    var indexOfCr = _readBuffer.IndexOf(_carriageReturnBytes, _readHead, _readTail - _readHead);
 #else
-                    var indexOfCr = _buffer.AsSpan(_head, _tail - _head).IndexOf(_carriageReturnBytes);
+                    var indexOfCr = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_carriageReturnBytes);
 #endif
                     if (indexOfCr >= 0)
                     {
                         // We have found \r. We only need to search for \n up to and just after the \r
                         // (in order to consume \r\n if we can).
 #if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _tail - _head
-                            ? _buffer.IndexOf(_lineFeedBytes, _head, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length)
-                            : _buffer.IndexOf(_lineFeedBytes, _head, indexOfCr);
+                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
+                            ? _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length)
+                            : _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr);
 #else
-                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _tail - _head
-                            ? _buffer.AsSpan(_head, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length).IndexOf(_lineFeedBytes)
-                            : _buffer.AsSpan(_head, indexOfCr).IndexOf(_lineFeedBytes);
+                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
+                            ? _readBuffer.AsSpan(_readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length).IndexOf(_lineFeedBytes)
+                            : _readBuffer.AsSpan(_readHead, indexOfCr).IndexOf(_lineFeedBytes);
 #endif
                         if (indexOfLf >= 0 && indexOfLf < indexOfCr)
                         {
                             // If there is \n before the \r, then return up to the \n
-                            var returnText = _encoding.GetString(_buffer, _head, indexOfLf);
+                            var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfLf);
 
-                            _head += indexOfLf + _lineFeedBytes.Length;
+                            _readHead += indexOfLf + _lineFeedBytes.Length;
 
                             AssertValid();
 
@@ -635,9 +648,9 @@ namespace Renci.SshNet
                         else if (indexOfLf == indexOfCr + _carriageReturnBytes.Length)
                         {
                             // If we have \r\n, then consume both
-                            var returnText = _encoding.GetString(_buffer, _head, indexOfCr);
+                            var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfCr);
 
-                            _head += indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length;
+                            _readHead += indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length;
 
                             AssertValid();
 
@@ -646,9 +659,9 @@ namespace Renci.SshNet
                         else
                         {
                             // Return up to the \r
-                            var returnText = _encoding.GetString(_buffer, _head, indexOfCr);
+                            var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfCr);
 
-                            _head += indexOfCr + _carriageReturnBytes.Length;
+                            _readHead += indexOfCr + _carriageReturnBytes.Length;
 
                             AssertValid();
 
@@ -659,15 +672,15 @@ namespace Renci.SshNet
                     {
                         // There is no \r. What about \n?
 #if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = _buffer.IndexOf(_lineFeedBytes, _head, _tail - _head);
+                        var indexOfLf = _readBuffer.IndexOf(_lineFeedBytes, _readHead, _readTail - _readHead);
 #else
-                        var indexOfLf = _buffer.AsSpan(_head, _tail - _head).IndexOf(_lineFeedBytes);
+                        var indexOfLf = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_lineFeedBytes);
 #endif
                         if (indexOfLf >= 0)
                         {
-                            var returnText = _encoding.GetString(_buffer, _head, indexOfLf);
+                            var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfLf);
 
-                            _head += indexOfLf + _lineFeedBytes.Length;
+                            _readHead += indexOfLf + _lineFeedBytes.Length;
 
                             AssertValid();
 
@@ -677,11 +690,11 @@ namespace Renci.SshNet
 
                     if (_disposed)
                     {
-                        var lastLine = _head == _tail
+                        var lastLine = _readHead == _readTail
                             ? null
-                            : _encoding.GetString(_buffer, _head, _tail - _head);
+                            : _encoding.GetString(_readBuffer, _readHead, _readTail - _readHead);
 
-                        _head = _tail = 0;
+                        _readHead = _readTail = 0;
 
                         return lastLine;
                     }
@@ -719,6 +732,18 @@ namespace Renci.SshNet
             }
         }
 
+        private void ThrowIfDisposed()
+        {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_disposed, this);
+#else
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+#endif // NET7_0_OR_GREATER
+        }
+
         /// <summary>
         /// Reads all of the text currently available in the shell.
         /// </summary>
@@ -731,9 +756,9 @@ namespace Renci.SshNet
             {
                 AssertValid();
 
-                var text = _encoding.GetString(_buffer, _head, _tail - _head);
+                var text = _encoding.GetString(_readBuffer, _readHead, _readTail - _readHead);
 
-                _head = _tail = 0;
+                _readHead = _readTail = 0;
 
                 return text;
             }
@@ -744,18 +769,18 @@ namespace Renci.SshNet
         {
             lock (_sync)
             {
-                while (_head == _tail && !_disposed)
+                while (_readHead == _readTail && !_disposed)
                 {
                     _ = Monitor.Wait(_sync);
                 }
 
                 AssertValid();
 
-                var bytesRead = Math.Min(count, _tail - _head);
+                var bytesRead = Math.Min(count, _readTail - _readHead);
 
-                Buffer.BlockCopy(_buffer, _head, buffer, offset, bytesRead);
+                Buffer.BlockCopy(_readBuffer, _readHead, buffer, offset, bytesRead);
 
-                _head += bytesRead;
+                _readHead += bytesRead;
 
                 AssertValid();
 
@@ -768,13 +793,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="text">The text to be written to the shell.</param>
         /// <remarks>
-        /// <para>
         /// If <paramref name="text"/> is <see langword="null"/>, nothing is written.
-        /// </para>
-        /// <para>
-        /// Data is not buffered before being written to the shell. If you have text to send in many pieces,
-        /// consider wrapping this stream in a <see cref="StreamWriter"/>.
-        /// </para>
+        /// Otherwise, <see cref="Flush"/> is called after writing the data to the buffer.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void Write(string? text)
@@ -787,31 +807,31 @@ namespace Renci.SshNet
             var data = _encoding.GetBytes(text);
 
             Write(data, 0, data.Length);
+            Flush();
         }
 
-        /// <summary>
-        /// Writes a sequence of bytes to the shell.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. This method sends <paramref name="count"/> bytes from buffer to the shell.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin sending bytes to the shell.</param>
-        /// <param name="count">The number of bytes to be sent to the shell.</param>
-        /// <remarks>
-        /// Data is not buffered before being written to the shell. If you have data to send in many pieces,
-        /// consider wrapping this stream in a <see cref="BufferedStream"/>.
-        /// </remarks>
-        /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
+        /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_disposed, this);
-#else
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowIfDisposed();
 
-            _channel.SendData(buffer, offset, count);
+            while (count > 0)
+            {
+                if (_writeLength == _writeBuffer.Length)
+                {
+                    Flush();
+                }
+
+                var bytesToCopy = Math.Min(count, _writeBuffer.Length - _writeLength);
+
+                Buffer.BlockCopy(buffer, offset, _writeBuffer, _writeLength, bytesToCopy);
+
+                offset += bytesToCopy;
+                count -= bytesToCopy;
+                _writeLength += bytesToCopy;
+
+                Debug.Assert(_writeLength >= 0 && _writeLength <= _writeBuffer.Length);
+            }
         }
 
         /// <summary>
@@ -820,6 +840,7 @@ namespace Renci.SshNet
         /// <param name="line">The line to be written to the shell.</param>
         /// <remarks>
         /// If <paramref name="line"/> is <see langword="null"/>, only the line terminator is written.
+        /// <see cref="Flush"/> is called once the data is written.
         /// </remarks>
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void WriteLine(string line)
@@ -883,38 +904,38 @@ namespace Renci.SshNet
 
                 // Ensure sufficient buffer space and copy the new data in.
 
-                if (_buffer.Length - _tail >= e.Data.Length)
+                if (_readBuffer.Length - _readTail >= e.Data.Length)
                 {
                     // If there is enough space after _tail for the new data,
                     // then copy the data there.
-                    Buffer.BlockCopy(e.Data, 0, _buffer, _tail, e.Data.Length);
-                    _tail += e.Data.Length;
+                    Buffer.BlockCopy(e.Data, 0, _readBuffer, _readTail, e.Data.Length);
+                    _readTail += e.Data.Length;
                 }
                 else
                 {
                     // We can't fit the new data after _tail.
 
-                    var newLength = _tail - _head + e.Data.Length;
+                    var newLength = _readTail - _readHead + e.Data.Length;
 
-                    if (newLength <= _buffer.Length)
+                    if (newLength <= _readBuffer.Length)
                     {
                         // If there is sufficient space at the start of the buffer,
                         // then move the current data to the start of the buffer.
-                        Buffer.BlockCopy(_buffer, _head, _buffer, 0, _tail - _head);
+                        Buffer.BlockCopy(_readBuffer, _readHead, _readBuffer, 0, _readTail - _readHead);
                     }
                     else
                     {
                         // Otherwise, we're gonna need a bigger buffer.
-                        var newBuffer = new byte[_buffer.Length * 2];
-                        Buffer.BlockCopy(_buffer, _head, newBuffer, 0, _tail - _head);
-                        _buffer = newBuffer;
+                        var newBuffer = new byte[_readBuffer.Length * 2];
+                        Buffer.BlockCopy(_readBuffer, _readHead, newBuffer, 0, _readTail - _readHead);
+                        _readBuffer = newBuffer;
                     }
 
                     // Copy the new data into the freed-up space.
-                    Buffer.BlockCopy(e.Data, 0, _buffer, _tail - _head, e.Data.Length);
+                    Buffer.BlockCopy(e.Data, 0, _readBuffer, _readTail - _readHead, e.Data.Length);
 
-                    _head = 0;
-                    _tail = newLength;
+                    _readHead = 0;
+                    _readTail = newLength;
                 }
 
                 AssertValid();

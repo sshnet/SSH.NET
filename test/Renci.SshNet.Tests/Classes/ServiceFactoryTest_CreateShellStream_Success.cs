@@ -22,7 +22,6 @@ namespace Renci.SshNet.Tests.Classes
         private uint _height;
         private IDictionary<TerminalModes, uint> _terminalModeValues;
         private int _bufferSize;
-        private int _expectSize;
         private ShellStream _shellStream;
 
         private void SetupData()
@@ -36,7 +35,6 @@ namespace Renci.SshNet.Tests.Classes
             _height = (uint) random.Next();
             _terminalModeValues = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next();
-            _expectSize = _bufferSize;
         }
 
         private void CreateMocks()
@@ -99,20 +97,13 @@ namespace Renci.SshNet.Tests.Classes
                                                              _width,
                                                              _height,
                                                              _terminalModeValues,
-                                                             _bufferSize,
-                                                             _expectSize);
+                                                             _bufferSize);
         }
 
         [TestMethod]
         public void CreateShellStreamShouldNotReturnNull()
         {
             Assert.IsNotNull(_shellStream);
-        }
-
-        [TestMethod]
-        public void BufferSizeOfShellStreamShouldBeValuePassedToCreateShellStream()
-        {
-            Assert.AreEqual(_bufferSize, _shellStream.BufferSize);
         }
 
         [TestMethod]

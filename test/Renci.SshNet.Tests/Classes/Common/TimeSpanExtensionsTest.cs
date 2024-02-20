@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -32,9 +33,27 @@ namespace Renci.SshNet.Tests.Classes.Common
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void AsTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
+            var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
 
             timeSpan.AsTimeout("TestMethodName");
+        }
+
+        [TestMethod]
+        public void AsTimeout_ArgumentOutOfRangeException_HasCorrectInformation()
+        {
+
+            try
+            {
+                var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+
+                timeSpan.AsTimeout("TestMethodName");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+                Assert.AreEqual("TestMethodName", ex.ParamName);
+            }
         }
 
         [TestMethod]
@@ -58,9 +77,27 @@ namespace Renci.SshNet.Tests.Classes.Common
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void EnsureValidTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
+            var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
 
             timeSpan.EnsureValidTimeout("TestMethodName");
+        }
+
+        [TestMethod]
+        public void EnsureValidTimeout_ArgumentOutOfRangeException_HasCorrectInformation()
+        {
+
+            try
+            {
+                var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+
+                timeSpan.EnsureValidTimeout("TestMethodName");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+                Assert.AreEqual("TestMethodName", ex.ParamName);
+            }
         }
     }
 }

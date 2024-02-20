@@ -101,6 +101,8 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
+                value.EnsureValidTimeout(nameof(KeepAliveInterval));
+
                 if (value == _keepAliveInterval)
                 {
                     return;

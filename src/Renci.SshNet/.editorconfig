@@ -159,7 +159,3 @@ dotnet_diagnostic.IDE0048.severity = none
 # IDE0305: Collection initialization can be simplified
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0305
 dotnet_diagnostic.IDE0305.severity = none
-
-# IDE0005: Remove unnecessary using directives
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005
-dotnet_diagnostic.IDE0005.severity = suggestion

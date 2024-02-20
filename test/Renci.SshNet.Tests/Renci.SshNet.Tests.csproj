@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFrameworks>net462;net6.0;net7.0;net8.0</TargetFrameworks>
   </PropertyGroup>
@@ -8,11 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.1" />
     <PackageReference Include="Moq" Version="4.18.4" />
-
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
     <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
     <PackageReference Include="coverlet.msbuild" Version="6.0.0">
@@ -23,10 +23,10 @@
       <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
+
 </Project>

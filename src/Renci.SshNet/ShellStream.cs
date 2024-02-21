@@ -45,6 +45,11 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs>? ErrorOccurred;
 
         /// <summary>
+        /// Occurs when the channel was closed.
+        /// </summary>
+        public event EventHandler<EventArgs>? Closed;
+
+        /// <summary>
         /// Gets a value indicating whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
@@ -894,6 +899,7 @@ namespace Renci.SshNet
         private void Channel_Closed(object? sender, ChannelEventArgs e)
         {
             Dispose();
+            Closed?.Invoke(this, EventArgs.Empty);
         }
 
         private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)

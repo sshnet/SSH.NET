@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <AssemblyName>Renci.SshNet</AssemblyName>
     <Product>SSH.NET</Product>
@@ -9,7 +10,7 @@
   <PropertyGroup>
     <PackageId>SSH.NET</PackageId>
     <Title>SSH.NET</Title>
-    <Version>2023.0.2</Version>
+    <Version>2024.0.0</Version>
     <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
     <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -33,6 +34,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
+    <!-- Must be kept at version 1.0.0, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
 

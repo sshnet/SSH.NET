@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -43,6 +44,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         public event EventHandler<ExceptionEventArgs>? ErrorOccurred;
+
+        /// <summary>
+        /// Occurs when the channel was closed.
+        /// </summary>
+        public event EventHandler<EventArgs>? Closed;
 
         /// <summary>
         /// Gets a value indicating whether data is available on the <see cref="ShellStream"/> to be read.
@@ -894,6 +900,12 @@ namespace Renci.SshNet
         private void Channel_Closed(object? sender, ChannelEventArgs e)
         {
             Dispose();
+
+            if (Closed != null)
+            {
+                // Handle event on different thread
+                ThreadAbstraction.ExecuteThread(() => Closed?.Invoke(this, EventArgs.Empty));
+            }
         }
 
         private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)

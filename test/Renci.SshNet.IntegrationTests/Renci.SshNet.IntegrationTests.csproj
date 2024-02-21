@@ -10,20 +10,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Testcontainers" Version="3.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.1" />
+    <PackageReference Include="Testcontainers" Version="3.7.0" />
     <!--
         Testcontainers has a dependency on SSH.NET which causes build warnings during assembly resolution:      
         
-            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2023.0.2.0, Culture=neutral
+            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2024.0.0.0, Culture=neutral
             , PublicKeyToken=1cee9f8bde3db106" and "Renci.SshNet, Version=2023.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db
-            106". Choosing "Renci.SshNet, Version=2023.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
+            106". Choosing "Renci.SshNet, Version=2024.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
              
         To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
     -->
-    <PackageReference Include="SSH.NET" Version="2023.0.0" ExcludeAssets="All" />
+    <PackageReference Include="SSH.NET" Version="2023.0.1" ExcludeAssets="All" />
 
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
     <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
@@ -46,4 +46,5 @@
     <EmbeddedResource Include="..\Data\*" LinkBase="Data" />
     <EmbeddedResource Include="resources\issue #70.png" />
   </ItemGroup>
+
 </Project>

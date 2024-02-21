@@ -35,6 +35,7 @@ namespace Renci.SshNet.Sftp
         private bool _canRead;
         private bool _canSeek;
         private bool _canWrite;
+        private TimeSpan _timeout;
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
@@ -176,7 +177,19 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The timeout.
         /// </value>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(Timeout));
+
+                _timeout = value;
+            }
+        }
 
         private SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
         {

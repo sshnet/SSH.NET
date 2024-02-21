@@ -34,8 +34,8 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
-    <!-- Must be kept at version 1.0.0, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
+    <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
   </ItemGroup>
 
   <ItemGroup>

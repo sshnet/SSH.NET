@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -899,7 +900,12 @@ namespace Renci.SshNet
         private void Channel_Closed(object? sender, ChannelEventArgs e)
         {
             Dispose();
-            Closed?.Invoke(this, EventArgs.Empty);
+
+            if (Closed != null)
+            {
+                // Handle event on different thread
+                ThreadAbstraction.ExecuteThread(() => Closed?.Invoke(this, EventArgs.Empty));
+            }
         }
 
         private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)

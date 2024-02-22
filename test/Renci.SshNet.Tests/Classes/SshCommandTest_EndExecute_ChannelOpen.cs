@@ -53,8 +53,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(seq).Setup(p => p.Open());
             _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText))
-                .Returns(true)
-                .Raises(c => c.Closed += null, new ChannelEventArgs(5));
+                .Returns(true);
             _channelSessionMock.InSequence(seq).Setup(p => p.Dispose());
 
             _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);
@@ -70,6 +69,8 @@ namespace Renci.SshNet.Tests.Classes
                 new ChannelExtendedDataEventArgs(0, _encoding.GetBytes(_extendedDataB), 0));
             _channelSessionMock.Raise(c => c.RequestReceived += null,
                 new ChannelRequestEventArgs(new ExitStatusRequestInfo((uint) _expectedExitStatus)));
+            _channelSessionMock.Raise(c => c.Closed += null,
+                new ChannelEventArgs(5));
         }
 
         private void Act()

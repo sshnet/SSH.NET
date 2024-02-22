@@ -88,33 +88,5 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, buffer[2]);
             Assert.AreEqual(0, buffer[3]);
         }
-#if NETFRAMEWORK
-        [TestMethod]
-        public void WriteCausesSubsequentReadToBlockUntilRequestedNumberOfBytesAreAvailable()
-        {
-            _pipeStream.WriteByte(32);
-
-            var buffer = new byte[4];
-            int bytesRead = int.MaxValue;
-
-            Thread readThread = new Thread(() =>
-            {
-                bytesRead = _pipeStream.Read(buffer, 0, buffer.Length);
-            });
-            readThread.Start();
-
-            Assert.IsFalse(readThread.Join(500));
-
-            // Thread Abort method is obsolete: https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/thread-abort-obsolete
-            readThread.Abort();
-        
-
-            Assert.AreEqual(int.MaxValue, bytesRead);
-            Assert.AreEqual(0, buffer[0]);
-            Assert.AreEqual(0, buffer[1]);
-            Assert.AreEqual(0, buffer[2]);
-            Assert.AreEqual(0, buffer[3]);
-        }
-#endif
     }
 }

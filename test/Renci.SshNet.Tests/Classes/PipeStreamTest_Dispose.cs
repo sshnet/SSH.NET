@@ -32,47 +32,19 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CanRead_ShouldReturnTrue()
         {
-            Assert.IsFalse(_pipeStream.CanRead);
+            Assert.IsTrue(_pipeStream.CanRead);
         }
 
         [TestMethod]
-        public void Flush_ShouldThrowObjectDisposedException()
+        public void Flush_ShouldNotThrow()
         {
-            try
-            {
-                _pipeStream.Flush();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            _pipeStream.Flush();
         }
 
         [TestMethod]
-        public void MaxBufferLength_Getter_ShouldReturnTwoHundredMegabyte()
+        public void Length_ShouldNotThrow()
         {
-            Assert.AreEqual(200 * 1024 * 1024, _pipeStream.MaxBufferLength);
-        }
-
-        [TestMethod]
-        public void MaxBufferLength_Setter_ShouldModifyMaxBufferLength()
-        {
-            var newValue = new Random().Next(1, int.MaxValue);
-            _pipeStream.MaxBufferLength = newValue;
-            Assert.AreEqual(newValue, _pipeStream.MaxBufferLength);
-        }
-
-        [TestMethod]
-        public void Length_ShouldThrowObjectDisposedException()
-        {
-            try
-            {
-                var value = _pipeStream.Length;
-                Assert.Fail("" + value);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            _ = _pipeStream.Length;
         }
 
         [TestMethod]
@@ -95,33 +67,15 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Read_ByteArrayAndOffsetAndCount_ShouldThrowObjectDisposedException()
+        public void Read_ByteArrayAndOffsetAndCount_ShouldNotThrow()
         {
-            var buffer = new byte[0];
-            const int offset = 0;
-            const int count = 0;
-
-            try
-            {
-                _pipeStream.Read(buffer, offset, count);
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Assert.AreEqual(0, _pipeStream.Read(new byte[1], 0, 1));
         }
 
         [TestMethod]
-        public void ReadByte_ShouldThrowObjectDisposedException()
+        public void ReadByte_ShouldNotThrow()
         {
-            try
-            {
-                _pipeStream.ReadByte();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Assert.AreEqual(-1, _pipeStream.ReadByte());
         }
 
         [TestMethod]

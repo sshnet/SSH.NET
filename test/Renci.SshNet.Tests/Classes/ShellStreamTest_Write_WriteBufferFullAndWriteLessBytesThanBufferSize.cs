@@ -23,7 +23,6 @@ namespace Renci.SshNet.Tests.Classes
         private Dictionary<TerminalModes, uint> _terminalModes;
         private ShellStream _shellStream;
         private int _bufferSize;
-        private int _expectSize;
 
         private byte[] _data;
         private int _offset;
@@ -49,7 +48,6 @@ namespace Renci.SshNet.Tests.Classes
             _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
-            _expectSize = random.Next(100, _bufferSize);
 
             _bufferData = CryptoAbstraction.GenerateRandom(_bufferSize);
             _data = CryptoAbstraction.GenerateRandom(_bufferSize - 10);
@@ -91,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.SendShellRequest())
                                .Returns(true);
             _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_bufferData));
+                               .Setup(p => p.SendData(_bufferData, 0, _bufferData.Length));
         }
 
         private void Arrange()
@@ -107,8 +105,7 @@ namespace Renci.SshNet.Tests.Classes
                                            _widthPixels,
                                            _heightPixels,
                                            _terminalModes,
-                                           _bufferSize,
-                                           _expectSize);
+                                           _bufferSize);
 
             _shellStream.Write(_bufferData, 0, _bufferData.Length);
         }
@@ -121,18 +118,21 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BufferShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(_bufferData), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
         public void FlushShouldSendRemainingBytesInBufferToServer()
         {
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_data));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(_data.Length).IsEqualTo(_data)),
+                                       0,
+                                       _data.Length));
 
             _shellStream.Flush();
 
-            _channelSessionMock.Verify(p => p.SendData(_data), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Renci.SshNet.Tests.Classes
         private Dictionary<TerminalModes, uint> _terminalModes;
         private ShellStream _shellStream;
         private int _bufferSize;
-        private int _expectSize;
 
         private byte[] _data;
         private int _offset;
@@ -49,7 +48,6 @@ namespace Renci.SshNet.Tests.Classes
             _heightPixels = (uint) random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
-            _expectSize = random.Next(100, _bufferSize);
 
             _bufferData = CryptoAbstraction.GenerateRandom(_bufferSize);
             _data = new byte[0];
@@ -105,8 +103,7 @@ namespace Renci.SshNet.Tests.Classes
                                            _widthPixels,
                                            _heightPixels,
                                            _terminalModes,
-                                           _bufferSize,
-                                           _expectSize);
+                                           _bufferSize);
 
             _shellStream.Write(_bufferData, 0, _bufferData.Length);
         }
@@ -119,18 +116,21 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void NoDataShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
         public void FlushShouldSendBufferToServer()
         {
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_bufferData));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(_bufferData.Length).IsEqualTo(_bufferData)),
+                                       0,
+                                       _bufferData.Length));
 
             _shellStream.Flush();
 
-            _channelSessionMock.Verify(p => p.SendData(_bufferData), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

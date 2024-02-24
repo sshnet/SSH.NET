@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <AssemblyName>Renci.SshNet</AssemblyName>
     <Product>SSH.NET</Product>
@@ -29,7 +30,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_RIPEMD160</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup>
@@ -42,12 +43,9 @@
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.57-alpha" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1')) ">
-    <PackageReference Include="SshNet.Security.Cryptography" Version="[1.3.0]" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
+    <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
   </ItemGroup>
 
   <ItemGroup>

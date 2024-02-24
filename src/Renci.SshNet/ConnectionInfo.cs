@@ -44,6 +44,9 @@ namespace Renci.SshNet
         /// </value>
         private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
 
+        private TimeSpan _timeout;
+        private TimeSpan _channelCloseTimeout;
+
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
@@ -145,7 +148,19 @@ namespace Renci.SshNet
         /// <value>
         /// The connection timeout. The default value is 30 seconds.
         /// </value>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(Timeout));
+
+                _timeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
@@ -157,7 +172,19 @@ namespace Renci.SshNet
         /// If a server does not send a <c>SSH_MSG_CHANNEL_CLOSE</c> message before the specified timeout
         /// elapses, the channel will be closed immediately.
         /// </remarks>
-        public TimeSpan ChannelCloseTimeout { get; set; }
+        public TimeSpan ChannelCloseTimeout
+        {
+            get
+            {
+                return _channelCloseTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(ChannelCloseTimeout));
+
+                _channelCloseTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the character encoding.
@@ -381,8 +408,6 @@ namespace Renci.SshNet
                     { "hmac-sha2-512", new HashInfo(64*8, key => CryptoAbstraction.CreateHMACSHA512(key), isEncryptThenMAC: false) },
                     { "hmac-sha2-512-96", new HashInfo(64*8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96), isEncryptThenMAC: false) },
                     { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96), isEncryptThenMAC: false) },
-                    { "hmac-ripemd160", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key), isEncryptThenMAC: false) },
-                    { "hmac-ripemd160@openssh.com", new HashInfo(160, key => CryptoAbstraction.CreateHMACRIPEMD160(key), isEncryptThenMAC: false) },
                     { "hmac-sha1", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key), isEncryptThenMAC: false) },
                     { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96), isEncryptThenMAC: false) },
                     { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key), isEncryptThenMAC: false) },

@@ -312,9 +312,9 @@ namespace Renci.SshNet.Abstractions
         }
 
 #if NET6_0_OR_GREATER == false
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        public static ValueTask<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
-            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
+            return socket.ReceiveAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, cancellationToken);
         }
 #endif
 

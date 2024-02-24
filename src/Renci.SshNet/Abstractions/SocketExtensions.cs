@@ -1,134 +1,126 @@
-﻿#if !NET6_0_OR_GREATER
+﻿#if !NET
+#if NETFRAMEWORK || NETSTANDARD2_0
 using System;
+#endif
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Renci.SshNet.Abstractions
 {
-    // Async helpers based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/
     internal static class SocketExtensions
     {
-        private sealed class AwaitableSocketAsyncEventArgs : SocketAsyncEventArgs, INotifyCompletion
-        {
-            private static readonly Action SENTINEL = () => { };
-
-            private bool _isCancelled;
-            private Action _continuationAction;
-
-            public AwaitableSocketAsyncEventArgs()
-            {
-                Completed += (sender, e) => SetCompleted();
-            }
-
-            public AwaitableSocketAsyncEventArgs ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
-            {
-                if (!func(this))
-                {
-                    SetCompleted();
-                }
-
-                return this;
-            }
-
-            public void SetCompleted()
-            {
-                IsCompleted = true;
-
-                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, comparand: null);
-                if (continuation is not null)
-                {
-                    continuation();
-                }
-            }
-
-            public void SetCancelled()
-            {
-                _isCancelled = true;
-                SetCompleted();
-            }
-
-#pragma warning disable S1144 // Unused private types or members should be removed
-            public AwaitableSocketAsyncEventArgs GetAwaiter()
-#pragma warning restore S1144 // Unused private types or members should be removed
-            {
-                return this;
-            }
-
-            public bool IsCompleted { get; private set; }
-
-            void INotifyCompletion.OnCompleted(Action continuation)
-            {
-                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, comparand: null) == SENTINEL)
-                {
-                    // We have already completed; run continuation asynchronously
-                    _ = Task.Run(continuation);
-                }
-            }
-
-#pragma warning disable S1144 // Unused private types or members should be removed
-            public void GetResult()
-#pragma warning restore S1144 // Unused private types or members should be removed
-            {
-                if (_isCancelled)
-                {
-                    throw new TaskCanceledException();
-                }
-
-                if (!IsCompleted)
-                {
-                    // We don't support sync/async
-                    throw new InvalidOperationException("The asynchronous operation has not yet completed.");
-                }
-
-                if (SocketError != SocketError.Success)
-                {
-                    throw new SocketException((int)SocketError);
-                }
-            }
-        }
-
         public static async Task ConnectAsync(this Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new AwaitableSocketAsyncEventArgs())
-            {
-                args.RemoteEndPoint = remoteEndpoint;
+            TaskCompletionSource<object> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            using var args = new SocketAsyncEventArgs
+            {
+                RemoteEndPoint = remoteEndpoint
+            };
+            args.Completed += (_, _) => tcs.TrySetResult(null);
+
+            if (socket.ConnectAsync(args))
+            {
+#if NETSTANDARD2_1
+                await using (cancellationToken.Register(() =>
 #else
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+                using (cancellationToken.Register(() =>
+#endif
                 {
-                    await args.ExecuteAsync(socket.ConnectAsync);
+                    if (tcs.TrySetCanceled(cancellationToken))
+                    {
+                        socket.Dispose();
+                    }
+                },
+                useSynchronizationContext: false)
+#if NETSTANDARD2_1
+                .ConfigureAwait(false)
+#endif
+                )
+                {
+                    _ = await tcs.Task.ConfigureAwait(false);
                 }
+            }
+
+            if (args.SocketError != SocketError.Success)
+            {
+                throw new SocketException((int) args.SocketError);
             }
         }
 
-        public static async Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+#if NETFRAMEWORK || NETSTANDARD2_0
+        public static async ValueTask<int> ReceiveAsync(this Socket socket, ArraySegment<byte> buffer, SocketFlags socketFlags, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var args = new AwaitableSocketAsyncEventArgs())
+            TaskCompletionSource<object> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var args = new SocketAsyncEventArgs();
+            args.SocketFlags = socketFlags;
+            args.Completed += (_, _) => tcs.TrySetResult(null);
+            args.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+
+            if (socket.ReceiveAsync(args))
             {
-                args.SetBuffer(buffer, offset, length);
-
-#if NET || NETSTANDARD2_1_OR_GREATER
-                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+                using (cancellationToken.Register(() =>
                 {
-                    await args.ExecuteAsync(socket.ReceiveAsync);
+                    if (tcs.TrySetCanceled(cancellationToken))
+                    {
+                        socket.Dispose();
+                    }
+                },
+                useSynchronizationContext: false))
+                {
+                    _ = await tcs.Task.ConfigureAwait(false);
                 }
-
-                return args.BytesTransferred;
             }
+
+            if (args.SocketError != SocketError.Success)
+            {
+                throw new SocketException((int) args.SocketError);
+            }
+
+            return args.BytesTransferred;
         }
+
+        public static async ValueTask<int> SendAsync(this Socket socket, byte[] buffer, SocketFlags socketFlags, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            TaskCompletionSource<object> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var args = new SocketAsyncEventArgs();
+            args.SocketFlags = socketFlags;
+            args.Completed += (_, _) => tcs.TrySetResult(null);
+            args.SetBuffer(buffer, 0, buffer.Length);
+
+            if (socket.SendAsync(args))
+            {
+                using (cancellationToken.Register(() =>
+                {
+                    if (tcs.TrySetCanceled(cancellationToken))
+                    {
+                        socket.Dispose();
+                    }
+                },
+                useSynchronizationContext: false))
+                {
+                    _ = await tcs.Task.ConfigureAwait(false);
+                }
+            }
+
+            if (args.SocketError != SocketError.Success)
+            {
+                throw new SocketException((int) args.SocketError);
+            }
+
+            return args.BytesTransferred;
+        }
+#endif // NETFRAMEWORK || NETSTANDARD2_0
     }
 }
 #endif

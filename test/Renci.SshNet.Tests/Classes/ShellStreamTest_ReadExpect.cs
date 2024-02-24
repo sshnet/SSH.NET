@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -68,6 +69,19 @@ namespace Renci.SshNet.Tests.Classes
 
             Assert.AreEqual(5, _shellStream.Read(buffer, 0, 12));
             CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("orld!llo W\0\0"), buffer);
+        }
+
+        [TestMethod]
+        public void Channel_DataReceived_MoreThanBufferSize()
+        {
+            // Test buffer resizing
+            byte[] expectedData = CryptoAbstraction.GenerateRandom(BufferSize * 3);
+            _channelSessionStub.Receive(expectedData);
+
+            byte[] actualData = new byte[expectedData.Length + 1];
+
+            Assert.AreEqual(expectedData.Length, _shellStream.Read(actualData, 0, actualData.Length));
+            CollectionAssert.AreEqual(expectedData, actualData.Take(expectedData.Length));
         }
 
         [DataTestMethod]

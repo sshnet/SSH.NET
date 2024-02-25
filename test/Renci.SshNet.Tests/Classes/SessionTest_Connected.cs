@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClientVersionIsRenciSshNet()
         {
-            Assert.AreEqual("SSH-2.0-Renci.SshNet.SshClient.0.0.1", Session.ClientVersion);
+            Assert.AreEqual("SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion, Session.ClientVersion);
         }
 
         [TestMethod]

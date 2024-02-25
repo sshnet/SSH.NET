@@ -558,7 +558,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(socketFactory));
             }
 
-            ClientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
+            ClientVersion = "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion;
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;

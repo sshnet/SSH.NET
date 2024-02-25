@@ -10,7 +10,6 @@
   <PropertyGroup>
     <PackageId>SSH.NET</PackageId>
     <Title>SSH.NET</Title>
-    <Version>2024.0.0</Version>
     <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
     <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,6 +20,7 @@
     <PackageReleaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/$(Version)</PackageReleaseNotes>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
@@ -32,6 +32,16 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <!--
+    3.7.57-alpha comes from the project's CI feed as defined in nuget.config,
+    in order to pick up https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029.
+    When a newer version is published to nuget.org, update the version here and delete
+    nuget.config (or just the CI feed).
+    -->
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.57-alpha" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
     <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->

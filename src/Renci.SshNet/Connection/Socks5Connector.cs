@@ -41,7 +41,7 @@ namespace Renci.SshNet.Connection
                     // Username/Password authentication
                     0x02
                 };
-            SocketAbstraction.Send(socket, greeting);
+            _ = socket.Send(greeting);
 
             var socksVersion = SocketReadByte(socket);
             if (socksVersion != 0x05)
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Connection
                     var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(connectionInfo.ProxyUsername, connectionInfo.ProxyPassword);
 
                     // Send authentication request
-                    SocketAbstraction.Send(socket, authenticationRequest);
+                    _ = socket.Send(authenticationRequest);
 
                     // Read authentication result
                     var authenticationResult = SocketAbstraction.Read(socket, 2, connectionInfo.Timeout);
@@ -83,7 +83,7 @@ namespace Renci.SshNet.Connection
             }
 
             var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
-            SocketAbstraction.Send(socket, connectionRequest);
+            _ = socket.Send(connectionRequest);
 
             // Read Server SOCKS5 version
             if (SocketReadByte(socket) != 5)

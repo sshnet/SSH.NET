@@ -90,7 +90,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                     SocketWriteByte(socket, (byte) username.Length);
 
                     //  Send username
-                    SocketAbstraction.Send(socket, username);
+                    _ = socket.Send(username);
 
                     var password = Encoding.ASCII.GetBytes(_password);
 
@@ -99,11 +99,11 @@ namespace Renci.SshNet.IntegrationTests.Common
                         throw new ProxyException("Proxy password is too long.");
                     }
 
-                    //  Send username length
+                    //  Send password length
                     SocketWriteByte(socket, (byte) password.Length);
 
-                    //  Send username
-                    SocketAbstraction.Send(socket, password);
+                    //  Send password
+                    _ = socket.Send(password);
 
                     var serverVersion = SocketReadByte(socket);
 
@@ -135,7 +135,7 @@ namespace Renci.SshNet.IntegrationTests.Common
             SocketWriteByte(socket, 0x00);
 
             //  Send address type and address
-            SocketAbstraction.Send(socket, addressBytes);
+            _ = socket.Send(addressBytes);
 
             //  Send port
             SocketWriteByte(socket, (byte)(port / 0xFF));

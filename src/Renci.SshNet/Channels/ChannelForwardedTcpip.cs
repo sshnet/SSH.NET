@@ -201,7 +201,7 @@ namespace Renci.SshNet.Channels
             var socket = _socket;
             if (socket.IsConnected())
             {
-                SocketAbstraction.Send(socket, data, 0, data.Length);
+                _ = socket.Send(data);
             }
         }
     }

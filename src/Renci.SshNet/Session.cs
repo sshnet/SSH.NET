@@ -1160,7 +1160,7 @@ namespace Renci.SshNet
                     throw new SshConnectionException("Client not connected.");
                 }
 
-                SocketAbstraction.Send(_socket, packet, offset, length);
+                _ = _socket.Send(packet, offset, length, SocketFlags.None);
             }
             finally
             {

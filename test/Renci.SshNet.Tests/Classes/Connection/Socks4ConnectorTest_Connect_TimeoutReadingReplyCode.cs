@@ -93,7 +93,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ConnectShouldHaveThrownSshOperationTimeoutException()
         {
-            Assert.IsNull(_actualException.InnerException);
+            Assert.IsInstanceOfType<SshOperationTimeoutException>(_actualException);
+            Assert.IsInstanceOfType<SocketException>(_actualException.InnerException);
             Assert.AreEqual(string.Format(CultureInfo.InvariantCulture, "Socket read operation has timed out after {0:F0} milliseconds.", _connectionInfo.Timeout.TotalMilliseconds), _actualException.Message);
         }
 

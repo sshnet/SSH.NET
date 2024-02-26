@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Abstractions
 {
@@ -167,11 +166,6 @@ namespace Renci.SshNet.Abstractions
                 }
                 catch (SocketException ex)
                 {
-                    if (IsErrorResumable(ex.SocketErrorCode))
-                    {
-                        continue;
-                    }
-
 #pragma warning disable IDE0010 // Add missing cases
                     switch (ex.SocketErrorCode)
                     {
@@ -221,7 +215,7 @@ namespace Renci.SshNet.Abstractions
         public static void SendByte(Socket socket, byte value)
         {
             var buffer = new[] { value };
-            Send(socket, buffer, 0, 1);
+            _ = socket.Send(buffer);
         }
 
         /// <summary>
@@ -288,22 +282,12 @@ namespace Renci.SshNet.Abstractions
 
                     totalBytesRead += bytesRead;
                 }
-                catch (SocketException ex)
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
                 {
-                    if (IsErrorResumable(ex.SocketErrorCode))
-                    {
-                        ThreadAbstraction.Sleep(30);
-                        continue;
-                    }
-
-                    if (ex.SocketErrorCode == SocketError.TimedOut)
-                    {
-                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                                                               "Socket read operation has timed out after {0:F0} milliseconds.",
-                                                               readTimeout.TotalMilliseconds));
-                    }
-
-                    throw;
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                                                            "Socket read operation has timed out after {0:F0} milliseconds.",
+                                                            readTimeout.TotalMilliseconds),
+                                                            ex);
                 }
             }
             while (totalBytesRead < totalBytesToRead);
@@ -317,61 +301,6 @@ namespace Renci.SshNet.Abstractions
             return socket.ReceiveAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, cancellationToken);
         }
 #endif
-
-        public static void Send(Socket socket, byte[] data)
-        {
-            Send(socket, data, 0, data.Length);
-        }
-
-        public static void Send(Socket socket, byte[] data, int offset, int size)
-        {
-            var totalBytesSent = 0;  // how many bytes are already sent
-            var totalBytesToSend = size;
-
-            do
-            {
-                try
-                {
-                    var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent, SocketFlags.None);
-                    if (bytesSent == 0)
-                    {
-                        throw new SshConnectionException("An established connection was aborted by the server.",
-                                                         DisconnectReason.ConnectionLost);
-                    }
-
-                    totalBytesSent += bytesSent;
-                }
-                catch (SocketException ex)
-                {
-                    if (IsErrorResumable(ex.SocketErrorCode))
-                    {
-                        // socket buffer is probably full, wait and try again
-                        ThreadAbstraction.Sleep(30);
-                    }
-                    else
-                    {
-                        throw; // any serious error occurr
-                    }
-                }
-            }
-            while (totalBytesSent < totalBytesToSend);
-        }
-
-        public static bool IsErrorResumable(SocketError socketError)
-        {
-#pragma warning disable IDE0010 // Add missing cases
-            switch (socketError)
-            {
-                case SocketError.WouldBlock:
-                case SocketError.IOPending:
-                case SocketError.NoBufferSpaceAvailable:
-                    return true;
-                default:
-                    return false;
-            }
-#pragma warning restore IDE0010 // Add missing cases
-        }
-
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
             var eventWaitHandle = (ManualResetEvent) e.UserToken;

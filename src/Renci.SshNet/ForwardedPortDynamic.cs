@@ -503,18 +503,18 @@ namespace Renci.SshNet
 
             channel.Open(host, port, this, socket);
 
-            SocketAbstraction.SendByte(socket, 0x00);
+            _ = socket.Send([0x00]);
 
             if (channel.IsOpen)
             {
-                SocketAbstraction.SendByte(socket, 0x5a);
+                _ = socket.Send([0x5a]);
                 _ = socket.Send(portBuffer);
                 _ = socket.Send(ipBuffer);
                 return true;
             }
 
             // signal that request was rejected or failed
-            SocketAbstraction.SendByte(socket, 0x5b);
+            _ = socket.Send([0x5b]);
             return false;
         }
 

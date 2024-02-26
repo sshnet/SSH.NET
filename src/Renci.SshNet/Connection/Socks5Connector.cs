@@ -63,7 +63,8 @@ namespace Renci.SshNet.Connection
                     _ = socket.Send(authenticationRequest);
 
                     // Read authentication result
-                    var authenticationResult = SocketAbstraction.Read(socket, 2, connectionInfo.Timeout);
+                    var authenticationResult = new byte[2];
+                    _ = SocketAbstraction.Read(socket, authenticationResult, 0, authenticationResult.Length, connectionInfo.Timeout);
 
                     if (authenticationResult[0] != 0x01)
                     {

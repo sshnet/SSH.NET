@@ -86,7 +86,7 @@ namespace Renci.SshNet.Connection
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                await SocketAbstraction.ConnectAsync(socket, ep, cancellationToken).ConfigureAwait(false);
+                await socket.ConnectAsync(ep, cancellationToken).ConfigureAwait(false);
 
                 const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
                 socket.SendBufferSize = socketBufferSize;

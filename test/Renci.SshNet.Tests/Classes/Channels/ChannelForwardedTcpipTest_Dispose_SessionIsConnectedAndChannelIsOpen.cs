@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 using Renci.SshNet.Channels;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
@@ -140,6 +141,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteListener.Start();
 
             _channel = new ChannelForwardedTcpip(_sessionMock.Object,
+                                                 new SocketFactory(),
                                                  _localChannelNumber,
                                                  _localWindowSize,
                                                  _localPacketSize,

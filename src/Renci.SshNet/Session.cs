@@ -2232,6 +2232,7 @@ namespace Renci.SshNet
                                                                     uint remoteChannelDataPacketSize)
         {
             return new ChannelForwardedTcpip(this,
+                                             _socketFactory,
                                              NextChannelNumber,
                                              InitialLocalWindowSize,
                                              LocalChannelDataPacketSize,

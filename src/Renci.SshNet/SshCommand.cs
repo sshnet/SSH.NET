@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -105,6 +106,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the command execution result.
         /// </summary>
+#pragma warning disable S1133 // Deprecated code should be removed
+        [Obsolete("Please read the result from the OutputStream. I.e. new StreamReader(shell.OutputStream).ReadToEnd().")]
+#pragma warning disable S1133 // Deprecated code should be removed
         public string Result
         {
             get
@@ -130,6 +134,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the command execution error.
         /// </summary>
+#pragma warning disable S1133 // Deprecated code should be removed
+        [Obsolete("Please read the error result from the ExtendedOutputStream. I.e. new StreamReader(shell.ExtendedOutputStream).ReadToEnd().")]
+#pragma warning disable S1133 // Deprecated code should be removed
         public string Error
         {
             get
@@ -348,8 +355,74 @@ namespace Renci.SshNet
                 _channel = null;
 
                 commandAsyncResult.EndCalled = true;
-
+#pragma warning disable CS0618
                 return Result;
+#pragma warning disable CS0618
+            }
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous command execution to complete.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>Command execution exit status.</returns>
+        /// <example>
+        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
+        /// </example>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public int EndExecuteWithStatus(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+            {
+                throw new ArgumentNullException(nameof(asyncResult));
+            }
+
+            var commandAsyncResult = asyncResult switch
+                {
+                    CommandAsyncResult result when result == _asyncResult => result,
+                    _ => throw new ArgumentException(
+                             $"The {nameof(IAsyncResult)} object was not returned from the corresponding asynchronous method on this class.")
+                };
+
+            lock (_endExecuteLock)
+            {
+                if (commandAsyncResult.EndCalled)
+                {
+                    throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
+                }
+
+                // wait for operation to complete (or time out)
+                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                UnsubscribeFromEventsAndDisposeChannel(_channel);
+                _channel = null;
+
+                commandAsyncResult.EndCalled = true;
+
+                return ExitStatus;
+            }
+        }
+
+        /// <summary>
+        /// Executes the the command asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>Exit status of the operation.</returns>
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            var asyncResult = BeginExecute();
+            using var ctr = cancellationToken.Register(() => CancelAsync());
+
+            try
+            {
+                int status = await Task<int>.Factory.FromAsync(asyncResult, EndExecuteWithStatus).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return status;
+            }
+            catch (Exception) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException("Command execution has been cancelled.", cancellationToken);
             }
         }
 
@@ -358,6 +431,7 @@ namespace Renci.SshNet
         /// </summary>
         public void CancelAsync()
         {
+            _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
             if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
             {
                 // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?

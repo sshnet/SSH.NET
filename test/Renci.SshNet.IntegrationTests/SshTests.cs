@@ -208,7 +208,7 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         cmd.Execute();
 
-                        Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                        Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                     }
 
                     using (var command = sshClient.CreateCommand(remoteFile))
@@ -217,7 +217,7 @@ namespace Renci.SshNet.IntegrationTests
                         var actualResult = command.EndExecute(asyncResult);
 
                         Assert.AreEqual(expectedResult, actualResult);
-                        Assert.AreEqual(expectedResult, command.Result);
+                        Assert.AreEqual(expectedResult, command.GetResult());
                         Assert.AreEqual(13, command.ExitStatus);
                     }
                 }
@@ -232,7 +232,7 @@ namespace Renci.SshNet.IntegrationTests
         /// Ignored for now, because:
         /// * OutputStream.Read(...) does not block when no data is available
         /// * SshCommand.(Begin)Execute consumes *OutputStream*, advancing its position.
-        /// 
+        ///
         /// https://github.com/sshnet/SSH.NET/issues/650
         /// </summary>
         [TestMethod]
@@ -273,7 +273,7 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         cmd.Execute();
 
-                        Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                        Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                     }
 
                     using (var command = sshClient.CreateCommand(remoteFile))
@@ -297,7 +297,7 @@ namespace Renci.SshNet.IntegrationTests
                         var actualResult = command.EndExecute(asyncResult);
 
                         Assert.AreEqual(expectedResult, actualResult);
-                        Assert.AreEqual(expectedResult, command.Result);
+                        Assert.AreEqual(expectedResult, command.GetResult());
                     }
                 }
                 finally
@@ -707,7 +707,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     var runChmod = client.RunCommand("chmod u+x " + remoteFile);
                     runChmod.Execute();
-                    Assert.AreEqual(0, runChmod.ExitStatus, runChmod.Error);
+                    Assert.AreEqual(0, runChmod.ExitStatus, runChmod.GetError());
 
                     var runLs = client.RunCommand("ls " + remoteFile);
                     var asyncResultLs = runLs.BeginExecute();
@@ -788,7 +788,7 @@ namespace Renci.SshNet.IntegrationTests
                                 continue;
                             }
 
-                            // If hostname is currently mapped to another IP address, then remove the 
+                            // If hostname is currently mapped to another IP address, then remove the
                             // current mapping
                             hostConfig.Entries.RemoveAt(i);
                         }
@@ -940,7 +940,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
+
                 using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
                 {
                     sw.Write(script);
@@ -955,7 +955,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var cmd = client.CreateCommand("rm -Rf " + remoteFile))
             {
                 cmd.Execute();
-                Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                Assert.AreEqual(0, cmd.ExitStatus, cmd.GetResult());
             }
         }
     }

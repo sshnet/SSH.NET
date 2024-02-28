@@ -16,14 +16,14 @@
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Unblocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Unblocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.GetError()}");
             }
             command = _sshClient.CreateCommand("sudo /usr/sbin/sshd.pam");
             output = command.Execute();
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Resuming ssh service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Resuming ssh service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.GetError()}");
             }
         }
 

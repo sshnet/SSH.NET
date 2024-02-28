@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
@@ -12,6 +13,9 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 
+[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationTests.OldIntegrationTests")]
+[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationTests")]
+[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationBenchmarks")]
 namespace Renci.SshNet
 {
     /// <summary>
@@ -111,24 +115,26 @@ namespace Renci.SshNet
 #pragma warning disable S1133 // Deprecated code should be removed
         public string Result
         {
-            get
+            get => GetResult();
+        }
+
+        internal string GetResult()
+        {
+            _result ??= new StringBuilder();
+
+            if (OutputStream != null && OutputStream.Length > 0)
             {
-                _result ??= new StringBuilder();
-
-                if (OutputStream != null && OutputStream.Length > 0)
+                using (var sr = new StreamReader(OutputStream,
+                                                 _encoding,
+                                                 detectEncodingFromByteOrderMarks: true,
+                                                 bufferSize: 1024,
+                                                 leaveOpen: true))
                 {
-                    using (var sr = new StreamReader(OutputStream,
-                                                     _encoding,
-                                                     detectEncodingFromByteOrderMarks: true,
-                                                     bufferSize: 1024,
-                                                     leaveOpen: true))
-                    {
-                        _ = _result.Append(sr.ReadToEnd());
-                    }
+                    _ = _result.Append(sr.ReadToEnd());
                 }
-
-                return _result.ToString();
             }
+
+            return _result.ToString();
         }
 
         /// <summary>
@@ -139,29 +145,31 @@ namespace Renci.SshNet
 #pragma warning disable S1133 // Deprecated code should be removed
         public string Error
         {
-            get
+            get => GetError();
+        }
+
+        internal string GetError()
+        {
+            if (_hasError)
             {
-                if (_hasError)
+                _error ??= new StringBuilder();
+
+                if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
                 {
-                    _error ??= new StringBuilder();
-
-                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
+                    using (var sr = new StreamReader(ExtendedOutputStream,
+                                                     _encoding,
+                                                     detectEncodingFromByteOrderMarks: true,
+                                                     bufferSize: 1024,
+                                                     leaveOpen: true))
                     {
-                        using (var sr = new StreamReader(ExtendedOutputStream,
-                                                         _encoding,
-                                                         detectEncodingFromByteOrderMarks: true,
-                                                         bufferSize: 1024,
-                                                         leaveOpen: true))
-                        {
-                            _ = _error.Append(sr.ReadToEnd());
-                        }
+                        _ = _error.Append(sr.ReadToEnd());
                     }
-
-                    return _error.ToString();
                 }
 
-                return string.Empty;
+                return _error.ToString();
             }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -402,6 +410,12 @@ namespace Renci.SshNet
                 return ExitStatus;
             }
         }
+
+        /// <summary>
+        /// Executes the the command asynchronously.
+        /// </summary>
+        /// <returns>Exit status of the operation.</returns>
+        public Task<int> ExecuteAsync() => ExecuteAsync(default);
 
         /// <summary>
         /// Executes the the command asynchronously.

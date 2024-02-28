@@ -76,7 +76,7 @@ namespace Renci.SshNet.IntegrationTests
                     hostNetworkConnectionDisabled = true;
                     WaitForConnectionInterruption(client);
                 }
-                
+
                 Assert.IsNotNull(errorOccurred);
                 Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
@@ -309,7 +309,7 @@ namespace Renci.SshNet.IntegrationTests
                     var command = $"sudo ps --no-headers -u {client.ConnectionInfo.Username} -f | grep \"{client.ConnectionInfo.Username}@notty\" | awk '{{print $2}}' | xargs sudo kill -9";
                     var sshCommand = adminClient.CreateCommand(command);
                     var result = sshCommand.Execute();
-                    Assert.AreEqual(0, sshCommand.ExitStatus, sshCommand.Error);
+                    Assert.AreEqual(0, sshCommand.ExitStatus, sshCommand.GetError());
                 }
 
                 Assert.IsTrue(errorOccurredSignaled.WaitOne(200));

@@ -13,9 +13,6 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 
-[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationTests.OldIntegrationTests")]
-[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationTests")]
-[assembly: InternalsVisibleTo("Renci.SshNet.IntegrationBenchmarks")]
 namespace Renci.SshNet
 {
     /// <summary>

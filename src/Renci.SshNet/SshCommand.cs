@@ -615,9 +615,11 @@ namespace Renci.SshNet
             switch (signaledElement)
             {
                 case 0:
+                    throw new OperationCanceledException($"Command {CommandText} has been cancelled.");
+                case 1:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 1:
+                case 2:
                     // Specified waithandle was signaled
                     break;
                 case WaitHandle.WaitTimeout:

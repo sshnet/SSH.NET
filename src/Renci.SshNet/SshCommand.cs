@@ -27,7 +27,6 @@ namespace Renci.SshNet
         private CommandAsyncResult _asyncResult;
         private AsyncCallback _callback;
         private EventWaitHandle _sessionErrorOccuredWaitHandle;
-        private EventWaitHandle _commandCancelledWaitHandle;
         private Exception _exception;
         private StringBuilder _result;
         private StringBuilder _error;
@@ -204,7 +203,6 @@ namespace Renci.SshNet
             _encoding = encoding;
             CommandTimeout = Session.InfiniteTimeSpan;
             _sessionErrorOccuredWaitHandle = new AutoResetEvent(initialState: false);
-            _commandCancelledWaitHandle = new AutoResetEvent(initialState: false);
 
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
@@ -431,7 +429,6 @@ namespace Renci.SshNet
         /// <returns>Exit status of the operation.</returns>
         public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
         {
-            var asyncResult = BeginExecute();
 #if NET || NETSTANDARD2_1_OR_GREATER
             await using var ctr = cancellationToken.Register(CancelAsync, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false);
 #else
@@ -440,7 +437,7 @@ namespace Renci.SshNet
 
             try
             {
-                var status = await Task<int>.Factory.FromAsync(asyncResult, EndExecuteWithStatus).ConfigureAwait(false);
+                var status = await Task<int>.Factory.FromAsync(BeginExecute(), EndExecuteWithStatus).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 return status;
@@ -459,8 +456,6 @@ namespace Renci.SshNet
             _ = _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
             if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
             {
-                _ = _commandCancelledWaitHandle.Set();
-
                 // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
                 _channel.Dispose();
             }
@@ -606,7 +601,6 @@ namespace Renci.SshNet
         {
             var waitHandles = new[]
                 {
-                    _commandCancelledWaitHandle,
                     _sessionErrorOccuredWaitHandle,
                     waitHandle
                 };
@@ -615,11 +609,9 @@ namespace Renci.SshNet
             switch (signaledElement)
             {
                 case 0:
-                    throw new OperationCanceledException($"Command {CommandText} has been cancelled.");
-                case 1:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 2:
+                case 1:
                     // Specified waithandle was signaled
                     break;
                 case WaitHandle.WaitTimeout:
@@ -723,9 +715,6 @@ namespace Renci.SshNet
                     sessionErrorOccuredWaitHandle.Dispose();
                     _sessionErrorOccuredWaitHandle = null;
                 }
-
-                _commandCancelledWaitHandle?.Dispose();
-                _commandCancelledWaitHandle = null;
 
                 _isDisposed = true;
             }

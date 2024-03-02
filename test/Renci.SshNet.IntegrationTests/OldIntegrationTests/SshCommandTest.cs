@@ -84,20 +84,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var command = $"echo {Guid.NewGuid().ToString()};/bin/sleep 5";
                 var cmd = client.CreateCommand(command);
-                string result;
+                var result = string.Empty;
                 try
                 {
-                    var cmdExecution = cmd.ExecuteAsync(cts.Token);
-                    cts.CancelAfter(100);
-                    await cmdExecution;
-                    using var reader = new StreamReader(cmd.OutputStream);
-                    using var readCts = new CancellationTokenSource();
-#if NET7_0_OR_GREATER
-                    result = await reader.ReadToEndAsync(readCts.Token).ConfigureAwait(false);
-#else
-                    result = await reader.ReadToEndAsync().ConfigureAwait(false);
-#endif // NET7_0_OR_GREATER
-                    result = result.Substring(0, result.Length - 1);
+                    cts.CancelAfter(500);
+                    await cmd.ExecuteAsync(cts.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {

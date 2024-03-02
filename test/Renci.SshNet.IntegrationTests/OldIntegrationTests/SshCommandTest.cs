@@ -91,7 +91,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     cts.CancelAfter(100);
                     await cmdExecution;
                     using var reader = new StreamReader(cmd.OutputStream);
-                    result = await reader.ReadToEndAsync();
+                    using var readCts = new CancellationTokenSource();
+#if NET7_0_OR_GREATER
+                    result = await reader.ReadToEndAsync(readCts.Token).ConfigureAwait(false);
+#else
+                    result = await reader.ReadToEndAsync().ConfigureAwait(false);
+#endif // NET7_0_OR_GREATER
                     result = result.Substring(0, result.Length - 1);
                 }
                 catch (OperationCanceledException)

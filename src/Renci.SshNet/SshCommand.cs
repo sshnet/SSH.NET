@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
@@ -113,7 +112,10 @@ namespace Renci.SshNet
 #pragma warning disable S1133 // Deprecated code should be removed
         public string Result
         {
-            get => GetResult();
+            get
+            {
+                return GetResult();
+            }
         }
 
         internal string GetResult()
@@ -143,7 +145,10 @@ namespace Renci.SshNet
 #pragma warning disable S1133 // Deprecated code should be removed
         public string Error
         {
-            get => GetError();
+            get
+            {
+                return GetError();
+            }
         }
 
         internal string GetError()
@@ -414,7 +419,10 @@ namespace Renci.SshNet
         /// Executes the the command asynchronously.
         /// </summary>
         /// <returns>Exit status of the operation.</returns>
-        public Task<int> ExecuteAsync() => ExecuteAsync(default);
+        public Task<int> ExecuteAsync()
+        {
+            return ExecuteAsync(default);
+        }
 
         /// <summary>
         /// Executes the the command asynchronously.
@@ -424,11 +432,15 @@ namespace Renci.SshNet
         public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
         {
             var asyncResult = BeginExecute();
-            using var ctr = cancellationToken.Register(() => CancelAsync());
+#if NET || NETSTANDARD2_1_OR_GREATER
+            await using var ctr = cancellationToken.Register(CancelAsync, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false);
+#else
+            using var ctr = cancellationToken.Register(CancelAsync, useSynchronizationContext: false);
+#endif // NET || NETSTANDARD2_1_OR_GREATER
 
             try
             {
-                int status = await Task<int>.Factory.FromAsync(asyncResult, EndExecuteWithStatus).ConfigureAwait(false);
+                var status = await Task<int>.Factory.FromAsync(asyncResult, EndExecuteWithStatus).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 return status;
@@ -444,7 +456,7 @@ namespace Renci.SshNet
         /// </summary>
         public void CancelAsync()
         {
-            _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
+            _ = _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
             if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
             {
                 _ = _commandCancelledWaitHandle.Set();

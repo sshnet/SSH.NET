@@ -454,11 +454,6 @@ namespace Renci.SshNet
         public void CancelAsync()
         {
             _ = _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
-            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
         }
 
         /// <summary>

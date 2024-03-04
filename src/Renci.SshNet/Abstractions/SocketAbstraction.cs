@@ -3,9 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-#if NET6_0_OR_GREATER == false
 using System.Threading.Tasks;
-#endif
 
 using Renci.SshNet.Common;
 
@@ -151,11 +149,34 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-#if NET6_0_OR_GREATER == false
-        public static ValueTask<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        public static async ValueTask<int> ReadAsync(Socket socket, byte[] buffer, int offset, int size, CancellationToken cancellationToken)
         {
-            return socket.ReceiveAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, cancellationToken);
+            var totalBytesRead = 0;
+            var totalBytesToRead = size;
+
+            do
+            {
+                try
+                {
+                    var bytesRead = await socket.ReceiveAsync(new ArraySegment<byte>(buffer, offset + totalBytesRead, totalBytesToRead - totalBytesRead), SocketFlags.None, cancellationToken).ConfigureAwait(false);
+                    if (bytesRead == 0)
+                    {
+                        return 0;
+                    }
+
+                    totalBytesRead += bytesRead;
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                                                            "Socket read operation has timed out after {0:F0} milliseconds.",
+                                                            socket.ReceiveTimeout),
+                                                            ex);
+                }
+            }
+            while (totalBytesRead < totalBytesToRead);
+
+            return totalBytesRead;
         }
-#endif
     }
 }

@@ -10,7 +10,7 @@ using Renci.SshNet.Security.Org.BouncyCastle.Utilities;
 
 namespace Renci.SshNet.Security.Org.BouncyCastle.Math
 {
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
     [Serializable]
 #endif
     internal class BigInteger

@@ -354,7 +354,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)
@@ -383,7 +383,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)
@@ -414,7 +414,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)
@@ -541,12 +541,12 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (string.IsNullOrWhiteSpace(linkPath))
             {
-                throw new ArgumentException("linkPath");
+                throw new ArgumentException(nameof(linkPath));
             }
 
             if (_sftpSession is null)
@@ -743,7 +743,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)
@@ -874,7 +874,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (output is null)
@@ -1096,7 +1096,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             var flags = Flags.Write | Flags.Truncate;
@@ -2091,7 +2091,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(destinationPath))
             {
-                throw new ArgumentException("destinationPath");
+                throw new ArgumentException(nameof(destinationPath));
             }
 
             return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asynchResult: null);
@@ -2120,7 +2120,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(destinationPath))
             {
-                throw new ArgumentException("destDir");
+                throw new ArgumentException(nameof(destinationPath));
             }
 
             if (searchPattern is null)
@@ -2338,7 +2338,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)
@@ -2404,7 +2404,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException(nameof(path));
             }
 
             if (_sftpSession is null)

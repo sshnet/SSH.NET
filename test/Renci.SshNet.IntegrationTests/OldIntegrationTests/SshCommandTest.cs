@@ -57,18 +57,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 #region Example SshCommand CreateCommand ExecuteAsync
-                client.Connect();
-
+                using var cts = new CancellationTokenSource();
+                await client.ConnectAsync(cts.Token);
                 var testValue = Guid.NewGuid().ToString();
-                var cmd = client.CreateCommand($"echo {testValue}");
-                await cmd.ExecuteAsync();
-                using var reader = new StreamReader(cmd.OutputStream);
-                var result = await reader.ReadToEndAsync();
-                result = result.Substring(0, result.Length - 1);
+                using var cmd = client.CreateCommand($"echo {testValue}");
+                await cmd.ExecuteAsync(cts.Token);
                 client.Disconnect();
+                Assert.IsTrue(cmd.GetResult().Trim().Equals(testValue));
                 #endregion
-
-                Assert.IsTrue(result.Equals(testValue));
             }
         }
 
@@ -82,8 +78,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 using var cts = new CancellationTokenSource();
                 await client.ConnectAsync(cts.Token);
                 var command = $"echo {Guid.NewGuid().ToString()};/bin/sleep 5";
-                var cmd = client.CreateCommand(command);
-                cts.CancelAfter(500);
+                using var cmd = client.CreateCommand(command);
+                cts.CancelAfter(100);
                 await cmd.ExecuteAsync(cts.Token).ConfigureAwait(false);
                 client.Disconnect();
                 #endregion
@@ -287,7 +283,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 cmd.EndExecute(asyncResult);
 
-                Assert.IsTrue(cmd.GetError() == "test\n");
+                Assert.IsTrue(cmd.GetResult() == "test\n");
 
                 client.Disconnect();
             }

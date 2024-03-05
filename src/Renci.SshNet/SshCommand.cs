@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -105,56 +106,72 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the command execution result.
         /// </summary>
+#pragma warning disable S1133 // Deprecated code should be removed
+        [Obsolete("Please read the result from the OutputStream. I.e. new StreamReader(shell.OutputStream).ReadToEnd().")]
+#pragma warning disable S1133 // Deprecated code should be removed
         public string Result
         {
             get
             {
-                _result ??= new StringBuilder();
-
-                if (OutputStream != null && OutputStream.Length > 0)
-                {
-                    using (var sr = new StreamReader(OutputStream,
-                                                     _encoding,
-                                                     detectEncodingFromByteOrderMarks: true,
-                                                     bufferSize: 1024,
-                                                     leaveOpen: true))
-                    {
-                        _ = _result.Append(sr.ReadToEnd());
-                    }
-                }
-
-                return _result.ToString();
+                return GetResult();
             }
+        }
+
+        internal string GetResult()
+        {
+            _result ??= new StringBuilder();
+
+            if (OutputStream != null && OutputStream.Length > 0)
+            {
+                using (var sr = new StreamReader(OutputStream,
+                                                 _encoding,
+                                                 detectEncodingFromByteOrderMarks: true,
+                                                 bufferSize: 1024,
+                                                 leaveOpen: true))
+                {
+                    _ = _result.Append(sr.ReadToEnd());
+                }
+            }
+
+            return _result.ToString();
         }
 
         /// <summary>
         /// Gets the command execution error.
         /// </summary>
+#pragma warning disable S1133 // Deprecated code should be removed
+        [Obsolete("Please read the error result from the ExtendedOutputStream. I.e. new StreamReader(shell.ExtendedOutputStream).ReadToEnd().")]
+#pragma warning disable S1133 // Deprecated code should be removed
         public string Error
         {
             get
             {
-                if (_hasError)
+                return GetError();
+            }
+        }
+
+        internal string GetError()
+        {
+            if (_hasError)
+            {
+                _error ??= new StringBuilder();
+
+                if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
                 {
-                    _error ??= new StringBuilder();
-
-                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
+                    using (var sr = new StreamReader(ExtendedOutputStream,
+                                                     _encoding,
+                                                     detectEncodingFromByteOrderMarks: true,
+                                                     bufferSize: 1024,
+                                                     leaveOpen: true))
                     {
-                        using (var sr = new StreamReader(ExtendedOutputStream,
-                                                         _encoding,
-                                                         detectEncodingFromByteOrderMarks: true,
-                                                         bufferSize: 1024,
-                                                         leaveOpen: true))
-                        {
-                            _ = _error.Append(sr.ReadToEnd());
-                        }
+                        _ = _error.Append(sr.ReadToEnd());
                     }
-
-                    return _error.ToString();
                 }
 
-                return string.Empty;
+                return _error.ToString();
             }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -348,8 +365,86 @@ namespace Renci.SshNet
                 _channel = null;
 
                 commandAsyncResult.EndCalled = true;
-
+#pragma warning disable CS0618
                 return Result;
+#pragma warning disable CS0618
+            }
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous command execution to complete.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>Command execution exit status.</returns>
+        /// <example>
+        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
+        /// </example>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public int EndExecuteWithStatus(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+            {
+                throw new ArgumentNullException(nameof(asyncResult));
+            }
+
+            var commandAsyncResult = asyncResult switch
+                {
+                    CommandAsyncResult result when result == _asyncResult => result,
+                    _ => throw new ArgumentException(
+                             $"The {nameof(IAsyncResult)} object was not returned from the corresponding asynchronous method on this class.")
+                };
+
+            lock (_endExecuteLock)
+            {
+                if (commandAsyncResult.EndCalled)
+                {
+                    throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
+                }
+
+                // wait for operation to complete (or time out)
+                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                UnsubscribeFromEventsAndDisposeChannel(_channel);
+                _channel = null;
+
+                commandAsyncResult.EndCalled = true;
+
+                return ExitStatus;
+            }
+        }
+
+        /// <summary>
+        /// Executes the the command asynchronously.
+        /// </summary>
+        /// <returns>Exit status of the operation.</returns>
+        public Task<int> ExecuteAsync()
+        {
+            return ExecuteAsync(default);
+        }
+
+        /// <summary>
+        /// Executes the the command asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>Exit status of the operation.</returns>
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
+        {
+#if NET || NETSTANDARD2_1_OR_GREATER
+            await using var ctr = cancellationToken.Register(CancelAsync, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false);
+#else
+            using var ctr = cancellationToken.Register(CancelAsync, useSynchronizationContext: false);
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+
+            try
+            {
+                var status = await Task<int>.Factory.FromAsync(BeginExecute(), EndExecuteWithStatus).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return status;
+            }
+            catch (Exception) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException("Command execution has been cancelled.", cancellationToken);
             }
         }
 
@@ -358,11 +453,7 @@ namespace Renci.SshNet
         /// </summary>
         public void CancelAsync()
         {
-            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
+            _ = _channel?.SendExitSignalRequest("TERM", coreDumped: false, "Command execution has been cancelled.", "en");
         }
 
         /// <summary>

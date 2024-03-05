@@ -32,13 +32,13 @@ namespace Renci.SshNet.IntegrationTests
                 // Reset the password back to the "regular" password.
                 using (var cmd = client.RunCommand($"echo \"{Users.Regular.Password}\n{Users.Regular.Password}\" | sudo passwd " + Users.Regular.UserName))
                 {
-                    Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                    Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                 }
 
                 // Remove password expiration
                 using (var cmd = client.RunCommand($"sudo chage --expiredate -1 " + Users.Regular.UserName))
                 {
-                    Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                    Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                 }
             }
         }
@@ -324,13 +324,13 @@ namespace Renci.SshNet.IntegrationTests
                 // the "regular" password.
                 using (var cmd = client.RunCommand($"echo \"{temporaryPassword}\n{temporaryPassword}\" | sudo passwd " + Users.Regular.UserName))
                 {
-                    Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                    Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                 }
 
                 // Force the password to expire immediately
                 using (var cmd = client.RunCommand($"sudo chage -d 0 " + Users.Regular.UserName))
                 {
-                    Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
+                    Assert.AreEqual(0, cmd.ExitStatus, cmd.GetError());
                 }
             }
 

@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var testValue = Guid.NewGuid().ToString();
                 var command = client.RunCommand(string.Format("echo {0}", testValue));
-                var result = command.Result;
+                var result = command.GetResult();
                 result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
 
                 client.Disconnect();
@@ -48,6 +48,45 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 #endregion
 
                 Assert.IsTrue(result.Equals(testValue));
+            }
+        }
+
+        [TestMethod]
+        public async Task Test_Execute_SingleCommandAsync()
+        {
+            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                #region Example SshCommand CreateCommand ExecuteAsync
+                client.Connect();
+
+                var testValue = Guid.NewGuid().ToString();
+                var cmd = client.CreateCommand($"echo {testValue}");
+                await cmd.ExecuteAsync();
+                using var reader = new StreamReader(cmd.OutputStream);
+                var result = await reader.ReadToEndAsync();
+                result = result.Substring(0, result.Length - 1);
+                client.Disconnect();
+                #endregion
+
+                Assert.IsTrue(result.Equals(testValue));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(OperationCanceledException))]
+        public async Task Test_Execute_SingleCommandAsync_WithCancelledToken()
+        {
+            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                #region Example SshCommand CreateCommand ExecuteAsync With Cancelled Token
+                using var cts = new CancellationTokenSource();
+                await client.ConnectAsync(cts.Token);
+                var command = $"echo {Guid.NewGuid().ToString()};/bin/sleep 5";
+                var cmd = client.CreateCommand(command);
+                cts.CancelAfter(500);
+                await cmd.ExecuteAsync(cts.Token).ConfigureAwait(false);
+                client.Disconnect();
+                #endregion
             }
         }
 
@@ -146,7 +185,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cmd = client.CreateCommand(";");
                 cmd.Execute();
-                if (string.IsNullOrEmpty(cmd.Error))
+                if (string.IsNullOrEmpty(cmd.GetError()))
                 {
                     Assert.Fail("Operation should fail");
                 }
@@ -164,7 +203,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 var cmd = client.CreateCommand(";");
                 cmd.Execute();
-                if (string.IsNullOrEmpty(cmd.Error))
+                if (string.IsNullOrEmpty(cmd.GetError()))
                 {
                     Assert.Fail("Operation should fail");
                 }
@@ -191,7 +230,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var extendedData = new StreamReader(cmd.ExtendedOutputStream, Encoding.ASCII).ReadToEnd();
                 client.Disconnect();
 
-                Assert.AreEqual("12345\n", cmd.Result);
+                Assert.AreEqual("12345\n", cmd.GetResult());
                 Assert.AreEqual("654321\n", extendedData);
             }
         }
@@ -222,7 +261,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                
+
                 Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
@@ -248,7 +287,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 cmd.EndExecute(asyncResult);
 
-                Assert.IsTrue(cmd.Result == "test\n");
+                Assert.IsTrue(cmd.GetError() == "test\n");
 
                 client.Disconnect();
             }
@@ -270,7 +309,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 cmd.EndExecute(asyncResult);
 
-                Assert.IsFalse(string.IsNullOrEmpty(cmd.Error));
+                Assert.IsFalse(string.IsNullOrEmpty(cmd.GetError()));
 
                 client.Disconnect();
             }
@@ -338,9 +377,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 var cmd = client.CreateCommand("echo 12345");
                 cmd.Execute();
-                Assert.AreEqual("12345\n", cmd.Result);
+                Assert.AreEqual("12345\n", cmd.GetResult());
                 cmd.Execute("echo 23456");
-                Assert.AreEqual("23456\n", cmd.Result);
+                Assert.AreEqual("23456\n", cmd.GetResult());
                 client.Disconnect();
             }
         }
@@ -353,7 +392,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 var cmd = client.CreateCommand("ls -l");
 
-                Assert.IsTrue(string.IsNullOrEmpty(cmd.Result));
+                Assert.IsTrue(string.IsNullOrEmpty(cmd.GetResult()));
                 client.Disconnect();
             }
         }
@@ -366,7 +405,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 var cmd = client.CreateCommand("ls -l");
 
-                Assert.IsTrue(string.IsNullOrEmpty(cmd.Error));
+                Assert.IsTrue(string.IsNullOrEmpty(cmd.GetError()));
                 client.Disconnect();
             }
         }
@@ -429,9 +468,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cmd = client.CreateCommand(";");
                 cmd.Execute();
-                if (!string.IsNullOrEmpty(cmd.Error))
+                if (!string.IsNullOrEmpty(cmd.GetError()))
                 {
-                    Console.WriteLine(cmd.Error);
+                    Console.WriteLine(cmd.GetError());
                 }
 
                 client.Disconnect();
@@ -443,7 +482,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        
+
         public void Test_MultipleThread_100_MultipleConnections()
         {
             try

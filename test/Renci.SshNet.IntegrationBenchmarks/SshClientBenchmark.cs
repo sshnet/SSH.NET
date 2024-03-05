@@ -55,7 +55,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
         {
             using var sshClient = new SshClient(_infrastructureFixture.SshServerHostName, _infrastructureFixture.SshServerPort, _infrastructureFixture.User.UserName, _infrastructureFixture.User.Password);
             sshClient.Connect();
-            return sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").Result;
+            return sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").GetResult();
         }
 
         [Benchmark]
@@ -63,13 +63,13 @@ namespace Renci.SshNet.IntegrationBenchmarks
         {
             using var sshClient = new SshClient(_infrastructureFixture.SshServerHostName, _infrastructureFixture.SshServerPort, _infrastructureFixture.User.UserName, _infrastructureFixture.User.Password);
             await sshClient.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
-            return sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").Result;
+            return sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").GetResult();
         }
 
         [Benchmark]
         public string RunCommand()
         {
-            return _sshClient!.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").Result;
+            return _sshClient!.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'").GetResult();
         }
 
         [Benchmark]

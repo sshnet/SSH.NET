@@ -69,6 +69,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
+        [Timeout(2000)]
         [ExpectedException(typeof(OperationCanceledException))]
         public async Task Test_Execute_SingleCommandAsync_WithCancelledToken()
         {
@@ -77,13 +78,41 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 #region Example SshCommand CreateCommand ExecuteAsync With Cancelled Token
                 using var cts = new CancellationTokenSource();
                 await client.ConnectAsync(cts.Token);
-                var command = $"echo {Guid.NewGuid().ToString()};/bin/sleep 5";
+                var command = $"/bin/sleep 5; echo {Guid.NewGuid().ToString()}";
                 using var cmd = client.CreateCommand(command);
                 cts.CancelAfter(100);
                 await cmd.ExecuteAsync(cts.Token).ConfigureAwait(false);
                 client.Disconnect();
                 #endregion
             }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void Test_CancelAsync_Running_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            #region Example SshCommand CancelAsync
+            client.Connect();
+
+            var testValue = Guid.NewGuid().ToString();
+            var command = $"sleep 10s; echo {testValue}";
+            using var cmd = client.CreateCommand(command);
+            try
+            {
+                var asyncResult = cmd.BeginExecute();
+                cmd.CancelAsync();
+                cmd.EndExecute(asyncResult);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            Assert.AreNotEqual(cmd.GetResult().Trim(), testValue);
+
+            client.Disconnect();
+            #endregion
+
         }
 
         [TestMethod]

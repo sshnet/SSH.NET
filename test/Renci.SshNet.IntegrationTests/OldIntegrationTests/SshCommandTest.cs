@@ -52,6 +52,30 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
+        [Timeout(5000)]
+        public void Test_CancelAsync_Running_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            #region Example SshCommand CancelAsync
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            var command = $"sleep 10s; echo {testValue}";
+            using var cmd = client.CreateCommand(command);
+            try
+            {
+                var asyncResult = cmd.BeginExecute();
+                cmd.CancelAsync();
+                cmd.EndExecute(asyncResult);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            client.Disconnect();
+            Assert.AreNotEqual(cmd.Result.Trim(), testValue);
+            #endregion
+        }
+
+        [TestMethod]
         public void Test_Execute_OutputStream()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -222,7 +246,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                
+
                 Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
@@ -443,7 +467,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        
+
         public void Test_MultipleThread_100_MultipleConnections()
         {
             try

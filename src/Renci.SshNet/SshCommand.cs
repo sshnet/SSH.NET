@@ -26,6 +26,7 @@ namespace Renci.SshNet
         private CommandAsyncResult _asyncResult;
         private AsyncCallback _callback;
         private EventWaitHandle _sessionErrorOccuredWaitHandle;
+        private EventWaitHandle _commandCancelledWaitHandle;
         private Exception _exception;
         private StringBuilder _result;
         private StringBuilder _error;
@@ -186,7 +187,7 @@ namespace Renci.SshNet
             _encoding = encoding;
             CommandTimeout = Session.InfiniteTimeSpan;
             _sessionErrorOccuredWaitHandle = new AutoResetEvent(initialState: false);
-
+            _commandCancelledWaitHandle = new AutoResetEvent(initialState: false);
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
         }
@@ -356,13 +357,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Cancels command execution in asynchronous scenarios.
         /// </summary>
-        public void CancelAsync()
+        /// <param name="forceKill">if true send SIGKILL instead of SIGTERM.</param>
+        public void CancelAsync(bool forceKill = false)
         {
-            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
+            var signal = forceKill ? "KILL" : "TERM";
+            _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
+            _ = _commandCancelledWaitHandle.Set();
         }
 
         /// <summary>
@@ -506,6 +506,7 @@ namespace Renci.SshNet
             var waitHandles = new[]
                 {
                     _sessionErrorOccuredWaitHandle,
+                    _commandCancelledWaitHandle,
                     waitHandle
                 };
 
@@ -515,7 +516,8 @@ namespace Renci.SshNet
                 case 0:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 1:
+                case 1: // Command cancelled
+                case 2:
                     // Specified waithandle was signaled
                     break;
                 case WaitHandle.WaitTimeout:
@@ -619,6 +621,9 @@ namespace Renci.SshNet
                     sessionErrorOccuredWaitHandle.Dispose();
                     _sessionErrorOccuredWaitHandle = null;
                 }
+
+                _commandCancelledWaitHandle?.Dispose();
+                _commandCancelledWaitHandle = null;
 
                 _isDisposed = true;
             }

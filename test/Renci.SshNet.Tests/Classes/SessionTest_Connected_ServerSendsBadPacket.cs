@@ -180,7 +180,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
+                session.WaitOnHandle(waitHandle, Timeout.InfiniteTimeSpan);
                 Assert.Fail();
             }
             catch (SshConnectionException ex)
@@ -197,7 +197,7 @@ namespace Renci.SshNet.Tests.Classes
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+            var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
         }
@@ -208,7 +208,7 @@ namespace Renci.SshNet.Tests.Classes
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
+            var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
             Assert.IsNull(exception);

@@ -103,7 +103,7 @@ namespace Renci.SshNet.Connection
         protected static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            _ = SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
+            _ = SocketRead(socket, buffer, 0, 1, Timeout.InfiniteTimeSpan);
             return buffer[0];
         }
 
@@ -128,7 +128,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SocketException">The read failed.</exception>
         protected static int SocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            return SocketRead(socket, buffer, offset, length, Session.InfiniteTimeSpan);
+            return SocketRead(socket, buffer, offset, length, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>

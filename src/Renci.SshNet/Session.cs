@@ -31,14 +31,6 @@ namespace Renci.SshNet
         internal const byte LineFeed = 0x0a;
 
         /// <summary>
-        /// Specifies an infinite waiting period.
-        /// </summary>
-        /// <remarks>
-        /// The value of this field is <c>-1</c>.
-        /// </remarks>
-        internal const int Infinite = -1;
-
-        /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
         /// <value>
@@ -73,14 +65,6 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
         private const int LocalChannelDataPacketSize = 1024 * 64;
-
-        /// <summary>
-        /// Specifies an infinite waiting period.
-        /// </summary>
-        /// <remarks>
-        /// The value of this field is <c>-1</c> millisecond.
-        /// </remarks>
-        internal static readonly TimeSpan InfiniteTimeSpan = new TimeSpan(0, 0, 0, 0, -1);
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -1895,7 +1879,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">The read failed.</exception>
         private static int TrySocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            return SocketAbstraction.Read(socket, buffer, offset, length, InfiniteTimeSpan);
+            return SocketAbstraction.Read(socket, buffer, offset, length, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>

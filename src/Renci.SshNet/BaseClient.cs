@@ -108,7 +108,7 @@ namespace Renci.SshNet
                     return;
                 }
 
-                if (value == SshNet.Session.InfiniteTimeSpan)
+                if (value == Timeout.InfiniteTimeSpan)
                 {
                     // stop the timer when the value is -1 milliseconds
                     StopKeepAliveTimer();
@@ -196,7 +196,7 @@ namespace Renci.SshNet
             ConnectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
-            _keepAliveInterval = SshNet.Session.InfiniteTimeSpan;
+            _keepAliveInterval = Timeout.InfiniteTimeSpan;
         }
 
         /// <summary>
@@ -508,7 +508,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void StartKeepAliveTimer()
         {
-            if (_keepAliveInterval == SshNet.Session.InfiniteTimeSpan)
+            if (_keepAliveInterval == Timeout.InfiniteTimeSpan)
             {
                 return;
             }

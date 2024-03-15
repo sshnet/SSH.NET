@@ -1,8 +1,9 @@
-﻿using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Text;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection

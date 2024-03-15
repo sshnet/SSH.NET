@@ -1,11 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {

@@ -1,8 +1,9 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.Text.RegularExpressions;
 
 namespace Renci.SshNet.Tests.Classes
 {

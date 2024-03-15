@@ -57,9 +57,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] HashFinal()
         {
-#pragma warning disable CA5351 // Do Not Use Broken Cryptographic Algorithms
             var hash = base.HashFinal();
-#pragma warning restore CA5351 // Do Not Use Broken Cryptographic Algorithms
             return hash.Take(HashSize / 8);
         }
     }

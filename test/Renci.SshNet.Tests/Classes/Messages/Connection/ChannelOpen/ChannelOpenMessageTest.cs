@@ -1,10 +1,11 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {

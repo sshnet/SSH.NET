@@ -1,11 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using System;
-using System.Diagnostics;
-using System.Threading;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp

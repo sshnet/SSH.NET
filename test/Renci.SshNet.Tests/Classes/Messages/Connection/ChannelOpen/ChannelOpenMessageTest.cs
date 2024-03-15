@@ -9,7 +9,7 @@ using System;
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {
     [TestClass]
-    public class ChannelOpenMessageTest
+    internal class ChannelOpenMessageTest
     {
         private Random _random;
         private Encoding _ascii;

@@ -5,7 +5,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public abstract class ClientAuthenticationTestBase : TestBase
+    internal abstract class ClientAuthenticationTestBase : TestBase
     {
         internal Mock<IConnectionInfoInternal> ConnectionInfoMock { get; private set; }
         internal Mock<ISession> SessionMock { get; private set; }

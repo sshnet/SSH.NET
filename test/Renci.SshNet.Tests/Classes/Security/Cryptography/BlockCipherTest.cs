@@ -9,7 +9,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 {
     [TestClass]
-    public class BlockCipherTest  : TestBase
+    internal class BlockCipherTest  : TestBase
     {
         [TestMethod]
         public void EncryptShouldTakeIntoAccountPaddingForLengthOfOutputBufferPassedToEncryptBlock()

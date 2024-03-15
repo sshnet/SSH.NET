@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class HttpRequest
+    internal class HttpRequest
     {
         public HttpRequest()
         {

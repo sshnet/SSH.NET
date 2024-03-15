@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortLocalTest_Stop_PortNeverStarted
+    internal class ForwardedPortLocalTest_Stop_PortNeverStarted
     {
         private ForwardedPortLocal _forwardedPort;
         private IPEndPoint _localEndpoint;

@@ -12,7 +12,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
     [TestClass]
-    public class SftpOpenRequestTest
+    internal class SftpOpenRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived : ChannelSessionTestBase
+    internal class ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived : ChannelSessionTestBase
     {
         private uint _localChannelNumber;
         private uint _localWindowSize;

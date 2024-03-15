@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Security
 {
     [TestClass]
-    public class KeyHostAlgorithmTest : TestBase
+    internal class KeyHostAlgorithmTest : TestBase
     {
         [TestMethod]
         public void NoSuppliedDigitalSignature_PropertyIsKeyDigitalSignature()

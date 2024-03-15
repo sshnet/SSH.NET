@@ -8,7 +8,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
     [TestClass]
-    public partial class SftpClientTest
+    internal partial class SftpClientTest
     {
         protected static string CalculateMD5(string fileName)
         {

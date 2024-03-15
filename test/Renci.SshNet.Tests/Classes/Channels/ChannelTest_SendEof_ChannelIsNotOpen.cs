@@ -8,7 +8,7 @@ using Renci.SshNet.Messages;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_SendEof_ChannelIsNotOpen : ChannelTestBase
+    internal class ChannelTest_SendEof_ChannelIsNotOpen : ChannelTestBase
     {
         private uint _localWindowSize;
         private uint _localPacketSize;

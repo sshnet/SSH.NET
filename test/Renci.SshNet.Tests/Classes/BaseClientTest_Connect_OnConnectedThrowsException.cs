@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Connect_OnConnectedThrowsException : BaseClientTestBase
+    internal class BaseClientTest_Connect_OnConnectedThrowsException : BaseClientTestBase
     {
         private MyClient _client;
         private ConnectionInfo _connectionInfo;

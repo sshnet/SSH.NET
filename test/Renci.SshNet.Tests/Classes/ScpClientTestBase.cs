@@ -4,7 +4,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    public abstract class ScpClientTestBase : BaseClientTestBase
+    internal abstract class ScpClientTestBase : BaseClientTestBase
     {
         internal Mock<IRemotePathTransformation> _remotePathTransformationMock;
         internal Mock<IChannelSession> _channelSessionMock;

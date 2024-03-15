@@ -5,7 +5,7 @@ using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    public abstract class SftpFileStreamTestBase
+    internal abstract class SftpFileStreamTestBase
     {
         internal Mock<ISftpSession> SftpSessionMock;
         protected MockSequence MockSequence;

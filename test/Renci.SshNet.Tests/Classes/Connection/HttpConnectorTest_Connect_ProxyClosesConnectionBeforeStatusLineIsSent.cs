@@ -10,7 +10,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class HttpConnectorTest_Connect_ProxyClosesConnectionBeforeStatusLineIsSent : HttpConnectorTestBase
+    internal class HttpConnectorTest_Connect_ProxyClosesConnectionBeforeStatusLineIsSent : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

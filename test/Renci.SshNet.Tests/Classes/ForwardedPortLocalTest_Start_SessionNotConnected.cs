@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortLocalTest_Start_SessionNotConnected
+    internal class ForwardedPortLocalTest_Start_SessionNotConnected
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

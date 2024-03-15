@@ -10,7 +10,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_OpenAsync_FileModeOpenOrCreate_FileAccessRead : SftpFileStreamAsyncTestBase
+    internal class SftpFileStreamTest_OpenAsync_FileModeOpenOrCreate_FileAccessRead : SftpFileStreamAsyncTestBase
     {
         private Random _random;
         private string _path;

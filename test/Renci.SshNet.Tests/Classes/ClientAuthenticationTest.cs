@@ -6,7 +6,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ClientAuthenticationTest
+    internal class ClientAuthenticationTest
     {
         private ClientAuthentication _clientAuthentication;
 

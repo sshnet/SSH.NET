@@ -15,7 +15,7 @@ using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException : SftpFileReaderTestBase
+    internal class SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException : SftpFileReaderTestBase
     {
         private const int ChunkLength = 32 * 1024;
 

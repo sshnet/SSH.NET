@@ -4,7 +4,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Benchmarks.Common
 {
-    public class ExtensionsBenchmarks
+    internal class ExtensionsBenchmarks
     {
         private byte[]? _data;
 

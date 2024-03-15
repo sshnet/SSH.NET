@@ -7,7 +7,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SftpClientTest_Finalize_Connected : SftpClientTestBase
+    internal class SftpClientTest_Finalize_Connected : SftpClientTestBase
     {
         private SftpClient _sftpClient;
         private ConnectionInfo _connectionInfo;

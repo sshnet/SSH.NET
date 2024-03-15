@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class HttpConnectorTest_Connect_ProxyResponseStatusIs200_HeadersAndContent : HttpConnectorTestBase
+    internal class HttpConnectorTest_Connect_ProxyResponseStatusIs200_HeadersAndContent : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

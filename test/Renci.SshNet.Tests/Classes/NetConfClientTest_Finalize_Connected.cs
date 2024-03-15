@@ -5,7 +5,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest_Finalize_Connected : NetConfClientTestBase
+    internal class NetConfClientTest_Finalize_Connected : NetConfClientTestBase
     {
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;

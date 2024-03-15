@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
-    public class ExtensionsTest_TrimLeadingZeros
+    internal class ExtensionsTest_TrimLeadingZeros
     {
         [TestMethod]
         public void ShouldThrowArgumentNullExceptionWhenValueIsNull()

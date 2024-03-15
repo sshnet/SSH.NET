@@ -7,7 +7,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected : SessionTest_ConnectedBase
+    internal class SessionTest_Connected : SessionTest_ConnectedBase
     {
         private IgnoreMessage _ignoreMessage;
 

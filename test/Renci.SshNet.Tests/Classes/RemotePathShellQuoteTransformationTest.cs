@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class RemotePathShellQuoteTransformationTest
+    internal class RemotePathShellQuoteTransformationTest
     {
         private IRemotePathTransformation _transformation;
 

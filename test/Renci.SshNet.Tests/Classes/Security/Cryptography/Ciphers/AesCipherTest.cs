@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     ///
     /// </summary>
     [TestClass]
-    public class AesCipherTest : TestBase
+    internal class AesCipherTest : TestBase
     {
         [TestMethod]
         public void AES_CTR_Encrypt_Should_Preserve_Cipher_Stream_State()

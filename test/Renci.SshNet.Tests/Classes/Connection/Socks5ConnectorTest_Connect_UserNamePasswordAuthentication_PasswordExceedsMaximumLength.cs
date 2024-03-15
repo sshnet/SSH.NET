@@ -12,7 +12,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks5ConnectorTest_Connect_UserNamePasswordAuthentication_PasswordExceedsMaximumLength : Socks5ConnectorTestBase
+    internal class Socks5ConnectorTest_Connect_UserNamePasswordAuthentication_PasswordExceedsMaximumLength : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

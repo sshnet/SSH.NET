@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     /// Represents "pty-req" type channel request information
     /// </summary>
     [TestClass]
-    public class PseudoTerminalRequestInfoTest
+    internal class PseudoTerminalRequestInfoTest
     {
         private string _environmentVariable;
         private uint _columns;

@@ -11,7 +11,7 @@ namespace Renci.SshNet.IntegrationTests
     // TODO: Delete (fail + success
 
     [TestClass]
-    public class SftpTests : TestBase
+    internal class SftpTests : TestBase
     {
         private IConnectionInfoFactory _connectionInfoFactory;
         private IConnectionInfoFactory _adminConnectionInfoFactory;

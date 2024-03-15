@@ -11,7 +11,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer : SftpFileStreamTestBase
+    internal class SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

@@ -11,7 +11,7 @@ using Renci.SshNet.Abstractions;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages
+    internal class SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages
     {
         #region SftpSession.Connect()
 

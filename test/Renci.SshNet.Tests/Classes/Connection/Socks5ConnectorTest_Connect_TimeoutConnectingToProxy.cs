@@ -14,7 +14,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks5ConnectorTest_Connect_TimeoutConnectingToProxy : Socks5ConnectorTestBase
+    internal class Socks5ConnectorTest_Connect_TimeoutConnectingToProxy : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private Exception _actualException;

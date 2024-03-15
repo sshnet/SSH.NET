@@ -10,7 +10,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ShellStreamTest_Write_WriteBufferFullAndWriteZeroBytes
+    internal class ShellStreamTest_Write_WriteBufferFullAndWriteZeroBytes
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

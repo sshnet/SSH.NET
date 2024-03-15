@@ -4,7 +4,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
-    public class KeyExchangeDhGroupExchangeReplyBuilder
+    internal class KeyExchangeDhGroupExchangeReplyBuilder
     {
         private byte[] _hostKeyAlgorithm;
         private byte[] _hostKeys;

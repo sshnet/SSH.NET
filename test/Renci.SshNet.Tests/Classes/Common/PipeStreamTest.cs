@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PipeStreamTest : TestBase
+    internal class PipeStreamTest : TestBase
     {
         [TestMethod]
         [TestCategory("PipeStream")]

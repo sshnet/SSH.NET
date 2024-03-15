@@ -14,7 +14,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks4ConnectorTest_Connect_ConnectionRejectedByProxy : Socks4ConnectorTestBase
+    internal class Socks4ConnectorTest_Connect_ConnectionRejectedByProxy : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

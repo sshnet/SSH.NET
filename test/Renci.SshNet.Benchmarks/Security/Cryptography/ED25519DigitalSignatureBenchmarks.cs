@@ -6,7 +6,7 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Benchmarks.Security.Cryptography
 {
     [MemoryDiagnoser]
-    public class ED25519DigitalSignatureBenchmarks
+    internal class ED25519DigitalSignatureBenchmarks
     {
         private readonly ED25519Key _key;
         private readonly byte[] _data;

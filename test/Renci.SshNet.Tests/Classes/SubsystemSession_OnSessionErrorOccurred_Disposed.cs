@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SubsystemSession_OnSessionErrorOccurred_Disposed
+    internal class SubsystemSession_OnSessionErrorOccurred_Disposed
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelMock;

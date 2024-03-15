@@ -3,7 +3,7 @@
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : IntegrationTestBase
+    internal partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]

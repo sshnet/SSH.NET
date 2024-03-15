@@ -8,7 +8,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class TimeSpanExtensionsTest
+    internal class TimeSpanExtensionsTest
     {
         [TestMethod]
         public void AsTimeout_ValidTimeSpan_ReturnsExpectedMilliseconds()

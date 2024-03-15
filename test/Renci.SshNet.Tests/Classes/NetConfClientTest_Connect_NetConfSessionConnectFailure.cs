@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest_Connect_NetConfSessionConnectFailure : NetConfClientTestBase
+    internal class NetConfClientTest_Connect_NetConfSessionConnectFailure : NetConfClientTestBase
     {
         private ConnectionInfo _connectionInfo;
         private ApplicationException _netConfSessionConnectionException;

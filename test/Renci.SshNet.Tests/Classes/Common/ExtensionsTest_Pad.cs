@@ -8,7 +8,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
-    public class ExtensionsTest_Pad
+    internal class ExtensionsTest_Pad
     {
         [TestMethod]
         public void ShouldReturnNotPadded()

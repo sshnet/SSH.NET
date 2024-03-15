@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests.Common
 {
-    public static class DateTimeExtensions
+    internal static class DateTimeExtensions
     {
         public static DateTime TruncateToWholeSeconds(this DateTime dateTime)
         {

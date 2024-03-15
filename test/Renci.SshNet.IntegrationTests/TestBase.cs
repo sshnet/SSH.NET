@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.IntegrationTests
 {
-    public abstract class TestBase : IntegrationTestBase
+    internal abstract class TestBase : IntegrationTestBase
     {
         protected static MemoryStream CreateMemoryStream(int size)
         {

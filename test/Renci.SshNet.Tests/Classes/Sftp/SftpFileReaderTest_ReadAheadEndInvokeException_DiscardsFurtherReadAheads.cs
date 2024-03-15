@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     /// that chunk2 completed with an exception, the read-ahead loop is stopped.
     /// </summary>
     [TestClass]
-    public class SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads : SftpFileReaderTestBase
+    internal class SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads : SftpFileReaderTestBase
     {
         private const int ChunkLength = 32 * 1024;
 

@@ -25,7 +25,7 @@ using BigInteger = Renci.SshNet.Common.BigInteger;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class BigIntegerTest
+    internal class BigIntegerTest
     {
         private static readonly byte[] Huge_a =
         {

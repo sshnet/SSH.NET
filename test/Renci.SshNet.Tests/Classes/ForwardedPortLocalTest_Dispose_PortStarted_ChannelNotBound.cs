@@ -10,7 +10,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortLocalTest_Dispose_PortStarted_ChannelNotBound
+    internal class ForwardedPortLocalTest_Dispose_PortStarted_ChannelNotBound
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

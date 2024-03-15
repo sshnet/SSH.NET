@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public interface IConnectionInfoFactory
+    internal interface IConnectionInfoFactory
     {
         ConnectionInfo Create();
         ConnectionInfo Create(params AuthenticationMethod[] authenticationMethods);

@@ -11,7 +11,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected_Disconnect : SessionTest_ConnectedBase
+    internal class SessionTest_Connected_Disconnect : SessionTest_ConnectedBase
     {
         protected override void Act()
         {

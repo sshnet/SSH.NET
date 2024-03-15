@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshCommand_EndExecute : TestBase
+    internal class SshCommand_EndExecute : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;

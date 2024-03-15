@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public static class ArgumentExceptionAssert
+    internal static class ArgumentExceptionAssert
     {
         public static void MessageEquals(string expected, ArgumentException exception)
         {

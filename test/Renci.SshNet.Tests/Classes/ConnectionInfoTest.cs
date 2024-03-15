@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Represents remote connection information class.
     /// </summary>
     [TestClass]
-    public class ConnectionInfoTest : TestBase
+    internal class ConnectionInfoTest : TestBase
     {
         [TestMethod]
         [TestCategory("ConnectionInfo")]

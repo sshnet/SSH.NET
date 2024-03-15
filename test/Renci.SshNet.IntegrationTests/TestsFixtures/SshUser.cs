@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
-    public class SshUser
+    internal class SshUser
     {
         public string UserName { get; }
 

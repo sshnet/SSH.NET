@@ -6,7 +6,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotSupported : ClientAuthenticationTestBase
+    internal class ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotSupported : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;

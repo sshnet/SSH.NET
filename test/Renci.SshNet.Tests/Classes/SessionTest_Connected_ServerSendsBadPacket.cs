@@ -11,7 +11,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected_ServerSendsBadPacket : SessionTest_ConnectedBase
+    internal class SessionTest_Connected_ServerSendsBadPacket : SessionTest_ConnectedBase
     {
         private byte[] _packet;
 

@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class AsyncSocketListener : IDisposable
+    internal class AsyncSocketListener : IDisposable
     {
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
@@ -17,8 +17,8 @@ namespace Renci.SshNet.Tests.Common
         private bool _started;
         private string _stackTrace;
 
-        public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
-        public delegate void ConnectedHandler(Socket socket);
+        internal delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
+        internal delegate void ConnectedHandler(Socket socket);
 
         public event BytesReceivedHandler BytesReceived;
         public event ConnectedHandler Connected;

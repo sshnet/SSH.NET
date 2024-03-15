@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortDynamicTest_Start_SessionNull
+    internal class ForwardedPortDynamicTest_Start_SessionNull
     {
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;

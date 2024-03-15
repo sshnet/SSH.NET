@@ -12,7 +12,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks5Connector_Connect_NoAuthentication_Succeed : Socks5ConnectorTestBase
+    internal class Socks5Connector_Connect_NoAuthentication_Succeed : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

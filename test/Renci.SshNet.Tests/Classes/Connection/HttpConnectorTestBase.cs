@@ -4,7 +4,7 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
-    public abstract class HttpConnectorTestBase : TripleATestBase
+    internal abstract class HttpConnectorTestBase : TripleATestBase
     {
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
         internal HttpConnector Connector { get; private set; }

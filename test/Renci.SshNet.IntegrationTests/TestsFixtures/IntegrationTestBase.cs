@@ -7,7 +7,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
     /// <summary>
     /// The base class for integration tests
     /// </summary>
-    public abstract class IntegrationTestBase
+    internal abstract class IntegrationTestBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
 

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Test for https://github.com/sshnet/SSH.NET/issues/8.
     /// </summary>
     [TestClass]
-    public class SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace : SessionTest_ConnectedBase
+    internal class SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace : SessionTest_ConnectedBase
     {
         private GlobalRequestMessage _globalRequestMessage;
 

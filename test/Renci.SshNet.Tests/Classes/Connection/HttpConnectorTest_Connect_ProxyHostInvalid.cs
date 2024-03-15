@@ -4,7 +4,7 @@ using System.Net.Sockets;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class HttpConnectorTest_Connect_ProxyHostInvalid : HttpConnectorTestBase
+    internal class HttpConnectorTest_Connect_ProxyHostInvalid : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private SocketException _actualException;

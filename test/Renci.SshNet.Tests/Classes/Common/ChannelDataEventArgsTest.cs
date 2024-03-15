@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     /// Provides data for <see cref="Renci.SshNet.Channels.Channel.DataReceived"/> event and <see cref="Renci.SshNet.Channels.Channel.ExtendedDataReceived"/> events.
     /// </summary>
     [TestClass]
-    public class ChannelDataEventArgsTest : TestBase
+    internal class ChannelDataEventArgsTest : TestBase
     {
     }
 }

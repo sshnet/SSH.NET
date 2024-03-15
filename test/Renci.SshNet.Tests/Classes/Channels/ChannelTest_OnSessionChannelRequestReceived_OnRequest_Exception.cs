@@ -9,7 +9,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_OnSessionChannelRequestReceived_OnRequest_Exception : ChannelTestBase
+    internal class ChannelTest_OnSessionChannelRequestReceived_OnRequest_Exception : ChannelTestBase
     {
         private uint _localWindowSize;
         private uint _localPacketSize;

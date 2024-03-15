@@ -4,7 +4,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshClientTest_Dispose_Disposed : BaseClientTestBase
+    internal class SshClientTest_Dispose_Disposed : BaseClientTestBase
     {
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;

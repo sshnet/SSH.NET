@@ -13,7 +13,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class ProtocolVersionExchangeTest_ServerResponseContainsNullCharacter
+    internal class ProtocolVersionExchangeTest_ServerResponseContainsNullCharacter
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;

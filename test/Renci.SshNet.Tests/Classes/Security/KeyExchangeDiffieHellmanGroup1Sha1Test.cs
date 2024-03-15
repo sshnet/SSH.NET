@@ -6,7 +6,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Security
 {
     [TestClass]
-    public class KeyExchangeDiffieHellmanGroup1Sha1Test : TestBase
+    internal class KeyExchangeDiffieHellmanGroup1Sha1Test : TestBase
     {
         private static readonly byte[] SecondOkleyGroup =
             {

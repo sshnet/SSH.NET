@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_SetLength_Disposed
+    internal class SftpFileStreamTest_SetLength_Disposed
     {
         private Mock<ISftpSession> _sftpSessionMock;
         private string _path;

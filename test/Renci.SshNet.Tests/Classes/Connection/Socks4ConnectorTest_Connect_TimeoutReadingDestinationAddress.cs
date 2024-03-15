@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks4ConnectorTest_Connect_TimeoutReadingDestinationAddress : Socks4ConnectorTestBase
+    internal class Socks4ConnectorTest_Connect_TimeoutReadingDestinationAddress : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private SshOperationTimeoutException _actualException;

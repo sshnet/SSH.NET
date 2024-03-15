@@ -8,7 +8,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Represents SSH command that can be executed.
     /// </summary>
     [TestClass]
-    public class SshCommandTest : IntegrationTestBase
+    internal class SshCommandTest : IntegrationTestBase
     {
         [TestMethod]
         public void Test_Run_SingleCommand()

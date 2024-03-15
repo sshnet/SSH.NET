@@ -3,7 +3,7 @@ using Renci.SshNet.NetConf;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    public abstract class NetConfClientTestBase : BaseClientTestBase
+    internal abstract class NetConfClientTestBase : BaseClientTestBase
     {
         internal Mock<INetConfSession> NetConfSessionMock { get; private set; }
 

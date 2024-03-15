@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortDynamicTest_Started_SocketSendShutdownImmediately
+    internal class ForwardedPortDynamicTest_Started_SocketSendShutdownImmediately
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelDirectTcpip> _channelMock;

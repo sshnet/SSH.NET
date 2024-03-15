@@ -4,7 +4,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SSH client integration tests
     /// </summary>
     [TestClass]
-    public class SshClientTests : IntegrationTestBase, IDisposable
+    internal class SshClientTests : IntegrationTestBase, IDisposable
     {
         private readonly SshClient _sshClient;
 

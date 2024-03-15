@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Finalize_SessionOpen : SftpFileStreamTestBase
+    internal class SftpFileStreamTest_Finalize_SessionOpen : SftpFileStreamTestBase
     {
         private WeakReference<SftpFileStream> _target;
         private string _path;

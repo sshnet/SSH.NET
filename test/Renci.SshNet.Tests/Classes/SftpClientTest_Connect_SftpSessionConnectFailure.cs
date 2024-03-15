@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SftpClientTest_Connect_SftpSessionConnectFailure : SftpClientTestBase
+    internal class SftpClientTest_Connect_SftpSessionConnectFailure : SftpClientTestBase
     {
         private ConnectionInfo _connectionInfo;
         private ApplicationException _sftpSessionConnectionException;

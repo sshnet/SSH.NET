@@ -9,7 +9,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob]
-    public class SftpClientBenchmark : IntegrationBenchmarkBase
+    internal class SftpClientBenchmark : IntegrationBenchmarkBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
         private readonly string _file = $"/tmp/{Guid.NewGuid()}.txt";

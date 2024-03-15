@@ -5,7 +5,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
+    internal class ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;

@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class Socks5ConnectorTest_Connect_ProxySocksVersionIsNotSupported : Socks5ConnectorTestBase
+    internal class Socks5ConnectorTest_Connect_ProxySocksVersionIsNotSupported : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

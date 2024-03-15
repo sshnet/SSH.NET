@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     /// Implements DES cipher algorithm.
     /// </summary>
     [TestClass]
-    public class DesCipherTest : TestBase
+    internal class DesCipherTest : TestBase
     {
         [TestMethod]
         public void Cbc_Encrypt()

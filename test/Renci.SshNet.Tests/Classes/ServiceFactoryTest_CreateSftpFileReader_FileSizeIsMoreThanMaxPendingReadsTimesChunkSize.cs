@@ -8,7 +8,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanMaxPendingReadsTimesChunkSize
+    internal class ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanMaxPendingReadsTimesChunkSize
     {
         private ServiceFactory _serviceFactory;
         private Mock<ISftpSession> _sftpSessionMock;

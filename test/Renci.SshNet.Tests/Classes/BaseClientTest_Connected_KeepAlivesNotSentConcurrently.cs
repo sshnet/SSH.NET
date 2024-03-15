@@ -7,7 +7,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Connected_KeepAlivesNotSentConcurrently : BaseClientTestBase
+    internal class BaseClientTest_Connected_KeepAlivesNotSentConcurrently : BaseClientTestBase
     {
         private MockSequence _mockSequence;
         private BaseClient _client;

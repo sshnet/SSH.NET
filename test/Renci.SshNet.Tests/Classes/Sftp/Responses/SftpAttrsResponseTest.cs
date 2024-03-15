@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 {
     [TestClass]
-    public class SftpAttrsResponseTest
+    internal class SftpAttrsResponseTest
     {
         private Random _random;
         private uint _protocolVersion;

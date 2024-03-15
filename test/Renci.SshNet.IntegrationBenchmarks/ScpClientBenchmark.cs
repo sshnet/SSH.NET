@@ -7,7 +7,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob]
-    public class ScpClientBenchmark : IntegrationBenchmarkBase
+    internal class ScpClientBenchmark : IntegrationBenchmarkBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
 

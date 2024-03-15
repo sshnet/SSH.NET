@@ -11,7 +11,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Close_Closed
+    internal class SftpFileStreamTest_Close_Closed
     {
         private Mock<ISftpSession> _sftpSessionMock;
         private string _path;

@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class ProtocolVersionExchangeTest_TimeoutReadingIdentificationString
+    internal class ProtocolVersionExchangeTest_TimeoutReadingIdentificationString
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;

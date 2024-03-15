@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     /// to contain all ChannelDataMessageTest Unit Tests
     /// </summary>
     [TestClass]
-    public class ChannelDataMessageTest : TestBase
+    internal class ChannelDataMessageTest : TestBase
     {
         [TestMethod]
         public void DefaultConstructor()

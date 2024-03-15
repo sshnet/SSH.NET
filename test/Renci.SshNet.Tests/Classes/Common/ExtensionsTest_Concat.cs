@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
-    public class ExtensionsTest_Concat
+    internal class ExtensionsTest_Concat
     {
         private Random _random;
 

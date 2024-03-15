@@ -11,7 +11,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 {
     [TestClass]
-    public class FStatVfsRequestTest
+    internal class FStatVfsRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

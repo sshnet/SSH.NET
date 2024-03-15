@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PosixPathTest_GetFileName
+    internal class PosixPathTest_GetFileName
     {
         [TestMethod]
         public void Path_Null()

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class AuthenticationMethodFactory
+    internal class AuthenticationMethodFactory
     {
         public PasswordAuthenticationMethod CreatePowerUserPasswordAuthenticationMethod()
         {

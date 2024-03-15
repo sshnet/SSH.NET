@@ -7,7 +7,7 @@ using System;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest_Dispose_Disconnected : NetConfClientTestBase
+    internal class NetConfClientTest_Dispose_Disconnected : NetConfClientTestBase
     {
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;

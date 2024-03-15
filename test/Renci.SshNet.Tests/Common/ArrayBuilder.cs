@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class ArrayBuilder<T>
+    internal class ArrayBuilder<T>
     {
         private readonly List<T> _buffer;
 

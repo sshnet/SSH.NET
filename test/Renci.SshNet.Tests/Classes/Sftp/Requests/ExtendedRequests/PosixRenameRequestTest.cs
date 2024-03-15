@@ -12,7 +12,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 {
     [TestClass]
-    public class PosixRenameRequestTest
+    internal class PosixRenameRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

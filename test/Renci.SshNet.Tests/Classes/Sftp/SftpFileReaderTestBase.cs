@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    public abstract class SftpFileReaderTestBase
+    internal abstract class SftpFileReaderTestBase
     {
         internal Mock<ISftpSession> SftpSessionMock {  get; private set;}
 

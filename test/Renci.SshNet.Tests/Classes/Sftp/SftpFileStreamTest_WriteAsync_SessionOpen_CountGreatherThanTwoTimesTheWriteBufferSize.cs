@@ -14,7 +14,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_WriteAsync_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize : SftpFileStreamAsyncTestBase
+    internal class SftpFileStreamTest_WriteAsync_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize : SftpFileStreamAsyncTestBase
     {
         private SftpFileStream _target;
         private string _path;

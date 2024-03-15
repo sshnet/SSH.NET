@@ -6,7 +6,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Security
 {
     [TestClass]
-    public class KeyExchangeDiffieHellmanGroup16Sha512Test : TestBase
+    internal class KeyExchangeDiffieHellmanGroup16Sha512Test : TestBase
     {
         private static readonly byte[] MoreModularExponentialGroup16 =
             {

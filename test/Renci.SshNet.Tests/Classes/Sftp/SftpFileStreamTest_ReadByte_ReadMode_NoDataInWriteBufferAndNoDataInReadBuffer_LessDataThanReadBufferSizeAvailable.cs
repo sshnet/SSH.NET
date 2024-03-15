@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     /// Test for issue #173.
     /// </summary>
     [TestClass]
-    public class SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable : SftpFileStreamTestBase
+    internal class SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

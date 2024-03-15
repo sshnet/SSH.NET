@@ -11,7 +11,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable : ChannelSessionTestBase
+    internal class ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable : ChannelSessionTestBase
     {
         private ChannelSession _channel;
         private uint _localChannelNumber;

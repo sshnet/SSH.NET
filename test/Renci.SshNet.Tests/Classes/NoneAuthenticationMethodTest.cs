@@ -9,7 +9,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality for "none" authentication method
     /// </summary>
     [TestClass]
-    public class NoneAuthenticationMethodTest : TestBase
+    internal class NoneAuthenticationMethodTest : TestBase
     {
         [TestMethod]
         [TestCategory("AuthenticationMethod")]

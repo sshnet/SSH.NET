@@ -8,7 +8,7 @@ using Renci.SshNet.IntegrationTests.Common;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class SshTests : TestBase
+    internal class SshTests : TestBase
     {
         private IConnectionInfoFactory _connectionInfoFactory;
         private IConnectionInfoFactory _adminConnectionInfoFactory;

@@ -3,7 +3,7 @@ using Moq;
 
 namespace Renci.SshNet.Tests.Classes.Channels
 {
-    public abstract class ChannelSessionTestBase
+    internal abstract class ChannelSessionTestBase
     {
         internal Mock<ISession> SessionMock { get; private set; }
         internal Mock<IConnectionInfo> ConnectionInfoMock { get; private set; }

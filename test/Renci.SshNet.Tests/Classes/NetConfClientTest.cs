@@ -5,7 +5,7 @@ using System;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest : TestBase
+    internal class NetConfClientTest : TestBase
     {
         private Random _random;
 

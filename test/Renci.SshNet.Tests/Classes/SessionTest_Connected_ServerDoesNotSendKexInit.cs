@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected_ServerDoesNotSendKexInit : SessionTest_ConnectedBase
+    internal class SessionTest_Connected_ServerDoesNotSendKexInit : SessionTest_ConnectedBase
     {
         protected override void SetupData()
         {

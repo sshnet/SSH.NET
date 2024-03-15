@@ -12,7 +12,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SubsystemSession_Dispose_Disconnected
+    internal class SubsystemSession_Dispose_Disconnected
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelMock;

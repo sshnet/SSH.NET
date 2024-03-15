@@ -7,7 +7,7 @@ namespace Renci.SshNet.IntegrationTests
     // TODO SCP: UPLOAD DIRECTORY THAT ALREADY EXISTS ON REMOTE HOST
 
     [TestClass]
-    public class ScpTests : TestBase
+    internal class ScpTests : TestBase
     {
         private IConnectionInfoFactory _connectionInfoFactory;
         private IRemotePathTransformation _remotePathTransformation;

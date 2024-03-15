@@ -7,7 +7,7 @@ namespace Renci.SshNet.IntegrationBenchmarks
 {
     [MemoryDiagnoser]
     [SimpleJob]
-    public class SshClientBenchmark : IntegrationBenchmarkBase
+    internal class SshClientBenchmark : IntegrationBenchmarkBase
     {
         private static readonly Dictionary<TerminalModes, uint> ShellStreamTerminalModes = new Dictionary<TerminalModes, uint>
         {

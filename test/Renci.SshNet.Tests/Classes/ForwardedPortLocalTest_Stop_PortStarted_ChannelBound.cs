@@ -11,7 +11,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortLocalTest_Stop_PortStarted_ChannelBound
+    internal class ForwardedPortLocalTest_Stop_PortStarted_ChannelBound
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

@@ -5,7 +5,7 @@ using System;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class SshIdentificationTest
+    internal class SshIdentificationTest
     {
         [TestMethod]
         public void Ctor_ProtocolVersionAndSoftwareVersion()

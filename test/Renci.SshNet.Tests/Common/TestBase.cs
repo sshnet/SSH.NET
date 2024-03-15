@@ -6,7 +6,7 @@ using System.Reflection;
 namespace Renci.SshNet.Tests.Common
 {
     [TestClass]
-    public abstract class TestBase
+    internal abstract class TestBase
     {
         private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();
 

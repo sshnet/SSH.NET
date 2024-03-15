@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite : SftpFileStreamTestBase
+    internal class SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;

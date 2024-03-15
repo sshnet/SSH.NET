@@ -4,7 +4,7 @@ using Renci.SshNet.IntegrationTests.Common;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    public class AuthenticationTests : IntegrationTestBase
+    internal class AuthenticationTests : IntegrationTestBase
     {
         private AuthenticationMethodFactory _authenticationMethodFactory;
         private IConnectionInfoFactory _connectionInfoFactory;

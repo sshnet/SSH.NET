@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     /// Implements ARCH4 cipher algorithm
     /// </summary>
     [TestClass]
-    public class Arc4CipherTest : TestBase
+    internal class Arc4CipherTest : TestBase
     {
         [TestMethod]
         public void Decrypt_DischargeFirstBytes_False1()

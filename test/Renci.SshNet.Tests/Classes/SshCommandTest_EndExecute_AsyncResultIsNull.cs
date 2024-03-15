@@ -8,7 +8,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshCommandTest_EndExecute_AsyncResultIsNull : TestBase
+    internal class SshCommandTest_EndExecute_AsyncResultIsNull : TestBase
     {
         private Mock<ISession> _sessionMock;
         private string _commandText;

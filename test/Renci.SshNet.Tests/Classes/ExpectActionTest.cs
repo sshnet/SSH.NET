@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ExpectActionTest : TestBase
+    internal class ExpectActionTest : TestBase
     {
         [TestMethod()]
         public void Constructor_StringAndAction()

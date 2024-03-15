@@ -4,7 +4,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PackTest
+    internal class PackTest
     {
         [TestMethod]
         public void BigEndianToUInt16()

@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     /// Base class forTest : TestBaseall channel related events.
     /// </summary>
     [TestClass]
-    public class ChannelEventArgsTest : TestBase
+    internal class ChannelEventArgsTest : TestBase
     {
     }
 }

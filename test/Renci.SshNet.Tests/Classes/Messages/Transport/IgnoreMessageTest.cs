@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
     [TestClass]
-    public class IgnoreMessageTest
+    internal class IgnoreMessageTest
     {
         private Random _random;
         private byte[] _data;

@@ -3,7 +3,7 @@ using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    public abstract class SftpClientTestBase : BaseClientTestBase
+    internal abstract class SftpClientTestBase : BaseClientTestBase
     {
         internal Mock<ISftpResponseFactory> SftpResponseFactoryMock { get; private set; }
         internal Mock<ISftpSession> SftpSessionMock { get; private set; }

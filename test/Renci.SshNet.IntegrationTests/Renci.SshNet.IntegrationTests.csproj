@@ -41,6 +41,10 @@
     <ProjectReference Include="..\Renci.SshNet.TestTools.OpenSSH\Renci.SshNet.TestTools.OpenSSH.csproj" />
     <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="Renci.SshNet.IntegrationBenchmarks" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="..\Data\*" LinkBase="Data" />

@@ -5,7 +5,7 @@ using System.Threading;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class CountdownEventTest_Dispose_Set
+    internal class CountdownEventTest_Dispose_Set
     {
         private CountdownEvent _countdownEvent;
 

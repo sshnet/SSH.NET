@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
-    public class ExtensionsTest_IsEqualTo_ByteArray
+    internal class ExtensionsTest_IsEqualTo_ByteArray
     {
         private Random _random;
 

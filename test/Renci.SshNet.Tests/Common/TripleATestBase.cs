@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Tests.Common
 {
-    public abstract class TripleATestBase
+    internal abstract class TripleATestBase
     {
         [TestInitialize]
         public void Init()

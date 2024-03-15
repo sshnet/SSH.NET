@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     /// old private key information/
     /// </summary>
     [TestClass]
-    public class PrivateKeyFileTest : TestBase
+    internal class PrivateKeyFileTest : TestBase
     {
         private string _temporaryFile;
 
@@ -207,7 +207,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshException));
+                    Assert.IsInstanceOfType<SshException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Invalid passphrase.", ex.Message);
                 }
@@ -228,7 +228,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshPassPhraseNullOrEmptyException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsInstanceOfType<SshPassPhraseNullOrEmptyException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
                 }
@@ -249,7 +249,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshPassPhraseNullOrEmptyException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsInstanceOfType<SshPassPhraseNullOrEmptyException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
                 }

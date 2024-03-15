@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
     /// Implements RSA digital signature algorithm.
     /// </summary>
     [TestClass]
-    public class RsaDigitalSignatureTest : TestBase
+    internal class RsaDigitalSignatureTest : TestBase
     {
         [TestMethod]
         public void Sha1_SignAndVerify()

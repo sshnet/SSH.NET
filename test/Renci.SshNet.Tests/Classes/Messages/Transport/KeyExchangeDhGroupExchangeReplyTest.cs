@@ -9,7 +9,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     /// Represents SSH_MSG_KEX_DH_GEX_REPLY message.
     /// </summary>
     [TestClass]
-    public class KeyExchangeDhGroupExchangeReplyTest : TestBase
+    internal class KeyExchangeDhGroupExchangeReplyTest : TestBase
     {
         [TestMethod]
         [TestCategory("KeyExchangeInitMessage")]

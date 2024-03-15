@@ -6,7 +6,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Ctor_FileModeInvalid : SftpFileStreamTestBase
+    internal class SftpFileStreamTest_Ctor_FileModeInvalid : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;

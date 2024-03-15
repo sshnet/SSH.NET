@@ -4,381 +4,397 @@
 
 # S108: Nested blocks of code should not be left empty
 # https://rules.sonarsource.com/csharp/RSPEC-108/
-dotnet_diagnostic.S108.severity = suggestion
+dotnet_diagnostic.S108.severity = silent
 
 # S125: Sections of code should not be commented out
 # https://rules.sonarsource.com/csharp/RSPEC-125/
-dotnet_diagnostic.S125.severity = none
+dotnet_diagnostic.S125.severity = silent
 
 # S1144: Unused private types or members should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1144/
-dotnet_diagnostic.S1144.severity = none
+dotnet_diagnostic.S1144.severity = silent
 
 # S1186: Methods should not be empty
 # https://rules.sonarsource.com/csharp/RSPEC-1186/
-dotnet_diagnostic.S1186.severity = none
+dotnet_diagnostic.S1186.severity = silent
 
 # S1607: Tests should not be ignored
 # https://rules.sonarsource.com/csharp/RSPEC-1607/
-dotnet_diagnostic.S1607.severity = none
+dotnet_diagnostic.S1607.severity = silent
 
 # S2094: Classes should not be empty
 # https://rules.sonarsource.com/csharp/RSPEC-2094/
-dotnet_diagnostic.S2094.severity = none
+dotnet_diagnostic.S2094.severity = silent
 
 # S2187: Test classes should contain at least one test case
 # https://rules.sonarsource.com/csharp/RSPEC-2187/
-dotnet_diagnostic.S2187.severity = none
+dotnet_diagnostic.S2187.severity = silent
 
 # S2292: Trivial properties should be auto-implemented
 # https://rules.sonarsource.com/csharp/RSPEC-2292/
-dotnet_diagnostic.S2292.severity = none
+dotnet_diagnostic.S2292.severity = silent
 
 # S2925: "Thread.Sleep" should not be used in tests
 # https://rules.sonarsource.com/csharp/RSPEC-2925/
-dotnet_diagnostic.S2925.severity = none
+dotnet_diagnostic.S2925.severity = silent
 
 # S3415: Assertion arguments should be passed in the correct order
 # https://rules.sonarsource.com/csharp/RSPEC-3415/
-dotnet_diagnostic.S3415.severity = none
+dotnet_diagnostic.S3415.severity = silent
 
 # S3881: "IDisposable" should be implemented correctly
 # https://rules.sonarsource.com/csharp/RSPEC-3881/
-dotnet_diagnostic.S3881.severity = none
+dotnet_diagnostic.S3881.severity = silent
 
 # S4144: Methods should not have identical implementations
 # https://rules.sonarsource.com/csharp/RSPEC-4144/
-dotnet_diagnostic.S4144.severity = none
+dotnet_diagnostic.S4144.severity = silent
 
 # S4158: Empty collections should not be accessed or iterated
 # https://rules.sonarsource.com/csharp/RSPEC-4158/
-dotnet_diagnostic.S4158.severity = none
+dotnet_diagnostic.S4158.severity = silent
 
 #### SYSLIB diagnostics ####
 
 # SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
 #
 # TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
-dotnet_diagnostic.SYSLIB1045.severity = none
+dotnet_diagnostic.SYSLIB1045.severity = silent
 
 ### StyleCop Analyzers rules ###
 
 # SA1000: Keywords must be spaced correctly
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1000.md
-dotnet_diagnostic.SA1000.severity = suggestion
+dotnet_diagnostic.SA1000.severity = silent
 
 # SA1001: Commas must be spaced correctly
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1001.md
-dotnet_diagnostic.SA1001.severity = suggestion
+dotnet_diagnostic.SA1001.severity = silent
 
 # SA1002: Semicolons must be spaced correctly
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1002.md
-dotnet_diagnostic.SA1002.severity = suggestion
+dotnet_diagnostic.SA1002.severity = silent
 
 # SA1004: Documentation lines must begin with single space
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1004.md
-dotnet_diagnostic.SA1004.severity = suggestion
+dotnet_diagnostic.SA1004.severity = silent
 
 # SA1005: Single line comments must begin with single space
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1005.md
-dotnet_diagnostic.SA1005.severity = suggestion
+dotnet_diagnostic.SA1005.severity = silent
 
 # SA1012: Opening braces must be spaced correctly
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1012.md
-dotnet_diagnostic.SA1012.severity = suggestion
+dotnet_diagnostic.SA1012.severity = silent
 
 # SA1013: Closing braces must be spaced correctly
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1013.md
-dotnet_diagnostic.SA1013.severity = suggestion
+dotnet_diagnostic.SA1013.severity = silent
 
 # SA1025: Code must not contain multiple whitespace in a row
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1025.md
-dotnet_diagnostic.SA1025.severity = suggestion
+dotnet_diagnostic.SA1025.severity = silent
 
 # SA1026: Code must not contain space after new keyword in implicitly typed array allocation
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1026.md
-dotnet_diagnostic.SA1026.severity = suggestion
+dotnet_diagnostic.SA1026.severity = silent
 
 # SA1028: Code must not contain trailing whitespace
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1028.md
-dotnet_diagnostic.SA1028.severity = suggestion
+dotnet_diagnostic.SA1028.severity = silent
 
 # SA1111: Closing parenthesis must be on line of last parameter
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1111.md
-dotnet_diagnostic.SA1111.severity = suggestion
+dotnet_diagnostic.SA1111.severity = silent
 
 # SA1117: Parameters must be on same line or separate lines
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1028.md
-dotnet_diagnostic.SA1117.severity = suggestion
+dotnet_diagnostic.SA1117.severity = silent
 
 # SA1119: Statement must not use unnecessary parenthesis
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1119.md
-dotnet_diagnostic.SA1119.severity = suggestion
+dotnet_diagnostic.SA1119.severity = silent
 
 # SA1120: Comments must contain text
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1120.md
-dotnet_diagnostic.SA1120.severity = suggestion
+dotnet_diagnostic.SA1120.severity = silent
 
 # SA1122: Use String.Empty for empty strings
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1122.md
-dotnet_diagnostic.SA1122.severity = suggestion
+dotnet_diagnostic.SA1122.severity = silent
 
 # SA1123:Do not place regions within elements
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1123.md
-dotnet_diagnostic.SA1123.severity = suggestion
+dotnet_diagnostic.SA1123.severity = silent
 
 # SA1124: Do not use regions
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1124.md
-dotnet_diagnostic.SA1124.severity = suggestion
+dotnet_diagnostic.SA1124.severity = silent
 
 # SA1128: Constructor initializer must be on own line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1128.md
-dotnet_diagnostic.SA1128.severity = suggestion
+dotnet_diagnostic.SA1128.severity = silent
 
 # SA1129: Do not use default value type constructor
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1129.md
-dotnet_diagnostic.SA1129.severity = suggestion
+dotnet_diagnostic.SA1129.severity = silent
 
 # SA1133: Do not combine attributes
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1133.md
-dotnet_diagnostic.SA1133.severity = suggestion
+dotnet_diagnostic.SA1133.severity = silent
 
 # SA1137: Elements should have the same indentation
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1137.md
-dotnet_diagnostic.SA1137.severity = suggestion
+dotnet_diagnostic.SA1137.severity = silent
 
 # SA1139: Use literals suffix notation instead of casting
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1139.md
-dotnet_diagnostic.SA1139.severity = suggestion
+dotnet_diagnostic.SA1139.severity = silent
 
 # SA1204: Static elements must appear before instance elements
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1204.md
-dotnet_diagnostic.SA1204.severity = suggestion
+dotnet_diagnostic.SA1204.severity = silent
 
 # SA1208: System using directives must be placed before other using directives
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1208.md
-dotnet_diagnostic.SA1208.severity = suggestion
+dotnet_diagnostic.SA1208.severity = silent
 
 # SA1210: Using directives must be ordered alphabetically by namespace
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1210.md
-dotnet_diagnostic.SA1210.severity = suggestion
+dotnet_diagnostic.SA1210.severity = silent
 
 # SA1214: Readonly elements must appear before non-readonly elements
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1214.md
-dotnet_diagnostic.SA1214.severity = suggestion
+dotnet_diagnostic.SA1214.severity = silent
 
 # SA1306: Field names must begin with lower case letter
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1306.md
-dotnet_diagnostic.SA1306.severity = suggestion
+dotnet_diagnostic.SA1306.severity = silent
 
 # SA1310: Field names must not contain underscore
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1310.md
-dotnet_diagnostic.SA1310.severity = suggestion
+dotnet_diagnostic.SA1310.severity = silent
 
 # SA1400: Access modifier must be declared
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1400.md
-dotnet_diagnostic.SA1400.severity = suggestion
+dotnet_diagnostic.SA1400.severity = silent
 
 # SA1401: Fields must be private
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1401.md
-dotnet_diagnostic.SA1401.severity = suggestion
+dotnet_diagnostic.SA1401.severity = silent
 
 # SA1402: File may only contain a single type
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1402.md
-dotnet_diagnostic.SA1402.severity = suggestion
+dotnet_diagnostic.SA1402.severity = silent
 
 # SA1404: Code analysis suppression must have justification
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1404.md
-dotnet_diagnostic.SA1404.severity = suggestion
+dotnet_diagnostic.SA1404.severity = silent
 
 # SA1411: Attribute constructor must not use unnecessary parenthesis
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1411.md
-dotnet_diagnostic.SA1411.severity = suggestion
+dotnet_diagnostic.SA1411.severity = silent
 
 # SA1500: Braces for multiline statements must not share line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1500.md
-dotnet_diagnostic.SA1500.severity = suggestion
+dotnet_diagnostic.SA1500.severity = silent
 
 # SA1501: Statement must not be on single line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1501.md
-dotnet_diagnostic.SA1501.severity = suggestion
+dotnet_diagnostic.SA1501.severity = silent
 
 # SA1505: Opening braces must not be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1505.md
-dotnet_diagnostic.SA1505.severity = suggestion
+dotnet_diagnostic.SA1505.severity = silent
 
 # SA1507: Code must not contain multiple blank lines in a row
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1507.md
-dotnet_diagnostic.SA1507.severity = suggestion
+dotnet_diagnostic.SA1507.severity = silent
 
 # SA1508: Closing braces must not be preceded by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1508.md
-dotnet_diagnostic.SA1508.severity = suggestion
+dotnet_diagnostic.SA1508.severity = silent
 
 # SA1512: Single line comments must not be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1512.md
-dotnet_diagnostic.SA1512.severity = suggestion
+dotnet_diagnostic.SA1512.severity = silent
 
 # SA1513: Closing brace must be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1513.md
-dotnet_diagnostic.SA1513.severity = suggestion
+dotnet_diagnostic.SA1513.severity = silent
 
 # SA1515: Single line comment must be preceded by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1515.md
-dotnet_diagnostic.SA1515.severity = suggestion
+dotnet_diagnostic.SA1515.severity = silent
 
 # SA1518: Use line endings correctly at end of file
 https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1518.md
-dotnet_diagnostic.SA1518.severity = suggestion
+dotnet_diagnostic.SA1518.severity = silent
 
 # SA1636: File header copyright text must match
 https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1636.md
-dotnet_diagnostic.SA1636.severity = suggestion
+dotnet_diagnostic.SA1636.severity = silent
 
 # SA1642: Constructor summary documentation must begin with standard text
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1642.md
-dotnet_diagnostic.SA1642.severity = suggestion
+dotnet_diagnostic.SA1642.severity = silent
 
 # SA1649: File name must match type name
 https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1649.md
-dotnet_diagnostic.SA1649.severity = suggestion
+dotnet_diagnostic.SA1649.severity = silent
 
 #### Meziantou.Analyzer rules ####
 
 # MA0001: StringComparison is missing
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
-dotnet_diagnostic.MA0001.severity = suggestion
+dotnet_diagnostic.MA0001.severity = silent
 
 # MA0003: Add parameter name to improve readability
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0003.md
-dotnet_diagnostic.MA0003.severity = suggestion
+dotnet_diagnostic.MA0003.severity = silent
 
 # MA0004: Use Task.ConfigureAwait(false)
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0004.md
-dotnet_diagnostic.MA0004.severity = suggestion
+dotnet_diagnostic.MA0004.severity = silent
 
 # MA0005: Use Array.Empty<T>()
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0005.md
-dotnet_diagnostic.MA0005.severity = suggestion
+dotnet_diagnostic.MA0005.severity = silent
 
 # MA0011: IFormatProvider is missing
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
-dotnet_diagnostic.MA0011.severity = suggestion
+dotnet_diagnostic.MA0011.severity = silent
 
 # MA0015: Specify the parameter name in ArgumentException
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0015.md
-dotnet_diagnostic.MA0015.severity = suggestion
+dotnet_diagnostic.MA0015.severity = silent
 
 # MA0019: Use EventArgs.Empty
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0019.md
-dotnet_diagnostic.MA0019.severity = suggestion
+dotnet_diagnostic.MA0019.severity = silent
 
 # MA0035: Do not use dangerous threading methods
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0035.md
-dotnet_diagnostic.MA0035.severity = suggestion
+dotnet_diagnostic.MA0035.severity = silent
 
 # MA0040: Forward the CancellationToken parameter to methods that take one
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0040.md
-dotnet_diagnostic.MA0040.severity = suggestion
+dotnet_diagnostic.MA0040.severity = silent
 
 # MA0046: Use EventHandler<T> to declare events
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0046.md
-dotnet_diagnostic.MA0046.severity = suggestion
+dotnet_diagnostic.MA0046.severity = silent
 
 # MA0053: Make class sealed
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
-dotnet_diagnostic.MA0053.severity = suggestion
+dotnet_diagnostic.MA0053.severity = silent
 
 # MA0060: The value returned by Stream.Read/Stream.ReadAsync is not used
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0060.md
-dotnet_diagnostic.MA0060.severity = suggestion
+dotnet_diagnostic.MA0060.severity = silent
 
 # MA0075: Do not use implicit culture-sensitive ToString
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0075.md
-dotnet_diagnostic.MA0075.severity = suggestion
+dotnet_diagnostic.MA0075.severity = silent
 
 # MA0099 - Use Explicit enum value instead of 0
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0099.md
-dotnet_diagnostic.MA0099.severity = suggestion
+dotnet_diagnostic.MA0099.severity = silent
 
 # MA0110: Use the Regex source generator
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
-dotnet_diagnostic.MA0110.severity = suggestion
+dotnet_diagnostic.MA0110.severity = silent
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = silent
 
 #### .NET Compiler Platform analysers rules ####
 
 # CA1031: Do not catch general exception types
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
-dotnet_diagnostic.CA1031.severity = suggestion
+dotnet_diagnostic.CA1031.severity = silent
 
 # CA1062: Validate arguments of public methods
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1062
-dotnet_diagnostic.CA1062.severity = suggestion
+dotnet_diagnostic.CA1062.severity = silent
 
 # CA1063: Implement IDisposable correctly
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1063
-dotnet_diagnostic.CA1063.severity = suggestion
+dotnet_diagnostic.CA1063.severity = silent
 
 # CA1307: Specify StringComparison for clarity
 https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1307
-dotnet_diagnostic.CA1307.severity = suggestion
+dotnet_diagnostic.CA1307.severity = silent
 
 # CA1806: Do not ignore method results
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1806
-dotnet_diagnostic.CA1806.severity = suggestion
+dotnet_diagnostic.CA1806.severity = silent
 
 # CA1812: Avoid uninstantiated internal classes
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812
-dotnet_diagnostic.CA1812.severity = suggestion
+dotnet_diagnostic.CA1812.severity = silent
 
 # CA1822: Mark members as static
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1822
-dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1822.severity = silent
 
 # CA1825: Avoid zero-length array allocations
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
-dotnet_diagnostic.CA1825.severity = suggestion
+dotnet_diagnostic.CA1825.severity = silent
 
 # CA1859: Use concrete types when possible for improved performance
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1859
-dotnet_diagnostic.CA1859.severity = suggestion
+dotnet_diagnostic.CA1859.severity = silent
 
 # CA2000: Dispose objects before losing scope
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
-dotnet_diagnostic.CA2000.severity = suggestion
+dotnet_diagnostic.CA2000.severity = silent
 
 # CA2007: Do not directly await a Task
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007
-dotnet_diagnostic.CA2007.severity = suggestion
+dotnet_diagnostic.CA2007.severity = silent
 
 # CA2201: Do not raise reserved exception types
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2201
-dotnet_diagnostic.CA2201.severity = suggestion
+dotnet_diagnostic.CA2201.severity = silent
 
 # CA2213: Disposable fields should be disposed
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213
-dotnet_diagnostic.CA2213.severity = suggestion
+dotnet_diagnostic.CA2213.severity = silent
 
 # CA2227: Collection properties should be read only
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2227
-dotnet_diagnostic.CA2227.severity = suggestion
+dotnet_diagnostic.CA2227.severity = silent
 
 # IDE0007: Use var instead of explicit type
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007
-dotnet_diagnostic.IDE0007.severity = suggestion
+dotnet_diagnostic.IDE0007.severity = silent
 
 # IDE0028: Use collection initializers
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0028
-dotnet_diagnostic.IDE0028.severity = suggestion
+dotnet_diagnostic.IDE0028.severity = silent
 
 # IDE0058: Remove unnecessary expression value
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0058
-dotnet_diagnostic.IDE0058.severity = suggestion
+dotnet_diagnostic.IDE0058.severity = silent
 
 # IDE0059: Remove unnecessary value assignment
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0059
-dotnet_diagnostic.IDE0059.severity = suggestion
+dotnet_diagnostic.IDE0059.severity = silent
 
 # IDE0230: Use UTF-8 string literal
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0230
-dotnet_diagnostic.IDE0230.severity = suggestion
+dotnet_diagnostic.IDE0230.severity = silent
+
+# IDE0046: Use conditional expression for return
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
+dotnet_diagnostic.IDE0046.severity = silent
+
+# IDE0047: Remove unnecessary parentheses
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
+dotnet_diagnostic.IDE0047.severity = silent
+
+# IDE0032: Use auto-implemented property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
+dotnet_diagnostic.IDE0032.severity = silent

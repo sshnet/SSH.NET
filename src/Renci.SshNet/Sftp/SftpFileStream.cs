@@ -13,7 +13,9 @@ namespace Renci.SshNet.Sftp
     /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
+#pragma warning disable IDE0079 // We intentionally want to suppress the below warning.
     [SuppressMessage("Performance", "CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'", Justification = "TODO: This should be addressed in the future.")]
+#pragma warning restore IDE0079
     public class SftpFileStream : Stream
     {
         private readonly object _lock = new object();

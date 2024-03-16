@@ -5,7 +5,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    internal class ConnectivityTests : IntegrationTestBase
+    public class ConnectivityTests : IntegrationTestBase
     {
         private AuthenticationMethodFactory _authenticationMethodFactory;
         private IConnectionInfoFactory _connectionInfoFactory;

@@ -10,7 +10,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_ReadAsync_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount : SftpFileStreamAsyncTestBase
+    public class SftpFileStreamTest_ReadAsync_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount : SftpFileStreamAsyncTestBase
     {
         private string _path;
         private SftpFileStream _target;

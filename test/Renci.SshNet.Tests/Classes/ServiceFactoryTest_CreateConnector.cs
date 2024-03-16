@@ -7,7 +7,7 @@ using Renci.SshNet.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ServiceFactoryTest_CreateConnector
+    public class ServiceFactoryTest_CreateConnector
     {
         private ServiceFactory _serviceFactory;
         private Mock<IConnectionInfo> _connectionInfoMock;

@@ -6,7 +6,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SFTP client integration tests
     /// </summary>
     [TestClass]
-    internal class SftpClientTests : IntegrationTestBase, IDisposable
+    public class SftpClientTests : IntegrationTestBase, IDisposable
     {
         private readonly SftpClient _sftpClient;
 

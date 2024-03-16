@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortRemoteTest_Stop_PortStopped : ForwardedPortRemoteTest_Dispose_PortStopped
+    public class ForwardedPortRemoteTest_Stop_PortStopped : ForwardedPortRemoteTest_Dispose_PortStopped
     {
         protected override void Act()
         {

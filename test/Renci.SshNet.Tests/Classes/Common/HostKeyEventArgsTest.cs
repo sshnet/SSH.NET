@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///to contain all HostKeyEventArgsTest Unit Tests
     ///</summary>
     [TestClass]
-    internal class HostKeyEventArgsTest : TestBase
+    public class HostKeyEventArgsTest : TestBase
     {
         /// <summary>
         ///A test for HostKeyEventArgs Constructor

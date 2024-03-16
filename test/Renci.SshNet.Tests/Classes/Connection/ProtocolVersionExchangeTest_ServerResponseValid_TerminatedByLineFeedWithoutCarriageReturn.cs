@@ -14,7 +14,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class ProtocolVersionExchangeTest_ServerResponseValid_TerminatedByLineFeedWithoutCarriageReturn
+    public class ProtocolVersionExchangeTest_ServerResponseValid_TerminatedByLineFeedWithoutCarriageReturn
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;

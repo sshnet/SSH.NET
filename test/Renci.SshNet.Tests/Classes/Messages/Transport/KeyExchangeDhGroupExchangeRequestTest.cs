@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
     /// </summary>
     [TestClass]
-    internal class KeyExchangeDhGroupExchangeRequestTest
+    public class KeyExchangeDhGroupExchangeRequestTest
     {
         private uint _minimum;
         private uint _preferred;

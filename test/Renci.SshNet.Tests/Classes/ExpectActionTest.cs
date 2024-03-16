@@ -8,7 +8,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ExpectActionTest : TestBase
+    public class ExpectActionTest : TestBase
     {
         [TestMethod()]
         public void Constructor_StringAndAction()

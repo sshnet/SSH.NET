@@ -1,7 +1,7 @@
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    internal class TestInitializer
+    public class TestInitializer
     {
         [AssemblyInitialize]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "MSTests requires context parameter")]

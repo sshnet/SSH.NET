@@ -12,7 +12,7 @@ using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileReaderTest_LastChunkBeforeEofIsComplete : SftpFileReaderTestBase
+    public class SftpFileReaderTest_LastChunkBeforeEofIsComplete : SftpFileReaderTestBase
     {
         private const int ChunkLength = 32 * 1024;
 

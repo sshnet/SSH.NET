@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     /// Implements 3DES cipher algorithm.
     /// </summary>
     [TestClass]
-    internal class TripleDesCipherTest : TestBase
+    public class TripleDesCipherTest : TestBase
     {
         [TestMethod]
         public void Test_Cipher_3DES_CBC()

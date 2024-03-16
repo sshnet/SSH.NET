@@ -16,7 +16,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class Socks5ConnectorTest_Connect_UserNamePasswordAuthentication_ConnectionSucceeded : Socks5ConnectorTestBase
+    public class Socks5ConnectorTest_Connect_UserNamePasswordAuthentication_ConnectionSucceeded : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

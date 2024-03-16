@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
     [TestClass]
-    internal class SftpSymLinkRequestTest : TestBase
+    public class SftpSymLinkRequestTest : TestBase
     {
         private uint _protocolVersion;
         private uint _requestId;

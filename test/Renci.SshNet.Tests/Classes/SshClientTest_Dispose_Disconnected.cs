@@ -4,7 +4,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SshClientTest_Dispose_Disconnected : BaseClientTestBase
+    public class SshClientTest_Dispose_Disconnected : BaseClientTestBase
     {
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;

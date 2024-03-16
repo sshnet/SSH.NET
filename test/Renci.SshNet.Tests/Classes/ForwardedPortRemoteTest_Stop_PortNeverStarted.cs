@@ -12,7 +12,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortRemoteTest_Stop_PortNeverStarted
+    public class ForwardedPortRemoteTest_Stop_PortNeverStarted
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

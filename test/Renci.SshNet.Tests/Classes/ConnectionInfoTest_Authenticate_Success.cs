@@ -5,7 +5,7 @@ using Renci.SshNet.Tests.Properties;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ConnectionInfoTest_Authenticate_Success
+    public class ConnectionInfoTest_Authenticate_Success
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;

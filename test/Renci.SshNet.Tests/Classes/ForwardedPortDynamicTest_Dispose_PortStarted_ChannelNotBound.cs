@@ -16,7 +16,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortDynamicTest_Dispose_PortStarted_ChannelNotBound
+    public class ForwardedPortDynamicTest_Dispose_PortStarted_ChannelNotBound
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

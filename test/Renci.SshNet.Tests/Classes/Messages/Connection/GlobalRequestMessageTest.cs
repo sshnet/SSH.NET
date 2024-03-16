@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///to contain all GlobalRequestMessageTest Unit Tests
     ///</summary>
     [TestClass]
-    internal class GlobalRequestMessageTest : TestBase
+    public class GlobalRequestMessageTest : TestBase
     {
         [TestMethod]
         public void DefaultCtor()

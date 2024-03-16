@@ -11,7 +11,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortRemoteTest_Dispose_PortNeverStarted
+    public class ForwardedPortRemoteTest_Dispose_PortNeverStarted
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_TrimLeadingZeros
+    public class ExtensionsTest_TrimLeadingZeros
     {
         [TestMethod]
         public void ShouldThrowArgumentNullExceptionWhenValueIsNull()

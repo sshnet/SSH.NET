@@ -5,7 +5,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod : ClientAuthenticationTestBase
+    public class ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;

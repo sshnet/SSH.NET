@@ -4,7 +4,7 @@ using Renci.SshNet.Security.Cryptography.Ciphers;
 namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 {
     [MemoryDiagnoser]
-    internal class AesCipherBenchmarks
+    public class AesCipherBenchmarks
     {
         private readonly byte[] _key;
         private readonly byte[] _iv;

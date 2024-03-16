@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     /// Provides data for <see cref="SshNet.Channels.ClientChannel.OpenFailed"/> event.
     /// </summary>
     [TestClass]
-    internal class ChannelOpenFailedEventArgsTest : TestBase
+    public class ChannelOpenFailedEventArgsTest : TestBase
     {
     }
 }

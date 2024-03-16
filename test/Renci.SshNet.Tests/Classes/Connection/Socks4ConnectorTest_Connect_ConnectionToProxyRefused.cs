@@ -9,7 +9,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class Socks4ConnectorTest_Connect_ConnectionToProxyRefused : Socks4ConnectorTestBase
+    public class Socks4ConnectorTest_Connect_ConnectionToProxyRefused : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private SocketException _actualException;

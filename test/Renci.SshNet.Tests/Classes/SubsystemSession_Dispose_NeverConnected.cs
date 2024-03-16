@@ -11,7 +11,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SubsystemSession_Dispose_NeverConnected
+    public class SubsystemSession_Dispose_NeverConnected
     {
         private Mock<ISession> _sessionMock;
         private string _subsystemName;

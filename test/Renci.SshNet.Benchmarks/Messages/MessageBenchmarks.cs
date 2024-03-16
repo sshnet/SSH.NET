@@ -7,7 +7,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Benchmarks.Messages
 {
     [MemoryDiagnoser]
-    internal class MessageBenchmarks
+    public class MessageBenchmarks
     {
         [Benchmark]
         public Message WriteBytes()

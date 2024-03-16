@@ -6,7 +6,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Represents SFTP file information
     /// </summary>
     [TestClass]
-    internal class SftpFileTest : IntegrationTestBase
+    public class SftpFileTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]

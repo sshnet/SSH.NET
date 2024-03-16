@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.IntegrationBenchmarks
 {
-    internal class IntegrationBenchmarkBase
+    public class IntegrationBenchmarkBase
     {
 #pragma warning disable CA1822 // Mark members as static
         public async Task GlobalSetup()

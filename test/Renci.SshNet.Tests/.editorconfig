@@ -331,9 +331,9 @@ dotnet_diagnostic.CA1307.severity = silent
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1806
 dotnet_diagnostic.CA1806.severity = silent
 
-# CA1812: Avoid uninstantiated internal classes
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812
-dotnet_diagnostic.CA1812.severity = silent
+# CA1515: Consider making public types internal
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca1515
+dotnet_diagnostic.CA1515.severity = silent
 
 # CA1822: Mark members as static
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1822

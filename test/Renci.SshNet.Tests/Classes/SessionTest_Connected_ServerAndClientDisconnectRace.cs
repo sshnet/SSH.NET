@@ -19,7 +19,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_Connected_ServerAndClientDisconnectRace
+    public class SessionTest_Connected_ServerAndClientDisconnectRace
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;

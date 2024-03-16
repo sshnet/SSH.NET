@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortLocalTest_Dispose_PortDisposed
+    public class ForwardedPortLocalTest_Dispose_PortDisposed
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

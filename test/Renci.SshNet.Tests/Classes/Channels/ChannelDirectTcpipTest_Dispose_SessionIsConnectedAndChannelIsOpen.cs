@@ -12,7 +12,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
+    public class ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

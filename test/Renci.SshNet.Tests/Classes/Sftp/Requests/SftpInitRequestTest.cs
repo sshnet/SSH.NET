@@ -4,7 +4,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
     [TestClass]
-    internal class SftpInitRequestTest : TestBase
+    public class SftpInitRequestTest : TestBase
     {
     }
 }

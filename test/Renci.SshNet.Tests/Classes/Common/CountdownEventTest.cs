@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class CountdownEventTest
+    public class CountdownEventTest
     {
         private Random _random;
 

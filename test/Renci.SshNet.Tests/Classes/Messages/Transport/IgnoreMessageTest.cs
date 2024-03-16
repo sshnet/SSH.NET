@@ -8,7 +8,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
     [TestClass]
-    internal class IgnoreMessageTest
+    public class IgnoreMessageTest
     {
         private Random _random;
         private byte[] _data;

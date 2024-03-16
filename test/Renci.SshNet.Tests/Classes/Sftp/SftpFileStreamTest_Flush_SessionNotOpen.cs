@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_Flush_SessionNotOpen : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Flush_SessionNotOpen : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

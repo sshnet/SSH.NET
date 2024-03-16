@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite : SftpFileStreamTestBase
+    public class SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

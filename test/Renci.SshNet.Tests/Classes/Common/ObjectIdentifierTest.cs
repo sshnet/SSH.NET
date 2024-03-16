@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ObjectIdentifierTest : TestBase
+    public class ObjectIdentifierTest : TestBase
     {
         [TestMethod]
         public void Constructor_IdentifiersIsNull()

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     /// Represents SSH_MSG_KEXINIT message.
     /// </summary>
     [TestClass]
-    internal class KeyExchangeInitMessageTest : TestBase
+    public class KeyExchangeInitMessageTest : TestBase
     {
         [TestMethod]
         [TestCategory("KeyExchangeInitMessage")]

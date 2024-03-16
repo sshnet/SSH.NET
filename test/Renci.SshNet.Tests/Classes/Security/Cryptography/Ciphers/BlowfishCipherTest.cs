@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     ///
     /// </summary>
     [TestClass]
-    internal class BlowfishCipherTest : TestBase
+    public class BlowfishCipherTest : TestBase
     {
         [TestMethod]
         public void Test_Cipher_Blowfish_128_CBC()

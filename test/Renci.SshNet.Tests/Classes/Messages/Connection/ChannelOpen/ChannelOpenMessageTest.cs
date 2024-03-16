@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {
     [TestClass]
-    internal class ChannelOpenMessageTest
+    public class ChannelOpenMessageTest
     {
         private Random _random;
         private Encoding _ascii;

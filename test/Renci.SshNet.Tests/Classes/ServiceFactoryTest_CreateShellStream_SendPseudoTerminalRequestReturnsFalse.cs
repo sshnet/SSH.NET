@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestReturnsFalse
+    public class ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestReturnsFalse
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

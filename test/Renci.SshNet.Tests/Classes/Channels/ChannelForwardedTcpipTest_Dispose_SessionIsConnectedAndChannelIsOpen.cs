@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
+    public class ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;

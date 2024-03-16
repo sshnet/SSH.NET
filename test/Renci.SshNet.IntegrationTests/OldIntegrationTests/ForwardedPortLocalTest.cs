@@ -11,7 +11,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Provides functionality for local port forwarding
     /// </summary>
     [TestClass]
-    internal class ForwardedPortLocalTest : IntegrationTestBase
+    public class ForwardedPortLocalTest : IntegrationTestBase
     {
         [TestMethod]
         [WorkItem(713)]

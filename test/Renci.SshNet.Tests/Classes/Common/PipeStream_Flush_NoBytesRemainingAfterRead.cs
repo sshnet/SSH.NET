@@ -6,7 +6,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class PipeStream_Flush_NoBytesRemainingAfterRead : TripleATestBase
+    public class PipeStream_Flush_NoBytesRemainingAfterRead : TripleATestBase
     {
         private PipeStream _pipeStream;
         private byte[] _readBuffer;

@@ -6,7 +6,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortDynamicTest_Dispose_PortDisposed
+    public class ForwardedPortDynamicTest_Dispose_PortDisposed
     {
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;

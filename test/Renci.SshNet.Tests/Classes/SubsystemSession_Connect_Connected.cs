@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SubsystemSession_Connect_Connected
+    public class SubsystemSession_Connect_Connected
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelMock;

@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class SshDataTest
+    public class SshDataTest
     {
         [TestMethod]
         public void Write_Boolean_False()

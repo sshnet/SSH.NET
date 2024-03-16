@@ -10,7 +10,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class DirectConnectorTest_Connect_ConnectionRefusedByServer : DirectConnectorTestBase
+    public class DirectConnectorTest_Connect_ConnectionRefusedByServer : DirectConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private SocketException _actualException;

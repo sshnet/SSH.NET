@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     /// old private key information/
     /// </summary>
     [TestClass]
-    internal class PrivateKeyFileTest : TestBase
+    public class PrivateKeyFileTest : TestBase
     {
         private string _temporaryFile;
 

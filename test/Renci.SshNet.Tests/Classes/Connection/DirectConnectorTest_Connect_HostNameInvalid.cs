@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class DirectConnectorTest_Connect_HostNameInvalid : DirectConnectorTestBase
+    public class DirectConnectorTest_Connect_HostNameInvalid : DirectConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private SocketException _actualException;

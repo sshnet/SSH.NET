@@ -5,7 +5,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SshClientTest_Disconnect_ForwardedPortStarted : BaseClientTestBase
+    public class SshClientTest_Disconnect_ForwardedPortStarted : BaseClientTestBase
     {
         private Mock<ForwardedPort> _forwardedPortMock;
         private SshClient _sshClient;

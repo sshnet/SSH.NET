@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_Concat
+    public class ExtensionsTest_Concat
     {
         private Random _random;
 

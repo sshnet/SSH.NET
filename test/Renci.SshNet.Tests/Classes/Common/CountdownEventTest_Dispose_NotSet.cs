@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class CountdownEventTest_Dispose_NotSet
+    public class CountdownEventTest_Dispose_NotSet
     {
         private int _signalsRequired;
         private CountdownEvent _countdownEvent;

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality for local port forwarding
     /// </summary>
     [TestClass]
-    internal partial class ForwardedPortLocalTest : TestBase
+    public partial class ForwardedPortLocalTest : TestBase
     {
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenBoundHostIsNull()

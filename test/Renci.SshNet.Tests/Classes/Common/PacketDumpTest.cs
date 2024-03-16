@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class PacketDumpTest
+    public class PacketDumpTest
     {
         [TestMethod]
         public void Create_ByteArrayAndIndentLevel_DataIsNull()

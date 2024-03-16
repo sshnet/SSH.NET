@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_Connected_ConnectionReset : SessionTest_ConnectedBase
+    public class SessionTest_Connected_ConnectionReset : SessionTest_ConnectedBase
     {
         protected override void Act()
         {

@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class PipeStreamTest_Dispose : TestBase
+    public class PipeStreamTest_Dispose : TestBase
     {
         private PipeStream _pipeStream;
 

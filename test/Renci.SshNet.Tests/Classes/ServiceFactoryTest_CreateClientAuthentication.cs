@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ServiceFactoryTest_CreateClientAuthentication
+    public class ServiceFactoryTest_CreateClientAuthentication
     {
         private ServiceFactory _serviceFactory;
         private IClientAuthentication _actual;

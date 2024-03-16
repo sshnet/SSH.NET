@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     ///to contain all SftpDownloadAsyncResultTest Unit Tests
     ///</summary>
     [TestClass]
-    internal class SftpDownloadAsyncResultTest : TestBase
+    public class SftpDownloadAsyncResultTest : TestBase
     {
         [TestMethod]
         public void SftpDownloadAsyncResultConstructorTest()

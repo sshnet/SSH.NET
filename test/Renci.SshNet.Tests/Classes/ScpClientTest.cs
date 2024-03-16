@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides SCP client functionality.
     /// </summary>
     [TestClass]
-    internal partial class ScpClientTest : TestBase
+    public partial class ScpClientTest : TestBase
     {
         private Random _random;
 

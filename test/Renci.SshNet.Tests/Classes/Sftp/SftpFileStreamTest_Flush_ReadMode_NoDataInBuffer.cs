@@ -12,7 +12,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

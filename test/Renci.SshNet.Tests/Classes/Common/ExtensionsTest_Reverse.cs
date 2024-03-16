@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_Reverse
+    public class ExtensionsTest_Reverse
     {
         [TestMethod]
         public void Empty()

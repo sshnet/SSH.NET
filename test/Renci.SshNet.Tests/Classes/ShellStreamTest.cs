@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Contains operation for working with SSH Shell.
     /// </summary>
     [TestClass]
-    internal class ShellStreamTest : TestBase
+    public class ShellStreamTest : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

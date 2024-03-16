@@ -12,7 +12,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage
+    public class SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage
     {
         #region SftpSession.Connect()
 

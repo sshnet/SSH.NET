@@ -5,7 +5,7 @@ using Renci.SshNet.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class BaseClientTest_Disconnected_Connect : BaseClientTestBase
+    public class BaseClientTest_Disconnected_Connect : BaseClientTestBase
     {
         private Mock<ISocketFactory> _socketFactory2Mock;
         private Mock<ISession> _session2Mock;

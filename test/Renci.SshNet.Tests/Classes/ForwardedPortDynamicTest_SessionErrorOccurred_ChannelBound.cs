@@ -16,7 +16,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortDynamicTest_SessionErrorOccurred_ChannelBound
+    public class ForwardedPortDynamicTest_SessionErrorOccurred_ChannelBound
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;

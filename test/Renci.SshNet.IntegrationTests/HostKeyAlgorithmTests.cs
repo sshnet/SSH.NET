@@ -5,7 +5,7 @@ using Renci.SshNet.TestTools.OpenSSH;
 namespace Renci.SshNet.IntegrationTests
 {
     [TestClass]
-    internal class HostKeyAlgorithmTests : IntegrationTestBase
+    public class HostKeyAlgorithmTests : IntegrationTestBase
     {
         private IConnectionInfoFactory _connectionInfoFactory;
         private RemoteSshdConfig _remoteSshdConfig;

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     /// Provides data for <see cref="Renci.SshNet.ForwardedPort.RequestReceived"/> event.
     /// </summary>
     [TestClass]
-    internal class PortForwardEventArgsTest : TestBase
+    public class PortForwardEventArgsTest : TestBase
     {
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenHostIsNull()

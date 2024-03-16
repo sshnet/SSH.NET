@@ -11,7 +11,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class HttpConnectorTest_Connect_ProxyClosesConnectionBeforeStatusLineIsSent : HttpConnectorTestBase
+    public class HttpConnectorTest_Connect_ProxyClosesConnectionBeforeStatusLineIsSent : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

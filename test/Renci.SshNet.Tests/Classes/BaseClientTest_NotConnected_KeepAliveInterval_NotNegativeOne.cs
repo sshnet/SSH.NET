@@ -7,7 +7,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne : BaseClientTestBase
+    public class BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne : BaseClientTestBase
     {
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;

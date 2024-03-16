@@ -12,7 +12,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class DirectConnectorTest_Connect_ConnectionSucceeded : DirectConnectorTestBase
+    public class DirectConnectorTest_Connect_ConnectionSucceeded : DirectConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _server;

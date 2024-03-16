@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides connection information when password authentication method is used
     /// </summary>
     [TestClass]
-    internal class PasswordConnectionInfoTest : TestBase
+    public class PasswordConnectionInfoTest : TestBase
     {
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]

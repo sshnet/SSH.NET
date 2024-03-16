@@ -9,7 +9,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality to perform private key authentication.
     /// </summary>
     [TestClass]
-    internal class PrivateKeyAuthenticationMethodTest : TestBase
+    public class PrivateKeyAuthenticationMethodTest : TestBase
     {
         [TestMethod]
         [TestCategory("AuthenticationMethod")]

@@ -5,7 +5,7 @@ using Renci.SshNet.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_Connected_ServerIdentificationReceived : SessionTest_ConnectedBase
+    public class SessionTest_Connected_ServerIdentificationReceived : SessionTest_ConnectedBase
     {
         protected override void SetupData()
         {

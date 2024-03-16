@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortRemoteTest_Dispose_PortDisposed
+    public class ForwardedPortRemoteTest_Dispose_PortDisposed
     {
         private ForwardedPortRemote _forwardedPort;
         private IPEndPoint _bindEndpoint;

@@ -16,7 +16,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ShellStreamTest_ReadExpect
+    public class ShellStreamTest_ReadExpect
     {
         private const int BufferSize = 1024;
         private ShellStream _shellStream;

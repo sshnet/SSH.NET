@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ChannelTest_OnSessionDisconnected_OnDisconnected_Exception : ChannelTestBase
+    public class ChannelTest_OnSessionDisconnected_OnDisconnected_Exception : ChannelTestBase
     {
         private uint _localWindowSize;
         private uint _localPacketSize;

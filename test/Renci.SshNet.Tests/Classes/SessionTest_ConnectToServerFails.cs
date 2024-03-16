@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_ConnectToServerFails : SessionTestBase
+    public class SessionTest_ConnectToServerFails : SessionTestBase
     {
         private ConnectionInfo _connectionInfo;
         private Session _session;

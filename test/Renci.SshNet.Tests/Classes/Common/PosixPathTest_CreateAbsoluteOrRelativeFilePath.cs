@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class PosixPathTest_CreateAbsoluteOrRelativeFilePath
+    public class PosixPathTest_CreateAbsoluteOrRelativeFilePath
     {
         [TestMethod]
         public void Path_Null()

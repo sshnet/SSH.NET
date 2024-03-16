@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     /// - New length greater than client position and greater than server position
     /// </summary>
     [TestClass]
-    internal class SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition : SftpFileStreamTestBase
+    public class SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition : SftpFileStreamTestBase
     {
         private string _path;
         private SftpFileStream _sftpFileStream;

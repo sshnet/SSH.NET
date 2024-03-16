@@ -7,7 +7,7 @@ namespace Renci.SshNet.Benchmarks.Common
 {
     [MemoryDiagnoser]
     [ShortRunJob]
-    internal class HostKeyEventArgsBenchmarks
+    public class HostKeyEventArgsBenchmarks
     {
         private readonly KeyHostAlgorithm _keyHostAlgorithm;
 

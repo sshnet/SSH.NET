@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class ProtocolVersionExchangeTest_ServerResponseInvalid_SshIdentificationOnlyContainsProtocolVersion
+    public class ProtocolVersionExchangeTest_ServerResponseInvalid_SshIdentificationOnlyContainsProtocolVersion
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;

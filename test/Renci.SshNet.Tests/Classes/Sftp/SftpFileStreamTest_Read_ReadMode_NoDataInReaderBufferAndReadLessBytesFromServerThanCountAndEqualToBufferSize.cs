@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize : SftpFileStreamTestBase
     {
         private string _path;
         private SftpFileStream _target;

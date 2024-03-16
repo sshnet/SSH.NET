@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_IsEqualTo_ByteArray
+    public class ExtensionsTest_IsEqualTo_ByteArray
     {
         private Random _random;
 

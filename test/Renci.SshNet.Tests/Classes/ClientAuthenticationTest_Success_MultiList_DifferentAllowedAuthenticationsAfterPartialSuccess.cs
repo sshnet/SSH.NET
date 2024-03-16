@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
     ///                                                  (3=SUCCESS)
     /// </summary>
     [TestClass]
-    internal class ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
+    public class ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;

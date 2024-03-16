@@ -87,6 +87,6 @@ dotnet_diagnostic.IDE0047.severity = silent
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
 dotnet_diagnostic.IDE0032.severity = silent
 
-# CA1812: Avoid uninstantiated internal classes
-# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca1812
-dotnet_diagnostic.CA1812.severity = silent
+# CA1515: Consider making public types internal
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca1515
+dotnet_diagnostic.CA1515.severity = silent

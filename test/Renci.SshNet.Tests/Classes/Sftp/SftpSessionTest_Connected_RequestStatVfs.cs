@@ -13,7 +13,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpSessionTest_Connected_RequestStatVfs
+    public class SftpSessionTest_Connected_RequestStatVfs
     {
         #region SftpSession.Connect()
 

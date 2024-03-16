@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
     [TestClass]
-    internal partial class SessionTest : TestBase
+    public partial class SessionTest : TestBase
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;

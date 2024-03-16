@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_ToBigInteger2
+    public class ExtensionsTest_ToBigInteger2
     {
         [TestMethod]
         public void ShouldNotAppendZero()

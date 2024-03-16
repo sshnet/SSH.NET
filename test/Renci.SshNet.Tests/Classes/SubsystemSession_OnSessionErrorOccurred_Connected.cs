@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SubsystemSession_OnSessionErrorOccurred_Connected
+    public class SubsystemSession_OnSessionErrorOccurred_Connected
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelMock;

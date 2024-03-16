@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SftpClientTest_Connect
+    public class SftpClientTest_Connect
     {
         [TestMethod]
         public void Connect_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()

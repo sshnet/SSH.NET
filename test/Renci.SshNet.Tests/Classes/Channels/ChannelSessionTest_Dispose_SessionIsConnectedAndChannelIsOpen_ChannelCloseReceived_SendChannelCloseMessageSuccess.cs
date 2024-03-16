@@ -11,7 +11,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess : ChannelSessionTestBase
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess : ChannelSessionTestBase
     {
         private uint _localChannelNumber;
         private uint _localWindowSize;

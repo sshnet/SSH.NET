@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortDynamicTest_Started_SocketVersionNotSupported
+    public class ForwardedPortDynamicTest_Started_SocketVersionNotSupported
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelDirectTcpip> _channelMock;

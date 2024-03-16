@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class HttpConnectorTest_Connect_ProxyUserNameIsNotNullAndNotEmpty : HttpConnectorTestBase
+    public class HttpConnectorTest_Connect_ProxyUserNameIsNotNullAndNotEmpty : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

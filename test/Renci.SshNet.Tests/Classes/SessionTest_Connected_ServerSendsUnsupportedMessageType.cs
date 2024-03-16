@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
     /// the message loop.
     /// </summary>
     [TestClass]
-    internal class SessionTest_Connected_ServerSendsUnsupportedMessageType : SessionTest_ConnectedBase
+    public class SessionTest_Connected_ServerSendsUnsupportedMessageType : SessionTest_ConnectedBase
     {
         private byte[] _packet;
 

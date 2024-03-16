@@ -6,7 +6,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class NetConfClientTest_Dispose_Disconnected : NetConfClientTestBase
+    public class NetConfClientTest_Dispose_Disconnected : NetConfClientTestBase
     {
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;

@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected : BaseClientTestBase
+    public class SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected : BaseClientTestBase
     {
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;

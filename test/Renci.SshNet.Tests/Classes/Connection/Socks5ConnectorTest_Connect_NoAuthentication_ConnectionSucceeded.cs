@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class Socks5Connector_Connect_NoAuthentication_Succeed : Socks5ConnectorTestBase
+    public class Socks5Connector_Connect_NoAuthentication_Succeed : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _proxyServer;

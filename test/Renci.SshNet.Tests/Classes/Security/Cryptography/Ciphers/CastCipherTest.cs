@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
     /// Implements CAST cipher algorithm
     /// </summary>
     [TestClass]
-    internal class CastCipherTest : TestBase
+    public class CastCipherTest : TestBase
     {
         [TestMethod]
         public void Encrypt_128_CBC()

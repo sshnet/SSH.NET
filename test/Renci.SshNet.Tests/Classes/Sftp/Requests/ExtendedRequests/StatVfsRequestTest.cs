@@ -12,7 +12,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 {
     [TestClass]
-    internal class StatVfsRequestTest
+    public class StatVfsRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException
+    public class ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException
     {
         private ServiceFactory _serviceFactory;
         private Mock<ISftpSession> _sftpSessionMock;

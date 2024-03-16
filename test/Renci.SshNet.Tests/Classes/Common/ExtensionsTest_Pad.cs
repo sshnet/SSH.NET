@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class ExtensionsTest_Pad
+    public class ExtensionsTest_Pad
     {
         [TestMethod]
         public void ShouldReturnNotPadded()

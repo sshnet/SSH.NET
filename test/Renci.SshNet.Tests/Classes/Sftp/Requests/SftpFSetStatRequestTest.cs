@@ -10,7 +10,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
     [TestClass]
-    internal class SftpFSetStatRequestTest
+    public class SftpFSetStatRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

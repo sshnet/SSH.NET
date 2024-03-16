@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;

@@ -4,7 +4,7 @@ namespace Renci.SshNet.IntegrationTests
     /// The SCP client integration tests
     /// </summary>
     [TestClass]
-    internal class ScpClientTests : IntegrationTestBase, IDisposable
+    public class ScpClientTests : IntegrationTestBase, IDisposable
     {
         private readonly ScpClient _scpClient;
 

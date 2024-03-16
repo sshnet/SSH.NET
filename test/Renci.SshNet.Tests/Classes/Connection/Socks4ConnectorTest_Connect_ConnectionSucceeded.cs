@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class Socks4ConnectorTest_Connect_ConnectionSucceeded : Socks4ConnectorTestBase
+    public class Socks4ConnectorTest_Connect_ConnectionSucceeded : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private Socket _clientSocket;

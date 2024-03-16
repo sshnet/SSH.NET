@@ -7,7 +7,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    internal class PipeStream_Close_BlockingWrite : TripleATestBase
+    public class PipeStream_Close_BlockingWrite : TripleATestBase
     {
         private PipeStream _pipeStream;
         private Exception _writeException;

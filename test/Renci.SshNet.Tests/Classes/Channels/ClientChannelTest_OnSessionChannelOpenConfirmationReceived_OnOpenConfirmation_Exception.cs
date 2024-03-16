@@ -8,7 +8,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception
+    public class ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;

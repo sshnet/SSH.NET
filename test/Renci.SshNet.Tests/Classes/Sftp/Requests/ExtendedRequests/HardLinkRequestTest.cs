@@ -12,7 +12,7 @@ using Renci.SshNet.Sftp.Responses;
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 {
     [TestClass]
-    internal class HardLinkRequestTest
+    public class HardLinkRequestTest
     {
         private uint _protocolVersion;
         private uint _requestId;

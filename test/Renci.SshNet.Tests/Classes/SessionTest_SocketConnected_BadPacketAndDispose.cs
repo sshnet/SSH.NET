@@ -14,7 +14,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_SocketConnected_BadPacketAndDispose
+    public class SessionTest_SocketConnected_BadPacketAndDispose
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;

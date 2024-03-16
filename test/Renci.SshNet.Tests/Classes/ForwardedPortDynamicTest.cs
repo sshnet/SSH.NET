@@ -6,7 +6,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ForwardedPortDynamicTest : TestBase
+    public class ForwardedPortDynamicTest : TestBase
     {
         [TestMethod()]
         public void Constructor_HostAndPort()

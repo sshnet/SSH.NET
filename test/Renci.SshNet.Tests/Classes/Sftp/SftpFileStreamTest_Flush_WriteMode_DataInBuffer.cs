@@ -14,7 +14,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    internal class SftpFileStreamTest_Flush_WriteMode_DataInBuffer : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Flush_WriteMode_DataInBuffer : SftpFileStreamTestBase
     {
         private SftpFileStream _target;
         private string _path;

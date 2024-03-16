@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality for remote port forwarding
     /// </summary>
     [TestClass]
-    internal partial class ForwardedPortRemoteTest : TestBase
+    public partial class ForwardedPortRemoteTest : TestBase
     {
         [TestMethod]
         public void Start_NotAddedToClient()

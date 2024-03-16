@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides client connection to SSH server.
     /// </summary>
     [TestClass]
-    internal class SshClientTest : TestBase
+    public class SshClientTest : TestBase
     {
         [TestMethod]
         public void CreateShellStream1_NeverConnected()

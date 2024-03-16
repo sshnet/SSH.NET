@@ -13,7 +13,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class ProtocolVersionExchangeTest_ServerResponseValid_NoComments
+    public class ProtocolVersionExchangeTest_ServerResponseValid_NoComments
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Represents SSH command that can be executed.
     /// </summary>
     [TestClass]
-    internal partial class SshCommandTest : TestBase
+    public partial class SshCommandTest : TestBase
     {
         [TestMethod]
         [ExpectedException(typeof(SshConnectionException))]

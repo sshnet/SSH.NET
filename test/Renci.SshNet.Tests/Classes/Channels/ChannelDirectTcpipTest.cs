@@ -17,7 +17,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    internal class ChannelDirectTcpipTestTest : TestBase
+    public class ChannelDirectTcpipTestTest : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;

@@ -5,7 +5,7 @@ using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
 {
     [TestClass]
-    internal class PKCS5PaddingTest
+    public class PKCS5PaddingTest
     {
         private PKCS5Padding _padding;
 

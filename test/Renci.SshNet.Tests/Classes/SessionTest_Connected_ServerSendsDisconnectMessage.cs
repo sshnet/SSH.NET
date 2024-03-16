@@ -12,7 +12,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class SessionTest_Connected_ServerSendsDisconnectMessage : SessionTest_ConnectedBase
+    public class SessionTest_Connected_ServerSendsDisconnectMessage : SessionTest_ConnectedBase
     {
         private byte[] _packet;
         private DisconnectMessage _disconnectMessage;

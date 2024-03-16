@@ -15,7 +15,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    internal class DirectConnectorTest_Connect_TimeoutConnectingToServer : DirectConnectorTestBase
+    public class DirectConnectorTest_Connect_TimeoutConnectingToServer : DirectConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
         private Exception _actualException;

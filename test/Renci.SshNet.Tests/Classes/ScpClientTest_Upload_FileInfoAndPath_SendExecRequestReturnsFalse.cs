@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    internal class ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse : ScpClientTestBase
+    public class ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse : ScpClientTestBase
     {
         private ConnectionInfo _connectionInfo;
         private ScpClient _scpClient;

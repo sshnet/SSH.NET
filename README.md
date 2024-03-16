@@ -1,4 +1,4 @@
-﻿ ![Logo](images/logo/png/SS-NET-icon-h50.png) SSH.NET
+﻿ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -18,7 +18,7 @@ to [right-click and "unblock"](https://support.microsoft.com/en-us/help/2021383/
 the CHM file after you download it.
 
 Currently (4/18/2020), the documentation is very sparse.  Fortunately, there are a large number of tests in
-[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/src/Renci.SshNet.Tests) that demonstrate
+[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/test/Renci.SshNet.Tests) that demonstrate
 usage with working code.
 
 If the test for the functionality you would like to see documented is not complete, then you are cordially

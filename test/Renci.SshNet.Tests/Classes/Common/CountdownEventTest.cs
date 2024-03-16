@@ -89,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void Wait_TimeoutInfinite_ShouldBlockUntilCountdownEventIsSet()
         {
             var sleep = TimeSpan.FromMilliseconds(100);
-            var timeout = Session.InfiniteTimeSpan;
+            var timeout = Timeout.InfiniteTimeSpan;
 
             var countdownEvent = CreateCountdownEvent(1);
             var signalCount = 0;
@@ -205,7 +205,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
 
-            _ = countdownEvent.Wait(Session.InfiniteTimeSpan);
+            _ = countdownEvent.Wait(Timeout.InfiniteTimeSpan);
             countdownEvent.Dispose();
         }
 
@@ -225,7 +225,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void WaitHandle_WaitOne_TimeoutInfinite_ShouldBlockUntilCountdownEventIsSet()
         {
             var sleep = TimeSpan.FromMilliseconds(100);
-            var timeout = Session.InfiniteTimeSpan;
+            var timeout = Timeout.InfiniteTimeSpan;
 
             var countdownEvent = CreateCountdownEvent(1);
             var signalCount = 0;
@@ -341,7 +341,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
 
-            _ = countdownEvent.Wait(Session.InfiniteTimeSpan);
+            _ = countdownEvent.Wait(Timeout.InfiniteTimeSpan);
             countdownEvent.Dispose();
         }
 

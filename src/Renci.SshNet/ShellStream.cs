@@ -75,7 +75,7 @@ namespace Renci.SshNet
             Debug.Assert(Monitor.IsEntered(_sync), $"Should be in lock on {nameof(_sync)}");
             Debug.Assert(_readHead >= 0, $"{nameof(_readHead)} should be non-negative but is {_readHead}");
             Debug.Assert(_readTail >= 0, $"{nameof(_readTail)} should be non-negative but is {_readTail}");
-            Debug.Assert(_readHead < _readBuffer.Length || _readBuffer.Length == 0, $"{nameof(_readHead)} should be < {nameof(_readBuffer)}.Length but is {_readHead}");
+            Debug.Assert(_readHead <= _readBuffer.Length, $"{nameof(_readHead)} should be <= {nameof(_readBuffer)}.Length but is {_readHead}");
             Debug.Assert(_readTail <= _readBuffer.Length, $"{nameof(_readTail)} should be <= {nameof(_readBuffer)}.Length but is {_readTail}");
             Debug.Assert(_readHead <= _readTail, $"Should have {nameof(_readHead)} <= {nameof(_readTail)} but have {_readHead} <= {_readTail}");
         }
@@ -938,7 +938,7 @@ namespace Renci.SshNet
                     else
                     {
                         // Otherwise, we're gonna need a bigger buffer.
-                        var newBuffer = new byte[_readBuffer.Length * 2];
+                        var newBuffer = new byte[Math.Max(newLength, _readBuffer.Length * 2)];
                         Buffer.BlockCopy(_readBuffer, _readHead, newBuffer, 0, _readTail - _readHead);
                         _readBuffer = newBuffer;
                     }

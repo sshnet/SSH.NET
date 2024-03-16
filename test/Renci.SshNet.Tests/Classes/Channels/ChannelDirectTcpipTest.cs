@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                                                                                           _remotePacketSize,
                                                                                                           _remoteChannelNumber))));
             _ = _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                            .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
+                            .Callback<WaitHandle>(p => p.WaitOne());
 
             var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                                                                                           _remotePacketSize,
                                                                                                           _remoteChannelNumber))));
             _ = _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                            .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
+                            .Callback<WaitHandle>(p => p.WaitOne());
 
             var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
@@ -183,7 +183,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                                                                                           _remoteChannelNumber))));
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                            .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
+                            .Callback<WaitHandle>(p => p.WaitOne());
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.IsConnected)
                             .Returns(true);

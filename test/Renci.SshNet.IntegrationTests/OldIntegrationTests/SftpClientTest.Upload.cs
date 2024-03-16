@@ -6,7 +6,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    internal partial class SftpClientTest : IntegrationTestBase
+    public partial class SftpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]

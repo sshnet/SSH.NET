@@ -5,7 +5,7 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
-    internal abstract class DirectConnectorTestBase : TripleATestBase
+    public abstract class DirectConnectorTestBase : TripleATestBase
     {
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
         internal DirectConnector Connector { get; private set; }

@@ -398,3 +398,7 @@ dotnet_diagnostic.IDE0047.severity = silent
 # IDE0032: Use auto-implemented property
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
 dotnet_diagnostic.IDE0032.severity = silent
+
+# CA1812: Avoid uninstantiated internal classes
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812
+dotnet_diagnostic.CA1812.severity = silent

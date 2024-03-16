@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    internal abstract class SftpFileReaderTestBase
+    public abstract class SftpFileReaderTestBase
     {
         internal Mock<ISftpSession> SftpSessionMock {  get; private set;}
 

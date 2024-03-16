@@ -59,13 +59,7 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
-                var timeoutInMilliseconds = value.TotalMilliseconds;
-                if (timeoutInMilliseconds is < -1d or > int.MaxValue)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
-                }
-
-                _operationTimeout = (int) timeoutInMilliseconds;
+                _operationTimeout = value.AsTimeout(nameof(OperationTimeout));
             }
         }
 

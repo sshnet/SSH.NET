@@ -4,19 +4,19 @@
 
 # S125: Sections of code should not be commented out
 https://rules.sonarsource.com/csharp/RSPEC-125/
-dotnet_diagnostic.S125.severity = suggestion
+dotnet_diagnostic.S125.severity = silent
 
 # S1118: Utility classes should not have public constructors
 # https://rules.sonarsource.com/csharp/RSPEC-1118/
-dotnet_diagnostic.S1118.severity = suggestion
+dotnet_diagnostic.S1118.severity = silent
 
 # S1450: Private fields only used as local variables in methods should become local variables
 # https://rules.sonarsource.com/csharp/RSPEC-1450/
-dotnet_diagnostic.S1450.severity = suggestion
+dotnet_diagnostic.S1450.severity = silent
 
 # S4144: Methods should not have identical implementations
 # https://rules.sonarsource.com/csharp/RSPEC-4144/
-dotnet_diagnostic.S4144.severity = suggestion
+dotnet_diagnostic.S4144.severity = silent
 
 #### SYSLIB diagnostics ####
 
@@ -25,48 +25,68 @@ dotnet_diagnostic.S4144.severity = suggestion
 
 # SA1028: Code must not contain trailing whitespace
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1028.md
-dotnet_diagnostic.SA1028.severity = suggestion
+dotnet_diagnostic.SA1028.severity = silent
 
 # SA1414: Tuple types in signatures should have element names
 https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1414.md
-dotnet_diagnostic.SA1414.severity = suggestion
+dotnet_diagnostic.SA1414.severity = silent
 
 # SA1400: Access modifier must be declared
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1400.md
-dotnet_diagnostic.SA1400.severity = suggestion
+dotnet_diagnostic.SA1400.severity = silent
 
 # SA1401: Fields must be private
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1401.md
-dotnet_diagnostic.SA1401.severity = suggestion
+dotnet_diagnostic.SA1401.severity = silent
 
 # SA1411: Attribute constructor must not use unnecessary parenthesis
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1411.md
-dotnet_diagnostic.SA1411.severity = suggestion
+dotnet_diagnostic.SA1411.severity = silent
 
 # SA1505: Opening braces must not be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1505.md
-dotnet_diagnostic.SA1505.severity = suggestion
+dotnet_diagnostic.SA1505.severity = silent
 
 # SA1512: Single line comments must not be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1512.md
-dotnet_diagnostic.SA1512.severity = suggestion
+dotnet_diagnostic.SA1512.severity = silent
 
 # SA1513: Closing brace must be followed by blank line
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1513.md
-dotnet_diagnostic.SA1513.severity = suggestion
+dotnet_diagnostic.SA1513.severity = silent
 
 #### Meziantou.Analyzer rules ####
 
 # MA0003: Add parameter name to improve readability
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0003.md
-dotnet_diagnostic.MA0003.severity = suggestion
+dotnet_diagnostic.MA0003.severity = silent
 
 # MA0053: Make class sealed
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
-dotnet_diagnostic.MA0053.severity = suggestion
+dotnet_diagnostic.MA0053.severity = silent
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = silent
 
 #### .NET Compiler Platform analysers rules ####
 
 # CA2000: Dispose objects before losing scope
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
-dotnet_diagnostic.CA2000.severity = suggestion
+dotnet_diagnostic.CA2000.severity = silent
+
+# IDE0046: Use conditional expression for return
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
+dotnet_diagnostic.IDE0046.severity = silent
+
+# IDE0047: Remove unnecessary parentheses
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
+dotnet_diagnostic.IDE0047.severity = silent
+
+# IDE0032: Use auto-implemented property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
+dotnet_diagnostic.IDE0032.severity = silent
+
+# CA1515: Consider making public types internal
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca1515
+dotnet_diagnostic.CA1515.severity = silent

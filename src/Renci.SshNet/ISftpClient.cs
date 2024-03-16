@@ -592,9 +592,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-#pragma warning disable CA1716 // Identifiers should not match keywords
         ISftpFile Get(string path);
-#pragma warning restore CA1716 // Identifiers should not match keywords
 
         /// <summary>
         /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.

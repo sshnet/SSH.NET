@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public sealed class TestMethodForPlatformAttribute : TestMethodAttribute
+    internal sealed class TestMethodForPlatformAttribute : TestMethodAttribute
     {
         public TestMethodForPlatformAttribute(string platform)
         {

@@ -221,10 +221,17 @@ namespace Renci.SshNet.Security
         /// </summary>
         public byte[] PrivateKey { get; private set; }
 
+#if NETFRAMEWORK
+        /// <summary>
+        /// Gets the <see cref="ECDsa"/> object.
+        /// </summary>
+        public ECDsaCng Ecdsa { get; private set; }
+#else
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
@@ -371,7 +378,7 @@ namespace Renci.SshNet.Security
                 PrivateKey = privatekey;
             }
 
-            var headerSize = Marshal.SizeOf(typeof(BCRYPT_ECCKEY_BLOB));
+            var headerSize = Marshal.SizeOf<BCRYPT_ECCKEY_BLOB>();
             var blobSize = headerSize + qx.Length + qy.Length;
             if (privatekey != null)
             {

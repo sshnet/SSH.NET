@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class LinuxVMConnectionFactory : IConnectionInfoFactory
+    internal class LinuxVMConnectionFactory : IConnectionInfoFactory
     {
         
 

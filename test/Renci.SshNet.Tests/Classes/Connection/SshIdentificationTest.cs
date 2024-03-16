@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Connection;
-using System;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {

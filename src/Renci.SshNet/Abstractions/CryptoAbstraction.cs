@@ -39,16 +39,12 @@ namespace Renci.SshNet.Abstractions
 
         public static System.Security.Cryptography.MD5 CreateMD5()
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return System.Security.Cryptography.MD5.Create();
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static System.Security.Cryptography.SHA1 CreateSHA1()
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return System.Security.Cryptography.SHA1.Create();
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static System.Security.Cryptography.SHA256 CreateSHA256()
@@ -68,30 +64,22 @@ namespace Renci.SshNet.Abstractions
 
         public static System.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return new System.Security.Cryptography.HMACMD5(key);
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return new HMACMD5(key, hashSize);
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static System.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return new System.Security.Cryptography.HMACSHA1(key);
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return new HMACSHA1(key, hashSize);
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static System.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)

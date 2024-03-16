@@ -4,7 +4,7 @@ using DotNet.Testcontainers.Images;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
-    public sealed class InfrastructureFixture : IDisposable
+    internal sealed class InfrastructureFixture : IDisposable
     {
         private InfrastructureFixture()
         {
@@ -28,9 +28,9 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public ushort SshServerPort { get; set; }
 
-        public SshUser AdminUser = new SshUser("sshnetadm", "ssh4ever");
+        internal SshUser AdminUser = new SshUser("sshnetadm", "ssh4ever");
 
-        public SshUser User = new SshUser("sshnet", "ssh4ever");
+        internal SshUser User = new SshUser("sshnet", "ssh4ever");
 
         public async Task InitializeAsync()
         {

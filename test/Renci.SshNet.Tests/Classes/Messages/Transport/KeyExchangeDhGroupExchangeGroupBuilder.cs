@@ -3,7 +3,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
-    public class KeyExchangeDhGroupExchangeGroupBuilder
+    internal class KeyExchangeDhGroupExchangeGroupBuilder
     {
         private BigInteger _safePrime;
         private BigInteger _subGroup;

@@ -50,9 +50,7 @@ namespace Renci.SshNet.Abstractions
                 SetCompleted();
             }
 
-#pragma warning disable S1144 // Unused private types or members should be removed
             public AwaitableSocketAsyncEventArgs GetAwaiter()
-#pragma warning restore S1144 // Unused private types or members should be removed
             {
                 return this;
             }
@@ -68,9 +66,7 @@ namespace Renci.SshNet.Abstractions
                 }
             }
 
-#pragma warning disable S1144 // Unused private types or members should be removed
             public void GetResult()
-#pragma warning restore S1144 // Unused private types or members should be removed
             {
                 if (_isCancelled)
                 {

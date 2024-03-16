@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests.Common
 {
-    public static class DateTimeAssert
+    internal static class DateTimeAssert
     {
         public static void AreEqual(DateTime expected, DateTime actual)
         {

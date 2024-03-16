@@ -4,7 +4,7 @@ using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class SftpFileAttributesBuilder
+    internal class SftpFileAttributesBuilder
     {
         private DateTime? _lastAccessTime;
         private DateTime? _lastWriteTime;

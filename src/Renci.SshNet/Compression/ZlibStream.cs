@@ -54,5 +54,4 @@ namespace Renci.SshNet.Compression
     }
 }
 
-#pragma warning restore SA1005 // Single line comments should begin with single space
 #pragma warning restore S125 // Sections of code should not be commented out

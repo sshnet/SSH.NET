@@ -13,9 +13,10 @@ namespace Renci.SshNet.Sftp
     /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
-#pragma warning disable CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
+#pragma warning disable IDE0079 // We intentionally want to suppress the below warning.
+    [SuppressMessage("Performance", "CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'", Justification = "TODO: This should be addressed in the future.")]
+#pragma warning restore IDE0079
     public class SftpFileStream : Stream
-#pragma warning restore CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
     {
         private readonly object _lock = new object();
         private readonly int _readBufferSize;
@@ -88,7 +89,6 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         /// <exception cref="IOException">IO operation failed. </exception>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Be design this is the exception that stream need to throw.")]
         public override long Length
         {
             get

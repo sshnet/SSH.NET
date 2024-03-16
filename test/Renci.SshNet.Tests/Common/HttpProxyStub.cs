@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Renci.SshNet.Tests.Common
 {
-    public class HttpProxyStub : IDisposable
+    internal class HttpProxyStub : IDisposable
     {
         private readonly IPEndPoint _endPoint;
         private AsyncSocketListener _listener;
@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Common
             private readonly List<byte> _buffer;
             private readonly HttpRequest _httpRequest;
 
-            public enum State
+            internal enum State
             {
                 RequestLine,
                 Headers,

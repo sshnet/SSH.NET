@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class LinuxAdminConnectionFactory : IConnectionInfoFactory
+    internal class LinuxAdminConnectionFactory : IConnectionInfoFactory
     {
         private readonly string _host;
         private readonly int _port;

@@ -74,3 +74,7 @@ dotnet_diagnostic.CA2000.severity = suggestion
 # Error CS8892: Method 'TestingPlatformEntryPoint.Main(string[])' will not be used as an entry point because a synchronous entry point 'Program.Main(string[])' was found.
 # https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/warning-waves#cs8892---method-will-not-be-used-as-an-entry-point-because-a-synchronous-entry-point-method-was-found
 dotnet_diagnostic.CS8892.severity = suggestion
+
+# CA1515: Consider making public types internal
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca1515
+dotnet_diagnostic.CA1515.severity = silent

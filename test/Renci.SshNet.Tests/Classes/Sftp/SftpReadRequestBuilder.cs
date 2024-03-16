@@ -1,6 +1,7 @@
-﻿using Renci.SshNet.Sftp.Requests;
+﻿using System;
+
+using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp.Responses;
-using System;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {

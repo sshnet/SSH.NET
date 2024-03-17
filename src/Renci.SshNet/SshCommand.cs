@@ -553,8 +553,7 @@ namespace Renci.SshNet
                 case 0:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 1: // Command cancelled
-                case 2:
+                case 1:
                     // Specified waithandle was signaled
                     break;
                 case 2:

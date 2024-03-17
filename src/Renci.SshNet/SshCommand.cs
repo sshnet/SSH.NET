@@ -87,7 +87,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The stream that can be used to transfer data to the command's input stream.
         /// </returns>
- #pragma warning disable CA1859 // Use concrete types when possible for improved performance
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream CreateInputStream()
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
@@ -252,11 +252,11 @@ namespace Renci.SshNet
 
             // Create new AsyncResult object
             _asyncResult = new CommandAsyncResult
-                {
-                    AsyncWaitHandle = new ManualResetEvent(initialState: false),
-                    IsCompleted = false,
-                    AsyncState = state,
-                };
+            {
+                AsyncWaitHandle = new ManualResetEvent(initialState: false),
+                IsCompleted = false,
+                AsyncState = state,
+            };
 
             if (_channel is not null)
             {
@@ -392,7 +392,7 @@ namespace Renci.SshNet
                              var signaledElement = WaitHandle.WaitAny(new[] { _asyncResult.AsyncWaitHandle }, timeout);
                              if (signaledElement == WaitHandle.WaitTimeout)
                              {
-                                _ = _commandCancelledWaitHandle?.Set();
+                                 _ = _commandCancelledWaitHandle?.Set();
                              }
                          });
         }
@@ -553,7 +553,8 @@ namespace Renci.SshNet
                 case 0:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 1:
+                case 1: // Command cancelled
+                case 2:
                     // Specified waithandle was signaled
                     break;
                 case 2:

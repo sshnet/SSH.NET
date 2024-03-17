@@ -53,25 +53,44 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [Timeout(5000)]
-        public void Test_CancelAsync_Running_Command()
+        public void Test_CancelAsync_Unfinished_Command()
         {
             using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-            #region Example SshCommand CancelAsync
+            #region Example SshCommand CancelAsync Unfinished Command Without Sending exit-signal
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
-            var command = $"sleep 10s; echo {testValue}";
+            var command = $"sleep 15s; echo {testValue}";
             using var cmd = client.CreateCommand(command);
-            try
-            {
-                var asyncResult = cmd.BeginExecute();
-                cmd.CancelAsync();
-                cmd.EndExecute(asyncResult);
-            }
-            catch (OperationCanceledException)
-            {
-            }
+            var asyncResult = cmd.BeginExecute();
+            _ = cmd.CancelAsync(signalBeforeClose: false);
+            Assert.ThrowsException<SshOperationCancelledException>(() => cmd.EndExecute(asyncResult));
+            Assert.IsTrue(asyncResult.IsCompleted);
             client.Disconnect();
-            Assert.AreNotEqual(cmd.Result.Trim(), testValue);
+            Assert.AreEqual(string.Empty, cmd.Result.Trim());
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task Test_CancelAsync_Finished_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            #region Example SshCommand CancelAsync Finished Command Without Sending exit-signal
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            var command = $"echo {testValue}";
+            using var cmd = client.CreateCommand(command);
+            var asyncResult = cmd.BeginExecute();
+            while (!asyncResult.IsCompleted)
+            {
+                await Task.Delay(200);
+            }
+
+            _ = cmd.CancelAsync(signalBeforeClose: false);
+            cmd.EndExecute(asyncResult);
+            client.Disconnect();
+
+            Assert.IsTrue(asyncResult.IsCompleted);
+            Assert.AreEqual(testValue, cmd.Result.Trim());
             #endregion
         }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -32,6 +33,7 @@ namespace Renci.SshNet
         private StringBuilder _error;
         private bool _hasError;
         private bool _isDisposed;
+        private bool _isCancelled;
         private ChannelInputStream _inputStream;
         private TimeSpan _commandTimeout;
 
@@ -350,19 +352,49 @@ namespace Renci.SshNet
 
                 commandAsyncResult.EndCalled = true;
 
-                return Result;
+                if (!_isCancelled)
+                {
+                    return Result;
+                }
+
+                SetAsyncComplete();
+                throw new SshOperationCancelledException();
             }
         }
 
         /// <summary>
         /// Cancels command execution in asynchronous scenarios.
         /// </summary>
+        /// <param name="signalBeforeClose">should exit-signal be sent before attempting to close channel.</param>
         /// <param name="forceKill">if true send SIGKILL instead of SIGTERM.</param>
-        public void CancelAsync(bool forceKill = false)
+        /// <param name="timeout">how long to wait before stop waiting for command and close the channel.</param>
+        /// <returns>
+        /// Command Cancellation Task.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// After sending the exit-signal to the recipient, wait until either <paramref name="timeout"/> is exceeded
+        /// or the async result is signaled before signaling command cancellation.
+        /// If the exit-signal always results in the command being cancelled by the recipient, then <paramref name="timeout"/>
+        /// can be set to <see cref="Timeout.InfiniteTimeSpan"/> to wait until the async result is signaled.
+        /// </para>
+        /// </remarks>
+        public Task CancelAsync(bool signalBeforeClose = true, bool forceKill = false, TimeSpan timeout = default)
         {
-            var signal = forceKill ? "KILL" : "TERM";
-            _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
-            _ = _commandCancelledWaitHandle.Set();
+            if (signalBeforeClose)
+            {
+                var signal = forceKill ? "KILL" : "TERM";
+                _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
+            }
+
+            return Task.Run(() =>
+                         {
+                             var signaledElement = WaitHandle.WaitAny(new[] { _asyncResult.AsyncWaitHandle }, timeout);
+                             if (signaledElement == WaitHandle.WaitTimeout)
+                             {
+                                _ = _commandCancelledWaitHandle?.Set();
+                             }
+                         });
         }
 
         /// <summary>
@@ -430,7 +462,7 @@ namespace Renci.SshNet
             _ = _sessionErrorOccuredWaitHandle.Set();
         }
 
-        private void Channel_Closed(object sender, ChannelEventArgs e)
+        private void SetAsyncComplete()
         {
             OutputStream?.Flush();
             ExtendedOutputStream?.Flush();
@@ -444,6 +476,11 @@ namespace Renci.SshNet
             }
 
             _ = ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
+        }
+
+        private void Channel_Closed(object sender, ChannelEventArgs e)
+        {
+            SetAsyncComplete();
         }
 
         private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
@@ -506,8 +543,8 @@ namespace Renci.SshNet
             var waitHandles = new[]
                 {
                     _sessionErrorOccuredWaitHandle,
-                    _commandCancelledWaitHandle,
-                    waitHandle
+                    waitHandle,
+                    _commandCancelledWaitHandle
                 };
 
             var signaledElement = WaitHandle.WaitAny(waitHandles, CommandTimeout);
@@ -516,9 +553,11 @@ namespace Renci.SshNet
                 case 0:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
-                case 1: // Command cancelled
-                case 2:
+                case 1:
                     // Specified waithandle was signaled
+                    break;
+                case 2:
+                    _isCancelled = true;
                     break;
                 case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));

@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(200);
 
             // disable further keep-alives
-            _client.KeepAliveInterval = Session.InfiniteTimeSpan;
+            _client.KeepAliveInterval = Timeout.InfiniteTimeSpan;
 
             // wait until keep-alive has been sent at least once
             Assert.IsTrue(_keepAliveSent.WaitOne(500));

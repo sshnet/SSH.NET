@@ -259,7 +259,7 @@ namespace Renci.SshNet
         internal SftpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            _operationTimeout = SshNet.Session.Infinite;
+            _operationTimeout = Timeout.Infinite;
             _bufferSize = 1024 * 32;
         }
 

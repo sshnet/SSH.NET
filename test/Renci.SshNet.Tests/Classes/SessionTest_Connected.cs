@@ -203,7 +203,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                _ = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+                _ = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -246,7 +246,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+                session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out exception);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)

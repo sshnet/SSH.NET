@@ -12,11 +12,11 @@
         public SshConnectionRestorer BreakConnections()
         {
             var client = new SshClient(_connectionInfoFactory.Create());
-            
+
             client.Connect();
 
             PauseSshd(client);
-            
+
             return new SshConnectionRestorer(client);
         }
 
@@ -27,14 +27,14 @@
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Blocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Blocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.GetError()}");
             }
             command = client.CreateCommand("sudo pkill -9 -U sshnet -f sshd.pam");
             output = command.Execute();
             if (command.ExitStatus != 0)
             {
                 throw new ApplicationException(
-                    $"Killing sshd.pam service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                    $"Killing sshd.pam service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.GetError()}");
             }
         }
     }

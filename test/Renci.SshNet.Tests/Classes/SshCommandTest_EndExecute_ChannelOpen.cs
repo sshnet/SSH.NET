@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorShouldReturnZeroLengthString()
         {
-            Assert.AreEqual(string.Empty, _sshCommand.Error);
+            Assert.AreEqual(string.Empty, _sshCommand.GetError());
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ResultShouldReturnAllDataReceived()
         {
-            Assert.AreEqual(string.Concat(_dataA, _dataB), _sshCommand.Result);
+            Assert.AreEqual(string.Concat(_dataA, _dataB), _sshCommand.GetResult());
         }
     }
 }

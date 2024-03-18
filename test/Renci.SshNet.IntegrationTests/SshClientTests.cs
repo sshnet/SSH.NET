@@ -19,7 +19,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             var response = _sshClient.RunCommand("echo $'test !@#$%^&*()_+{}:,./<>[];\\|'");
 
-            Assert.AreEqual("test !@#$%^&*()_+{}:,./<>[];\\|\n", response.Result);
+            Assert.AreEqual("test !@#$%^&*()_+{}:,./<>[];\\|\n", response.GetResult());
         }
 
         [TestMethod]
@@ -39,8 +39,8 @@ namespace Renci.SshNet.IntegrationTests
 
                 command.EndExecute(asyncResult);
 
-                Assert.AreEqual("Hello world!", command.Result);
-                Assert.AreEqual(string.Empty, command.Error);
+                Assert.AreEqual("Hello world!", command.GetResult());
+                Assert.AreEqual(string.Empty, command.GetError());
             }
         }
 
@@ -64,8 +64,8 @@ namespace Renci.SshNet.IntegrationTests
 
                 command.EndExecute(asyncResult);
 
-                Assert.AreEqual("Hello world!", command.Result);
-                Assert.AreEqual(string.Empty, command.Error);
+                Assert.AreEqual("Hello world!", command.GetResult());
+                Assert.AreEqual(string.Empty, command.GetError());
             }
         }
 
@@ -87,8 +87,8 @@ namespace Renci.SshNet.IntegrationTests
 
                 command.EndExecute(asyncResult);
 
-                Assert.AreEqual("Hello world!", command.Result);
-                Assert.AreEqual(string.Empty, command.Error);
+                Assert.AreEqual("Hello world!", command.GetResult());
+                Assert.AreEqual(string.Empty, command.GetError());
             }
         }
 

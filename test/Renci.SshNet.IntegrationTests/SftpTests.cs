@@ -1389,7 +1389,7 @@ namespace Renci.SshNet.IntegrationTests
                 finally
                 {
                     if (client.Exists(remoteFile))
-                    { 
+                    {
                             client.DeleteFile(remoteFile);
                     }
                 }
@@ -1464,7 +1464,7 @@ namespace Renci.SshNet.IntegrationTests
                 finally
                 {
                     if (client.Exists(remoteFile))
-                    { 
+                    {
                             client.DeleteFile(remoteFile);
                     }
                 }
@@ -3646,32 +3646,32 @@ namespace Renci.SshNet.IntegrationTests
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/DoesNotExist"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.directory.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/directory.exists"}")
                 )
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -f {remoteHome + "/file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 #endregion Clean-up
@@ -3681,25 +3681,25 @@ namespace Renci.SshNet.IntegrationTests
                 using (var command = client.CreateCommand($"touch {remoteHome + "/file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"mkdir {remoteHome + "/directory.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"ln -s {remoteHome + "/file.exists"} {remoteHome + "/symlink.to.file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"ln -s {remoteHome + "/directory.exists"} {remoteHome + "/symlink.to.directory.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 #endregion Setup
@@ -3731,31 +3731,31 @@ namespace Renci.SshNet.IntegrationTests
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/DoesNotExist"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.directory.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/directory.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
 
                 using (var command = client.CreateCommand($"rm -f {remoteHome + "/file.exists"}"))
                 {
                     command.Execute();
-                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                    Assert.AreEqual(0, command.ExitStatus, command.GetError());
                 }
             }
 
@@ -6186,7 +6186,7 @@ namespace Renci.SshNet.IntegrationTests
             }
             finally
             {
-                client.DeleteFile(testFilePath); 
+                client.DeleteFile(testFilePath);
             }
         }
 
@@ -6230,7 +6230,7 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            
+
             client.UploadFile(fileStream, testFilePath);
             try
             {

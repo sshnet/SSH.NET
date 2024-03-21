@@ -1,11 +1,12 @@
-﻿using Renci.SshNet.Messages.Authentication;
+﻿#if NET6_0_OR_GREATER
+using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Represents "zlib@openssh.com" compression implementation.
     /// </summary>
-    public class ZlibOpenSsh : Compressor
+    internal sealed class ZlibOpenSsh : Zlib
     {
         /// <summary>
         /// Gets algorithm name.
@@ -23,6 +24,7 @@ namespace Renci.SshNet.Compression
         {
             base.Init(session);
 
+            IsActive = false;
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
         }
 
@@ -33,3 +35,4 @@ namespace Renci.SshNet.Compression
         }
     }
 }
+#endif

@@ -7,7 +7,7 @@ namespace Renci.SshNet.Compression
     /// <summary>
     /// Represents "zlib" compression implementation.
     /// </summary>
-    internal class Zlib : Compressor
+    internal sealed class Zlib : Compressor
     {
         private readonly string _name;
 

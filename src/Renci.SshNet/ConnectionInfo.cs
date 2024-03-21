@@ -440,8 +440,8 @@ namespace Renci.SshNet
                 {
                     { "none", null },
 #if NET6_0_OR_GREATER
-                    { "zlib@openssh.com", () => new ZlibOpenSsh() },
-                    { "zlib", () => new Zlib() },
+                    { "zlib@openssh.com", () => new Zlib(delayedCompression: true) },
+                    { "zlib", () => new Zlib(delayedCompression: false) },
 #endif
                 };
 

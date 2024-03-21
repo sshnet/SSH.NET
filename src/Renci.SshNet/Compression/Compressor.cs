@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Compression
@@ -9,18 +10,23 @@ namespace Renci.SshNet.Compression
     /// </summary>
     public abstract class Compressor : Algorithm
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether compression is active.
-        /// </summary>
-        /// <value>
-        /// <see langword="true"/> if compression is active; otherwise, <see langword="false"/>.
-        /// </value>
-        protected bool IsActive { get; set; }
+        private readonly bool _delayedCompression;
+
+        private bool _isActive;
+        private Session _session;
 
         /// <summary>
-        /// Gets the session.
+        /// Initializes a new instance of the <see cref="Compressor"/> class.
         /// </summary>
-        protected Session Session { get; private set; }
+        /// <param name="delayedCompression">
+        /// <see langword="false"/> to start compression after receiving SSH_MSG_NEWKEYS.
+        /// <see langword="true"/> to delay compression util receiving SSH_MSG_USERAUTH_SUCCESS.
+        /// <see href="https://www.openssh.com/txt/draft-miller-secsh-compression-delayed-00.txt"/>.
+        /// </param>
+        protected Compressor(bool delayedCompression)
+        {
+            _delayedCompression = delayedCompression;
+        }
 
         /// <summary>
         /// Initializes the algorithm.
@@ -28,7 +34,15 @@ namespace Renci.SshNet.Compression
         /// <param name="session">The session.</param>
         public virtual void Init(Session session)
         {
-            Session = session;
+            if (_delayedCompression)
+            {
+                _session = session;
+                _session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
+            }
+            else
+            {
+                _isActive = true;
+            }
         }
 
         /// <summary>
@@ -54,7 +68,7 @@ namespace Renci.SshNet.Compression
         /// </returns>
         public virtual byte[] Compress(byte[] data, int offset, int length)
         {
-            if (!IsActive)
+            if (!_isActive)
             {
                 if (offset == 0 && length == data.Length)
                 {
@@ -103,7 +117,7 @@ namespace Renci.SshNet.Compression
         /// </returns>
         public virtual byte[] Decompress(byte[] data, int offset, int length)
         {
-            if (!IsActive)
+            if (!_isActive)
             {
                 if (offset == 0 && length == data.Length)
                 {
@@ -128,5 +142,11 @@ namespace Renci.SshNet.Compression
         /// The decompressed data.
         /// </returns>
         protected abstract byte[] DecompressCore(byte[] data, int offset, int length);
+
+        private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
+        {
+            _isActive = true;
+            _session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+        }
     }
 }

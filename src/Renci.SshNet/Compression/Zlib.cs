@@ -9,23 +9,20 @@ namespace Renci.SshNet.Compression
     /// </summary>
     internal class Zlib : Compressor
     {
+        private readonly string _name;
+
+        public Zlib(bool delayedCompression)
+            : base(delayedCompression)
+        {
+            _name = delayedCompression ? "zlib@openssh.com" : "zlib";
+        }
+
         /// <summary>
         /// Gets algorithm name.
         /// </summary>
         public override string Name
         {
-            get { return "zlib"; }
-        }
-
-        /// <summary>
-        /// Initializes the algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        public override void Init(Session session)
-        {
-            base.Init(session);
-
-            IsActive = true;
+            get { return _name; }
         }
 
         protected override byte[] CompressCore(byte[] data, int offset, int length)

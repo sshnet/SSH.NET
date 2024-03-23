@@ -31,6 +31,7 @@ namespace Renci.SshNet.Compression
             using var zlibStream = new ZLibStream(outputStream, CompressionMode.Compress);
 
             zlibStream.Write(data, offset, length);
+            zlibStream.Flush();
 
             return outputStream.ToArray();
         }

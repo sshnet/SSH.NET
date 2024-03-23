@@ -40,7 +40,14 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.AreEqual(compressor.Key, scpClient.ConnectionInfo.CurrentServerCompressionAlgorithm);
 
                 var file = $"/tmp/{Guid.NewGuid()}.txt";
-                var fileContent = "RepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeatingRepeating";
+
+                var sb = new StringBuilder();
+                for (var i = 0; i < 100; i++)
+                {
+                    _ = sb.Append("Repeating");
+                }
+
+                var fileContent = sb.ToString();
 
                 using var uploadStream = new MemoryStream(Encoding.UTF8.GetBytes(fileContent));
                 scpClient.Upload(uploadStream, file);

@@ -2132,6 +2132,20 @@ namespace Renci.SshNet
                     _clientMac = null;
                 }
 
+                var serverDecompression = _serverDecompression;
+                if (serverDecompression != null)
+                {
+                    serverDecompression.Dispose();
+                    _serverDecompression = null;
+                }
+
+                var clientCompression = _clientCompression;
+                if (clientCompression != null)
+                {
+                    clientCompression.Dispose();
+                    _clientCompression = null;
+                }
+
                 var keyExchange = _keyExchange;
                 if (keyExchange != null)
                 {

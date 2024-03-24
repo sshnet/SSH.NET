@@ -8,12 +8,13 @@ namespace Renci.SshNet.Compression
     /// <summary>
     /// Represents base class for compression algorithm implementation.
     /// </summary>
-    public abstract class Compressor : Algorithm
+    public abstract class Compressor : Algorithm, IDisposable
     {
         private readonly bool _delayedCompression;
 
         private bool _isActive;
         private Session _session;
+        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Compressor"/> class.
@@ -147,6 +148,41 @@ namespace Renci.SshNet.Compression
         {
             _isActive = true;
             _session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the <see cref="Compressor"/> is reclaimed
+        /// by garbage collection.
+        /// </summary>
+        ~Compressor()
+        {
+            Dispose(disposing: false);
         }
     }
 }

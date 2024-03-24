@@ -444,7 +444,7 @@ namespace Renci.SshNet
 
             _asyncResult.IsCompleted = true;
 
-            if (_callback is not null)
+            if (_callback is not null && !_isCancelled)
             {
                 // Execute callback on different thread
                 ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));

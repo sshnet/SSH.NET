@@ -109,6 +109,22 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets a value indicating whether this client is connected to the server and
+        /// the SFTP session is open.
+        /// </summary>
+        /// <value>
+        /// <see langword="true"/> if this client is connected and the SFTP session is open; otherwise, <see langword="false"/>.
+        /// </value>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public override bool IsConnected
+        {
+            get
+            {
+                return base.IsConnected && _sftpSession.IsOpen;
+            }
+        }
+
+        /// <summary>
         /// Gets remote working directory.
         /// </summary>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -2473,7 +2489,15 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = CreateAndConnectToSftpSession();
+            var sftpSession = _sftpSession;
+            if (sftpSession is null)
+            {
+                _sftpSession = CreateAndConnectToSftpSession();
+            }
+            else if (!sftpSession.IsOpen)
+            {
+                sftpSession.Connect();
+            }
         }
 
         /// <summary>

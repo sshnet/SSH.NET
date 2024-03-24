@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -211,7 +212,7 @@ namespace Renci.SshNet
         internal ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
+            OperationTimeout = Timeout.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
             _remotePathTransformation = serviceFactory.CreateRemotePathDoubleQuoteTransformation();
         }

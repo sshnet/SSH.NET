@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Xml;
 
 using Renci.SshNet.Common;
@@ -149,7 +150,7 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            _operationTimeout = SshNet.Session.Infinite;
+            _operationTimeout = Timeout.Infinite;
             AutomaticMessageIdHandling = true;
         }
 

@@ -62,8 +62,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             var command = $"sleep 15s; echo {testValue}";
             using var cmd = client.CreateCommand(command);
             var asyncResult = cmd.BeginExecute();
-            _ = cmd.CancelAsync(signalBeforeClose: false);
-            Assert.ThrowsException<SshOperationCancelledException>(() => cmd.EndExecute(asyncResult));
+            cmd.CancelAsync();
+            Assert.ThrowsException<OperationCanceledException>(() => cmd.EndExecute(asyncResult));
             Assert.IsTrue(asyncResult.IsCompleted);
             client.Disconnect();
             Assert.AreEqual(string.Empty, cmd.Result.Trim());
@@ -74,7 +74,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         public async Task Test_CancelAsync_Finished_Command()
         {
             using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-            #region Example SshCommand CancelAsync Finished Command Without Sending exit-signal
+            #region Example SshCommand CancelAsync Finished Command
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
             var command = $"echo {testValue}";
@@ -85,7 +85,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 await Task.Delay(200);
             }
 
-            _ = cmd.CancelAsync(signalBeforeClose: false);
+            cmd.CancelAsync();
             cmd.EndExecute(asyncResult);
             client.Disconnect();
 

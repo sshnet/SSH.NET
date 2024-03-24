@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -358,43 +357,19 @@ namespace Renci.SshNet
                 }
 
                 SetAsyncComplete();
-                throw new SshOperationCancelledException();
+                throw new OperationCanceledException();
             }
         }
 
         /// <summary>
         /// Cancels command execution in asynchronous scenarios.
         /// </summary>
-        /// <param name="signalBeforeClose">should exit-signal be sent before attempting to close channel.</param>
         /// <param name="forceKill">if true send SIGKILL instead of SIGTERM.</param>
-        /// <param name="timeout">how long to wait before stop waiting for command and close the channel.</param>
-        /// <returns>
-        /// Command Cancellation Task.
-        /// </returns>
-        /// <remarks>
-        /// <para>
-        /// After sending the exit-signal to the recipient, wait until either <paramref name="timeout"/> is exceeded
-        /// or the async result is signaled before signaling command cancellation.
-        /// If the exit-signal always results in the command being cancelled by the recipient, then <paramref name="timeout"/>
-        /// can be set to <see cref="Timeout.InfiniteTimeSpan"/> to wait until the async result is signaled.
-        /// </para>
-        /// </remarks>
-        public Task CancelAsync(bool signalBeforeClose = true, bool forceKill = false, TimeSpan timeout = default)
+        public void CancelAsync(bool forceKill = false)
         {
-            if (signalBeforeClose)
-            {
-                var signal = forceKill ? "KILL" : "TERM";
-                _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
-            }
-
-            return Task.Run(() =>
-                         {
-                             var signaledElement = WaitHandle.WaitAny(new[] { _asyncResult.AsyncWaitHandle }, timeout);
-                             if (signaledElement == WaitHandle.WaitTimeout)
-                             {
-                                 _ = _commandCancelledWaitHandle?.Set();
-                             }
-                         });
+            var signal = forceKill ? "KILL" : "TERM";
+            _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
+            _ = _commandCancelledWaitHandle?.Set();
         }
 
         /// <summary>

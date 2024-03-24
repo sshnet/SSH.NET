@@ -52,6 +52,49 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
+        [Timeout(5000)]
+        public void Test_CancelAsync_Unfinished_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            #region Example SshCommand CancelAsync Unfinished Command Without Sending exit-signal
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            var command = $"sleep 15s; echo {testValue}";
+            using var cmd = client.CreateCommand(command);
+            var asyncResult = cmd.BeginExecute();
+            cmd.CancelAsync();
+            Assert.ThrowsException<OperationCanceledException>(() => cmd.EndExecute(asyncResult));
+            Assert.IsTrue(asyncResult.IsCompleted);
+            client.Disconnect();
+            Assert.AreEqual(string.Empty, cmd.Result.Trim());
+            #endregion
+        }
+
+        [TestMethod]
+        public async Task Test_CancelAsync_Finished_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            #region Example SshCommand CancelAsync Finished Command
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            var command = $"echo {testValue}";
+            using var cmd = client.CreateCommand(command);
+            var asyncResult = cmd.BeginExecute();
+            while (!asyncResult.IsCompleted)
+            {
+                await Task.Delay(200);
+            }
+
+            cmd.CancelAsync();
+            cmd.EndExecute(asyncResult);
+            client.Disconnect();
+
+            Assert.IsTrue(asyncResult.IsCompleted);
+            Assert.AreEqual(testValue, cmd.Result.Trim());
+            #endregion
+        }
+
+        [TestMethod]
         public void Test_Execute_OutputStream()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -222,7 +265,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                
+
                 Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
@@ -443,7 +486,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        
+
         public void Test_MultipleThread_100_MultipleConnections()
         {
             try

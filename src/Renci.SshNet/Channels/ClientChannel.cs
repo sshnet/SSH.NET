@@ -1,4 +1,9 @@
 ﻿using System;
+#if NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+#endif
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -57,6 +62,21 @@ namespace Renci.SshNet.Channels
         {
             Session.SendMessage(message);
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Send message to open a channel.
+        /// </summary>
+        /// <param name="message">Message to send.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        protected async Task SendMessageAsync(ChannelOpenMessage message, CancellationToken token)
+        {
+            await Session.SendMessageAsync(message, token).ConfigureAwait(false);
+        }
+#endif
 
         /// <summary>
         /// Called when channel failed to open.

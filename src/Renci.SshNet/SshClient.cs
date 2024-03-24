@@ -4,6 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Text;
+#if NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+#endif
 
 using Renci.SshNet.Common;
 
@@ -255,6 +259,27 @@ namespace Renci.SshNet
             _ = cmd.Execute();
             return cmd;
         }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Creates and executes the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
+        /// <remarks>This method internally uses asynchronous calls.</remarks>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is <see langword="null"/>.</exception>
+        public async Task<SshCommand> RunCommandAsync(string commandText, CancellationToken token)
+        {
+            var cmd = CreateCommand(commandText);
+            _ = await cmd.ExecuteAsync(token).ConfigureAwait(false);
+            return cmd;
+        }
+#endif
 
         /// <summary>
         /// Creates the shell.

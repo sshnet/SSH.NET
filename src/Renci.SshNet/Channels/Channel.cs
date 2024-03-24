@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -715,8 +714,8 @@ namespace Renci.SshNet.Channels
                     }
                     else
                     {
-                        // TODO: we should also send a SSH_MSG_CHANNEL_FAILURE message
-                        throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Request '{0}' is not supported.", e.Message.RequestName));
+                        var reply = new ChannelFailureMessage(LocalChannelNumber);
+                        SendMessage(reply);
                     }
                 }
                 catch (Exception ex)

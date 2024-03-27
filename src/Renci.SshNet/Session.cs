@@ -19,7 +19,6 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
-using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet
 {
@@ -1042,8 +1041,8 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
-            var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
-            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientMac != null && _clientEtm);
+            var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _clientCipher.MinimumSize);
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientCipher is AeadCipher);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
@@ -1205,13 +1204,8 @@ namespace Renci.SshNet
 
             int blockSize;
 
-            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes
-            // The "packet length" field is not encrypted in ETM.
-            if (aeadCipher != null)
-            {
-                blockSize = (byte) 4;
-            }
-            else if (_serverMac != null && _serverEtm)
+            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is not encrypted
+            if (_serverEtm || aeadCipher != null)
             {
                 blockSize = (byte) 4;
             }

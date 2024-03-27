@@ -1063,7 +1063,7 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
-                    if (_clientMac != null && _clientEtm)
+                    if (_clientEtm || _clientCipher is AeadCipher)
                     {
                         // The length of the "packet length" field in bytes
                         const int packetLengthFieldLength = 4;
@@ -1076,7 +1076,7 @@ namespace Renci.SshNet
                         Buffer.BlockCopy(encryptedData, 0, packetData, packetDataOffset + packetLengthFieldLength, encryptedData.Length);
 
                         // calculate packet hash
-                        hash = _clientMac.ComputeHash(packetData);
+                        hash = _clientMac?.ComputeHash(packetData);
                     }
                     else
                     {

@@ -111,18 +111,6 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Decrypts the specified data.
-        /// </summary>
-        /// <param name="input">The data.</param>
-        /// <returns>
-        /// The decrypted data.
-        /// </returns>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return Decrypt(input, 0, input.Length);
-        }
-
-        /// <summary>
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>

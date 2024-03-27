@@ -503,18 +503,18 @@ namespace Renci.SshNet
 
             channel.Open(host, port, this, socket);
 
-            SocketAbstraction.SendByte(socket, 0x00);
+            _ = socket.Send([0x00]);
 
             if (channel.IsOpen)
             {
-                SocketAbstraction.SendByte(socket, 0x5a);
-                SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
-                SocketAbstraction.Send(socket, ipBuffer, 0, ipBuffer.Length);
+                _ = socket.Send([0x5a]);
+                _ = socket.Send(portBuffer);
+                _ = socket.Send(ipBuffer);
                 return true;
             }
 
             // signal that request was rejected or failed
-            SocketAbstraction.SendByte(socket, 0x5b);
+            _ = socket.Send([0x5b]);
             return false;
         }
 
@@ -538,12 +538,12 @@ namespace Renci.SshNet
             {
                 // no user authentication is one of the authentication methods supported
                 // by the SOCKS client
-                SocketAbstraction.Send(socket, new byte[] { 0x05, 0x00 }, 0, 2);
+                _ = socket.Send([0x05, 0x00]);
             }
             else
             {
                 // the SOCKS client requires authentication, which we currently do not support
-                SocketAbstraction.Send(socket, new byte[] { 0x05, 0xFF }, 0, 2);
+                _ = socket.Send([0x05, 0xFF]);
 
                 // we continue business as usual but expect the client to close the connection
                 // so one of the subsequent reads should return -1 signaling that the client
@@ -610,7 +610,7 @@ namespace Renci.SshNet
 
             var socksReply = CreateSocks5Reply(channel.IsOpen);
 
-            SocketAbstraction.Send(socket, socksReply, 0, socksReply.Length);
+            _ = socket.Send(socksReply);
 
             return true;
         }

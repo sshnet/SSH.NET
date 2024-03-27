@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Renci.SshNet.Abstractions;
+
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Common
@@ -336,22 +336,17 @@ namespace Renci.SshNet.Common
 
         internal static bool CanRead(this Socket socket)
         {
-            return SocketAbstraction.CanRead(socket);
+            return socket.Connected && socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
         }
 
         internal static bool CanWrite(this Socket socket)
         {
-            return SocketAbstraction.CanWrite(socket);
+            return socket is not null && socket.Connected && socket.Poll(-1, SelectMode.SelectWrite);
         }
 
         internal static bool IsConnected(this Socket socket)
         {
-            if (socket is null)
-            {
-                return false;
-            }
-
-            return socket.Connected;
+            return socket is not null && socket.Connected;
         }
     }
 }

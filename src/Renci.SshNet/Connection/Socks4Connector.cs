@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Connection
@@ -29,7 +28,7 @@ namespace Renci.SshNet.Connection
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
             var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
-            SocketAbstraction.Send(socket, connectionRequest);
+            _ = socket.Send(connectionRequest);
 
             // Read reply version
             if (SocketReadByte(socket, connectionInfo.Timeout) != 0x00)

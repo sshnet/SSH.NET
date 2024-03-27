@@ -3,18 +3,21 @@ using System.Net.Sockets;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.IntegrationTests.Common
 {
     class Socks5Handler
     {
+        private readonly ISocketFactory _socketFactory;
         private readonly IPEndPoint _proxyEndPoint;
         private readonly string _userName;
         private readonly string _password;
 
         public Socks5Handler(IPEndPoint proxyEndPoint, string userName, string password)
         {
+            _socketFactory = new SocketFactory();
             _proxyEndPoint = proxyEndPoint;
             _userName = userName;
             _password = password;
@@ -52,17 +55,19 @@ namespace Renci.SshNet.IntegrationTests.Common
 
         private Socket Connect(byte[] addressBytes, int port)
         {
-            var socket = SocketAbstraction.Connect(_proxyEndPoint, TimeSpan.FromSeconds(5));
+            var socket = _socketFactory.Create(_proxyEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            SocketAbstraction.Connect(socket, _proxyEndPoint, TimeSpan.FromSeconds(5));
 
             //  Send socks version number
-            SocketWriteByte(socket, 0x05);
+            _ = socket.Send([0x05]);
 
             //  Send number of supported authentication methods
-            SocketWriteByte(socket, 0x02);
+            _ = socket.Send([0x02]);
 
             //  Send supported authentication methods
-            SocketWriteByte(socket, 0x00); //  No authentication
-            SocketWriteByte(socket, 0x02); //  Username/Password
+            _ = socket.Send([0x00]); //  No authentication
+            _ = socket.Send([0x02]); //  Username/Password
 
             var socksVersion = SocketReadByte(socket);
             if (socksVersion != 0x05)
@@ -78,7 +83,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                 case 0x02:
 
                     //  Send version
-                    SocketWriteByte(socket, 0x01);
+                    _ = socket.Send([0x01]);
 
                     var username = Encoding.ASCII.GetBytes(_userName);
                     if (username.Length > byte.MaxValue)
@@ -87,10 +92,10 @@ namespace Renci.SshNet.IntegrationTests.Common
                     }
 
                     //  Send username length
-                    SocketWriteByte(socket, (byte) username.Length);
+                    _ = socket.Send([(byte) username.Length]);
 
                     //  Send username
-                    SocketAbstraction.Send(socket, username);
+                    _ = socket.Send(username);
 
                     var password = Encoding.ASCII.GetBytes(_password);
 
@@ -99,11 +104,11 @@ namespace Renci.SshNet.IntegrationTests.Common
                         throw new ProxyException("Proxy password is too long.");
                     }
 
-                    //  Send username length
-                    SocketWriteByte(socket, (byte) password.Length);
+                    //  Send password length
+                    _ = socket.Send([(byte) password.Length]);
 
-                    //  Send username
-                    SocketAbstraction.Send(socket, password);
+                    //  Send password
+                    _ = socket.Send(password);
 
                     var serverVersion = SocketReadByte(socket);
 
@@ -126,20 +131,19 @@ namespace Renci.SshNet.IntegrationTests.Common
             }
 
             //  Send socks version number
-            SocketWriteByte(socket, 0x05);
+            _ = socket.Send([0x05]);
 
             //  Send command code
-            SocketWriteByte(socket, 0x01); //  establish a TCP/IP stream connection
+            _ = socket.Send([0x01]); //  establish a TCP/IP stream connection
 
             //  Send reserved, must be 0x00
-            SocketWriteByte(socket, 0x00);
+            _ = socket.Send([0x00]);
 
             //  Send address type and address
-            SocketAbstraction.Send(socket, addressBytes);
+            _ = socket.Send(addressBytes);
 
             //  Send port
-            SocketWriteByte(socket, (byte)(port / 0xFF));
-            SocketWriteByte(socket, (byte)(port % 0xFF));
+            _ = socket.Send([(byte) (port / 0xFF), (byte) (port % 0xFF)]);
 
             //  Read Server SOCKS5 version
             if (SocketReadByte(socket) != 5)
@@ -224,11 +228,6 @@ namespace Renci.SshNet.IntegrationTests.Common
             }
 
             throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", endPoint.Address));
-        }
-
-        private static void SocketWriteByte(Socket socket, byte data)
-        {
-            SocketAbstraction.Send(socket, new[] { data });
         }
 
         private static byte SocketReadByte(Socket socket)

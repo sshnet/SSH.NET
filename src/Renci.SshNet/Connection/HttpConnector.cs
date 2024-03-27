@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using Renci.SshNet.Abstractions;
@@ -41,7 +42,7 @@ namespace Renci.SshNet.Connection
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
-            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format(CultureInfo.InvariantCulture,
+            _ = socket.Send(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture,
                                                                                 "CONNECT {0}:{1} HTTP/1.0\r\n",
                                                                                 connectionInfo.Host,
                                                                                 connectionInfo.Port)));
@@ -51,11 +52,11 @@ namespace Renci.SshNet.Connection
             {
                 var authorization = string.Format(CultureInfo.InvariantCulture,
                                                   "Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes($"{connectionInfo.ProxyUsername}:{connectionInfo.ProxyPassword}")));
-                SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(authorization));
+                                                  Convert.ToBase64String(Encoding.ASCII.GetBytes($"{connectionInfo.ProxyUsername}:{connectionInfo.ProxyPassword}")));
+                _ = socket.Send(Encoding.ASCII.GetBytes(authorization));
             }
 
-            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes("\r\n"));
+            _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
 
             HttpStatusCode? statusCode = null;
             var contentLength = 0;

@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Channels
@@ -13,6 +14,7 @@ namespace Renci.SshNet.Channels
     internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly object _socketShutdownAndCloseLock = new object();
+        private readonly ISocketFactory _socketFactory;
         private Socket _socket;
         private IForwardedPort _forwardedPort;
 
@@ -20,6 +22,7 @@ namespace Renci.SshNet.Channels
         /// Initializes a new instance of the <see cref="ChannelForwardedTcpip"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
+        /// <param name="socketFactory">The socket factory.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
         /// <param name="localWindowSize">Size of the window.</param>
         /// <param name="localPacketSize">Size of the packet.</param>
@@ -27,6 +30,7 @@ namespace Renci.SshNet.Channels
         /// <param name="remoteWindowSize">The window size of the remote party.</param>
         /// <param name="remotePacketSize">The maximum size of a data packet that we can send to the remote party.</param>
         internal ChannelForwardedTcpip(ISession session,
+                                       ISocketFactory socketFactory,
                                        uint localChannelNumber,
                                        uint localWindowSize,
                                        uint localPacketSize,
@@ -41,6 +45,7 @@ namespace Renci.SshNet.Channels
                    remoteWindowSize,
                    remotePacketSize)
         {
+            _socketFactory = socketFactory;
         }
 
         /// <summary>
@@ -72,7 +77,9 @@ namespace Renci.SshNet.Channels
             // Try to connect to the socket
             try
             {
-                _socket = SocketAbstraction.Connect(remoteEndpoint, ConnectionInfo.Timeout);
+                _socket = _socketFactory.Create(remoteEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                SocketAbstraction.Connect(_socket, remoteEndpoint, ConnectionInfo.Timeout);
 
                 // Send channel open confirmation message
                 SendMessage(new ChannelOpenConfirmationMessage(RemoteChannelNumber, LocalWindowSize, LocalPacketSize, LocalChannelNumber));
@@ -201,7 +208,7 @@ namespace Renci.SshNet.Channels
             var socket = _socket;
             if (socket.IsConnected())
             {
-                SocketAbstraction.Send(socket, data, 0, data.Length);
+                _ = socket.Send(data);
             }
         }
     }

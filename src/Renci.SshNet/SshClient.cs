@@ -239,6 +239,19 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Creates the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="logExecutionTimeStamp">Returns a timestamp of the time the command was executed with the result.</param>
+        /// <returns><see cref="SshCommand"/> object with execution time in the result.</returns>
+        public SshCommand CreateCommand(string commandText, bool logExecutionTimeStamp)
+        {
+            EnsureSessionIsOpen();
+
+            return new SshCommand(Session, commandText, ConnectionInfo.Encoding, logExecutionTimeStamp);
+        }
+
+        /// <summary>
         /// Creates and executes the command.
         /// </summary>
         /// <param name="commandText">The command text.</param>

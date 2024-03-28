@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
@@ -76,7 +77,6 @@ namespace Renci.SshNet.Tests.Classes
                 var output = new MemoryStream();
                 var extendedOutput = new MemoryStream();
 
-
                 try
                 {
                     client.CreateShell(encoding, input, output, extendedOutput);
@@ -148,7 +148,6 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
                     client.CreateShell(
                         encoding,
                         input,
@@ -182,7 +181,6 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
                     client.CreateShell(input, output, extendedOutput);
                     Assert.Fail();
                 }
@@ -249,7 +247,6 @@ namespace Renci.SshNet.Tests.Classes
 
                 try
                 {
-
                     client.CreateShell(
                         input,
                         output,
@@ -297,6 +294,24 @@ namespace Renci.SshNet.Tests.Classes
                 try
                 {
                     client.CreateCommand("ls", Encoding.UTF8);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateCommand_CommandTextAndIncludeExecutionTimeInResult()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                try
+                {
+                    client.CreateCommand("ls", true);
                     Assert.Fail();
                 }
                 catch (SshConnectionException ex)

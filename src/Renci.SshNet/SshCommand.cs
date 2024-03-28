@@ -20,6 +20,7 @@ namespace Renci.SshNet
     {
         private readonly Encoding _encoding;
         private readonly object _endExecuteLock = new object();
+        private readonly bool _logExecutionTimeStamp;
 
         private ISession _session;
         private IChannelSession _channel;
@@ -87,6 +88,7 @@ namespace Renci.SshNet
         /// The stream that can be used to transfer data to the command's input stream.
         /// </returns>
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
+
         public Stream CreateInputStream()
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
@@ -194,6 +196,37 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="SshCommand"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="encoding">The encoding to use for the results.</param>
+        /// <param name="logExecutionTimeStamp">Returns a timestamp of the time the command was executed with the result.</param>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <see langword="null"/>.</exception>
+        internal SshCommand(ISession session, string commandText, Encoding encoding, bool logExecutionTimeStamp)
+        {
+            if (session is null)
+            {
+                throw new ArgumentNullException(nameof(session));
+            }
+
+            if (commandText is null)
+            {
+                throw new ArgumentNullException(nameof(commandText));
+            }
+
+            _session = session;
+            CommandText = commandText;
+            _logExecutionTimeStamp = logExecutionTimeStamp;
+            _encoding = encoding;
+            CommandTimeout = Timeout.InfiniteTimeSpan;
+            _sessionErrorOccuredWaitHandle = new AutoResetEvent(initialState: false);
+            _commandCancelledWaitHandle = new AutoResetEvent(initialState: false);
+            _session.Disconnected += Session_Disconnected;
+            _session.ErrorOccured += Session_ErrorOccured;
+        }
+
+        /// <summary>
         /// Begins an asynchronous command execution.
         /// </summary>
         /// <returns>
@@ -240,6 +273,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
+
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
@@ -498,8 +532,17 @@ namespace Renci.SshNet
         {
             if (OutputStream != null)
             {
-                OutputStream.Write(e.Data, 0, e.Data.Length);
-                OutputStream.Flush();
+                if (_logExecutionTimeStamp)
+                {
+                    var array = Encoding.UTF8.GetBytes($"[{DateTime.Now.ToString()}]: ").Concat(e.Data);
+                    OutputStream.Write(array, 0, array.Length);
+                    OutputStream.Flush();
+                }
+                else
+                {
+                    OutputStream.Write(e.Data, 0, e.Data.Length);
+                    OutputStream.Flush();
+                }
             }
 
             if (_asyncResult != null)
@@ -528,12 +571,15 @@ namespace Renci.SshNet
                 case 0:
                     ExceptionDispatchInfo.Capture(_exception).Throw();
                     break;
+
                 case 1:
                     // Specified waithandle was signaled
                     break;
+
                 case 2:
                     _isCancelled = true;
                     break;
+
                 case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
                 default:

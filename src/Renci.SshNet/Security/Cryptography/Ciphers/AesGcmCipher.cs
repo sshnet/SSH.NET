@@ -31,15 +31,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <inheritdoc/>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            //// [outbound sequence][packet length field][padding length field sz][payload][random paddings]
-            //// [-----4 bytes-----]|----4 bytes(offset)||-------------------Plain Text--------------------|
-            var associateData = new ReadOnlySpan<byte>(input, offset - 4, 4);
+            // [outbound sequence][packet length field][padding length field sz][payload][random paddings]
+            // [-----4 bytes-----][----4 bytes(offset)][-------------------Plain Text--------------------]
+            var associatedData = new ReadOnlySpan<byte>(input, offset - 4, 4);
             var plainText = new ReadOnlySpan<byte>(input, offset, length);
 
             var cipherText = new byte[length];
             var tag = new byte[TagSize];
 
-            _aesGcm.Encrypt(IV, plainText, cipherText, tag, associateData);
+            _aesGcm.Encrypt(IV, plainText, cipherText, tag, associatedData);
 
             var result = new byte[length + TagSize];
             Buffer.BlockCopy(cipherText, 0, result, 0, length);
@@ -53,15 +53,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <inheritdoc/>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            //// [inbound sequence][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-            //// |-----4 bytes----||----4 bytes(offset)||------------------Cipher Text--------------------||-------TAG-------|
-            var associateData = new ReadOnlySpan<byte>(input, offset - 4, 4);
+            // [inbound sequence][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
+            // [-----4 bytes----][----4 bytes(offset)][------------------Cipher Text--------------------][-------TAG-------]
+            var associatedData = new ReadOnlySpan<byte>(input, offset - 4, 4);
             var cipherText = new ReadOnlySpan<byte>(input, offset, length);
             var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
             var plainText = new byte[length];
 
-            _aesGcm.Decrypt(IV, cipherText, tag, plainText, associateData);
+            _aesGcm.Decrypt(IV, cipherText, tag, plainText, associatedData);
 
             IncrementCounter();
 

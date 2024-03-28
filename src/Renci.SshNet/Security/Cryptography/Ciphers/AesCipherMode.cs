@@ -5,22 +5,22 @@
     /// </summary>
     public enum AesCipherMode
     {
-        /// <summary>CBC Mode.</summary>
+        /// <summary>Cipher Block Chain Mode.</summary>
         CBC = 1,
 
-        /// <summary>ECB Mode.</summary>
+        /// <summary>Electronic Codebook Mode.</summary>
         ECB = 2,
 
-        /// <summary>OFB Mode.</summary>
+        /// <summary>Output Feedback Mode.</summary>
         OFB = 3,
 
-        /// <summary>CFB Mode.</summary>
+        /// <summary>Cipher Feedback Mode.</summary>
         CFB = 4,
 
-        /// <summary>CTS Mode.</summary>
+        /// <summary>Cipher Text Stealing Mode.</summary>
         CTS = 5,
 
-        /// <summary>CTR Mode.</summary>
+        /// <summary>Counter Mode.</summary>
         CTR = 6
     }
 }

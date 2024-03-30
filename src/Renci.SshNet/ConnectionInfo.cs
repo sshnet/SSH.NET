@@ -378,6 +378,7 @@ namespace Renci.SshNet
                     { "diffie-hellman-group14-sha256", () => new KeyExchangeDiffieHellmanGroup14Sha256() },
                     { "diffie-hellman-group14-sha1", () => new KeyExchangeDiffieHellmanGroup14Sha1() },
                     { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
+                    { "kex-strict-c-v00@openssh.com", null },
                 };
 
             Encryptions = new Dictionary<string, CipherInfo>

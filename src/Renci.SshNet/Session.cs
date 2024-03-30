@@ -154,6 +154,12 @@ namespace Renci.SshNet
         /// </summary>
         private bool _isDisconnecting;
 
+        /// <summary>
+        /// Indicates whether server supports strict key exchange.
+        /// <see href="https://github.com/openssh/openssh-portable/blob/master/PROTOCOL"/> 1.10.
+        /// </summary>
+        private bool _isStrictKex;
+
         private IKeyExchange _keyExchange;
 
         private HashAlgorithm _serverMac;
@@ -1106,13 +1112,20 @@ namespace Renci.SshNet
                     SendPacket(data, 0, data.Length);
                 }
 
-                // increment the packet sequence number only after we're sure the packet has
-                // been sent; even though it's only used for the MAC, it needs to be incremented
-                // for each package sent.
-                //
-                // the server will use it to verify the data integrity, and as such the order in
-                // which messages are sent must follow the outbound packet sequence number
-                _outboundPacketSequence++;
+                if (_isStrictKex && message is NewKeysMessage)
+                {
+                    _outboundPacketSequence = 0;
+                }
+                else
+                {
+                    // increment the packet sequence number only after we're sure the packet has
+                    // been sent; even though it's only used for the MAC, it needs to be incremented
+                    // for each package sent.
+                    //
+                    // the server will use it to verify the data integrity, and as such the order in
+                    // which messages are sent must follow the outbound packet sequence number
+                    _outboundPacketSequence++;
+                }
             }
         }
 
@@ -1446,6 +1459,8 @@ namespace Renci.SshNet
 
             _keyExchangeCompletedWaitHandle.Reset();
 
+            _isStrictKex = message.KeyExchangeAlgorithms.Contains("kex-strict-s-v00@openssh.com");
+
             // Disable messages that are not key exchange related
             _sshMessageFactory.DisableNonKeyExchangeMessages();
 
@@ -1521,6 +1536,11 @@ namespace Renci.SshNet
 
             // Enable activated messages that are not key exchange related
             _sshMessageFactory.EnableActivatedMessages();
+
+            if (_isStrictKex)
+            {
+                _inboundPacketSequence = 0;
+            }
 
             NewKeysReceived?.Invoke(this, new MessageEventArgs<NewKeysMessage>(message));
 

@@ -1,5 +1,6 @@
 ﻿#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
 using System;
+using System.Buffers.Binary;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -71,10 +72,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private void IncrementCounter()
         {
-            var invocationCounter = _nonce.Take(4, 8);
-            var count = Pack.BigEndianToUInt64(invocationCounter) + 1;
-            invocationCounter = Pack.UInt64ToBigEndian(count);
-            Buffer.BlockCopy(invocationCounter, 0, _nonce, 4, 8);
+            var invocationCounter = new Span<byte>(_nonce, 4, 8);
+            var count = BinaryPrimitives.ReadUInt64BigEndian(invocationCounter);
+            BinaryPrimitives.WriteUInt64BigEndian(invocationCounter, count + 1);
         }
 
         /// <summary>

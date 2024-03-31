@@ -8,9 +8,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// AES GCM cipher implementation.
+    /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
     public sealed class AesGcmCipher : AeadCipher, IDisposable
     {
+        private readonly byte[] _nonce;
         private readonly AesGcm _aesGcm;
 
         /// <summary>
@@ -19,8 +21,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="iv">The IV.</param>
         public AesGcmCipher(byte[] key, byte[] iv)
-            : base(key, iv, nonceSize: 12, tagSize: 16)
+            : base(key, tagSize: 16)
         {
+            _nonce = iv.Take(12);
 #if NET8_0_OR_GREATER
             _aesGcm = new AesGcm(key, TagSize);
 #else
@@ -32,17 +35,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             // [outbound sequence][packet length field][padding length field sz][payload][random paddings]
-            // [-----4 bytes-----][----4 bytes(offset)][-------------------Plain Text--------------------]
-            var associatedData = new ReadOnlySpan<byte>(input, offset - 4, 4);
-            var plainText = new ReadOnlySpan<byte>(input, offset, length);
+            // [--4 bytes(offset)][------4 bytes------][-------------------Plain Text--------------------]
+            var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
+            var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
 
-            var cipherText = new byte[length];
+            var cipherText = new byte[length - 4];
             var tag = new byte[TagSize];
 
-            _aesGcm.Encrypt(IV, plainText, cipherText, tag, associatedData);
+            _aesGcm.Encrypt(_nonce, plainText, cipherText, tag, packetLengthField);
 
             var result = new byte[length + TagSize];
-            Buffer.BlockCopy(cipherText, 0, result, 0, length);
+
+            packetLengthField.CopyTo(result);
+            Buffer.BlockCopy(cipherText, 0, result, 4, length - 4);
             Buffer.BlockCopy(tag, 0, result, length, TagSize);
 
             IncrementCounter();
@@ -61,7 +66,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             var plainText = new byte[length];
 
-            _aesGcm.Decrypt(IV, cipherText, tag, plainText, associatedData);
+            _aesGcm.Decrypt(_nonce, cipherText, tag, plainText, associatedData);
 
             IncrementCounter();
 
@@ -70,10 +75,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private void IncrementCounter()
         {
-            var invocationCounter = IV.Take(4, 8);
+            var invocationCounter = _nonce.Take(4, 8);
             var count = Pack.BigEndianToUInt64(invocationCounter) + 1;
             invocationCounter = Pack.UInt64ToBigEndian(count);
-            Buffer.BlockCopy(invocationCounter, 0, IV, 4, 8);
+            Buffer.BlockCopy(invocationCounter, 0, _nonce, 4, 8);
         }
 
         /// <summary>

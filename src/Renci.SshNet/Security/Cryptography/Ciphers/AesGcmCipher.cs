@@ -60,13 +60,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             // [inbound sequence][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
             // [-----4 bytes----][----4 bytes(offset)][------------------Cipher Text--------------------][-------TAG-------]
-            var associatedData = new ReadOnlySpan<byte>(input, offset - 4, 4);
+            var packetLengthField = new ReadOnlySpan<byte>(input, offset - 4, 4);
             var cipherText = new ReadOnlySpan<byte>(input, offset, length);
             var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
             var plainText = new byte[length];
 
-            _aesGcm.Decrypt(_nonce, cipherText, tag, plainText, associatedData);
+            _aesGcm.Decrypt(_nonce, cipherText, tag, plainText, packetLengthField);
 
             IncrementCounter();
 

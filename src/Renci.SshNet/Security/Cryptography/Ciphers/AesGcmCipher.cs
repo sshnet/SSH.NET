@@ -39,16 +39,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
             var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
 
-            var cipherText = new byte[length - 4];
-            var tag = new byte[TagSize];
+            var result = new byte[length + TagSize];
+            packetLengthField.CopyTo(result);
+            var cipherText = new Span<byte>(result, 4, length - 4);
+            var tag = new Span<byte>(result, length, TagSize);
 
             _aesGcm.Encrypt(_nonce, plainText, cipherText, tag, packetLengthField);
-
-            var result = new byte[length + TagSize];
-
-            packetLengthField.CopyTo(result);
-            Buffer.BlockCopy(cipherText, 0, result, 4, length - 4);
-            Buffer.BlockCopy(tag, 0, result, length, TagSize);
 
             IncrementCounter();
 

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
     [Ignore]
-    internal class ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked : ChannelTestBase
+    public class ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked : ChannelTestBase
     {
         private uint _localChannelNumber;
         private uint _localWindowSize;

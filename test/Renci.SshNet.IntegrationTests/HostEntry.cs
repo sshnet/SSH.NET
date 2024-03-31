@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.IntegrationTests
 {
-    internal sealed class HostEntry
+    public sealed class HostEntry
     {
         public HostEntry(IPAddress ipAddress, string hostName)
         {

@@ -5,7 +5,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass()]
-    internal class CommandAsyncResultTest : TestBase
+    public class CommandAsyncResultTest : TestBase
     {
         [TestMethod()]
         public void BytesSentTest()

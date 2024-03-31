@@ -237,13 +237,9 @@ namespace Renci.SshNet
 
             // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
             var session = Session;
-            if (session is null)
+            if (session is null || !session.IsConnected)
             {
                 Session = CreateAndConnectSession();
-            }
-            else if (!session.IsConnected)
-            {
-                session.Connect();
             }
 
             try
@@ -305,13 +301,9 @@ namespace Renci.SshNet
 
             // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
             var session = Session;
-            if (session is null)
+            if (session is null || !session.IsConnected)
             {
                 Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
-            }
-            else if (!session.IsConnected)
-            {
-                await session.ConnectAsync(cancellationToken).ConfigureAwait(false);
             }
 
             try

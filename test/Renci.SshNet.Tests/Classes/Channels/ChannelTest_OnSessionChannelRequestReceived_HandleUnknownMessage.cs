@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localChannelNumber;
         private ChannelStub _channel;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
-        private UnknownRequestInfo _requestInfo;
+        private UnknownRequestInfoWithWantReply _requestInfo;
 
         protected override void SetupData()
         {
@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localPacketSize = _localWindowSize - 1;
             _localChannelNumber = (uint) random.Next(0, int.MaxValue);
             _channelExceptionRegister = new List<ExceptionEventArgs>();
-            _requestInfo = new UnknownRequestInfo();
+            _requestInfo = new UnknownRequestInfoWithWantReply();
         }
 
         protected override void SetupMocks()
@@ -67,15 +67,19 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
     }
 
-    internal class UnknownRequestInfo : RequestInfo
+    internal class UnknownRequestInfoWithWantReply : RequestInfo
     {
         public override string RequestName
         {
             get
             {
-                return nameof(UnknownRequestInfo);
+                return nameof(UnknownRequestInfoWithWantReply);
             }
         }
 
+        internal UnknownRequestInfoWithWantReply()
+        {
+            WantReply = true;
+        }
     }
 }

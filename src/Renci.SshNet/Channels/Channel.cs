@@ -714,8 +714,14 @@ namespace Renci.SshNet.Channels
                     }
                     else
                     {
-                        var reply = new ChannelFailureMessage(LocalChannelNumber);
-                        SendMessage(reply);
+                        var unknownRequestInfo = new UnknownRequestInfo(e.Message.RequestName);
+                        unknownRequestInfo.Load(e.Message.RequestData);
+
+                        if (unknownRequestInfo.WantReply)
+                        {
+                            var reply = new ChannelFailureMessage(LocalChannelNumber);
+                            SendMessage(reply);
+                        }
                     }
                 }
                 catch (Exception ex)

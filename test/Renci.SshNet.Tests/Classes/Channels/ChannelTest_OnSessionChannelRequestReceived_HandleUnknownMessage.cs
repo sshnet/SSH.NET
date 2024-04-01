@@ -17,6 +17,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _localWindowSize;
         private uint _localPacketSize;
         private uint _localChannelNumber;
+        private uint _remoteChannelNumber;
+        private uint _remoteWindowSize;
+        private uint _remotePacketSize;
         private ChannelStub _channel;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
         private UnknownRequestInfoWithWantReply _requestInfo;
@@ -28,6 +31,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _localWindowSize = (uint) random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
             _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _requestInfo = new UnknownRequestInfoWithWantReply();
         }
@@ -44,6 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             base.Arrange();
 
             _channel = new ChannelStub(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
+            _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
         }
@@ -57,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void FailureMessageWasSent()
         {
-            SessionMock.Verify(p => p.SendMessage(It.Is<ChannelFailureMessage>(m => m.LocalChannelNumber == _localChannelNumber)), Times.Once);
+            SessionMock.Verify(p => p.SendMessage(It.Is<ChannelFailureMessage>(m => m.LocalChannelNumber == _channel.RemoteChannelNumber)), Times.Once);
         }
 
         [TestMethod]

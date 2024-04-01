@@ -719,7 +719,7 @@ namespace Renci.SshNet.Channels
 
                         if (unknownRequestInfo.WantReply)
                         {
-                            var reply = new ChannelFailureMessage(LocalChannelNumber);
+                            var reply = new ChannelFailureMessage(RemoteChannelNumber);
                             SendMessage(reply);
                         }
                     }

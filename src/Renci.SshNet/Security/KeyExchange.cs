@@ -173,9 +173,12 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the server side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to incidicate the cipher is not AEAD.</param>
         /// <returns>Server cipher.</returns>
-        public Cipher CreateServerCipher()
+        public Cipher CreateServerCipher(out bool isAead)
         {
+            isAead = _serverCipherInfo.IsAead;
+
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
 
@@ -198,9 +201,12 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the client side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to incidicate the cipher is not AEAD.</param>
         /// <returns>Client cipher.</returns>
-        public Cipher CreateClientCipher()
+        public Cipher CreateClientCipher(out bool isAead)
         {
+            isAead = _clientCipherInfo.IsAead;
+
             // Resolve Session ID
             var sessionId = Session.SessionId ?? ExchangeHash;
 

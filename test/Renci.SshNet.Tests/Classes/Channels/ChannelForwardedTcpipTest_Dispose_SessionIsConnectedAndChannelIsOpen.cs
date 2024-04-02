@@ -89,7 +89,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
-
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.IsConnected)
                             .Returns(true);

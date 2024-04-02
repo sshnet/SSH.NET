@@ -155,6 +155,11 @@ namespace Renci.SshNet
         private bool _isDisconnecting;
 
         /// <summary>
+        /// Indicates whether it is the init kex.
+        /// </summary>
+        private bool _isInitialKex = true;
+
+        /// <summary>
         /// Indicates whether server supports strict key exchange.
         /// <see href="https://github.com/openssh/openssh-portable/blob/master/PROTOCOL"/> 1.10.
         /// </summary>
@@ -294,20 +299,20 @@ namespace Renci.SshNet
             get
             {
                 _clientInitMessage ??= new KeyExchangeInitMessage
-                    {
-                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        LanguagesClientToServer = new[] { string.Empty },
-                        LanguagesServerToClient = new[] { string.Empty },
-                        FirstKexPacketFollows = false,
-                        Reserved = 0
-                    };
+                {
+                    KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                    ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                    EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                    EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                    MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                    MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                    CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                    CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                    LanguagesClientToServer = new[] { string.Empty },
+                    LanguagesServerToClient = new[] { string.Empty },
+                    FirstKexPacketFollows = false,
+                    Reserved = 0
+                };
 
                 return _clientInitMessage;
             }
@@ -1459,7 +1464,17 @@ namespace Renci.SshNet
 
             _keyExchangeCompletedWaitHandle.Reset();
 
-            _isStrictKex = message.KeyExchangeAlgorithms.Contains("kex-strict-s-v00@openssh.com");
+            if (_isInitialKex && message.KeyExchangeAlgorithms.Contains("kex-strict-s-v00@openssh.com"))
+            {
+                _isStrictKex = true;
+
+                DiagnosticAbstraction.Log(string.Format("[{0}] Enabling strict key exchange extension.", ToHex(SessionId)));
+
+                if (_inboundPacketSequence != 1)
+                {
+                    throw new SshConnectionException("KEXINIT was not the first packet during strict key exchange", DisconnectReason.KeyExchangeFailed);
+                }
+            }
 
             // Disable messages that are not key exchange related
             _sshMessageFactory.DisableNonKeyExchangeMessages();
@@ -1536,6 +1551,8 @@ namespace Renci.SshNet
 
             // Enable activated messages that are not key exchange related
             _sshMessageFactory.EnableActivatedMessages();
+
+            _isInitialKex = false;
 
             if (_isStrictKex)
             {

@@ -164,9 +164,13 @@ namespace Renci.SshNet
 
         private bool _clientEtm;
 
+        private Cipher _serverCipher;
+
         private Cipher _clientCipher;
 
-        private Cipher _serverCipher;
+        private bool _serverAead;
+
+        private bool _clientAead;
 
         private Compressor _serverDecompression;
 
@@ -1042,7 +1046,7 @@ namespace Renci.SshNet
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _clientCipher.MinimumSize);
-            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientCipher is AeadCipher);
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
@@ -1063,7 +1067,7 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
-                    if (_clientMac != null && _clientEtm)
+                    if (_clientEtm)
                     {
                         // The length of the "packet length" field in bytes
                         const int packetLengthFieldLength = 4;
@@ -1191,8 +1195,6 @@ namespace Renci.SshNet
         /// </remarks>
         private Message ReceiveMessage(Socket socket)
         {
-            var aeadCipher = _serverCipher as AeadCipher;
-
             // the length of the packet sequence field in bytes
             const int inboundPacketSequenceLength = 4;
 
@@ -1205,7 +1207,7 @@ namespace Renci.SshNet
             int blockSize;
 
             // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is not encrypted
-            if (_serverEtm || aeadCipher != null)
+            if (_serverEtm || _serverAead)
             {
                 blockSize = (byte) 4;
             }
@@ -1220,9 +1222,9 @@ namespace Renci.SshNet
 
             var serverMacLength = 0;
 
-            if (aeadCipher != null)
+            if (_serverAead)
             {
-                serverMacLength = aeadCipher.TagSize;
+                serverMacLength = _serverCipher.TagSize;
             }
             else if (_serverMac != null)
             {
@@ -1245,7 +1247,7 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null && aeadCipher == null && (_serverMac == null || !_serverEtm))
+                if (_serverCipher != null && !_serverAead && (_serverMac == null || !_serverEtm))
                 {
                     firstBlock = _serverCipher.Decrypt(firstBlock);
                 }
@@ -1303,11 +1305,23 @@ namespace Renci.SshNet
 
             if (_serverCipher != null)
             {
-                var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
-                if (numberOfBytesToDecrypt > 0)
+                if (_serverAead)
                 {
-                    var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
-                    Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
+                    var numberOfBytesToDecryptAndAuthenticate = data.Length - inboundPacketSequenceLength;
+                    if (numberOfBytesToDecryptAndAuthenticate > 0)
+                    {
+                        var decryptedData = _serverCipher.Decrypt(data, inboundPacketSequenceLength, numberOfBytesToDecryptAndAuthenticate);
+                        Buffer.BlockCopy(decryptedData, 0, data, inboundPacketSequenceLength, decryptedData.Length);
+                    }
+                }
+                else
+                {
+                    var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
+                    if (numberOfBytesToDecrypt > 0)
+                    {
+                        var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
+                        Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
+                    }
                 }
             }
 
@@ -1514,18 +1528,11 @@ namespace Renci.SshNet
             }
 
             // Update negotiated algorithms
-            _serverCipher = _keyExchange.CreateServerCipher();
-            _clientCipher = _keyExchange.CreateClientCipher();
+            _serverCipher = _keyExchange.CreateServerCipher(out _serverAead);
+            _clientCipher = _keyExchange.CreateClientCipher(out _clientAead);
 
-            if (_serverCipher is not AeadCipher)
-            {
-                _serverMac = _keyExchange.CreateServerHash(out _serverEtm);
-            }
-
-            if (_clientCipher is not AeadCipher)
-            {
-                _clientMac = _keyExchange.CreateClientHash(out _clientEtm);
-            }
+            _serverMac = _keyExchange.CreateServerHash(out _serverEtm);
+            _clientMac = _keyExchange.CreateClientHash(out _clientEtm);
 
             _clientCompression = _keyExchange.CreateCompressor();
             _serverDecompression = _keyExchange.CreateDecompressor();

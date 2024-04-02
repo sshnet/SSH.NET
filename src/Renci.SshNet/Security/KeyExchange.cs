@@ -83,6 +83,7 @@ namespace Renci.SshNet.Security
             }
 
             session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;
+            _clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
 
             // Determine encryption algorithm
             var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
@@ -95,30 +96,39 @@ namespace Renci.SshNet.Security
             }
 
             session.ConnectionInfo.CurrentServerEncryption = serverDecryptionAlgorithmName;
+            _serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
 
-            // Determine client hmac algorithm
-            var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
-                                           from a in message.MacAlgorithmsClientToServer
-                                           where a == b
-                                           select a).FirstOrDefault();
-            if (string.IsNullOrEmpty(clientHmacAlgorithmName))
+            if (!_clientCipherInfo.IsAead)
             {
-                throw new SshConnectionException("Client HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                // Determine client hmac algorithm
+                var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
+                                               from a in message.MacAlgorithmsClientToServer
+                                               where a == b
+                                               select a).FirstOrDefault();
+                if (string.IsNullOrEmpty(clientHmacAlgorithmName))
+                {
+                    throw new SshConnectionException("Client HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                }
+
+                session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
+                _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
             }
 
-            session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
-
-            // Determine server hmac algorithm
-            var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
-                                           from a in message.MacAlgorithmsServerToClient
-                                           where a == b
-                                           select a).FirstOrDefault();
-            if (string.IsNullOrEmpty(serverHmacAlgorithmName))
+            if (!_serverCipherInfo.IsAead)
             {
-                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
-            }
+                // Determine server hmac algorithm
+                var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
+                                               from a in message.MacAlgorithmsServerToClient
+                                               where a == b
+                                               select a).FirstOrDefault();
+                if (string.IsNullOrEmpty(serverHmacAlgorithmName))
+                {
+                    throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                }
 
-            session.ConnectionInfo.CurrentServerHmacAlgorithm = serverHmacAlgorithmName;
+                session.ConnectionInfo.CurrentServerHmacAlgorithm = serverHmacAlgorithmName;
+                _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
+            }
 
             // Determine compression algorithm
             var compressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
@@ -131,6 +141,7 @@ namespace Renci.SshNet.Security
             }
 
             session.ConnectionInfo.CurrentClientCompressionAlgorithm = compressionAlgorithmName;
+            _compressorFactory = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
 
             // Determine decompression algorithm
             var decompressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
@@ -143,12 +154,6 @@ namespace Renci.SshNet.Security
             }
 
             session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
-
-            _clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
-            _serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
-            _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
-            _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
-            _compressorFactory = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
             _decompressorFactory = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }
 
@@ -224,6 +229,12 @@ namespace Renci.SshNet.Security
         /// </returns>
         public HashAlgorithm CreateServerHash(out bool isEncryptThenMAC)
         {
+            if (_serverHashInfo == null)
+            {
+                isEncryptThenMAC = false;
+                return null;
+            }
+
             isEncryptThenMAC = _serverHashInfo.IsEncryptThenMAC;
 
             // Resolve Session ID
@@ -250,6 +261,12 @@ namespace Renci.SshNet.Security
         /// </returns>
         public HashAlgorithm CreateClientHash(out bool isEncryptThenMAC)
         {
+            if (_clientHashInfo == null)
+            {
+                isEncryptThenMAC = false;
+                return null;
+            }
+
             isEncryptThenMAC = _clientHashInfo.IsEncryptThenMAC;
 
             // Resolve Session ID

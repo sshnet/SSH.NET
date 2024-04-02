@@ -14,6 +14,14 @@
         public abstract byte MinimumSize { get; }
 
         /// <summary>
+        /// Gets the tag (MAC) size.
+        /// </summary>
+        /// <value>
+        /// The tag (MAC) size.
+        /// </value>
+        public virtual int TagSize { get; }
+
+        /// <summary>
         /// Encrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>

@@ -50,18 +50,20 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the client-side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to incidicate the cipher is not AEAD.</param>
         /// <returns>
         /// The client cipher.
         /// </returns>
-        Cipher CreateClientCipher();
+        Cipher CreateClientCipher(out bool isAead);
 
         /// <summary>
         /// Creates the server-side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to incidicate the cipher is not AEAD.</param>
         /// <returns>
         /// The server cipher.
         /// </returns>
-        Cipher CreateServerCipher();
+        Cipher CreateServerCipher(out bool isAead);
 
         /// <summary>
         /// Creates the server-side hash algorithm to use.

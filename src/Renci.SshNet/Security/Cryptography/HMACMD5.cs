@@ -15,9 +15,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="key">The key.</param>
         public HMACMD5(byte[] key)
-#pragma warning disable CA5351 // Do Not Use Broken Cryptographic Algorithms
             : base(key)
-#pragma warning restore CA5351 // Do Not Use Broken Cryptographic Algorithms
         {
 #pragma warning disable MA0056 // Do not call overridable members in constructor
             _hashSize = base.HashSize;
@@ -31,9 +29,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="key">The key.</param>
         /// <param name="hashSize">The size, in bits, of the computed hash code.</param>
         public HMACMD5(byte[] key, int hashSize)
-#pragma warning disable CA5351 // Do Not Use Broken Cryptographic Algorithms
             : base(key)
-#pragma warning restore CA5351 // Do Not Use Broken Cryptographic Algorithms
         {
             _hashSize = hashSize;
         }
@@ -57,9 +53,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] HashFinal()
         {
-#pragma warning disable CA5351 // Do Not Use Broken Cryptographic Algorithms
             var hash = base.HashFinal();
-#pragma warning restore CA5351 // Do Not Use Broken Cryptographic Algorithms
             return hash.Take(HashSize / 8);
         }
     }

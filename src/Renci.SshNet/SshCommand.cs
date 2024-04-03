@@ -86,9 +86,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The stream that can be used to transfer data to the command's input stream.
         /// </returns>
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream CreateInputStream()
-#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             if (_channel == null)
             {

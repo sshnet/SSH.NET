@@ -1,8 +1,7 @@
-﻿using System;
-using System.Globalization;
-
+﻿using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
+using System;
 
 namespace Renci.SshNet.Tests.Classes
 {

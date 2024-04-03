@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Reflection;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -50,7 +49,7 @@ namespace Renci.SshNet.Tests.Common
             }
         }
 
-        public static Stream GetData(string name)
+        internal static Stream GetData(string name)
         {
             string resourceName = $"Renci.SshNet.Tests.Data.{name}";
 

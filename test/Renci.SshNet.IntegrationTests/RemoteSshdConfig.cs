@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.IntegrationTests
 {
-    public sealed class RemoteSshdConfig
+    internal sealed class RemoteSshdConfig
     {
         private const string SshdConfigFilePath = "/etc/ssh/sshd_config";
         private static readonly Encoding Utf8NoBom = new UTF8Encoding(false, true);

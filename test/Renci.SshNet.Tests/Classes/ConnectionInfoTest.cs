@@ -1,11 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
+using System;
 
 namespace Renci.SshNet.Tests.Classes
 {

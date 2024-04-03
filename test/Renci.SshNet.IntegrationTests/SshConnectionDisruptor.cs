@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class SshConnectionDisruptor
+    internal class SshConnectionDisruptor
     {
         private readonly IConnectionInfoFactory _connectionInfoFactory;
 

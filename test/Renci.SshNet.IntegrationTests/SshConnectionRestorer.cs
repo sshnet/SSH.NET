@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    public class SshConnectionRestorer : IDisposable
+    internal class SshConnectionRestorer : IDisposable
     {
         private SshClient _sshClient;
 

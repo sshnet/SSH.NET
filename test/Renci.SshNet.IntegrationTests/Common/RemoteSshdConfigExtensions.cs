@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.IntegrationTests.Common
 {
-    public static class RemoteSshdConfigExtensions
+    internal static class RemoteSshdConfigExtensions
     {
         private const string DefaultAuthenticationMethods = "password publickey";
 

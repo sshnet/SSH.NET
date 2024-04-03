@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH.Formatters
 {
-    public sealed class LogLevelFormatter
+    internal sealed class LogLevelFormatter
     {
         public string Format(LogLevel logLevel)
         {

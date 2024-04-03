@@ -1,8 +1,7 @@
-﻿using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
+using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {

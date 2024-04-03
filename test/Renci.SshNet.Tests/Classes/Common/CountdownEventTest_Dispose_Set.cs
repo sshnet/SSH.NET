@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Threading;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {

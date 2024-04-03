@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp

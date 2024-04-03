@@ -1,13 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
 using Renci.SshNet.Tests.Common;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {

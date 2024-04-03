@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
-        public SshIdentification ServerIdentification { get; private set; }
+        internal SshIdentification ServerIdentification { get; private set; }
 
         private void TearDown()
         {

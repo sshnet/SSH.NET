@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.IntegrationTests
 {
-    internal class RemoteSshd
+    public class RemoteSshd
     {
         private readonly IConnectionInfoFactory _connectionInfoFactory;
 

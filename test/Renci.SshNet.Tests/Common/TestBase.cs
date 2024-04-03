@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Common
             }
         }
 
-        internal static Stream GetData(string name)
+        public static Stream GetData(string name)
         {
             string resourceName = $"Renci.SshNet.Tests.Data.{name}";
 

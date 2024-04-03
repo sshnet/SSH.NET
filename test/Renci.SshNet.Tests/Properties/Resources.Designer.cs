@@ -22,21 +22,21 @@ namespace Renci.SshNet.Tests.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        public Resources() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Renci.SshNet.Tests.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -73,7 +73,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///nnjYgnKYcTWSvWWK9AcIVSpoiW2y6FcPkMAIw54ABrzBp4Rz0//Ykwv2Ga7AZxxm
         ///P+lkxKf2RWnh406F [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string DSA_KEY_WITH_PASS {
+        public static string DSA_KEY_WITH_PASS {
             get {
                 return ResourceManager.GetString("DSA_KEY_WITH_PASS", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///HikVVhJMAoGASHB5nNlWhpqvungn+otYyGKoVoATkRdRfSiUo3fb0mJLTmxrEhEH
         ///4UOFA/UFdQ0TYXXW0 [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string DSA_KEY_WITHOUT_PASS {
+        public static string DSA_KEY_WITHOUT_PASS {
             get {
                 return ResourceManager.GetString("DSA_KEY_WITHOUT_PASS", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 192.168.10.192.
         /// </summary>
-        internal static string HOST {
+        public static string HOST {
             get {
                 return ResourceManager.GetString("HOST", resourceCulture);
             }
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///JTAgLkkCgYBvt5EoxhlCwEUgm8j3nD4TLSRYt1lt6LVulBYA9qlV4F68b2cJUuOi
         ///YTV9H2SWRF6UF+GiR [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string INVALID_KEY {
+        public static string INVALID_KEY {
             get {
                 return ResourceManager.GetString("INVALID_KEY", resourceCulture);
             }
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to tester.
         /// </summary>
-        internal static string PASSWORD {
+        public static string PASSWORD {
             get {
                 return ResourceManager.GetString("PASSWORD", resourceCulture);
             }
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 22.
         /// </summary>
-        internal static string PORT {
+        public static string PORT {
             get {
                 return ResourceManager.GetString("PORT", resourceCulture);
             }
@@ -143,7 +143,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to proxy.oleg-centos.edc.renci.org.
         /// </summary>
-        internal static string PROXY_HOST {
+        public static string PROXY_HOST {
             get {
                 return ResourceManager.GetString("PROXY_HOST", resourceCulture);
             }
@@ -152,7 +152,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 8123.
         /// </summary>
-        internal static string PROXY_PORT {
+        public static string PROXY_PORT {
             get {
                 return ResourceManager.GetString("PROXY_PORT", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///bbkwjPb0ztlhKa4gkwXiMs0S/lhoueXBae4QStM0qJBXHtFhhRYIn4JeIZ8CJ0k6
         ///SMP7QVfPf5aJIaa8 [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string RSA_KEY_WITH_PASS {
+        public static string RSA_KEY_WITH_PASS {
             get {
                 return ResourceManager.GetString("RSA_KEY_WITH_PASS", resourceCulture);
             }
@@ -188,7 +188,7 @@ namespace Renci.SshNet.Tests.Properties {
         ///9vlEX17zECkVdouJXiBn5kz4CEpdAcXwC/wfcmmpDHbSmQeBmVEi0DP3ZPJRhlzA
         ///RW493jlECIBWjd+1a [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string RSA_KEY_WITHOUT_PASS {
+        public static string RSA_KEY_WITHOUT_PASS {
             get {
                 return ResourceManager.GetString("RSA_KEY_WITHOUT_PASS", resourceCulture);
             }
@@ -197,7 +197,7 @@ namespace Renci.SshNet.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to tester.
         /// </summary>
-        internal static string USERNAME {
+        public static string USERNAME {
             get {
                 return ResourceManager.GetString("USERNAME", resourceCulture);
             }

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.TestTools.OpenSSH.Formatters
 {
-    internal sealed class BooleanFormatter
+    public sealed class BooleanFormatter
     {
         public string Format(bool value)
         {

@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Common
         /// <returns>
         /// A deep clone of the current instance.
         /// </returns>
-        internal static SftpFileAttributes Clone(this SftpFileAttributes value)
+        public static SftpFileAttributes Clone(this SftpFileAttributes value)
         {
             Dictionary<string, string> clonedExtensions;
 

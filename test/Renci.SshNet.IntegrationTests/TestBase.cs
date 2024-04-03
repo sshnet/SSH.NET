@@ -66,7 +66,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        internal static Stream GetData(string name)
+        public static Stream GetData(string name)
         {
             string resourceName = $"Renci.SshNet.IntegrationTests.{name}";
 

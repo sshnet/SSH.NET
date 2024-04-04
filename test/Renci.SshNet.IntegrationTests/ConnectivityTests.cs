@@ -288,6 +288,44 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void SftpClient_HandleSftpSessionClose()
+        {
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                Assert.IsTrue(client.IsConnected);
+
+                client.SftpSession.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+
+                client.Connect();
+                Assert.IsTrue(client.IsConnected);
+
+                client.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+            }
+        }
+
+        [TestMethod]
+        public async Task SftpClient_HandleSftpSessionCloseAsync()
+        {
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                await client.ConnectAsync(CancellationToken.None);
+                Assert.IsTrue(client.IsConnected);
+
+                client.SftpSession.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+
+                await client.ConnectAsync(CancellationToken.None);
+                Assert.IsTrue(client.IsConnected);
+
+                client.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+            }
+        }
+
+        [TestMethod]
         public void Common_DetectSessionKilledOnServer()
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))

@@ -5,33 +5,25 @@ image:
 services:
   - docker
 
-branches:
-  only:
-    - develop
-
 for:
 -
   matrix:
     only:
       - image: Ubuntu2204
-      
-  install:
-    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
     
   before_build:
     - sh: mkdir artifacts -p
           
   build_script:
     - echo build
-    - dotnet --version
     - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   test_script:
     - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=detailed" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj --blame-crash
+    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj --blame-crash
+    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
 -
   matrix:

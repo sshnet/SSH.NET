@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -78,10 +77,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestInitialize]
         public void Initialize()
         {
-            Console.WriteLine("memout1 ServiceFactoryTest_CreateShellStream_ChannelOpenThrowsException: {0:N0}", GC.GetTotalMemory(false));
             Arrange();
             Act();
-            Console.WriteLine("memout2 ServiceFactoryTest_CreateShellStream_ChannelOpenThrowsException: {0:N0}", GC.GetTotalMemory(false));
         }
 
         private void Act()

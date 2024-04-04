@@ -72,7 +72,7 @@ namespace Renci.SshNet
         /// <see langword="true"/> if this client is connected; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public bool IsConnected
+        public virtual bool IsConnected
         {
             get
             {
@@ -228,14 +228,19 @@ namespace Renci.SshNet
             // forwarded port with a client instead of with a session
             //
             // To be discussed with Oleg (or whoever is interested)
-            if (IsSessionConnected())
+            if (IsConnected)
             {
                 throw new InvalidOperationException("The client is already connected.");
             }
 
             OnConnecting();
 
-            Session = CreateAndConnectSession();
+            // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
+            var session = Session;
+            if (session is null || !session.IsConnected)
+            {
+                Session = CreateAndConnectSession();
+            }
 
             try
             {
@@ -287,14 +292,19 @@ namespace Renci.SshNet
             // forwarded port with a client instead of with a session
             //
             // To be discussed with Oleg (or whoever is interested)
-            if (IsSessionConnected())
+            if (IsConnected)
             {
                 throw new InvalidOperationException("The client is already connected.");
             }
 
             OnConnecting();
 
-            Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+            // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
+            var session = Session;
+            if (session is null || !session.IsConnected)
+            {
+                Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             try
             {

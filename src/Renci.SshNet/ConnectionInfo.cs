@@ -55,7 +55,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported encryptions for this connection.
         /// </summary>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public IDictionary<string, CipherInfo> Encryptions { get; private set; }
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
         /// Gets supported hash algorithms for this connection.

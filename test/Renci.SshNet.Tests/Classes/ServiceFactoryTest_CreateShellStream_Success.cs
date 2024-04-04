@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestInitialize]
         public void Init()
         {
-            Console.WriteLine("ServiceFactoryTest_CreateShellStream_Success: {0:N0}", GC.GetTotalMemory(false));
+            Console.WriteLine("memout ServiceFactoryTest_CreateShellStream_Success: {0:N0}", GC.GetTotalMemory(false));
         }
 
         [TestMethod]

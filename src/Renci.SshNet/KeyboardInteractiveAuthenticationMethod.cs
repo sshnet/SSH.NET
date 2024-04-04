@@ -15,7 +15,7 @@ namespace Renci.SshNet
     /// </summary>
     public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod, IDisposable
     {
-        private readonly RequestMessage _requestMessage;
+        private readonly RequestMessageKeyboardInteractive _requestMessage;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);

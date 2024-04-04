@@ -370,6 +370,8 @@ namespace Renci.SshNet.Tests.Classes
 
             public uint LocalPacketSize => throw new NotImplementedException();
 
+            public uint RemoteChannelNumber => throw new NotImplementedException();
+
             public uint RemotePacketSize => throw new NotImplementedException();
 
             public bool IsOpen => throw new NotImplementedException();

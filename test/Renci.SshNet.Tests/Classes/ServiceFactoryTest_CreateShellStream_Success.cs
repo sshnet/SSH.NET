@@ -100,6 +100,13 @@ namespace Renci.SshNet.Tests.Classes
                                                              _bufferSize);
         }
 
+
+        [TestInitialize]
+        public void Init()
+        {
+            Console.WriteLine("ServiceFactoryTest_CreateShellStream_Success: {0:N0}", GC.GetTotalMemory(false));
+        }
+
         [TestMethod]
         public void CreateShellStreamShouldNotReturnNull()
         {

@@ -1,5 +1,4 @@
 ﻿#pragma warning disable SA1028 // Code should not contain trailing whitespace
-#pragma warning disable SA1515 // Single-line comment should be preceded by blank line
 //
 // System.Numerics.BigInteger
 //
@@ -46,7 +45,6 @@
 *
 *
 * ***************************************************************************/
-#pragma warning restore SA1515 // Single-line comment should be preceded by blank line
 #pragma warning restore SA1028 // Code should not contain trailing whitespace
 
 using System;
@@ -4578,9 +4576,7 @@ namespace Renci.SshNet.Common
 
                     if (needExtra)
                     {
-#pragma warning disable S1854 // Unused assignments should be removed
                         res[j++] = 0xFF;
-#pragma warning restore S1854 // Unused assignments should be removed
                     }
                 }
                 else
@@ -4590,9 +4586,7 @@ namespace Renci.SshNet.Common
                     res[j++] = (byte)(word >> 8);
                     res[j++] = (byte)(word >> 16);
                     res[j++] = (byte)(word >> 24);
-#pragma warning disable S1854 // Unused assignments should be removed
                     res[j++] = 0xFF;
-#pragma warning restore S1854 // Unused assignments should be removed
                 }
             }
 

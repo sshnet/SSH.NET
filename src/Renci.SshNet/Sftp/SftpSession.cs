@@ -487,13 +487,10 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
-#pragma warning restore CA1508 // Avoid dead conditional code
 
             return handle;
         }
@@ -625,9 +622,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -851,9 +846,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -952,9 +945,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1041,9 +1032,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1147,9 +1136,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1215,9 +1202,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1249,9 +1234,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1291,9 +1274,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1372,9 +1353,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1450,9 +1429,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1523,9 +1500,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1556,9 +1531,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1600,9 +1573,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1735,9 +1706,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1833,9 +1802,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1925,9 +1892,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1967,9 +1932,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2012,9 +1975,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2066,9 +2027,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2160,9 +2119,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2206,9 +2163,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }

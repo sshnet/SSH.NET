@@ -26,11 +26,13 @@ namespace Renci.SshNet
         private CommandAsyncResult _asyncResult;
         private AsyncCallback _callback;
         private EventWaitHandle _sessionErrorOccuredWaitHandle;
+        private EventWaitHandle _commandCancelledWaitHandle;
         private Exception _exception;
         private StringBuilder _result;
         private StringBuilder _error;
         private bool _hasError;
         private bool _isDisposed;
+        private bool _isCancelled;
         private ChannelInputStream _inputStream;
         private TimeSpan _commandTimeout;
 
@@ -84,9 +86,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The stream that can be used to transfer data to the command's input stream.
         /// </returns>
- #pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream CreateInputStream()
-#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             if (_channel == null)
             {
@@ -186,7 +186,7 @@ namespace Renci.SshNet
             _encoding = encoding;
             CommandTimeout = Timeout.InfiniteTimeSpan;
             _sessionErrorOccuredWaitHandle = new AutoResetEvent(initialState: false);
-
+            _commandCancelledWaitHandle = new AutoResetEvent(initialState: false);
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
         }
@@ -249,11 +249,11 @@ namespace Renci.SshNet
 
             // Create new AsyncResult object
             _asyncResult = new CommandAsyncResult
-                {
-                    AsyncWaitHandle = new ManualResetEvent(initialState: false),
-                    IsCompleted = false,
-                    AsyncState = state,
-                };
+            {
+                AsyncWaitHandle = new ManualResetEvent(initialState: false),
+                IsCompleted = false,
+                AsyncState = state,
+            };
 
             if (_channel is not null)
             {
@@ -349,20 +349,25 @@ namespace Renci.SshNet
 
                 commandAsyncResult.EndCalled = true;
 
-                return Result;
+                if (!_isCancelled)
+                {
+                    return Result;
+                }
+
+                SetAsyncComplete();
+                throw new OperationCanceledException();
             }
         }
 
         /// <summary>
         /// Cancels command execution in asynchronous scenarios.
         /// </summary>
-        public void CancelAsync()
+        /// <param name="forceKill">if true send SIGKILL instead of SIGTERM.</param>
+        public void CancelAsync(bool forceKill = false)
         {
-            if (_channel is not null && _channel.IsOpen && _asyncResult is not null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
+            var signal = forceKill ? "KILL" : "TERM";
+            _ = _channel?.SendExitSignalRequest(signal, coreDumped: false, "Command execution has been cancelled.", "en");
+            _ = _commandCancelledWaitHandle?.Set();
         }
 
         /// <summary>
@@ -430,20 +435,25 @@ namespace Renci.SshNet
             _ = _sessionErrorOccuredWaitHandle.Set();
         }
 
-        private void Channel_Closed(object sender, ChannelEventArgs e)
+        private void SetAsyncComplete()
         {
             OutputStream?.Flush();
             ExtendedOutputStream?.Flush();
 
             _asyncResult.IsCompleted = true;
 
-            if (_callback is not null)
+            if (_callback is not null && !_isCancelled)
             {
                 // Execute callback on different thread
                 ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
             }
 
             _ = ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
+        }
+
+        private void Channel_Closed(object sender, ChannelEventArgs e)
+        {
+            SetAsyncComplete();
         }
 
         private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
@@ -506,7 +516,8 @@ namespace Renci.SshNet
             var waitHandles = new[]
                 {
                     _sessionErrorOccuredWaitHandle,
-                    waitHandle
+                    waitHandle,
+                    _commandCancelledWaitHandle
                 };
 
             var signaledElement = WaitHandle.WaitAny(waitHandles, CommandTimeout);
@@ -517,6 +528,9 @@ namespace Renci.SshNet
                     break;
                 case 1:
                     // Specified waithandle was signaled
+                    break;
+                case 2:
+                    _isCancelled = true;
                     break;
                 case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
@@ -619,6 +633,9 @@ namespace Renci.SshNet
                     sessionErrorOccuredWaitHandle.Dispose();
                     _sessionErrorOccuredWaitHandle = null;
                 }
+
+                _commandCancelledWaitHandle?.Dispose();
+                _commandCancelledWaitHandle = null;
 
                 _isDisposed = true;
             }

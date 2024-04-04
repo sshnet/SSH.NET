@@ -60,6 +60,11 @@ namespace Renci.SshNet.Channels
         uint LocalPacketSize { get; }
 
         /// <summary>
+        /// Gets the remote channel number.
+        /// </summary>
+        uint RemoteChannelNumber { get; }
+
+        /// <summary>
         /// Gets the maximum size of a data packet that can be sent using the channel.
         /// </summary>
         /// <value>

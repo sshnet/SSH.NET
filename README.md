@@ -47,8 +47,8 @@ the missing test once you figure things out.  🤓
 * aes128-cbc
 * aes192-cbc
 * aes256-cbc
-* aes128-gcm<span></span>@openssh.com (.NET Standard 2.1, .NET 6 and higher)
-* aes256-gcm<span></span>@openssh.com (.NET Standard 2.1, .NET 6 and higher)
+* aes128-gcm<span></span>@openssh.com (.NET 6 and higher)
+* aes256-gcm<span></span>@openssh.com (.NET 6 and higher)
 * blowfish-cbc
 * twofish-cbc
 * twofish192-cbc

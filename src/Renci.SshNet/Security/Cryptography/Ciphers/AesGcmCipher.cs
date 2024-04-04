@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+﻿#if NET6_0_OR_GREATER
 using System;
 using System.Buffers.Binary;
 using System.Security.Cryptography;

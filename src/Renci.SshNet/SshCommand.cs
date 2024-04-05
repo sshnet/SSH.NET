@@ -86,9 +86,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The stream that can be used to transfer data to the command's input stream.
         /// </returns>
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public Stream CreateInputStream()
-#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             if (_channel == null)
             {
@@ -466,7 +464,7 @@ namespace Renci.SshNet
 
                 if (exitStatusInfo.WantReply)
                 {
-                    var replyMessage = new ChannelSuccessMessage(_channel.LocalChannelNumber);
+                    var replyMessage = new ChannelSuccessMessage(_channel.RemoteChannelNumber);
                     _session.SendMessage(replyMessage);
                 }
             }
@@ -474,7 +472,7 @@ namespace Renci.SshNet
             {
                 if (e.Info.WantReply)
                 {
-                    var replyMessage = new ChannelFailureMessage(_channel.LocalChannelNumber);
+                    var replyMessage = new ChannelFailureMessage(_channel.RemoteChannelNumber);
                     _session.SendMessage(replyMessage);
                 }
             }

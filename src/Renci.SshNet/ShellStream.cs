@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -68,18 +69,16 @@ namespace Renci.SshNet
             }
         }
 
-#pragma warning disable MA0076 // Do not use implicit culture-sensitive ToString in interpolated strings
         [Conditional("DEBUG")]
         private void AssertValid()
         {
             Debug.Assert(Monitor.IsEntered(_sync), $"Should be in lock on {nameof(_sync)}");
-            Debug.Assert(_readHead >= 0, $"{nameof(_readHead)} should be non-negative but is {_readHead}");
-            Debug.Assert(_readTail >= 0, $"{nameof(_readTail)} should be non-negative but is {_readTail}");
-            Debug.Assert(_readHead <= _readBuffer.Length, $"{nameof(_readHead)} should be <= {nameof(_readBuffer)}.Length but is {_readHead}");
-            Debug.Assert(_readTail <= _readBuffer.Length, $"{nameof(_readTail)} should be <= {nameof(_readBuffer)}.Length but is {_readTail}");
-            Debug.Assert(_readHead <= _readTail, $"Should have {nameof(_readHead)} <= {nameof(_readTail)} but have {_readHead} <= {_readTail}");
+            Debug.Assert(_readHead >= 0, $"{nameof(_readHead)} should be non-negative but is {_readHead.ToString(CultureInfo.InvariantCulture)}");
+            Debug.Assert(_readTail >= 0, $"{nameof(_readTail)} should be non-negative but is {_readTail.ToString(CultureInfo.InvariantCulture)}");
+            Debug.Assert(_readHead <= _readBuffer.Length, $"{nameof(_readHead)} should be <= {nameof(_readBuffer)}.Length but is {_readHead.ToString(CultureInfo.InvariantCulture)}");
+            Debug.Assert(_readTail <= _readBuffer.Length, $"{nameof(_readTail)} should be <= {nameof(_readBuffer)}.Length but is {_readTail.ToString(CultureInfo.InvariantCulture)}");
+            Debug.Assert(_readHead <= _readTail, $"Should have {nameof(_readHead)} <= {nameof(_readTail)} but have {_readHead.ToString(CultureInfo.InvariantCulture)} <= {_readTail.ToString(CultureInfo.InvariantCulture)}");
         }
-#pragma warning restore MA0076 // Do not use implicit culture-sensitive ToString in interpolated strings
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ShellStream"/> class.

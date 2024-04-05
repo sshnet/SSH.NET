@@ -21,7 +21,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return SecNamedCurves.GetByName("P-521");
+                return SecNamedCurves.GetByName("secp521r1");
             }
         }
 

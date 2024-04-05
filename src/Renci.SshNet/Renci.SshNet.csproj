@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="[2.3.0,)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\images\logo\png\SS-NET-icon-h500.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

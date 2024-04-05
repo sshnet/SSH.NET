@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
+﻿using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {

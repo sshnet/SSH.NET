@@ -1,4 +1,4 @@
-﻿ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
+ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -126,7 +126,6 @@ Private keys can be encrypted using one of the following cipher methods:
 **SSH.NET** supports the following compression algorithms:
 * none (default)
 * zlib<span></span>@openssh.com (.NET 6 and higher)
-* zlib (.NET 6 and higher)
 
 ## Framework Support
 **SSH.NET** supports the following target frameworks:

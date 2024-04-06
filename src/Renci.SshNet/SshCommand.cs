@@ -464,7 +464,7 @@ namespace Renci.SshNet
 
                 if (exitStatusInfo.WantReply)
                 {
-                    var replyMessage = new ChannelSuccessMessage(_channel.LocalChannelNumber);
+                    var replyMessage = new ChannelSuccessMessage(_channel.RemoteChannelNumber);
                     _session.SendMessage(replyMessage);
                 }
             }
@@ -472,7 +472,7 @@ namespace Renci.SshNet
             {
                 if (e.Info.WantReply)
                 {
-                    var replyMessage = new ChannelFailureMessage(_channel.LocalChannelNumber);
+                    var replyMessage = new ChannelFailureMessage(_channel.RemoteChannelNumber);
                     _session.SendMessage(replyMessage);
                 }
             }

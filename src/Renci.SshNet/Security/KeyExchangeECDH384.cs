@@ -1,6 +1,4 @@
 ﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
 
 namespace Renci.SshNet.Security
 {
@@ -15,14 +13,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Gets Curve Parameter.
+        /// Gets curve name.
         /// </summary>
-        protected override X9ECParameters CurveParameter
+        protected override string CurveName
         {
-            get
-            {
-                return SecNamedCurves.GetByName("P-384");
-            }
+            get { return "secp384r1"; }
         }
 
         /// <summary>

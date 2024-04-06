@@ -69,6 +69,7 @@ namespace Renci.SshNet.Security
             _keyAgreement = new ECDHCBasicAgreement();
             _keyAgreement.Init(aKeyPair.Private);
             _clientExchangeValue = ((ECPublicKeyParameters)aKeyPair.Public).Q.GetEncoded();
+
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
 

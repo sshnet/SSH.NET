@@ -9,7 +9,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite
+    public class SftpFileStreamTest_SetLength_SessionOpen_FileAccessReadWrite
     {
         private Mock<ISftpSession> _sftpSessionMock;
         private string _path;
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _bufferSize = (uint) random.Next(1, 1000);
             _readBufferSize = (uint) random.Next(1, 1000);
             _writeBufferSize = (uint) random.Next(1, 1000);
-            _length = random.Next();
+            _length = 7777;
 
             _fileAttributesLastAccessTime = DateTime.UtcNow.AddSeconds(random.Next());
             _fileAttributesLastWriteTime = DateTime.UtcNow.AddSeconds(random.Next());

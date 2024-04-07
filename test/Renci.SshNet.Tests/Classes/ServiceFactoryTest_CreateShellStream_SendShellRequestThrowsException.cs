@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -27,15 +26,13 @@ namespace Renci.SshNet.Tests.Classes
 
         private void SetupData()
         {
-            var random = new Random();
-
-            _terminalName = random.Next().ToString();
-            _columns = (uint) random.Next();
-            _rows = (uint) random.Next();
-            _width = (uint) random.Next();
-            _height = (uint) random.Next();
+            _terminalName = "test";
+            _columns = 80;
+            _rows = 20;
+            _width = 300;
+            _height = 100;
             _terminalModeValues = new Dictionary<TerminalModes, uint>();
-            _bufferSize = random.Next();
+            _bufferSize = 512;
             _sendShellRequestException = new SshException();
             _actualException = null;
         }

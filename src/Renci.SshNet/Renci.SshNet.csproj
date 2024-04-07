@@ -34,6 +34,11 @@
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
   </ItemGroup>
 
+  <ItemGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
+    <Compile Remove="Security\BouncyCastle\**" />
+    <None Remove="Security\BouncyCastle\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\..\images\logo\png\SS-NET-icon-h500.png">
       <Pack>True</Pack>

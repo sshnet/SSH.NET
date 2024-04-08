@@ -10,8 +10,7 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography
     [MemoryDiagnoser]
     public class RsaDigitalSignatureBenchmarks
     {
-        private readonly RsaKey _privateKey;
-        private readonly RsaKey _publicKey;
+        private readonly RsaKey _key;
         private readonly byte[] _data;
         private readonly byte[] _signature;
 
@@ -24,27 +23,21 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography
 
             using (var s = typeof(RsaDigitalSignatureBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.OPENSSH.RSA.txt"))
             {
-                _privateKey = (RsaKey)new PrivateKeyFile(s).Key;
-
-                // The *former* implementations of RsaCipher.Encrypt/Decrypt differ based on whether the supplied RsaKey has private key information
-                // or only public. So we extract out the public key information to a separate variable.
-                _publicKey = new RsaKey(_privateKey.Modulus, _privateKey.Exponent, default, default, default, default);
+                _key = (RsaKey) new PrivateKeyFile(s).Key;
             }
-
-            _signature = new RsaDigitalSignature(_privateKey, HashAlgorithmName.SHA256).Sign(_data);
+            _signature = new RsaDigitalSignature(_key, HashAlgorithmName.SHA256).Sign(_data);
         }
 
         [Benchmark]
         public byte[] Sign()
         {
-            return new RsaDigitalSignature(_privateKey, HashAlgorithmName.SHA256).Sign(_data);
+            return new RsaDigitalSignature(_key, HashAlgorithmName.SHA256).Sign(_data);
         }
 
         [Benchmark]
         public bool Verify()
         {
-            // The former implementation mutates (reverses) the signature... so clone it
-            return new RsaDigitalSignature(_publicKey, HashAlgorithmName.SHA256).Verify(_data, (byte[])_signature.Clone());
+            return new RsaDigitalSignature(_key, HashAlgorithmName.SHA256).Verify(_data, _signature);
         }
     }
 }

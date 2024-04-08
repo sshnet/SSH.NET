@@ -6,9 +6,7 @@ namespace Renci.SshNet.Common
     /// Base class to encapsulates the results of an asynchronous operation that returns result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-#pragma warning disable SA1649 // Normal convention is to name generic files `1, naming this AsyncResult{TResult}.cs breaks docfx.
     public abstract class AsyncResult<TResult> : AsyncResult
-#pragma warning restore SA1649
     {
         // Field set when operation completes
         private TResult _result;

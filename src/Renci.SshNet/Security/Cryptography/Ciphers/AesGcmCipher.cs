@@ -77,18 +77,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The encrypted data with below format:
         ///   <code>
-        ///   [padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [------------------Cipher Text--------------------][-------TAG-------]
+        ///   [packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
+        ///   [------4 bytes------][------------------Cipher Text--------------------][-------TAG-------]
         ///   </code>
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
-            var plainText = new ReadOnlySpan<byte>(input, 8, input.Length - 8);
+            var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
+            var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
 
-            var output = new byte[plainText.Length + TagSize];
-            var cipherText = new Span<byte>(output, 0, plainText.Length);
-            var tag = new Span<byte>(output, plainText.Length, TagSize);
+            var output = new byte[length + TagSize];
+            packetLengthField.CopyTo(output);
+            var cipherText = new Span<byte>(output, 4, length - 4);
+            var tag = new Span<byte>(output, length, TagSize);
 
             _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
 
@@ -119,12 +120,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
             var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
-            var cipherText = new ReadOnlySpan<byte>(input, 8, input.Length - 8 - TagSize);
-            var tag = new ReadOnlySpan<byte>(input, 8 + cipherText.Length, TagSize);
+            var cipherText = new ReadOnlySpan<byte>(input, offset, length);
+            var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
-            var output = new byte[4 + cipherText.Length];
+            var output = new byte[4 + length];
             packetLengthField.CopyTo(output);
-            var plainText = new Span<byte>(output, 4, cipherText.Length);
+            var plainText = new Span<byte>(output, 4, length);
 
             _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
 

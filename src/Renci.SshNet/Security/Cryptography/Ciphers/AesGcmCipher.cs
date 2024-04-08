@@ -113,8 +113,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The decrypted data with below format:
         /// <code>
-        ///   [packet length field][padding length field sz][payload][random paddings]
-        ///   [------4 bytes------][--------------------Plain Text-------------------]
+        ///   [padding length field sz][payload][random paddings]
+        ///   [--------------------Plain Text-------------------]
         /// </code>
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
@@ -123,9 +123,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var cipherText = new ReadOnlySpan<byte>(input, offset, length);
             var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
-            var output = new byte[4 + length];
-            packetLengthField.CopyTo(output);
-            var plainText = new Span<byte>(output, 4, length);
+            var output = new byte[length];
+            var plainText = new Span<byte>(output);
 
             _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
 

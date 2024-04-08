@@ -1305,23 +1305,11 @@ namespace Renci.SshNet
 
             if (_serverCipher != null)
             {
-                if (_serverAead)
+                var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
+                if (numberOfBytesToDecrypt > 0)
                 {
-                    var numberOfBytesToDecryptAndAuthenticate = data.Length - inboundPacketSequenceLength;
-                    if (numberOfBytesToDecryptAndAuthenticate > 0)
-                    {
-                        var decryptedData = _serverCipher.Decrypt(data, inboundPacketSequenceLength, numberOfBytesToDecryptAndAuthenticate);
-                        Buffer.BlockCopy(decryptedData, 0, data, inboundPacketSequenceLength, decryptedData.Length);
-                    }
-                }
-                else
-                {
-                    var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
-                    if (numberOfBytesToDecrypt > 0)
-                    {
-                        var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
-                        Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
-                    }
+                    var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
+                    Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
                 }
             }
 

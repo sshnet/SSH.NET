@@ -1206,7 +1206,7 @@ namespace Renci.SshNet
 
             int blockSize;
 
-            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is not encrypted
+            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is handled separately.
             if (_serverEtm || _serverAead)
             {
                 blockSize = (byte) 4;

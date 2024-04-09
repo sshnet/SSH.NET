@@ -14,11 +14,12 @@
         public abstract byte MinimumSize { get; }
 
         /// <summary>
-        /// Gets the tag (MAC) size.
+        /// Gets the size of the authentication tag for ciphers which implement Authenticated Encryption (AE).
         /// </summary>
-        /// <value>
-        /// The tag (MAC) size.
-        /// </value>
+        /// <returns>
+        /// When this <see cref="Cipher"/> implements Authenticated Encryption, the size, in bytes,
+        /// of the authentication tag included in the encrypted message.
+        /// </returns>
         public virtual int TagSize { get; }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿#if NET6_0_OR_GREATER
 using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -11,7 +12,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    public sealed class AesGcmCipher : SymmetricCipher, IDisposable
+    internal sealed class AesGcmCipher : SymmetricCipher, IDisposable
     {
         private readonly byte[] _iv;
         private readonly AesGcm _aesGcm;
@@ -119,6 +120,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
+            Debug.Assert(offset == 8, "The offset must be 8");
+
             var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
             var cipherText = new ReadOnlySpan<byte>(input, offset, length);
             var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);

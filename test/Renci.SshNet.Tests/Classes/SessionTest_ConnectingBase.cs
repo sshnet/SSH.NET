@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
-        internal SshIdentification ServerIdentification { get; set; }
+        protected SshIdentification ServerIdentification { get; set; }
         protected virtual bool IsStrictKex { get; }
 
         [TestInitialize]

@@ -2,33 +2,37 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connecting_ServerSendsIgnoreMessageAfterKexInit_ServerSupportsStrictKex : SessionTest_ConnectingBase
+    public class SessionTest_Connecting_ServerSendsIgnoreMessageAfterKexInit_NoStrictKex : SessionTest_ConnectingBase
     {
-        protected override bool IsStrictKex
+        protected override bool ServerSupportsStrictKex
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
-        protected override void MITMAttack()
+        protected override void MITMAttackAfterKexInit()
         {
             var ignoreMessage = new IgnoreMessage();
             var ignore = ignoreMessage.GetPacket(8, null);
+
+            // MitM sends ignore message to client
             _ = ServerSocket.Send(ignore, 4, ignore.Length - 4, SocketFlags.None);
+
+            // MitM drops server message
+            ServerOutboundPacketSequence++;
         }
 
         [TestMethod]
-        public void ShouldThrowSshConnectionException()
+        public void DoesNotThrowException()
         {
-            Assert.ThrowsException<SshException>(Session.Connect);
+            Session.Connect();
         }
     }
 }

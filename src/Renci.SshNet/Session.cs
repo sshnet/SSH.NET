@@ -1452,7 +1452,7 @@ namespace Renci.SshNet
 
                 if (_inboundPacketSequence != 1)
                 {
-                    throw new SshConnectionException("KEXINIT was not the first packet during strict key exchange", DisconnectReason.KeyExchangeFailed);
+                    throw new SshConnectionException("KEXINIT was not the first packet during strict key exchange.", DisconnectReason.KeyExchangeFailed);
                 }
             }
 

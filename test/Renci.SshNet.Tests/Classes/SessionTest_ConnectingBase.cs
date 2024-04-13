@@ -47,7 +47,17 @@ namespace Renci.SshNet.Tests.Classes
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
         protected SshIdentification ServerIdentification { get; set; }
-        protected virtual bool IsStrictKex { get; }
+        protected virtual bool ServerSupportsStrictKex { get; }
+
+        protected virtual bool ServerResetsSequenceAfterSendingNewKeys
+        {
+            get
+            {
+                return ServerSupportsStrictKex;
+            }
+        }
+
+        protected uint ServerOutboundPacketSequence { get; set; }
 
         [TestInitialize]
         public void Setup()
@@ -57,7 +67,11 @@ namespace Renci.SshNet.Tests.Classes
             SetupMocks();
         }
 
-        protected virtual void MITMAttack()
+        protected virtual void MITMAttackBeforeKexInit()
+        {
+        }
+
+        protected virtual void MITMAttackAfterKexInit()
         {
         }
 
@@ -99,8 +113,8 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            { Timeout = TimeSpan.FromSeconds(20) };
-            _keyExchangeAlgorithms = IsStrictKex ?
+            { Timeout = TimeSpan.FromSeconds(2000) };
+            _keyExchangeAlgorithms = ServerSupportsStrictKex ?
                                      [Random.Next().ToString(CultureInfo.InvariantCulture), "kex-strict-s-v00@openssh.com"] :
                                      [Random.Next().ToString(CultureInfo.InvariantCulture)];
             SessionId = new byte[10];
@@ -125,6 +139,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Connected += socket =>
             {
                 ServerSocket = socket;
+                MITMAttackBeforeKexInit();
                 var keyExchangeInitMessage = new KeyExchangeInitMessage
                 {
                     CompressionAlgorithmsClientToServer = new string[0],
@@ -140,6 +155,7 @@ namespace Renci.SshNet.Tests.Classes
                 };
                 var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
                 _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+                ServerOutboundPacketSequence++;
             };
             ServerListener.BytesReceived += (received, socket) =>
             {
@@ -147,16 +163,34 @@ namespace Renci.SshNet.Tests.Classes
 
                 if (received.Length > 5 && received[5] == 20)
                 {
-                    MITMAttack();
+                    MITMAttackAfterKexInit();
                     var newKeysMessage = new NewKeysMessage();
                     var newKeys = newKeysMessage.GetPacket(8, null);
                     _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
 
+                    if (ServerResetsSequenceAfterSendingNewKeys)
+                    {
+                        ServerOutboundPacketSequence = 0;
+                    }
+                    else
+                    {
+                        ServerOutboundPacketSequence++;
+                    }
+
                     if (!_authenticationStarted)
                     {
                         var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
-                                                                              .Build();
-                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
+                                                                              .Build(ServerOutboundPacketSequence);
+                        var hash = Abstractions.CryptoAbstraction.CreateSHA256().ComputeHash(serviceAcceptMessage);
+
+                        var packet = new byte[serviceAcceptMessage.Length - 4 + hash.Length];
+
+                        Array.Copy(serviceAcceptMessage, 4, packet, 0, serviceAcceptMessage.Length - 4);
+                        Array.Copy(hash, 0, packet, serviceAcceptMessage.Length - 4, hash.Length);
+
+                        _ = ServerSocket.Send(packet, 0, packet.Length, SocketFlags.None);
+
+                        ServerOutboundPacketSequence++;
 
                         _authenticationStarted = true;
                     }
@@ -202,7 +236,7 @@ namespace Renci.SshNet.Tests.Classes
                                 .Returns((ref bool serverEtm) =>
                                 {
                                     serverEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return SHA256.Create();
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientEtm) =>
@@ -234,13 +268,14 @@ namespace Renci.SshNet.Tests.Classes
                 return new ServiceAcceptMessageBuilder(serviceName);
             }
 
-            public byte[] Build()
+            public byte[] Build(uint sequence)
             {
                 var serviceName = _serviceName.ToArray();
                 var target = new ServiceAcceptMessage();
 
-                var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
+                var sshDataStream = new SshDataStream(4 + 4 + 1 + 1 + 4 + serviceName.Length);
+                sshDataStream.Write(sequence);
+                sshDataStream.Write((uint) (sshDataStream.Capacity - 8)); //sequence and packet length
                 sshDataStream.WriteByte(0); // padding length
                 sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);

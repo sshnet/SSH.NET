@@ -10,17 +10,17 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connecting_ServerSendsDebugMessageAfterKexInit_ServerSupportsStrictKex : SessionTest_ConnectingBase
+    public class SessionTest_Connecting_ServerSendsDebugMessageAfterKexInit_NoStrictKex : SessionTest_ConnectingBase
     {
-        protected override bool IsStrictKex
+        protected override bool ServerSupportsStrictKex
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
-        protected override void MITMAttack()
+        protected override void MITMAttackAfterKexInit()
         {
             using var stream = new SshDataStream(0);
             stream.WriteByte(1);
@@ -29,15 +29,22 @@ namespace Renci.SshNet.Tests.Classes
 
             var debugMessage = new DebugMessage();
             debugMessage.Load(stream.ToArray());
-
             var debug = debugMessage.GetPacket(8, null);
+
+            // MitM sends debug message to client
             _ = ServerSocket.Send(debug, 4, debug.Length - 4, SocketFlags.None);
+
+            // MitM drops server message
+            ServerOutboundPacketSequence++;
         }
 
         [TestMethod]
-        public void ShouldThrowSshConnectionException()
+        public void ThrowsSshException()
         {
-            Assert.ThrowsException<SshException>(Session.Connect);
+            // Should we allow debug message during kex in non-strict-kex mode?
+            // Probably better to keep this behavior as is, unless someone strongly disagree.
+            var message = Assert.ThrowsException<SshException>(Session.Connect).Message;
+            Assert.AreEqual("Message type 4 is not valid in the current context.", message);
         }
     }
 }

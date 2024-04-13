@@ -7,13 +7,26 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connecting_ServerSendsIgnoreMessageAfterKexInit_ServerDoesNotSupportStrictKex : SessionTest_ConnectingBase
+    public class SessionTest_Connecting_ServerSendsIgnoreMessageBeforeKexInit_NoStrictKex : SessionTest_ConnectingBase
     {
-        protected override void MITMAttack()
+        protected override bool ServerSupportsStrictKex
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        protected override void MITMAttackBeforeKexInit()
         {
             var ignoreMessage = new IgnoreMessage();
             var ignore = ignoreMessage.GetPacket(8, null);
+
+            // MitM sends ignore message to client
             _ = ServerSocket.Send(ignore, 4, ignore.Length - 4, SocketFlags.None);
+
+            // MitM drops server message
+            ServerOutboundPacketSequence++;
         }
 
         [TestMethod]

@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connecting_ServerResetsSequenceNumberAfterNewKeys_NoStrictKex : SessionTest_ConnectingBase
+    public class SessionTest_Connecting_ServerResetsSequenceNumberAfterNewKeys_StrictKex : SessionTest_ConnectingBase
     {
         protected override bool ServerSupportsStrictKex
         {

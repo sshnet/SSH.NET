@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -113,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            { Timeout = TimeSpan.FromSeconds(2000) };
+            { Timeout = TimeSpan.FromSeconds(20) };
             _keyExchangeAlgorithms = ServerSupportsStrictKex ?
                                      [Random.Next().ToString(CultureInfo.InvariantCulture), "kex-strict-s-v00@openssh.com"] :
                                      [Random.Next().ToString(CultureInfo.InvariantCulture)];

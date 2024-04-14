@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected override void MITMAttackAfterKexInit()
+        protected override void ActionAfterKexInit()
         {
             using var stream = new SshDataStream(0);
             stream.WriteByte(1);

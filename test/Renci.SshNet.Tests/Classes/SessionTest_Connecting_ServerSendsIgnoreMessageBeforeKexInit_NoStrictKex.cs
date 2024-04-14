@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected override void MITMAttackBeforeKexInit()
+        protected override void ActionBeforeKexInit()
         {
             var ignoreMessage = new IgnoreMessage();
             var ignore = ignoreMessage.GetPacket(8, null);

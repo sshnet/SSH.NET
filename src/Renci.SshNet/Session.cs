@@ -1333,6 +1333,11 @@ namespace Renci.SshNet
 
             _inboundPacketSequence++;
 
+            if (_inboundPacketSequence == uint.MaxValue && _isInitialKex)
+            {
+                throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);
+            }
+
             return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
         }
 

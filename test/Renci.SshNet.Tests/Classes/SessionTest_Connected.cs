@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -28,6 +29,31 @@ namespace Renci.SshNet.Tests.Classes
         public void ClientVersionIsRenciSshNet()
         {
             Assert.AreEqual("SSH-2.0-Renci.SshNet.SshClient.0.0.1", Session.ClientVersion);
+        }
+
+        [TestMethod]
+        public void IncludeStrictKexPseudoAlgorithmInInitKex()
+        {
+            Assert.IsTrue(ServerBytesReceivedRegister.Count > 0);
+
+            var kexInitMessage = new KeyExchangeInitMessage();
+            kexInitMessage.Load(ServerBytesReceivedRegister[0], 4 + 1 + 1, ServerBytesReceivedRegister[0].Length - 4 - 1 - 1);
+            Assert.IsTrue(kexInitMessage.KeyExchangeAlgorithms.Contains("kex-strict-c-v00@openssh.com"));
+        }
+
+        [TestMethod]
+        public void ShouldNotIncludeStrictKexPseudoAlgorithmInSubsequenceKex()
+        {
+            ServerBytesReceivedRegister.Clear();
+            Session.SendMessage(Session.ClientInitMessage);
+
+            Thread.Sleep(100);
+
+            Assert.IsTrue(ServerBytesReceivedRegister.Count > 0);
+
+            var kexInitMessage = new KeyExchangeInitMessage();
+            kexInitMessage.Load(ServerBytesReceivedRegister[0], 4 + 1 + 1, ServerBytesReceivedRegister[0].Length - 4 - 1 - 1);
+            Assert.IsFalse(kexInitMessage.KeyExchangeAlgorithms.Contains("kex-strict-c-v00@openssh.com"));
         }
 
         [TestMethod]

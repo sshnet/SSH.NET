@@ -67,11 +67,11 @@ namespace Renci.SshNet.Tests.Classes
             SetupMocks();
         }
 
-        protected virtual void MITMAttackBeforeKexInit()
+        protected virtual void ActionBeforeKexInit()
         {
         }
 
-        protected virtual void MITMAttackAfterKexInit()
+        protected virtual void ActionAfterKexInit()
         {
         }
 
@@ -139,7 +139,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Connected += socket =>
             {
                 ServerSocket = socket;
-                MITMAttackBeforeKexInit();
+                ActionBeforeKexInit();
                 var keyExchangeInitMessage = new KeyExchangeInitMessage
                 {
                     CompressionAlgorithmsClientToServer = new string[0],
@@ -163,7 +163,7 @@ namespace Renci.SshNet.Tests.Classes
 
                 if (received.Length > 5 && received[5] == 20)
                 {
-                    MITMAttackAfterKexInit();
+                    ActionAfterKexInit();
                     var newKeysMessage = new NewKeysMessage();
                     var newKeys = newKeysMessage.GetPacket(8, null);
                     _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);

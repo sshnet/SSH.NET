@@ -1286,9 +1286,11 @@ namespace Renci.SshNet
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
-                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
-                // TODO That way we can eliminate the extra allocation of the Take above.
-                if (!serverHash.IsEqualTo(clientHash))
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+                if (!CryptographicOperations.FixedTimeEquals(clientHash, serverHash))
+#else
+                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, serverHash))
+#endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
@@ -1314,9 +1316,11 @@ namespace Renci.SshNet
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
-                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
-                // TODO That way we can eliminate the extra allocation of the Take above.
-                if (!serverHash.IsEqualTo(clientHash))
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+                if (!CryptographicOperations.FixedTimeEquals(clientHash, serverHash))
+#else
+                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, serverHash))
+#endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }

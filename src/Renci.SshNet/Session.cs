@@ -1333,6 +1333,8 @@ namespace Renci.SshNet
 
             _inboundPacketSequence++;
 
+            // The below code mirrors from https://github.com/openssh/openssh-portable/commit/1edb00c58f8a6875fad6a497aa2bacf37f9e6cd5
+            // It ensures the integrity of key exchange process.
             if (_inboundPacketSequence == uint.MaxValue && _isInitialKex)
             {
                 throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);

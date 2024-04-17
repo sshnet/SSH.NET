@@ -7,11 +7,13 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 [![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
 
 ## Introduction
+
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported
 for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism
 to achieve the best performance possible.
 
 ## Documentation
+
 There is MSDN-style class documentation in a .chm file for each release, which you can find in the Assets section
 of the [latest release](https://github.com/sshnet/SSH.NET/releases/latest) page.  Please note that you will need
 to [right-click and "unblock"](https://support.microsoft.com/en-us/help/2021383/some-chm-files-may-not-render-properly-on-windows-vista-and-windows-7)
@@ -26,6 +28,7 @@ invited to read the source, Luke, and highly encouraged to generate a pull reque
 the missing test once you figure things out.  🤓
 
 ## Features
+
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 
 * Provide SFTP functionality for both synchronous and asynchronous operations
@@ -121,6 +124,7 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha2-512-etm<span></span>@openssh.com
 
 ## Framework Support
+
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
 * .NET Standard 2.0 and 2.1

@@ -1,4 +1,4 @@
-﻿ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
+ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -122,6 +122,13 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha1-96-etm<span></span>@openssh.com
 * hmac-sha2-256-etm<span></span>@openssh.com
 * hmac-sha2-512-etm<span></span>@openssh.com
+
+
+## Compression
+
+**SSH.NET** supports the following compression algorithms:
+* none (default)
+* zlib<span></span>@openssh.com (.NET 6 and higher)
 
 ## Framework Support
 

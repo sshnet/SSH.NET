@@ -1284,7 +1284,6 @@ namespace Renci.SshNet
             if (_serverMac != null && _serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
 #else
@@ -1313,8 +1312,6 @@ namespace Renci.SshNet
             if (_serverMac != null && !_serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-                var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
-
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
 #else

@@ -121,7 +121,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return base.IsConnected && _sftpSession.IsOpen;
+                return base.IsConnected && _sftpSession?.IsOpen == true;
             }
         }
 

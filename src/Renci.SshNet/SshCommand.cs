@@ -5,9 +5,12 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 
+using CsvHelper;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 
@@ -118,8 +121,12 @@ namespace Renci.SshNet
                                                      detectEncodingFromByteOrderMarks: true,
                                                      bufferSize: 1024,
                                                      leaveOpen: true))
+                    using (var csv = new CsvReader(sr, CultureInfo.InvariantCulture))
                     {
-                        _ = _result.Append(sr.ReadToEnd());
+                        foreach (var m in csv.GetRecords<Message>())
+                        {
+                            _ = _result.Append(m);
+                        }
                     }
                 }
 

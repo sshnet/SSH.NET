@@ -30,7 +30,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
     <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[7.0.0,)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +42,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="31.0.4" />
   </ItemGroup>
 
 </Project>

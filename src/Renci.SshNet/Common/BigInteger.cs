@@ -212,9 +212,7 @@ namespace Renci.SshNet.Common
             else
             {
                 _sign = -1;
-#pragma warning disable SA1021 // Negative signs should be spaced correctly
                 _data = new[] { (uint) -value };
-#pragma warning restore SA1021 // Negative signs should be spaced correctly
             }
         }
 
@@ -1330,9 +1328,7 @@ namespace Renci.SshNet.Common
 
             if (left._sign == 0)
             {
-#pragma warning disable SA1021 // Negative signs should be spaced correctly
                 return new BigInteger((short) -right._sign, right._data);
-#pragma warning restore SA1021 // Negative signs should be spaced correctly
             }
 
             if (left._sign == right._sign)
@@ -1528,9 +1524,7 @@ namespace Renci.SshNet.Common
                 return value;
             }
 
-#pragma warning disable SA1021 // Negative signs should be spaced correctly
             return new BigInteger((short) -value._sign, value._data);
-#pragma warning restore SA1021 // Negative signs should be spaced correctly
         }
 
         /// <summary>

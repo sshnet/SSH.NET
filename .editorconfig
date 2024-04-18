@@ -63,6 +63,12 @@ dotnet_diagnostic.S1125.severity = none
 # This is a duplicate of MA0026.
 dotnet_diagnostic.S1135.severity = none
 
+
+# SA1137: Elements should have the same indentation
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1137.md
+# duplicate of IDE0055
+dotnet_diagnostic.SA1137.severity = none
+
 # S1168: Empty arrays and collections should be returned instead of null
 # https://rules.sonarsource.com/csharp/RSPEC-1168
 #
@@ -338,6 +344,15 @@ dotnet_diagnostic.SA1008.severity = none
 # For example:
 # var x = (int) z;
 dotnet_diagnostic.SA1009.severity = none
+
+# SA1021: A negative sign within a C# element is not spaced correctly.
+# disabled, because it conflicts with csharp_space_after_cast
+dotnet_diagnostic.SA1021.severity = none
+
+# SA1025: Code should not contain multiple whitespace in a row
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1025.md
+# duplicate of IDE0055
+dotnet_diagnostic.SA1025.severity = none
 
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
@@ -742,18 +757,6 @@ dotnet_diagnostic.IDE0046.severity = suggestion
 # 
 # Removing "unnecessary" parentheses is not always a clear win for readability.
 dotnet_diagnostic.IDE0047.severity = suggestion
-
-# IDE0055: Fix formatting
-#
-# When enabled, diagnostics are reported for indented object initializers.
-# For example:
-# _content = new Person
-#     {
-#         Name = "\u13AAlarm"
-#     };
-#
-# There are no settings to configure this correctly, unless https://github.com/dotnet/roslyn/issues/63256 (or similar) is ever implemented.
-dotnet_diagnostic.IDE0055.severity = none
 
 # IDE0130: Namespace does not match folder structure
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0130

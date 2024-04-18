@@ -50,20 +50,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Decrypts the specified data.
-        /// </summary>
-        /// <param name="input">The data.</param>
-        /// <returns>
-        /// The decrypted data.
-        /// </returns>
-        /// <exception cref="NotSupportedException">Only block type 01 or 02 are supported.</exception>
-        /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return Decrypt(input, 0, input.Length);
-        }
-
-        /// <summary>
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>

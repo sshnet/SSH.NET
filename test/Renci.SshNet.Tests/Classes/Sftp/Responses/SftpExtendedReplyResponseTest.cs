@@ -63,10 +63,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var namemax = (ulong) _random.Next(0, int.MaxValue);
 
             var sshDataStream = new SshDataStream(4 + 1 + 4 + 88)
-                {
-                    Position = 4 // skip 4 bytes for SSH packet length
-                };
-            sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
+            {
+                Position = 4 // skip 4 bytes for SSH packet length
+            };
+            sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(bsize);
             sshDataStream.Write(frsize);

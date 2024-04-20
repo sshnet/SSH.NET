@@ -6,7 +6,9 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Connection;
@@ -108,18 +110,18 @@ namespace Renci.SshNet.Tests.Classes
                     // having established the connection instead of when the client has been identified
 
                     var keyExchangeInitMessage = new KeyExchangeInitMessage
-                        {
-                            CompressionAlgorithmsClientToServer = new string[0],
-                            CompressionAlgorithmsServerToClient = new string[0],
-                            EncryptionAlgorithmsClientToServer = new string[0],
-                            EncryptionAlgorithmsServerToClient = new string[0],
-                            KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
-                            LanguagesClientToServer = new string[0],
-                            LanguagesServerToClient = new string[0],
-                            MacAlgorithmsClientToServer = new string[0],
-                            MacAlgorithmsServerToClient = new string[0],
-                            ServerHostKeyAlgorithms = new string[0]
-                        };
+                    {
+                        CompressionAlgorithmsClientToServer = new string[0],
+                        CompressionAlgorithmsServerToClient = new string[0],
+                        EncryptionAlgorithmsClientToServer = new string[0],
+                        EncryptionAlgorithmsServerToClient = new string[0],
+                        KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
+                        LanguagesClientToServer = new string[0],
+                        LanguagesServerToClient = new string[0],
+                        MacAlgorithmsClientToServer = new string[0],
+                        MacAlgorithmsServerToClient = new string[0],
+                        ServerHostKeyAlgorithms = new string[0]
+                    };
                     var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
                     _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };
@@ -204,7 +206,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public  void Act()
+        public void Act()
         {
             for (var i = 0; i < 50; i++)
             {
@@ -242,7 +244,7 @@ namespace Renci.SshNet.Tests.Classes
                 var target = new ServiceAcceptMessage();
 
                 var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
+                sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
                 sshDataStream.WriteByte(0); // padding length
                 sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);

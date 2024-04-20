@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -84,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelBindStarted = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
 
-            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
+            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint) _endpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
@@ -103,7 +106,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>()));
+            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>()));
             _channelMock.Setup(p => p.IsOpen).Returns(true);
             _channelMock.Setup(p => p.Bind()).Callback(() =>
                 {
@@ -218,7 +221,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var userNameBytes = Encoding.ASCII.GetBytes(_userName);
             var addressBytes = _remoteEndpoint.Address.GetAddressBytes();
-            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).Reverse().ToArray();
+            var portBytes = BitConverter.GetBytes((ushort) _remoteEndpoint.Port).Reverse().ToArray();
 
             _client.Connect(_endpoint);
 

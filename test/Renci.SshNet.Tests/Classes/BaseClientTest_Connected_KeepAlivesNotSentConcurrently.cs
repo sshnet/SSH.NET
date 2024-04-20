@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -47,9 +50,9 @@ namespace Renci.SshNet.Tests.Classes
             base.Arrange();
 
             _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object)
-                {
-                    KeepAliveInterval = TimeSpan.FromMilliseconds(50d)
-                };
+            {
+                KeepAliveInterval = TimeSpan.FromMilliseconds(50d)
+            };
             _client.Connect();
         }
 

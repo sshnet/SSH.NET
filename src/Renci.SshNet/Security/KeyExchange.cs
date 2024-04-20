@@ -427,11 +427,11 @@ namespace Renci.SshNet.Security
             while (size > result.Count)
             {
                 var sessionKeyAdjustment = new SessionKeyAdjustment
-                    {
-                        SharedKey = sharedKey,
-                        ExchangeHash = exchangeHash,
-                        Key = key,
-                    };
+                {
+                    SharedKey = sharedKey,
+                    ExchangeHash = exchangeHash,
+                    Key = key,
+                };
 
                 result.AddRange(Hash(sessionKeyAdjustment.GetBytes()));
             }
@@ -452,12 +452,12 @@ namespace Renci.SshNet.Security
         private static byte[] GenerateSessionKey(byte[] sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
         {
             var sessionKeyGeneration = new SessionKeyGeneration
-                {
-                    SharedKey = sharedKey,
-                    ExchangeHash = exchangeHash,
-                    Char = p,
-                    SessionId = sessionId
-                };
+            {
+                SharedKey = sharedKey,
+                ExchangeHash = exchangeHash,
+                Char = p,
+                SessionId = sessionId
+            };
             return sessionKeyGeneration.GetBytes();
         }
 

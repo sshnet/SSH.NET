@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
@@ -30,8 +32,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
             var random = new Random();
 
             _encoding = Encoding.Unicode;
-            _protocolVersion = (uint)random.Next(0, int.MaxValue);
-            _requestId = (uint)random.Next(0, int.MaxValue);
+            _protocolVersion = (uint) random.Next(0, int.MaxValue);
+            _requestId = (uint) random.Next(0, int.MaxValue);
             _oldPath = random.Next().ToString(CultureInfo.InvariantCulture);
             _oldPathBytes = _encoding.GetBytes(_oldPath);
             _newPath = random.Next().ToString(CultureInfo.InvariantCulture);
@@ -93,7 +95,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
             Assert.AreEqual((byte) SftpMessageTypes.Extended, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
             Assert.AreEqual((uint) _nameBytes.Length, sshDataStream.ReadUInt32());

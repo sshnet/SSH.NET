@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.AreEqual(3, bytesRead);
             CollectionAssert.AreEqual(expectedReadBytes, readBytes2);
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong)_readBytes.Length, _readBufferSize), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong) _readBytes.Length, _readBufferSize), Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(3));
         }
     }

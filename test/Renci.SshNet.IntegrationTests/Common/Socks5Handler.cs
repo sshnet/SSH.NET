@@ -138,8 +138,8 @@ namespace Renci.SshNet.IntegrationTests.Common
             SocketAbstraction.Send(socket, addressBytes);
 
             //  Send port
-            SocketWriteByte(socket, (byte)(port / 0xFF));
-            SocketWriteByte(socket, (byte)(port % 0xFF));
+            SocketWriteByte(socket, (byte) (port / 0xFF));
+            SocketWriteByte(socket, (byte) (port % 0xFF));
 
             //  Read Server SOCKS5 version
             if (SocketReadByte(socket) != 5)

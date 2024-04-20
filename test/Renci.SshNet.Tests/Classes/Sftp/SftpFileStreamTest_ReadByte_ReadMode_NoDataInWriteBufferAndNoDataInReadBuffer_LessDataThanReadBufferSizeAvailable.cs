@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -65,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          _path,
                                          FileMode.Open,
                                          FileAccess.Read,
-                                         (int)_bufferSize);
+                                         (int) _bufferSize);
         }
 
         protected override void Act()

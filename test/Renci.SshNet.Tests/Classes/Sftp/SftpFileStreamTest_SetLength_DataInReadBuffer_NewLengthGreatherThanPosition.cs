@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Sftp.Responses;
-using System.Threading;
+using Renci.SshNet.Tests.Common;
 
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -150,7 +153,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.RequestRead(_handle,
                                                      (uint) (_readBytes1.Length + _readBytes2.Length),
                                                      _readBufferSize))
-                           .Returns(new byte[] {0x0f});
+                           .Returns(new byte[] { 0x0f });
 
             var byteRead = _sftpFileStream.ReadByte();
 

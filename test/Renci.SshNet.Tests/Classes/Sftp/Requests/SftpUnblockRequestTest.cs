@@ -25,8 +25,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var random = new Random();
 
-            _protocolVersion = (uint)random.Next(0, int.MaxValue);
-            _requestId = (uint)random.Next(0, int.MaxValue);
+            _protocolVersion = (uint) random.Next(0, int.MaxValue);
+            _requestId = (uint) random.Next(0, int.MaxValue);
             _handle = new byte[random.Next(1, 10)];
             random.NextBytes(_handle);
             _offset = (ulong) random.Next(0, int.MaxValue);

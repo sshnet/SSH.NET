@@ -72,11 +72,11 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Start();
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 500,
-                    SendTimeout = 500,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 500,
+                SendTimeout = 500,
+                SendBufferSize = 0
+            };
             _client.Connect(_endpoint);
 
             // allow for client socket to establish connection

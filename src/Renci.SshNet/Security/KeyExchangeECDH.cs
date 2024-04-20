@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -45,7 +46,7 @@ namespace Renci.SshNet.Security
             var aKeyPair = g.GenerateKeyPair();
             _keyAgreement = new ECDHCBasicAgreement();
             _keyAgreement.Init(aKeyPair.Private);
-            _clientExchangeValue = ((ECPublicKeyParameters)aKeyPair.Public).Q.GetEncoded();
+            _clientExchangeValue = ((ECPublicKeyParameters) aKeyPair.Public).Q.GetEncoded();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
@@ -91,7 +92,7 @@ namespace Renci.SshNet.Security
             var y = new byte[cordSize];
             Buffer.BlockCopy(serverExchangeValue, cordSize + 1, y, 0, y.Length);
 
-            var c = (FpCurve)_domainParameters.Curve;
+            var c = (FpCurve) _domainParameters.Curve;
             var q = c.CreatePoint(new Org.BouncyCastle.Math.BigInteger(1, x), new Org.BouncyCastle.Math.BigInteger(1, y));
             var publicKey = new ECPublicKeyParameters("ECDH", q, _domainParameters);
 

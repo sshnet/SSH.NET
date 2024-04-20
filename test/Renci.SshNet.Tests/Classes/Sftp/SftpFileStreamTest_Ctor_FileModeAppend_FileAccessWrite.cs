@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
@@ -164,7 +167,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _target.Write(buffer, 0, buffer.Length);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
-            SftpSessionMock.Verify(p => p.RequestWrite(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWrite(_handle, (ulong) _fileAttributes.Size, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null), Times.Once);
         }
 
         [TestMethod]

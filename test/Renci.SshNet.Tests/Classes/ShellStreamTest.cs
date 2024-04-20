@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -37,8 +40,8 @@ namespace Renci.SshNet.Tests.Classes
             _terminalName = random.Next().ToString(CultureInfo.InvariantCulture);
             _widthColumns = (uint) random.Next();
             _heightRows = (uint) random.Next();
-            _widthPixels = (uint)random.Next();
-            _heightPixels = (uint)random.Next();
+            _widthPixels = (uint) random.Next();
+            _heightPixels = (uint) random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 500);
 
@@ -95,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes
             var shellStream = CreateShellStream();
             const string line = null;
             var lineTerminator = _encoding.GetBytes("\r");
-            
+
             _ = _channelSessionMock.Setup(p => p.SendData(
                                        It.Is<byte[]>(data => data.Take(lineTerminator.Length).IsEqualTo(lineTerminator)),
                                        0,

@@ -250,7 +250,7 @@ namespace Renci.SshNet
                 WriteBinaryString(_message.Username);
                 WriteBinaryString(_serviceName);
                 WriteBinaryString(_authenticationMethod);
-                Write((byte)1); // TRUE
+                Write((byte) 1); // TRUE
                 WriteBinaryString(_message.PublicKeyAlgorithmName);
                 WriteBinaryString(_message.PublicKeyData);
             }

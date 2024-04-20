@@ -14,7 +14,7 @@
             FingerPrint = fingerPrint;
         }
 
-        public string KeyName {get; }
+        public string KeyName { get; }
         public string FilePath { get; }
         public byte[] FingerPrint { get; }
     }

@@ -1,6 +1,9 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
@@ -25,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var random = new Random();
 
-            _bufferSize = (uint)random.Next(1, int.MaxValue);
+            _bufferSize = (uint) random.Next(1, int.MaxValue);
             _openAsyncResult = new SftpOpenAsyncResult(null, null);
             _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
             _statAsyncResult = new SFtpStatAsyncResult(null, null);

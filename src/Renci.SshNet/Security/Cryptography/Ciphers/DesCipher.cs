@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -429,7 +430,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             for (var round = 0; round < 8; round++)
             {
                 work = (right << 28) | (right >> 4);
-                work ^= (uint)wKey[(round * 4) + 0];
+                work ^= (uint) wKey[(round * 4) + 0];
                 var fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
@@ -441,12 +442,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 fval |= Sp2[(work >> 24) & 0x3f];
                 left ^= fval;
                 work = (left << 28) | (left >> 4);
-                work ^= (uint)wKey[(round * 4) + 2];
+                work ^= (uint) wKey[(round * 4) + 2];
                 fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = left ^ (uint)wKey[(round * 4) + 3];
+                work = left ^ (uint) wKey[(round * 4) + 3];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];

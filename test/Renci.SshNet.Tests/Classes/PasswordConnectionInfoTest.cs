@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Net;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System;
-using System.Net;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -42,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
+            _ = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string) null);
         }
 
         [TestMethod]

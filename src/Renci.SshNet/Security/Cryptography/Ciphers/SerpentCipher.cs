@@ -8,7 +8,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     public sealed class SerpentCipher : BlockCipher
     {
         private const int Rounds = 32;
-        private const int Phi = unchecked((int)0x9E3779B9); // (Sqrt(5) - 1) * 2**31
+        private const int Phi = unchecked((int) 0x9E3779B9); // (Sqrt(5) - 1) * 2**31
 
         private readonly int[] _workingKey;
 
@@ -686,9 +686,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private static void WordToBytes(int word, byte[] dst, int dstOff)
         {
             dst[dstOff + 3] = (byte) word;
-            dst[dstOff + 2] = (byte) ((uint)word >> 8);
-            dst[dstOff + 1] = (byte) ((uint)word >> 16);
-            dst[dstOff] = (byte) ((uint)word >> 24);
+            dst[dstOff + 2] = (byte) ((uint) word >> 8);
+            dst[dstOff + 1] = (byte) ((uint) word >> 16);
+            dst[dstOff] = (byte) ((uint) word >> 24);
         }
 
         /*

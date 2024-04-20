@@ -100,7 +100,7 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
+            { Timeout = TimeSpan.FromSeconds(20) };
             _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
@@ -133,9 +133,9 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint)
-                {
-                    ShutdownRemoteCommunicationSocket = false
-                };
+            {
+                ShutdownRemoteCommunicationSocket = false
+            };
             ServerListener.Connected += socket =>
                 {
                     ServerSocket = socket;
@@ -284,7 +284,7 @@ namespace Renci.SshNet.Tests.Classes
                 var target = new ServiceAcceptMessage();
 
                 var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
+                sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
                 sshDataStream.WriteByte(0); // padding length
                 sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);

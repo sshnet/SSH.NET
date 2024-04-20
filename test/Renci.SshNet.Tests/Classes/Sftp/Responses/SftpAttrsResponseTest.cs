@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
@@ -18,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             _random = new Random();
             _protocolVersion = (uint) _random.Next(0, int.MaxValue);
-            _responseId = (uint)_random.Next(0, int.MaxValue);
+            _responseId = (uint) _random.Next(0, int.MaxValue);
         }
 
         [TestMethod]

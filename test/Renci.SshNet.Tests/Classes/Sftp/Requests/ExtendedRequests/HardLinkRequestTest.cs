@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
@@ -27,8 +29,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
         public void Init()
         {
             var random = new Random();
-            _protocolVersion = (uint)random.Next(0, int.MaxValue);
-            _requestId = (uint)random.Next(0, int.MaxValue);
+            _protocolVersion = (uint) random.Next(0, int.MaxValue);
+            _requestId = (uint) random.Next(0, int.MaxValue);
             _oldPath = random.Next().ToString(CultureInfo.InvariantCulture);
             _oldPathBytes = Encoding.UTF8.GetBytes(_oldPath);
             _newPath = random.Next().ToString(CultureInfo.InvariantCulture);

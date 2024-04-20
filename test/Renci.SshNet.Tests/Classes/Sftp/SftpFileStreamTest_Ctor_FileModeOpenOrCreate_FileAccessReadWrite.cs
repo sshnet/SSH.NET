@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
@@ -30,8 +33,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileMode = FileMode.OpenOrCreate;
             _fileAccess = FileAccess.ReadWrite;
             _bufferSize = _random.Next(5, 1000);
-            _readBufferSize = (uint)_random.Next(5, 1000);
-            _writeBufferSize = (uint)_random.Next(5, 1000);
+            _readBufferSize = (uint) _random.Next(5, 1000);
+            _writeBufferSize = (uint) _random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
         }
 

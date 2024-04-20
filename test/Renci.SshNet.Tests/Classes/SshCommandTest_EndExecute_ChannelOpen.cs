@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -99,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual(typeof (ArgumentException), ex.GetType());
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("EndExecute can only be called once for each asynchronous operation.", ex.Message);
                 Assert.IsNull(ex.ParamName);

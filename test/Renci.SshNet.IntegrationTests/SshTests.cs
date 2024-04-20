@@ -86,12 +86,12 @@ namespace Renci.SshNet.IntegrationTests
             const string remoteFile = "/home/sshnet/test.sh";
 
             List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 5 ",
-                                          "Line 6",
-                                          "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
+                "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 5 ",
+                "Line 6",
+                "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -483,7 +483,7 @@ namespace Renci.SshNet.IntegrationTests
                     for (var i = 0; i < (connectionInfo.MaxSessions + 1); i++)
                     {
                         var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                                   (uint)localEndPoint.Port,
+                                                                   (uint) localEndPoint.Port,
                                                                    hostNameAlias,
                                                                    80);
                         client.AddForwardedPort(forwardedPort);
@@ -498,7 +498,7 @@ namespace Renci.SshNet.IntegrationTests
 
                             try
                             {
-                                using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
+                                using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
                                 {
                                     Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                                 }
@@ -550,7 +550,7 @@ namespace Renci.SshNet.IntegrationTests
                     var localEndPoint = new IPEndPoint(IPAddress.Loopback, 1225);
 
                     var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                               (uint)localEndPoint.Port,
+                                                               (uint) localEndPoint.Port,
                                                                hostNameAlias,
                                                                80);
                     forwardedPort.Exception +=
@@ -568,7 +568,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
+                            using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
                             {
                                 Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                             }
@@ -627,7 +627,7 @@ namespace Renci.SshNet.IntegrationTests
                 var forwardedPort1 = new ForwardedPortRemote(IPAddress.Loopback,
                                                              10002,
                                                              endpoint1.Address,
-                                                             (uint)endpoint1.Port);
+                                                             (uint) endpoint1.Port);
                 forwardedPort1.Exception += (sender, args) => Console.WriteLine(@"forwardedPort1 exception: " + args.Exception);
                 client.AddForwardedPort(forwardedPort1);
                 forwardedPort1.Start();
@@ -635,7 +635,7 @@ namespace Renci.SshNet.IntegrationTests
                 var forwardedPort2 = new ForwardedPortRemote(IPAddress.Loopback,
                                                              10003,
                                                              endpoint2.Address,
-                                                             (uint)endpoint2.Port);
+                                                             (uint) endpoint2.Port);
                 forwardedPort2.Exception += (sender, args) => Console.WriteLine(@"forwardedPort2 exception: " + args.Exception);
                 client.AddForwardedPort(forwardedPort2);
                 forwardedPort2.Start();
@@ -940,7 +940,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
+
                 using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
                 {
                     sw.Write(script);

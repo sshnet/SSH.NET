@@ -189,7 +189,7 @@ namespace Renci.SshNet.Common
         {
             _data.Add(Boolean);
             _data.Add(1);
-            _data.Add((byte)(data ? 1 : 0));
+            _data.Add((byte) (data ? 1 : 0));
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Renci.SshNet.Common
                 var buffer = new byte[8];
                 var bufferIndex = buffer.Length - 1;
 
-                var current = (byte)(item & 0x7F);
+                var current = (byte) (item & 0x7F);
                 do
                 {
                     buffer[bufferIndex] = current;
@@ -256,7 +256,7 @@ namespace Renci.SshNet.Common
                     }
 
                     item >>= 7;
-                    current = (byte)(item & 0x7F);
+                    current = (byte) (item & 0x7F);
                     bufferIndex--;
                 }
                 while (current > 0);
@@ -329,11 +329,11 @@ namespace Renci.SshNet.Common
                 }
 
                 var data = new byte[size];
-                data[0] = (byte)(size | 0x80);
+                data[0] = (byte) (size | 0x80);
 
                 for (int i = (size - 1) * 8, j = 1; i >= 0; i -= 8, j++)
                 {
-                    data[j] = (byte)(length >> i);
+                    data[j] = (byte) (length >> i);
                 }
 
                 return data;

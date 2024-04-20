@@ -101,7 +101,7 @@ namespace Renci.SshNet.Sftp
                 // instance is already disposed
                 while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception is null)
                 {
-                    _ =Monitor.Wait(_readLock);
+                    _ = Monitor.Wait(_readLock);
                 }
 
                 // throw when exception occured in read-ahead, or the current instance is already disposed

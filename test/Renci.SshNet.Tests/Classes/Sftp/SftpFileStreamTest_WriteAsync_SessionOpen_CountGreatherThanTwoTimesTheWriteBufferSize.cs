@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _random = new Random();
             _path = _random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = GenerateRandom(5, _random);
-            _bufferSize = (uint)_random.Next(1, 1000);
+            _bufferSize = (uint) _random.Next(1, 1000);
             _readBufferSize = (uint) _random.Next(0, 1000);
             _writeBufferSize = (uint) _random.Next(500, 1000);
             _data = new byte[(_writeBufferSize * 2) + 15];
@@ -51,8 +51,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _count = ((int) _writeBufferSize * 2) + _random.Next(1, 5);
 
             _expectedWrittenByteCount = (2 * _writeBufferSize);
-            _expectedBufferedByteCount = (int)(_count - _expectedWrittenByteCount);
-            _expectedBufferedBytes = _data.Take(_offset + (int)_expectedWrittenByteCount, _expectedBufferedByteCount);
+            _expectedBufferedByteCount = (int) (_count - _expectedWrittenByteCount);
+            _expectedBufferedBytes = _data.Take(_offset + (int) _expectedWrittenByteCount, _expectedBufferedByteCount);
             _cancellationToken = new CancellationToken();
         }
 
@@ -69,10 +69,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestWriteAsync(_handle, 0, _data, _offset, (int)_writeBufferSize, _cancellationToken))
+                           .Setup(p => p.RequestWriteAsync(_handle, 0, _data, _offset, (int) _writeBufferSize, _cancellationToken))
                            .Returns(Task.CompletedTask);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestWriteAsync(_handle, _writeBufferSize, _data, _offset + (int)_writeBufferSize, (int)_writeBufferSize, _cancellationToken))
+                           .Setup(p => p.RequestWriteAsync(_handle, _writeBufferSize, _data, _offset + (int) _writeBufferSize, (int) _writeBufferSize, _cancellationToken))
                            .Returns(Task.CompletedTask);
         }
 
@@ -108,8 +108,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void RequestWriteOnSftpSessionShouldBeInvokedTwice()
         {
-            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0, _data, _offset, (int)_writeBufferSize, _cancellationToken), Times.Once);
-            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, _writeBufferSize, _data, _offset + (int)_writeBufferSize, (int)_writeBufferSize, _cancellationToken), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, 0, _data, _offset, (int) _writeBufferSize, _cancellationToken), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, _writeBufferSize, _data, _offset + (int) _writeBufferSize, (int) _writeBufferSize, _cancellationToken), Times.Once);
         }
 
         [TestMethod]

@@ -13,8 +13,11 @@
 using System;
 using System.Globalization;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
+
 #if FEATURE_NUMERICS_BIGINTEGER
 using BigInteger = System.Numerics.BigInteger;
 #else
@@ -78,7 +81,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             0x57, 0x40, 0x51, 0xB6, 0x5D, 0xC, 0x17, 0xD1, 0x86, 0xE9, 0xA4, 0x20
         };
 
-        private static readonly byte[] Huge_div = {0x0};
+        private static readonly byte[] Huge_div = { 0x0 };
 
         private static readonly byte[] Huge_rem =
         {
@@ -98,23 +101,23 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void SetUpFixture()
         {
             _nfiUser = new NumberFormatInfo
-                {
-                    CurrencyDecimalDigits = 3,
-                    CurrencyDecimalSeparator = ":",
-                    CurrencyGroupSeparator = "/",
-                    CurrencyGroupSizes = new[] { 2, 1, 0 },
-                    CurrencyNegativePattern = 10,  // n $-
-                    CurrencyPositivePattern = 3,  // n $
-                    CurrencySymbol = "XYZ",
-                    PercentDecimalDigits = 1,
-                    PercentDecimalSeparator = ";",
-                    PercentGroupSeparator = "~",
-                    PercentGroupSizes = new[] { 1 },
-                    PercentNegativePattern = 2,
-                    PercentPositivePattern = 2,
-                    PercentSymbol = "%%%",
-                    NumberDecimalSeparator = "."
-                };
+            {
+                CurrencyDecimalDigits = 3,
+                CurrencyDecimalSeparator = ":",
+                CurrencyGroupSeparator = "/",
+                CurrencyGroupSizes = new[] { 2, 1, 0 },
+                CurrencyNegativePattern = 10,  // n $-
+                CurrencyPositivePattern = 3,  // n $
+                CurrencySymbol = "XYZ",
+                PercentDecimalDigits = 1,
+                PercentDecimalSeparator = ";",
+                PercentGroupSeparator = "~",
+                PercentGroupSizes = new[] { 1 },
+                PercentNegativePattern = 2,
+                PercentPositivePattern = 2,
+                PercentSymbol = "%%%",
+                NumberDecimalSeparator = "."
+            };
         }
 
         [TestMethod]
@@ -129,7 +132,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                     var a = new BigInteger(values[i]);
                     var b = new BigInteger(values[j]);
                     var c = a * b;
-                    Assert.AreEqual(values[i] * values[j], (long)c, "#_" + i + "_" + j);
+                    Assert.AreEqual(values[i] * values[j], (long) c, "#_" + i + "_" + j);
                 }
             }
         }
@@ -161,8 +164,8 @@ namespace Renci.SshNet.Tests.Classes.Common
                     var b = new BigInteger(values[j]);
                     var c = BigInteger.DivRem(a, b, out var d);
 
-                    Assert.AreEqual(values[i] / values[j], (long)c, "#a_" + i + "_" + j);
-                    Assert.AreEqual(values[i] % values[j], (long)d, "#b_" + i + "_" + j);
+                    Assert.AreEqual(values[i] / values[j], (long) c, "#a_" + i + "_" + j);
+                    Assert.AreEqual(values[i] % values[j], (long) d, "#b_" + i + "_" + j);
                 }
             }
         }
@@ -188,11 +191,11 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
             catch (ArgumentOutOfRangeException) { }
 
-            Assert.AreEqual(1, (int)BigInteger.Pow(99999, 0), "#2");
-            Assert.AreEqual(99999, (int)BigInteger.Pow(99999, 1), "#5");
-            Assert.AreEqual(59049, (int)BigInteger.Pow(3, 10), "#4");
-            Assert.AreEqual(177147, (int)BigInteger.Pow(3, 11), "#5");
-            Assert.AreEqual(-177147, (int)BigInteger.Pow(-3, 11), "#6");
+            Assert.AreEqual(1, (int) BigInteger.Pow(99999, 0), "#2");
+            Assert.AreEqual(99999, (int) BigInteger.Pow(99999, 1), "#5");
+            Assert.AreEqual(59049, (int) BigInteger.Pow(3, 10), "#4");
+            Assert.AreEqual(177147, (int) BigInteger.Pow(3, 11), "#5");
+            Assert.AreEqual(-177147, (int) BigInteger.Pow(-3, 11), "#6");
         }
 
         [TestMethod]
@@ -212,36 +215,36 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
             catch (DivideByZeroException) { }
 
-            Assert.AreEqual(4L, (long)BigInteger.ModPow(3, 2, 5), "#2");
-            Assert.AreEqual(20L, (long)BigInteger.ModPow(555, 10, 71), "#3");
-            Assert.AreEqual(20L, (long)BigInteger.ModPow(-555, 10, 71), "#3");
-            Assert.AreEqual(-24L, (long)BigInteger.ModPow(-555, 11, 71), "#3");
+            Assert.AreEqual(4L, (long) BigInteger.ModPow(3, 2, 5), "#2");
+            Assert.AreEqual(20L, (long) BigInteger.ModPow(555, 10, 71), "#3");
+            Assert.AreEqual(20L, (long) BigInteger.ModPow(-555, 10, 71), "#3");
+            Assert.AreEqual(-24L, (long) BigInteger.ModPow(-555, 11, 71), "#3");
         }
 
         [TestMethod]
         public void GreatestCommonDivisor()
         {
-            Assert.AreEqual(999999, (int)BigInteger.GreatestCommonDivisor(999999, 0), "#1");
-            Assert.AreEqual(999999, (int)BigInteger.GreatestCommonDivisor(0, 999999), "#2");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(999999, 1), "#3");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(1, 999999), "#4");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(1, 0), "#5");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(0, 1), "#6");
+            Assert.AreEqual(999999, (int) BigInteger.GreatestCommonDivisor(999999, 0), "#1");
+            Assert.AreEqual(999999, (int) BigInteger.GreatestCommonDivisor(0, 999999), "#2");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(999999, 1), "#3");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(1, 999999), "#4");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(1, 0), "#5");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(0, 1), "#6");
 
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(999999, -1), "#7");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(-1, 999999), "#8");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(-1, 0), "#9");
-            Assert.AreEqual(1, (int)BigInteger.GreatestCommonDivisor(0, -1), "#10");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(999999, -1), "#7");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(-1, 999999), "#8");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(-1, 0), "#9");
+            Assert.AreEqual(1, (int) BigInteger.GreatestCommonDivisor(0, -1), "#10");
 
-            Assert.AreEqual(2, (int)BigInteger.GreatestCommonDivisor(12345678, 8765432), "#11");
-            Assert.AreEqual(2, (int)BigInteger.GreatestCommonDivisor(-12345678, 8765432), "#12");
-            Assert.AreEqual(2, (int)BigInteger.GreatestCommonDivisor(12345678, -8765432), "#13");
-            Assert.AreEqual(2, (int)BigInteger.GreatestCommonDivisor(-12345678, -8765432), "#14");
+            Assert.AreEqual(2, (int) BigInteger.GreatestCommonDivisor(12345678, 8765432), "#11");
+            Assert.AreEqual(2, (int) BigInteger.GreatestCommonDivisor(-12345678, 8765432), "#12");
+            Assert.AreEqual(2, (int) BigInteger.GreatestCommonDivisor(12345678, -8765432), "#13");
+            Assert.AreEqual(2, (int) BigInteger.GreatestCommonDivisor(-12345678, -8765432), "#14");
 
-            Assert.AreEqual(40, (int)BigInteger.GreatestCommonDivisor(5581 * 40, 6671 * 40), "#15");
+            Assert.AreEqual(40, (int) BigInteger.GreatestCommonDivisor(5581 * 40, 6671 * 40), "#15");
 
-            Assert.AreEqual(5, (int)BigInteger.GreatestCommonDivisor(-5, 0), "#16");
-            Assert.AreEqual(5, (int)BigInteger.GreatestCommonDivisor(0, -5), "#17");
+            Assert.AreEqual(5, (int) BigInteger.GreatestCommonDivisor(-5, 0), "#16");
+            Assert.AreEqual(5, (int) BigInteger.GreatestCommonDivisor(0, -5), "#17");
         }
 
         [TestMethod]
@@ -319,7 +322,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                     var a = new BigInteger(values[i]);
                     var b = new BigInteger(values[j]);
                     var c = a + b;
-                    Assert.AreEqual(values[i] + values[j], (long)c, "#_" + i + "_" + j);
+                    Assert.AreEqual(values[i] + values[j], (long) c, "#_" + i + "_" + j);
                 }
             }
         }
@@ -348,8 +351,8 @@ namespace Renci.SshNet.Tests.Classes.Common
                     var c = a - b;
                     var d = BigInteger.Subtract(a, b);
 
-                    Assert.AreEqual(values[i] - values[j], (long)c, "#_" + i + "_" + j);
-                    Assert.AreEqual(values[i] - values[j], (long)d, "#_" + i + "_" + j);
+                    Assert.AreEqual(values[i] - values[j], (long) c, "#_" + i + "_" + j);
+                    Assert.AreEqual(values[i] - values[j], (long) d, "#_" + i + "_" + j);
                 }
             }
         }
@@ -430,7 +433,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var a = new BigInteger(values[i]);
                 var b = ++a;
 
-                Assert.AreEqual(++values[i], (long)b, "#_" + i);
+                Assert.AreEqual(++values[i], (long) b, "#_" + i);
             }
         }
 
@@ -651,8 +654,8 @@ namespace Renci.SshNet.Tests.Classes.Common
                 var a = new BigInteger(val);
                 var b = new BigInteger(a.ToByteArray());
 
-                Assert.AreEqual(val, (int)a, "#a_" + val);
-                Assert.AreEqual(val, (int)b, "#b_" + val);
+                Assert.AreEqual(val, (int) a, "#a_" + val);
+                Assert.AreEqual(val, (int) b, "#b_" + val);
             }
         }
 
@@ -786,10 +789,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void TestToStringFmtProvider()
         {
             var info = new NumberFormatInfo
-                {
-                    NegativeSign = ">",
-                    PositiveSign = "%"
-                };
+            {
+                NegativeSign = ">",
+                PositiveSign = "%"
+            };
 
             Assert.AreEqual("10", new BigInteger(10).ToString(info), "#1");
             Assert.AreEqual(">10", new BigInteger(-10).ToString(info), "#2");
@@ -803,9 +806,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(">10", new BigInteger(-10).ToString("R", info), "#10");
 
             info = new NumberFormatInfo
-                {
-                    NegativeSign = "#$%"
-                };
+            {
+                NegativeSign = "#$%"
+            };
 
             Assert.AreEqual("#$%10", new BigInteger(-10).ToString(info), "#2");
             Assert.AreEqual("#$%10", new BigInteger(-10).ToString(null, info), "#2");
@@ -840,8 +843,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
             catch (OverflowException) { }
 
-            Assert.AreEqual(int.MaxValue, (int)new BigInteger(int.MaxValue), "#4");
-            Assert.AreEqual(int.MinValue, (int)new BigInteger(int.MinValue), "#5");
+            Assert.AreEqual(int.MaxValue, (int) new BigInteger(int.MaxValue), "#4");
+            Assert.AreEqual(int.MinValue, (int) new BigInteger(int.MinValue), "#5");
         }
 
 
@@ -871,8 +874,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
             catch (OverflowException) { }
 
-            Assert.AreEqual(long.MaxValue, (long)new BigInteger(long.MaxValue), "#4");
-            Assert.AreEqual(long.MinValue, (long)new BigInteger(long.MinValue), "#5");
+            Assert.AreEqual(long.MaxValue, (long) new BigInteger(long.MaxValue), "#4");
+            Assert.AreEqual(long.MinValue, (long) new BigInteger(long.MinValue), "#5");
         }
 
         [TestMethod]
@@ -931,8 +934,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShortOperators()
         {
-            Assert.AreEqual(22, (int)new BigInteger(22), "#1");
-            Assert.AreEqual(-22, (int)new BigInteger(-22), "#2");
+            Assert.AreEqual(22, (int) new BigInteger(22), "#1");
+            Assert.AreEqual(-22, (int) new BigInteger(-22), "#2");
 
             try
             {
@@ -991,59 +994,59 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Ctor_Double()
         {
-            Assert.AreEqual(10000, (int)new BigInteger(10000.2));
-            Assert.AreEqual(10000, (int)new BigInteger(10000.9));
-            Assert.AreEqual(10000, (int)new BigInteger(10000.2));
-            Assert.AreEqual(0, (int)new BigInteger(0.9));
-            Assert.AreEqual(12345678999L, (long)new BigInteger(12345678999.33));
+            Assert.AreEqual(10000, (int) new BigInteger(10000.2));
+            Assert.AreEqual(10000, (int) new BigInteger(10000.9));
+            Assert.AreEqual(10000, (int) new BigInteger(10000.2));
+            Assert.AreEqual(0, (int) new BigInteger(0.9));
+            Assert.AreEqual(12345678999L, (long) new BigInteger(12345678999.33));
         }
 
         [TestMethod]
         public void DoubleConversion()
         {
-            Assert.AreEqual(999d, (double)new BigInteger(999), "#1");
-            Assert.AreEqual(double.PositiveInfinity, (double)BigInteger.Pow(2, 1024), "#2");
-            Assert.AreEqual(double.NegativeInfinity, (double)BigInteger.Pow(-2, 1025), "#3");
+            Assert.AreEqual(999d, (double) new BigInteger(999), "#1");
+            Assert.AreEqual(double.PositiveInfinity, (double) BigInteger.Pow(2, 1024), "#2");
+            Assert.AreEqual(double.NegativeInfinity, (double) BigInteger.Pow(-2, 1025), "#3");
 
-            Assert.AreEqual(0d, (double)BigInteger.Zero, "#4");
-            Assert.AreEqual(1d, (double)BigInteger.One, "#5");
-            Assert.AreEqual(-1d, (double)BigInteger.MinusOne, "#6");
+            Assert.AreEqual(0d, (double) BigInteger.Zero, "#4");
+            Assert.AreEqual(1d, (double) BigInteger.One, "#5");
+            Assert.AreEqual(-1d, (double) BigInteger.MinusOne, "#6");
 
             var result1 = BitConverter.Int64BitsToDouble(-4337852273739220173);
-            Assert.AreEqual(result1, (double)new BigInteger(new byte[] { 53, 152, 137, 177, 240, 81, 75, 198 }), "#7");
+            Assert.AreEqual(result1, (double) new BigInteger(new byte[] { 53, 152, 137, 177, 240, 81, 75, 198 }), "#7");
             var result2 = BitConverter.Int64BitsToDouble(4893382453283402035);
-            Assert.AreEqual(result2, (double)new BigInteger(new byte[] { 53, 152, 137, 177, 240, 81, 75, 198, 0 }), "#8");
+            Assert.AreEqual(result2, (double) new BigInteger(new byte[] { 53, 152, 137, 177, 240, 81, 75, 198, 0 }), "#8");
 
             var result3 = BitConverter.Int64BitsToDouble(5010775143622804480);
             var result4 = BitConverter.Int64BitsToDouble(5010775143622804481);
             var result5 = BitConverter.Int64BitsToDouble(5010775143622804482);
-            Assert.AreEqual(result3, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 16, 128, 208, 159, 60, 46, 59, 3 }), "#9");
-            Assert.AreEqual(result3, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 17, 128, 208, 159, 60, 46, 59, 3 }), "#10");
-            Assert.AreEqual(result3, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 24, 128, 208, 159, 60, 46, 59, 3 }), "#11");
-            Assert.AreEqual(result4, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 32, 128, 208, 159, 60, 46, 59, 3 }), "#12");
-            Assert.AreEqual(result4, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 48, 128, 208, 159, 60, 46, 59, 3 }), "#13");
-            Assert.AreEqual(result5, (double)new BigInteger(new byte[] { 0, 0, 0, 0, 64, 128, 208, 159, 60, 46, 59, 3 }), "#14");
+            Assert.AreEqual(result3, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 16, 128, 208, 159, 60, 46, 59, 3 }), "#9");
+            Assert.AreEqual(result3, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 17, 128, 208, 159, 60, 46, 59, 3 }), "#10");
+            Assert.AreEqual(result3, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 24, 128, 208, 159, 60, 46, 59, 3 }), "#11");
+            Assert.AreEqual(result4, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 32, 128, 208, 159, 60, 46, 59, 3 }), "#12");
+            Assert.AreEqual(result4, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 48, 128, 208, 159, 60, 46, 59, 3 }), "#13");
+            Assert.AreEqual(result5, (double) new BigInteger(new byte[] { 0, 0, 0, 0, 64, 128, 208, 159, 60, 46, 59, 3 }), "#14");
 
-            Assert.AreEqual(BitConverter.Int64BitsToDouble(-2748107935317889142), (double)new BigInteger(Huge_a), "#15");
-            Assert.AreEqual(BitConverter.Int64BitsToDouble(-2354774254443231289), (double)new BigInteger(Huge_b), "#16");
-            Assert.AreEqual(BitConverter.Int64BitsToDouble(8737073938546854790), (double)new BigInteger(Huge_mul), "#17");
+            Assert.AreEqual(BitConverter.Int64BitsToDouble(-2748107935317889142), (double) new BigInteger(Huge_a), "#15");
+            Assert.AreEqual(BitConverter.Int64BitsToDouble(-2354774254443231289), (double) new BigInteger(Huge_b), "#16");
+            Assert.AreEqual(BitConverter.Int64BitsToDouble(8737073938546854790), (double) new BigInteger(Huge_mul), "#17");
 
-            Assert.AreEqual(BitConverter.Int64BitsToDouble(6912920136897069886), (double)(2278888483353476799 * BigInteger.Pow(2, 451)), "#18");
-            Assert.AreEqual(double.PositiveInfinity, (double)(843942696292817306 * BigInteger.Pow(2, 965)), "#19");
+            Assert.AreEqual(BitConverter.Int64BitsToDouble(6912920136897069886), (double) (2278888483353476799 * BigInteger.Pow(2, 451)), "#18");
+            Assert.AreEqual(double.PositiveInfinity, (double) (843942696292817306 * BigInteger.Pow(2, 965)), "#19");
         }
 
         [TestMethod]
         public void DecimalCtor()
         {
-            Assert.AreEqual(999, (int)new BigInteger(999.99m), "#1");
-            Assert.AreEqual(-10000, (int)new BigInteger(-10000m), "#2");
-            Assert.AreEqual(0, (int)new BigInteger(0m), "#3");
+            Assert.AreEqual(999, (int) new BigInteger(999.99m), "#1");
+            Assert.AreEqual(-10000, (int) new BigInteger(-10000m), "#2");
+            Assert.AreEqual(0, (int) new BigInteger(0m), "#3");
         }
 
         [TestMethod]
         public void DecimalConversion()
         {
-            Assert.AreEqual(999m, (decimal)new BigInteger(999), "#1");
+            Assert.AreEqual(999m, (decimal) new BigInteger(999), "#1");
 
             try
             {
@@ -1063,11 +1066,11 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
             }
 
-            Assert.AreEqual(0m, (decimal)new BigInteger(0), "#4");
-            Assert.AreEqual(1m, (decimal)new BigInteger(1), "#5");
-            Assert.AreEqual(-1m, (decimal)new BigInteger(-1), "#6");
-            Assert.AreEqual(9999999999999999999999999999m, (decimal)new BigInteger(9999999999999999999999999999m), "#7");
-            Assert.AreEqual(0m, (decimal)new BigInteger(), "#8");
+            Assert.AreEqual(0m, (decimal) new BigInteger(0), "#4");
+            Assert.AreEqual(1m, (decimal) new BigInteger(1), "#5");
+            Assert.AreEqual(-1m, (decimal) new BigInteger(-1), "#6");
+            Assert.AreEqual(9999999999999999999999999999m, (decimal) new BigInteger(9999999999999999999999999999m), "#7");
+            Assert.AreEqual(0m, (decimal) new BigInteger(), "#8");
         }
 
         [TestMethod]
@@ -1116,26 +1119,26 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
             catch (FormatException) { }
 
-            Assert.AreEqual(10, (int)BigInteger.Parse("+10"), "#7");
-            Assert.AreEqual(10, (int)BigInteger.Parse("10 "), "#8");
-            Assert.AreEqual(-10, (int)BigInteger.Parse("-10 "), "#9");
-            Assert.AreEqual(10, (int)BigInteger.Parse("    10 "), "#10");
-            Assert.AreEqual(-10, (int)BigInteger.Parse("  -10 "), "#11");
+            Assert.AreEqual(10, (int) BigInteger.Parse("+10"), "#7");
+            Assert.AreEqual(10, (int) BigInteger.Parse("10 "), "#8");
+            Assert.AreEqual(-10, (int) BigInteger.Parse("-10 "), "#9");
+            Assert.AreEqual(10, (int) BigInteger.Parse("    10 "), "#10");
+            Assert.AreEqual(-10, (int) BigInteger.Parse("  -10 "), "#11");
 
-            Assert.AreEqual(-1, (int)BigInteger.Parse("F", NumberStyles.AllowHexSpecifier), "#12");
-            Assert.AreEqual(-8, (int)BigInteger.Parse("8", NumberStyles.AllowHexSpecifier), "#13");
-            Assert.AreEqual(8, (int)BigInteger.Parse("08", NumberStyles.AllowHexSpecifier), "#14");
-            Assert.AreEqual(15, (int)BigInteger.Parse("0F", NumberStyles.AllowHexSpecifier), "#15");
-            Assert.AreEqual(-1, (int)BigInteger.Parse("FF", NumberStyles.AllowHexSpecifier), "#16");
-            Assert.AreEqual(255, (int)BigInteger.Parse("0FF", NumberStyles.AllowHexSpecifier), "#17");
+            Assert.AreEqual(-1, (int) BigInteger.Parse("F", NumberStyles.AllowHexSpecifier), "#12");
+            Assert.AreEqual(-8, (int) BigInteger.Parse("8", NumberStyles.AllowHexSpecifier), "#13");
+            Assert.AreEqual(8, (int) BigInteger.Parse("08", NumberStyles.AllowHexSpecifier), "#14");
+            Assert.AreEqual(15, (int) BigInteger.Parse("0F", NumberStyles.AllowHexSpecifier), "#15");
+            Assert.AreEqual(-1, (int) BigInteger.Parse("FF", NumberStyles.AllowHexSpecifier), "#16");
+            Assert.AreEqual(255, (int) BigInteger.Parse("0FF", NumberStyles.AllowHexSpecifier), "#17");
 
-            Assert.AreEqual(-17, (int)BigInteger.Parse("   (17)   ", NumberStyles.AllowParentheses | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite), "#18");
-            Assert.AreEqual(-23, (int)BigInteger.Parse("  -23  ", NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite), "#19");
+            Assert.AreEqual(-17, (int) BigInteger.Parse("   (17)   ", NumberStyles.AllowParentheses | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite), "#18");
+            Assert.AreEqual(-23, (int) BigInteger.Parse("  -23  ", NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite), "#19");
 
-            Assert.AreEqual(300000, (int)BigInteger.Parse("3E5", NumberStyles.AllowExponent), "#20");
+            Assert.AreEqual(300000, (int) BigInteger.Parse("3E5", NumberStyles.AllowExponent), "#20");
             var dsep = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
-            Assert.AreEqual(250, (int)BigInteger.Parse("2" + dsep + "5E2", NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint), "#21");//2.5E2 = 250
-            Assert.AreEqual(25, (int)BigInteger.Parse("2500E-2", NumberStyles.AllowExponent), "#22");
+            Assert.AreEqual(250, (int) BigInteger.Parse("2" + dsep + "5E2", NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint), "#21");//2.5E2 = 250
+            Assert.AreEqual(25, (int) BigInteger.Parse("2500E-2", NumberStyles.AllowExponent), "#22");
 
             Assert.AreEqual("136236974127783066520110477975349088954559032721408", BigInteger.Parse("136236974127783066520110477975349088954559032721408", NumberStyles.None).ToString(), "#23");
             Assert.AreEqual("136236974127783066520110477975349088954559032721408", BigInteger.Parse("136236974127783066520110477975349088954559032721408").ToString(), "#24");
@@ -1273,19 +1276,19 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("1234/5/67:000 XYZ", s, "Currency value type 2 is not what we want to try to parse");
 
             v = BigInteger.Parse(s, NumberStyles.Currency, _nfiUser);
-            Assert.AreEqual(val2, (int)v);
+            Assert.AreEqual(val2, (int) v);
         }
 
         [TestMethod]
         public void TryParseWeirdCulture()
         {
             var old = Thread.CurrentThread.CurrentCulture;
-            var cur = (CultureInfo)old.Clone();
+            var cur = (CultureInfo) old.Clone();
             cur.NumberFormat = new NumberFormatInfo
-                {
-                    NegativeSign = ">",
-                    PositiveSign = "%"
-                };
+            {
+                NegativeSign = ">",
+                PositiveSign = "%"
+            };
 
             Thread.CurrentThread.CurrentCulture = cur;
 
@@ -1517,13 +1520,13 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(true, a.IsEven, "#8");
 
             a = new BigInteger();
-            Assert.AreEqual(0, (int)a, "#9");
+            Assert.AreEqual(0, (int) a, "#9");
 
             a = new BigInteger();
-            Assert.AreEqual((uint) 0, (uint)a, "#10");
+            Assert.AreEqual((uint) 0, (uint) a, "#10");
 
             a = new BigInteger();
-            Assert.AreEqual((ulong) 0, (ulong)a, "#11");
+            Assert.AreEqual((ulong) 0, (ulong) a, "#11");
 
             a = new BigInteger();
             Assert.AreEqual(true, a.Equals(a), "#12");
@@ -1550,7 +1553,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("-9223372036854775809", x.ToString(), "#1");
             try
             {
-                x = (long)x;
+                x = (long) x;
                 Assert.Fail("#2 Must OVF: " + x);
             }
             catch (OverflowException)

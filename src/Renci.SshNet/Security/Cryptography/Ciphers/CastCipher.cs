@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -514,10 +515,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToInts(z8B, z, 0x8);
             zCf = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCf, z, 0xC);
-            _kr[1] = (int)((S5[z[0x8]] ^ S6[z[0x9]] ^ S7[z[0x7]] ^ S8[z[0x6]] ^ S5[z[0x2]]) & 0x1f);
-            _kr[2] = (int)((S5[z[0xA]] ^ S6[z[0xB]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S6[z[0x6]]) & 0x1f);
-            _kr[3] = (int)((S5[z[0xC]] ^ S6[z[0xD]] ^ S7[z[0x3]] ^ S8[z[0x2]] ^ S7[z[0x9]]) & 0x1f);
-            _kr[4] = (int)((S5[z[0xE]] ^ S6[z[0xF]] ^ S7[z[0x1]] ^ S8[z[0x0]] ^ S8[z[0xC]]) & 0x1f);
+            _kr[1] = (int) ((S5[z[0x8]] ^ S6[z[0x9]] ^ S7[z[0x7]] ^ S8[z[0x6]] ^ S5[z[0x2]]) & 0x1f);
+            _kr[2] = (int) ((S5[z[0xA]] ^ S6[z[0xB]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S6[z[0x6]]) & 0x1f);
+            _kr[3] = (int) ((S5[z[0xC]] ^ S6[z[0xD]] ^ S7[z[0x3]] ^ S8[z[0x2]] ^ S7[z[0x9]]) & 0x1f);
+            _kr[4] = (int) ((S5[z[0xE]] ^ S6[z[0xF]] ^ S7[z[0x1]] ^ S8[z[0x0]] ^ S8[z[0xC]]) & 0x1f);
 
             z03 = IntsTo32Bits(z, 0x0);
             z47 = IntsTo32Bits(z, 0x4);
@@ -531,10 +532,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToInts(x8B, x, 0x8);
             xCf = zCf ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCf, x, 0xC);
-            _kr[5] = (int)((S5[x[0x3]] ^ S6[x[0x2]] ^ S7[x[0xC]] ^ S8[x[0xD]] ^ S5[x[0x8]]) & 0x1f);
-            _kr[6] = (int)((S5[x[0x1]] ^ S6[x[0x0]] ^ S7[x[0xE]] ^ S8[x[0xF]] ^ S6[x[0xD]]) & 0x1f);
-            _kr[7] = (int)((S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x8]] ^ S8[x[0x9]] ^ S7[x[0x3]]) & 0x1f);
-            _kr[8] = (int)((S5[x[0x5]] ^ S6[x[0x4]] ^ S7[x[0xA]] ^ S8[x[0xB]] ^ S8[x[0x7]]) & 0x1f);
+            _kr[5] = (int) ((S5[x[0x3]] ^ S6[x[0x2]] ^ S7[x[0xC]] ^ S8[x[0xD]] ^ S5[x[0x8]]) & 0x1f);
+            _kr[6] = (int) ((S5[x[0x1]] ^ S6[x[0x0]] ^ S7[x[0xE]] ^ S8[x[0xF]] ^ S6[x[0xD]]) & 0x1f);
+            _kr[7] = (int) ((S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x8]] ^ S8[x[0x9]] ^ S7[x[0x3]]) & 0x1f);
+            _kr[8] = (int) ((S5[x[0x5]] ^ S6[x[0x4]] ^ S7[x[0xA]] ^ S8[x[0xB]] ^ S8[x[0x7]]) & 0x1f);
 
             x03 = IntsTo32Bits(x, 0x0);
             x47 = IntsTo32Bits(x, 0x4);
@@ -548,10 +549,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToInts(z8B, z, 0x8);
             zCf = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCf, z, 0xC);
-            _kr[9] = (int)((S5[z[0x3]] ^ S6[z[0x2]] ^ S7[z[0xC]] ^ S8[z[0xD]] ^ S5[z[0x9]]) & 0x1f);
-            _kr[10] = (int)((S5[z[0x1]] ^ S6[z[0x0]] ^ S7[z[0xE]] ^ S8[z[0xF]] ^ S6[z[0xc]]) & 0x1f);
-            _kr[11] = (int)((S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x8]] ^ S8[z[0x9]] ^ S7[z[0x2]]) & 0x1f);
-            _kr[12] = (int)((S5[z[0x5]] ^ S6[z[0x4]] ^ S7[z[0xA]] ^ S8[z[0xB]] ^ S8[z[0x6]]) & 0x1f);
+            _kr[9] = (int) ((S5[z[0x3]] ^ S6[z[0x2]] ^ S7[z[0xC]] ^ S8[z[0xD]] ^ S5[z[0x9]]) & 0x1f);
+            _kr[10] = (int) ((S5[z[0x1]] ^ S6[z[0x0]] ^ S7[z[0xE]] ^ S8[z[0xF]] ^ S6[z[0xc]]) & 0x1f);
+            _kr[11] = (int) ((S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x8]] ^ S8[z[0x9]] ^ S7[z[0x2]]) & 0x1f);
+            _kr[12] = (int) ((S5[z[0x5]] ^ S6[z[0x4]] ^ S7[z[0xA]] ^ S8[z[0xB]] ^ S8[z[0x6]]) & 0x1f);
 
             z03 = IntsTo32Bits(z, 0x0);
             z47 = IntsTo32Bits(z, 0x4);
@@ -565,10 +566,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToInts(x8B, x, 0x8);
             xCf = zCf ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCf, x, 0xC);
-            _kr[13] = (int)((S5[x[0x8]] ^ S6[x[0x9]] ^ S7[x[0x7]] ^ S8[x[0x6]] ^ S5[x[0x3]]) & 0x1f);
-            _kr[14] = (int)((S5[x[0xA]] ^ S6[x[0xB]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S6[x[0x7]]) & 0x1f);
-            _kr[15] = (int)((S5[x[0xC]] ^ S6[x[0xD]] ^ S7[x[0x3]] ^ S8[x[0x2]] ^ S7[x[0x8]]) & 0x1f);
-            _kr[16] = (int)((S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]]) & 0x1f);
+            _kr[13] = (int) ((S5[x[0x8]] ^ S6[x[0x9]] ^ S7[x[0x7]] ^ S8[x[0x6]] ^ S5[x[0x3]]) & 0x1f);
+            _kr[14] = (int) ((S5[x[0xA]] ^ S6[x[0xB]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S6[x[0x7]]) & 0x1f);
+            _kr[15] = (int) ((S5[x[0xC]] ^ S6[x[0xD]] ^ S7[x[0x3]] ^ S8[x[0x2]] ^ S7[x[0x8]]) & 0x1f);
+            _kr[16] = (int) ((S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]]) & 0x1f);
         }
 
         /// <summary>

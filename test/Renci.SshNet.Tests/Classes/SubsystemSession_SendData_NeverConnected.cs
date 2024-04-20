@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -36,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes
             _operationTimeout = 30000;
             _disconnectedRegister = new List<EventArgs>();
             _errorOccurredRegister = new List<ExceptionEventArgs>();
-            _data = new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)};
+            _data = new[] { (byte) random.Next(byte.MinValue, byte.MaxValue) };
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);

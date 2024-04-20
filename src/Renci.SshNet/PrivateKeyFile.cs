@@ -288,7 +288,7 @@ namespace Renci.SshNet
                     _ = reader.ReadUInt32(); // Read total bytes length including magic number
                     var keyType = reader.ReadString(SshData.Ascii);
                     var ssh2CipherName = reader.ReadString(SshData.Ascii);
-                    var blobSize = (int)reader.ReadUInt32();
+                    var blobSize = (int) reader.ReadUInt32();
 
                     byte[] keyData;
                     if (ssh2CipherName == "none")
@@ -468,7 +468,7 @@ namespace Renci.SshNet
             var kdfName = keyReader.ReadString(Encoding.UTF8);
 
             // kdf options length: 24 if passphrase, 0 if no passphrase
-            var kdfOptionsLen = (int)keyReader.ReadUInt32();
+            var kdfOptionsLen = (int) keyReader.ReadUInt32();
             byte[] salt = null;
             var rounds = 0;
             if (kdfOptionsLen > 0)
@@ -479,7 +479,7 @@ namespace Renci.SshNet
             }
 
             // number of public keys, only supporting 1 for now
-            var numberOfPublicKeys = (int)keyReader.ReadUInt32();
+            var numberOfPublicKeys = (int) keyReader.ReadUInt32();
             if (numberOfPublicKeys != 1)
             {
                 throw new SshException("At this time only one public key in the openssh key is supported.");
@@ -715,7 +715,7 @@ namespace Renci.SshNet
 
             public byte[] ReadBignum2()
             {
-                var length = (int)base.ReadUInt32();
+                var length = (int) base.ReadUInt32();
                 return base.ReadBytes(length);
             }
 

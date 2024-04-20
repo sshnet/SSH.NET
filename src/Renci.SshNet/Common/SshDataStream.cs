@@ -154,7 +154,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
             }
 
-            return ReadBytes((int)length);
+            return ReadBytes((int) length);
         }
 
         /// <summary>

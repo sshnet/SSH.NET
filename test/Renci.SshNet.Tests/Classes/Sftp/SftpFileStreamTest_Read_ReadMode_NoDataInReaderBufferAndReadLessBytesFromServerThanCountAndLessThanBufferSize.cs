@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
@@ -31,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint)random.Next(1, 1000);
+            _bufferSize = (uint) random.Next(1, 1000);
             _readBufferSize = 20;
             _writeBufferSize = 500;
 
@@ -79,7 +82,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          _path,
                                          FileMode.Open,
                                          FileAccess.Read,
-                                         (int)_bufferSize);
+                                         (int) _bufferSize);
         }
 
         protected override void Act()
@@ -124,7 +127,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.AreEqual(0, actual);
             Assert.IsTrue(_originalBuffer.IsEqualTo(buffer));
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong)_actual, _readBufferSize), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong) _actual, _readBufferSize), Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(2));
         }
 
@@ -133,7 +136,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestRead(_handle, (ulong)_actual, _readBufferSize))
+                .Setup(p => p.RequestRead(_handle, (ulong) _actual, _readBufferSize))
                 .Returns(Array.Empty<byte>());
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
@@ -141,7 +144,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             Assert.AreEqual(_actual, _target.Position);
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong)_actual, _readBufferSize), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong) _actual, _readBufferSize), Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(3));
         }
     }

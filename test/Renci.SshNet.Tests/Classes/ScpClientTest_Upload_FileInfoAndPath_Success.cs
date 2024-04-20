@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -89,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes
             _ = _channelSessionMock.InSequence(sequence)
                                    .Setup(p => p.SendData(It.Is<byte[]>(b => b.Take(0, _fileContent.Length - _bufferSize).SequenceEqual(_fileContent.Take(_bufferSize, _fileContent.Length - _bufferSize))), 0, _fileContent.Length - _bufferSize));
             _ = _channelSessionMock.InSequence(sequence)
-                                   .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] {0}))));
+                                   .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] { 0 }))));
             _ = _pipeStreamMock.InSequence(sequence)
                                .Setup(p => p.ReadByte())
                                .Returns(0);
@@ -104,9 +107,9 @@ namespace Renci.SshNet.Tests.Classes
             base.Arrange();
 
             _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object)
-                {
-                    BufferSize = (uint) _bufferSize
-                };
+            {
+                BufferSize = (uint) _bufferSize
+            };
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
         }

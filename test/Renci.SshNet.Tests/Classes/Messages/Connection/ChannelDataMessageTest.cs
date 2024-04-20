@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
@@ -30,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var random = new Random();
 
-            var localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) random.Next(0, int.MaxValue);
             var data = new byte[3];
 
             var target = new ChannelDataMessage(localChannelNumber, data);

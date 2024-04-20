@@ -61,10 +61,10 @@ namespace Renci.SshNet.Abstractions
         {
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
-                {
-                    UserToken = connectCompleted,
-                    RemoteEndPoint = remoteEndpoint
-                };
+            {
+                UserToken = connectCompleted,
+                RemoteEndPoint = remoteEndpoint
+            };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -30,10 +33,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var random = new Random();
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
-            _handle = new[] { (byte)random.Next(byte.MinValue, byte.MaxValue) };
-            _bufferSize = (uint)random.Next(1, 1000);
-            _readBufferSize = (uint)random.Next(0, 1000);
-            _writeBufferSize = (uint)random.Next(0, 1000);
+            _handle = new[] { (byte) random.Next(byte.MinValue, byte.MaxValue) };
+            _bufferSize = (uint) random.Next(1, 1000);
+            _readBufferSize = (uint) random.Next(0, 1000);
+            _writeBufferSize = (uint) random.Next(0, 1000);
 
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 
@@ -53,7 +56,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(sequence)
                 .Setup(p => p.RequestClose(_handle));
 
-            _sftpFileStream = new SftpFileStream(_sftpSessionMock.Object, _path, FileMode.Create, FileAccess.Write, (int)_bufferSize);
+            _sftpFileStream = new SftpFileStream(_sftpSessionMock.Object, _path, FileMode.Create, FileAccess.Write, (int) _bufferSize);
             _sftpFileStream.Close();
         }
 

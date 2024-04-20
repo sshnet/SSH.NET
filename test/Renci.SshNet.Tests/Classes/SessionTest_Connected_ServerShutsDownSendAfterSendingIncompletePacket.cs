@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         protected override void Act()
         {
-            var incompletePacket = new byte[] {0x0a, 0x05, 0x05};
+            var incompletePacket = new byte[] { 0x0a, 0x05, 0x05 };
 
             _ = ServerSocket.Send(incompletePacket, 0, incompletePacket.Length, SocketFlags.None);
 

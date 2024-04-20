@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -92,11 +95,11 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Session = _sessionMock.Object;
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 100,
-                    SendTimeout = 100,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 100,
+                SendTimeout = 100,
+                SendBufferSize = 0
+            };
         }
 
         private void SetupMocks()
@@ -105,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>()));
+            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>()));
             _channelMock.Setup(p => p.IsOpen).Returns(true);
             _channelMock.Setup(p => p.Bind()).Callback(() =>
                 {
@@ -205,7 +208,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _channelMock.Verify(
                 p =>
-                    p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort,
+                    p.Open(_remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port, _forwardedPort,
                         It.IsAny<Socket>()), Times.Once);
         }
 
@@ -225,7 +228,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var userNameBytes = Encoding.ASCII.GetBytes(_userName);
             var addressBytes = _remoteEndpoint.Address.GetAddressBytes();
-            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).Reverse().ToArray();
+            var portBytes = BitConverter.GetBytes((ushort) _remoteEndpoint.Port).Reverse().ToArray();
 
             _client.Connect(_endpoint);
 

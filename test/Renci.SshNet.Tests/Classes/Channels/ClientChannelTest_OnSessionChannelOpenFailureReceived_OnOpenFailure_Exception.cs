@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -28,8 +31,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(1000, int.MaxValue);
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
             _onOpenFailureException = new SystemException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -53,8 +56,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.IsConnected).Returns(false);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
 
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port,
-                _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port,
+                _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
         }

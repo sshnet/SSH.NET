@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Tests.Common;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -27,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void Password_Test_Pass_Null_Password()
         {
-            new PasswordAuthenticationMethod("valid", (string)null);
+            new PasswordAuthenticationMethod("valid", (string) null);
         }
 
         [TestMethod]

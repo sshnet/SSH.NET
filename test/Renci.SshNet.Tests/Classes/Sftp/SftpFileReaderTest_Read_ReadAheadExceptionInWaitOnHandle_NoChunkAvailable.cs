@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -55,7 +59,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Returns(() => WaitAny(_waitHandleArray, _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
-                           .Returns((SftpReadAsyncResult)null);
+                           .Returns((SftpReadAsyncResult) null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))

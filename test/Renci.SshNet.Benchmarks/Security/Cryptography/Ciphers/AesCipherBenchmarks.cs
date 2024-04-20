@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers

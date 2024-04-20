@@ -708,7 +708,7 @@ namespace Renci.SshNet.Sftp
                 var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
                 if (bytesAvailableInBuffer <= 0)
                 {
-                    var data = await _session.RequestReadAsync(_handle, (ulong)_position, (uint)_readBufferSize, cancellationToken).ConfigureAwait(false);
+                    var data = await _session.RequestReadAsync(_handle, (ulong) _position, (uint) _readBufferSize, cancellationToken).ConfigureAwait(false);
 
                     if (data.Length == 0)
                     {
@@ -900,7 +900,7 @@ namespace Renci.SshNet.Sftp
                         newPosn = _position - _bufferPosition;
                         if (offset >= newPosn && offset < (newPosn + _bufferLen))
                         {
-                            _bufferPosition = (int)(offset - newPosn);
+                            _bufferPosition = (int) (offset - newPosn);
                             _position = offset;
                             return _position;
                         }
@@ -1180,7 +1180,7 @@ namespace Renci.SshNet.Sftp
                 // Can we short-cut the internal buffer?
                 if (_bufferPosition == 0 && tempLen == _writeBufferSize)
                 {
-                    await _session.RequestWriteAsync(_handle, (ulong)_position, buffer, offset, tempLen, cancellationToken).ConfigureAwait(false);
+                    await _session.RequestWriteAsync(_handle, (ulong) _position, buffer, offset, tempLen, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1199,7 +1199,7 @@ namespace Renci.SshNet.Sftp
             // rather than waiting for the next call to this method.
             if (_bufferPosition >= _writeBufferSize)
             {
-                await _session.RequestWriteAsync(_handle, (ulong)(_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
+                await _session.RequestWriteAsync(_handle, (ulong) (_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
                 _bufferPosition = 0;
             }
         }
@@ -1323,7 +1323,7 @@ namespace Renci.SshNet.Sftp
         {
             if (_bufferPosition > 0)
             {
-                await _session.RequestWriteAsync(_handle, (ulong)(_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
+                await _session.RequestWriteAsync(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
                 _bufferPosition = 0;
             }
         }

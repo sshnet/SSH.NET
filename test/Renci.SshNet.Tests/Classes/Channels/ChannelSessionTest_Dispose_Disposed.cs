@@ -31,12 +31,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(2000, 3000);
-            _localPacketSize = (uint)random.Next(1000, 2000);
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(100, 200);
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(2000, 3000);
+            _localPacketSize = (uint) random.Next(1000, 2000);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(100, 200);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _sessionSemaphore = new SemaphoreSlim(1);
             _channelClosedRegister = new List<ChannelEventArgs>();
@@ -72,8 +72,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                         _remoteWindowSize,
                                         _remotePacketSize,
                                         _remoteChannelNumber)));
-                        w.WaitOne();
-                    });
+                            w.WaitOne();
+                        });
             SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             SessionMock.InSequence(sequence)
                 .Setup(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber))).Returns(true);

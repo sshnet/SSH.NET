@@ -29,10 +29,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpDataResponse Build()
         {
             return new SftpDataResponse(_protocolVersion)
-                {
-                    ResponseId = _responseId,
-                    Data = _data
-                };
+            {
+                ResponseId = _responseId,
+                Data = _data
+            };
         }
     }
 }

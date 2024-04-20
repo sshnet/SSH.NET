@@ -58,10 +58,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.RequestFStatAsync(_handle, _cancellationToken))
                                .ReturnsAsync(_fileAttributes);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
+                               .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
                                .Returns(_readBufferSize);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
+                               .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
                                .Returns(_writeBufferSize);
         }
 
@@ -140,13 +140,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.IsOpen)
                                .Returns(true);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken))
+                               .Setup(p => p.RequestWriteAsync(_handle, (ulong) _fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken))
                                .Returns(Task.CompletedTask);
 
             await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(1));
-            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestWriteAsync(_handle, (ulong) _fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken), Times.Once);
         }
 
         [TestMethod]

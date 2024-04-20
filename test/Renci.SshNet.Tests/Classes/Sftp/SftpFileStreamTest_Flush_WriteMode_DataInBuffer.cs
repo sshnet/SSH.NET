@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint)random.Next(1, 1000);
+            _bufferSize = (uint) random.Next(1, 1000);
             _readBufferSize = 100;
             _writeBufferSize = 500;
             _writeBytes1 = GenerateRandom(_writeBufferSize);
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          _path,
                                          FileMode.Open,
                                          FileAccess.ReadWrite,
-                                         (int)_bufferSize);
+                                         (int) _bufferSize);
             _target.Write(_writeBytes1, 0, _writeBytes1.Length);
             _target.Write(_writeBytes2, 0, _writeBytes2.Length);
             _target.Write(_writeBytes3, 0, _writeBytes3.Length);
@@ -145,7 +145,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.AreEqual(3, bytesRead);
             CollectionAssert.AreEqual(expectedReadBytes, readBytes);
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong)(_writeBytes1.Length + _writeBytes2.Length + _writeBytes3.Length), _readBufferSize), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong) (_writeBytes1.Length + _writeBytes2.Length + _writeBytes3.Length), _readBufferSize), Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(5));
         }
     }

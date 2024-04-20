@@ -43,10 +43,10 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _terminalName = random.Next().ToString();
-            _widthColumns = (uint)random.Next();
-            _heightRows = (uint)random.Next();
-            _widthPixels = (uint)random.Next();
-            _heightPixels = (uint)random.Next();
+            _widthColumns = (uint) random.Next();
+            _heightRows = (uint) random.Next();
+            _widthPixels = (uint) random.Next();
+            _heightPixels = (uint) random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 

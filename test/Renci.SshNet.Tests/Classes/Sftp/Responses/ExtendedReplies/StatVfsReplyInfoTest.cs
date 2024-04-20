@@ -30,15 +30,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             _random = new Random();
             _responseId = (uint) _random.Next(0, int.MaxValue);
             _bsize = (ulong) _random.Next(0, int.MaxValue);
-            _frsize = (ulong)_random.Next(0, int.MaxValue);
-            _blocks = (ulong)_random.Next(0, int.MaxValue);
-            _bfree = (ulong)_random.Next(0, int.MaxValue);
-            _bavail = (ulong)_random.Next(0, int.MaxValue);
-            _files = (ulong)_random.Next(0, int.MaxValue);
-            _ffree = (ulong)_random.Next(0, int.MaxValue);
-            _favail = (ulong)_random.Next(0, int.MaxValue);
-            _sid = (ulong)_random.Next(0, int.MaxValue);
-            _namemax = (ulong)_random.Next(0, int.MaxValue);
+            _frsize = (ulong) _random.Next(0, int.MaxValue);
+            _blocks = (ulong) _random.Next(0, int.MaxValue);
+            _bfree = (ulong) _random.Next(0, int.MaxValue);
+            _bavail = (ulong) _random.Next(0, int.MaxValue);
+            _files = (ulong) _random.Next(0, int.MaxValue);
+            _ffree = (ulong) _random.Next(0, int.MaxValue);
+            _favail = (ulong) _random.Next(0, int.MaxValue);
+            _sid = (ulong) _random.Next(0, int.MaxValue);
+            _namemax = (ulong) _random.Next(0, int.MaxValue);
         }
 
         [TestMethod]

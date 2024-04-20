@@ -1,5 +1,7 @@
 ﻿using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
@@ -25,8 +27,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 };
 
             var input = Encoding.ASCII.GetBytes("www.javaCODEgeeks.com!!!");
-            var key = new byte[] {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef};
-            var iv = new byte[] {0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00};
+            var key = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
+            var iv = new byte[] { 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00 };
 
             var des = new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
             var actualCypher = des.Encrypt(input);
@@ -53,5 +55,5 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 
             Assert.IsTrue(expectedPlain.IsEqualTo(plain));
         }
-   }
+    }
 }

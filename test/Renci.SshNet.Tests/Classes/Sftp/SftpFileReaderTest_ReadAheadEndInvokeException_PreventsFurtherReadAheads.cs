@@ -98,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                asyncResult.SetAsCompleted(_exception, false);
                                            });
                                    })
-                               .Returns((SftpReadAsyncResult)null);
+                               .Returns((SftpReadAsyncResult) null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);

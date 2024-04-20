@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -47,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            ForwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port);
+            ForwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint) _bindEndpoint.Port, _remoteEndpoint.Address, (uint) _remoteEndpoint.Port);
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -104,11 +107,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldIgnoreChannelOpenMessagesWhenDisposed()
         {
-            var channelNumberDisposed = (uint)new Random().Next(1001, int.MaxValue);
-            var initialWindowSizeDisposed = (uint)new Random().Next(0, int.MaxValue);
-            var maximumPacketSizeDisposed = (uint)new Random().Next(0, int.MaxValue);
+            var channelNumberDisposed = (uint) new Random().Next(1001, int.MaxValue);
+            var initialWindowSizeDisposed = (uint) new Random().Next(0, int.MaxValue);
+            var maximumPacketSizeDisposed = (uint) new Random().Next(0, int.MaxValue);
             var originatorAddressDisposed = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var originatorPortDisposed = (uint)new Random().Next(0, int.MaxValue);
+            var originatorPortDisposed = (uint) new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
 
             _sessionMock.Setup(

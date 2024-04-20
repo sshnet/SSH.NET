@@ -94,9 +94,9 @@ namespace Renci.SshNet
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
-                                            from s in serverAlgorithms
-                                            where s == c.Key
-                                            select c.Value).FirstOrDefault();
+                                               from s in serverAlgorithms
+                                               where s == c.Key
+                                               select c.Value).FirstOrDefault();
 
             if (keyExchangeAlgorithmFactory is null)
             {
@@ -152,7 +152,7 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(100, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
+                maxPendingReads = Math.Min(100, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
             }
             catch (SshException ex)
             {

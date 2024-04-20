@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
-using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -88,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             using (var s = GetData("Key.RSA.txt"))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.Single(x => x.Name == "rsa-sha2-512");
+                return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.Single(x => x.Name == "rsa-sha2-512");
             }
         }
 

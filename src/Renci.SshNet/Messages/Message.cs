@@ -144,7 +144,7 @@ namespace Renci.SshNet.Messages
 
         private static byte GetPaddingLength(byte paddingMultiplier, long packetLength)
         {
-            var paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
+            var paddingLength = (byte) ((-packetLength) & (paddingMultiplier - 1));
 
             if (paddingLength < paddingMultiplier)
             {

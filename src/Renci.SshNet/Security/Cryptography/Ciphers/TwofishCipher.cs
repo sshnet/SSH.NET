@@ -145,14 +145,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var t0 = Fe32_0(_gSBox, x0);
                 var t1 = Fe32_3(_gSBox, x1);
                 x2 ^= t0 + t1 + _gSubKeys[k++];
-                x2 = (int)((uint)x2 >> 1) | x2 << 31;
-                x3 = (x3 << 1 | (int)((uint)x3 >> 31)) ^ (t0 + (2 * t1) + _gSubKeys[k++]);
+                x2 = (int) ((uint) x2 >> 1) | x2 << 31;
+                x3 = (x3 << 1 | (int) ((uint) x3 >> 31)) ^ (t0 + (2 * t1) + _gSubKeys[k++]);
 
                 t0 = Fe32_0(_gSBox, x2);
                 t1 = Fe32_3(_gSBox, x3);
                 x0 ^= t0 + t1 + _gSubKeys[k++];
-                x0 = (int)((uint)x0 >> 1) | x0 << 31;
-                x1 = (x1 << 1 | (int)((uint)x1 >> 31)) ^ (t0 + (2 * t1) + _gSubKeys[k++]);
+                x0 = (int) ((uint) x0 >> 1) | x0 << 31;
+                x1 = (x1 << 1 | (int) ((uint) x1 >> 31)) ^ (t0 + (2 * t1) + _gSubKeys[k++]);
             }
 
             Bits32ToBytes(x2 ^ _gSubKeys[OUTPUT_WHITEN], outputBuffer, outputOffset);
@@ -283,11 +283,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var q = i * SK_STEP;
                 var a = F32(q, k32e);
                 var b = F32(q + SK_BUMP, k32o);
-                b = b << 8 | (int)((uint)b >> 24);
+                b = b << 8 | (int) ((uint) b >> 24);
                 a += b;
                 _gSubKeys[i * 2] = a;
                 a += b;
-                _gSubKeys[(i * 2) + 1] = a << SK_ROTL | (int)((uint)a >> (32 - SK_ROTL));
+                _gSubKeys[(i * 2) + 1] = a << SK_ROTL | (int) ((uint) a >> (32 - SK_ROTL));
             }
 
             /*
@@ -467,37 +467,37 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private static int M_b1(int x)
 #pragma warning restore IDE1006 // Naming Styles
         {
-            return (int)((uint)x >> 8) & 0xff;
+            return (int) ((uint) x >> 8) & 0xff;
         }
 
 #pragma warning disable IDE1006 // Naming Styles
         private static int M_b2(int x)
 #pragma warning restore IDE1006 // Naming Styles
         {
-            return (int)((uint)x >> 16) & 0xff;
+            return (int) ((uint) x >> 16) & 0xff;
         }
 
 #pragma warning disable IDE1006 // Naming Styles
         private static int M_b3(int x)
 #pragma warning restore IDE1006 // Naming Styles
         {
-            return (int)((uint)x >> 24) & 0xff;
+            return (int) ((uint) x >> 24) & 0xff;
         }
 
         private static int Fe32_0(int[] gSBox1, int x)
         {
             return gSBox1[0x000 + (2 * (x & 0xff))] ^
-                   gSBox1[0x001 + (2 * ((int)((uint)x >> 8) & 0xff))] ^
-                   gSBox1[0x200 + (2 * ((int)((uint)x >> 16) & 0xff))] ^
-                   gSBox1[0x201 + (2 * ((int)((uint)x >> 24) & 0xff))];
+                   gSBox1[0x001 + (2 * ((int) ((uint) x >> 8) & 0xff))] ^
+                   gSBox1[0x200 + (2 * ((int) ((uint) x >> 16) & 0xff))] ^
+                   gSBox1[0x201 + (2 * ((int) ((uint) x >> 24) & 0xff))];
         }
 
         private static int Fe32_3(int[] gSBox1, int x)
         {
             return gSBox1[0x000 + (2 * ((int) ((uint) x >> 24) & 0xff))] ^
                    gSBox1[0x001 + (2 * (x & 0xff))] ^
-                   gSBox1[0x200 + (2 * ((int)((uint)x >> 8) & 0xff))] ^
-                   gSBox1[0x201 + (2 * ((int)((uint)x >> 16) & 0xff))];
+                   gSBox1[0x200 + (2 * ((int) ((uint) x >> 8) & 0xff))] ^
+                   gSBox1[0x201 + (2 * ((int) ((uint) x >> 16) & 0xff))];
         }
 
         private static int BytesTo32Bits(byte[] b, int p)
@@ -510,10 +510,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static void Bits32ToBytes(int inData, byte[] b, int offset)
         {
-            b[offset] = (byte)inData;
-            b[offset + 1] = (byte)(inData >> 8);
-            b[offset + 2] = (byte)(inData >> 16);
-            b[offset + 3] = (byte)(inData >> 24);
+            b[offset] = (byte) inData;
+            b[offset + 1] = (byte) (inData >> 8);
+            b[offset + 2] = (byte) (inData >> 16);
+            b[offset + 3] = (byte) (inData >> 24);
         }
     }
 }

@@ -3,8 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
@@ -70,9 +73,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _clientReceivedFinishedWaitHandle = new ManualResetEvent(false);
             _channelException = null;
 
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(100, 200);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(100, 200);
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);

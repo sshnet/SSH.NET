@@ -76,7 +76,7 @@ namespace Renci.SshNet.IntegrationTests
                     hostNetworkConnectionDisabled = true;
                     WaitForConnectionInterruption(client);
                 }
-                
+
                 Assert.IsNotNull(errorOccurred);
                 Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
@@ -104,7 +104,7 @@ namespace Renci.SshNet.IntegrationTests
                 int count = 0;
                 client.ErrorOccurred += (sender, args) =>
                                             {
-                                                Console.WriteLine("Exception "+ count++);
+                                                Console.WriteLine("Exception " + count++);
                                                 Console.WriteLine(args.Exception);
                                                 errorOccurred = args.Exception;
                                             };

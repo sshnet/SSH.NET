@@ -1,10 +1,12 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {
@@ -73,9 +75,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void GetBytes()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var info = new DirectTcpipChannelInfo("host", 22, "originator", 25);
             var infoBytes = info.GetBytes();
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
@@ -117,9 +119,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Load_DirectTcpipChannelInfo()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var info = new DirectTcpipChannelInfo("host", 22, "originator", 25);
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
@@ -144,9 +146,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Load_ForwardedTcpipChannelInfo()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var info = new ForwardedTcpipChannelInfo("connected", 25, "originator", 21);
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
@@ -171,9 +173,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Load_SessionChannelOpenInfo()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var info = new SessionChannelOpenInfo();
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
@@ -195,9 +197,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Load_X11ChannelOpenInfo()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var info = new X11ChannelOpenInfo("address", 26);
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
@@ -220,9 +222,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Load_ShouldThrowNotSupportedExceptionWhenChannelTypeIsNotSupported()
         {
-            var localChannelNumber = (uint)_random.Next(0, int.MaxValue);
-            var initialWindowSize = (uint)_random.Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)_random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) _random.Next(0, int.MaxValue);
+            var initialWindowSize = (uint) _random.Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) _random.Next(0, int.MaxValue);
             var channelName = "dunno_" + _random.Next().ToString(CultureInfo.InvariantCulture);
             var channelType = _ascii.GetBytes(channelName);
             var target = new ChannelOpenMessage();

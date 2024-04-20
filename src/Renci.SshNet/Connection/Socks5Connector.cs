@@ -133,7 +133,7 @@ namespace Renci.SshNet.Connection
                     break;
                 case 0x04:
                     var ipv6 = new byte[16];
-                    _ =SocketRead(socket, ipv6, 0, 16);
+                    _ = SocketRead(socket, ipv6, 0, 16);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -191,7 +191,7 @@ namespace Renci.SshNet.Connection
             authenticationRequest[index++] = (byte) password.Length;
 
             // Password
-            _ =SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
+            _ = SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
 
             return authenticationRequest;
         }

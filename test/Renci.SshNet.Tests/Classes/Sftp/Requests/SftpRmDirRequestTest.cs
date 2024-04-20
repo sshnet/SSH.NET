@@ -27,8 +27,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var random = new Random();
 
-            _protocolVersion = (uint)random.Next(0, int.MaxValue);
-            _requestId = (uint)random.Next(0, int.MaxValue);
+            _protocolVersion = (uint) random.Next(0, int.MaxValue);
+            _requestId = (uint) random.Next(0, int.MaxValue);
             _encoding = Encoding.Unicode;
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _pathBytes = _encoding.GetBytes(_path);

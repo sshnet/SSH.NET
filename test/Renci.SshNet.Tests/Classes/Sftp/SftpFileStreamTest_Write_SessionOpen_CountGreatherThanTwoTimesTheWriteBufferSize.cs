@@ -121,10 +121,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var lengthFileAttributes = new SftpFileAttributes(DateTime.UtcNow,
                                                               DateTime.UtcNow,
-                                                              _random.Next(),
-                                                              _random.Next(),
-                                                              _random.Next(),
-                                                              (uint) _random.Next(0, int.MaxValue),
+                                                              123,
+                                                              456,
+                                                              789,
+                                                              7,
                                                               null);
             byte[] actualFlushedData = null;
 

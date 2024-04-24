@@ -84,6 +84,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.Benchmarks", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.IntegrationBenchmarks", "test\Renci.SshNet.IntegrationBenchmarks\Renci.SshNet.IntegrationBenchmarks.csproj", "{6DFC1807-3F44-4302-A302-43F7D887C4E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.AotCompatibilityTestApp", "test\Renci.SshNet.AotCompatibilityTestApp\Renci.SshNet.AotCompatibilityTestApp.csproj", "{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -212,6 +214,26 @@ Global
 		{6DFC1807-3F44-4302-A302-43F7D887C4E0}.Release|x64.Build.0 = Release|Any CPU
 		{6DFC1807-3F44-4302-A302-43F7D887C4E0}.Release|x86.ActiveCfg = Release|Any CPU
 		{6DFC1807-3F44-4302-A302-43F7D887C4E0}.Release|x86.Build.0 = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|ARM.Build.0 = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|x64.Build.0 = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

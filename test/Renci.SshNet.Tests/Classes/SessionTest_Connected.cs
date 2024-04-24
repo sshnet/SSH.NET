@@ -42,7 +42,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ShouldNotIncludeStrictKexPseudoAlgorithmInSubsequenceKex()
+        public void ShouldNotIncludeStrictKexPseudoAlgorithmInSubsequentKex()
         {
             ServerBytesReceivedRegister.Clear();
             Session.SendMessage(Session.ClientInitMessage);

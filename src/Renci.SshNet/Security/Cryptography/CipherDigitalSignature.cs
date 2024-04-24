@@ -40,7 +40,11 @@ namespace Renci.SshNet.Security.Cryptography
             var encryptedSignature = _cipher.Decrypt(signature);
             var hashData = Hash(input);
             var expected = DerEncode(hashData);
-            return expected.IsEqualTo(encryptedSignature);
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            return System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(expected, encryptedSignature);
+#else
+            return Chaos.NaCl.CryptoBytes.ConstantTimeEquals(expected, encryptedSignature);
+#endif
         }
 
         /// <summary>

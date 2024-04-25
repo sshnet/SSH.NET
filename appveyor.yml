@@ -38,6 +38,7 @@ for:
   build_script:
     - echo build
     - dotnet build Renci.SshNet.sln -c Debug
+    - dotnet publish -c Release -r win-x64 /warnaserror .\test\Renci.SshNet.AotCompatibilityTestApp\
 
   test_script:
     - ps: echo "Run unit tests for .NET 8.0"

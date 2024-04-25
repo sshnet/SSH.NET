@@ -154,6 +154,17 @@ namespace Renci.SshNet
         /// </summary>
         private bool _isDisconnecting;
 
+        /// <summary>
+        /// Indicates whether it is the init kex.
+        /// </summary>
+        private bool _isInitialKex;
+
+        /// <summary>
+        /// Indicates whether server supports strict key exchange.
+        /// <see href="https://github.com/openssh/openssh-portable/blob/master/PROTOCOL"/> 1.10.
+        /// </summary>
+        private bool _isStrictKex;
+
         private IKeyExchange _keyExchange;
 
         private HashAlgorithm _serverMac;
@@ -281,35 +292,11 @@ namespace Renci.SshNet
         /// </value>
         public byte[] SessionId { get; private set; }
 
-        private Message _clientInitMessage;
-
         /// <summary>
         /// Gets the client init message.
         /// </summary>
         /// <value>The client init message.</value>
-        public Message ClientInitMessage
-        {
-            get
-            {
-                _clientInitMessage ??= new KeyExchangeInitMessage
-                    {
-                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        LanguagesClientToServer = new[] { string.Empty },
-                        LanguagesServerToClient = new[] { string.Empty },
-                        FirstKexPacketFollows = false,
-                        Reserved = 0
-                    };
-
-                return _clientInitMessage;
-            }
-        }
+        public Message ClientInitMessage { get; private set; }
 
         /// <summary>
         /// Gets the server version string.
@@ -617,6 +604,8 @@ namespace Renci.SshNet
                 // Send our key exchange init.
                 // We need to do this before starting the message listener to avoid the case where we receive the server
                 // key exchange init and we continue the key exchange before having sent our own init.
+                _isInitialKex = true;
+                ClientInitMessage = BuildClientInitMessage(includeStrictKexPseudoAlgorithm: true);
                 SendMessage(ClientInitMessage);
 
                 // Mark the message listener threads as started
@@ -741,6 +730,8 @@ namespace Renci.SshNet
                 // Send our key exchange init.
                 // We need to do this before starting the message listener to avoid the case where we receive the server
                 // key exchange init and we continue the key exchange before having sent our own init.
+                _isInitialKex = true;
+                ClientInitMessage = BuildClientInitMessage(includeStrictKexPseudoAlgorithm: true);
                 SendMessage(ClientInitMessage);
 
                 // Mark the message listener threads as started
@@ -1107,13 +1098,20 @@ namespace Renci.SshNet
                     SendPacket(data, 0, data.Length);
                 }
 
-                // increment the packet sequence number only after we're sure the packet has
-                // been sent; even though it's only used for the MAC, it needs to be incremented
-                // for each package sent.
-                //
-                // the server will use it to verify the data integrity, and as such the order in
-                // which messages are sent must follow the outbound packet sequence number
-                _outboundPacketSequence++;
+                if (_isStrictKex && message is NewKeysMessage)
+                {
+                    _outboundPacketSequence = 0;
+                }
+                else
+                {
+                    // increment the packet sequence number only after we're sure the packet has
+                    // been sent; even though it's only used for the MAC, it needs to be incremented
+                    // for each package sent.
+                    //
+                    // the server will use it to verify the data integrity, and as such the order in
+                    // which messages are sent must follow the outbound packet sequence number
+                    _outboundPacketSequence++;
+                }
             }
         }
 
@@ -1293,11 +1291,11 @@ namespace Renci.SshNet
             if (_serverMac != null && _serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-                var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
-
-                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
-                // TODO That way we can eliminate the extra allocation of the Take above.
-                if (!serverHash.IsEqualTo(clientHash))
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
+#else
+                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
+#endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
@@ -1321,11 +1319,11 @@ namespace Renci.SshNet
             if (_serverMac != null && !_serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-                var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
-
-                // TODO Add IsEqualTo overload that takes left+right index and number of bytes to compare.
-                // TODO That way we can eliminate the extra allocation of the Take above.
-                if (!serverHash.IsEqualTo(clientHash))
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
+#else
+                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
+#endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
@@ -1343,6 +1341,13 @@ namespace Renci.SshNet
             }
 
             _inboundPacketSequence++;
+
+            // The below code mirrors from https://github.com/openssh/openssh-portable/commit/1edb00c58f8a6875fad6a497aa2bacf37f9e6cd5
+            // It ensures the integrity of key exchange process.
+            if (_inboundPacketSequence == uint.MaxValue && _isInitialKex)
+            {
+                throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);
+            }
 
             return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
         }
@@ -1455,8 +1460,20 @@ namespace Renci.SshNet
 
             _keyExchangeCompletedWaitHandle.Reset();
 
+            if (_isInitialKex && message.KeyExchangeAlgorithms.Contains("kex-strict-s-v00@openssh.com"))
+            {
+                _isStrictKex = true;
+
+                DiagnosticAbstraction.Log(string.Format("[{0}] Enabling strict key exchange extension.", ToHex(SessionId)));
+
+                if (_inboundPacketSequence != 1)
+                {
+                    throw new SshConnectionException("KEXINIT was not the first packet during strict key exchange.", DisconnectReason.KeyExchangeFailed);
+                }
+            }
+
             // Disable messages that are not key exchange related
-            _sshMessageFactory.DisableNonKeyExchangeMessages();
+            _sshMessageFactory.DisableNonKeyExchangeMessages(_isStrictKex);
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
                                                              message.KeyExchangeAlgorithms);
@@ -1532,6 +1549,17 @@ namespace Renci.SshNet
 
             // Enable activated messages that are not key exchange related
             _sshMessageFactory.EnableActivatedMessages();
+
+            if (_isInitialKex)
+            {
+                _isInitialKex = false;
+                ClientInitMessage = BuildClientInitMessage(includeStrictKexPseudoAlgorithm: false);
+            }
+
+            if (_isStrictKex)
+            {
+                _inboundPacketSequence = 0;
+            }
 
             NewKeysReceived?.Invoke(this, new MessageEventArgs<NewKeysMessage>(message));
 
@@ -2067,7 +2095,28 @@ namespace Renci.SshNet
         private static SshConnectionException CreateConnectionAbortedByServerException()
         {
             return new SshConnectionException("An established connection was aborted by the server.",
-                                              DisconnectReason.ConnectionLost);
+            DisconnectReason.ConnectionLost);
+        }
+
+        private KeyExchangeInitMessage BuildClientInitMessage(bool includeStrictKexPseudoAlgorithm)
+        {
+            return new KeyExchangeInitMessage
+            {
+                KeyExchangeAlgorithms = includeStrictKexPseudoAlgorithm ?
+                                        ConnectionInfo.KeyExchangeAlgorithms.Keys.Concat(["kex-strict-c-v00@openssh.com"]).ToArray() :
+                                        ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                LanguagesClientToServer = new[] { string.Empty },
+                LanguagesServerToClient = new[] { string.Empty },
+                FirstKexPacketFollows = false,
+                Reserved = 0,
+            };
         }
 
         private bool _disposed;

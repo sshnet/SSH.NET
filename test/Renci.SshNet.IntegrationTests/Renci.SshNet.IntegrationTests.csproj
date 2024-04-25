@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);SYSLIB0021;SYSLIB1045;SYSLIB0014;IDE0220;IDE0010</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

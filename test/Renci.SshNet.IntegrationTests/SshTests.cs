@@ -4,6 +4,7 @@ using System.Net.Sockets;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.IntegrationTests
 {

@@ -1,8 +1,10 @@
-﻿using System;
+﻿#pragma warning disable IDE0005 // Using directive is unnecessary; IntegrationTests use implicit usings
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+#pragma warning restore IDE0005
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -15,7 +17,6 @@ namespace Renci.SshNet.Tests.Common
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
-        private string _stackTrace;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
         public delegate void ConnectedHandler(Socket socket);
@@ -54,8 +55,6 @@ namespace Renci.SshNet.Tests.Common
 
             _receiveThread = new Thread(StartListener);
             _receiveThread.Start(_listener);
-
-            _stackTrace = Environment.StackTrace;
         }
 
         public void Stop()
@@ -273,43 +272,6 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            void ConnectionDisconnected()
-            {
-                SignalDisconnected(handler);
-
-                if (ShutdownRemoteCommunicationSocket)
-                {
-                    lock (_syncLock)
-                    {
-                        if (!_started)
-                        {
-                            return;
-                        }
-
-                        try
-                        {
-                            handler.Shutdown(SocketShutdown.Send);
-                            handler.Close();
-                        }
-                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
-                        {
-                            // On .NET 7 we got Socker Exception with ConnectionReset from Shutdown method
-                            // when the socket is disposed
-                        }
-                        catch (SocketException ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
-                        }
-
-                        _ = _connectedClients.Remove(handler);
-                    }
-                }
-            }
-
             if (bytesRead > 0)
             {
                 var bytesReceived = new byte[bytesRead];
@@ -322,23 +284,36 @@ namespace Renci.SshNet.Tests.Common
                 }
                 catch (ObjectDisposedException)
                 {
-                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
-                    ConnectionDisconnected();
+                    SignalDisconnected(handler);
                 }
-                catch (SocketException ex)
+
+                return;
+            }
+
+            SignalDisconnected(handler);
+
+            if (ShutdownRemoteCommunicationSocket)
+            {
+                lock (_syncLock)
                 {
                     if (!_started)
                     {
-                        throw new Exception("BeginReceive while stopping!", ex);
+                        return;
                     }
 
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
+                    try
+                    {
+                        handler.Shutdown(SocketShutdown.Send);
+                        handler.Close();
+                    }
+                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+                    {
+                        // On .NET 7 we got Socket Exception with ConnectionReset from Shutdown method
+                        // when the socket is disposed
+                    }
 
-            }
-            else
-            {
-                ConnectionDisconnected();
+                    _ = _connectedClients.Remove(handler);
+                }
             }
         }
 

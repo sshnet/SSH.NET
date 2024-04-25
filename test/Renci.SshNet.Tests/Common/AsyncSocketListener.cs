@@ -385,7 +385,7 @@ namespace Renci.SshNet.Tests.Common
         {
             public Socket Socket { get; private set; }
 
-            public readonly byte[] Buffer = new byte[1024];
+            public readonly byte[] Buffer = new byte[2048];
 
             public SocketStateObject(Socket handler)
             {

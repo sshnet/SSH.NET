@@ -87,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendMessageShouldThrowShhConnectionException()
+        public void SendMessageShouldThrowSshConnectionException()
         {
             try
             {
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_SendMessageShouldThrowShhConnectionException()
+        public void ISession_SendMessageShouldThrowSshConnectionException()
         {
             var session = (ISession) _session;
 

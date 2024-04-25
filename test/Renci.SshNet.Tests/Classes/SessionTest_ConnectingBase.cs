@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -21,7 +21,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public abstract class SessionTest_ConnectedBase
+    public abstract class SessionTest_ConnectingBase
     {
         internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
-        private string _keyExchangeAlgorithm;
+        private string[] _keyExchangeAlgorithms;
         private bool _authenticationStarted;
         private SocketFactory _socketFactory;
 
@@ -46,19 +46,33 @@ namespace Renci.SshNet.Tests.Classes
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
-        protected SshIdentification ServerIdentification { get; private set; }
+        protected SshIdentification ServerIdentification { get; set; }
+        protected virtual bool ServerSupportsStrictKex { get; }
 
-        /// <summary>
-        /// Should the "server" wait for the client kexinit before sending its own.
-        /// A regression test simulating e.g. cisco devices.
-        /// </summary>
-        protected bool WaitForClientKeyExchangeInit { get; set; }
+        protected virtual bool ServerResetsSequenceAfterSendingNewKeys
+        {
+            get
+            {
+                return ServerSupportsStrictKex;
+            }
+        }
+
+        protected uint ServerOutboundPacketSequence { get; set; }
 
         [TestInitialize]
         public void Setup()
         {
-            Arrange();
-            Act();
+            CreateMocks();
+            SetupData();
+            SetupMocks();
+        }
+
+        protected virtual void ActionBeforeKexInit()
+        {
+        }
+
+        protected virtual void ActionAfterKexInit()
+        {
         }
 
         [TestCleanup]
@@ -100,7 +114,9 @@ namespace Renci.SshNet.Tests.Classes
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
             { Timeout = TimeSpan.FromSeconds(20) };
-            _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
+            _keyExchangeAlgorithms = ServerSupportsStrictKex ?
+                                     [Random.Next().ToString(CultureInfo.InvariantCulture), "kex-strict-s-v00@openssh.com"] :
+                                     [Random.Next().ToString(CultureInfo.InvariantCulture)];
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
             DisconnectedRegister = new List<EventArgs>();
@@ -115,62 +131,22 @@ namespace Renci.SshNet.Tests.Classes
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
             Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
             Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
-            Session.KeyExchangeInitReceived += (sender, args) =>
-                {
-                    var newKeysMessage = new NewKeysMessage();
-                    var newKeys = newKeysMessage.GetPacket(8, null);
-                    _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
-
-                    if (!_authenticationStarted)
-                    {
-                        var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
-                                                                              .Build();
-                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
-
-                        _authenticationStarted = true;
-                    }
-                };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint)
             {
                 ShutdownRemoteCommunicationSocket = false
             };
             ServerListener.Connected += socket =>
-                {
-                    ServerSocket = socket;
-
-                    // Since we're mocking the protocol version exchange, we'll immediately start KEX upon
-                    // having established the connection instead of when the client has been identified
-
-                    if (!WaitForClientKeyExchangeInit)
-                    {
-                        SendKeyExchangeInit();
-                    }
-                };
-            ServerListener.BytesReceived += (received, socket) =>
-                {
-                    ServerBytesReceivedRegister.Add(received);
-
-                    if (WaitForClientKeyExchangeInit && received.Length > 5 && received[5] == 20)
-                    {
-                        // This is the KEXINIT. Send one back.
-                        SendKeyExchangeInit();
-                        WaitForClientKeyExchangeInit = false;
-                    }
-                };
-            ServerListener.Start();
-
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
-
-            void SendKeyExchangeInit()
             {
+                ServerSocket = socket;
+                ActionBeforeKexInit();
                 var keyExchangeInitMessage = new KeyExchangeInitMessage
                 {
                     CompressionAlgorithmsClientToServer = new string[0],
                     CompressionAlgorithmsServerToClient = new string[0],
                     EncryptionAlgorithmsClientToServer = new string[0],
                     EncryptionAlgorithmsServerToClient = new string[0],
-                    KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
+                    KeyExchangeAlgorithms = _keyExchangeAlgorithms,
                     LanguagesClientToServer = new string[0],
                     LanguagesServerToClient = new string[0],
                     MacAlgorithmsClientToServer = new string[0],
@@ -179,7 +155,50 @@ namespace Renci.SshNet.Tests.Classes
                 };
                 var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
                 _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
-            }
+                ServerOutboundPacketSequence++;
+            };
+            ServerListener.BytesReceived += (received, socket) =>
+            {
+                ServerBytesReceivedRegister.Add(received);
+
+                if (received.Length > 5 && received[5] == 20)
+                {
+                    ActionAfterKexInit();
+                    var newKeysMessage = new NewKeysMessage();
+                    var newKeys = newKeysMessage.GetPacket(8, null);
+                    _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+
+                    if (ServerResetsSequenceAfterSendingNewKeys)
+                    {
+                        ServerOutboundPacketSequence = 0;
+                    }
+                    else
+                    {
+                        ServerOutboundPacketSequence++;
+                    }
+
+                    if (!_authenticationStarted)
+                    {
+                        var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
+                                                                              .Build(ServerOutboundPacketSequence);
+                        var hash = Abstractions.CryptoAbstraction.CreateSHA256().ComputeHash(serviceAcceptMessage);
+
+                        var packet = new byte[serviceAcceptMessage.Length - 4 + hash.Length];
+
+                        Array.Copy(serviceAcceptMessage, 4, packet, 0, serviceAcceptMessage.Length - 4);
+                        Array.Copy(hash, 0, packet, serviceAcceptMessage.Length - 4, hash.Length);
+
+                        _ = ServerSocket.Send(packet, 0, packet.Length, SocketFlags.None);
+
+                        ServerOutboundPacketSequence++;
+
+                        _authenticationStarted = true;
+                    }
+                }
+            };
+            ServerListener.Start();
+
+            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()
@@ -201,10 +220,11 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                            .Returns(ServerIdentification);
-            _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
+                                            .Returns(() => ServerIdentification);
+            _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, _keyExchangeAlgorithms)).Returns(_keyExchangeMock.Object);
+
             _ = _keyExchangeMock.Setup(p => p.Name)
-                                .Returns(_keyExchangeAlgorithm);
+                                .Returns(_keyExchangeAlgorithms[0]);
             _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
@@ -224,7 +244,7 @@ namespace Renci.SshNet.Tests.Classes
                                 .Returns((ref bool serverEtm) =>
                                 {
                                     serverEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return SHA256.Create();
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientEtm) =>
@@ -238,25 +258,9 @@ namespace Renci.SshNet.Tests.Classes
                                 .Returns((Compressor) null);
             _ = _keyExchangeMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
-                                  .Callback(ClientAuthentication_Callback)
                                   .Returns(_clientAuthenticationMock.Object);
             _ = _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
         }
-
-        protected void Arrange()
-        {
-            CreateMocks();
-            SetupData();
-            SetupMocks();
-
-            Session.Connect();
-        }
-
-        protected virtual void ClientAuthentication_Callback()
-        {
-        }
-
-        protected abstract void Act();
 
         private class ServiceAcceptMessageBuilder
         {
@@ -272,13 +276,14 @@ namespace Renci.SshNet.Tests.Classes
                 return new ServiceAcceptMessageBuilder(serviceName);
             }
 
-            public byte[] Build()
+            public byte[] Build(uint sequence)
             {
                 var serviceName = _serviceName.ToArray();
                 var target = new ServiceAcceptMessage();
 
-                var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
+                var sshDataStream = new SshDataStream(4 + 4 + 1 + 1 + 4 + serviceName.Length);
+                sshDataStream.Write(sequence);
+                sshDataStream.Write((uint) (sshDataStream.Capacity - 8)); //sequence and packet length
                 sshDataStream.WriteByte(0); // padding length
                 sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);

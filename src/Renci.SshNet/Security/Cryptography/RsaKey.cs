@@ -12,7 +12,6 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
-        private bool _isDisposed;
         private RsaDigitalSignature? _digitalSignature;
 
         /// <summary>
@@ -244,31 +243,13 @@ namespace Renci.SshNet.Security
             {
                 Modulus = n,
                 Exponent = Exponent.ToByteArray(isUnsigned: true, isBigEndian: true),
-                D = ExportKeyParameter(D, n.Length),
-                P = ExportKeyParameter(P, halfModulusLength),
-                Q = ExportKeyParameter(Q, halfModulusLength),
-                DP = ExportKeyParameter(DP, halfModulusLength),
-                DQ = ExportKeyParameter(DQ, halfModulusLength),
-                InverseQ = ExportKeyParameter(InverseQ, halfModulusLength),
+                D = D.ExportKeyParameter(n.Length),
+                P = P.ExportKeyParameter(halfModulusLength),
+                Q = Q.ExportKeyParameter(halfModulusLength),
+                DP = DP.ExportKeyParameter(halfModulusLength),
+                DQ = DQ.ExportKeyParameter(halfModulusLength),
+                InverseQ = InverseQ.ExportKeyParameter(halfModulusLength),
             };
-        }
-
-        // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
-        private static byte[] ExportKeyParameter(BigInteger value, int length)
-        {
-            var target = value.ToByteArray(isUnsigned: true, isBigEndian: true);
-
-            // The BCL crypto is expecting exactly-sized byte arrays (sized to "length").
-            // If our byte array is smaller than required, then size it up.
-            // Otherwise, just return as is: if it is too large, we'll let the BCL throw the error.
-            if (target.Length < length)
-            {
-                var correctlySized = new byte[length];
-                Buffer.BlockCopy(target, 0, correctlySized, length - target.Length, target.Length);
-                return correctlySized;
-            }
-
-            return target;
         }
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
@@ -292,18 +273,11 @@ namespace Renci.SshNet.Security
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
             if (disposing)
             {
                 _digitalSignature?.Dispose();
-                RSA?.Dispose();
+                RSA.Dispose();
             }
-
-            _isDisposed = true;
         }
     }
 }

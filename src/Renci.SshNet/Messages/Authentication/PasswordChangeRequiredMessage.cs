@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_PASSWD_CHANGEREQ message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ", 60)]
-    internal class PasswordChangeRequiredMessage : Message
+    internal sealed class PasswordChangeRequiredMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_PASSWD_CHANGEREQ";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 60;
+            }
+        }
+
         /// <summary>
         /// Gets password change request message as UTF-8 encoded byte array.
         /// </summary>

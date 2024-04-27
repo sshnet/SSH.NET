@@ -8,6 +8,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public sealed class BlowfishCipher : BlockCipher
     {
+        private const int Rounds = 16;
+
+        private const int SboxSk = 256;
+
+        private const int PSize = Rounds + 2;
+
         #region Static reference tables
 
         private static readonly uint[] KP =
@@ -293,19 +299,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         #endregion
 
-        private const int Rounds = 16;
-
-        private const int SboxSk = 256;
-
-        private const int PSize = Rounds + 2;
-
         /// <summary>
-        /// The s-boxes
+        /// The s-boxes.
         /// </summary>
-        private readonly uint[] _s0, _s1, _s2, _s3;
+        private readonly uint[] _s0;
+        private readonly uint[] _s1;
+        private readonly uint[] _s2;
+        private readonly uint[] _s3;
 
         /// <summary>
-        /// The p-array
+        /// The p-array.
         /// </summary>
         private readonly uint[] _p;
 
@@ -315,15 +318,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public BlowfishCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
         {
             var keySize = key.Length * 8;
 
-            if (keySize < 1 || keySize > 448)
+            if (keySize is < 1 or > 448)
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
 
             _s0 = new uint[SboxSk];
             _s1 = new uint[SboxSk];
@@ -348,14 +353,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputCount != BlockSize)
+            {
                 throw new ArgumentException("inputCount");
+            }
 
-            uint xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= _p[0];
 
-            for (int i = 1; i < Rounds; i += 2)
+            for (var i = 1; i < Rounds; i += 2)
             {
                 xr ^= F(xl) ^ _p[i];
                 xl ^= F(xr) ^ _p[i + 1];
@@ -383,7 +390,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputCount != BlockSize)
+            {
                 throw new ArgumentException("inputCount");
+            }
 
             var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
             var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
@@ -406,7 +415,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private uint F(uint x)
         {
-            return (((_s0[x >> 24] + _s1[(x >> 16) & 0xff]) ^ _s2[(x >> 8) & 0xff]) + _s3[x & 0xff]);
+            return ((_s0[x >> 24] + _s1[(x >> 16) & 0xff]) ^ _s2[(x >> 8) & 0xff]) + _s3[x & 0xff];
         }
 
         private void SetKey(byte[] key)
@@ -451,6 +460,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                         keyIndex = 0;
                     }
                 }
+
                 // XOR the newly created 32 bit chunk onto the P-array
                 _p[i] ^= data;
             }

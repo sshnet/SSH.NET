@@ -3,7 +3,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpCloseRequest : SftpRequest
+    internal sealed class SftpCloseRequest : SftpRequest
     {
         public override SftpMessageTypes SftpMessageType
         {

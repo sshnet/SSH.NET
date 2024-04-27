@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Specifies behavior for expected expression
+    /// Specifies behavior for expected expression.
     /// </summary>
     public class ExpectAction
     {
@@ -23,14 +23,18 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="expect">The expect regular expression.</param>
         /// <param name="action">The action to perform.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
         public ExpectAction(Regex expect, Action<string> action)
         {
-            if (expect == null)
-                throw new ArgumentNullException("expect");
+            if (expect is null)
+            {
+                throw new ArgumentNullException(nameof(expect));
+            }
 
-            if (action == null)
-                throw new ArgumentNullException("action");
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
             Expect = expect;
             Action = action;
@@ -41,14 +45,18 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="expect">The expect expression.</param>
         /// <param name="action">The action to perform.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
         public ExpectAction(string expect, Action<string> action)
         {
-            if (expect == null)
-                throw new ArgumentNullException("expect");
+            if (expect is null)
+            {
+                throw new ArgumentNullException(nameof(expect));
+            }
 
-            if (action == null)
-                throw new ArgumentNullException("action");
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
             Expect = new Regex(Regex.Escape(expect));
             Action = action;

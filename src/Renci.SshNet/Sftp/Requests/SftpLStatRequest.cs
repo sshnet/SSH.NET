@@ -4,10 +4,10 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpLStatRequest : SftpRequest
+    internal sealed class SftpLStatRequest : SftpRequest
     {
-        private byte[] _path;
         private readonly Action<SftpAttrsResponse> _attrsAction;
+        private byte[] _path;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -61,8 +61,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public override void Complete(SftpResponse response)
         {
-            var attrsResponse = response as SftpAttrsResponse;
-            if (attrsResponse != null)
+            if (response is SftpAttrsResponse attrsResponse)
             {
                 _attrsAction(attrsResponse);
             }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Renci.SshNet.Common
 {
-    internal class PacketDump
+    internal static class PacketDump
     {
         public static string Create(List<byte> data, int indentLevel)
         {
@@ -14,10 +14,15 @@ namespace Renci.SshNet.Common
 
         public static string Create(byte[] data, int indentLevel)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             if (indentLevel < 0)
-                throw new ArgumentOutOfRangeException("indentLevel", "Cannot be less than zero.");
+            {
+                throw new ArgumentOutOfRangeException(nameof(indentLevel), "Cannot be less than zero.");
+            }
 
             const int lineWidth = 16;
 
@@ -31,12 +36,12 @@ namespace Renci.SshNet.Common
 
                 if (result.Length > 0)
                 {
-                    result.Append(Environment.NewLine);
+                    _ = result.Append(Environment.NewLine);
                 }
 
-                result.Append(indentChars);
-                result.Append(pos.ToString("X8"));
-                result.Append("  ");
+                _ = result.Append(indentChars);
+                _ = result.Append(pos.ToString("X8"));
+                _ = result.Append("  ");
 
                 while (true)
                 {
@@ -48,10 +53,11 @@ namespace Renci.SshNet.Common
                     }
                 }
 
-                result.Append(AsHex(line, linePos));
-                result.Append("  ");
-                result.Append(AsAscii(line, linePos));
+                _ = result.Append(AsHex(line, linePos));
+                _ = result.Append("  ");
+                _ = result.Append(AsAscii(line, linePos));
             }
+
             return result.ToString();
         }
 
@@ -63,15 +69,15 @@ namespace Renci.SshNet.Common
             {
                 if (i > 0)
                 {
-                    hex.Append(' ');
+                    _ = hex.Append(' ');
                 }
 
-                hex.Append(data[i].ToString("X2", CultureInfo.InvariantCulture));
+                _ = hex.Append(data[i].ToString("X2", CultureInfo.InvariantCulture));
             }
 
             if (length < data.Length)
             {
-                hex.Append(new string(' ', (data.Length - length) * 3));
+                _ = hex.Append(new string(' ', (data.Length - length) * 3));
             }
 
             return hex.ToString();
@@ -79,26 +85,22 @@ namespace Renci.SshNet.Common
 
         private static string AsAscii(byte[] data, int length)
         {
-#if FEATURE_ENCODING_ASCII
-        var encoding = Encoding.ASCII;
-#else
-        var encoding = new ASCIIEncoding();
-#endif
+            var encoding = Encoding.ASCII;
 
-        var ascii = new StringBuilder();
+            var ascii = new StringBuilder();
             const char dot = '.';
 
             for (var i = 0; i < length; i++)
             {
                 var b = data[i];
 
-                if (b < 32 || b >= 127)
+                if (b is < 32 or >= 127)
                 {
-                    ascii.Append(dot);
+                    _ = ascii.Append(dot);
                 }
                 else
                 {
-                    ascii.Append(encoding.GetString(data, i, 1));
+                    _ = ascii.Append(encoding.GetString(data, i, 1));
                 }
             }
 

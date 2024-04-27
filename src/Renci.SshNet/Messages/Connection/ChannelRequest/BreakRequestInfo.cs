@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "break" type channel request information
+    /// Represents "break" type channel request information.
     /// </summary>
-    internal class BreakRequestInfo : RequestInfo
+    internal sealed class BreakRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "break";
 
@@ -43,7 +43,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
+        /// Initializes a new instance of the <see cref="BreakRequestInfo"/> class.
         /// </summary>
         public BreakRequestInfo()
         {
@@ -51,7 +51,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
+        /// Initializes a new instance of the <see cref="BreakRequestInfo"/> class.
         /// </summary>
         /// <param name="breakLength">Length of the break.</param>
         public BreakRequestInfo(uint breakLength)

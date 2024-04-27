@@ -1,14 +1,12 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Connection
 {
@@ -16,8 +14,10 @@ namespace Renci.SshNet.Connection
     {
         protected ConnectorBase(ISocketFactory socketFactory)
         {
-            if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            if (socketFactory is null)
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             SocketFactory = socketFactory;
         }
@@ -26,9 +26,7 @@ namespace Renci.SshNet.Connection
 
         public abstract Socket Connect(IConnectionInfo connectionInfo);
 
-#if FEATURE_TAP
         public abstract Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -40,7 +38,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
         protected Socket SocketConnect(string host, int port, TimeSpan timeout)
         {
-            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
+            var ipAddress = Dns.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
@@ -51,7 +49,7 @@ namespace Renci.SshNet.Connection
             {
                 SocketAbstraction.Connect(socket, ep, timeout);
 
-                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                const int socketBufferSize = 10 * Session.MaximumSshPacketSize;
                 socket.SendBufferSize = socketBufferSize;
                 socket.ReceiveBufferSize = socketBufferSize;
                 return socket;
@@ -63,7 +61,6 @@ namespace Renci.SshNet.Connection
             }
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
         /// </summary>
@@ -76,7 +73,12 @@ namespace Renci.SshNet.Connection
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+#if NET6_0_OR_GREATER
+            var ipAddress = (await Dns.GetHostAddressesAsync(host, cancellationToken).ConfigureAwait(false))[0];
+#else
+            var ipAddress = (await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+#endif
+
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
@@ -97,19 +99,18 @@ namespace Renci.SshNet.Connection
                 throw;
             }
         }
-#endif
 
         protected static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
+            _ = SocketRead(socket, buffer, 0, 1, Timeout.InfiniteTimeSpan);
             return buffer[0];
         }
 
         protected static byte SocketReadByte(Socket socket, TimeSpan readTimeout)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, readTimeout);
+            _ = SocketRead(socket, buffer, 0, 1, readTimeout);
             return buffer[0];
         }
 
@@ -127,7 +128,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SocketException">The read failed.</exception>
         protected static int SocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            return SocketRead(socket, buffer, offset, length, Session.InfiniteTimeSpan);
+            return SocketRead(socket, buffer, offset, length, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -152,6 +153,7 @@ namespace Renci.SshNet.Connection
                 throw new SshConnectionException("An established connection was aborted by the server.",
                                                  DisconnectReason.ConnectionLost);
             }
+
             return bytesRead;
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpHandleResponse : SftpResponse
+    internal sealed class SftpHandleResponse : SftpResponse
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -17,7 +17,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            
+
             Handle = ReadBinary();
         }
 

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Renci.SshNet.Sftp.Responses;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {
+    /// <summary>
+    /// Represents an SFTP session.
+    /// </summary>
     internal interface ISftpSession : ISubsystemSession
     {
         /// <summary>
@@ -41,36 +43,51 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         string GetCanonicalPath(string path);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously resolves a given path into an absolute path on the server.
+        /// </summary>
+        /// <param name="path">The path to resolve.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents an asynchronous operation to resolve <paramref name="path"/> into
+        /// an absolute path. The value of its <see cref="Task{Task}.Result"/> contains the absolute
+        /// path of the specified path.
+        /// </returns>
         Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
-        /// Performs SSH_FXP_FSTAT request.
+        /// Asynchronously performs a <c>SSH_FXP_FSTAT</c> request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
+        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
-        /// File attributes
+        /// The file attributes.
         /// </returns>
         SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_FSTAT</c> request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous <c>SSH_FXP_FSTAT</c> request. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the file attributes of the specified handle.
+        /// </returns>
         Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
-        /// File attributes
+        /// File attributes.
         /// </returns>
         SftpFileAttributes RequestStat(string path, bool nullOnError = false);
 
         /// <summary>
-        /// Performs SSH_FXP_STAT request
+        /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginOpen(string, Flags, AsyncCallback, object)"/> completes.</param>
@@ -87,7 +104,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The file attributes.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult);
 
         /// <summary>
@@ -95,7 +112,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
-        /// File attributes
+        /// File attributes.
         /// </returns>
         SftpFileAttributes RequestLStat(string path);
 
@@ -117,7 +134,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The file attributes.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult);
 
         /// <summary>
@@ -127,20 +144,30 @@ namespace Renci.SshNet.Sftp
         void RequestMkDir(string path);
 
         /// <summary>
-        /// Performs SSH_FXP_OPEN request
+        /// Performs a <c>SSH_FXP_OPEN</c> request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
-        /// <returns>File handle.</returns>
+        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
+        /// <returns>
+        /// The file handle for the specified path.
+        /// </returns>
         byte[] RequestOpen(string path, Flags flags, bool nullOnError = false);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_OPEN</c> request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="flags">The flags.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous <c>SSH_FXP_OPEN</c> request. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the file handle of the specified path.
+        /// </returns>
         Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
-        /// Performs SSH_FXP_OPEN request
+        /// Performs SSH_FXP_OPEN request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
@@ -162,20 +189,29 @@ namespace Renci.SshNet.Sftp
         /// If all available data has been read, the <see cref="EndOpen(SftpOpenAsyncResult)"/> method completes
         /// immediately and returns zero bytes.
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         byte[] EndOpen(SftpOpenAsyncResult asyncResult);
 
         /// <summary>
-        /// Performs SSH_FXP_OPENDIR request
+        /// Performs a <c>SSH_FXP_OPENDIR</c> request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
-        /// <returns>File handle.</returns>
+        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
+        /// <returns>
+        /// A file handle for the specified path.
+        /// </returns>
         byte[] RequestOpenDir(string path, bool nullOnError = false);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_OPENDIR</c> request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_OPENDIR</c> request. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the handle of the specified path.
+        /// </returns>
         Task<byte[]> RequestOpenDirAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs posix-rename@openssh.com extended request.
@@ -190,7 +226,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The handle.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
-        /// <returns>data array; null if EOF</returns>
+        /// <returns>data array; null if EOF.</returns>
         byte[] RequestRead(byte[] handle, ulong offset, uint length);
 
         /// <summary>
@@ -217,23 +253,45 @@ namespace Renci.SshNet.Sftp
         /// If all available data has been read, the <see cref="EndRead(SftpReadAsyncResult)"/> method completes
         /// immediately and returns zero bytes.
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         byte[] EndRead(SftpReadAsyncResult asyncResult);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_READ</c> request.
+        /// </summary>
+        /// <param name="handle">The handle to the file to read from.</param>
+        /// <param name="offset">The offset in the file to start reading from.</param>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_READ</c> request. The value of
+        /// its <see cref="Task{Task}.Result"/> contains the data read from the file, or an empty
+        /// array when the end of the file is reached.
+        /// </returns>
         Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
-        /// Performs SSH_FXP_READDIR request
+        /// Performs a <c>SSH_FXP_READDIR</c> request.
         /// </summary>
-        /// <param name="handle">The handle.</param>
-        /// <returns></returns>
+        /// <param name="handle">The handle of the directory to read.</param>
+        /// <returns>
+        /// A <see cref="Dictionary{TKey,TValue}"/> where the <c>key</c> is the name of a file in the directory
+        /// and the <c>value</c> is the <see cref="SftpFileAttributes"/> of the file.
+        /// </returns>
         KeyValuePair<string, SftpFileAttributes>[] RequestReadDir(byte[] handle);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Performs a <c>SSH_FXP_READDIR</c> request.
+        /// </summary>
+        /// <param name="handle">The handle of the directory to read.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_READDIR</c> request. The value of its
+        /// <see cref="Task{Task}.Result"/> contains a <see cref="Dictionary{TKey,TValue}"/> where the
+        /// <c>key</c> is the name of a file in the directory and the <c>value</c> is the <see cref="SftpFileAttributes"/>
+        /// of the file.
+        /// </returns>
         Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_REALPATH request.
@@ -253,29 +311,42 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The absolute path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         string EndRealPath(SftpRealPathAsyncResult asyncResult);
 
         /// <summary>
-        /// Performs SSH_FXP_REMOVE request.
+        /// Performs a <c>SSH_FXP_REMOVE</c> request.
         /// </summary>
         /// <param name="path">The path.</param>
         void RequestRemove(string path);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_REMOVE</c> request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_REMOVE</c> request.
+        /// </returns>
         Task RequestRemoveAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
-        /// Performs SSH_FXP_RENAME request.
+        /// Performs a <c>SSH_FXP_RENAME</c> request.
         /// </summary>
         /// <param name="oldPath">The old path.</param>
         /// <param name="newPath">The new path.</param>
         void RequestRename(string oldPath, string newPath);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>SSH_FXP_RENAME</c> request.
+        /// </summary>
+        /// <param name="oldPath">The old path.</param>
+        /// <param name="newPath">The new path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_RENAME</c> request.
+        /// </returns>
         Task RequestRenameAsync(string oldPath, string newPath, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_RMDIR request.
@@ -291,16 +362,27 @@ namespace Renci.SshNet.Sftp
         void RequestSetStat(string path, SftpFileAttributes attributes);
 
         /// <summary>
-        /// Performs statvfs@openssh.com extended request.
+        /// Performs a <c>statvfs@openssh.com</c> extended request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
-        /// <returns></returns>
+        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
+        /// <returns>
+        /// The file system information for the specified path, or <see langword="null"/> when
+        /// the request failed and <paramref name="nullOnError"/> is <see langword="true"/>.
+        /// </returns>
         SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously performs a <c>statvfs@openssh.com</c> extended request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the <c>statvfs@openssh.com</c> extended request. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the file system information for the specified
+        /// path.
+        /// </returns>
         Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_SYMLINK request.
@@ -334,19 +416,35 @@ namespace Renci.SshNet.Sftp
                           AutoResetEvent wait,
                           Action<SftpStatusResponse> writeCompleted = null);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronouly performs a <c>SSH_FXP_WRITE</c> request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="serverOffset">The the zero-based offset (in bytes) relative to the beginning of the file that the write must start at.</param>
+        /// <param name="data">The buffer holding the data to write.</param>
+        /// <param name="offset">the zero-based offset in <paramref name="data" /> at which to begin taking bytes to write.</param>
+        /// <param name="length">The length (in bytes) of the data to write.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_WRITE</c> request.
+        /// </returns>
         Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
-        /// Performs SSH_FXP_CLOSE request.
+        /// Performs a <c>SSH_FXP_CLOSE</c> request.
         /// </summary>
         /// <param name="handle">The handle.</param>
         void RequestClose(byte[] handle);
 
-#if FEATURE_TAP
+        /// <summary>
+        /// Performs a <c>SSH_FXP_CLOSE</c> request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_CLOSE</c> request.
+        /// </returns>
         Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_CLOSE request.
@@ -363,7 +461,7 @@ namespace Renci.SshNet.Sftp
         /// Handles the end of an asynchronous close.
         /// </summary>
         /// <param name="asyncResult">An <see cref="SftpCloseAsyncResult"/> that represents an asynchronous call.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         void EndClose(SftpCloseAsyncResult asyncResult);
 
         /// <summary>
@@ -388,6 +486,18 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle);
 
+        /// <summary>
+        /// Creates an <see cref="ISftpFileReader"/> for reading the content of the file represented by a given <paramref name="handle"/>.
+        /// </summary>
+        /// <param name="handle">The handle of the file to read.</param>
+        /// <param name="sftpSession">The SFTP session.</param>
+        /// <param name="chunkSize">The maximum number of bytes to read with each chunk.</param>
+        /// <param name="maxPendingReads">The maximum number of pending reads.</param>
+        /// <param name="fileSize">The size of the file or <see langword="null"/> when the size could not be determined.</param>
+        /// <returns>
+        /// An <see cref="ISftpFileReader"/> for reading the content of the file represented by the
+        /// specified <paramref name="handle"/>.
+        /// </returns>
         ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize);
     }
 }

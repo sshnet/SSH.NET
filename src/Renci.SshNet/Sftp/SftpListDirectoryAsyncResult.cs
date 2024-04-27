@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
@@ -13,16 +14,15 @@ namespace Renci.SshNet.Sftp
         /// Gets the number of files read so far.
         /// </summary>
         public int FilesRead { get; private set; }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpListDirectoryAsyncResult"/> class.
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        public SftpListDirectoryAsyncResult(AsyncCallback asyncCallback, Object state)
+        public SftpListDirectoryAsyncResult(AsyncCallback asyncCallback, object state)
             : base(asyncCallback, state)
         {
-
         }
 
         /// <summary>

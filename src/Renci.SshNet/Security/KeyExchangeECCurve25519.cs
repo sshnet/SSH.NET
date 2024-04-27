@@ -1,5 +1,4 @@
-﻿using System;
-using Renci.SshNet.Abstractions;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security.Chaos.NaCl;
@@ -7,7 +6,7 @@ using Renci.SshNet.Security.Chaos.NaCl.Internal.Ed25519Ref10;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal sealed class KeyExchangeECCurve25519 : KeyExchangeEC
     {
         private byte[] _privateKey;
 
@@ -30,14 +29,10 @@ namespace Renci.SshNet.Security
             get { return 256; }
         }
 
-        /// <summary>
-        /// Starts key exchange algorithm
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
@@ -46,9 +41,7 @@ namespace Renci.SshNet.Security
             var basepoint = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             basepoint[0] = 9;
 
-            var rnd = new Random();
-            _privateKey = new byte[MontgomeryCurve25519.PrivateKeySizeInBytes];
-            rnd.NextBytes(_privateKey);
+            _privateKey = CryptoAbstraction.GenerateRandom(MontgomeryCurve25519.PrivateKeySizeInBytes);
 
             _clientExchangeValue = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             MontgomeryOperations.scalarmult(_clientExchangeValue, 0, _privateKey, 0, basepoint, 0);
@@ -71,7 +64,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
@@ -85,12 +78,12 @@ namespace Renci.SshNet.Security
         {
             var message = e.Message;
 
-            //  Unregister message once received
+            // Unregister message once received
             Session.UnRegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             HandleServerEcdhReply(message.KS, message.QS, message.Signature);
 
-            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            // When SSH_MSG_KEXDH_REPLY received key exchange is completed
             Finish();
         }
 

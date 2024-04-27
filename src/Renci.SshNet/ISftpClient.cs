@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -192,7 +193,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback);
+        IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback? asyncCallback);
 
         /// <summary>
         /// Begins an asynchronous file downloading into the stream.
@@ -211,7 +212,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state, Action<ulong> downloadCallback = null);
+        IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback? asyncCallback, object? state, Action<ulong>? downloadCallback = null);
 
         /// <summary>
         /// Begins an asynchronous operation of retrieving list of files in remote directory.
@@ -224,7 +225,7 @@ namespace Renci.SshNet
         /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
         /// </returns>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state, Action<int> listCallback = null);
+        IAsyncResult BeginListDirectory(string path, AsyncCallback? asyncCallback, object? state, Action<int>? listCallback = null);
 
         /// <summary>
         /// Begins the synchronize directories.
@@ -240,7 +241,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <see langword="null"/> or contains only whitespace.</exception>
         /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
-        IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state);
+        IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback? asyncCallback, object? state);
 
         /// <summary>
         /// Begins an asynchronous uploading the stream into remote file.
@@ -289,7 +290,7 @@ namespace Renci.SshNet
         /// If the remote file already exists, it is overwritten and truncated.
         /// </para>
         /// </remarks>
-        IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback);
+        IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback? asyncCallback);
 
         /// <summary>
         /// Begins an asynchronous uploading the stream into remote file.
@@ -316,7 +317,7 @@ namespace Renci.SshNet
         /// If the remote file already exists, it is overwritten and truncated.
         /// </para>
         /// </remarks>
-        IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state, Action<ulong> uploadCallback = null);
+        IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback? asyncCallback, object? state, Action<ulong>? uploadCallback = null);
 
         /// <summary>
         /// Begins an asynchronous uploading the stream into remote file.
@@ -343,7 +344,7 @@ namespace Renci.SshNet
         /// <see cref="SshException"/>.
         /// </para>
         /// </remarks>
-        IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback asyncCallback, object state, Action<ulong> uploadCallback = null);
+        IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback? asyncCallback, object? state, Action<ulong>? uploadCallback = null);
 
         /// <summary>
         /// Changes remote directory to path.
@@ -522,7 +523,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        void DownloadFile(string path, Stream output, Action<ulong> downloadCallback = null);
+        void DownloadFile(string path, Stream output, Action<ulong>? downloadCallback = null);
 
         /// <summary>
         /// Ends an asynchronous file downloading into the stream.
@@ -592,9 +593,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-#pragma warning disable CA1716 // Identifiers should not match keywords
         ISftpFile Get(string path);
-#pragma warning restore CA1716 // Identifiers should not match keywords
 
         /// <summary>
         /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
@@ -700,7 +699,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null);
+        IEnumerable<ISftpFile> ListDirectory(string path, Action<int>? listCallback = null);
 
         /// <summary>
         /// Asynchronously enumerates the files in remote directory.
@@ -1006,7 +1005,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        void UploadFile(Stream input, string path, Action<ulong> uploadCallback = null);
+        void UploadFile(Stream input, string path, Action<ulong>? uploadCallback = null);
 
         /// <summary>
         /// Uploads stream into remote file.
@@ -1024,7 +1023,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        void UploadFile(Stream input, string path, bool canOverride, Action<ulong> uploadCallback = null);
+        void UploadFile(Stream input, string path, bool canOverride, Action<ulong>? uploadCallback = null);
 
         /// <summary>
         /// Writes the specified byte array to the specified file, and closes the file.

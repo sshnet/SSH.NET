@@ -160,10 +160,18 @@ namespace Renci.SshNet.Tests.Classes
             _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
-            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())
-                                .Returns((Cipher) null);
-            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
-                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool serverAead) =>
+                                {
+                                    serverAead = false;
+                                    return (Cipher) null;
+                                });
+            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool clientAead) =>
+                                {
+                                    clientAead = false;
+                                    return (Cipher) null;
+                                });
             _ = _keyExchangeMock.Setup(p => p.CreateServerHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool serverEtm) =>
                                 {

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>true</PublishAot>
+    <SelfContained>true</SelfContained>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
+    <TrimmerRootAssembly Include="Renci.SshNet" />
+  </ItemGroup>
+
+</Project>

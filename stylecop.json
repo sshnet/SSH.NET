@@ -3,7 +3,8 @@
     "settings": {
         "documentationRules": {
             "xmlHeader": false,
-            "documentInternalElements": false
+            "documentInternalElements": false,
+            "fileNamingConvention": "metadata"
         },
         "layoutRules": {
             "newlineAtEndOfFile": "require"

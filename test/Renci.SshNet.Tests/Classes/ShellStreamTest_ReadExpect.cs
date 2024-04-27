@@ -192,7 +192,9 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello World!"));
 
             _shellStream.Dispose();
+#pragma warning disable S3966 // Objects should not be disposed more than once
             _shellStream.Dispose(); // Check that multiple Dispose is OK.
+#pragma warning restore S3966 // Objects should not be disposed more than once
 
             Assert.AreEqual("Hello World!", _shellStream.ReadLine());
             Assert.IsNull(_shellStream.ReadLine());
@@ -367,6 +369,8 @@ namespace Renci.SshNet.Tests.Classes
             public uint LocalChannelNumber => throw new NotImplementedException();
 
             public uint LocalPacketSize => throw new NotImplementedException();
+
+            public uint RemoteChannelNumber => throw new NotImplementedException();
 
             public uint RemotePacketSize => throw new NotImplementedException();
 

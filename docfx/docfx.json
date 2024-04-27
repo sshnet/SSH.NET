@@ -1,0 +1,124 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "net462",
+      "properties": {
+        "TargetFramework": "net462"
+      }
+    },
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "netstandard2.0",
+      "properties": {
+        "TargetFramework": "netstandard2.0"
+      }
+    },
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "netstandard2.1",
+      "properties": {
+        "TargetFramework": "netstandard2.1"
+      }
+    },
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "net6.0",
+      "properties": {
+        "TargetFramework": "net6.0"
+      }
+    },
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "net7.0",
+      "properties": {
+        "TargetFramework": "net7.0"
+      }
+    },
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "net8.0",
+      "properties": {
+        "TargetFramework": "net8.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": "**/*.{md,yml}",
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "SSH.NET",
+      "_appTitle": "SSH.NET - A Secure Shell (SSH) library for .NET, optimized for parallelism",
+      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "images/icon.png",
+      "_appFooter": "Copyright (c) Renci, Oleg Kapeljushnik, Gert Driesen and contributors",
+      "_enableSearch": true
+    }
+  }
+}

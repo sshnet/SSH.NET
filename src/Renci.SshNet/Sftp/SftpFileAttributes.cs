@@ -13,6 +13,7 @@ namespace Renci.SshNet.Sftp
     public class SftpFileAttributes
     {
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable SA1310 // Field names should not contain underscore
         private const uint S_IFMT = 0xF000; // bitmask for the file type bitfields
         private const uint S_IFSOCK = 0xC000; // socket
         private const uint S_IFLNK = 0xA000; // symbolic link
@@ -33,6 +34,7 @@ namespace Renci.SshNet.Sftp
         private const uint S_IROTH = 0x0004; // others have read permission
         private const uint S_IWOTH = 0x0002; // others have write permission
         private const uint S_IXOTH = 0x0001; // others have execute permission
+#pragma warning restore SA1310 // Field names should not contain underscore
 #pragma warning restore IDE1006 // Naming Styles
 
         private readonly DateTime _originalLastAccessTimeUtc;
@@ -165,7 +167,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a socket.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if file represents a socket; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a socket; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSocket { get; private set; }
 
@@ -173,7 +175,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a symbolic link.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a symbolic link; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSymbolicLink { get; private set; }
 
@@ -181,7 +183,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a regular file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a regular file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a regular file; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsRegularFile { get; private set; }
 
@@ -189,7 +191,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a block device.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a block device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsBlockDevice { get; private set; }
 
@@ -197,7 +199,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a directory.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a directory; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsDirectory { get; private set; }
 
@@ -205,7 +207,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a character device.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a character device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsCharacterDevice { get; private set; }
 
@@ -213,7 +215,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a named pipe.
         /// </summary>
         /// <value>
-        /// <c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a named pipe; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsNamedPipe { get; private set; }
 
@@ -221,7 +223,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanRead { get; set; }
 
@@ -229,7 +231,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanWrite { get; set; }
 
@@ -237,7 +239,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanExecute { get; set; }
 
@@ -245,7 +247,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanRead { get; set; }
 
@@ -253,7 +255,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanWrite { get; set; }
 
@@ -261,7 +263,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanExecute { get; set; }
 
@@ -269,7 +271,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can read from this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanRead { get; set; }
 
@@ -277,7 +279,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can write into this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanWrite { get; set; }
 
@@ -285,7 +287,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can execute this file.
         /// </summary>
         /// <value>
-        /// <c>true</c> if others can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanExecute { get; set; }
 
@@ -477,7 +479,7 @@ namespace Renci.SshNet.Sftp
 
             var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0').ToCharArray();
 
-            var permission = (modeBytes[0] & 0x0F) * 8 * 8 + (modeBytes[1] & 0x0F) * 8 + (modeBytes[2] & 0x0F);
+            var permission = ((modeBytes[0] & 0x0F) * 8 * 8) + ((modeBytes[1] & 0x0F) * 8) + (modeBytes[2] & 0x0F);
 
             OwnerCanRead = (permission & S_IRUSR) == S_IRUSR;
             OwnerCanWrite = (permission & S_IWUSR) == S_IWUSR;
@@ -500,79 +502,88 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         public byte[] GetBytes()
         {
-            var stream = new SshDataStream(4);
-
-            uint flag = 0;
-
-            if (IsSizeChanged && IsRegularFile)
+            using (var stream = new SshDataStream(4))
             {
-                flag |= 0x00000001;
-            }
+                uint flag = 0;
 
-            if (IsUserIdChanged || IsGroupIdChanged)
-            {
-                flag |= 0x00000002;
-            }
-
-            if (IsPermissionsChanged)
-            {
-                flag |= 0x00000004;
-            }
-
-            if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
-            {
-                flag |= 0x00000008;
-            }
-
-            if (IsExtensionsChanged)
-            {
-                flag |= 0x80000000;
-            }
-
-            stream.Write(flag);
-
-            if (IsSizeChanged && IsRegularFile)
-            {
-                stream.Write((ulong) Size);
-            }
-
-            if (IsUserIdChanged || IsGroupIdChanged)
-            {
-                stream.Write((uint) UserId);
-                stream.Write((uint) GroupId);
-            }
-
-            if (IsPermissionsChanged)
-            {
-                stream.Write(Permissions);
-            }
-
-            if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
-            {
-                var time = (uint)(LastAccessTimeUtc.ToFileTimeUtc() / 10000000 - 11644473600);
-                stream.Write(time);
-                time = (uint)(LastWriteTimeUtc.ToFileTimeUtc() / 10000000 - 11644473600);
-                stream.Write(time);
-            }
-
-            if (IsExtensionsChanged)
-            {
-                foreach (var item in Extensions)
+                if (IsSizeChanged && IsRegularFile)
                 {
-                    // TODO: we write as ASCII but read as UTF8 !!!
-
-                    stream.Write(item.Key, SshData.Ascii);
-                    stream.Write(item.Value, SshData.Ascii);
+                    flag |= 0x00000001;
                 }
-            }
 
-            return stream.ToArray();
+                if (IsUserIdChanged || IsGroupIdChanged)
+                {
+                    flag |= 0x00000002;
+                }
+
+                if (IsPermissionsChanged)
+                {
+                    flag |= 0x00000004;
+                }
+
+                if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
+                {
+                    flag |= 0x00000008;
+                }
+
+                if (IsExtensionsChanged)
+                {
+                    flag |= 0x80000000;
+                }
+
+                stream.Write(flag);
+
+                if (IsSizeChanged && IsRegularFile)
+                {
+                    stream.Write((ulong) Size);
+                }
+
+                if (IsUserIdChanged || IsGroupIdChanged)
+                {
+                    stream.Write((uint) UserId);
+                    stream.Write((uint) GroupId);
+                }
+
+                if (IsPermissionsChanged)
+                {
+                    stream.Write(Permissions);
+                }
+
+                if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
+                {
+                    var time = (uint) ((LastAccessTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
+                    stream.Write(time);
+                    time = (uint) ((LastWriteTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
+                    stream.Write(time);
+                }
+
+                if (IsExtensionsChanged)
+                {
+                    foreach (var item in Extensions)
+                    {
+                        /*
+                         * TODO: we write as ASCII but read as UTF8 !!!
+                         */
+
+                        stream.Write(item.Key, SshData.Ascii);
+                        stream.Write(item.Value, SshData.Ascii);
+                    }
+                }
+
+                return stream.ToArray();
+            }
         }
 
         internal static readonly SftpFileAttributes Empty = new SftpFileAttributes();
 
         internal static SftpFileAttributes FromBytes(SshDataStream stream)
         {
+            const uint SSH_FILEXFER_ATTR_SIZE = 0x00000001;
+            const uint SSH_FILEXFER_ATTR_UIDGID = 0x00000002;
+            const uint SSH_FILEXFER_ATTR_PERMISSIONS = 0x00000004;
+            const uint SSH_FILEXFER_ATTR_ACMODTIME = 0x00000008;
+            const uint SSH_FILEXFER_ATTR_EXTENDED = 0x80000000;
+
             var flag = stream.ReadUInt32();
 
             long size = -1;
@@ -583,24 +594,24 @@ namespace Renci.SshNet.Sftp
             DateTime modifyTime;
             Dictionary<string, string> extensions = null;
 
-            if ((flag & 0x00000001) == 0x00000001) // SSH_FILEXFER_ATTR_SIZE
+            if ((flag & SSH_FILEXFER_ATTR_SIZE) == SSH_FILEXFER_ATTR_SIZE)
             {
                 size = (long) stream.ReadUInt64();
             }
 
-            if ((flag & 0x00000002) == 0x00000002) // SSH_FILEXFER_ATTR_UIDGID
+            if ((flag & SSH_FILEXFER_ATTR_UIDGID) == SSH_FILEXFER_ATTR_UIDGID)
             {
                 userId = (int) stream.ReadUInt32();
 
                 groupId = (int) stream.ReadUInt32();
             }
 
-            if ((flag & 0x00000004) == 0x00000004) // SSH_FILEXFER_ATTR_PERMISSIONS
+            if ((flag & SSH_FILEXFER_ATTR_PERMISSIONS) == SSH_FILEXFER_ATTR_PERMISSIONS)
             {
                 permissions = stream.ReadUInt32();
             }
 
-            if ((flag & 0x00000008) == 0x00000008) // SSH_FILEXFER_ATTR_ACMODTIME
+            if ((flag & SSH_FILEXFER_ATTR_ACMODTIME) == SSH_FILEXFER_ATTR_ACMODTIME)
             {
                 // The incoming times are "Unix times", so they're already in UTC.  We need to preserve that
                 // to avoid losing information in a local time conversion during the "fall back" hour in DST.
@@ -615,7 +626,7 @@ namespace Renci.SshNet.Sftp
                 modifyTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             }
 
-            if ((flag & 0x80000000) == 0x80000000) // SSH_FILEXFER_ATTR_EXTENDED
+            if ((flag & SSH_FILEXFER_ATTR_EXTENDED) == SSH_FILEXFER_ATTR_EXTENDED)
             {
                 var extendedCount = (int) stream.ReadUInt32();
                 extensions = new Dictionary<string, string>(extendedCount);

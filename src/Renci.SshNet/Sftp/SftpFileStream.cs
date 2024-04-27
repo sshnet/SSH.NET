@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,9 @@ namespace Renci.SshNet.Sftp
     /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
+#pragma warning disable IDE0079 // We intentionally want to suppress the below warning.
+    [SuppressMessage("Performance", "CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'", Justification = "TODO: This should be addressed in the future.")]
+#pragma warning restore IDE0079
     public class SftpFileStream : Stream
     {
         private readonly object _lock = new object();
@@ -32,12 +36,13 @@ namespace Renci.SshNet.Sftp
         private bool _canRead;
         private bool _canSeek;
         private bool _canWrite;
+        private TimeSpan _timeout;
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanRead
         {
@@ -48,7 +53,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanSeek
         {
@@ -59,7 +64,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanWrite
         {
@@ -70,7 +75,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether timeout properties are usable for <see cref="SftpFileStream"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> in all cases.
+        /// <see langword="true"/> in all cases.
         /// </value>
         public override bool CanTimeout
         {
@@ -84,7 +89,6 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         /// <exception cref="IOException">IO operation failed. </exception>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Be design this is the exception that stream need to throw.")]
         public override long Length
         {
             get
@@ -173,7 +177,19 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The timeout.
         /// </value>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(Timeout));
+
+                _timeout = value;
+            }
+        }
 
         private SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
         {
@@ -181,9 +197,9 @@ namespace Renci.SshNet.Sftp
             Name = path;
 
             _session = session;
-            _canRead = (access & FileAccess.Read) != 0;
+            _canRead = (access & FileAccess.Read) == FileAccess.Read;
             _canSeek = true;
-            _canWrite = (access & FileAccess.Write) != 0;
+            _canWrite = (access & FileAccess.Write) == FileAccess.Write;
 
             _handle = handle;
 
@@ -221,9 +237,9 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
-            _canRead = (access & FileAccess.Read) != 0;
+            _canRead = (access & FileAccess.Read) == FileAccess.Read;
             _canSeek = true;
-            _canWrite = (access & FileAccess.Write) != 0;
+            _canWrite = (access & FileAccess.Write) == FileAccess.Write;
 
             var flags = Flags.None;
 
@@ -243,20 +259,25 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException(nameof(access));
             }
 
-            if ((access & FileAccess.Read) != 0 && mode == FileMode.Append)
+            if ((access & FileAccess.Read) == FileAccess.Read && mode == FileMode.Append)
             {
-                throw new ArgumentException(string.Format("{0} mode can be requested only when combined with write-only access.", mode.ToString("G")));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "{0} mode can be requested only when combined with write-only access.",
+                                                          mode.ToString("G")),
+                                            nameof(mode));
             }
 
-            if ((access & FileAccess.Write) == 0)
+            if ((access & FileAccess.Write) != FileAccess.Write)
             {
                 if (mode is FileMode.Create or FileMode.CreateNew or FileMode.Truncate or FileMode.Append)
                 {
-                    throw new ArgumentException(string.Format("Combining {0}: {1} with {2}: {3} is invalid.",
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                              "Combining {0}: {1} with {2}: {3} is invalid.",
                                                               nameof(FileMode),
                                                               mode,
                                                               nameof(FileAccess),
-                                                              access));
+                                                              access),
+                                                nameof(mode));
                 }
             }
 
@@ -345,20 +366,25 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException(nameof(access));
             }
 
-            if ((access & FileAccess.Read) != 0 && mode == FileMode.Append)
+            if ((access & FileAccess.Read) == FileAccess.Read && mode == FileMode.Append)
             {
-                throw new ArgumentException(string.Format("{0} mode can be requested only when combined with write-only access.", mode.ToString("G")));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "{0} mode can be requested only when combined with write-only access.",
+                                                          mode.ToString("G")),
+                                            nameof(mode));
             }
 
-            if ((access & FileAccess.Write) == 0)
+            if ((access & FileAccess.Write) != FileAccess.Write)
             {
                 if (mode is FileMode.Create or FileMode.CreateNew or FileMode.Truncate or FileMode.Append)
                 {
-                    throw new ArgumentException(string.Format("Combining {0}: {1} with {2}: {3} is invalid.",
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                              "Combining {0}: {1} with {2}: {3} is invalid.",
                                                               nameof(FileMode),
                                                               mode,
                                                               nameof(FileAccess),
-                                                              access));
+                                                              access),
+                                                nameof(mode));
                 }
             }
 
@@ -476,7 +502,7 @@ namespace Renci.SshNet.Sftp
         /// if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>. </exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="IOException">An I/O error occurs. </exception>
         /// <exception cref="NotSupportedException">The stream does not support reading. </exception>
@@ -506,6 +532,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -515,7 +545,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -647,6 +677,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -656,7 +690,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -938,10 +972,14 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
+#else
             if (value < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
+#endif
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -980,7 +1018,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
@@ -992,6 +1030,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -1001,7 +1043,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -1079,7 +1121,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous write operation.</returns>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
@@ -1091,6 +1133,10 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegative(offset);
+            ArgumentOutOfRangeException.ThrowIfNegative(count);
+#else
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(offset));
@@ -1100,7 +1146,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-
+#endif
             if ((buffer.Length - offset) < count)
             {
                 throw new ArgumentException("Invalid array range.");
@@ -1197,7 +1243,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Releases the unmanaged resources used by the <see cref="Stream"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -1318,10 +1364,14 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_session is null, this);
+#else
             if (_session is null)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
 
             if (!_session.IsOpen)
             {

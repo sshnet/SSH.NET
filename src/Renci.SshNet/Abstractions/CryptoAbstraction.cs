@@ -23,7 +23,7 @@ namespace Renci.SshNet.Abstractions
         /// Fills an array of bytes with a cryptographically strong random sequence of values.
         /// </summary>
         /// <param name="data">The array to fill with cryptographically strong random bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// The length of the byte array determines how many random bytes are produced.
         /// </remarks>
@@ -39,16 +39,12 @@ namespace Renci.SshNet.Abstractions
 
         public static System.Security.Cryptography.MD5 CreateMD5()
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return System.Security.Cryptography.MD5.Create();
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static System.Security.Cryptography.SHA1 CreateSHA1()
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return System.Security.Cryptography.SHA1.Create();
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static System.Security.Cryptography.SHA256 CreateSHA256()
@@ -66,50 +62,24 @@ namespace Renci.SshNet.Abstractions
             return System.Security.Cryptography.SHA512.Create();
         }
 
-#if FEATURE_HASH_RIPEMD160_CREATE || FEATURE_HASH_RIPEMD160_MANAGED
-        public static System.Security.Cryptography.RIPEMD160 CreateRIPEMD160()
-        {
-#if FEATURE_HASH_RIPEMD160_CREATE
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
-            return System.Security.Cryptography.RIPEMD160.Create();
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
-#else
-            return new System.Security.Cryptography.RIPEMD160Managed();
-#endif
-        }
-#else
-        public static global::SshNet.Security.Cryptography.RIPEMD160 CreateRIPEMD160()
-        {
-            return new global::SshNet.Security.Cryptography.RIPEMD160();
-        }
-#endif // FEATURE_HASH_RIPEMD160
-
         public static System.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return new System.Security.Cryptography.HMACMD5(key);
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
         {
-#pragma warning disable CA5351 // Do not use broken cryptographic algorithms
             return new HMACMD5(key, hashSize);
-#pragma warning restore CA5351 // Do not use broken cryptographic algorithms
         }
 
         public static System.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return new System.Security.Cryptography.HMACSHA1(key);
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
         {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
             return new HMACSHA1(key, hashSize);
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
         }
 
         public static System.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
@@ -141,19 +111,5 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACSHA512(key, hashSize);
         }
-
-#if FEATURE_HMAC_RIPEMD160
-        public static System.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
-        {
-#pragma warning disable CA5350 // Do not use weak cryptographic algorithms
-            return new System.Security.Cryptography.HMACRIPEMD160(key);
-#pragma warning restore CA5350 // Do not use weak cryptographic algorithms
-        }
-#else
-        public static global::SshNet.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACRIPEMD160(key);
-        }
-#endif // FEATURE_HMAC_RIPEMD160
     }
 }

@@ -10,8 +10,6 @@ namespace Renci.SshNet.Common
     /// PipeStream is a thread-safe read/write data stream for use between two threads in a
     /// single-producer/single-consumer type problem.
     /// </summary>
-    /// <version>2006/10/13 1.0</version>
-    /// <remarks>Update on 2008/10/9 1.1 - uses Monitor instead of Manual Reset events for more elegant synchronicity.</remarks>
     /// <license>
     /// Copyright (c) 2006 James Kolpack (james dot kolpack at google mail)
     ///
@@ -47,11 +45,6 @@ namespace Renci.SshNet.Common
         private bool _isFlushed;
 
         /// <summary>
-        /// Maximum number of bytes to store in the buffer.
-        /// </summary>
-        private long _maxBufferLength = 200 * 1024 * 1024;
-
-        /// <summary>
         /// Setting this to true will cause Read() to block if it appears
         /// that it will run out of data.
         /// </summary>
@@ -66,11 +59,7 @@ namespace Renci.SshNet.Common
         /// Gets or sets the maximum number of bytes to store in the buffer.
         /// </summary>
         /// <value>The length of the max buffer.</value>
-        public long MaxBufferLength
-        {
-            get { return _maxBufferLength; }
-            set { _maxBufferLength = value; }
-        }
+        public long MaxBufferLength { get; set; } = 200 * 1024 * 1024;
 
         /// <summary>
         /// Gets or sets a value indicating whether to block last read method before the buffer is empty.
@@ -81,26 +70,34 @@ namespace Renci.SshNet.Common
         /// Setting to true will remove the possibility of ending a stream reader prematurely.
         /// </remarks>
         /// <value>
-        /// <c>true</c> if block last read method before the buffer is empty; otherwise, <c>false</c>.
+        /// <see langword="true"/> if block last read method before the buffer is empty; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public bool BlockLastReadBuffer
         {
             get
             {
+#if NET7_0_OR_GREATER
+                ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
                 if (_isDisposed)
                 {
                     throw CreateObjectDisposedException();
                 }
+#endif // NET7_0_OR_GREATER
 
                 return _canBlockLastRead;
             }
             set
             {
+#if NET7_0_OR_GREATER
+                ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
                 if (_isDisposed)
                 {
                     throw CreateObjectDisposedException();
                 }
+#endif // NET7_0_OR_GREATER
 
                 _canBlockLastRead = value;
 
@@ -126,10 +123,14 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public override void Flush()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw CreateObjectDisposedException();
             }
+#endif // NET7_0_OR_GREATER
 
             _isFlushed = true;
             lock (_buffer)
@@ -175,7 +176,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException">The sum of offset and count is larger than the buffer length.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
@@ -200,15 +201,19 @@ namespace Renci.SshNet.Common
                 throw new ArgumentOutOfRangeException(nameof(offset), "offset or count is negative.");
             }
 
-            if (BlockLastReadBuffer && count >= _maxBufferLength)
+            if (BlockLastReadBuffer && count >= MaxBufferLength)
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "count({0}) > mMaxBufferLength({1})", count, _maxBufferLength));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "count({0}) > mMaxBufferLength({1})", count, MaxBufferLength));
             }
 
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw CreateObjectDisposedException();
             }
+#endif // NET7_0_OR_GREATER
 
             if (count == 0)
             {
@@ -264,7 +269,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The sum of offset and count is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)
@@ -284,10 +289,14 @@ namespace Renci.SshNet.Common
                 throw new ArgumentOutOfRangeException(nameof(offset), "offset or count is negative.");
             }
 
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw CreateObjectDisposedException();
             }
+#endif // NET7_0_OR_GREATER
 
             if (count == 0)
             {
@@ -297,7 +306,7 @@ namespace Renci.SshNet.Common
             lock (_buffer)
             {
                 // wait until the buffer isn't full
-                while (Length >= _maxBufferLength)
+                while (Length >= MaxBufferLength)
                 {
                     _ = Monitor.Wait(_buffer);
                 }
@@ -317,7 +326,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         /// <remarks>
         /// Disposing a <see cref="PipeStream"/> will interrupt blocking read and write operations.
         /// </remarks>
@@ -350,7 +359,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanSeek
         {
@@ -361,7 +370,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
         /// </returns>
         public override bool CanWrite
         {
@@ -380,10 +389,14 @@ namespace Renci.SshNet.Common
         {
             get
             {
+#if NET7_0_OR_GREATER
+                ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
                 if (_isDisposed)
                 {
                     throw CreateObjectDisposedException();
                 }
+#endif // NET7_0_OR_GREATER
 
                 return _buffer.Count;
             }
@@ -402,9 +415,11 @@ namespace Renci.SshNet.Common
             set { throw new NotSupportedException(); }
         }
 
+#if !NET7_0_OR_GREATER
         private ObjectDisposedException CreateObjectDisposedException()
         {
             return new ObjectDisposedException(GetType().FullName);
         }
+#endif // !NET7_0_OR_GREATER
     }
 }

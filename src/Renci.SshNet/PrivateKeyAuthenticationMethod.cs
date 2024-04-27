@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 
 using Renci.SshNet.Common;
@@ -37,7 +38,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
         public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
@@ -64,24 +65,26 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
+            var hostAlgorithms = KeyFiles.SelectMany(x => x.HostKeyAlgorithms).ToList();
+
             try
             {
-                foreach (var keyFile in KeyFiles)
+                foreach (var hostAlgorithm in hostAlgorithms)
                 {
                     _ = _authenticationCompleted.Reset();
                     _isSignatureRequired = false;
 
                     var message = new RequestMessagePublicKey(ServiceName.Connection,
                                                               Username,
-                                                              keyFile.HostKey.Name,
-                                                              keyFile.HostKey.Data);
+                                                              hostAlgorithm.Name,
+                                                              hostAlgorithm.Data);
 
-                    if (KeyFiles.Count < 2)
+                    if (hostAlgorithms.Count == 1)
                     {
                         // If only one key file provided then send signature for very first request
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        message.Signature = keyFile.HostKey.Sign(signatureData);
+                        message.Signature = hostAlgorithm.Sign(signatureData);
                     }
 
                     // Send public key authentication request
@@ -95,12 +98,12 @@ namespace Renci.SshNet
 
                         var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
                                                                            Username,
-                                                                           keyFile.HostKey.Name,
-                                                                           keyFile.HostKey.Data);
+                                                                           hostAlgorithm.Name,
+                                                                           hostAlgorithm.Data);
 
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+                        signatureMessage.Signature = hostAlgorithm.Sign(signatureData);
 
                         // Send public key authentication request with signature
                         session.SendMessage(signatureMessage);
@@ -108,7 +111,7 @@ namespace Renci.SshNet
 
                     session.WaitOnHandle(_authenticationCompleted);
 
-                    if (_authenticationResult == AuthenticationResult.Success)
+                    if (_authenticationResult is AuthenticationResult.Success or AuthenticationResult.PartialSuccess)
                     {
                         break;
                     }
@@ -165,9 +168,9 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

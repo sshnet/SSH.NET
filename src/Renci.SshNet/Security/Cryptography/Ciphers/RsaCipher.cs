@@ -8,8 +8,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public class RsaCipher : AsymmetricCipher
     {
-        private readonly bool _isPrivate;
-
         private readonly RsaKey _key;
 
         /// <summary>
@@ -24,7 +22,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             _key = key;
-            _isPrivate = !_key.D.IsZero;
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // Calculate signature
             var bitLength = _key.Modulus.BitLength;
 
-            var paddedBlock = new byte[bitLength / 8 + (bitLength % 8 > 0 ? 1 : 0) - 1];
+            var paddedBlock = new byte[(bitLength / 8) + (bitLength % 8 > 0 ? 1 : 0) - 1];
 
             paddedBlock[0] = 0x01;
             for (var i = 1; i < paddedBlock.Length - length - 1; i++)
@@ -50,20 +47,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Buffer.BlockCopy(input, offset, paddedBlock, paddedBlock.Length - length, length);
 
             return Transform(paddedBlock);
-        }
-
-        /// <summary>
-        /// Decrypts the specified data.
-        /// </summary>
-        /// <param name="input">The data.</param>
-        /// <returns>
-        /// The decrypted data.
-        /// </returns>
-        /// <exception cref="NotSupportedException">Only block type 01 or 02 are supported.</exception>
-        /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return Decrypt(input, 0, input.Length);
         }
 
         /// <summary>
@@ -116,7 +99,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             BigInteger result;
 
-            if (_isPrivate)
+            var isPrivate = !_key.D.IsZero;
+
+            if (isPrivate)
             {
                 var random = BigInteger.One;
                 var max = _key.Modulus - 1;
@@ -142,7 +127,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 var h = BigInteger.PositiveMod((mP - mQ) * _key.InverseQ, _key.P);
 
-                var m = h * _key.Q + mQ;
+                var m = (h * _key.Q) + mQ;
 
                 var rInv = BigInteger.ModInverse(random, _key.Modulus);
 

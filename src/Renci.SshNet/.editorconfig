@@ -1,5 +1,38 @@
 ﻿[*.cs]
 
+#### Sonar rules ####
+
+# S1264: A "while" loop should be used instead of a "for" loop
+# https://rules.sonarsource.com/csharp/RSPEC-1264
+dotnet_diagnostic.S1264.severity = none
+
+# S1450: Private fields only used as local variables in methods should become local variables
+# https://rules.sonarsource.com/csharp/RSPEC-1450
+#
+# TODO: Re-enable when the following issue is resolved:
+# https://github.com/SonarSource/sonar-dotnet/issues/8239
+dotnet_diagnostic.S1450.severity = none
+
+# S2372: Exceptions should not be thrown from property getters
+# https://rules.sonarsource.com/csharp/RSPEC-2372/
+dotnet_diagnostic.S2372.severity = none
+
+# S2583: Conditionally executed code should be reachable
+# https://rules.sonarsource.com/csharp/RSPEC-2583/
+#
+# TODO: Re-enable when the following issue is resolved:
+# https://github.com/SonarSource/sonar-dotnet/issues/8264
+dotnet_diagnostic.S2583.severity = none
+
+# S2589: Boolean expressions should not be gratuitous
+# https://rules.sonarsource.com/csharp/RSPEC-2589/
+#
+# TODO: Re-enable when the following issue is resolved:
+# https://github.com/SonarSource/sonar-dotnet/issues/8262
+dotnet_diagnostic.S2589.severity = none
+
+dotnet_diagnostic.S2372.severity = none
+
 #### SYSLIB diagnostics ####
 
 # SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
@@ -7,32 +40,150 @@
 # TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
 dotnet_diagnostic.SYSLIB1045.severity = none
 
-### StyleCop Analyzers rules ###
+#### StyleCop Analyzers rules ####
+
+# SA1123: Do not place regions within elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1123.md
+dotnet_diagnostic.SA1123.severity = none
+
+# SA1124: Do not use regions
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1124.md
+dotnet_diagnostic.SA1124.severity = none
 
 # SA1202: Elements must be ordered by access
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1202.md
 dotnet_diagnostic.SA1202.severity = none
 
+# SA1204: Static elements must appear before instance elements
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1204.md
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1310: Field names must not contain underscore
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1310.md
+#dotnet_diagnostic.SA1310.severity = none
+
+# SA1312: Variable names should begin with lower-case letter
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1312.md
+dotnet_diagnostic.SA1312.severity = none
+
+# SA1636: File header copyright text should match
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1636.md
+dotnet_diagnostic.SA1636.severity = none
+
+# SA1643: Destructor summary documentation must begin with standard text
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1643.md
+dotnet_diagnostic.SA1643.severity = none
+
 #### Meziantou.Analyzer rules ####
+
+# MA0001: StringComparison is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
+dotnet_diagnostic.MA0001.severity = none
+
+# MA0011: IFormatProvider is missing
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0011.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0011.severity = none
+
+# MA0015: Specify the parameter name in ArgumentException
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0015.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0015.severity = none
+
+# MA0050: Validate arguments correctly in iterator methods
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0050.md
+#
+# TODO: Re-enable when https://github.com/meziantou/Meziantou.Analyzer/issues/617 is fixed
+dotnet_diagnostic.MA0050.severity = none
 
 # MA0053: Make class sealed
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
 MA0053.public_class_should_be_sealed = false
 
+# MA0055: Do not use finalizer
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0055.md
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.MA0055.severity = none
+
+# MA0089: Optimize string method usage
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0089.md
+dotnet_diagnostic.MA0089.severity = none
+
+# MA0110: Use the Regex source generator
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
+dotnet_diagnostic.MA0110.severity = none
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = none
+
 #### .NET Compiler Platform analysers rules ####
+
+# CA1030: Use events where appropriate
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1030
+dotnet_diagnostic.CA1030.severity = none
 
 # CA1031: Do not catch general exception types
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1031
 dotnet_diagnostic.CA1031.severity = none
 
+# CA1062: Validate arguments of public methods
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1062
+#
+# TODO: Remove exclusion when issues are fixed
+dotnet_diagnostic.CA1062.severity = none
+
+# CA1307: Specify StringComparison for clarity
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1307
+dotnet_diagnostic.CA1307.severity = none
+
+# CA1716: Identifiers should not match keywords
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1716
+dotnet_diagnostic.CA1716.severity = none
+
+# CA1822: Mark members as static
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1822
+dotnet_code_quality.CA1822.api_surface = private,internal
+
 # CA2213: Disposable fields should be disposed
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213
 dotnet_diagnostic.CA2213.severity = none
+
+# CA3075: Insecure DTD Processing
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca3075
+dotnet_diagnostic.CA3075.severity = none
 
 # IDE0004: Types that own disposable fields should be disposable
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0004
 dotnet_diagnostic.IDE0004.severity = none
 
+# IDE0047: Remove unnecessary parentheses
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
+dotnet_diagnostic.IDE0047.severity = none
+
 # IDE0048: Add parentheses for clarity
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
 dotnet_diagnostic.IDE0048.severity = none
+
+# IDE0305: Collection initialization can be simplified
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0305
+dotnet_diagnostic.IDE0305.severity = none
+
+# IDE0046: Use conditional expression for return
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
+dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0032: Use auto-implemented property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
+dotnet_diagnostic.IDE0032.severity = none
+
+# CA5350: Do Not Use Weak Cryptographic Algorithms
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca5350
+dotnet_diagnostic.CA5350.severity = none
+
+# CA5351: Do Not Use Broken Cryptographic Algorithms
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca5351
+dotnet_diagnostic.CA5351.severity = none

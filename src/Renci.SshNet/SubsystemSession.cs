@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 using Renci.SshNet.Abstractions;
@@ -66,7 +67,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether this session is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this session is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this session is open; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsOpen
         {
@@ -79,7 +80,7 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="operationTimeout">The number of milliseconds to wait for a given operation to complete, or -1 to wait indefinitely.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <see langword="null"/>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
             if (session is null)
@@ -241,7 +242,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    break;
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -262,8 +264,8 @@ namespace Renci.SshNet
         /// <param name="waitHandle">The handle to wait for.</param>
         /// <param name="millisecondsTimeout">To number of milliseconds to wait for <paramref name="waitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="waitHandle"/> received a signal within the specified timeout;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="waitHandle"/> received a signal within the specified timeout;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
@@ -286,7 +288,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return false; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -304,12 +307,12 @@ namespace Renci.SshNet
         /// Blocks the current thread until the specified <see cref="WaitHandle"/> gets signaled, using a
         /// 32-bit signed integer to specify the time interval in milliseconds.
         /// </summary>
-        /// <param name="waitHandle1">The first handle to wait for.</param>
-        /// <param name="waitHandle2">The second handle to wait for.</param>
+        /// <param name="waitHandleA">The first handle to wait for.</param>
+        /// <param name="waitHandleB">The second handle to wait for.</param>
         /// <param name="millisecondsTimeout">To number of milliseconds to wait for a <see cref="WaitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <returns>
-        /// <c>0</c> if <paramref name="waitHandle1"/> received a signal within the specified timeout, and <c>1</c>
-        /// if <paramref name="waitHandle2"/> received a signal within the specified timeout.
+        /// <c>0</c> if <paramref name="waitHandleA"/> received a signal within the specified timeout, and <c>1</c>
+        /// if <paramref name="waitHandleB"/> received a signal within the specified timeout.
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
@@ -321,26 +324,27 @@ namespace Renci.SshNet
         /// or session event.
         /// </para>
         /// <para>
-        /// When both <paramref name="waitHandle1"/> and <paramref name="waitHandle2"/> are signaled during the call,
+        /// When both <paramref name="waitHandleA"/> and <paramref name="waitHandleB"/> are signaled during the call,
         /// then <c>0</c> is returned.
         /// </para>
         /// </remarks>
-        public int WaitAny(WaitHandle waitHandle1, WaitHandle waitHandle2, int millisecondsTimeout)
+        public int WaitAny(WaitHandle waitHandleA, WaitHandle waitHandleB, int millisecondsTimeout)
         {
             var waitHandles = new[]
                 {
                     _errorOccuredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
-                    waitHandle1,
-                    waitHandle2
+                    waitHandleA,
+                    waitHandleB
                 };
 
             var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return -1; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -377,7 +381,8 @@ namespace Renci.SshNet
             switch (result)
             {
                 case 0:
-                    throw _exception;
+                    ExceptionDispatchInfo.Capture(_exception).Throw();
+                    return -1; // unreached
                 case 1:
                     throw new SshException("Connection was closed by the server.");
                 case 2:
@@ -468,7 +473,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
@@ -493,7 +498,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -542,10 +547,14 @@ namespace Renci.SshNet
 
         private void EnsureNotDisposed()
         {
+#if NET7_0_OR_GREATER
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+#else
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+#endif // NET7_0_OR_GREATER
         }
     }
 }

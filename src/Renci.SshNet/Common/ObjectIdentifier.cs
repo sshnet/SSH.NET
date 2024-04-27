@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Describes object identifier for DER encoding.
     /// </summary>
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct ObjectIdentifier
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         /// <summary>
         /// Gets the object identifier.
@@ -31,6 +35,20 @@ namespace Renci.SshNet.Common
             }
 
             Identifiers = identifiers;
+        }
+
+        internal static ObjectIdentifier FromHashAlgorithmName(HashAlgorithmName hashAlgorithmName)
+        {
+            var oid = CryptoConfig.MapNameToOID(hashAlgorithmName.Name);
+
+            if (oid is null)
+            {
+                throw new ArgumentException($"Could not map `{hashAlgorithmName}` to OID.", nameof(hashAlgorithmName));
+            }
+
+            var identifiers = oid.Split('.').Select(ulong.Parse).ToArray();
+
+            return new ObjectIdentifier(identifiers);
         }
     }
 }

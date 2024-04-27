@@ -1,4 +1,4 @@
-﻿ ![Logo](images/logo/png/SS-NET-icon-h50.png) SSH.NET
+ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -7,18 +7,20 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 [![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
 
 ## Introduction
+
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported
 for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism
 to achieve the best performance possible.
 
 ## Documentation
+
 There is MSDN-style class documentation in a .chm file for each release, which you can find in the Assets section
 of the [latest release](https://github.com/sshnet/SSH.NET/releases/latest) page.  Please note that you will need
 to [right-click and "unblock"](https://support.microsoft.com/en-us/help/2021383/some-chm-files-may-not-render-properly-on-windows-vista-and-windows-7)
 the CHM file after you download it.
 
 Currently (4/18/2020), the documentation is very sparse.  Fortunately, there are a large number of tests in
-[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/src/Renci.SshNet.Tests) that demonstrate
+[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/test/Renci.SshNet.Tests) that demonstrate
 usage with working code.
 
 If the test for the functionality you would like to see documented is not complete, then you are cordially
@@ -26,6 +28,7 @@ invited to read the source, Luke, and highly encouraged to generate a pull reque
 the missing test once you figure things out.  🤓
 
 ## Features
+
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 
 * Provide SFTP functionality for both synchronous and asynchronous operations
@@ -47,6 +50,8 @@ the missing test once you figure things out.  🤓
 * aes128-cbc
 * aes192-cbc
 * aes256-cbc
+* aes128-gcm<span></span>@openssh.com (.NET 6 and higher)
+* aes256-gcm<span></span>@openssh.com (.NET 6 and higher)
 * blowfish-cbc
 * twofish-cbc
 * twofish192-cbc
@@ -97,6 +102,8 @@ Private keys can be encrypted using one of the following cipher methods:
 * ecdsa-sha2-nistp256
 * ecdsa-sha2-nistp384
 * ecdsa-sha2-nistp521
+* rsa-sha2-512
+* rsa-sha2-256
 * ssh-rsa
 * ssh-dss
 
@@ -111,13 +118,25 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha2-256-96
 * hmac-sha2-512
 * hmac-sha2-512-96
-* hmac-ripemd160
-* hmac-ripemd160<span></span>@openssh.com
+* hmac-md5-etm<span></span>@openssh.com
+* hmac-md5-96-etm<span></span>@openssh.com
+* hmac-sha1-etm<span></span>@openssh.com
+* hmac-sha1-96-etm<span></span>@openssh.com
+* hmac-sha2-256-etm<span></span>@openssh.com
+* hmac-sha2-512-etm<span></span>@openssh.com
+
+
+## Compression
+
+**SSH.NET** supports the following compression algorithms:
+* none (default)
+* zlib<span></span>@openssh.com (.NET 6 and higher)
 
 ## Framework Support
+
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
-* .NET Standard 2.0
+* .NET Standard 2.0 and 2.1
 * .NET 6 (and higher)
 
 ## Usage
@@ -143,30 +162,13 @@ using (var client = new SftpClient(connectionInfo))
 Establish a SSH connection using user name and password, and reject the connection if the fingerprint of the server does not match the expected fingerprint:
 
 ```cs
-byte[] expectedFingerPrint = new byte[] {
-                                            0x66, 0x31, 0xaf, 0x00, 0x54, 0xb9, 0x87, 0x31,
-                                            0xff, 0x58, 0x1c, 0x31, 0xb1, 0xa2, 0x4c, 0x6b
-                                        };
+string expectedFingerPrint = "LKOy5LvmtEe17S4lyxVXqvs7uPMy+yF79MQpHeCs/Qo";
 
 using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 {
     client.HostKeyReceived += (sender, e) =>
         {
-            if (expectedFingerPrint.Length == e.FingerPrint.Length)
-            {
-                for (var i = 0; i < expectedFingerPrint.Length; i++)
-                {
-                    if (expectedFingerPrint[i] != e.FingerPrint[i])
-                    {
-                        e.CanTrust = false;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                e.CanTrust = false;
-            }
+            e.CanTrust = expectedFingerPrint.Equals(e.FingerPrintSHA256);
         };
     client.Connect();
 }

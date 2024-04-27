@@ -4,7 +4,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
-    /// Implements digital signature where where asymmetric cipher is used,
+    /// Implements digital signature where where asymmetric cipher is used.
     /// </summary>
     public abstract class CipherDigitalSignature : DigitalSignature
     {
@@ -33,14 +33,18 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns>
-        ///   <c>True</c> if signature was successfully verified; otherwise <c>false</c>.
+        /// <see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.
         /// </returns>
         public override bool Verify(byte[] input, byte[] signature)
         {
             var encryptedSignature = _cipher.Decrypt(signature);
             var hashData = Hash(input);
             var expected = DerEncode(hashData);
-            return expected.IsEqualTo(encryptedSignature);
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            return System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(expected, encryptedSignature);
+#else
+            return Chaos.NaCl.CryptoBytes.ConstantTimeEquals(expected, encryptedSignature);
+#endif
         }
 
         /// <summary>

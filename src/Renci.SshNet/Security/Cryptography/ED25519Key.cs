@@ -12,36 +12,30 @@ namespace Renci.SshNet.Security
     public class ED25519Key : Key, IDisposable
     {
         private ED25519DigitalSignature _digitalSignature;
-
-        private byte[] _publicKey = new byte[Ed25519.PublicKeySizeInBytes];
-#pragma warning disable IDE1006 // Naming Styles
-        private readonly byte[] privateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
-#pragma warning restore IDE1006 // Naming Styles
         private bool _isDisposed;
 
         /// <summary>
-        /// Gets the Key String.
+        /// Gets the name of the key.
         /// </summary>
+        /// <returns>
+        /// The name of the key.
+        /// </returns>
         public override string ToString()
         {
             return "ssh-ed25519";
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the Ed25519 public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array with <see cref="PublicKey"/> encoded at index 0.
         /// </value>
         public override BigInteger[] Public
         {
             get
             {
-                return new BigInteger[] { _publicKey.ToBigInteger2() };
-            }
-            set
-            {
-                _publicKey = value[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+                return new BigInteger[] { PublicKey.ToBigInteger2() };
             }
         }
 
@@ -62,7 +56,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the digital signature.
         /// </summary>
-        protected override DigitalSignature DigitalSignature
+        protected internal override DigitalSignature DigitalSignature
         {
             get
             {
@@ -74,52 +68,46 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the PublicKey Bytes.
         /// </summary>
-        public byte[] PublicKey
-        {
-            get
-            {
-                return _publicKey;
-            }
-        }
+        public byte[] PublicKey { get; }
 
         /// <summary>
         /// Gets the PrivateKey Bytes.
         /// </summary>
-        public byte[] PrivateKey
+        public byte[] PrivateKey { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ED25519Key"/> class.
+        /// </summary>
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public ED25519Key(SshKeyData publicKeyData)
         {
-            get
+            if (publicKeyData is null)
             {
-                return privateKey;
+                throw new ArgumentNullException(nameof(publicKeyData));
             }
+
+            if (publicKeyData.Name != "ssh-ed25519" || publicKeyData.Keys.Length != 1)
+            {
+                throw new ArgumentException($"Invalid Ed25519 public key data ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
+            }
+
+            PublicKey = publicKeyData.Keys[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+            PrivateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ED25519Key"/> class.
         /// </summary>
-        public ED25519Key()
+        /// <param name="privateKeyData">
+        /// The private key data <c>k || ENC(A)</c> as described in RFC 8032.
+        /// </param>
+        public ED25519Key(byte[] privateKeyData)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ED25519Key"/> class.
-        /// </summary>
-        /// <param name="pk">pk data.</param>
-        public ED25519Key(byte[] pk)
-        {
-            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ED25519Key"/> class.
-        /// </summary>
-        /// <param name="pk">pk data.</param>
-        /// <param name="sk">sk data.</param>
-        public ED25519Key(byte[] pk, byte[] sk)
-        {
-            _publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
             var seed = new byte[Ed25519.PrivateKeySeedSizeInBytes];
-            Buffer.BlockCopy(sk, 0, seed, 0, seed.Length);
-            Ed25519.KeyPairFromSeed(out _publicKey, out privateKey, seed);
+            Buffer.BlockCopy(privateKeyData, 0, seed, 0, seed.Length);
+            Ed25519.KeyPairFromSeed(out var publicKey, out var privateKey, seed);
+            PublicKey = publicKey;
+            PrivateKey = privateKey;
         }
 
         /// <summary>
@@ -132,9 +120,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

@@ -33,11 +33,10 @@ namespace Renci.SshNet.Abstractions
                 return this;
             }
 
-            public void SetCompleted()
+            private void SetCompleted()
             {
                 IsCompleted = true;
-
-                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, comparand: null);
+                var continuation = Interlocked.Exchange(ref _continuationAction, SENTINEL);
                 if (continuation is not null)
                 {
                     continuation();

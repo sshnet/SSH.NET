@@ -1,6 +1,8 @@
 image:
   - Ubuntu2204
   - Visual Studio 2022
+init:
+  - git config --global core.autocrlf true
 
 services:
   - docker

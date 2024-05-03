@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -244,40 +246,30 @@ namespace Renci.SshNet.Connection
 
         private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
         {
-            byte[] address = null;
-            System.Net.IPAddress _IPAddress;
-            Boolean isIP = System.Net.IPAddress.TryParse(hostname, out _IPAddress);
-            addressType = 0xFF;
-
-            if (isIP)
+            if (IPAddress.TryParse(hostname, out var ipAddress))
             {
-                if (_IPAddress.AddressFamily == AddressFamily.InterNetwork) // IPv4
-                {
-                    addressType = 0x01;
-                    address = _IPAddress.GetAddressBytes();
-                }
+                Debug.Assert(ipAddress.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6);
 
-                if (_IPAddress.AddressFamily == AddressFamily.InterNetworkV6) // IPv6
-                {
-                    addressType = 0x04;
-                    address = _IPAddress.GetAddressBytes();
-                }
+                addressType = ipAddress.AddressFamily == AddressFamily.InterNetwork
+                    ? (byte)0x01 // IPv4
+                    : (byte)0x04; // IPv6
+
+                return ipAddress.GetAddressBytes();
             }
-            else
+
+            addressType = 0x03; // Domain name
+
+            var byteCount = Encoding.UTF8.GetByteCount(hostname);
+
+            if (byteCount > byte.MaxValue)
             {
-                if (hostname.Length > 255)
-                {
-                    throw new ProxyException(string.Format("SOCKS5: SOCKS 5 cannot support host names longer than 255 chars ('{0}').", hostname));
-                }
-                else
-                {
-                    address = new byte[hostname.Length + 1];
-                    addressType = 0x03;
-                    Buffer.BlockCopy(BitConverter.GetBytes(hostname.Length), 0, address, 0, 1);
-                    Buffer.BlockCopy(System.Text.Encoding.ASCII.GetBytes(hostname), 0, address, 1, hostname.Length);
-                }
-
+                throw new ProxyException(string.Format("SOCKS5: SOCKS 5 cannot support host names longer than 255 chars ('{0}').", hostname));
             }
+
+            var address = new byte[1 + byteCount];
+            address[0] = (byte)byteCount;
+            _ = Encoding.UTF8.GetBytes(hostname, 0, hostname.Length, address, 1);
+
             return address;
         }
     }

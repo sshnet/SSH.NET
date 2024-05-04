@@ -78,7 +78,7 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 if (_padding is null)
                 {
-                    throw new ArgumentException("data");
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
 
                 var paddingLength = _blockSize - (length % _blockSize);
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 if (_padding is null)
                 {
-                    throw new ArgumentException("data");
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
 
                 input = _padding.Pad(_blockSize, input, offset, length);

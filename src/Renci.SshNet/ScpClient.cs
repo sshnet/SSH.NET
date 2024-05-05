@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -107,12 +108,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when downloading file.
         /// </summary>
-        public event EventHandler<ScpDownloadEventArgs> Downloading;
+        public event EventHandler<ScpDownloadEventArgs>? Downloading;
 
         /// <summary>
         /// Occurs when uploading file.
         /// </summary>
-        public event EventHandler<ScpUploadEventArgs> Uploading;
+        public event EventHandler<ScpUploadEventArgs>? Uploading;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScpClient"/> class.
@@ -226,8 +227,14 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(Stream source, string path)
         {
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
 
             using (var input = ServiceFactory.CreatePipeStream())
@@ -260,11 +267,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
@@ -303,6 +316,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length string.</exception>
         /// <exception cref="ScpException"><paramref name="path"/> does not exist on the remote host, is not a directory or the user does not have the required permission.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo is null)
@@ -318,6 +332,11 @@ namespace Renci.SshNet
             if (path.Length == 0)
             {
                 throw new ArgumentException("The path cannot be a zero-length string.", nameof(path));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             using (var input = ServiceFactory.CreatePipeStream())
@@ -351,6 +370,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
             if (string.IsNullOrEmpty(filename))
@@ -361,6 +381,11 @@ namespace Renci.SshNet
             if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             using (var input = ServiceFactory.CreatePipeStream())
@@ -391,6 +416,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             if (string.IsNullOrEmpty(directoryName))
@@ -401,6 +427,11 @@ namespace Renci.SshNet
             if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             using (var input = ServiceFactory.CreatePipeStream())
@@ -431,6 +462,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <see langword="null"/>.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, Stream destination)
         {
             if (string.IsNullOrWhiteSpace(filename))
@@ -441,6 +473,11 @@ namespace Renci.SshNet
             if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             using (var input = ServiceFactory.CreatePipeStream())
@@ -747,7 +784,14 @@ namespace Renci.SshNet
 
                     directoryCounter--;
 
-                    currentDirectoryFullName = new DirectoryInfo(currentDirectoryFullName).Parent.FullName;
+                    var currentDirectoryParent = new DirectoryInfo(currentDirectoryFullName).Parent;
+
+                    if (currentDirectoryParent is null)
+                    {
+                        break;
+                    }
+
+                    currentDirectoryFullName = currentDirectoryParent.FullName;
 
                     if (directoryCounter == 0)
                     {
@@ -775,7 +819,7 @@ namespace Renci.SshNet
                     else
                     {
                         // Don't create directory for first level
-                        newDirectoryInfo = fileSystemInfo as DirectoryInfo;
+                        newDirectoryInfo = (DirectoryInfo) fileSystemInfo;
                     }
 
                     directoryCounter++;

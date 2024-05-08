@@ -17,6 +17,7 @@ namespace Renci.SshNet.Tests.Common
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
+        private string _stackTrace;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
         public delegate void ConnectedHandler(Socket socket);
@@ -55,6 +56,8 @@ namespace Renci.SshNet.Tests.Common
 
             _receiveThread = new Thread(StartListener);
             _receiveThread.Start(_listener);
+
+            _stackTrace = Environment.StackTrace;
         }
 
         public void Stop()
@@ -272,6 +275,46 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
+            void ConnectionDisconnected(bool doShutdownIfApplicable)
+            {
+                SignalDisconnected(handler);
+
+                if (ShutdownRemoteCommunicationSocket)
+                {
+                    lock (_syncLock)
+                    {
+                        if (!_started)
+                        {
+                            return;
+                        }
+
+                        try
+                        {
+                            if (doShutdownIfApplicable)
+                            {
+                                handler.Shutdown(SocketShutdown.Send);
+                                handler.Close();
+                            }
+                        }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+                        {
+                            // On .NET 7 we got Socker Exception with ConnectionReset from Shutdown method
+                            // when the socket is disposed
+                        }
+                        catch (SocketException ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
+                        }
+
+                        _ = _connectedClients.Remove(handler);
+                    }
+                }
+            }
+
             if (bytesRead > 0)
             {
                 var bytesReceived = new byte[bytesRead];
@@ -284,36 +327,23 @@ namespace Renci.SshNet.Tests.Common
                 }
                 catch (ObjectDisposedException)
                 {
-                    SignalDisconnected(handler);
+                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
+                    ConnectionDisconnected(doShutdownIfApplicable: false);
                 }
-
-                return;
-            }
-
-            SignalDisconnected(handler);
-
-            if (ShutdownRemoteCommunicationSocket)
-            {
-                lock (_syncLock)
+                catch (SocketException ex)
                 {
                     if (!_started)
                     {
-                        return;
+                        throw new Exception("BeginReceive while stopping!", ex);
                     }
 
-                    try
-                    {
-                        handler.Shutdown(SocketShutdown.Send);
-                        handler.Close();
-                    }
-                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
-                    {
-                        // On .NET 7 we got Socket Exception with ConnectionReset from Shutdown method
-                        // when the socket is disposed
-                    }
-
-                    _ = _connectedClients.Remove(handler);
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
                 }
+
+            }
+            else
+            {
+                ConnectionDisconnected(doShutdownIfApplicable: true);
             }
         }
 

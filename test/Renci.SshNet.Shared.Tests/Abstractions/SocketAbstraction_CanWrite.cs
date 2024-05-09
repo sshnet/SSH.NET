@@ -1,10 +1,6 @@
 ﻿using System.Net.Sockets;
 using Renci.SshNet.Abstractions;
-#if SILVERLIGHT
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Renci.SshNet.Tests.Abstractions
 {

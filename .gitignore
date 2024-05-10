@@ -487,10 +487,5 @@ $RECYCLE.BIN/
 build/target/
 
 # Docs
-docfx/_site/**
-docfx/net462/**
-docfx/netstandard2.0/**
-docfx/netstandard2.1/**
-docfx/net6.0/**
-docfx/net7.0/**
-docfx/net8.0/**
+docfx/_site/
+docfx/api/

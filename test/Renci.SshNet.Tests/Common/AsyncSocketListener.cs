@@ -1,8 +1,10 @@
-﻿using System;
+﻿#pragma warning disable IDE0005 // Using directive is unnecessary; IntegrationTests use implicit usings
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+#pragma warning restore IDE0005
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -273,7 +275,7 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            void ConnectionDisconnected()
+            void ConnectionDisconnected(bool doShutdownIfApplicable)
             {
                 SignalDisconnected(handler);
 
@@ -288,8 +290,11 @@ namespace Renci.SshNet.Tests.Common
 
                         try
                         {
-                            handler.Shutdown(SocketShutdown.Send);
-                            handler.Close();
+                            if (doShutdownIfApplicable)
+                            {
+                                handler.Shutdown(SocketShutdown.Send);
+                                handler.Close();
+                            }
                         }
                         catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
                         {
@@ -323,7 +328,7 @@ namespace Renci.SshNet.Tests.Common
                 catch (ObjectDisposedException)
                 {
                     // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
-                    ConnectionDisconnected();
+                    ConnectionDisconnected(doShutdownIfApplicable: false);
                 }
                 catch (SocketException ex)
                 {
@@ -338,7 +343,7 @@ namespace Renci.SshNet.Tests.Common
             }
             else
             {
-                ConnectionDisconnected();
+                ConnectionDisconnected(doShutdownIfApplicable: true);
             }
         }
 

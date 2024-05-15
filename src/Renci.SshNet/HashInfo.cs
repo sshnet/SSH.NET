@@ -19,7 +19,7 @@ namespace Renci.SshNet
         public int KeySize { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether enable encrypt-then-MAC or use encrypt-and-MAC.
+        /// Gets a value indicating whether the MAC algorithm will use encrypt-then-MAC ordering.
         /// </summary>
         /// <value>
         /// <see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.
@@ -27,7 +27,8 @@ namespace Renci.SshNet
         public bool IsEncryptThenMAC { get; private set; }
 
         /// <summary>
-        /// Gets the cipher.
+        /// Gets the method for creating a <see cref="System.Security.Cryptography.HashAlgorithm"/> instance
+        /// given a key.
         /// </summary>
         public Func<byte[], HashAlgorithm> HashAlgorithm { get; private set; }
 

@@ -60,7 +60,7 @@ namespace Renci.SshNet
         /// </returns>
         AuthenticationResult IAuthenticationMethod.Authenticate(ISession session)
         {
-            return Authenticate((Session) session);
+            return Authenticate((Session)session);
         }
     }
 }

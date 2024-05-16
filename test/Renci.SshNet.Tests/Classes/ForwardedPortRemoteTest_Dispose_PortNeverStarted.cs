@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
 
-            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint) _bindEndpoint.Port, _remoteEndpoint.Address, (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
@@ -77,11 +77,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldIgnoreChannelOpenMessagesWhenDisposed()
         {
-            var channelNumberDisposed = (uint) new Random().Next(1001, int.MaxValue);
-            var initialWindowSizeDisposed = (uint) new Random().Next(0, int.MaxValue);
-            var maximumPacketSizeDisposed = (uint) new Random().Next(0, int.MaxValue);
+            var channelNumberDisposed = (uint)new Random().Next(1001, int.MaxValue);
+            var initialWindowSizeDisposed = (uint)new Random().Next(0, int.MaxValue);
+            var maximumPacketSizeDisposed = (uint)new Random().Next(0, int.MaxValue);
             var originatorAddressDisposed = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var originatorPortDisposed = (uint) new Random().Next(0, int.MaxValue);
+            var originatorPortDisposed = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
 
             _sessionMock.Setup(

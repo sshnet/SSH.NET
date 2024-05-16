@@ -167,11 +167,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
             // Version of the negotiation
             expectedSocksRequest.Add(0x01);
             // Length of the username
-            expectedSocksRequest.Add((byte) _connectionInfo.ProxyUsername.Length);
+            expectedSocksRequest.Add((byte)_connectionInfo.ProxyUsername.Length);
             // Username
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyUsername));
             // Length of the password
-            expectedSocksRequest.Add((byte) _connectionInfo.ProxyPassword.Length);
+            expectedSocksRequest.Add((byte)_connectionInfo.ProxyPassword.Length);
             // Password
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyPassword));
 

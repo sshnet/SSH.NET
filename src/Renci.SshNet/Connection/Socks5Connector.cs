@@ -82,7 +82,7 @@ namespace Renci.SshNet.Connection
                     throw new ProxyException($"SOCKS5: Chosen authentication method '0x{authenticationMethod:x2}' is not supported.");
             }
 
-            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
+            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port);
             SocketAbstraction.Send(socket, connectionRequest);
 
             // Read Server SOCKS5 version
@@ -181,14 +181,14 @@ namespace Renci.SshNet.Connection
             authenticationRequest[index++] = 0x01;
 
             // Length of the username
-            authenticationRequest[index++] = (byte) username.Length;
+            authenticationRequest[index++] = (byte)username.Length;
 
             // Username
             _ = SshData.Ascii.GetBytes(username, 0, username.Length, authenticationRequest, index);
             index += username.Length;
 
             // Length of the password
-            authenticationRequest[index++] = (byte) password.Length;
+            authenticationRequest[index++] = (byte)password.Length;
 
             // Password
             _ = SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);

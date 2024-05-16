@@ -306,7 +306,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                connectionInfo.Timeout = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+                connectionInfo.Timeout = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -345,7 +345,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+                connectionInfo.ChannelCloseTimeout = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
             }
             catch (ArgumentOutOfRangeException ex)
             {

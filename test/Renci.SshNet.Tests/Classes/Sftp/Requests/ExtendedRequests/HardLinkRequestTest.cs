@@ -29,8 +29,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
         public void Init()
         {
             var random = new Random();
-            _protocolVersion = (uint) random.Next(0, int.MaxValue);
-            _requestId = (uint) random.Next(0, int.MaxValue);
+            _protocolVersion = (uint)random.Next(0, int.MaxValue);
+            _requestId = (uint)random.Next(0, int.MaxValue);
             _oldPath = random.Next().ToString(CultureInfo.InvariantCulture);
             _oldPathBytes = Encoding.UTF8.GetBytes(_oldPath);
             _newPath = random.Next().ToString(CultureInfo.InvariantCulture);
@@ -91,22 +91,22 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests.ExtendedRequests
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Extended, sshDataStream.ReadByte());
+            Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
+            Assert.AreEqual((byte)SftpMessageTypes.Extended, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
-            Assert.AreEqual((uint) _nameBytes.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_nameBytes.Length, sshDataStream.ReadUInt32());
 
             var actualNameBytes = new byte[_nameBytes.Length];
             sshDataStream.Read(actualNameBytes, 0, actualNameBytes.Length);
             Assert.IsTrue(_nameBytes.SequenceEqual(actualNameBytes));
 
-            Assert.AreEqual((uint) _oldPathBytes.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_oldPathBytes.Length, sshDataStream.ReadUInt32());
 
             var actualOldPath = new byte[_oldPathBytes.Length];
             sshDataStream.Read(actualOldPath, 0, actualOldPath.Length);
             Assert.IsTrue(_oldPathBytes.SequenceEqual(actualOldPath));
 
-            Assert.AreEqual((uint) _newPathBytes.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_newPathBytes.Length, sshDataStream.ReadUInt32());
 
             var actualNewPath = new byte[_newPathBytes.Length];
             sshDataStream.Read(actualNewPath, 0, actualNewPath.Length);

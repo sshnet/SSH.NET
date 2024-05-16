@@ -159,7 +159,7 @@ namespace Renci.SshNet.Security
                 KeyBlobMagicNumber magic;
                 using (var br = new BinaryReader(new MemoryStream(blob)))
                 {
-                    magic = (KeyBlobMagicNumber) br.ReadInt32();
+                    magic = (KeyBlobMagicNumber)br.ReadInt32();
                     var cbKey = br.ReadInt32();
                     qx = br.ReadBytes(cbKey);
                     qy = br.ReadBytes(cbKey);
@@ -388,7 +388,7 @@ namespace Renci.SshNet.Security
             var blob = new byte[blobSize];
             using (var bw = new BinaryWriter(new MemoryStream(blob)))
             {
-                bw.Write((int) curve_magic);
+                bw.Write((int)curve_magic);
                 bw.Write(cord_size);
                 bw.Write(qx); // q.x
                 bw.Write(qy); // q.y

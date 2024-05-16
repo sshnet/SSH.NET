@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Common
         {
             try
             {
-                var listener = (Socket) state;
+                var listener = (Socket)state;
                 while (_started)
                 {
                     _ = _acceptCallbackDone.Reset();
@@ -130,7 +130,7 @@ namespace Renci.SshNet.Tests.Common
             _ = _acceptCallbackDone.Set();
 
             // Get the socket that listens for inbound connections
-            var listener = (Socket) ar.AsyncState;
+            var listener = (Socket)ar.AsyncState;
 
             // Get the socket that handles the client request
             Socket handler;
@@ -227,7 +227,7 @@ namespace Renci.SshNet.Tests.Common
         {
             // Retrieve the state object and the handler socket
             // from the asynchronous state object
-            var state = (SocketStateObject) ar.AsyncState;
+            var state = (SocketStateObject)ar.AsyncState;
             var handler = state.Socket;
 
             int bytesRead;

@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var random = new Random();
 
-            var localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint)random.Next(0, int.MaxValue);
             var data = new byte[3];
 
             var target = new ChannelDataMessage(localChannelNumber, data);
@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Constructor_LocalChannelNumberAndData_ShouldThrowArgumentNullExceptionWhenDataIsNull()
         {
-            var localChannelNumber = (uint) new Random().Next(0, int.MaxValue);
+            var localChannelNumber = (uint)new Random().Next(0, int.MaxValue);
             const byte[] data = null;
 
             try
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Constructor_LocalChannelNumberAndDataAndOffsetAndSize()
         {
-            var localChannelNumber = (uint) new Random().Next(0, int.MaxValue);
+            var localChannelNumber = (uint)new Random().Next(0, int.MaxValue);
             var data = new byte[4];
             const int offset = 2;
             const int size = 1;
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [TestMethod]
         public void Constructor_LocalChannelNumberAndDataAndOffsetAndSize_ShouldThrowArgumentNullExceptionWhenDataIsNull()
         {
-            var localChannelNumber = (uint) new Random().Next(0, int.MaxValue);
+            var localChannelNumber = (uint)new Random().Next(0, int.MaxValue);
             const byte[] data = null;
             const int offset = 0;
             const int size = 0;
@@ -100,7 +100,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var random = new Random();
 
-            var localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint)random.Next(0, int.MaxValue);
             var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
             var offset = random.Next(0, data.Length - 1);
             var size = random.Next(0, data.Length - offset);
@@ -120,7 +120,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             Assert.AreEqual(target.MessageNumber, sshDataStream.ReadByte());
             Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
-            Assert.AreEqual((uint) size, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)size, sshDataStream.ReadUInt32());
 
             var actualData = new byte[size];
             sshDataStream.Read(actualData, 0, size);
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var random = new Random();
 
-            var localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint)random.Next(0, int.MaxValue);
             var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
 
             var offset = random.Next(0, data.Length - 1);

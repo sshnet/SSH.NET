@@ -288,7 +288,7 @@ namespace Renci.SshNet
                     _ = reader.ReadUInt32(); // Read total bytes length including magic number
                     var keyType = reader.ReadString(SshData.Ascii);
                     var ssh2CipherName = reader.ReadString(SshData.Ascii);
-                    var blobSize = (int) reader.ReadUInt32();
+                    var blobSize = (int)reader.ReadUInt32();
 
                     byte[] keyData;
                     if (ssh2CipherName == "none")
@@ -468,18 +468,18 @@ namespace Renci.SshNet
             var kdfName = keyReader.ReadString(Encoding.UTF8);
 
             // kdf options length: 24 if passphrase, 0 if no passphrase
-            var kdfOptionsLen = (int) keyReader.ReadUInt32();
+            var kdfOptionsLen = (int)keyReader.ReadUInt32();
             byte[] salt = null;
             var rounds = 0;
             if (kdfOptionsLen > 0)
             {
-                var saltLength = (int) keyReader.ReadUInt32();
+                var saltLength = (int)keyReader.ReadUInt32();
                 salt = keyReader.ReadBytes(saltLength);
-                rounds = (int) keyReader.ReadUInt32();
+                rounds = (int)keyReader.ReadUInt32();
             }
 
             // number of public keys, only supporting 1 for now
-            var numberOfPublicKeys = (int) keyReader.ReadUInt32();
+            var numberOfPublicKeys = (int)keyReader.ReadUInt32();
             if (numberOfPublicKeys != 1)
             {
                 throw new SshException("At this time only one public key in the openssh key is supported.");
@@ -489,7 +489,7 @@ namespace Renci.SshNet
             _ = keyReader.ReadString(Encoding.UTF8);
 
             // possibly encrypted private key
-            var privateKeyLength = (int) keyReader.ReadUInt32();
+            var privateKeyLength = (int)keyReader.ReadUInt32();
             var privateKeyBytes = keyReader.ReadBytes(privateKeyLength);
 
             // decrypt private key if necessary
@@ -551,8 +551,8 @@ namespace Renci.SshNet
             var privateKeyReader = new SshDataReader(privateKeyBytes);
 
             // check ints should match, they wouldn't match for example if the wrong passphrase was supplied
-            var checkInt1 = (int) privateKeyReader.ReadUInt32();
-            var checkInt2 = (int) privateKeyReader.ReadUInt32();
+            var checkInt1 = (int)privateKeyReader.ReadUInt32();
+            var checkInt2 = (int)privateKeyReader.ReadUInt32();
             if (checkInt1 != checkInt2)
             {
                 throw new SshException(string.Format(CultureInfo.InvariantCulture,
@@ -583,7 +583,7 @@ namespace Renci.SshNet
                 case "ecdsa-sha2-nistp384":
                 case "ecdsa-sha2-nistp521":
                     // curve
-                    var len = (int) privateKeyReader.ReadUInt32();
+                    var len = (int)privateKeyReader.ReadUInt32();
                     var curve = Encoding.ASCII.GetString(privateKeyReader.ReadBytes(len));
 
                     // public key
@@ -613,7 +613,7 @@ namespace Renci.SshNet
             var padding = privateKeyReader.ReadBytes();
             for (var i = 0; i < padding.Length; i++)
             {
-                if ((int) padding[i] != i + 1)
+                if ((int)padding[i] != i + 1)
                 {
                     throw new SshException("Padding of openssh key format contained wrong byte at position: " +
                                            i.ToString(CultureInfo.InvariantCulture));
@@ -648,7 +648,7 @@ namespace Renci.SshNet
                 var key = _key;
                 if (key != null)
                 {
-                    ((IDisposable) key).Dispose();
+                    ((IDisposable)key).Dispose();
                     _key = null;
                 }
 
@@ -697,7 +697,7 @@ namespace Renci.SshNet
             /// <returns>mpint read.</returns>
             public BigInteger ReadBigIntWithBits()
             {
-                var length = (int) base.ReadUInt32();
+                var length = (int)base.ReadUInt32();
 
                 length = (length + 7) / 8;
 
@@ -715,7 +715,7 @@ namespace Renci.SshNet
 
             public byte[] ReadBignum2()
             {
-                var length = (int) base.ReadUInt32();
+                var length = (int)base.ReadUInt32();
                 return base.ReadBytes(length);
             }
 

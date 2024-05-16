@@ -32,12 +32,12 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _maxPendingReads = 100;
-            _bufferSize = (uint) random.Next(1, int.MaxValue);
+            _bufferSize = (uint)random.Next(1, int.MaxValue);
             _openAsyncResult = new SftpOpenAsyncResult(null, null);
             _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
             _statAsyncResult = new SFtpStatAsyncResult(null, null);
             _fileName = random.Next().ToString();
-            _chunkSize = (uint) random.Next(1000, 5000);
+            _chunkSize = (uint)random.Next(1000, 5000);
             _fileSize = _chunkSize * random.Next(_maxPendingReads + 1, _maxPendingReads * 2);
             _fileAttributes = new SftpFileAttributesBuilder().WithSize(_fileSize).Build();
         }

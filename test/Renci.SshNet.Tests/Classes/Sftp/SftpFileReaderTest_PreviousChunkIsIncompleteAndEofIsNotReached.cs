@@ -101,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk1, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk2, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -131,7 +131,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk3, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -146,7 +146,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk4, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -161,7 +161,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk5, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -183,7 +183,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk6, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
         }
 
         protected override void Arrange()

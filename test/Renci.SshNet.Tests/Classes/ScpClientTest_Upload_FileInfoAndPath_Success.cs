@@ -108,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object)
             {
-                BufferSize = (uint) _bufferSize
+                BufferSize = (uint)_bufferSize
             };
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
@@ -178,7 +178,7 @@ namespace Renci.SshNet.Tests.Classes
 
             for (var i = 0; i < length; i++)
             {
-                content[i] = (byte) random.Next(byte.MinValue, byte.MaxValue);
+                content[i] = (byte)random.Next(byte.MinValue, byte.MaxValue);
             }
 
             return content;

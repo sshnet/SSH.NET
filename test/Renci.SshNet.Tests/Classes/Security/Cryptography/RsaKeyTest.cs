@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             using (var stream = GetData(fileName))
             {
-                return (RsaKey) new PrivateKeyFile(stream, passPhrase).Key;
+                return (RsaKey)new PrivateKeyFile(stream, passPhrase).Key;
             }
         }
 
@@ -266,7 +266,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             using MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(keyString));
 
-            RsaKey rsaKey = (RsaKey) new PrivateKeyFile(stream).Key;
+            RsaKey rsaKey = (RsaKey)new PrivateKeyFile(stream).Key;
 
             RSAParameters p = rsaKey.GetRSAParameters();
 

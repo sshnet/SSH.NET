@@ -103,7 +103,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _engineState[_y] = tmp;
 
                 // xor
-                outputBuffer[i + outputOffset] = (byte) (inputBuffer[i + inputOffset] ^ _engineState[(_engineState[_x] + _engineState[_y]) & 0xff]);
+                outputBuffer[i + outputOffset] = (byte)(inputBuffer[i + inputOffset] ^ _engineState[(_engineState[_x] + _engineState[_y]) & 0xff]);
             }
 
             return inputCount;
@@ -119,7 +119,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // reset the state of the engine
             for (var i = 0; i < STATE_LENGTH; i++)
             {
-                _engineState[i] = (byte) i;
+                _engineState[i] = (byte)i;
             }
 
             var i1 = 0;

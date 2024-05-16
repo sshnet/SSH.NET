@@ -28,7 +28,7 @@ namespace Renci.SshNet.Connection
         /// <param name="socket">The <see cref="Socket"/>.</param>
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
-            var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port, connectionInfo.ProxyUsername);
+            var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
             SocketAbstraction.Send(socket, connectionRequest);
 
             // Read reply version

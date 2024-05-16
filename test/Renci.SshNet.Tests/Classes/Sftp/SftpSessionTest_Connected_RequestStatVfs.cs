@@ -75,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _path = random.Next().ToString();
-            _bAvail = (ulong) random.Next(0, int.MaxValue);
+            _bAvail = (ulong)random.Next(0, int.MaxValue);
             _sftpStatVfsRequestBytes = new SftpStatVfsRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                       .WithRequestId(2)
                                                                       .WithPath(_path)

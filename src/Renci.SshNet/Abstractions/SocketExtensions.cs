@@ -80,7 +80,7 @@ namespace Renci.SshNet.Abstractions
 
                 if (SocketError != SocketError.Success)
                 {
-                    throw new SocketException((int) SocketError);
+                    throw new SocketException((int)SocketError);
                 }
             }
         }
@@ -94,9 +94,9 @@ namespace Renci.SshNet.Abstractions
                 args.RemoteEndPoint = remoteEndpoint;
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ConnectAsync);
@@ -113,9 +113,9 @@ namespace Renci.SshNet.Abstractions
                 args.SetBuffer(buffer, offset, length);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+                await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs) o).SetCancelled(), args, useSynchronizationContext: false))
+                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
                 {
                     await args.ExecuteAsync(socket.ReceiveAsync);

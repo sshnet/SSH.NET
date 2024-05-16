@@ -72,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.Raise(c => c.ExtendedDataReceived += null,
                 new ChannelExtendedDataEventArgs(0, _encoding.GetBytes(_extendedDataB), 0));
             _channelSessionMock.Raise(c => c.RequestReceived += null,
-                new ChannelRequestEventArgs(new ExitStatusRequestInfo((uint) _expectedExitStatus)));
+                new ChannelRequestEventArgs(new ExitStatusRequestInfo((uint)_expectedExitStatus)));
         }
 
         private void Act()

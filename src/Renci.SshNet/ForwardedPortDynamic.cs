@@ -164,7 +164,7 @@ namespace Renci.SshNet
                 ip = Dns.GetHostAddresses(BoundHost)[0];
             }
 
-            var ep = new IPEndPoint(ip, (int) BoundPort);
+            var ep = new IPEndPoint(ip, (int)BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
@@ -738,7 +738,7 @@ namespace Renci.SshNet
                     break;
                 }
 
-                _ = text.Append((char) byteRead);
+                _ = text.Append((char)byteRead);
             }
 
             return text.ToString();

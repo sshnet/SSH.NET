@@ -55,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #region SftpSession.Connect()
 
             _operationTimeout = random.Next(100, 500);
-            _protocolVersion = (uint) random.Next(0, 3);
+            _protocolVersion = (uint)random.Next(0, 3);
             _encoding = Encoding.UTF8;
             _sftpResponseFactory = new SftpResponseFactory();
             _sftpInitRequestBytes = new SftpInitRequestBuilder().WithVersion(SftpSession.MaximumSupportedVersion)
@@ -78,9 +78,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
-            _offset = (uint) random.Next(1, 5);
-            _length = (uint) random.Next(30, 50);
-            _data = CryptoAbstraction.GenerateRandom((int) _length);
+            _offset = (uint)random.Next(1, 5);
+            _length = (uint)random.Next(30, 50);
+            _data = CryptoAbstraction.GenerateRandom((int)_length);
             _sftpReadRequestBytes = new SftpReadRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                 .WithRequestId(2)
                                                                 .WithHandle(_handle)

@@ -72,7 +72,7 @@ namespace Renci.SshNet.Common
     {
         private const ulong Base = 0x100000000;
         private const int Bias = 1075;
-        private const int DecimalSignMask = unchecked((int) 0x80000000);
+        private const int DecimalSignMask = unchecked((int)0x80000000);
 
         private static readonly BigInteger ZeroSingleton = new BigInteger(0);
         private static readonly BigInteger OneSingleton = new BigInteger(1);
@@ -181,7 +181,7 @@ namespace Renci.SshNet.Common
         {
             var bytesArray = new byte[(bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0)];
             CryptoAbstraction.GenerateRandom(bytesArray);
-            bytesArray[bytesArray.Length - 1] = (byte) (bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
+            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
             return new BigInteger(bytesArray);
         }
 
@@ -207,12 +207,12 @@ namespace Renci.SshNet.Common
             else if (value > 0)
             {
                 _sign = 1;
-                _data = new[] { (uint) value };
+                _data = new[] { (uint)value };
             }
             else
             {
                 _sign = -1;
-                _data = new[] { (uint) -value };
+                _data = new[] { (uint)-value };
             }
         }
 
@@ -249,8 +249,8 @@ namespace Renci.SshNet.Common
             else if (value > 0)
             {
                 _sign = 1;
-                var low = (uint) value;
-                var high = (uint) (value >> 32);
+                var low = (uint)value;
+                var high = (uint)(value >> 32);
 
                 _data = new uint[high != 0 ? 2 : 1];
                 _data[0] = low;
@@ -263,8 +263,8 @@ namespace Renci.SshNet.Common
             {
                 _sign = -1;
                 value = -value;
-                var low = (uint) value;
-                var high = (uint) ((ulong) value >> 32);
+                var low = (uint)value;
+                var high = (uint)((ulong)value >> 32);
 
                 _data = new uint[high != 0 ? 2 : 1];
                 _data[0] = low;
@@ -290,8 +290,8 @@ namespace Renci.SshNet.Common
             else
             {
                 _sign = 1;
-                var low = (uint) value;
-                var high = (uint) (value >> 32);
+                var low = (uint)value;
+                var high = (uint)(value >> 32);
 
                 _data = new uint[high != 0 ? 2 : 1];
                 _data[0] = low;
@@ -339,7 +339,7 @@ namespace Renci.SshNet.Common
                 BigInteger res = mantissa;
                 res = exponent > Bias ? res << (exponent - Bias) : res >> (Bias - exponent);
 
-                _sign = (short) (Negative(bytes) ? -1 : 1);
+                _sign = (short)(Negative(bytes) ? -1 : 1);
                 _data = res._data;
             }
         }
@@ -349,7 +349,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">A single-precision floating-point value.</param>
         public BigInteger(float value)
-            : this((double) value)
+            : this((double)value)
         {
         }
 
@@ -375,18 +375,18 @@ namespace Renci.SshNet.Common
                 return;
             }
 
-            _sign = (short) ((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
+            _sign = (short)((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
 
             _data = new uint[size];
-            _data[0] = (uint) bits[0];
+            _data[0] = (uint)bits[0];
             if (size > 1)
             {
-                _data[1] = (uint) bits[1];
+                _data[1] = (uint)bits[1];
             }
 
             if (size > 2)
             {
-                _data[2] = (uint) bits[2];
+                _data[2] = (uint)bits[2];
             }
         }
 
@@ -446,10 +446,10 @@ namespace Renci.SshNet.Common
                 var j = 0;
                 for (var i = 0; i < fullWords; ++i)
                 {
-                    _data[i] = (uint) value[j++] |
-                               (uint) (value[j++] << 8) |
-                               (uint) (value[j++] << 16) |
-                               (uint) (value[j++] << 24);
+                    _data[i] = (uint)value[j++] |
+                               (uint)(value[j++] << 8) |
+                               (uint)(value[j++] << 16) |
+                               (uint)(value[j++] << 24);
                 }
 
                 size = len & 0x3;
@@ -458,7 +458,7 @@ namespace Renci.SshNet.Common
                     var idx = _data.Length - 1;
                     for (var i = 0; i < size; ++i)
                     {
-                        _data[idx] |= (uint) (value[j++] << (i * 8));
+                        _data[idx] |= (uint)(value[j++] << (i * 8));
                     }
                 }
             }
@@ -479,14 +479,14 @@ namespace Renci.SshNet.Common
 
                 for (var i = 0; i < fullWords; ++i)
                 {
-                    word = (uint) value[j++] |
-                           (uint) (value[j++] << 8) |
-                           (uint) (value[j++] << 16) |
-                           (uint) (value[j++] << 24);
+                    word = (uint)value[j++] |
+                           (uint)(value[j++] << 8) |
+                           (uint)(value[j++] << 16) |
+                           (uint)(value[j++] << 24);
 
-                    sub = (ulong) word - borrow;
-                    word = (uint) sub;
-                    borrow = (uint) (sub >> 32) & 0x1u;
+                    sub = (ulong)word - borrow;
+                    word = (uint)sub;
+                    borrow = (uint)(sub >> 32) & 0x1u;
                     _data[i] = ~word;
                 }
 
@@ -498,13 +498,13 @@ namespace Renci.SshNet.Common
                     uint storeMask = 0;
                     for (var i = 0; i < size; ++i)
                     {
-                        word |= (uint) (value[j++] << (i * 8));
+                        word |= (uint)(value[j++] << (i * 8));
                         storeMask = (storeMask << 8) | 0xFF;
                     }
 
                     sub = word - borrow;
-                    word = (uint) sub;
-                    borrow = (uint) (sub >> 32) & 0x1u;
+                    word = (uint)sub;
+                    borrow = (uint)(sub >> 32) & 0x1u;
 
                     if ((~word & storeMask) == 0)
                     {
@@ -532,15 +532,15 @@ namespace Renci.SshNet.Common
 
         private static ushort Exponent(byte[] v)
         {
-            return (ushort) ((((ushort) (v[7] & 0x7F)) << (ushort) 4) | (((ushort) (v[6] & 0xF0)) >> 4));
+            return (ushort)((((ushort)(v[7] & 0x7F)) << (ushort)4) | (((ushort)(v[6] & 0xF0)) >> 4));
         }
 
         private static ulong Mantissa(byte[] v)
         {
-            var i1 = (uint) v[0] | ((uint) v[1] << 8) | ((uint) v[2] << 16) | ((uint) v[3] << 24);
-            var i2 = (uint) v[4] | ((uint) v[5] << 8) | ((uint) (v[6] & 0xF) << 16);
+            var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
+            var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
 
-            return (ulong) i1 | ((ulong) i2 << 32);
+            return (ulong)i1 | ((ulong)i2 << 32);
         }
 
         /// <summary>
@@ -575,7 +575,7 @@ namespace Renci.SshNet.Common
             x = (x + (x >> 4)) & 0x0F0F0F0F;
             x += x >> 8;
             x += x >> 16;
-            return (int) (x & 0x0000003F);
+            return (int)(x & 0x0000003F);
         }
 
         /// <summary>
@@ -592,7 +592,7 @@ namespace Renci.SshNet.Common
             x -= (x >> 1) & 0x5555555555555555UL;
             x = (x & 0x3333333333333333UL) + ((x >> 2) & 0x3333333333333333UL);
             x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0fUL;
-            return (int) ((x * 0x0101010101010101UL) >> 56);
+            return (int)((x * 0x0101010101010101UL) >> 56);
         }
 
         private static int LeadingZeroCount(uint value)
@@ -660,13 +660,13 @@ namespace Renci.SshNet.Common
             {
                 unchecked
                 {
-                    var bits = mantissa | ((ulong) exponent << mantissaLength);
+                    var bits = mantissa | ((ulong)exponent << mantissaLength);
                     if (sign < 0)
                     {
                         bits |= negativeMark;
                     }
 
-                    return BitConverter.Int64BitsToDouble((long) bits);
+                    return BitConverter.Int64BitsToDouble((long)bits);
                 }
             }
 
@@ -791,12 +791,12 @@ namespace Renci.SshNet.Common
 
             if (value._sign == 1)
             {
-                if (data > (uint) int.MaxValue)
+                if (data > (uint)int.MaxValue)
                 {
                     throw new OverflowException();
                 }
 
-                return (int) data;
+                return (int)data;
             }
 
             if (value._sign == -1)
@@ -806,7 +806,7 @@ namespace Renci.SshNet.Common
                     throw new OverflowException();
                 }
 
-                return -(int) data;
+                return -(int)data;
             }
 
             return 0;
@@ -848,13 +848,13 @@ namespace Renci.SshNet.Common
         public static explicit operator short(BigInteger value)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (int) value;
+            var val = (int)value;
             if (val is < short.MinValue or > short.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (short) val;
+            return (short)val;
         }
 
         /// <summary>
@@ -869,13 +869,13 @@ namespace Renci.SshNet.Common
         public static explicit operator ushort(BigInteger value)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (uint) value;
+            var val = (uint)value;
             if (val > ushort.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (ushort) val;
+            return (ushort)val;
         }
 
         /// <summary>
@@ -889,13 +889,13 @@ namespace Renci.SshNet.Common
         public static explicit operator byte(BigInteger value)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (uint) value;
+            var val = (uint)value;
             if (val > byte.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (byte) val;
+            return (byte)val;
         }
 
         /// <summary>
@@ -910,13 +910,13 @@ namespace Renci.SshNet.Common
         public static explicit operator sbyte(BigInteger value)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (int) value;
+            var val = (int)value;
             if (val is < sbyte.MinValue or > sbyte.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (sbyte) val;
+            return (sbyte)val;
         }
 
         /// <summary>
@@ -946,10 +946,10 @@ namespace Renci.SshNet.Common
             {
                 if (value._sign == 1)
                 {
-                    return (long) low;
+                    return (long)low;
                 }
 
-                var res = (long) low;
+                var res = (long)low;
                 return -res;
             }
 
@@ -962,7 +962,7 @@ namespace Renci.SshNet.Common
                     throw new OverflowException();
                 }
 
-                return (((long) high) << 32) | low;
+                return (((long)high) << 32) | low;
             }
 
             /*
@@ -975,7 +975,7 @@ namespace Renci.SshNet.Common
             number, but since long.MinValue == -long.MinValue, we're good.
             */
 
-            var result = -((((long) high) << 32) | (long) low);
+            var result = -((((long)high) << 32) | (long)low);
             if (result > 0)
             {
                 throw new OverflowException();
@@ -1013,7 +1013,7 @@ namespace Renci.SshNet.Common
             }
 
             var high = value._data[1];
-            return (((ulong) high) << 32) | low;
+            return (((ulong)high) << 32) | low;
         }
 
         /// <summary>
@@ -1037,11 +1037,11 @@ namespace Renci.SshNet.Common
                 case 1:
                     return BuildDouble(value._sign, value._data[0], 0);
                 case 2:
-                    return BuildDouble(value._sign, (ulong) value._data[1] << 32 | (ulong) value._data[0], 0);
+                    return BuildDouble(value._sign, (ulong)value._data[1] << 32 | (ulong)value._data[0], 0);
                 default:
                     var index = value._data.Length - 1;
                     var word = value._data[index];
-                    var mantissa = ((ulong) word << 32) | value._data[index - 1];
+                    var mantissa = ((ulong)word << 32) | value._data[index - 1];
                     var missing = LeadingZeroCount(word) - 11; // 11 = bits in exponent
                     if (missing > 0)
                     {
@@ -1068,7 +1068,7 @@ namespace Renci.SshNet.Common
         public static explicit operator float(BigInteger value)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            return (float) (double) value;
+            return (float)(double)value;
         }
 
         /// <summary>
@@ -1096,17 +1096,17 @@ namespace Renci.SshNet.Common
             int lo = 0, mi = 0, hi = 0;
             if (data.Length > 2)
             {
-                hi = (int) data[2];
+                hi = (int)data[2];
             }
 
             if (data.Length > 1)
             {
-                mi = (int) data[1];
+                mi = (int)data[1];
             }
 
             if (data.Length > 0)
             {
-                lo = (int) data[0];
+                lo = (int)data[0];
             }
 
             return new decimal(lo, mi, hi, value._sign < 0, 0);
@@ -1328,7 +1328,7 @@ namespace Renci.SshNet.Common
 
             if (left._sign == 0)
             {
-                return new BigInteger((short) -right._sign, right._data);
+                return new BigInteger((short)-right._sign, right._data);
             }
 
             if (left._sign == right._sign)
@@ -1346,7 +1346,7 @@ namespace Renci.SshNet.Common
                     return new BigInteger(left._sign, CoreSub(left._data, right._data));
                 }
 
-                return new BigInteger((short) -right._sign, CoreSub(right._data, left._data));
+                return new BigInteger((short)-right._sign, CoreSub(right._data, left._data));
             }
 
             return new BigInteger(left._sign, CoreAdd(left._data, right._data));
@@ -1374,7 +1374,7 @@ namespace Renci.SshNet.Common
                     return right;
                 }
 
-                return new BigInteger((short) -right._sign, right._data);
+                return new BigInteger((short)-right._sign, right._data);
             }
 
             if (right._data[0] == 1 && right._data.Length == 1)
@@ -1384,7 +1384,7 @@ namespace Renci.SshNet.Common
                     return left;
                 }
 
-                return new BigInteger((short) -left._sign, left._data);
+                return new BigInteger((short)-left._sign, left._data);
             }
 
             var a = left._data;
@@ -1400,15 +1400,15 @@ namespace Renci.SshNet.Common
                 ulong carry = 0;
                 for (var j = 0; j < b.Length; ++j)
                 {
-                    carry = carry + (((ulong) ai) * b[j]) + res[k];
-                    res[k++] = (uint) carry;
+                    carry = carry + (((ulong)ai) * b[j]) + res[k];
+                    res[k++] = (uint)carry;
                     carry >>= 32;
                 }
 
                 while (carry != 0)
                 {
                     carry += res[k];
-                    res[k++] = (uint) carry;
+                    res[k++] = (uint)carry;
                     carry >>= 32;
                 }
             }
@@ -1424,7 +1424,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref res, m + 1);
             }
 
-            return new BigInteger((short) (left._sign * right._sign), res);
+            return new BigInteger((short)(left._sign * right._sign), res);
         }
 
         /// <summary>
@@ -1466,7 +1466,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref quotient, i + 1);
             }
 
-            return new BigInteger((short) (dividend._sign * divisor._sign), quotient);
+            return new BigInteger((short)(dividend._sign * divisor._sign), quotient);
         }
 
         /// <summary>
@@ -1524,7 +1524,7 @@ namespace Renci.SshNet.Common
                 return value;
             }
 
-            return new BigInteger((short) -value._sign, value._data);
+            return new BigInteger((short)-value._sign, value._data);
         }
 
         /// <summary>
@@ -1661,8 +1661,8 @@ namespace Renci.SshNet.Common
                 if (ls == -1)
                 {
                     ac = ~va + ac;
-                    va = (uint) ac;
-                    ac = (uint) (ac >> 32);
+                    va = (uint)ac;
+                    ac = (uint)(ac >> 32);
                 }
 
                 uint vb = 0;
@@ -1674,8 +1674,8 @@ namespace Renci.SshNet.Common
                 if (rs == -1)
                 {
                     bc = ~vb + bc;
-                    vb = (uint) bc;
-                    bc = (uint) (bc >> 32);
+                    vb = (uint)bc;
+                    bc = (uint)(bc >> 32);
                 }
 
                 var word = va & vb;
@@ -1683,8 +1683,8 @@ namespace Renci.SshNet.Common
                 if (negRes)
                 {
                     borrow = word - borrow;
-                    word = ~(uint) borrow;
-                    borrow = (uint) (borrow >> 32) & 0x1u;
+                    word = ~(uint)borrow;
+                    borrow = (uint)(borrow >> 32) & 0x1u;
                 }
 
                 result[i] = word;
@@ -1705,7 +1705,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref result, i + 1);
             }
 
-            return new BigInteger(negRes ? (short) -1 : (short) 1, result);
+            return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
         /// <summary>
@@ -1753,8 +1753,8 @@ namespace Renci.SshNet.Common
                 if (ls == -1)
                 {
                     ac = ~va + ac;
-                    va = (uint) ac;
-                    ac = (uint) (ac >> 32);
+                    va = (uint)ac;
+                    ac = (uint)(ac >> 32);
                 }
 
                 uint vb = 0;
@@ -1766,8 +1766,8 @@ namespace Renci.SshNet.Common
                 if (rs == -1)
                 {
                     bc = ~vb + bc;
-                    vb = (uint) bc;
-                    bc = (uint) (bc >> 32);
+                    vb = (uint)bc;
+                    bc = (uint)(bc >> 32);
                 }
 
                 var word = va | vb;
@@ -1775,8 +1775,8 @@ namespace Renci.SshNet.Common
                 if (negRes)
                 {
                     borrow = word - borrow;
-                    word = ~(uint) borrow;
-                    borrow = (uint) (borrow >> 32) & 0x1u;
+                    word = ~(uint)borrow;
+                    borrow = (uint)(borrow >> 32) & 0x1u;
                 }
 
                 result[i] = word;
@@ -1797,7 +1797,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref result, i + 1);
             }
 
-            return new BigInteger(negRes ? (short) -1 : (short) 1, result);
+            return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
         /// <summary>
@@ -1845,8 +1845,8 @@ namespace Renci.SshNet.Common
                 if (ls == -1)
                 {
                     ac = ~va + ac;
-                    va = (uint) ac;
-                    ac = (uint) (ac >> 32);
+                    va = (uint)ac;
+                    ac = (uint)(ac >> 32);
                 }
 
                 uint vb = 0;
@@ -1858,8 +1858,8 @@ namespace Renci.SshNet.Common
                 if (rs == -1)
                 {
                     bc = ~vb + bc;
-                    vb = (uint) bc;
-                    bc = (uint) (bc >> 32);
+                    vb = (uint)bc;
+                    bc = (uint)(bc >> 32);
                 }
 
                 var word = va ^ vb;
@@ -1867,8 +1867,8 @@ namespace Renci.SshNet.Common
                 if (negRes)
                 {
                     borrow = word - borrow;
-                    word = ~(uint) borrow;
-                    borrow = (uint) (borrow >> 32) & 0x1u;
+                    word = ~(uint)borrow;
+                    borrow = (uint)(borrow >> 32) & 0x1u;
                 }
 
                 result[i] = word;
@@ -1889,7 +1889,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref result, i + 1);
             }
 
-            return new BigInteger(negRes ? (short) -1 : (short) 1, result);
+            return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
         /// <summary>
@@ -1924,8 +1924,8 @@ namespace Renci.SshNet.Common
                 if (sign == -1)
                 {
                     carry = ~word + carry;
-                    word = (uint) carry;
-                    carry = (uint) (carry >> 32);
+                    word = (uint)carry;
+                    carry = (uint)(carry >> 32);
                 }
 
                 word = ~word;
@@ -1933,8 +1933,8 @@ namespace Renci.SshNet.Common
                 if (negRes)
                 {
                     borrow = word - borrow;
-                    word = ~(uint) borrow;
-                    borrow = (uint) (borrow >> 32) & 0x1u;
+                    word = ~(uint)borrow;
+                    borrow = (uint)(borrow >> 32) & 0x1u;
                 }
 
                 result[i] = word;
@@ -1955,7 +1955,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref result, i + 1);
             }
 
-            return new BigInteger(negRes ? (short) -1 : (short) 1, result);
+            return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
         /// <summary>
@@ -2035,7 +2035,7 @@ namespace Renci.SshNet.Common
                 }
             }
 
-            return new BigInteger((short) sign, res);
+            return new BigInteger((short)sign, res);
         }
 
         /// <summary>
@@ -2120,7 +2120,7 @@ namespace Renci.SshNet.Common
                 {
                     if (data[i] != 0u)
                     {
-                        var tmp = new BigInteger((short) sign, res);
+                        var tmp = new BigInteger((short)sign, res);
                         --tmp;
                         return tmp;
                     }
@@ -2128,13 +2128,13 @@ namespace Renci.SshNet.Common
 
                 if (bitShift > 0 && (data[idxShift] << carryShift) != 0u)
                 {
-                    var tmp = new BigInteger((short) sign, res);
+                    var tmp = new BigInteger((short)sign, res);
                     --tmp;
                     return tmp;
                 }
             }
 
-            return new BigInteger((short) sign, res);
+            return new BigInteger((short)sign, res);
         }
 
         /// <summary>
@@ -2764,9 +2764,9 @@ namespace Renci.SshNet.Common
             for (var i = 0; i < v.Length; ++i)
             {
                 var word = v[i];
-                carry = (ulong) ~word + carry;
-                word = (uint) carry;
-                carry = (uint) (carry >> 32);
+                carry = (ulong)~word + carry;
+                word = (uint)carry;
+                carry = (uint)(carry >> 32);
                 res[i] = word;
             }
 
@@ -2827,7 +2827,7 @@ namespace Renci.SshNet.Common
             while (a != 0)
             {
                 a = DivRem(a, radix, out var rem);
-                digits.Add(characterSet[(int) rem]);
+                digits.Add(characterSet[(int)rem]);
             }
 
             if (_sign == -1 && radix == 10)
@@ -3016,7 +3016,7 @@ namespace Renci.SshNet.Common
             if (fp != null)
             {
                 var typeNfi = typeof(NumberFormatInfo);
-                nfi = (NumberFormatInfo) fp.GetFormat(typeNfi);
+                nfi = (NumberFormatInfo)fp.GetFormat(typeNfi);
             }
 
             nfi ??= NumberFormatInfo.CurrentInfo;
@@ -3166,15 +3166,15 @@ namespace Renci.SshNet.Common
                     byte digitValue;
                     if (char.IsDigit(hexDigit))
                     {
-                        digitValue = (byte) (hexDigit - '0');
+                        digitValue = (byte)(hexDigit - '0');
                     }
                     else if (char.IsLower(hexDigit))
                     {
-                        digitValue = (byte) (hexDigit - 'a' + 10);
+                        digitValue = (byte)(hexDigit - 'a' + 10);
                     }
                     else
                     {
-                        digitValue = (byte) (hexDigit - 'A' + 10);
+                        digitValue = (byte)(hexDigit - 'A' + 10);
                     }
 
                     if (firstHexDigit && digitValue >= 8)
@@ -3187,7 +3187,7 @@ namespace Renci.SshNet.Common
                     continue;
                 }
 
-                number = (number * 10) + (byte) (value[pos++] - '0');
+                number = (number * 10) + (byte)(value[pos++] - '0');
             }
 
             // Post number stuff
@@ -3358,7 +3358,7 @@ namespace Renci.SshNet.Common
                     return false;
                 }
             }
-            else if ((uint) style > (uint) NumberStyles.Any)
+            else if ((uint)style > (uint)NumberStyles.Any)
             {
                 if (!tryParse)
                 {
@@ -3478,7 +3478,7 @@ namespace Renci.SshNet.Common
             }
 
             exc = null;
-            exponent = (int) exp;
+            exponent = (int)exp;
             pos = i;
             return true;
         }
@@ -3600,7 +3600,7 @@ namespace Renci.SshNet.Common
 
                 if (c is >= '0' and <= '9')
                 {
-                    var d = (byte) (c - '0');
+                    var d = (byte)(c - '0');
 
                     val = (val * 10) + d;
 
@@ -3786,7 +3786,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref quotient, i + 1);
             }
 
-            return new BigInteger((short) (dividend._sign * divisor._sign), quotient);
+            return new BigInteger((short)(dividend._sign * divisor._sign), quotient);
         }
 
         /// <summary>
@@ -3934,7 +3934,7 @@ namespace Renci.SshNet.Common
              */
 
             var yy = x._data[0];
-            var xx = (uint) (y % yy);
+            var xx = (uint)(y % yy);
 
             var t = 0;
 
@@ -4024,7 +4024,7 @@ namespace Renci.SshNet.Common
                 tempBitlen -= int.MaxValue;
             }
 
-            testBit <<= (int) tempBitlen;
+            testBit <<= (int)tempBitlen;
 
             for (var curbit = bitlen; curbit >= 0; --curbit)
             {
@@ -4074,7 +4074,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public override readonly int GetHashCode()
         {
-            var hash = (uint) (_sign * 0x01010101u);
+            var hash = (uint)(_sign * 0x01010101u);
             if (_data != null)
             {
                 foreach (var bit in _data)
@@ -4083,7 +4083,7 @@ namespace Renci.SshNet.Common
                 }
             }
 
-            return (int) hash;
+            return (int)hash;
         }
 
         /// <summary>
@@ -4283,8 +4283,8 @@ namespace Renci.SshNet.Common
                 return 1;
             }
 
-            var high = (uint) (other >> 32);
-            var low = (uint) other;
+            var high = (uint)(other >> 32);
+            var low = (uint)other;
 
             return LongCompare(low, high);
         }
@@ -4341,8 +4341,8 @@ namespace Renci.SshNet.Common
                 other = -other;
             }
 
-            var low = (uint) other;
-            var high = (uint) ((ulong) other >> 32);
+            var low = (uint)other;
+            var high = (uint)((ulong)other >> 32);
 
             var r = LongCompare(low, high);
             if (ls == -1)
@@ -4516,15 +4516,15 @@ namespace Renci.SshNet.Common
                 {
                     var word = _data[i];
 
-                    res[j++] = (byte) word;
-                    res[j++] = (byte) (word >> 8);
-                    res[j++] = (byte) (word >> 16);
-                    res[j++] = (byte) (word >> 24);
+                    res[j++] = (byte)word;
+                    res[j++] = (byte)(word >> 8);
+                    res[j++] = (byte)(word >> 16);
+                    res[j++] = (byte)(word >> 24);
                 }
 
                 while (extra-- > 0)
                 {
-                    res[j++] = (byte) topWord;
+                    res[j++] = (byte)topWord;
                     topWord >>= 8;
                 }
             }
@@ -4538,19 +4538,19 @@ namespace Renci.SshNet.Common
                 for (var i = 0; i < end; ++i)
                 {
                     word = _data[i];
-                    add = (ulong) ~word + carry;
-                    word = (uint) add;
-                    carry = (uint) (add >> 32);
+                    add = (ulong)~word + carry;
+                    word = (uint)add;
+                    carry = (uint)(add >> 32);
 
-                    res[j++] = (byte) word;
-                    res[j++] = (byte) (word >> 8);
-                    res[j++] = (byte) (word >> 16);
-                    res[j++] = (byte) (word >> 24);
+                    res[j++] = (byte)word;
+                    res[j++] = (byte)(word >> 8);
+                    res[j++] = (byte)(word >> 16);
+                    res[j++] = (byte)(word >> 24);
                 }
 
-                add = (ulong) ~topWord + carry;
-                word = (uint) add;
-                carry = (uint) (add >> 32);
+                add = (ulong)~topWord + carry;
+                word = (uint)add;
+                carry = (uint)(add >> 32);
                 if (carry == 0)
                 {
                     var ex = FirstNonFfByte(word);
@@ -4564,7 +4564,7 @@ namespace Renci.SshNet.Common
 
                     while (ex-- > 0)
                     {
-                        res[j++] = (byte) word;
+                        res[j++] = (byte)word;
                         word >>= 8;
                     }
 
@@ -4576,10 +4576,10 @@ namespace Renci.SshNet.Common
                 else
                 {
                     Array.Resize(ref res, bytes + 5);
-                    res[j++] = (byte) word;
-                    res[j++] = (byte) (word >> 8);
-                    res[j++] = (byte) (word >> 16);
-                    res[j++] = (byte) (word >> 24);
+                    res[j++] = (byte)word;
+                    res[j++] = (byte)(word >> 8);
+                    res[j++] = (byte)(word >> 16);
+                    res[j++] = (byte)(word >> 24);
                     res[j++] = 0xFF;
                 }
             }
@@ -4607,21 +4607,21 @@ namespace Renci.SshNet.Common
             for (; i < sl; i++)
             {
                 sum = sum + a[i] + b[i];
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
                 sum >>= 32;
             }
 
             for (; i < bl; i++)
             {
                 sum += a[i];
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
                 sum >>= 32;
             }
 
             if (sum != 0)
             {
                 Array.Resize(ref res, bl + 1);
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
             }
 
             return res;
@@ -4637,14 +4637,14 @@ namespace Renci.SshNet.Common
             for (i = 0; i < len; i++)
             {
                 sum += a[i];
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
                 sum >>= 32;
             }
 
             if (sum != 0)
             {
                 Array.Resize(ref res, len + 1);
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
             }
 
             return res;
@@ -4662,16 +4662,16 @@ namespace Renci.SshNet.Common
             int i;
             for (i = 0; i < sl; ++i)
             {
-                borrow = (ulong) a[i] - b[i] - borrow;
+                borrow = (ulong)a[i] - b[i] - borrow;
 
-                res[i] = (uint) borrow;
+                res[i] = (uint)borrow;
                 borrow = (borrow >> 32) & 0x1;
             }
 
             for (; i < bl; i++)
             {
-                borrow = (ulong) a[i] - borrow;
-                res[i] = (uint) borrow;
+                borrow = (ulong)a[i] - borrow;
+                res[i] = (uint)borrow;
                 borrow = (borrow >> 32) & 0x1;
             }
 
@@ -4698,8 +4698,8 @@ namespace Renci.SshNet.Common
             int i;
             for (i = 0; i < len; i++)
             {
-                borrow = (ulong) a[i] - borrow;
-                res[i] = (uint) borrow;
+                borrow = (ulong)a[i] - borrow;
+                res[i] = (uint)borrow;
                 borrow = (borrow >> 32) & 0x1;
             }
 
@@ -4867,10 +4867,10 @@ namespace Renci.SshNet.Common
 
                     var div = rem / v0;
                     rem -= div * v0;
-                    q[j] = (uint) div;
+                    q[j] = (uint)div;
                 }
 
-                r[0] = (uint) rem;
+                r[0] = (uint)rem;
             }
             else if (m >= n)
             {
@@ -4899,7 +4899,7 @@ namespace Renci.SshNet.Common
                         if ((qq >= Base) || (qq * vn[n - 2] > ((rr * Base) + un[j + n - 2])))
                         {
                             qq--;
-                            rr += (ulong) vn[n - 1];
+                            rr += (ulong)vn[n - 1];
                             if (rr < Base)
                             {
                                 continue;
@@ -4915,18 +4915,18 @@ namespace Renci.SshNet.Common
                     for (i = 0; i < n; i++)
                     {
                         var p = vn[i] * qq;
-                        t = (long) un[i + j] - (long) (uint) p - b;
-                        un[i + j] = (uint) t;
+                        t = (long)un[i + j] - (long)(uint)p - b;
+                        un[i + j] = (uint)t;
                         p >>= 32;
                         t >>= 32;
-                        b = (long) p - t;
+                        b = (long)p - t;
                     }
 
-                    t = (long) un[j + n] - b;
-                    un[j + n] = (uint) t;
+                    t = (long)un[j + n] - b;
+                    un[j + n] = (uint)t;
 
                     // Store the calculated value
-                    q[j] = (uint) qq;
+                    q[j] = (uint)qq;
 
                     // Add back vn[0..n] to un[j..j+n]
                     if (t < 0)
@@ -4935,13 +4935,13 @@ namespace Renci.SshNet.Common
                         ulong c = 0;
                         for (i = 0; i < n; i++)
                         {
-                            c = (ulong) vn[i] + un[j + i] + c;
-                            un[j + i] = (uint) c;
+                            c = (ulong)vn[i] + un[j + i] + c;
+                            un[j + i] = (uint)c;
                             c >>= 32;
                         }
 
-                        c += (ulong) un[j + n];
-                        un[j + n] = (uint) c;
+                        c += (ulong)un[j + n];
+                        un[j + n] = (uint)c;
                     }
                 }
 

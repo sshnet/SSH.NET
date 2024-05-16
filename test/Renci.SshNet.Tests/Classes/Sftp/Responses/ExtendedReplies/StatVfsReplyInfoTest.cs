@@ -28,17 +28,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         public void Init()
         {
             _random = new Random();
-            _responseId = (uint) _random.Next(0, int.MaxValue);
-            _bsize = (ulong) _random.Next(0, int.MaxValue);
-            _frsize = (ulong) _random.Next(0, int.MaxValue);
-            _blocks = (ulong) _random.Next(0, int.MaxValue);
-            _bfree = (ulong) _random.Next(0, int.MaxValue);
-            _bavail = (ulong) _random.Next(0, int.MaxValue);
-            _files = (ulong) _random.Next(0, int.MaxValue);
-            _ffree = (ulong) _random.Next(0, int.MaxValue);
-            _favail = (ulong) _random.Next(0, int.MaxValue);
-            _sid = (ulong) _random.Next(0, int.MaxValue);
-            _namemax = (ulong) _random.Next(0, int.MaxValue);
+            _responseId = (uint)_random.Next(0, int.MaxValue);
+            _bsize = (ulong)_random.Next(0, int.MaxValue);
+            _frsize = (ulong)_random.Next(0, int.MaxValue);
+            _blocks = (ulong)_random.Next(0, int.MaxValue);
+            _bfree = (ulong)_random.Next(0, int.MaxValue);
+            _bavail = (ulong)_random.Next(0, int.MaxValue);
+            _files = (ulong)_random.Next(0, int.MaxValue);
+            _ffree = (ulong)_random.Next(0, int.MaxValue);
+            _favail = (ulong)_random.Next(0, int.MaxValue);
+            _sid = (ulong)_random.Next(0, int.MaxValue);
+            _namemax = (ulong)_random.Next(0, int.MaxValue);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             sshDataStream.Write(_ffree);
             sshDataStream.Write(_favail);
             sshDataStream.Write(_sid);
-            sshDataStream.Write((ulong) 0x1);
+            sshDataStream.Write((ulong)0x1);
             sshDataStream.Write(_namemax);
 
             var extendedReplyResponse = new SftpExtendedReplyResponse(SftpSession.MaximumSupportedVersion);

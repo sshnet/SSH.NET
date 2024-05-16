@@ -80,7 +80,7 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.IsNotNull(errorOccurred);
                 Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
-                var connectionException = (SshConnectionException) errorOccurred;
+                var connectionException = (SshConnectionException)errorOccurred;
                 Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                 Assert.IsNull(connectionException.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
@@ -122,7 +122,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(errorOccurred);
                     Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
-                    var connectionException = (SshConnectionException) errorOccurred;
+                    var connectionException = (SshConnectionException)errorOccurred;
                     Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                     Assert.IsNull(connectionException.InnerException);
                     Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
@@ -182,7 +182,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(errorOccurred);
                     Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
-                    var connectionException = (SshConnectionException) errorOccurred;
+                    var connectionException = (SshConnectionException)errorOccurred;
                     Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                     Assert.IsNull(connectionException.InnerException);
                     Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
@@ -229,7 +229,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(errorOccurred);
                     Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
-                    var connectionException = (SshConnectionException) errorOccurred;
+                    var connectionException = (SshConnectionException)errorOccurred;
                     Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                     Assert.IsNull(connectionException.InnerException);
                     Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
@@ -274,7 +274,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(errorOccurred);
                     Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
 
-                    var connectionException = (SshConnectionException) errorOccurred;
+                    var connectionException = (SshConnectionException)errorOccurred;
                     Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
                     Assert.IsNull(connectionException.InnerException);
                     Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);

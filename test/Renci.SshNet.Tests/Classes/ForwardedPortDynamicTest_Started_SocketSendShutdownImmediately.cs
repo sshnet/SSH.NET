@@ -73,7 +73,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelDisposed = new ManualResetEvent(false);
             _forwardedPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            _forwardedPort = new ForwardedPortDynamic((uint) _forwardedPortEndPoint.Port);
+            _forwardedPort = new ForwardedPortDynamic((uint)_forwardedPortEndPoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;

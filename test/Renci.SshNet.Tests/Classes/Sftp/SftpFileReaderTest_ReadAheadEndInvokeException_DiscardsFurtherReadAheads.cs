@@ -91,7 +91,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                var asyncResult = new SftpReadAsyncResult(callback, state);
                                asyncResult.SetAsCompleted(_chunk1, false);
                            })
-                           .Returns((SftpReadAsyncResult) null);
+                           .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
@@ -114,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                     _readAheadChunk2Completed.Set();
                                 });
                             })
-                           .Returns((SftpReadAsyncResult) null);
+                           .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
@@ -128,7 +128,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                 // signal that we've completed the read-ahead for chunk3
                                 _readAheadChunk3Completed.Set();
                             })
-                            .Returns((SftpReadAsyncResult) null);
+                            .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))

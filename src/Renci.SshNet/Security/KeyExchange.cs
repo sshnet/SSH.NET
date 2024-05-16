@@ -500,7 +500,7 @@ namespace Renci.SshNet.Security
             {
                 WriteBinaryString(SharedKey);
                 Write(ExchangeHash);
-                Write((byte) Char);
+                Write((byte)Char);
                 Write(SessionId);
             }
         }

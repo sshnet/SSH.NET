@@ -73,7 +73,7 @@ namespace Renci.SshNet.Messages
                         WriteBytes(sshDataStream);
                     }
 
-                    messageLength = (int) sshDataStream.Length - (outboundPacketSequenceSize + 4 + 1);
+                    messageLength = (int)sshDataStream.Length - (outboundPacketSequenceSize + 4 + 1);
 
                     var packetLength = messageLength + 4 + 1;
 
@@ -139,12 +139,12 @@ namespace Renci.SshNet.Messages
 
         private static uint GetPacketDataLength(int messageLength, byte paddingLength)
         {
-            return (uint) (messageLength + paddingLength + 1);
+            return (uint)(messageLength + paddingLength + 1);
         }
 
         private static byte GetPaddingLength(byte paddingMultiplier, long packetLength)
         {
-            var paddingLength = (byte) ((-packetLength) & (paddingMultiplier - 1));
+            var paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
 
             if (paddingLength < paddingMultiplier)
             {

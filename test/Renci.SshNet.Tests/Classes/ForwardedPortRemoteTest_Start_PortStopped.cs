@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, 1000));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint) _bindEndpoint.Port, _remoteEndpoint.Address, (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port);
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -117,11 +117,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldAcceptNewConnections()
         {
-            var channelNumber = (uint) new Random().Next(1001, int.MaxValue);
-            var initialWindowSize = (uint) new Random().Next(0, int.MaxValue);
-            var maximumPacketSize = (uint) new Random().Next(0, int.MaxValue);
+            var channelNumber = (uint)new Random().Next(1001, int.MaxValue);
+            var initialWindowSize = (uint)new Random().Next(0, int.MaxValue);
+            var maximumPacketSize = (uint)new Random().Next(0, int.MaxValue);
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var originatorPort = (uint) new Random().Next(0, int.MaxValue);
+            var originatorPort = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
             var channelDisposed = new ManualResetEvent(false);
 

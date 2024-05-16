@@ -52,7 +52,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 
             for (var i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte) (_ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
 
             Buffer.BlockCopy(IV, _blockSize, IV, 0, IV.Length - _blockSize);
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 
             for (var i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte) (_ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
 
             return _blockSize;

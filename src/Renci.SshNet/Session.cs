@@ -236,7 +236,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return (uint) Interlocked.Increment(ref _nextChannelNumber);
+                return (uint)Interlocked.Increment(ref _nextChannelNumber);
             }
         }
 
@@ -1036,7 +1036,7 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
-            var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _clientCipher.MinimumSize);
+            var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
@@ -1207,15 +1207,15 @@ namespace Renci.SshNet
             // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is handled separately.
             if (_serverEtm || _serverAead)
             {
-                blockSize = (byte) 4;
+                blockSize = (byte)4;
             }
             else if (_serverCipher != null)
             {
-                blockSize = Math.Max((byte) 8, _serverCipher.MinimumSize);
+                blockSize = Math.Max((byte)8, _serverCipher.MinimumSize);
             }
             else
             {
-                blockSize = (byte) 8;
+                blockSize = (byte)8;
             }
 
             var serverMacLength = 0;
@@ -1253,7 +1253,7 @@ namespace Renci.SshNet
                 packetLength = Pack.BigEndianToUInt32(firstBlock);
 
                 // Test packet minimum and maximum boundaries
-                if (packetLength < Math.Max((byte) 16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+                if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                 {
                     throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
                                                      DisconnectReason.ProtocolError);
@@ -1261,7 +1261,7 @@ namespace Renci.SshNet
 
                 // Determine the number of bytes left to read; We've already read "blockSize" bytes, but the
                 // "packet length" field itself - which is 4 bytes - is not included in the length of the packet
-                var bytesToRead = (int) (packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
+                var bytesToRead = (int)(packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
 
                 // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
                 // to generate the hash.
@@ -1312,7 +1312,7 @@ namespace Renci.SshNet
             }
 
             var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-            var messagePayloadLength = (int) packetLength - paddingLength - paddingLengthFieldLength;
+            var messagePayloadLength = (int)packetLength - paddingLength - paddingLengthFieldLength;
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
             // validate decrypted message against MAC

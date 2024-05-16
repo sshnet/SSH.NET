@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                 var asyncResult = new SftpReadAsyncResult(callback, state);
                                 asyncResult.SetAsCompleted(_chunk1, false);
                             })
-                           .Returns((SftpReadAsyncResult) null);
+                           .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))

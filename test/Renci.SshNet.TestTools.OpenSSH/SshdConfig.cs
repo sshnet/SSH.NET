@@ -329,7 +329,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.KeyboardInteractiveAuthentication = ToBool(value);
                     break;
                 case "LogLevel":
-                    sshdConfig.LogLevel = (LogLevel) Enum.Parse(typeof(LogLevel), value, ignoreCase: true);
+                    sshdConfig.LogLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value, ignoreCase: true);
                     break;
                 case "Subsystem":
                     sshdConfig.Subsystems.Add(Subsystem.FromConfig(value));

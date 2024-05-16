@@ -246,11 +246,11 @@ namespace Renci.SshNet
             protected override void SaveData()
             {
                 WriteBinaryString(_sessionId);
-                Write((byte) RequestMessage.AuthenticationMessageCode);
+                Write((byte)RequestMessage.AuthenticationMessageCode);
                 WriteBinaryString(_message.Username);
                 WriteBinaryString(_serviceName);
                 WriteBinaryString(_authenticationMethod);
-                Write((byte) 1); // TRUE
+                Write((byte)1); // TRUE
                 WriteBinaryString(_message.PublicKeyAlgorithmName);
                 WriteBinaryString(_message.PublicKeyData);
             }

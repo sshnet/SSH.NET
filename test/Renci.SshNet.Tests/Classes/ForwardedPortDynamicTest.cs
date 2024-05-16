@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Constructor_HostAndPort()
         {
             var host = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var port = (uint) new Random().Next(0, int.MaxValue);
+            var port = (uint)new Random().Next(0, int.MaxValue);
 
             var target = new ForwardedPortDynamic(host, port);
 
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod()]
         public void Constructor_Port()
         {
-            var port = (uint) new Random().Next(0, int.MaxValue);
+            var port = (uint)new Random().Next(0, int.MaxValue);
 
             var target = new ForwardedPortDynamic(port);
 

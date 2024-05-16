@@ -484,7 +484,7 @@ namespace Renci.SshNet.IntegrationTests
                     for (var i = 0; i < (connectionInfo.MaxSessions + 1); i++)
                     {
                         var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                                   (uint) localEndPoint.Port,
+                                                                   (uint)localEndPoint.Port,
                                                                    hostNameAlias,
                                                                    80);
                         client.AddForwardedPort(forwardedPort);
@@ -492,14 +492,14 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                            var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                             httpRequest.Host = hostName;
                             httpRequest.Method = "GET";
                             httpRequest.AllowAutoRedirect = false;
 
                             try
                             {
-                                using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
+                                using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
                                 {
                                     Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                                 }
@@ -551,7 +551,7 @@ namespace Renci.SshNet.IntegrationTests
                     var localEndPoint = new IPEndPoint(IPAddress.Loopback, 1225);
 
                     var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                               (uint) localEndPoint.Port,
+                                                               (uint)localEndPoint.Port,
                                                                hostNameAlias,
                                                                80);
                     forwardedPort.Exception +=
@@ -561,7 +561,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                        var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                         httpRequest.Host = hostName;
                         httpRequest.Method = "GET";
                         httpRequest.Accept = "text/html";
@@ -569,7 +569,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            using (var httpResponse = (HttpWebResponse) httpRequest.GetResponse())
+                            using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
                             {
                                 Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                             }
@@ -628,7 +628,7 @@ namespace Renci.SshNet.IntegrationTests
                 var forwardedPort1 = new ForwardedPortRemote(IPAddress.Loopback,
                                                              10002,
                                                              endpoint1.Address,
-                                                             (uint) endpoint1.Port);
+                                                             (uint)endpoint1.Port);
                 forwardedPort1.Exception += (sender, args) => Console.WriteLine(@"forwardedPort1 exception: " + args.Exception);
                 client.AddForwardedPort(forwardedPort1);
                 forwardedPort1.Start();
@@ -636,7 +636,7 @@ namespace Renci.SshNet.IntegrationTests
                 var forwardedPort2 = new ForwardedPortRemote(IPAddress.Loopback,
                                                              10003,
                                                              endpoint2.Address,
-                                                             (uint) endpoint2.Port);
+                                                             (uint)endpoint2.Port);
                 forwardedPort2.Exception += (sender, args) => Console.WriteLine(@"forwardedPort2 exception: " + args.Exception);
                 client.AddForwardedPort(forwardedPort2);
                 forwardedPort2.Start();

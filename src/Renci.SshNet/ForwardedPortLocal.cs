@@ -201,14 +201,14 @@ namespace Renci.SshNet
         private void InternalStart()
         {
             var addr = Dns.GetHostAddresses(BoundHost)[0];
-            var ep = new IPEndPoint(addr, (int) BoundPort);
+            var ep = new IPEndPoint(addr, (int)BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
             _listener.Listen(5);
 
             // update bound port (in case original was passed as zero)
-            BoundPort = (uint) ((IPEndPoint) _listener.LocalEndPoint).Port;
+            BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
 
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
@@ -305,10 +305,10 @@ namespace Renci.SshNet
 
             try
             {
-                var originatorEndPoint = (IPEndPoint) clientSocket.RemoteEndPoint;
+                var originatorEndPoint = (IPEndPoint)clientSocket.RemoteEndPoint;
 
                 RaiseRequestReceived(originatorEndPoint.Address.ToString(),
-                    (uint) originatorEndPoint.Port);
+                    (uint)originatorEndPoint.Port);
 
                 using (var channel = Session.CreateChannelDirectTcpip())
                 {

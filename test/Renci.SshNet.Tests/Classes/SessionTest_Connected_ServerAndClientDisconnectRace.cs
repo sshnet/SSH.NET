@@ -166,30 +166,30 @@ namespace Renci.SshNet.Tests.Classes
                                 .Returns((ref bool serverAead) =>
                                 {
                                     serverAead = false;
-                                    return (Cipher) null;
+                                    return (Cipher)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientCipher(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientAead) =>
                                 {
                                     clientAead = false;
-                                    return (Cipher) null;
+                                    return (Cipher)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateServerHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool serverEtm) =>
                                 {
                                     serverEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientEtm) =>
                                 {
                                     clientEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.Dispose());
             _ = _serviceFactoryMock.Setup(p => p.CreateClientAuthentication())
                                    .Returns(_clientAuthenticationMock.Object);
@@ -244,7 +244,7 @@ namespace Renci.SshNet.Tests.Classes
                 var target = new ServiceAcceptMessage();
 
                 var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
-                sshDataStream.Write((uint) (sshDataStream.Capacity - 4)); // packet length
+                sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
                 sshDataStream.WriteByte(0); // padding length
                 sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);

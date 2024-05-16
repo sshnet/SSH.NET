@@ -93,7 +93,7 @@
         /// </summary>
         protected override void LoadData()
         {
-            ReasonCode = (DisconnectReason) ReadUInt32();
+            ReasonCode = (DisconnectReason)ReadUInt32();
             _description = ReadBinary();
             _language = ReadBinary();
         }
@@ -103,7 +103,7 @@
         /// </summary>
         protected override void SaveData()
         {
-            Write((uint) ReasonCode);
+            Write((uint)ReasonCode);
             WriteBinaryString(_description);
             WriteBinaryString(_language);
         }

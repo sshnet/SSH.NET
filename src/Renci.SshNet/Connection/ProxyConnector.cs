@@ -28,9 +28,9 @@ namespace Renci.SshNet.Connection
             cancellationToken.ThrowIfCancellationRequested();
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(o => ((Socket) o).Dispose(), socket, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(o => ((Socket) o).Dispose(), socket, useSynchronizationContext: false))
+            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
 #pragma warning disable MA0042 // Do not use blocking calls in an async method; false positive caused by https://github.com/meziantou/Meziantou.Analyzer/issues/613

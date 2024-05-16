@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             for (var i = 0; i < length; i++)
             {
-                var c = (char) random.Next(offset, offset + 26);
+                var c = (char)random.Next(offset, offset + 26);
                 _ = sb.Append(c);
             }
 

@@ -53,11 +53,11 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void LittleEndianToUInt16()
         {
-            Assert.AreEqual((ushort) 0, Pack.LittleEndianToUInt16(new byte[] { 0, 0 }));
-            Assert.AreEqual((ushort) 1, Pack.LittleEndianToUInt16(new byte[] { 1, 0 }));
-            Assert.AreEqual((ushort) 256, Pack.LittleEndianToUInt16(new byte[] { 0, 1 }));
-            Assert.AreEqual((ushort) 257, Pack.LittleEndianToUInt16(new byte[] { 1, 1 }));
-            Assert.AreEqual((ushort) 1025, Pack.LittleEndianToUInt16(new byte[] { 1, 4 }));
+            Assert.AreEqual((ushort)0, Pack.LittleEndianToUInt16(new byte[] { 0, 0 }));
+            Assert.AreEqual((ushort)1, Pack.LittleEndianToUInt16(new byte[] { 1, 0 }));
+            Assert.AreEqual((ushort)256, Pack.LittleEndianToUInt16(new byte[] { 0, 1 }));
+            Assert.AreEqual((ushort)257, Pack.LittleEndianToUInt16(new byte[] { 1, 1 }));
+            Assert.AreEqual((ushort)1025, Pack.LittleEndianToUInt16(new byte[] { 1, 4 }));
             Assert.AreEqual(ushort.MaxValue, Pack.LittleEndianToUInt16(new byte[] { 255, 255 }));
         }
 

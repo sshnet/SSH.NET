@@ -38,9 +38,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  string.Empty,
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(20)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(20)
+            };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}{2}",
                                                  _connectionInfo.Host,
                                                  _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),

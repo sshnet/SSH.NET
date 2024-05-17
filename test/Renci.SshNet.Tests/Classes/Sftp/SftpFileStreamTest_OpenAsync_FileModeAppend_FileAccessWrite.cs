@@ -36,15 +36,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileMode = FileMode.Append;
             _fileAccess = FileAccess.Write;
             _bufferSize = _random.Next(5, 1000);
-            _readBufferSize = (uint) _random.Next(5, 1000);
-            _writeBufferSize = (uint) _random.Next(5, 1000);
+            _readBufferSize = (uint)_random.Next(5, 1000);
+            _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
             _fileAttributes = new SftpFileAttributesBuilder().WithLastAccessTime(DateTime.UtcNow.AddSeconds(_random.Next()))
                                                              .WithLastWriteTime(DateTime.UtcNow.AddSeconds(_random.Next()))
                                                              .WithSize(_random.Next())
                                                              .WithUserId(_random.Next())
                                                              .WithGroupId(_random.Next())
-                                                             .WithPermissions((uint) _random.Next())
+                                                             .WithPermissions((uint)_random.Next())
                                                              .Build();
             _cancellationToken = new CancellationToken();
         }

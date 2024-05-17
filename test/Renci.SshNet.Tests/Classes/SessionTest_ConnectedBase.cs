@@ -99,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
+            { Timeout = TimeSpan.FromSeconds(20) };
             _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
@@ -132,9 +132,9 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint)
-                {
-                    ShutdownRemoteCommunicationSocket = false
-                };
+            {
+                ShutdownRemoteCommunicationSocket = false
+            };
             ServerListener.Connected += socket =>
                 {
                     ServerSocket = socket;
@@ -212,30 +212,30 @@ namespace Renci.SshNet.Tests.Classes
                                 .Returns((ref bool serverAead) =>
                                 {
                                     serverAead = false;
-                                    return (Cipher) null;
+                                    return (Cipher)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientCipher(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientAead) =>
                                 {
                                     clientAead = false;
-                                    return (Cipher) null;
+                                    return (Cipher)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateServerHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool serverEtm) =>
                                 {
                                     serverEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientEtm) =>
                                 {
                                     clientEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
                                   .Callback(ClientAuthentication_Callback)

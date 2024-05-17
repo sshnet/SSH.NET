@@ -115,7 +115,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 var socksVersion = random.Next(1, 255);
                 if (socksVersion != 5)
                 {
-                    return (byte) socksVersion;
+                    return (byte)socksVersion;
                 }
             }
         }

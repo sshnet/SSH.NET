@@ -47,7 +47,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _impl = new BclImpl(
                     key,
                     iv,
-                    (System.Security.Cryptography.CipherMode) mode,
+                    (System.Security.Cryptography.CipherMode)mode,
                     pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None);
             }
         }

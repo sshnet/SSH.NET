@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes

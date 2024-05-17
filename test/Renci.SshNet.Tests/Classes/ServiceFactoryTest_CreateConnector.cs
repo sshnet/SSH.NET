@@ -1,7 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Connection;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -64,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(actual);
             Assert.AreEqual(typeof(HttpConnector), actual.GetType());
 
-            var httpConnector = (HttpConnector) actual;
+            var httpConnector = (HttpConnector)actual;
             Assert.AreSame(_socketFactoryMock.Object, httpConnector.SocketFactory);
 
             _connectionInfoMock.Verify(p => p.ProxyType, Times.Once);
@@ -80,7 +83,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(actual);
             Assert.AreEqual(typeof(DirectConnector), actual.GetType());
 
-            var directConnector = (DirectConnector) actual;
+            var directConnector = (DirectConnector)actual;
             Assert.AreSame(_socketFactoryMock.Object, directConnector.SocketFactory);
 
             _connectionInfoMock.Verify(p => p.ProxyType, Times.Once);
@@ -96,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(actual);
             Assert.AreEqual(typeof(Socks4Connector), actual.GetType());
 
-            var socks4Connector = (Socks4Connector) actual;
+            var socks4Connector = (Socks4Connector)actual;
             Assert.AreSame(_socketFactoryMock.Object, socks4Connector.SocketFactory);
 
             _connectionInfoMock.Verify(p => p.ProxyType, Times.Once);
@@ -112,7 +115,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(actual);
             Assert.AreEqual(typeof(Socks5Connector), actual.GetType());
 
-            var socks5Connector = (Socks5Connector) actual;
+            var socks5Connector = (Socks5Connector)actual;
             Assert.AreSame(_socketFactoryMock.Object, socks5Connector.SocketFactory);
 
             _connectionInfoMock.Verify(p => p.ProxyType, Times.Once);
@@ -121,7 +124,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ProxyType_Undefined()
         {
-            _connectionInfoMock.Setup(p => p.ProxyType).Returns((ProxyTypes) 666);
+            _connectionInfoMock.Setup(p => p.ProxyType).Returns((ProxyTypes)666);
 
             try
             {

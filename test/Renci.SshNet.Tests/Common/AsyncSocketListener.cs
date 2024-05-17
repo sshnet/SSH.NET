@@ -187,7 +187,7 @@ namespace Renci.SshNet.Tests.Common
 
             try
             {
-                _ =handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
             catch (SocketException ex)
             {

@@ -54,9 +54,9 @@ namespace Renci.SshNet.Tests.Classes
         {
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _connectionInfo = new ConnectionInfo(_serverEndPoint.Address.ToString(), _serverEndPoint.Port, "user", new PasswordAuthenticationMethod("user", "password"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(200)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(200)
+            };
             _actualException = null;
             _socketFactory = new SocketFactory();
 

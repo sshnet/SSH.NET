@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes
                                                 .Returns(AuthenticationResult.PartialSuccess);
             _ = PasswordAuthenticationMethodMock.InSequence(seq)
                                                 .Setup(p => p.AllowedAuthentications)
-                                                .Returns(new[] {"password", "publickey"});
+                                                .Returns(new[] { "password", "publickey" });
             _ = KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
                                                            .Setup(p => p.Name)
                                                            .Returns("keyboard-interactive");

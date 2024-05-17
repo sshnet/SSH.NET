@@ -5,9 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-#if !FEATURE_EVENTWAITHANDLE_DISPOSE
 using Renci.SshNet.Common;
-#endif // !FEATURE_EVENTWAITHANDLE_DISPOSE
 using Renci.SshNet.Sftp;
 
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;

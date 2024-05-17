@@ -187,14 +187,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var t0 = Fe32_0(_gSBox, x2);
                 var t1 = Fe32_3(_gSBox, x3);
                 x1 ^= t0 + (2 * t1) + _gSubKeys[k--];
-                x0 = (x0 << 1 | (int) ((uint) x0 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
-                x1 = (int) ((uint) x1 >> 1) | x1 << 31;
+                x0 = (x0 << 1 | (int)((uint)x0 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
+                x1 = (int)((uint)x1 >> 1) | x1 << 31;
 
                 t0 = Fe32_0(_gSBox, x0);
                 t1 = Fe32_3(_gSBox, x1);
                 x3 ^= t0 + (2 * t1) + _gSubKeys[k--];
-                x2 = (x2 << 1 | (int) ((uint) x2 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
-                x3 = (int) ((uint) x3 >> 1) | x3 << 31;
+                x2 = (x2 << 1 | (int)((uint)x2 >> 31)) ^ (t0 + t1 + _gSubKeys[k--]);
+                x3 = (int)((uint)x3 >> 1) | x3 << 31;
             }
 
             Bits32ToBytes(x0 ^ _gSubKeys[INPUT_WHITEN], outputBuffer, outputOffset);
@@ -430,9 +430,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         */
         private static int RS_rem(int x)
         {
-            var b = (int) (((uint) x >> 24) & 0xff);
+            var b = (int)(((uint)x >> 24) & 0xff);
             var g2 = ((b << 1) ^ ((b & 0x80) != 0 ? RS_GF_FDBK : 0)) & 0xff;
-            var g3 = ((int) ((uint) b >> 1) ^ ((b & 0x01) != 0 ? (int) ((uint) RS_GF_FDBK >> 1) : 0)) ^ g2;
+            var g3 = ((int)((uint)b >> 1) ^ ((b & 0x01) != 0 ? (int)((uint)RS_GF_FDBK >> 1) : 0)) ^ g2;
             return (x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b;
         }
 
@@ -494,7 +494,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static int Fe32_3(int[] gSBox1, int x)
         {
-            return gSBox1[0x000 + (2 * ((int) ((uint) x >> 24) & 0xff))] ^
+            return gSBox1[0x000 + (2 * ((int)((uint)x >> 24) & 0xff))] ^
                    gSBox1[0x001 + (2 * (x & 0xff))] ^
                    gSBox1[0x200 + (2 * ((int)((uint)x >> 8) & 0xff))] ^
                    gSBox1[0x201 + (2 * ((int)((uint)x >> 16) & 0xff))];

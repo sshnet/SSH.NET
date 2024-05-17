@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -42,10 +45,10 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _terminalName = random.Next().ToString();
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
-            _widthPixels = (uint) random.Next();
-            _heightPixels = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
+            _widthPixels = (uint)random.Next();
+            _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 

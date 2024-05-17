@@ -141,15 +141,15 @@ namespace Renci.SshNet.Messages.Connection
                 // write total length of encoded terminal modes, which is 1 bytes for the opcode / terminal mode
                 // and 4 bytes for the uint argument for each entry; the encoded terminal modes are terminated by
                 // opcode TTY_OP_END (which is 1 byte)
-                Write(((uint) TerminalModeValues.Count*(1 + 4)) + 1);
+                Write(((uint)TerminalModeValues.Count * (1 + 4)) + 1);
 
                 foreach (var item in TerminalModeValues)
                 {
-                    Write((byte) item.Key);
+                    Write((byte)item.Key);
                     Write(item.Value);
                 }
 
-                Write((byte) TerminalModes.TTY_OP_END);
+                Write((byte)TerminalModes.TTY_OP_END);
             }
             else
             {

@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -27,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldRemoveAllLeadingZeros()
         {
-            byte[] value = {0x00, 0x00, 0x0a, 0x0d};
+            byte[] value = { 0x00, 0x00, 0x0a, 0x0d };
 
             var actual = Extensions.TrimLeadingZeros(value);
 
@@ -69,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldReturnEmptyByteArrayWhenValueIsEmpty()
         {
-            byte[] value = {};
+            byte[] value = { };
 
             var actual = Extensions.TrimLeadingZeros(value);
 

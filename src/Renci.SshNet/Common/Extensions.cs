@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
@@ -62,6 +63,41 @@ namespace Renci.SshNet.Common
             }
 
             return data.ToBigInteger();
+        }
+
+        public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
+        {
+            var data = bigInt.ToByteArray();
+
+            if (isUnsigned && data[data.Length - 1] == 0)
+            {
+                data = data.Take(data.Length - 1);
+            }
+
+            if (isBigEndian)
+            {
+                _ = data.Reverse();
+            }
+
+            return data;
+        }
+
+        // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
+        public static byte[] ExportKeyParameter(this BigInteger value, int length)
+        {
+            var target = value.ToByteArray(isUnsigned: true, isBigEndian: true);
+
+            // The BCL crypto is expecting exactly-sized byte arrays (sized to "length").
+            // If our byte array is smaller than required, then size it up.
+            // Otherwise, just return as is: if it is too large, we'll let the BCL throw the error.
+            if (target.Length < length)
+            {
+                var correctlySized = new byte[length];
+                Buffer.BlockCopy(target, 0, correctlySized, length - target.Length, target.Length);
+                return correctlySized;
+            }
+
+            return target;
         }
 
         /// <summary>

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -80,14 +83,14 @@ namespace Renci.SshNet.Tests.Classes
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
-            _remoteChannelNumberWhileClosing = (uint) random.Next(0, 1000);
-            _remoteWindowSizeWhileClosing = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSizeWhileClosing = (uint) random.Next(0, int.MaxValue);
-            _remoteChannelNumberStarted = (uint) random.Next(0, 1000);
-            _remoteWindowSizeStarted = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSizeStarted = (uint) random.Next(0, int.MaxValue);
+            _remoteChannelNumberWhileClosing = (uint)random.Next(0, 1000);
+            _remoteWindowSizeWhileClosing = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSizeWhileClosing = (uint)random.Next(0, int.MaxValue);
+            _remoteChannelNumberStarted = (uint)random.Next(0, 1000);
+            _remoteWindowSizeStarted = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSizeStarted = (uint)random.Next(0, int.MaxValue);
             _originatorAddress = random.Next().ToString(CultureInfo.InvariantCulture);
-            _originatorPort = (uint) random.Next(0, int.MaxValue);
+            _originatorPort = (uint)random.Next(0, int.MaxValue);
             _channelBindStarted = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
 

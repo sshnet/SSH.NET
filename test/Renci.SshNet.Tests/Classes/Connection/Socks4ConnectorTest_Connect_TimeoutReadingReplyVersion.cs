@@ -1,13 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -74,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _stopWatch.Stop();
             }
-            
+
             // Give some time to process all messages
             Thread.Sleep(200);
         }

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
   "metadata": [
     {
       "src": [
@@ -10,85 +11,7 @@
         }
       ],
       "outputFormat": "apiPage",
-      "dest": "net462",
-      "properties": {
-        "TargetFramework": "net462"
-      }
-    },
-    {
-      "src": [
-        {
-          "src": "../src",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "outputFormat": "apiPage",
-      "dest": "netstandard2.0",
-      "properties": {
-        "TargetFramework": "netstandard2.0"
-      }
-    },
-    {
-      "src": [
-        {
-          "src": "../src",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "outputFormat": "apiPage",
-      "dest": "netstandard2.1",
-      "properties": {
-        "TargetFramework": "netstandard2.1"
-      }
-    },
-    {
-      "src": [
-        {
-          "src": "../src",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "outputFormat": "apiPage",
-      "dest": "net6.0",
-      "properties": {
-        "TargetFramework": "net6.0"
-      }
-    },
-    {
-      "src": [
-        {
-          "src": "../src",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "outputFormat": "apiPage",
-      "dest": "net7.0",
-      "properties": {
-        "TargetFramework": "net7.0"
-      }
-    },
-    {
-      "src": [
-        {
-          "src": "../src",
-          "files": [
-            "**/*.csproj"
-          ]
-        }
-      ],
-      "outputFormat": "apiPage",
-      "dest": "net8.0",
-      "properties": {
-        "TargetFramework": "net8.0"
-      }
+      "output": "api"
     }
   ],
   "build": {
@@ -110,7 +33,8 @@
     "output": "_site",
     "template": [
       "default",
-      "modern"
+      "modern",
+      "template"
     ],
     "globalMetadata": {
       "_appName": "SSH.NET",

@@ -1,10 +1,13 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Net;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -427,7 +430,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual(typeof (ArgumentException), ex.GetType());
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("username", ex.ParamName);
             }
@@ -509,5 +512,5 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("serviceFactory", ex.ParamName);
             }
         }
-   }
+    }
 }

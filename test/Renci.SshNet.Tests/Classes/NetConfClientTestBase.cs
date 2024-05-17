@@ -1,4 +1,5 @@
 ﻿using Moq;
+
 using Renci.SshNet.NetConf;
 
 namespace Renci.SshNet.Tests.Classes

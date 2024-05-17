@@ -448,7 +448,7 @@ namespace Renci.SshNet
                 ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
             }
 
-            _ = ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
+            _ = ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
@@ -460,7 +460,7 @@ namespace Renci.SshNet
         {
             if (e.Info is ExitStatusRequestInfo exitStatusInfo)
             {
-                ExitStatus = (int) exitStatusInfo.ExitStatus;
+                ExitStatus = (int)exitStatusInfo.ExitStatus;
 
                 if (exitStatusInfo.WantReply)
                 {

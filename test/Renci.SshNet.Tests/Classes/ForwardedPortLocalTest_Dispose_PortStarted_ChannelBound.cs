@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -66,7 +69,7 @@ namespace Renci.SshNet.Tests.Classes
             _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port, _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port, _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
             _channelBindStarted = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
 
@@ -93,11 +96,11 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Start();
 
             _client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 100,
-                    SendTimeout = 500,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 100,
+                SendTimeout = 500,
+                SendBufferSize = 0
+            };
 
             _client.Connect(_localEndpoint);
 

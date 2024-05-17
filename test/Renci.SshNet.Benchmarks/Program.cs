@@ -15,7 +15,7 @@ namespace Renci.SshNet.Benchmarks
             //    e.g. "Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers.AesCipherBenchmarks.Encrypt_CBC"):
             //     dotnet run -c Release -- --filter *Ciphers*
             // 4. Run benchmarks and include memory usage statistics in the output:
-            //     dotnet run -c Release -- filter *Rsa* --memory
+            //     dotnet run -c Release -- --filter *Rsa* --memory
             // 3. Print help:
             //     dotnet run -c Release -- --help
 

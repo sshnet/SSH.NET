@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -198,7 +201,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _channelMock.Verify(
                 p =>
-                    p.Open(_remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port, _forwardedPort,
+                    p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort,
                         It.IsAny<Socket>()), Times.Once);
         }
 

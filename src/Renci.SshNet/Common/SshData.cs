@@ -139,7 +139,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         protected byte[] ReadBytes()
         {
-            var bytesLength = (int) (_stream.Length - _stream.Position);
+            var bytesLength = (int)(_stream.Length - _stream.Position);
             var data = new byte[bytesLength];
             _ = _stream.Read(data, 0, bytesLength);
             return data;
@@ -173,7 +173,7 @@ namespace Renci.SshNet.Common
                 throw new InvalidOperationException("Attempt to read past the end of the SSH data stream.");
             }
 
-            return (byte) byteRead;
+            return (byte)byteRead;
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace Renci.SshNet.Common
         /// <param name="data"><see cref="bool" /> data to write.</param>
         protected void Write(bool data)
         {
-            Write(data ? (byte) 1 : (byte) 0);
+            Write(data ? (byte)1 : (byte)0);
         }
 
         /// <summary>

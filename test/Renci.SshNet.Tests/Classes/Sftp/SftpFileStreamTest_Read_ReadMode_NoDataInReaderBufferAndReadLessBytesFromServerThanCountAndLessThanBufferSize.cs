@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
@@ -35,11 +38,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = 20;
             _writeBufferSize = 500;
 
-            _numberOfBytesToRead = (int) _readBufferSize + 2; // greater than read buffer size
+            _numberOfBytesToRead = (int)_readBufferSize + 2; // greater than read buffer size
             _originalBuffer = GenerateRandom(_numberOfBytesToRead, random);
             _buffer = _originalBuffer.Copy();
 
-            _serverDataLength = (int) _readBufferSize - 1; // less than read buffer size
+            _serverDataLength = (int)_readBufferSize - 1; // less than read buffer size
             _serverData = GenerateRandom(_serverDataLength, random);
 
             Assert.IsTrue(_serverDataLength < _numberOfBytesToRead && _serverDataLength < _readBufferSize);
@@ -115,7 +118,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                .Setup(p => p.RequestRead(_handle, (ulong) _actual, _readBufferSize))
+                .Setup(p => p.RequestRead(_handle, (ulong)_actual, _readBufferSize))
                 .Returns(Array.Empty<byte>());
 
             var buffer = _originalBuffer.Copy();

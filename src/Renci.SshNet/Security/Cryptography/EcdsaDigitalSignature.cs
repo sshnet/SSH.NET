@@ -164,7 +164,7 @@ namespace Renci.SshNet.Security.Cryptography
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
                 }
 
-                return ReadBytes((int) length);
+                return ReadBytes((int)length);
             }
 
             protected override int BufferCapacity

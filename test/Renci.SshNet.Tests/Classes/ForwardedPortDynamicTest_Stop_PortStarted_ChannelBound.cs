@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -89,11 +92,11 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Session = _sessionMock.Object;
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 100,
-                    SendTimeout = 100,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 100,
+                SendTimeout = 100,
+                SendBufferSize = 0
+            };
         }
 
         private void SetupMocks()

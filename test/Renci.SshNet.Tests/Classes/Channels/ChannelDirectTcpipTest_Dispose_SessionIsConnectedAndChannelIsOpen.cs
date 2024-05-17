@@ -3,8 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
@@ -60,12 +63,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(2000, 3000);
-            _localPacketSize = (uint) random.Next(1000, 2000);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(2000, 3000);
+            _localPacketSize = (uint)random.Next(1000, 2000);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _remoteHost = random.Next().ToString(CultureInfo.InvariantCulture);
-            _port = (uint) random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
+            _port = (uint)random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
             _channelBindFinishedWaitHandle = new ManualResetEvent(false);
             _clientReceivedFinishedWaitHandle = new ManualResetEvent(false);
             _channelException = null;

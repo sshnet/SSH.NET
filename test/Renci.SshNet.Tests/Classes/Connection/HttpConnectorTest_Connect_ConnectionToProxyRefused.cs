@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -30,9 +30,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(5000)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(5000)
+            };
             _stopWatch = new Stopwatch();
             _actualException = null;
 

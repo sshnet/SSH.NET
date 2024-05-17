@@ -131,7 +131,7 @@ namespace Renci.SshNet.Common
             var count = encoding.GetByteCount(value);
             var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
             encoding.GetBytes(value, bytes);
-            Write((uint) count);
+            Write((uint)count);
             Write(bytes);
 #else
             var bytes = encoding.GetBytes(s);
@@ -183,7 +183,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         public void WriteBinary(byte[] buffer, int offset, int count)
         {
-            Write((uint) count);
+            Write((uint)count);
             Write(buffer, offset, count);
         }
 
@@ -196,7 +196,7 @@ namespace Renci.SshNet.Common
         public BigInteger ReadBigInt()
         {
             var length = ReadUInt32();
-            var data = ReadBytes((int) length);
+            var data = ReadBytes((int)length);
             return new BigInteger(data.Reverse());
         }
 
@@ -272,7 +272,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
 
-            var bytes = ReadBytes((int) length);
+            var bytes = ReadBytes((int)length);
             return encoding.GetString(bytes, 0, bytes.Length);
         }
 

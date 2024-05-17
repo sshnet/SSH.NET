@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -21,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
         private IList<ExceptionEventArgs> _errorOccurredRegister;
         private ChannelDataEventArgs _channelDataEventArgs;
         private Exception _onDataReceivedException;
-            
+
         [TestInitialize]
         public void Setup()
         {
@@ -37,8 +40,8 @@ namespace Renci.SshNet.Tests.Classes
             _disconnectedRegister = new List<EventArgs>();
             _errorOccurredRegister = new List<ExceptionEventArgs>();
             _channelDataEventArgs = new ChannelDataEventArgs(
-                (uint) random.Next(0, int.MaxValue),
-                new [] {(byte) random.Next(byte.MinValue, byte.MaxValue)});
+                (uint)random.Next(0, int.MaxValue),
+                new[] { (byte)random.Next(byte.MinValue, byte.MaxValue) });
             _onDataReceivedException = new SystemException();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);

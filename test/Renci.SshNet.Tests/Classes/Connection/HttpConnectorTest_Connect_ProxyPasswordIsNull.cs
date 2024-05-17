@@ -1,13 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -35,9 +38,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  null,
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(20)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(20)
+            };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
                                                  "Proxy-Authorization: Basic cHJveHlVc2VyOg=={2}{2}",
                                                  _connectionInfo.Host,

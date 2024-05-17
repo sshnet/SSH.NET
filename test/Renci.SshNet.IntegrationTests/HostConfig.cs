@@ -73,7 +73,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 // Use linux line ending
                 sw.NewLine = "\n";
-                     
+
                 foreach (var hostEntry in Entries)
                 {
                     sw.Write(hostEntry.IPAddress);

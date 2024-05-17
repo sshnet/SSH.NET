@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Sftp;
-using Renci.SshNet.Common;
 using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -30,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint) random.Next(1, 1000);
+            _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 20;
             _writeBufferSize = 500;
 

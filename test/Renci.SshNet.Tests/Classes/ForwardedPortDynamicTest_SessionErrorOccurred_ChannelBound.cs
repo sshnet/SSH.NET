@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -82,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
             _userName = random.Next().ToString(CultureInfo.InvariantCulture);
-            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint) _endpoint.Port);
+            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
             _sessionException = new Exception();
             _channelBindStarted = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
@@ -92,11 +95,11 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Session = _sessionMock.Object;
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 100,
-                    SendTimeout = 100,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 100,
+                SendTimeout = 100,
+                SendBufferSize = 0
+            };
         }
 
         private void SetupMocks()

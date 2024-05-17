@@ -143,10 +143,6 @@ dotnet_diagnostic.SA1129.severity = silent
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1133.md
 dotnet_diagnostic.SA1133.severity = silent
 
-# SA1137: Elements should have the same indentation
-# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1137.md
-dotnet_diagnostic.SA1137.severity = silent
-
 # SA1139: Use literals suffix notation instead of casting
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1139.md
 dotnet_diagnostic.SA1139.severity = silent

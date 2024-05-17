@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 

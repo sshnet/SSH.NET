@@ -669,12 +669,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static int RotateLeft(int x, int bits)
         {
-            return (x << bits) | (int) ((uint) x >> (32 - bits));
+            return (x << bits) | (int)((uint)x >> (32 - bits));
         }
 
         private static int RotateRight(int x, int bits)
         {
-            return (int) ((uint) x >> bits) | (x << (32 - bits));
+            return (int)((uint)x >> bits) | (x << (32 - bits));
         }
 
         private static int BytesToWord(byte[] src, int srcOff)
@@ -685,10 +685,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static void WordToBytes(int word, byte[] dst, int dstOff)
         {
-            dst[dstOff + 3] = (byte) word;
-            dst[dstOff + 2] = (byte) ((uint)word >> 8);
-            dst[dstOff + 1] = (byte) ((uint)word >> 16);
-            dst[dstOff] = (byte) ((uint)word >> 24);
+            dst[dstOff + 3] = (byte)word;
+            dst[dstOff + 2] = (byte)((uint)word >> 8);
+            dst[dstOff + 1] = (byte)((uint)word >> 16);
+            dst[dstOff] = (byte)((uint)word >> 24);
         }
 
         /*

@@ -1,5 +1,7 @@
 ﻿using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -107,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             // Thread Abort method is obsolete: https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/thread-abort-obsolete
             readThread.Abort();
-        
+
 
             Assert.AreEqual(int.MaxValue, bytesRead);
             Assert.AreEqual(0, buffer[0]);

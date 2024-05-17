@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             var bytes = sshData.GetBytes();
 
-            Assert.AreEqual((byte) 0, bytes[0]);
+            Assert.AreEqual((byte)0, bytes[0]);
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             var bytes = sshData.GetBytes();
 
-            Assert.AreEqual((byte) 1, bytes[0]);
+            Assert.AreEqual((byte)1, bytes[0]);
         }
 
         [TestMethod]

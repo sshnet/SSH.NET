@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
@@ -27,8 +29,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var random = new Random();
 
-            _protocolVersion = (uint) random.Next(0, int.MaxValue);
-            _requestId = (uint) random.Next(0, int.MaxValue);
+            _protocolVersion = (uint)random.Next(0, int.MaxValue);
+            _requestId = (uint)random.Next(0, int.MaxValue);
             _encoding = Encoding.Unicode;
             _oldPath = random.Next().ToString(CultureInfo.InvariantCulture);
             _oldPathBytes = _encoding.GetBytes(_oldPath);
@@ -85,16 +87,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Rename, sshDataStream.ReadByte());
+            Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
+            Assert.AreEqual((byte)SftpMessageTypes.Rename, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) _oldPathBytes.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_oldPathBytes.Length, sshDataStream.ReadUInt32());
             var actualOldPath = new byte[_oldPathBytes.Length];
             sshDataStream.Read(actualOldPath, 0, actualOldPath.Length);
             Assert.IsTrue(_oldPathBytes.SequenceEqual(actualOldPath));
 
-            Assert.AreEqual((uint) _newPathBytes.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_newPathBytes.Length, sshDataStream.ReadUInt32());
             var actualNewPath = new byte[_newPathBytes.Length];
             sshDataStream.Read(actualNewPath, 0, actualNewPath.Length);
             Assert.IsTrue(_newPathBytes.SequenceEqual(actualNewPath));

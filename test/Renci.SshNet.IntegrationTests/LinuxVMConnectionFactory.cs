@@ -2,7 +2,7 @@
 {
     public class LinuxVMConnectionFactory : IConnectionInfoFactory
     {
-        
+
 
         private const string ProxyHost = "127.0.0.1";
         private const int ProxyPort = 1234;

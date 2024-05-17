@@ -73,7 +73,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 () =>
                     {
                         Thread.Sleep(sleepTime);
-                        var writeBuffer = new byte[] {0x05, 0x03};
+                        var writeBuffer = new byte[] { 0x05, 0x03 };
                         target.Write(writeBuffer, 0, writeBuffer.Length);
                     });
             writeToStreamThread.Start();
@@ -123,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var target = new PipeStream();
 
-            var writeBuffer = new byte[] {0x0a, 0x05, 0x0d};
+            var writeBuffer = new byte[] { 0x0a, 0x05, 0x0d };
             target.Write(writeBuffer, 0, 2);
 
             writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };

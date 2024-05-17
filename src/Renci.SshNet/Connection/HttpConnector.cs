@@ -97,7 +97,7 @@ namespace Renci.SshNet.Connection
                     if (statusMatch.Success)
                     {
                         var httpStatusCode = statusMatch.Result("${statusCode}");
-                        statusCode = (HttpStatusCode) int.Parse(httpStatusCode, CultureInfo.InvariantCulture);
+                        statusCode = (HttpStatusCode)int.Parse(httpStatusCode, CultureInfo.InvariantCulture);
                         if (statusCode != HttpStatusCode.OK)
                         {
                             throw new ProxyException($"HTTP: Status code {httpStatusCode}, \"{statusMatch.Result("${reasonPhrase}")}\"");

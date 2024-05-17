@@ -128,7 +128,7 @@ namespace Renci.SshNet
                     while (_channel.IsOpen)
                     {
                         var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
-                        var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
+                        var readWaitHandle = ((IAsyncResult)readTask).AsyncWaitHandle;
 
                         if (WaitHandle.WaitAny(new[] { readWaitHandle, _channelClosedWaitHandle }) == 0)
                         {

@@ -51,7 +51,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return (uint) Interlocked.Increment(ref _requestId);
+                return (uint)Interlocked.Increment(ref _requestId);
             }
         }
 
@@ -512,9 +512,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpOpenRequest(ProtocolVersion,
@@ -659,9 +659,9 @@ namespace Renci.SshNet.Sftp
             cancellationToken.ThrowIfCancellationRequested();
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 _ = await tcs.Task.ConfigureAwait(false);
@@ -873,9 +873,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpReadRequest(ProtocolVersion,
@@ -970,9 +970,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpWriteRequest(ProtocolVersion,
@@ -1160,9 +1160,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpFStatRequest(ProtocolVersion,
@@ -1298,9 +1298,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpOpenDirRequest(ProtocolVersion,
@@ -1379,9 +1379,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpReadDirRequest(ProtocolVersion,
@@ -1450,9 +1450,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRemoveRequest(ProtocolVersion,
@@ -1588,9 +1588,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRealPathRequest(ProtocolVersion,
@@ -1824,9 +1824,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRenameRequest(ProtocolVersion,
@@ -2057,9 +2057,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<SftpFileSytemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new StatVfsRequest(ProtocolVersion,
@@ -2223,7 +2223,7 @@ namespace Renci.SshNet.Sftp
              * WinSCP uses data length of 32739 bytes (total 32768 bytes; 32739 + 25 + 4 bytes for handle)
              */
 
-            var lengthOfNonDataProtocolFields = 25u + (uint) handle.Length;
+            var lengthOfNonDataProtocolFields = 25u + (uint)handle.Length;
             var maximumPacketSize = Channel.RemotePacketSize;
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
         }

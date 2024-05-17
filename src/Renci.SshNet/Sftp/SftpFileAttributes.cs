@@ -535,13 +535,13 @@ namespace Renci.SshNet.Sftp
 
                 if (IsSizeChanged && IsRegularFile)
                 {
-                    stream.Write((ulong) Size);
+                    stream.Write((ulong)Size);
                 }
 
                 if (IsUserIdChanged || IsGroupIdChanged)
                 {
-                    stream.Write((uint) UserId);
-                    stream.Write((uint) GroupId);
+                    stream.Write((uint)UserId);
+                    stream.Write((uint)GroupId);
                 }
 
                 if (IsPermissionsChanged)
@@ -551,9 +551,9 @@ namespace Renci.SshNet.Sftp
 
                 if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
                 {
-                    var time = (uint) ((LastAccessTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
+                    var time = (uint)((LastAccessTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
                     stream.Write(time);
-                    time = (uint) ((LastWriteTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
+                    time = (uint)((LastWriteTimeUtc.ToFileTimeUtc() / 10000000) - 11644473600);
                     stream.Write(time);
                 }
 
@@ -596,14 +596,14 @@ namespace Renci.SshNet.Sftp
 
             if ((flag & SSH_FILEXFER_ATTR_SIZE) == SSH_FILEXFER_ATTR_SIZE)
             {
-                size = (long) stream.ReadUInt64();
+                size = (long)stream.ReadUInt64();
             }
 
             if ((flag & SSH_FILEXFER_ATTR_UIDGID) == SSH_FILEXFER_ATTR_UIDGID)
             {
-                userId = (int) stream.ReadUInt32();
+                userId = (int)stream.ReadUInt32();
 
-                groupId = (int) stream.ReadUInt32();
+                groupId = (int)stream.ReadUInt32();
             }
 
             if ((flag & SSH_FILEXFER_ATTR_PERMISSIONS) == SSH_FILEXFER_ATTR_PERMISSIONS)
@@ -628,7 +628,7 @@ namespace Renci.SshNet.Sftp
 
             if ((flag & SSH_FILEXFER_ATTR_EXTENDED) == SSH_FILEXFER_ATTR_EXTENDED)
             {
-                var extendedCount = (int) stream.ReadUInt32();
+                var extendedCount = (int)stream.ReadUInt32();
                 extensions = new Dictionary<string, string>(extendedCount);
                 for (var i = 0; i < extendedCount; i++)
                 {

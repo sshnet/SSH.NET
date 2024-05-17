@@ -1,14 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -129,11 +132,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
             // Version of the negotiation
             expectedSocksRequest.Add(0x01);
             // Length of the username
-            expectedSocksRequest.Add((byte) _connectionInfo.ProxyUsername.Length);
+            expectedSocksRequest.Add((byte)_connectionInfo.ProxyUsername.Length);
             // Username
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyUsername));
             // Length of the password
-            expectedSocksRequest.Add((byte) _connectionInfo.ProxyPassword.Length);
+            expectedSocksRequest.Add((byte)_connectionInfo.ProxyPassword.Length);
             // Password
             expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyPassword));
 

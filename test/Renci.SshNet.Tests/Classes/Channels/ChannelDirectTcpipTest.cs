@@ -38,14 +38,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             var random = new Random();
 
-            _localWindowSize = (uint) random.Next(2000, 3000);
-            _localPacketSize = (uint) random.Next(1000, 2000);
+            _localWindowSize = (uint)random.Next(2000, 3000);
+            _localPacketSize = (uint)random.Next(1000, 2000);
             _remoteHost = random.Next().ToString(CultureInfo.InvariantCulture);
-            _port = (uint) random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint) random.Next(100, 200);
-            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _port = (uint)random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint)random.Next(100, 200);
+            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -61,7 +61,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _ = _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
                                                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage) m).LocalChannelNumber,
+                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage)m).LocalChannelNumber,
                                                                                                           _remoteWindowSize,
                                                                                                           _remotePacketSize,
                                                                                                           _remoteChannelNumber))));
@@ -117,7 +117,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _ = _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
                                                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage) m).LocalChannelNumber,
+                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage)m).LocalChannelNumber,
                                                                                                           _remoteWindowSize,
                                                                                                           _remotePacketSize,
                                                                                                           _remoteChannelNumber))));
@@ -177,7 +177,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             .Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                             .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
                                                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage) m).LocalChannelNumber,
+                                                                       new ChannelOpenConfirmationMessage(((ChannelOpenMessage)m).LocalChannelNumber,
                                                                                                           _remoteWindowSize,
                                                                                                           _remotePacketSize,
                                                                                                           _remoteChannelNumber))));

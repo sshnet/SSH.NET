@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -28,10 +31,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint) random.Next(5, 1000);
-            _readBufferSize = (uint) random.Next(10, 100);
-            _writeBufferSize = (uint) random.Next(10, 100);
-            _data = GenerateRandom((int) _readBufferSize - 2, random);
+            _bufferSize = (uint)random.Next(5, 1000);
+            _readBufferSize = (uint)random.Next(10, 100);
+            _writeBufferSize = (uint)random.Next(10, 100);
+            _data = GenerateRandom((int)_readBufferSize - 2, random);
         }
 
         protected override void SetupMocks()

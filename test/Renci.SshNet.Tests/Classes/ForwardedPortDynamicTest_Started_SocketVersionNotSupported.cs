@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private void Act()
         {
-            var buffer = new byte[] {0x07};
+            var buffer = new byte[] { 0x07 };
             _client.Send(buffer, 0, buffer.Length, SocketFlags.None);
 
             // wait for Exception event to be fired as a way to ensure that SOCKS

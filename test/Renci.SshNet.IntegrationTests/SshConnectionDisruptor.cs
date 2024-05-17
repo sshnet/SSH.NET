@@ -12,11 +12,11 @@
         public SshConnectionRestorer BreakConnections()
         {
             var client = new SshClient(_connectionInfoFactory.Create());
-            
+
             client.Connect();
 
             PauseSshd(client);
-            
+
             return new SshConnectionRestorer(client);
         }
 

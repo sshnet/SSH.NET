@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+
 using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -77,7 +81,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk1, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -92,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk2, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.OperationTimeout)
                                .Returns(_operationTimeout);
@@ -107,7 +111,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                        var asyncResult = new SftpReadAsyncResult(callback, state);
                                        asyncResult.SetAsCompleted(_chunk3, false);
                                    })
-                               .Returns((SftpReadAsyncResult) null);
+                               .Returns((SftpReadAsyncResult)null);
             _ = SftpSessionMock.InSequence(_seq)
                                .Setup(p => p.RequestRead(_handle, (2 * ChunkLength) - 10, 10))
                                .Returns(_chunk2CatchUp);

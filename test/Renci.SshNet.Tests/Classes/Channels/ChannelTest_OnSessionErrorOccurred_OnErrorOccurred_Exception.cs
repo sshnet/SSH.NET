@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Channels
@@ -20,9 +22,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localWindowSize = (uint) random.Next(1000, int.MaxValue);
+            _localWindowSize = (uint)random.Next(1000, int.MaxValue);
             _localPacketSize = _localWindowSize - 1;
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _onErrorOccurredException = new SystemException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _errorOccurredException = new SystemException();

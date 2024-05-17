@@ -22,9 +22,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(0, 1000);
-            _localPacketSize = (uint) random.Next(1001, int.MaxValue);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(0, 1000);
+            _localPacketSize = (uint)random.Next(1001, int.MaxValue);
             _onSuccessException = new SystemException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
         }

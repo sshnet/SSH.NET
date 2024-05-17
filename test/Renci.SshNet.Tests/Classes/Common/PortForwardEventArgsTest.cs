@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
@@ -8,7 +10,7 @@ using Renci.SshNet.Tests.Properties;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.ForwardedPort.RequestReceived"/> event.
+    /// Provides data for <see cref="ForwardedPort.RequestReceived"/> event.
     /// </summary>
     [TestClass]
     public class PortForwardEventArgsTest : TestBase

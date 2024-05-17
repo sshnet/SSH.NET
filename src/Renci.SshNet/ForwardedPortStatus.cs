@@ -50,7 +50,7 @@ namespace Renci.SshNet
 
         public static bool operator !=(ForwardedPortStatus left, ForwardedPortStatus right)
         {
-            return !(left==right);
+            return !(left == right);
         }
 
         public override int GetHashCode()

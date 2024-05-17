@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             try
             {
-                _ =new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
+                _ = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
                 Assert.Fail();
             }
             catch (ArgumentException ex)

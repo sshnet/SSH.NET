@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 
 namespace Renci.SshNet.Tests.Classes
@@ -58,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes
                 });
             NoneAuthenticationMethodMock.InSequence(seq)
                                         .Setup(p => p.AllowedAuthentications)
-                                        .Returns(new[] {"publickey", "password"});
+                                        .Returns(new[] { "publickey", "password" });
 
             /* Enumerate supported authentication methods */
 
@@ -71,7 +73,7 @@ namespace Renci.SshNet.Tests.Classes
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object))
                 .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"keyboard-interactive", "publickey"});
+                                            .Returns(new[] { "keyboard-interactive", "publickey" });
 
             /* Enumerate supported authentication methods */
 

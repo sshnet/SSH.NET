@@ -339,7 +339,7 @@ namespace Renci.SshNet.Common
                 return data;
             }
 
-            return new[] { (byte) length };
+            return new[] { (byte)length };
         }
 
         /// <summary>

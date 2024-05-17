@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
@@ -18,8 +19,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
         [TestMethod]
         public void Pad_BlockSizeAndInput_LessThanBlockSize()
         {
-            var input = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
-            var expected = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x03, 0x03, 0x03};
+            var input = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 };
+            var expected = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x03, 0x03, 0x03 };
 
             var actual = _padding.Pad(8, input);
 

@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void AsTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
-            var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
 
             timeSpan.AsTimeout("TestMethodName");
         }
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+                var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
 
                 timeSpan.AsTimeout("TestMethodName");
             }
@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void EnsureValidTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
-            var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
 
             timeSpan.EnsureValidTimeout("TestMethodName");
         }
@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                var timeSpan = TimeSpan.FromMilliseconds((double) int.MaxValue + 1);
+                var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
 
                 timeSpan.EnsureValidTimeout("TestMethodName");
             }

@@ -1,6 +1,9 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -74,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void AuthenticateShouldThrowArgumentNullExceptionWhenConnectionInfoIsNull()
         {
-           const IConnectionInfoInternal connectionInfo = null;
+            const IConnectionInfoInternal connectionInfo = null;
             var session = new Mock<ISession>(MockBehavior.Strict).Object;
 
             try

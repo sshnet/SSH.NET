@@ -270,7 +270,7 @@ namespace Renci.SshNet
                                 using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
-                                    channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
+                                    channel.Bind(new IPEndPoint(HostAddress, (int)Port), this);
                                 }
                             }
                             catch (Exception exp)

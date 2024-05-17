@@ -161,7 +161,7 @@ namespace Renci.SshNet
                     throw new SshConnectionException("Client not connected.");
                 }
 
-                return (int) _sftpSession.ProtocolVersion;
+                return (int)_sftpSession.ProtocolVersion;
             }
         }
 
@@ -1364,7 +1364,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(encoding));
             }
 
-            return new StreamWriter(new SftpFileStream(_sftpSession, path, FileMode.Append, FileAccess.Write, (int) _bufferSize), encoding);
+            return new StreamWriter(new SftpFileStream(_sftpSession, path, FileMode.Append, FileAccess.Write, (int)_bufferSize), encoding);
         }
 
         /// <summary>
@@ -1385,7 +1385,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int)_bufferSize);
         }
 
         /// <summary>
@@ -1576,7 +1576,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, mode, access, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, mode, access, (int)_bufferSize);
         }
 
         /// <summary>
@@ -1609,7 +1609,7 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int) _bufferSize, cancellationToken);
+            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
         }
 
         /// <summary>
@@ -1659,7 +1659,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int)_bufferSize);
         }
 
         /// <summary>
@@ -2384,7 +2384,7 @@ namespace Renci.SshNet
 
                     output.Write(data, 0, data.Length);
 
-                    totalBytesRead += (ulong) data.Length;
+                    totalBytesRead += (ulong)data.Length;
 
                     asyncResult?.Update(totalBytesRead);
 
@@ -2451,7 +2451,7 @@ namespace Renci.SshNet
 
                 if (bytesRead > 0)
                 {
-                    var writtenBytes = offset + (ulong) bytesRead;
+                    var writtenBytes = offset + (ulong)bytesRead;
 
                     _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
                         {
@@ -2473,7 +2473,7 @@ namespace Renci.SshNet
 
                     _ = Interlocked.Increment(ref expectedResponses);
 
-                    offset += (ulong) bytesRead;
+                    offset += (ulong)bytesRead;
 
                     bytesRead = input.Read(buffer, 0, buffer.Length);
                 }

@@ -37,9 +37,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(100)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(100)
+            };
             _bytesReceivedByProxy = new List<byte>();
             _actualException = null;
 

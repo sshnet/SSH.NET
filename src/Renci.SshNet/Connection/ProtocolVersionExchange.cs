@@ -25,15 +25,12 @@ namespace Renci.SshNet.Connection
         private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$";
 
 #if NET7_0_OR_GREATER
-        [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
-        private static partial Regex ServerVersionRegex();
-#else
-        private static readonly Regex ServerVersionRe = new Regex(ServerVersionPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex ServerVersionRegex = GetServerVersionRegex();
 
-        private static Regex ServerVersionRegex()
-        {
-            return ServerVersionRe;
-        }
+        [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetServerVersionRegex();
+#else
+        private static readonly Regex ServerVersionRegex = new Regex(ServerVersionPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRegex().Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),
@@ -115,7 +112,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRegex().Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),

@@ -35,25 +35,17 @@ namespace Renci.SshNet.Connection
         private const string HttpHeaderPattern = @"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?";
 
 #if NET7_0_OR_GREATER
+        private static readonly Regex HttpResponseRegex = GetHttpResponseRegex();
+        private static readonly Regex HttpHeaderRegex = GetHttpHeaderRegex();
+
         [GeneratedRegex(HttpResponsePattern)]
-        private static partial Regex HttpResponseRegex();
+        private static partial Regex GetHttpResponseRegex();
 
         [GeneratedRegex(HttpHeaderPattern)]
-        private static partial Regex HttpHeaderRegex();
+        private static partial Regex GetHttpHeaderRegex();
 #else
-        private static readonly Regex HttpResponseRe = new Regex(HttpResponsePattern, RegexOptions.Compiled);
-
-        private static Regex HttpResponseRegex()
-        {
-            return HttpResponseRe;
-        }
-
-        private static readonly Regex HttpHeaderRe = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
-
-        private static Regex HttpHeaderRegex()
-        {
-            return HttpHeaderRe;
-        }
+        private static readonly Regex HttpResponseRegex = new Regex(HttpResponsePattern, RegexOptions.Compiled);
+        private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
 #endif
 
         public HttpConnector(ISocketFactory socketFactory)
@@ -93,7 +85,7 @@ namespace Renci.SshNet.Connection
 
                 if (statusCode is null)
                 {
-                    var statusMatch = HttpResponseRegex().Match(response);
+                    var statusMatch = HttpResponseRegex.Match(response);
                     if (statusMatch.Success)
                     {
                         var httpStatusCode = statusMatch.Result("${statusCode}");
@@ -108,7 +100,7 @@ namespace Renci.SshNet.Connection
                 }
 
                 // continue on parsing message headers coming from the server
-                var headerMatch = HttpHeaderRegex().Match(response);
+                var headerMatch = HttpHeaderRegex.Match(response);
                 if (headerMatch.Success)
                 {
                     var fieldName = headerMatch.Result("${fieldName}");

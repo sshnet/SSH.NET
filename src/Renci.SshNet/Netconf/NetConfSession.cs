@@ -22,25 +22,17 @@ namespace Renci.SshNet.NetConf
         private int _messageId;
 
 #if NET7_0_OR_GREATER
+        private static readonly Regex LengthRegex = GetLengthRegex();
+        private static readonly Regex ReplyRegex = GetReplyRegex();
+
         [GeneratedRegex(LengthPattern)]
-        private static partial Regex LengthRegex();
+        private static partial Regex GetLengthRegex();
 
         [GeneratedRegex(ReplyPattern)]
-        private static partial Regex ReplyRegex();
+        private static partial Regex GetReplyRegex();
 #else
-        private static readonly Regex LengthRe = new Regex(LengthPattern, RegexOptions.Compiled);
-
-        private static Regex LengthRegex()
-        {
-            return LengthRe;
-        }
-
-        private static readonly Regex ReplyRe = new Regex(ReplyPattern, RegexOptions.Compiled);
-
-        private static Regex ReplyRegex()
-        {
-            return ReplyRe;
-        }
+        private static readonly Regex LengthRegex = new Regex(LengthPattern, RegexOptions.Compiled);
+        private static readonly Regex ReplyRegex = new Regex(ReplyPattern, RegexOptions.Compiled);
 #endif
 
         /// <summary>
@@ -168,7 +160,7 @@ namespace Renci.SshNet.NetConf
 
                 for (; ; )
                 {
-                    var match = LengthRegex().Match(chunk.Substring(position));
+                    var match = LengthRegex.Match(chunk.Substring(position));
                     if (!match.Success)
                     {
                         break;
@@ -180,9 +172,9 @@ namespace Renci.SshNet.NetConf
                 }
 
 #if NET7_0_OR_GREATER
-                if (ReplyRegex().IsMatch(chunk.AsSpan(position)))
+                if (ReplyRegex.IsMatch(chunk.AsSpan(position)))
 #else
-                if (ReplyRegex().IsMatch(chunk.Substring(position)))
+                if (ReplyRegex.IsMatch(chunk.Substring(position)))
 #endif // NET7_0_OR_GREATER
                 {
                     _ = _rpcReplyReceived.Set();

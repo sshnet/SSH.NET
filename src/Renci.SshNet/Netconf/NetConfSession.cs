@@ -9,16 +9,39 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.NetConf
 {
-    internal sealed class NetConfSession : SubsystemSession, INetConfSession
+    internal sealed partial class NetConfSession : SubsystemSession, INetConfSession
     {
         private const string Prompt = "]]>]]>";
-
+        private const string LengthPattern = @"\n#(?<length>\d+)\n";
+        private const string ReplyPattern = @"\n##\n";
         private readonly StringBuilder _data = new StringBuilder();
         private bool _usingFramingProtocol;
         private EventWaitHandle _serverCapabilitiesConfirmed = new AutoResetEvent(initialState: false);
         private EventWaitHandle _rpcReplyReceived = new AutoResetEvent(initialState: false);
         private StringBuilder _rpcReply = new StringBuilder();
         private int _messageId;
+
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(LengthPattern)]
+        private static partial Regex LengthRegex();
+
+        [GeneratedRegex(ReplyPattern)]
+        private static partial Regex ReplyRegex();
+#else
+        private static readonly Regex LengthRe = new Regex(LengthPattern, RegexOptions.Compiled);
+
+        private static Regex LengthRegex()
+        {
+            return LengthRe;
+        }
+
+        private static readonly Regex ReplyRe = new Regex(ReplyPattern, RegexOptions.Compiled);
+
+        private static Regex ReplyRegex()
+        {
+            return ReplyRe;
+        }
+#endif
 
         /// <summary>
         /// Gets NetConf server capabilities.
@@ -145,7 +168,7 @@ namespace Renci.SshNet.NetConf
 
                 for (; ; )
                 {
-                    var match = Regex.Match(chunk.Substring(position), @"\n#(?<length>\d+)\n");
+                    var match = LengthRegex().Match(chunk.Substring(position));
                     if (!match.Success)
                     {
                         break;
@@ -157,9 +180,9 @@ namespace Renci.SshNet.NetConf
                 }
 
 #if NET7_0_OR_GREATER
-                if (Regex.IsMatch(chunk.AsSpan(position), @"\n##\n"))
+                if (ReplyRegex().IsMatch(chunk.AsSpan(position)))
 #else
-                if (Regex.IsMatch(chunk.Substring(position), @"\n##\n"))
+                if (ReplyRegex().IsMatch(chunk.Substring(position)))
 #endif // NET7_0_OR_GREATER
                 {
                     _ = _rpcReplyReceived.Set();

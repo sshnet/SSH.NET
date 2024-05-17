@@ -15,7 +15,10 @@ namespace Renci.SshNet.Tests.Classes
     {
         protected override void Act()
         {
+            ManualResetEvent clientDisconnected = new ManualResetEvent(false);
+            ServerListener.Disconnected += (socket) => clientDisconnected.Set();
             Session.Disconnect();
+            clientDisconnected.WaitOne(10000);
         }
 
         [TestMethod]

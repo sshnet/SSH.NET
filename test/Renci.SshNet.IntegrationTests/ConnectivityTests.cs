@@ -171,6 +171,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 try
                 {
+                    WaitForConnectionInterruption(client);
                     client.ListDirectory("/");
                     Assert.Fail();
                 }
@@ -260,9 +261,9 @@ namespace Renci.SshNet.IntegrationTests
                 client.Connect();
 
                 var disruptor = _sshConnectionDisruptor.BreakConnections();
-                Thread.Sleep(100);
                 try
                 {
+                    WaitForConnectionInterruption(client);
                     client.ListDirectory("/");
                     Assert.Fail();
                 }

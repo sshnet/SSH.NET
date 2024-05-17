@@ -345,10 +345,6 @@ dotnet_diagnostic.SA1008.severity = none
 # var x = (int) z;
 dotnet_diagnostic.SA1009.severity = none
 
-# SA1021: A negative sign within a C# element is not spaced correctly.
-# disabled, because it conflicts with csharp_space_after_cast
-dotnet_diagnostic.SA1021.severity = none
-
 # SA1025: Code should not contain multiple whitespace in a row
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1025.md
 # duplicate of IDE0055

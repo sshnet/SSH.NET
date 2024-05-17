@@ -1368,10 +1368,10 @@ namespace Renci.SshNet.IntegrationTests
                 }
 
                 var fileInfo = new FileInfo(file)
-                    {
-                        LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
-                        LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
-                    };
+                {
+                    LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
+                    LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
+                };
 
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {
@@ -1463,10 +1463,10 @@ namespace Renci.SshNet.IntegrationTests
                 }
 
                 var fileInfo = new FileInfo(file)
-                    {
-                        LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
-                        LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
-                    };
+                {
+                    LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
+                    LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
+                };
 
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {

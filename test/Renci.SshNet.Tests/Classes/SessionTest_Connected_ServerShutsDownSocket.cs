@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
@@ -62,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(exception);
             Assert.AreEqual(typeof(SshConnectionException), exception.GetType());
 
-            var connectionException = (SshConnectionException) exception;
+            var connectionException = (SshConnectionException)exception;
             Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
             Assert.IsNull(connectionException.InnerException);
             Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
@@ -108,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
@@ -117,7 +119,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_SendMessageShouldThrowSshConnectionException()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             try
             {
@@ -134,7 +136,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             var actual = session.TrySendMessage(new IgnoreMessage());
 
@@ -144,7 +146,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingAbortedConnection()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -162,7 +164,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingAbortedConnection()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -180,7 +182,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
@@ -191,7 +193,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             const WaitHandle waitHandle = null;
             var timeout = TimeSpan.FromMinutes(5);
 
@@ -210,7 +212,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out var exception);
@@ -222,7 +224,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             const WaitHandle waitHandle = null;
             var timeout = TimeSpan.FromMinutes(5);
             Exception exception = null;

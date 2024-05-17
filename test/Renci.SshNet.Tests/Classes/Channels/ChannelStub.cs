@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 
@@ -33,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         public Exception OnDisconnectedException { get; set; }
 
-        public Exception OnEofException{ get; set; }
+        public Exception OnEofException { get; set; }
 
         public Exception OnErrorOccurredException { get; set; }
 

@@ -21,7 +21,7 @@ namespace Renci.SshNet.Common
             return BinaryPrimitives.ReadUInt16LittleEndian(buffer);
 #else
             ushort n = buffer[0];
-            n |= (ushort) (buffer[1] << 8);
+            n |= (ushort)(buffer[1] << 8);
             return n;
 #endif
         }
@@ -37,9 +37,9 @@ namespace Renci.SshNet.Common
             return BinaryPrimitives.ReadUInt32LittleEndian(buffer);
 #else
             uint n = buffer[0];
-            n |= (uint) buffer[1] << 8;
-            n |= (uint) buffer[2] << 16;
-            n |= (uint) buffer[3] << 24;
+            n |= (uint)buffer[1] << 8;
+            n |= (uint)buffer[2] << 16;
+            n |= (uint)buffer[3] << 24;
             return n;
 #endif
         }
@@ -55,13 +55,13 @@ namespace Renci.SshNet.Common
             return BinaryPrimitives.ReadUInt64LittleEndian(buffer);
 #else
             ulong n = buffer[0];
-            n |= (ulong) buffer[1] << 8;
-            n |= (ulong) buffer[2] << 16;
-            n |= (ulong) buffer[3] << 24;
-            n |= (ulong) buffer[4] << 32;
-            n |= (ulong) buffer[5] << 40;
-            n |= (ulong) buffer[6] << 48;
-            n |= (ulong) buffer[7] << 56;
+            n |= (ulong)buffer[1] << 8;
+            n |= (ulong)buffer[2] << 16;
+            n |= (ulong)buffer[3] << 24;
+            n |= (ulong)buffer[4] << 32;
+            n |= (ulong)buffer[5] << 40;
+            n |= (ulong)buffer[6] << 48;
+            n |= (ulong)buffer[7] << 56;
             return n;
 #endif
         }
@@ -87,8 +87,8 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt16LittleEndian(buffer, value);
 #else
-            buffer[0] = (byte) (value & 0x00FF);
-            buffer[1] = (byte) ((value & 0xFF00) >> 8);
+            buffer[0] = (byte)(value & 0x00FF);
+            buffer[1] = (byte)((value & 0xFF00) >> 8);
 #endif
         }
 
@@ -113,10 +113,10 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt32LittleEndian(buffer, value);
 #else
-            buffer[0] = (byte) (value & 0x000000FF);
-            buffer[1] = (byte) ((value & 0x0000FF00) >> 8);
-            buffer[2] = (byte) ((value & 0x00FF0000) >> 16);
-            buffer[3] = (byte) ((value & 0xFF000000) >> 24);
+            buffer[0] = (byte)(value & 0x000000FF);
+            buffer[1] = (byte)((value & 0x0000FF00) >> 8);
+            buffer[2] = (byte)((value & 0x00FF0000) >> 16);
+            buffer[3] = (byte)((value & 0xFF000000) >> 24);
 #endif
         }
 
@@ -141,14 +141,14 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt64LittleEndian(buffer, value);
 #else
-            buffer[0] = (byte) (value & 0x00000000000000FF);
-            buffer[1] = (byte) ((value & 0x000000000000FF00) >> 8);
-            buffer[2] = (byte) ((value & 0x0000000000FF0000) >> 16);
-            buffer[3] = (byte) ((value & 0x00000000FF000000) >> 24);
-            buffer[4] = (byte) ((value & 0x000000FF00000000) >> 32);
-            buffer[5] = (byte) ((value & 0x0000FF0000000000) >> 40);
-            buffer[6] = (byte) ((value & 0x00FF000000000000) >> 48);
-            buffer[7] = (byte) ((value & 0xFF00000000000000) >> 56);
+            buffer[0] = (byte)(value & 0x00000000000000FF);
+            buffer[1] = (byte)((value & 0x000000000000FF00) >> 8);
+            buffer[2] = (byte)((value & 0x0000000000FF0000) >> 16);
+            buffer[3] = (byte)((value & 0x00000000FF000000) >> 24);
+            buffer[4] = (byte)((value & 0x000000FF00000000) >> 32);
+            buffer[5] = (byte)((value & 0x0000FF0000000000) >> 40);
+            buffer[6] = (byte)((value & 0x00FF000000000000) >> 48);
+            buffer[7] = (byte)((value & 0xFF00000000000000) >> 56);
 #endif
         }
 
@@ -164,8 +164,8 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt16BigEndian(buffer.AsSpan(offset), value);
 #else
-            buffer[offset] = (byte) (value >> 8);
-            buffer[offset + 1] = (byte) (value & 0x00FF);
+            buffer[offset] = (byte)(value >> 8);
+            buffer[offset + 1] = (byte)(value & 0x00FF);
 #endif
         }
 
@@ -179,10 +179,10 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt32BigEndian(buffer.AsSpan(offset), value);
 #else
-            buffer[offset++] = (byte) ((value & 0xFF000000) >> 24);
-            buffer[offset++] = (byte) ((value & 0x00FF0000) >> 16);
-            buffer[offset++] = (byte) ((value & 0x0000FF00) >> 8);
-            buffer[offset] = (byte) (value & 0x000000FF);
+            buffer[offset++] = (byte)((value & 0xFF000000) >> 24);
+            buffer[offset++] = (byte)((value & 0x00FF0000) >> 16);
+            buffer[offset++] = (byte)((value & 0x0000FF00) >> 8);
+            buffer[offset] = (byte)(value & 0x000000FF);
 #endif
         }
 
@@ -205,14 +205,14 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(offset), value);
 #else
-            buffer[offset++] = (byte) ((value & 0xFF00000000000000) >> 56);
-            buffer[offset++] = (byte) ((value & 0x00FF000000000000) >> 48);
-            buffer[offset++] = (byte) ((value & 0x0000FF0000000000) >> 40);
-            buffer[offset++] = (byte) ((value & 0x000000FF00000000) >> 32);
-            buffer[offset++] = (byte) ((value & 0x00000000FF000000) >> 24);
-            buffer[offset++] = (byte) ((value & 0x0000000000FF0000) >> 16);
-            buffer[offset++] = (byte) ((value & 0x000000000000FF00) >> 8);
-            buffer[offset] = (byte) (value & 0x00000000000000FF);
+            buffer[offset++] = (byte)((value & 0xFF00000000000000) >> 56);
+            buffer[offset++] = (byte)((value & 0x00FF000000000000) >> 48);
+            buffer[offset++] = (byte)((value & 0x0000FF0000000000) >> 40);
+            buffer[offset++] = (byte)((value & 0x000000FF00000000) >> 32);
+            buffer[offset++] = (byte)((value & 0x00000000FF000000) >> 24);
+            buffer[offset++] = (byte)((value & 0x0000000000FF0000) >> 16);
+            buffer[offset++] = (byte)((value & 0x000000000000FF00) >> 8);
+            buffer[offset] = (byte)(value & 0x00000000000000FF);
 #endif
         }
 
@@ -226,7 +226,7 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             return BinaryPrimitives.ReadUInt16BigEndian(buffer);
 #else
-            return (ushort) (buffer[0] << 8 | buffer[1]);
+            return (ushort)(buffer[0] << 8 | buffer[1]);
 #endif
         }
 
@@ -241,9 +241,9 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             return BinaryPrimitives.ReadUInt32BigEndian(buffer.AsSpan(offset));
 #else
-            return (uint) buffer[offset + 0] << 24 |
-                   (uint) buffer[offset + 1] << 16 |
-                   (uint) buffer[offset + 2] << 8 |
+            return (uint)buffer[offset + 0] << 24 |
+                   (uint)buffer[offset + 1] << 16 |
+                   (uint)buffer[offset + 2] << 8 |
                    buffer[offset + 3];
 #endif
         }
@@ -268,13 +268,13 @@ namespace Renci.SshNet.Common
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             return BinaryPrimitives.ReadUInt64BigEndian(buffer);
 #else
-            return (ulong) buffer[0] << 56 |
-                   (ulong) buffer[1] << 48 |
-                   (ulong) buffer[2] << 40 |
-                   (ulong) buffer[3] << 32 |
-                   (ulong) buffer[4] << 24 |
-                   (ulong) buffer[5] << 16 |
-                   (ulong) buffer[6] << 8 |
+            return (ulong)buffer[0] << 56 |
+                   (ulong)buffer[1] << 48 |
+                   (ulong)buffer[2] << 40 |
+                   (ulong)buffer[3] << 32 |
+                   (ulong)buffer[4] << 24 |
+                   (ulong)buffer[5] << 16 |
+                   (ulong)buffer[6] << 8 |
                    buffer[7];
 #endif
         }

@@ -94,9 +94,9 @@ namespace Renci.SshNet
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
-                                            from s in serverAlgorithms
-                                            where s == c.Key
-                                            select c.Value).FirstOrDefault();
+                                               from s in serverAlgorithms
+                                               where s == c.Key
+                                               select c.Value).FirstOrDefault();
 
             if (keyExchangeAlgorithmFactory is null)
             {

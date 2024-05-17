@@ -62,8 +62,8 @@ namespace Renci.SshNet.Tests.Classes
                             .Returns(_connectionInfoMock.Object);
 
             _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(),
-                                                    (uint) _localEndpoint.Port,
-                                                    _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
+                                                    (uint)_localEndpoint.Port,
+                                                    _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;

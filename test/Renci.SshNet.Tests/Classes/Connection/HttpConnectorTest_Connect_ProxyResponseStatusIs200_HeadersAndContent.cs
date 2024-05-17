@@ -38,9 +38,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(20)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(20)
+            };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
                                                  "Proxy-Authorization: Basic cHJveHlVc2VyOnByb3h5UHdk{2}{2}",
                                                  _connectionInfo.Host,
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                         _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
                         _ = socket.Send(Encoding.ASCII.GetBytes("TEEN_BYTES"));
                         _ = socket.Send(Encoding.ASCII.GetBytes("!666!"));
-                        
+
                         socket.Shutdown(SocketShutdown.Send);
                     }
                 };
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected override void Act()
         {
             _actual = Connector.Connect(_connectionInfo);
-            
+
             // Give some time to process all messages
             Thread.Sleep(200);
         }

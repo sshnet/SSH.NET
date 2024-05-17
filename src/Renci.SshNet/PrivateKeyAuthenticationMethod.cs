@@ -246,7 +246,7 @@ namespace Renci.SshNet
             protected override void SaveData()
             {
                 WriteBinaryString(_sessionId);
-                Write((byte) RequestMessage.AuthenticationMessageCode);
+                Write((byte)RequestMessage.AuthenticationMessageCode);
                 WriteBinaryString(_message.Username);
                 WriteBinaryString(_serviceName);
                 WriteBinaryString(_authenticationMethod);

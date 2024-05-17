@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -78,8 +81,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _path = random.Next().ToString();
             _handle = CryptoAbstraction.GenerateRandom(4);
-            _offset = (uint) random.Next(1, 5);
-            _length = (uint) random.Next(30, 50);
+            _offset = (uint)random.Next(1, 5);
+            _length = (uint)random.Next(30, 50);
             _data = CryptoAbstraction.GenerateRandom(200);
             _sftpOpenRequestBytes = new SftpOpenRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                 .WithRequestId(2)
@@ -157,7 +160,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                               new ChannelDataEventArgs(0, sshMessagePayload));
                 });
             _sftpResponseFactoryMock.InSequence(sequence)
-                                   .Setup(p => p.Create(_protocolVersion, (byte) SftpMessageTypes.Handle, _encoding))
+                                   .Setup(p => p.Create(_protocolVersion, (byte)SftpMessageTypes.Handle, _encoding))
                                    .Returns(new SftpHandleResponse(_protocolVersion));
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes)).Callback(() =>
@@ -169,7 +172,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                           new ChannelDataEventArgs(0, sshMessagePayload));
             });
             _sftpResponseFactoryMock.InSequence(sequence)
-                                   .Setup(p => p.Create(_protocolVersion, (byte) SftpMessageTypes.Data, _encoding))
+                                   .Setup(p => p.Create(_protocolVersion, (byte)SftpMessageTypes.Data, _encoding))
                                    .Returns(new SftpDataResponse(_protocolVersion));
         }
 

@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes
         private IList<EventArgs> _disconnectedRegister;
         private IList<ExceptionEventArgs> _errorOccurredRegister;
         private ExceptionEventArgs _channelExceptionEventArgs;
-            
+
         [TestInitialize]
         public void Setup()
         {

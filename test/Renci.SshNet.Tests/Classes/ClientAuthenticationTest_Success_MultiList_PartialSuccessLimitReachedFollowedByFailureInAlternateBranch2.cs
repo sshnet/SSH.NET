@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -133,7 +136,7 @@ namespace Renci.SshNet.Tests.Classes
                                                        .Returns(AuthenticationResult.PartialSuccess);
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
                                                        .Setup(p => p.AllowedAuthentications)
-                                                       .Returns(new[] {"password", "publickey"});
+                                                       .Returns(new[] { "password", "publickey" });
 
             /* Enumerate supported authentication methods */
 

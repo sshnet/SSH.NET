@@ -47,7 +47,7 @@ namespace Renci.SshNet.Sftp.Responses
         {
             base.SaveData();
 
-            Write((uint) Files.Length); // count
+            Write((uint)Files.Length); // count
 
             for (var i = 0; i < Files.Length; i++)
             {

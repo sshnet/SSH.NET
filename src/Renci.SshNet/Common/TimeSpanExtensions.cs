@@ -23,7 +23,7 @@ namespace Renci.SshNet.Common
             var timeoutInMilliseconds = timeSpan.TotalMilliseconds;
             return timeoutInMilliseconds is < -1d or > int.MaxValue
                        ? throw new ArgumentOutOfRangeException(callerMemberName, OutOfRangeTimeoutMessage)
-                       : (int) timeoutInMilliseconds;
+                       : (int)timeoutInMilliseconds;
         }
 
         /// <summary>

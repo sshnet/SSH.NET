@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
-using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {

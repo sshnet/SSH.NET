@@ -1,4 +1,5 @@
 ﻿using Moq;
+
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
 
@@ -24,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected virtual void SetupMocks()
         {
         }
-        
+
         protected sealed override void Arrange()
         {
             CreateMocks();

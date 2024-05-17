@@ -37,10 +37,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
-            _proxyServer.BytesReceived += (bytesReceived, socket) => {
+            _proxyServer.BytesReceived += (bytesReceived, socket) =>
+            {
                 _bytesReceivedByProxy.AddRange(bytesReceived);
 
-                if (_bytesReceivedByProxy.Count == 4) {
+                if (_bytesReceivedByProxy.Count == 4)
+                {
                     _ = socket.Send(new byte[]
                         {
                                     // SOCKS version
@@ -76,10 +78,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
-            catch (SocketException ex) {
+            catch (SocketException ex)
+            {
                 _actualException = ex;
             }
-            catch (SshOperationTimeoutException ex) {
+            catch (SshOperationTimeoutException ex)
+            {
                 _actualException = ex;
             }
             finally
@@ -89,7 +93,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
 
         [TestMethod]
-        public void ConnectShouldHaveThrownSshOperationTimeoutException() {
+        public void ConnectShouldHaveThrownSshOperationTimeoutException()
+        {
             Assert.IsNull(_actualException.InnerException);
             Assert.IsInstanceOfType<SshOperationTimeoutException>(_actualException);
         }

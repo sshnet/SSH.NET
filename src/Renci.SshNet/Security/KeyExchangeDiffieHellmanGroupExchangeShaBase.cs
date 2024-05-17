@@ -20,21 +20,21 @@ namespace Renci.SshNet.Security
         protected override byte[] CalculateHash()
         {
             var groupExchangeHashData = new GroupExchangeHashData
-                {
-                    ClientVersion = Session.ClientVersion,
-                    ServerVersion = Session.ServerVersion,
-                    ClientPayload = _clientPayload,
-                    ServerPayload = _serverPayload,
-                    HostKey = _hostKey,
-                    MinimumGroupSize = MinimumGroupSize,
-                    PreferredGroupSize = PreferredGroupSize,
-                    MaximumGroupSize = MaximumProupSize,
-                    Prime = _prime,
-                    SubGroup = _group,
-                    ClientExchangeValue = _clientExchangeValue,
-                    ServerExchangeValue = _serverExchangeValue,
-                    SharedKey = SharedKey,
-                };
+            {
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                MinimumGroupSize = MinimumGroupSize,
+                PreferredGroupSize = PreferredGroupSize,
+                MaximumGroupSize = MaximumProupSize,
+                Prime = _prime,
+                SubGroup = _group,
+                ClientExchangeValue = _clientExchangeValue,
+                ServerExchangeValue = _serverExchangeValue,
+                SharedKey = SharedKey,
+            };
 
             return Hash(groupExchangeHashData.GetBytes());
         }

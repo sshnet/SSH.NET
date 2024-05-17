@@ -1,6 +1,7 @@
 ﻿using System;
 #if NETFRAMEWORK
 using System.Runtime.Serialization;
+
 #endif // NETFRAMEWORK
 using Renci.SshNet.Messages.Transport;
 

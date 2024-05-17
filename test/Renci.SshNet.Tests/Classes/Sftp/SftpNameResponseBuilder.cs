@@ -1,7 +1,8 @@
-﻿using Renci.SshNet.Sftp;
-using Renci.SshNet.Sftp.Responses;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+
+using Renci.SshNet.Sftp;
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -54,10 +55,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpNameResponse Build()
         {
             var sftpNameResponse = new SftpNameResponse(_protocolVersion, _encoding)
-                {
-                    ResponseId = _responseId,
-                    Files = _files.ToArray()
-                };
+            {
+                ResponseId = _responseId,
+                Files = _files.ToArray()
+            };
             return sftpNameResponse;
         }
     }

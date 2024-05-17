@@ -119,7 +119,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // reset the state of the engine
             for (var i = 0; i < STATE_LENGTH; i++)
             {
-                _engineState[i] = (byte) i;
+                _engineState[i] = (byte)i;
             }
 
             var i1 = 0;

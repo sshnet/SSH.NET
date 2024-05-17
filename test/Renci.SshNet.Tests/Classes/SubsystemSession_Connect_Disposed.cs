@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ConnectShouldThrowObjectDisposedException()
         {
             Assert.IsNotNull(_actualException);
-            Assert.AreEqual(string.Format("Cannot access a disposed object.{0}Object name: '{1}'.", Environment.NewLine, _actualException.ObjectName),_actualException.Message);
+            Assert.AreEqual(string.Format("Cannot access a disposed object.{0}Object name: '{1}'.", Environment.NewLine, _actualException.ObjectName), _actualException.Message);
             Assert.AreEqual(typeof(SubsystemSessionStub).FullName, _actualException.ObjectName);
         }
 

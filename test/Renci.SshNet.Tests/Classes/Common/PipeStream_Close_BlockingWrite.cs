@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -15,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
         protected override void Arrange()
         {
-            _pipeStream = new PipeStream {MaxBufferLength = 3};
+            _pipeStream = new PipeStream { MaxBufferLength = 3 };
 
             _writehread = new Thread(() =>
                 {
@@ -58,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void WriteShouldHaveThrownObjectDisposedException()
         {
             Assert.IsNotNull(_writeException);
-            Assert.AreEqual(typeof (ObjectDisposedException), _writeException.GetType());
+            Assert.AreEqual(typeof(ObjectDisposedException), _writeException.GetType());
         }
     }
 }

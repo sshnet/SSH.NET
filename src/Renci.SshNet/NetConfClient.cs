@@ -183,7 +183,7 @@ namespace Renci.SshNet
         /// </value>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ClientCapabilities
-{
+        {
             get
             {
                 if (_netConfSession is null)

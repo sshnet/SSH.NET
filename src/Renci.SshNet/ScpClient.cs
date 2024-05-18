@@ -819,7 +819,7 @@ namespace Renci.SshNet
                     else
                     {
                         // Don't create directory for first level
-                        newDirectoryInfo = (DirectoryInfo) fileSystemInfo;
+                        newDirectoryInfo = (DirectoryInfo)fileSystemInfo;
                     }
 
                     directoryCounter++;

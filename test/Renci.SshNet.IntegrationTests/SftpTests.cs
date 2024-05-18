@@ -132,8 +132,13 @@ namespace Renci.SshNet.IntegrationTests
                     using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(content)))
                     {
                         IAsyncResult asyncResultCallback = null;
+                        using var callbackCalled = new ManualResetEventSlim(false);
 
-                        var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, ar => asyncResultCallback = ar);
+                        var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, ar =>
+                        {
+                            asyncResultCallback = ar;
+                            callbackCalled.Set();
+                        });
 
                         Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(10000));
 
@@ -144,6 +149,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.IsTrue(sftpUploadAsyncResult.IsCompleted);
                         Assert.IsFalse(sftpUploadAsyncResult.CompletedSynchronously);
                         Assert.AreEqual(expectedByteCount, sftpUploadAsyncResult.UploadedBytes);
+
+                        Assert.IsTrue(callbackCalled.Wait(10000));
 
                         // check async result callback
                         var sftpUploadAsyncResultCallback = asyncResultCallback as SftpUploadAsyncResult;

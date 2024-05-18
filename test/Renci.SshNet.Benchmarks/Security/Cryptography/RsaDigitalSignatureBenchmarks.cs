@@ -23,7 +23,7 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography
 
             using (var s = typeof(RsaDigitalSignatureBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.OPENSSH.RSA.txt"))
             {
-                _key = (RsaKey) new PrivateKeyFile(s).Key;
+                _key = (RsaKey)new PrivateKeyFile(s).Key;
             }
             _signature = new RsaDigitalSignature(_key, HashAlgorithmName.SHA256).Sign(_data);
         }

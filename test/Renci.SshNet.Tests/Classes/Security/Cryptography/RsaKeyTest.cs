@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             using (var stream = GetData(fileName))
             {
-                return (RsaKey) new PrivateKeyFile(stream, passPhrase).Key;
+                return (RsaKey)new PrivateKeyFile(stream, passPhrase).Key;
             }
         }
 
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
         // e.g. sudo ssh-keygen -f Key.OPENSSH.RSA.Encrypted.txt -m PKCS8 -p
         //  or  sudo openssl pkcs8 -topk8 -nocrypt -in Key.RSA.Encrypted.Aes.128.CBC.12345.txt -out Key.RSA.Encrypted.Aes.128.CBC.12345.PKCS8.txt
-        
+
         /* Something like this:
 
         using IndentedTextWriter tw = new(Console.Out);
@@ -266,7 +266,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             using MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(keyString));
 
-            RsaKey rsaKey = (RsaKey) new PrivateKeyFile(stream).Key;
+            RsaKey rsaKey = (RsaKey)new PrivateKeyFile(stream).Key;
 
             RSAParameters p = rsaKey.GetRSAParameters();
 

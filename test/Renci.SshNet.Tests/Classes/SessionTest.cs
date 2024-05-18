@@ -85,9 +85,9 @@ namespace Renci.SshNet.Tests.Classes
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
             return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
-                {
-                    Timeout = timeout
-                };
+            {
+                Timeout = timeout
+            };
         }
     }
 }

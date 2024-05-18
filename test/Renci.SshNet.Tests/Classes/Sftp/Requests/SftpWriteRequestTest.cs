@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
@@ -25,11 +27,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var random = new Random();
 
-            _protocolVersion = (uint) random.Next(0, int.MaxValue);
-            _requestId = (uint) random.Next(0, int.MaxValue);
+            _protocolVersion = (uint)random.Next(0, int.MaxValue);
+            _requestId = (uint)random.Next(0, int.MaxValue);
             _handle = new byte[random.Next(1, 10)];
             random.NextBytes(_handle);
-            _serverFileOffset = (ulong) random.Next(0, int.MaxValue);
+            _serverFileOffset = (ulong)random.Next(0, int.MaxValue);
             _data = new byte[random.Next(10, 15)];
             random.NextBytes(_data);
             _offset = random.Next(0, _data.Length - 1);
@@ -95,18 +97,18 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Write, sshDataStream.ReadByte());
+            Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
+            Assert.AreEqual((byte)SftpMessageTypes.Write, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_handle.Length, sshDataStream.ReadUInt32());
             var actualHandle = new byte[_handle.Length];
             sshDataStream.Read(actualHandle, 0, actualHandle.Length);
             Assert.IsTrue(_handle.SequenceEqual(actualHandle));
 
             Assert.AreEqual(_serverFileOffset, sshDataStream.ReadUInt64());
 
-            Assert.AreEqual((uint) _length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_length, sshDataStream.ReadUInt32());
             var actualData = new byte[_length];
             sshDataStream.Read(actualData, 0, actualData.Length);
             Assert.IsTrue(_data.Take(_offset, _length).SequenceEqual(actualData));

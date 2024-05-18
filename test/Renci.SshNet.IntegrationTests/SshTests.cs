@@ -87,12 +87,12 @@ namespace Renci.SshNet.IntegrationTests
             const string remoteFile = "/home/sshnet/test.sh";
 
             List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 5 ",
-                                          "Line 6",
-                                          "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
+                "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 5 ",
+                "Line 6",
+                "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -492,7 +492,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                            var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                             httpRequest.Host = hostName;
                             httpRequest.Method = "GET";
                             httpRequest.AllowAutoRedirect = false;
@@ -561,7 +561,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                        var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                         httpRequest.Host = hostName;
                         httpRequest.Method = "GET";
                         httpRequest.Accept = "text/html";
@@ -941,7 +941,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
+
                 using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
                 {
                     sw.Write(script);

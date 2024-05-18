@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
@@ -19,8 +21,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         public void Init()
         {
             _random = new Random();
-            _protocolVersion = (uint) _random.Next(0, int.MaxValue);
-            _responseId = (uint) _random.Next(0, int.MaxValue);
+            _protocolVersion = (uint)_random.Next(0, int.MaxValue);
+            _responseId = (uint)_random.Next(0, int.MaxValue);
             _data = new byte[_random.Next(10, 100)];
             _random.NextBytes(_data);
         }
@@ -32,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             Assert.IsNull(target.Data);
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
-            Assert.AreEqual((uint) 0, target.ResponseId);
+            Assert.AreEqual((uint)0, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);
         }
 
@@ -43,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             var sshDataStream = new SshDataStream(4 + _data.Length);
             sshDataStream.Write(_responseId);
-            sshDataStream.Write((uint) _data.Length);
+            sshDataStream.Write((uint)_data.Length);
             sshDataStream.Write(_data, 0, _data.Length);
 
             var sshData = sshDataStream.ToArray();

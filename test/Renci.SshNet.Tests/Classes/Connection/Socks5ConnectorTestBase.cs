@@ -1,11 +1,11 @@
-﻿using Moq;
+﻿using System;
+using System.Net;
+using System.Text;
+
+using Moq;
 
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
-
-using System;
-using System.Net;
-using System.Text;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                       new KeyboardInteractiveAuthenticationMethod("user"));
         }
 
-        protected static string GenerateRandomString(int minLength, int maxLength)    
+        protected static string GenerateRandomString(int minLength, int maxLength)
         {
             var random = new Random();
             var length = random.Next(minLength, maxLength);
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             for (var i = 0; i < length; i++)
             {
-                var c = (char) random.Next(offset, offset + 26);
+                var c = (char)random.Next(offset, offset + 26);
                 _ = sb.Append(c);
             }
 

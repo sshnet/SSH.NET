@@ -87,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
 
-             // creates the Counter array filled with incrementing copies of IV
+            // creates the Counter array filled with incrementing copies of IV
             private void CTRCreateCounterArray(byte[] buffer)
             {
                 for (var i = 0; i < buffer.Length; i += 16)

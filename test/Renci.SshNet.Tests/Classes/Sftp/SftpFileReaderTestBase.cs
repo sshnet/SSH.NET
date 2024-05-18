@@ -1,15 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using System;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     public abstract class SftpFileReaderTestBase
     {
-        internal Mock<ISftpSession> SftpSessionMock {  get; private set;}
+        internal Mock<ISftpSession> SftpSessionMock { get; private set; }
 
         protected abstract void SetupData();
 

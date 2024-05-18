@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
@@ -35,11 +38,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = 20;
             _writeBufferSize = 500;
 
-            _numberOfBytesToRead = (int) _readBufferSize + 5; // greather than read buffer size
+            _numberOfBytesToRead = (int)_readBufferSize + 5; // greather than read buffer size
             _buffer = new byte[_numberOfBytesToRead];
-            _serverData1Length = (int) _readBufferSize; // equal to read buffer size
+            _serverData1Length = (int)_readBufferSize; // equal to read buffer size
             _serverData1 = GenerateRandom(_serverData1Length, random);
-            _serverData2Length = (int) _readBufferSize; // equal to read buffer size
+            _serverData2Length = (int)_readBufferSize; // equal to read buffer size
             _serverData2 = GenerateRandom(_serverData2Length, random);
 
             Assert.IsTrue(_serverData1Length < _numberOfBytesToRead && _serverData1Length == _readBufferSize);

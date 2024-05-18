@@ -10,7 +10,7 @@ namespace Renci.SshNet.Sftp
     {
         public SftpMessage Create(uint protocolVersion, byte messageType, Encoding encoding)
         {
-            var sftpMessageType = (SftpMessageTypes) messageType;
+            var sftpMessageType = (SftpMessageTypes)messageType;
 
             SftpMessage message;
 

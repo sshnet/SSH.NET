@@ -171,7 +171,7 @@ namespace System.Threading.Tasks
             public bool IsCompleted => _task.IsCompleted;
 
             /// <inheritdoc/>
-            public WaitHandle AsyncWaitHandle => ((IAsyncResult) _task).AsyncWaitHandle;
+            public WaitHandle AsyncWaitHandle => ((IAsyncResult)_task).AsyncWaitHandle;
         }
     }
 }

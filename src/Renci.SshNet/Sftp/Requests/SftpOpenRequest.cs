@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
@@ -77,7 +78,7 @@ namespace Renci.SshNet.Sftp.Requests
             base.SaveData();
 
             WriteBinaryString(_fileName);
-            Write((uint) Flags);
+            Write((uint)Flags);
             Write(_attributes);
         }
 

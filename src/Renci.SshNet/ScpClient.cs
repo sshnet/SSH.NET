@@ -629,7 +629,7 @@ namespace Renci.SshNet
 
             while (b != SshNet.Session.LineFeed)
             {
-                buffer.Add((byte) b);
+                buffer.Add((byte)b);
                 b = ReadByte(stream);
             }
 
@@ -657,8 +657,8 @@ namespace Renci.SshNet
 #else
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 #endif
-            var modificationSeconds = (long) (fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
-            var accessSeconds = (long) (fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
+            var modificationSeconds = (long)(fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
+            var accessSeconds = (long)(fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
             SendData(channel, string.Format(CultureInfo.InvariantCulture, "T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
             CheckReturnCode(input);
         }
@@ -713,7 +713,7 @@ namespace Renci.SshNet
 
             do
             {
-                var read = input.Read(buffer, 0, (int) Math.Min(needToRead, BufferSize));
+                var read = input.Read(buffer, 0, (int)Math.Min(needToRead, BufferSize));
 
                 output.Write(buffer, 0, read);
 

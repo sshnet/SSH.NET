@@ -1,12 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.IO;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -68,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          _path,
                                          FileMode.Open,
                                          FileAccess.ReadWrite,
-                                         (int) _bufferSize);
+                                         (int)_bufferSize);
             _target.Write(_writeBytes, 0, _writeBytes.Length);
         }
 
@@ -102,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.IsOpen)
                            .Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestRead(_handle, (ulong) _writeBytes.Length, _readBufferSize))
+                           .Setup(p => p.RequestRead(_handle, (ulong)_writeBytes.Length, _readBufferSize))
                            .Returns(serverBytes);
 
             var bytesRead = _target.Read(readBytes, 2, 3);
@@ -110,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.AreEqual(3, bytesRead);
             CollectionAssert.AreEqual(expectedReadBytes, readBytes);
 
-            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong) _writeBytes.Length, _readBufferSize), Times.Once);
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, (ulong)_writeBytes.Length, _readBufferSize), Times.Once);
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(3));
         }
     }

@@ -22,7 +22,7 @@
         {
             base.LoadData();
 
-            StatusCode = (StatusCodes) ReadUInt32();
+            StatusCode = (StatusCodes)ReadUInt32();
 
             if (ProtocolVersion < 3)
             {

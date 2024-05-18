@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0x0a, readBuffer[0]);
             Assert.AreEqual(0x0d, readBuffer[1]);
 
-            var writeBuffer = new byte[] {0x05, 0x03};
+            var writeBuffer = new byte[] { 0x05, 0x03 };
             target.Write(writeBuffer, 0, writeBuffer.Length);
 
             readBuffer = new byte[4];
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var target = new PipeStream();
 
-            var writeBuffer = new byte[] {0x0a, 0x05, 0x0d};
+            var writeBuffer = new byte[] { 0x0a, 0x05, 0x0d };
             target.Write(writeBuffer, 0, 2);
 
             writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };

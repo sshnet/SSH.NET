@@ -44,9 +44,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200))
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200))
+            };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
                                                  "Proxy-Authorization: Basic cHJveHlVc2VyOnByb3h5UHdk{2}{2}",
                                                  _connectionInfo.Host,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
+            var socket = SocketConnect(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), connectionInfo.Timeout);
 
             try
             {
@@ -78,7 +79,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            var socket = await SocketConnectAsync(connectionInfo.ProxyHost, connectionInfo.ProxyPort, cancellationToken).ConfigureAwait(false);
+            var socket = await SocketConnectAsync(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), cancellationToken).ConfigureAwait(false);
 
             try
             {

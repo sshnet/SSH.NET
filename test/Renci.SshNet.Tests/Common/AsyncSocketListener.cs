@@ -234,11 +234,7 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 // Read data from the client socket.
-                bytesRead = handler.EndReceive(ar, out var errorCode);
-                if (errorCode != SocketError.Success)
-                {
-                    bytesRead = 0;
-                }
+                bytesRead = handler.EndReceive(ar);
             }
             catch (SocketException ex)
             {
@@ -275,7 +271,7 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            void ConnectionDisconnected(bool doShutdownIfApplicable)
+            void ConnectionDisconnected()
             {
                 SignalDisconnected(handler);
 
@@ -290,11 +286,12 @@ namespace Renci.SshNet.Tests.Common
 
                         try
                         {
-                            if (doShutdownIfApplicable)
+                            if (handler.Connected)
                             {
                                 handler.Shutdown(SocketShutdown.Send);
-                                handler.Close();
                             }
+
+                            handler.Close();
                         }
                         catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
                         {
@@ -328,7 +325,7 @@ namespace Renci.SshNet.Tests.Common
                 catch (ObjectDisposedException)
                 {
                     // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
-                    ConnectionDisconnected(doShutdownIfApplicable: false);
+                    ConnectionDisconnected();
                 }
                 catch (SocketException ex)
                 {
@@ -343,7 +340,7 @@ namespace Renci.SshNet.Tests.Common
             }
             else
             {
-                ConnectionDisconnected(doShutdownIfApplicable: true);
+                ConnectionDisconnected();
             }
         }
 

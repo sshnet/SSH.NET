@@ -32,11 +32,31 @@ namespace Renci.SshNet
     public partial class ScpClient : BaseClient
     {
         private const string Message = "filename";
-        private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
+        private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
+        private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
+        private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex FileInfoRegex = GetFileInfoRegex();
+        private static readonly Regex DirectoryInfoRegex = GetDirectoryInfoRegex();
+        private static readonly Regex TimestampRegex = GetTimestampRegex();
+
+        [GeneratedRegex(FileInfoPattern)]
+        private static partial Regex GetFileInfoRegex();
+
+        [GeneratedRegex(DirectoryInfoPattern)]
+        private static partial Regex GetDirectoryInfoRegex();
+
+        [GeneratedRegex(TimestampPattern)]
+        private static partial Regex GetTimestampRegex();
+#else
+        private static readonly Regex FileInfoRegex = new Regex(FileInfoPattern, RegexOptions.Compiled);
+        private static readonly Regex DirectoryInfoRegex = new Regex(DirectoryInfoPattern, RegexOptions.Compiled);
+        private static readonly Regex TimestampRegex = new Regex(TimestampPattern, RegexOptions.Compiled);
+#endif
+
         private static readonly byte[] SuccessConfirmationCode = { 0 };
         private static readonly byte[] ErrorConfirmationCode = { 1 };
-        private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
-        private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0", RegexOptions.Compiled);
 
         private IRemotePathTransformation _remotePathTransformation;
         private TimeSpan _operationTimeout;
@@ -464,7 +484,7 @@ namespace Renci.SshNet
                 SendSuccessConfirmation(channel); // Send reply
 
                 var message = ReadString(input);
-                var match = FileInfoRe.Match(message);
+                var match = FileInfoRegex.Match(message);
 
                 if (match.Success)
                 {
@@ -763,7 +783,7 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                var match = DirectoryInfoRe.Match(message);
+                var match = DirectoryInfoRegex.Match(message);
                 if (match.Success)
                 {
                     SendSuccessConfirmation(channel); // Send reply
@@ -790,7 +810,7 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = FileInfoRe.Match(message);
+                match = FileInfoRegex.Match(message);
                 if (match.Success)
                 {
                     // Read file
@@ -820,7 +840,7 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = TimestampRe.Match(message);
+                match = TimestampRegex.Match(message);
                 if (match.Success)
                 {
                     // Read timestamp

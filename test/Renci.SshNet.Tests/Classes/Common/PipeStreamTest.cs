@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 Assert.AreEqual(512, stream.Length);
 
                 Assert.AreEqual(128, stream.Read(outputBuffer, 64, 128));
-                
+
                 Assert.AreEqual(384, stream.Length);
 
                 CollectionAssert.AreEqual(new byte[64].Concat(testBuffer.Take(128)).Concat(new byte[832]), outputBuffer);

@@ -62,10 +62,19 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IPrivateKeySource, IDisposable
+    public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+",
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+
+        [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
+        private static partial Regex GetPrivateKeyRegex();
+#else
+        private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern,
                                                                   RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+#endif
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;

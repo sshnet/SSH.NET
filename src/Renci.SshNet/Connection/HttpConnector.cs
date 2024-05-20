@@ -29,8 +29,25 @@ namespace Renci.SshNet.Connection
     ///   </item>
     /// </list>
     /// </remarks>
-    internal sealed class HttpConnector : ProxyConnector
+    internal sealed partial class HttpConnector : ProxyConnector
     {
+        private const string HttpResponsePattern = @"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$";
+        private const string HttpHeaderPattern = @"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex HttpResponseRegex = GetHttpResponseRegex();
+        private static readonly Regex HttpHeaderRegex = GetHttpHeaderRegex();
+
+        [GeneratedRegex(HttpResponsePattern)]
+        private static partial Regex GetHttpResponseRegex();
+
+        [GeneratedRegex(HttpHeaderPattern)]
+        private static partial Regex GetHttpHeaderRegex();
+#else
+        private static readonly Regex HttpResponseRegex = new Regex(HttpResponsePattern, RegexOptions.Compiled);
+        private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
+#endif
+
         public HttpConnector(ISocketFactory socketFactory)
             : base(socketFactory)
         {
@@ -38,9 +55,6 @@ namespace Renci.SshNet.Connection
 
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
-            var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
-            var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
-
             SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format(CultureInfo.InvariantCulture,
                                                                                 "CONNECT {0}:{1} HTTP/1.0\r\n",
                                                                                 connectionInfo.Host,
@@ -71,7 +85,7 @@ namespace Renci.SshNet.Connection
 
                 if (statusCode is null)
                 {
-                    var statusMatch = httpResponseRe.Match(response);
+                    var statusMatch = HttpResponseRegex.Match(response);
                     if (statusMatch.Success)
                     {
                         var httpStatusCode = statusMatch.Result("${statusCode}");
@@ -86,7 +100,7 @@ namespace Renci.SshNet.Connection
                 }
 
                 // continue on parsing message headers coming from the server
-                var headerMatch = httpHeaderRe.Match(response);
+                var headerMatch = HttpHeaderRegex.Match(response);
                 if (headerMatch.Success)
                 {
                     var fieldName = headerMatch.Result("${fieldName}");

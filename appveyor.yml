@@ -55,5 +55,5 @@ artifacts:
   - path: artifacts
     name: TestResults
 
-  - path: src/**/*.*nupkg
-    name: nuget
+  - path: src/**/*.nupkg
+  - path: src/**/*.snupkg

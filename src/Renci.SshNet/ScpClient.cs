@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -784,19 +785,16 @@ namespace Renci.SshNet
 
                     directoryCounter--;
 
-                    var currentDirectoryParent = new DirectoryInfo(currentDirectoryFullName).Parent;
-
-                    if (currentDirectoryParent is null)
-                    {
-                        break;
-                    }
-
-                    currentDirectoryFullName = currentDirectoryParent.FullName;
-
                     if (directoryCounter == 0)
                     {
                         break;
                     }
+
+                    var currentDirectoryParent = new DirectoryInfo(currentDirectoryFullName).Parent;
+
+                    Debug.Assert(currentDirectoryParent is not null, $"Should be {directoryCounter.ToString(CultureInfo.InvariantCulture)} levels deeper than {startDirectoryFullName}.");
+
+                    currentDirectoryFullName = currentDirectoryParent!.FullName;
 
                     continue;
                 }

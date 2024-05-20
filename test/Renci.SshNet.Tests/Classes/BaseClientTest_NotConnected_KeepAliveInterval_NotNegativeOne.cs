@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes
             _client.Connect();
 
             // allow keep-alive to be sent at least twice with some margin for error
-            Thread.Sleep(5 * _keepAliveInterval);
+            Thread.Sleep(5 * (int)_keepAliveInterval.TotalMilliseconds);
 
             // At least two keep-alives should be sent
             SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.AtLeast(2));

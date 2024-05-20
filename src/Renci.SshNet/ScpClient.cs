@@ -814,7 +814,7 @@ namespace Renci.SshNet
 
                     Debug.Assert(currentDirectoryParent is not null, $"Should be {directoryCounter.ToString(CultureInfo.InvariantCulture)} levels deeper than {startDirectoryFullName}.");
 
-                    currentDirectoryFullName = currentDirectoryParent!.FullName;
+                    currentDirectoryFullName = currentDirectoryParent.FullName;
 
                     continue;
                 }

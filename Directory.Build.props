@@ -24,6 +24,13 @@
   </PropertyGroup>
 
   <!--
+        Disable nullable warnings on old frameworks because of missing annotations.
+  -->
+  <PropertyGroup Condition=" !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
+    <NoWarn>$(NoWarn);CS8602</NoWarn>
+  </PropertyGroup>
+
+  <!--
         Add the stylecop config to each project.
     -->
   <ItemGroup>

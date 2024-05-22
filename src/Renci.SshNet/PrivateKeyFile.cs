@@ -333,7 +333,7 @@ namespace Renci.SshNet
                         throw new SshException("Invalid passphrase.");
                     }
 
-                    if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
+                    if (keyType.Contains("rsa"))
                     {
                         var exponent = reader.ReadBigIntWithBits(); // e
                         var d = reader.ReadBigIntWithBits(); // d
@@ -349,7 +349,7 @@ namespace Renci.SshNet
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     }
-                    else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
+                    else if (keyType.Contains("dsa"))
                     {
                         var zero = reader.ReadUInt32();
                         if (zero != 0)

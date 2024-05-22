@@ -5,10 +5,25 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_DATA message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_DATA", MessageNumber)]
     public class ChannelDataMessage : ChannelMessage
     {
-        internal const byte MessageNumber = 94;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_DATA";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 94;
+            }
+        }
 
         /// <summary>
         /// Gets the message data.

@@ -1,10 +1,13 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Specifies the initial assignments of the opcode values that are used in the 'encoded terminal modes' valu
+    /// Specifies the initial assignments of the opcode values that are used in the 'encoded terminal modes' value.
     /// </summary>
+#pragma warning disable CA1028 // Enum Storage should be Int32
     public enum TerminalModes : byte
+#pragma warning restore CA1028 // Enum Storage should be Int32
     {
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         /// <summary>
         /// Indicates end of options.
         /// </summary>
@@ -289,5 +292,6 @@
         /// Specifies the output baud rate in bits per second.
         /// </summary>
         TTY_OP_OSPEED = 129,
+#pragma warning restore CA1707 // Identifiers should not contain underscores
     }
 }

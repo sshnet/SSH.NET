@@ -11,7 +11,7 @@
 
 	<ItemGroup>
 		<VisualStudioVersionModern Include="2022">
-			<SolutionFile>$(MSBuildThisFileDirectory)..\src\Renci.SshNet.sln</SolutionFile>
+			<SolutionFile>$(MSBuildThisFileDirectory)..\Renci.SshNet.sln</SolutionFile>
 			<VisualStudioVersion>17.0</VisualStudioVersion>
 		</VisualStudioVersionModern>
 	</ItemGroup>
@@ -36,6 +36,10 @@
 		<TargetFrameworkModern Include=".NET 7.0">
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net7.0</OutputDirectory>
 			<Moniker>net7.0</Moniker>
+		</TargetFrameworkModern>
+		<TargetFrameworkModern Include=".NET 8.0">
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net8.0</OutputDirectory>
+			<Moniker>net8.0</Moniker>
 		</TargetFrameworkModern>
 	</ItemGroup>
 
@@ -79,7 +83,7 @@
 	</Target>
 	
 	<Target Name="CreateNuGetPackage" DependsOnTargets="ValidatePackage;CheckNuGetPackageDirectory;CheckReleaseVersion">
-		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -Version &quot;$(ReleaseVersion)&quot; -Properties &quot;copyright=2012-$([System.DateTime]::Now.Year), RENCI&quot; -BasePath &quot;$(NuGetPackageDirectory)&quot; -NonInteractive"/>
+		<Exec Command="dotnet pack $(MSBuildThisFileDirectory)..\src\Renci.SshNet\Renci.SshNet.csproj --no-build --output &quot;$(MSBuildThisFileDirectory)target&quot;"/>
 	</Target>
 	
 	<Target Name="GenerateHelpFile" DependsOnTargets="CheckReleaseVersion">

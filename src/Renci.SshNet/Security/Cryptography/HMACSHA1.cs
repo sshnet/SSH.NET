@@ -18,7 +18,9 @@ namespace Renci.SshNet.Security.Cryptography
         public HMACSHA1(byte[] key)
             : base(key)
         {
+#pragma warning disable MA0056 // Do not call overridable members in constructor
             _hashSize = base.HashSize;
+#pragma warning restore MA0056 // Do not call overridable members in constructor
         }
 
         /// <summary>

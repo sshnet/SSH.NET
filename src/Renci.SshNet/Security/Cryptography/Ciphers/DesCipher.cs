@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -12,7 +13,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private int[] _decryptionKey;
 
-        private static readonly short[] Bytebit = {128, 64, 32, 16, 8, 4, 2, 1};
+        private static readonly short[] Bytebit = { 128, 64, 32, 16, 8, 4, 2, 1 };
 
         private static readonly int[] Bigbyte =
         {
@@ -216,7 +217,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public DesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
         {
@@ -237,12 +238,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             _encryptionKey ??= GenerateWorkingKey(encrypting: true, Key);
@@ -267,12 +268,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             _decryptionKey ??= GenerateWorkingKey(encrypting: false, Key);
@@ -285,7 +286,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// Generates the working key.
         /// </summary>
-        /// <param name="encrypting">if set to <c>true</c> [encrypting].</param>
+        /// <param name="encrypting">if set to <see langword="true"/> [encrypting].</param>
         /// <param name="key">The key.</param>
         /// <returns>Generated working key.</returns>
         protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
@@ -300,7 +301,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 int l = Pc1[j];
 
-                pc1m[j] = ((key[(uint)l >> 3] & Bytebit[l & 07]) != 0);
+                pc1m[j] = (key[(uint)l >> 3] & Bytebit[l & 07]) != 0;
             }
 
             for (var i = 0; i < 16; i++)
@@ -359,23 +360,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            //
-            // store the processed key
-            //
+            /*
+             * store the processed key
+             */
+
             for (var i = 0; i != 32; i += 2)
             {
                 var i1 = newKey[i];
                 var i2 = newKey[i + 1];
 
-                newKey[i] = (int) ((uint) ((i1 & 0x00fc0000) << 6) |
-                                   (uint) ((i1 & 0x00000fc0) << 10) |
-                                   ((uint) (i2 & 0x00fc0000) >> 10) |
-                                   ((uint) (i2 & 0x00000fc0) >> 6));
+                newKey[i] = (int)((uint)((i1 & 0x00fc0000) << 6) |
+                                   (uint)((i1 & 0x00000fc0) << 10) |
+                                   ((uint)(i2 & 0x00fc0000) >> 10) |
+                                   ((uint)(i2 & 0x00000fc0) >> 6));
 
-                newKey[i + 1] = (int) ((uint) ((i1 & 0x0003f000) << 12) |
-                                       (uint) ((i1 & 0x0000003f) << 16) |
-                                       ((uint) (i2 & 0x0003f000) >> 4) |
-                                       (uint) (i2 & 0x0000003f));
+                newKey[i + 1] = (int)((uint)((i1 & 0x0003f000) << 12) |
+                                       (uint)((i1 & 0x0000003f) << 16) |
+                                       ((uint)(i2 & 0x0003f000) >> 4) |
+                                       (uint)(i2 & 0x0000003f));
             }
 
             return newKey;
@@ -428,24 +430,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             for (var round = 0; round < 8; round++)
             {
                 work = (right << 28) | (right >> 4);
-                work ^= (uint)wKey[round * 4 + 0];
+                work ^= (uint)wKey[(round * 4) + 0];
                 var fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = right ^ (uint) wKey[round * 4 + 1];
+                work = right ^ (uint)wKey[(round * 4) + 1];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];
                 fval |= Sp2[(work >> 24) & 0x3f];
                 left ^= fval;
                 work = (left << 28) | (left >> 4);
-                work ^= (uint)wKey[round * 4 + 2];
+                work ^= (uint)wKey[(round * 4) + 2];
                 fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = left ^ (uint)wKey[round * 4 + 3];
+                work = left ^ (uint)wKey[(round * 4) + 3];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];

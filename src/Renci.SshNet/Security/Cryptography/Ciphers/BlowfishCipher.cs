@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -8,6 +9,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public sealed class BlowfishCipher : BlockCipher
     {
+        private const int Rounds = 16;
+
+        private const int SboxSk = 256;
+
+        private const int PSize = Rounds + 2;
+
         #region Static reference tables
 
         private static readonly uint[] KP =
@@ -293,19 +300,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         #endregion
 
-        private const int Rounds = 16;
-
-        private const int SboxSk = 256;
-
-        private const int PSize = Rounds + 2;
-
         /// <summary>
-        /// The s-boxes
+        /// The s-boxes.
         /// </summary>
-        private readonly uint[] _s0, _s1, _s2, _s3;
+        private readonly uint[] _s0;
+        private readonly uint[] _s1;
+        private readonly uint[] _s2;
+        private readonly uint[] _s3;
 
         /// <summary>
-        /// The p-array
+        /// The p-array.
         /// </summary>
         private readonly uint[] _p;
 
@@ -315,7 +319,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public BlowfishCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)

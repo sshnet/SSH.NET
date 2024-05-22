@@ -1,12 +1,11 @@
 ﻿using System;
 #if NETFRAMEWORK
+using System.Globalization;
 using System.IO;
-#endif // NETFRAMEWORK
-using System.Text;
-#if NETFRAMEWORK
 using System.Runtime.InteropServices;
 #endif // NETFRAMEWORK
 using System.Security.Cryptography;
+using System.Text;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
@@ -18,9 +17,11 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class EcdsaKey : Key, IDisposable
     {
-        internal const string ECDSA_P256_OID_VALUE = "1.2.840.10045.3.1.7"; // Also called nistP256 or secP256r1
-        internal const string ECDSA_P384_OID_VALUE = "1.3.132.0.34"; // Also called nistP384 or secP384r1
-        internal const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
+#pragma warning disable SA1310 // Field names should not contain underscore
+        private const string ECDSA_P256_OID_VALUE = "1.2.840.10045.3.1.7"; // Also called nistP256 or secP256r1
+        private const string ECDSA_P384_OID_VALUE = "1.3.132.0.34"; // Also called nistP384 or secP384r1
+        private const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         private EcdsaDigitalSignature _digitalSignature;
         private bool _isDisposed;
@@ -52,7 +53,7 @@ namespace Renci.SshNet.Security
         internal struct BCRYPT_ECCKEY_BLOB
         {
             internal KeyBlobMagicNumber Magic;
-            internal int cbKey;
+            internal int CbKey;
         }
 #endif
 
@@ -69,7 +70,7 @@ namespace Renci.SshNet.Security
 
 #if NETFRAMEWORK
         /// <summary>
-        /// Gets the HashAlgorithm to use
+        /// Gets the HashAlgorithm to use.
         /// </summary>
         public CngAlgorithm HashAlgorithm
         {
@@ -84,7 +85,7 @@ namespace Renci.SshNet.Security
                     case 521:
                         return CngAlgorithm.Sha512;
                     default:
-                        throw new SshException("Unknown KeySize: " + Ecdsa.KeySize);
+                        throw new SshException("Unknown KeySize: " + Ecdsa.KeySize.ToString(CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -139,10 +140,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the ECDSA public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array with the ASCII-encoded curve identifier (e.g. "nistp256")
+        /// at index 0, and the public curve point Q at index 1.
         /// </value>
         public override BigInteger[] Public
         {
@@ -212,14 +214,6 @@ namespace Renci.SshNet.Security
                 // returns Curve-Name and x/y as ECPoint
                 return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
             }
-            set
-            {
-                var curve_s = Encoding.ASCII.GetString(value[0].ToByteArray().Reverse());
-                var curve_oid = GetCurveOid(curve_s);
-
-                var publickey = value[1].ToByteArray().Reverse();
-                Import(curve_oid, publickey, privatekey: null);
-            }
         }
 
         /// <summary>
@@ -227,16 +221,39 @@ namespace Renci.SshNet.Security
         /// </summary>
         public byte[] PrivateKey { get; private set; }
 
+#if NETFRAMEWORK
+        /// <summary>
+        /// Gets the <see cref="ECDsa"/> object.
+        /// </summary>
+        public ECDsaCng Ecdsa { get; private set; }
+#else
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
         /// </summary>
-        public EcdsaKey()
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public EcdsaKey(SshKeyData publicKeyData)
         {
+            if (publicKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(publicKeyData));
+            }
+
+            if (!publicKeyData.Name.StartsWith("ecdsa-sha2-", StringComparison.Ordinal) || publicKeyData.Keys.Length != 2)
+            {
+                throw new ArgumentException($"Invalid ECDSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
+            }
+
+            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray().Reverse());
+            var curve_oid = GetCurveOid(curve_s);
+
+            var publickey = publicKeyData.Keys[1].ToByteArray().Reverse();
+            Import(curve_oid, publickey, privatekey: null);
         }
 
         /// <summary>
@@ -361,7 +378,7 @@ namespace Renci.SshNet.Security
                 PrivateKey = privatekey;
             }
 
-            var headerSize = Marshal.SizeOf(typeof(BCRYPT_ECCKEY_BLOB));
+            var headerSize = Marshal.SizeOf<BCRYPT_ECCKEY_BLOB>();
             var blobSize = headerSize + qx.Length + qy.Length;
             if (privatekey != null)
             {
@@ -380,6 +397,7 @@ namespace Renci.SshNet.Security
                     bw.Write(privatekey); // d
                 }
             }
+
             _key = CngKey.Import(blob, privatekey is null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);
 
             Ecdsa = new ECDsaCng(_key);
@@ -413,13 +431,13 @@ namespace Renci.SshNet.Security
 
         private static string GetCurveOid(string curve_s)
         {
-            switch (curve_s.ToLower())
+            switch (curve_s.ToUpperInvariant())
             {
-                case "nistp256":
+                case "NISTP256":
                     return ECDSA_P256_OID_VALUE;
-                case "nistp384":
+                case "NISTP384":
                     return ECDSA_P384_OID_VALUE;
-                case "nistp521":
+                case "NISTP521":
                     return ECDSA_P521_OID_VALUE;
                 default:
                     throw new SshException("Unexpected Curve Name: " + curve_s);
@@ -484,7 +502,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)

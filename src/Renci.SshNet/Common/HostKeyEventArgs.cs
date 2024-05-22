@@ -18,7 +18,7 @@ namespace Renci.SshNet.Common
         /// Gets or sets a value indicating whether host key can be trusted.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if host key can be trusted; otherwise, <c>false</c>.
+        ///   <see langword="true"/> if host key can be trusted; otherwise, <see langword="false"/>.
         /// </value>
         public bool CanTrust { get; set; }
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets the host key name.
         /// </summary>
-        public string HostKeyName{ get; private set; }
+        public string HostKeyName { get; private set; }
 
         /// <summary>
         /// Gets the MD5 fingerprint.
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Common
         /// Gets the SHA256 fingerprint of the host key in the same format as the ssh command,
         /// i.e. non-padded base64, but without the <c>SHA256:</c> prefix.
         /// </summary>
-        /// <example><c>ohD8VZEXGWo6Ez8GSEJQ9WpafgLFsOfLOtGGQCQo6Og</c></example>
+        /// <example><c>ohD8VZEXGWo6Ez8GSEJQ9WpafgLFsOfLOtGGQCQo6Og</c>.</example>
         /// <value>
         /// Base64 encoded SHA256 fingerprint with padding (equals sign) removed.
         /// </value>
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Common
         /// Gets the MD5 fingerprint of the host key in the same format as the ssh command,
         /// i.e. hexadecimal bytes separated by colons, but without the <c>MD5:</c> prefix.
         /// </summary>
-        /// <example><c>97:70:33:82:fd:29:3a:73:39:af:6a:07:ad:f8:80:49</c></example>
+        /// <example><c>97:70:33:82:fd:29:3a:73:39:af:6a:07:ad:f8:80:49</c>.</example>
         public string FingerPrintMD5
         {
             get
@@ -87,27 +87,43 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="HostKeyEventArgs"/> class.
         /// </summary>
         /// <param name="host">The host.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
+            if (host is null)
+            {
+                throw new ArgumentNullException(nameof(host));
+            }
+
             CanTrust = true;
             HostKey = host.Data;
             HostKeyName = host.Name;
             KeyLength = host.Key.KeyLength;
-            
+
             _lazyFingerPrint = new Lazy<byte[]>(() =>
-            {
-                using var md5 = CryptoAbstraction.CreateMD5();
-                return md5.ComputeHash(HostKey);
-            });
+                {
+                    using var md5 = CryptoAbstraction.CreateMD5();
+                    return md5.ComputeHash(HostKey);
+                });
 
             _lazyFingerPrintSHA256 = new Lazy<string>(() =>
-            {
-                using var sha256 = CryptoAbstraction.CreateSHA256();
-                return Convert.ToBase64String(sha256.ComputeHash(HostKey)).Replace("=", "");
-            });
+                {
+                    using var sha256 = CryptoAbstraction.CreateSHA256();
 
-            _lazyFingerPrintMD5 = new Lazy<string>(() => 
-                BitConverter.ToString(FingerPrint).Replace("-", ":").ToLowerInvariant());
+                    return Convert.ToBase64String(sha256.ComputeHash(HostKey))
+#if NET || NETSTANDARD2_1_OR_GREATER
+                                  .Replace("=", string.Empty, StringComparison.Ordinal);
+#else
+                                  .Replace("=", string.Empty);
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+                });
+
+            _lazyFingerPrintMD5 = new Lazy<string>(() =>
+                {
+#pragma warning disable CA1308 // Normalize strings to uppercase
+                    return BitConverter.ToString(FingerPrint).Replace('-', ':').ToLowerInvariant();
+#pragma warning restore CA1308 // Normalize strings to uppercase
+                });
         }
     }
 }

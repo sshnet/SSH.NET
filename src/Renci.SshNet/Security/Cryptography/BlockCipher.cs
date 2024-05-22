@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -52,7 +53,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="blockSize">Size of the block.</param>
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
             : base(key)
         {
@@ -69,14 +70,16 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The data.</param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
         /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
-        /// <returns>Encrypted data</returns>
+        /// <returns>
+        /// The encrypted data.
+        /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             if (length % _blockSize > 0)
             {
                 if (_padding is null)
                 {
-                    throw new ArgumentException("data");
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
 
                 var paddingLength = _blockSize - (length % _blockSize);
@@ -109,16 +112,6 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Decrypts the specified data.
-        /// </summary>
-        /// <param name="input">The data.</param>
-        /// <returns>Decrypted data</returns>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return Decrypt(input, 0, input.Length);
-        }
-
-        /// <summary>
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
@@ -133,7 +126,7 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 if (_padding is null)
                 {
-                    throw new ArgumentException("data");
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
 
                 input = _padding.Pad(_blockSize, input, offset, length);
@@ -163,5 +156,31 @@ namespace Renci.SshNet.Security.Cryptography
 
             return output;
         }
+
+        /// <summary>
+        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to encrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes encrypted.
+        /// </returns>
+        public abstract int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset);
+
+        /// <summary>
+        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to decrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes decrypted.
+        /// </returns>
+        public abstract int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset);
     }
 }

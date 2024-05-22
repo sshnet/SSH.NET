@@ -5,9 +5,26 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_UNIMPLEMENTED message.
     /// </summary>
-    [Message("SSH_MSG_UNIMPLEMENTED", 3)]
     public class UnimplementedMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_UNIMPLEMENTED";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 3;
+            }
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

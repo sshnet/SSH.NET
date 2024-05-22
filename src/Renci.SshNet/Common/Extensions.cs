@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
@@ -50,7 +51,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
+        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format.
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
@@ -60,7 +61,43 @@ namespace Renci.SshNet.Common
                 Buffer.BlockCopy(data, 0, buf, 1, data.Length);
                 data = buf;
             }
+
             return data.ToBigInteger();
+        }
+
+        public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
+        {
+            var data = bigInt.ToByteArray();
+
+            if (isUnsigned && data[data.Length - 1] == 0)
+            {
+                data = data.Take(data.Length - 1);
+            }
+
+            if (isBigEndian)
+            {
+                _ = data.Reverse();
+            }
+
+            return data;
+        }
+
+        // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
+        public static byte[] ExportKeyParameter(this BigInteger value, int length)
+        {
+            var target = value.ToByteArray(isUnsigned: true, isBigEndian: true);
+
+            // The BCL crypto is expecting exactly-sized byte arrays (sized to "length").
+            // If our byte array is smaller than required, then size it up.
+            // Otherwise, just return as is: if it is too large, we'll let the BCL throw the error.
+            if (target.Length < length)
+            {
+                var correctlySized = new byte[length];
+                Buffer.BlockCopy(target, 0, correctlySized, length - target.Length, target.Length);
+                return correctlySized;
+            }
+
+            return target;
         }
 
         /// <summary>
@@ -90,23 +127,6 @@ namespace Renci.SshNet.Common
             }
 
             Debug.WriteLine(sb.ToString());
-        }
-
-        /// <summary>
-        /// Creates an instance of the specified type using that type's default constructor.
-        /// </summary>
-        /// <typeparam name="T">The type to create.</typeparam>
-        /// <param name="type">Type of the instance to create.</param>
-        /// <returns>A reference to the newly created object.</returns>
-        internal static T CreateInstance<T>(this Type type)
-            where T : class
-        {
-            if (type is null)
-            {
-                return null;
-            }
-
-            return Activator.CreateInstance(type) as T;
         }
 
         internal static void ValidatePort(this uint value, string argument)
@@ -141,7 +161,7 @@ namespace Renci.SshNet.Common
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="offset"/> is zero and <paramref name="count"/> equals the length of <paramref name="value"/>,
         /// then <paramref name="value"/> is returned.
@@ -176,7 +196,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A <see cref="byte"/> array that contains the specified number of bytes at the start of the input array.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// When <paramref name="count"/> equals the length of <paramref name="value"/>, then <paramref name="value"/>
         /// is returned.
@@ -220,6 +240,9 @@ namespace Renci.SshNet.Common
                 return true;
             }
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return left.AsSpan().SequenceEqual(right);
+#else
             if (left.Length != right.Length)
             {
                 return false;
@@ -234,6 +257,7 @@ namespace Renci.SshNet.Common
             }
 
             return true;
+#endif
         }
 
         /// <summary>
@@ -272,6 +296,44 @@ namespace Renci.SshNet.Common
 
             return value;
         }
+
+#if NETFRAMEWORK || NETSTANDARD2_0
+        public static int IndexOf(this byte[] array, byte[] value, int startIndex, int count)
+        {
+            if (value.Length > count)
+            {
+                return -1;
+            }
+
+            if (value.Length == 0)
+            {
+                return 0;
+            }
+
+            for (var i = startIndex; i < startIndex + count - value.Length + 1; i++)
+            {
+                if (MatchesAtIndex(i))
+                {
+                    return i - startIndex;
+                }
+            }
+
+            return -1;
+
+            bool MatchesAtIndex(int i)
+            {
+                for (var j = 0; j < value.Length; j++)
+                {
+                    if (array[i + j] != value[j])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+#endif
 
         /// <summary>
         /// Pads with leading zeros if needed.

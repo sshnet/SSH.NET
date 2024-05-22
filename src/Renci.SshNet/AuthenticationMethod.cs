@@ -13,7 +13,9 @@ namespace Renci.SshNet
         /// <value>
         /// The name of the authentication method.
         /// </value>
+#pragma warning disable CA2119 // Seal methods that satisfy private interfaces
         public abstract string Name { get; }
+#pragma warning restore CA2119 // Seal methods that satisfy private interfaces
 
         /// <summary>
         /// Gets connection username.
@@ -29,7 +31,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
         protected AuthenticationMethod(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -58,7 +60,7 @@ namespace Renci.SshNet
         /// </returns>
         AuthenticationResult IAuthenticationMethod.Authenticate(ISession session)
         {
-            return Authenticate((Session) session);
+            return Authenticate((Session)session);
         }
     }
 }

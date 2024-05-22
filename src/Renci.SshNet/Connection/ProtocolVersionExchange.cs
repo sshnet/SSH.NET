@@ -19,11 +19,19 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://tools.ietf.org/html/rfc4253#section-4.2.
     /// </remarks>
-    internal sealed class ProtocolVersionExchange : IProtocolVersionExchange
+    internal sealed partial class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
+        private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$";
 
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled);
+#if NET7_0_OR_GREATER
+        private static readonly Regex ServerVersionRegex = GetServerVersionRegex();
+
+        [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetServerVersionRegex();
+#else
+        private static readonly Regex ServerVersionRegex = new Regex(ServerVersionPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+#endif
 
         /// <summary>
         /// Performs the SSH protocol version exchange.
@@ -57,7 +65,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRe.Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),
@@ -67,11 +75,25 @@ namespace Renci.SshNet.Connection
             }
         }
 
+        /// <summary>
+        /// Asynchronously performs the SSH protocol version exchange.
+        /// </summary>
+        /// <param name="clientVersion">The identification string of the SSH client.</param>
+        /// <param name="socket">A <see cref="Socket"/> connected to the server.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the SSH protocol version exchange. The value of its
+        /// <see cref="Task{Task}.Result"/> contains the SSH identification of the server.
+        /// </returns>
         public async Task<SshIdentification> StartAsync(string clientVersion, Socket socket, CancellationToken cancellationToken)
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
             // when the connection has been established
+#if NET6_0_OR_GREATER
+            await SocketAbstraction.SendAsync(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"), cancellationToken).ConfigureAwait(false);
+#else
             SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+#endif // NET6_0_OR_GREATER
 
             var bytesReceived = new List<byte>();
 
@@ -90,7 +112,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRe.Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),
@@ -120,7 +142,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         /// <returns>
-        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
+        /// The line read from the socket, or <see langword="null"/> when the remote server has shutdown and all data has been received.
         /// </returns>
         private static string SocketReadLine(Socket socket, TimeSpan timeout, List<byte> buffer)
         {
@@ -177,7 +199,7 @@ namespace Renci.SshNet.Connection
             // to be processed by subsequent invocations.
             while (true)
             {
-                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, 0, data.Length, cancellationToken).ConfigureAwait(false);
+                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new SshConnectionException("The connection was closed by the remote host.");

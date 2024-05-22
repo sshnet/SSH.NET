@@ -1,6 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Xml;
 
 using Renci.SshNet.Common;
@@ -18,7 +20,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds <see cref="INetConfSession"/> instance that used to communicate to the server.
         /// </summary>
-        private INetConfSession _netConfSession;
+        private INetConfSession? _netConfSession;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -36,13 +38,7 @@ namespace Renci.SshNet
             }
             set
             {
-                var timeoutInMilliseconds = value.TotalMilliseconds;
-                if (timeoutInMilliseconds is < -1d or > int.MaxValue)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
-                }
-
-                _operationTimeout = (int) timeoutInMilliseconds;
+                _operationTimeout = value.AsTimeout(nameof(OperationTimeout));
             }
         }
 
@@ -52,7 +48,7 @@ namespace Renci.SshNet
         /// <value>
         /// The current NetConf session.
         /// </value>
-        internal INetConfSession NetConfSession
+        internal INetConfSession? NetConfSession
         {
             get { return _netConfSession; }
         }
@@ -61,7 +57,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         public NetConfClient(ConnectionInfo connectionInfo)
             : this(connectionInfo, ownsConnectionInfo: false)
         {
@@ -74,8 +70,8 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, string password)
@@ -89,8 +85,8 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         public NetConfClient(string host, string username, string password)
             : this(host, ConnectionInfo.DefaultPort, username, password)
         {
@@ -103,8 +99,8 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
@@ -118,8 +114,8 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         public NetConfClient(string host, string username, params IPrivateKeySource[] keyFiles)
             : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
         {
@@ -130,9 +126,9 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         private NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
@@ -146,16 +142,16 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            _operationTimeout = SshNet.Session.Infinite;
+            _operationTimeout = Timeout.Infinite;
             AutomaticMessageIdHandling = true;
         }
 
@@ -165,9 +161,18 @@ namespace Renci.SshNet
         /// <value>
         /// The NetConf server capabilities.
         /// </value>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ServerCapabilities
         {
-            get { return _netConfSession.ServerCapabilities; }
+            get
+            {
+                if (_netConfSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return _netConfSession.ServerCapabilities;
+            }
         }
 
         /// <summary>
@@ -176,9 +181,18 @@ namespace Renci.SshNet
         /// <value>
         /// The NetConf client capabilities.
         /// </value>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ClientCapabilities
         {
-            get { return _netConfSession.ClientCapabilities; }
+            get
+            {
+                if (_netConfSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return _netConfSession.ClientCapabilities;
+            }
         }
 
         /// <summary>
@@ -186,8 +200,8 @@ namespace Renci.SshNet
         /// enabled.
         /// </summary>
         /// <value>
-        /// <c>true</c> if automatic message id handling is enabled; otherwise, <c>false</c>.
-        /// The default value is <c>true</c>.
+        /// <see langword="true"/> if automatic message id handling is enabled; otherwise, <see langword="false"/>.
+        /// The default value is <see langword="true"/>.
         /// </value>
         public bool AutomaticMessageIdHandling { get; set; }
 
@@ -201,6 +215,11 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendReceiveRpc(XmlDocument rpc)
         {
+            if (_netConfSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
         }
 
@@ -227,6 +246,11 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendCloseRpc()
         {
+            if (_netConfSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             var rpc = new XmlDocument();
             rpc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><rpc message-id=\"6666\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"><close-session/></rpc>");
             return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
@@ -249,13 +273,13 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            _netConfSession.Disconnect();
+            _netConfSession?.Disconnect();
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

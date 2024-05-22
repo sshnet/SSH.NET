@@ -24,16 +24,16 @@ namespace Renci.SshNet
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
-        private EventWaitHandle _dataReaderTaskCompleted;
+        private ManualResetEvent _dataReaderTaskCompleted;
         private IChannelSession _channel;
-        private EventWaitHandle _channelClosedWaitHandle;
+        private AutoResetEvent _channelClosedWaitHandle;
         private Stream _input;
 
         /// <summary>
         /// Gets a value indicating whether this shell is started.
         /// </summary>
         /// <value>
-        /// <c>true</c> if started is started; otherwise, <c>false</c>.
+        /// <see langword="true"/> if started is started; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsStarted { get; private set; }
 
@@ -128,9 +128,9 @@ namespace Renci.SshNet
                     while (_channel.IsOpen)
                     {
                         var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
-                        var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
+                        var readWaitHandle = ((IAsyncResult)readTask).AsyncWaitHandle;
 
-                        if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
+                        if (WaitHandle.WaitAny(new[] { readWaitHandle, _channelClosedWaitHandle }) == 0)
                         {
                             var read = readTask.GetAwaiter().GetResult();
                             _channel.SendData(buffer, 0, read);
@@ -232,7 +232,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
@@ -259,7 +259,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)

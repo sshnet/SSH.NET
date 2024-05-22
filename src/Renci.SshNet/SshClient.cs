@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Renci.SshNet
         /// </value>
         private bool _isDisposed;
 
-        private MemoryStream _inputStream;
+        private MemoryStream? _inputStream;
 
         /// <summary>
         /// Gets the list of forwarded ports.
@@ -272,7 +273,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             EnsureSessionIsOpen();
 
@@ -333,7 +334,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             /*
              * TODO Issue #1224: let shell dispose of input stream when we own the stream!
@@ -442,7 +443,7 @@ namespace Renci.SshNet
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint>? terminalModeValues)
         {
             EnsureSessionIsOpen();
 

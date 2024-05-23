@@ -182,9 +182,7 @@ namespace Renci.SshNet
             get { return !_disposed; }
         }
 
-        /// <summary>
-        /// This method does nothing.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Flush()
         {
             ThrowIfDisposed();

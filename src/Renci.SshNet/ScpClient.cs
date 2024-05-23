@@ -262,6 +262,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
@@ -307,6 +308,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
@@ -364,6 +366,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // start copy with the following options:
@@ -413,6 +416,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request
@@ -459,6 +463,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request
@@ -505,6 +510,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request

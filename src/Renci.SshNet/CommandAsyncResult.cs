@@ -56,15 +56,5 @@ namespace Renci.SshNet
         /// true if the operation is complete; otherwise, false.
         /// </returns>
         public bool IsCompleted { get; internal set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this
-        /// <see cref="CommandAsyncResult"/>.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true"/> if <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this <see cref="CommandAsyncResult"/>;
-        /// otherwise, <see langword="false"/>.
-        /// </returns>
-        internal bool EndCalled { get; set; }
     }
 }

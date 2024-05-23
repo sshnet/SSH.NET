@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace Renci.SshNet
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
-        private Timer _keepAliveTimer;
+        private Timer? _keepAliveTimer;
         private ConnectionInfo _connectionInfo;
         private bool _isDisposed;
 
@@ -32,7 +33,7 @@ namespace Renci.SshNet
         /// <value>
         /// The current session.
         /// </value>
-        internal ISession Session { get; private set; }
+        internal ISession? Session { get; private set; }
 
         /// <summary>
         /// Gets the factory for creating new services.
@@ -142,17 +143,17 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        public event EventHandler<ExceptionEventArgs> ErrorOccurred;
+        public event EventHandler<ExceptionEventArgs>? ErrorOccurred;
 
         /// <summary>
         /// Occurs when host key received.
         /// </summary>
-        public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+        public event EventHandler<HostKeyEventArgs>? HostKeyReceived;
 
         /// <summary>
         /// Occurs when server identification received.
         /// </summary>
-        public event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
+        public event EventHandler<SshIdentificationEventArgs>? ServerIdentificationReceived;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
@@ -193,7 +194,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(serviceFactory));
             }
 
-            ConnectionInfo = connectionInfo;
+            _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
             _keepAliveInterval = Timeout.InfiniteTimeSpan;
@@ -391,17 +392,17 @@ namespace Renci.SshNet
         {
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
         {
             ErrorOccurred?.Invoke(this, e);
         }
 
-        private void Session_HostKeyReceived(object sender, HostKeyEventArgs e)
+        private void Session_HostKeyReceived(object? sender, HostKeyEventArgs e)
         {
             HostKeyReceived?.Invoke(this, e);
         }
 
-        private void Session_ServerIdentificationReceived(object sender, SshIdentificationEventArgs e)
+        private void Session_ServerIdentificationReceived(object? sender, SshIdentificationEventArgs e)
         {
             ServerIdentificationReceived?.Invoke(this, e);
         }
@@ -432,14 +433,12 @@ namespace Renci.SshNet
 
                 Disconnect();
 
-                if (_ownsConnectionInfo && _connectionInfo is not null)
+                if (_ownsConnectionInfo)
                 {
                     if (_connectionInfo is IDisposable connectionInfoDisposable)
                     {
                         connectionInfoDisposable.Dispose();
                     }
-
-                    _connectionInfo = null;
                 }
 
                 _isDisposed = true;

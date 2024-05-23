@@ -28,8 +28,8 @@ namespace Renci.SshNet
         private EventWaitHandle _sessionErrorOccuredWaitHandle;
         private EventWaitHandle _commandCancelledWaitHandle;
         private Exception _exception;
-        private StringBuilder _result;
-        private StringBuilder _error;
+        private string _result;
+        private string _error;
         private bool _hasError;
         private bool _isDisposed;
         private bool _isCancelled;
@@ -109,21 +109,22 @@ namespace Renci.SshNet
         {
             get
             {
-                _result ??= new StringBuilder();
-
-                if (OutputStream != null && OutputStream.Length > 0)
+                if (_result is not null)
                 {
-                    using (var sr = new StreamReader(OutputStream,
-                                                     _encoding,
-                                                     detectEncodingFromByteOrderMarks: true,
-                                                     bufferSize: 1024,
-                                                     leaveOpen: true))
-                    {
-                        _ = _result.Append(sr.ReadToEnd());
-                    }
+                    return _result;
                 }
 
-                return _result.ToString();
+                if (OutputStream is null)
+                {
+                    return string.Empty;
+                }
+
+                using (var sr = new StreamReader(OutputStream,
+                                                 _encoding,
+                                                 detectEncodingFromByteOrderMarks: true))
+                {
+                    return _result = sr.ReadToEnd();
+                }
             }
         }
 
@@ -134,26 +135,22 @@ namespace Renci.SshNet
         {
             get
             {
-                if (_hasError)
+                if (_error is not null)
                 {
-                    _error ??= new StringBuilder();
-
-                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
-                    {
-                        using (var sr = new StreamReader(ExtendedOutputStream,
-                                                         _encoding,
-                                                         detectEncodingFromByteOrderMarks: true,
-                                                         bufferSize: 1024,
-                                                         leaveOpen: true))
-                        {
-                            _ = _error.Append(sr.ReadToEnd());
-                        }
-                    }
-
-                    return _error.ToString();
+                    return _error;
                 }
 
-                return string.Empty;
+                if (ExtendedOutputStream is null || !_hasError)
+                {
+                    return string.Empty;
+                }
+
+                using (var sr = new StreamReader(ExtendedOutputStream,
+                                                 _encoding,
+                                                 detectEncodingFromByteOrderMarks: true))
+                {
+                    return _error = sr.ReadToEnd();
+                }
             }
         }
 
@@ -265,19 +262,8 @@ namespace Renci.SshNet
                 throw new ArgumentException("CommandText property is empty.");
             }
 
-            var outputStream = OutputStream;
-            if (outputStream is not null)
-            {
-                outputStream.Dispose();
-                OutputStream = null;
-            }
-
-            var extendedOutputStream = ExtendedOutputStream;
-            if (extendedOutputStream is not null)
-            {
-                extendedOutputStream.Dispose();
-                ExtendedOutputStream = null;
-            }
+            OutputStream?.Dispose();
+            ExtendedOutputStream?.Dispose();
 
             // Initialize output streams
             OutputStream = new PipeStream();
@@ -285,6 +271,7 @@ namespace Renci.SshNet
 
             _result = null;
             _error = null;
+            _hasError = false;
             _callback = callback;
 
             _channel = CreateChannel();
@@ -341,13 +328,21 @@ namespace Renci.SshNet
 
                 _inputStream?.Close();
 
-                // wait for operation to complete (or time out)
-                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                try
+                {
+                    // wait for operation to complete (or time out)
+                    WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                }
+                finally
+                {
+                    UnsubscribeFromEventsAndDisposeChannel(_channel);
+                    _channel = null;
 
-                UnsubscribeFromEventsAndDisposeChannel(_channel);
-                _channel = null;
+                    OutputStream?.Dispose();
+                    ExtendedOutputStream?.Dispose();
 
-                commandAsyncResult.EndCalled = true;
+                    commandAsyncResult.EndCalled = true;
+                }
 
                 if (!_isCancelled)
                 {
@@ -437,8 +432,8 @@ namespace Renci.SshNet
 
         private void SetAsyncComplete()
         {
-            OutputStream?.Flush();
-            ExtendedOutputStream?.Flush();
+            OutputStream?.Dispose();
+            ExtendedOutputStream?.Dispose();
 
             _asyncResult.IsCompleted = true;
 
@@ -448,7 +443,7 @@ namespace Renci.SshNet
                 ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
             }
 
-            _ = ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
+            _ = ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
@@ -460,7 +455,7 @@ namespace Renci.SshNet
         {
             if (e.Info is ExitStatusRequestInfo exitStatusInfo)
             {
-                ExitStatus = (int) exitStatusInfo.ExitStatus;
+                ExitStatus = (int)exitStatusInfo.ExitStatus;
 
                 if (exitStatusInfo.WantReply)
                 {
@@ -480,11 +475,7 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
-            if (ExtendedOutputStream != null)
-            {
-                ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
-                ExtendedOutputStream.Flush();
-            }
+            ExtendedOutputStream?.Write(e.Data, 0, e.Data.Length);
 
             if (e.DataTypeCode == 1)
             {
@@ -494,11 +485,7 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            if (OutputStream != null)
-            {
-                OutputStream.Write(e.Data, 0, e.Data.Length);
-                OutputStream.Flush();
-            }
+            OutputStream?.Write(e.Data, 0, e.Data.Length);
 
             if (_asyncResult != null)
             {

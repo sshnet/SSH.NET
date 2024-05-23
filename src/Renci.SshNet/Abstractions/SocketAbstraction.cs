@@ -61,10 +61,10 @@ namespace Renci.SshNet.Abstractions
         {
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
-                {
-                    UserToken = connectCompleted,
-                    RemoteEndPoint = remoteEndpoint
-                };
+            {
+                UserToken = connectCompleted,
+                RemoteEndPoint = remoteEndpoint
+            };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Abstractions
 
             if (args.SocketError != SocketError.Success)
             {
-                var socketError = (int) args.SocketError;
+                var socketError = (int)args.SocketError;
 
                 if (ownsSocket)
                 {
@@ -374,7 +374,7 @@ namespace Renci.SshNet.Abstractions
 
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var eventWaitHandle = (ManualResetEvent) e.UserToken;
+            var eventWaitHandle = (ManualResetEvent)e.UserToken;
             _ = eventWaitHandle?.Set();
         }
     }

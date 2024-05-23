@@ -19,11 +19,19 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://tools.ietf.org/html/rfc4253#section-4.2.
     /// </remarks>
-    internal sealed class ProtocolVersionExchange : IProtocolVersionExchange
+    internal sealed partial class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
+        private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$";
 
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+#if NET7_0_OR_GREATER
+        private static readonly Regex ServerVersionRegex = GetServerVersionRegex();
+
+        [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetServerVersionRegex();
+#else
+        private static readonly Regex ServerVersionRegex = new Regex(ServerVersionPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+#endif
 
         /// <summary>
         /// Performs the SSH protocol version exchange.
@@ -57,7 +65,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRe.Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),
@@ -104,7 +112,7 @@ namespace Renci.SshNet.Connection
                     throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
-                var identificationMatch = ServerVersionRe.Match(line);
+                var identificationMatch = ServerVersionRegex.Match(line);
                 if (identificationMatch.Success)
                 {
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),

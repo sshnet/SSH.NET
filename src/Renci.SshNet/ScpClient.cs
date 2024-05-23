@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -32,11 +34,31 @@ namespace Renci.SshNet
     public partial class ScpClient : BaseClient
     {
         private const string Message = "filename";
-        private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
+        private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
+        private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
+        private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex FileInfoRegex = GetFileInfoRegex();
+        private static readonly Regex DirectoryInfoRegex = GetDirectoryInfoRegex();
+        private static readonly Regex TimestampRegex = GetTimestampRegex();
+
+        [GeneratedRegex(FileInfoPattern)]
+        private static partial Regex GetFileInfoRegex();
+
+        [GeneratedRegex(DirectoryInfoPattern)]
+        private static partial Regex GetDirectoryInfoRegex();
+
+        [GeneratedRegex(TimestampPattern)]
+        private static partial Regex GetTimestampRegex();
+#else
+        private static readonly Regex FileInfoRegex = new Regex(FileInfoPattern, RegexOptions.Compiled);
+        private static readonly Regex DirectoryInfoRegex = new Regex(DirectoryInfoPattern, RegexOptions.Compiled);
+        private static readonly Regex TimestampRegex = new Regex(TimestampPattern, RegexOptions.Compiled);
+#endif
+
         private static readonly byte[] SuccessConfirmationCode = { 0 };
         private static readonly byte[] ErrorConfirmationCode = { 1 };
-        private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)", RegexOptions.Compiled);
-        private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0", RegexOptions.Compiled);
 
         private IRemotePathTransformation _remotePathTransformation;
         private TimeSpan _operationTimeout;
@@ -107,12 +129,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when downloading file.
         /// </summary>
-        public event EventHandler<ScpDownloadEventArgs> Downloading;
+        public event EventHandler<ScpDownloadEventArgs>? Downloading;
 
         /// <summary>
         /// Occurs when uploading file.
         /// </summary>
-        public event EventHandler<ScpUploadEventArgs> Uploading;
+        public event EventHandler<ScpUploadEventArgs>? Uploading;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScpClient"/> class.
@@ -226,14 +248,21 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(Stream source, string path)
         {
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
@@ -260,11 +289,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
+            }
+
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
@@ -273,6 +308,7 @@ namespace Renci.SshNet
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
@@ -303,6 +339,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length string.</exception>
         /// <exception cref="ScpException"><paramref name="path"/> does not exist on the remote host, is not a directory or the user does not have the required permission.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo is null)
@@ -320,10 +357,16 @@ namespace Renci.SshNet
                 throw new ArgumentException("The path cannot be a zero-length string.", nameof(path));
             }
 
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // start copy with the following options:
@@ -351,6 +394,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
             if (string.IsNullOrEmpty(filename))
@@ -363,10 +407,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(fileInfo));
             }
 
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request
@@ -391,6 +441,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             if (string.IsNullOrEmpty(directoryName))
@@ -403,10 +454,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
 
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request
@@ -431,6 +488,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <see langword="null"/>.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, Stream destination)
         {
             if (string.IsNullOrWhiteSpace(filename))
@@ -443,10 +501,16 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(destination));
             }
 
+            if (Session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
                 // Send channel command request
@@ -458,7 +522,7 @@ namespace Renci.SshNet
                 SendSuccessConfirmation(channel); // Send reply
 
                 var message = ReadString(input);
-                var match = FileInfoRe.Match(message);
+                var match = FileInfoRegex.Match(message);
 
                 if (match.Success)
                 {
@@ -623,7 +687,7 @@ namespace Renci.SshNet
 
             while (b != SshNet.Session.LineFeed)
             {
-                buffer.Add((byte) b);
+                buffer.Add((byte)b);
                 b = ReadByte(stream);
             }
 
@@ -651,8 +715,8 @@ namespace Renci.SshNet
 #else
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 #endif
-            var modificationSeconds = (long) (fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
-            var accessSeconds = (long) (fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
+            var modificationSeconds = (long)(fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
+            var accessSeconds = (long)(fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
             SendData(channel, string.Format(CultureInfo.InvariantCulture, "T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
             CheckReturnCode(input);
         }
@@ -707,7 +771,7 @@ namespace Renci.SshNet
 
             do
             {
-                var read = input.Read(buffer, 0, (int) Math.Min(needToRead, BufferSize));
+                var read = input.Read(buffer, 0, (int)Math.Min(needToRead, BufferSize));
 
                 output.Write(buffer, 0, read);
 
@@ -747,17 +811,21 @@ namespace Renci.SshNet
 
                     directoryCounter--;
 
-                    currentDirectoryFullName = new DirectoryInfo(currentDirectoryFullName).Parent.FullName;
-
                     if (directoryCounter == 0)
                     {
                         break;
                     }
 
+                    var currentDirectoryParent = new DirectoryInfo(currentDirectoryFullName).Parent;
+
+                    Debug.Assert(currentDirectoryParent is not null, $"Should be {directoryCounter.ToString(CultureInfo.InvariantCulture)} levels deeper than {startDirectoryFullName}.");
+
+                    currentDirectoryFullName = currentDirectoryParent.FullName;
+
                     continue;
                 }
 
-                var match = DirectoryInfoRe.Match(message);
+                var match = DirectoryInfoRegex.Match(message);
                 if (match.Success)
                 {
                     SendSuccessConfirmation(channel); // Send reply
@@ -775,7 +843,7 @@ namespace Renci.SshNet
                     else
                     {
                         // Don't create directory for first level
-                        newDirectoryInfo = fileSystemInfo as DirectoryInfo;
+                        newDirectoryInfo = (DirectoryInfo)fileSystemInfo;
                     }
 
                     directoryCounter++;
@@ -784,7 +852,7 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = FileInfoRe.Match(message);
+                match = FileInfoRegex.Match(message);
                 if (match.Success)
                 {
                     // Read file
@@ -814,7 +882,7 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = TimestampRe.Match(message);
+                match = TimestampRegex.Match(message);
                 if (match.Success)
                 {
                     // Read timestamp

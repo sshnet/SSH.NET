@@ -15,7 +15,10 @@ namespace Renci.SshNet.Tests.Classes
     {
         protected override void Act()
         {
+            using ManualResetEventSlim clientDisconnected = new ManualResetEventSlim(false);
+            ServerListener.Disconnected += (socket) => clientDisconnected.Set();
             Session.Disconnect();
+            clientDisconnected.Wait(10000);
         }
 
         [TestMethod]
@@ -95,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
@@ -104,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_SendMessageShouldThrowSshConnectionException()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             try
             {
@@ -122,7 +125,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
 
             var actual = session.TrySendMessage(new IgnoreMessage());
 
@@ -132,7 +135,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -151,7 +154,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -170,7 +173,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
@@ -181,7 +184,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
-            var session = (ISession) Session;
+            var session = (ISession)Session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out var exception);

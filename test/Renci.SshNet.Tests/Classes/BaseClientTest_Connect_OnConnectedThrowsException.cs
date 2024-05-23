@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
@@ -48,9 +51,9 @@ namespace Renci.SshNet.Tests.Classes
             base.Arrange();
 
             _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object)
-                {
-                    OnConnectedException = _onConnectException
-                };
+            {
+                OnConnectedException = _onConnectException
+            };
         }
 
         protected override void Act()
@@ -139,7 +142,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var s = TestBase.GetData("Key.RSA.txt"))
             {
                 var privateKey = new PrivateKeyFile(s);
-                return (KeyHostAlgorithm) privateKey.HostKeyAlgorithms.First();
+                return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }
         }
 

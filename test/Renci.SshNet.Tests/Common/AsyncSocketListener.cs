@@ -1,8 +1,10 @@
-﻿using System;
+﻿#pragma warning disable IDE0005 // Using directive is unnecessary; IntegrationTests use implicit usings
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+#pragma warning restore IDE0005
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -185,7 +187,7 @@ namespace Renci.SshNet.Tests.Common
 
             try
             {
-                _ =handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
             catch (SocketException ex)
             {
@@ -232,11 +234,7 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 // Read data from the client socket.
-                bytesRead = handler.EndReceive(ar, out var errorCode);
-                if (errorCode != SocketError.Success)
-                {
-                    bytesRead = 0;
-                }
+                bytesRead = handler.EndReceive(ar);
             }
             catch (SocketException ex)
             {
@@ -288,7 +286,11 @@ namespace Renci.SshNet.Tests.Common
 
                         try
                         {
-                            handler.Shutdown(SocketShutdown.Send);
+                            if (handler.Connected)
+                            {
+                                handler.Shutdown(SocketShutdown.Send);
+                            }
+
                             handler.Close();
                         }
                         catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
@@ -385,7 +387,7 @@ namespace Renci.SshNet.Tests.Common
         {
             public Socket Socket { get; private set; }
 
-            public readonly byte[] Buffer = new byte[1024];
+            public readonly byte[] Buffer = new byte[2048];
 
             public SocketStateObject(Socket handler)
             {

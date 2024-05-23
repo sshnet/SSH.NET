@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
-using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -32,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                _ =PacketDump.Create(data, -1);
+                _ = PacketDump.Create(data, -1);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)

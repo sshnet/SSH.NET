@@ -64,7 +64,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            Write((uint) Responses.Count);
+            Write((uint)Responses.Count);
 
             foreach (var response in Responses)
             {

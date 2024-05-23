@@ -5,13 +5,11 @@ using Renci.SshNet.Connection;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected_ServerIdentificationReceived : SessionTest_ConnectedBase
+    public class SessionTest_Connecting_ServerIdentificationReceived : SessionTest_ConnectingBase
     {
         protected override void SetupData()
         {
             base.SetupData();
-
-            CallSessionConnectWhenArrange = false;
 
             Session.ServerIdentificationReceived += (s, e) =>
             {
@@ -22,10 +20,6 @@ namespace Renci.SshNet.Tests.Classes
                     _ = ConnectionInfo.KeyExchangeAlgorithms.Remove("curve25519-sha256@libssh.org");
                 }
             };
-        }
-
-        protected override void Act()
-        {
         }
 
         [TestMethod]

@@ -43,13 +43,13 @@ namespace Renci.SshNet.Connection
                 };
             SocketAbstraction.Send(socket, greeting);
 
-            var socksVersion = SocketReadByte(socket);
+            var socksVersion = SocketReadByte(socket, connectionInfo.Timeout);
             if (socksVersion != 0x05)
             {
                 throw new ProxyException(string.Format("SOCKS Version '{0}' is not supported.", socksVersion));
             }
 
-            var authenticationMethod = SocketReadByte(socket);
+            var authenticationMethod = SocketReadByte(socket, connectionInfo.Timeout);
             switch (authenticationMethod)
             {
                 case 0x00:
@@ -82,17 +82,17 @@ namespace Renci.SshNet.Connection
                     throw new ProxyException($"SOCKS5: Chosen authentication method '0x{authenticationMethod:x2}' is not supported.");
             }
 
-            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
+            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port);
             SocketAbstraction.Send(socket, connectionRequest);
 
             // Read Server SOCKS5 version
-            if (SocketReadByte(socket) != 5)
+            if (SocketReadByte(socket, connectionInfo.Timeout) != 5)
             {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
             }
 
             // Read response code
-            var status = SocketReadByte(socket);
+            var status = SocketReadByte(socket, connectionInfo.Timeout);
 
             switch (status)
             {
@@ -119,21 +119,21 @@ namespace Renci.SshNet.Connection
             }
 
             // Read reserved byte
-            if (SocketReadByte(socket) != 0)
+            if (SocketReadByte(socket, connectionInfo.Timeout) != 0)
             {
                 throw new ProxyException("SOCKS5: 0 byte is expected.");
             }
 
-            var addressType = SocketReadByte(socket);
+            var addressType = SocketReadByte(socket, connectionInfo.Timeout);
             switch (addressType)
             {
                 case 0x01:
                     var ipv4 = new byte[4];
-                    _ = SocketRead(socket, ipv4, 0, 4);
+                    _ = SocketRead(socket, ipv4, 0, 4, connectionInfo.Timeout);
                     break;
                 case 0x04:
                     var ipv6 = new byte[16];
-                    _ =SocketRead(socket, ipv6, 0, 16);
+                    _ = SocketRead(socket, ipv6, 0, 16, connectionInfo.Timeout);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -142,7 +142,7 @@ namespace Renci.SshNet.Connection
             var port = new byte[2];
 
             // Read 2 bytes to be ignored
-            _ = SocketRead(socket, port, 0, 2);
+            _ = SocketRead(socket, port, 0, 2, connectionInfo.Timeout);
         }
 
         /// <summary>
@@ -181,17 +181,17 @@ namespace Renci.SshNet.Connection
             authenticationRequest[index++] = 0x01;
 
             // Length of the username
-            authenticationRequest[index++] = (byte) username.Length;
+            authenticationRequest[index++] = (byte)username.Length;
 
             // Username
             _ = SshData.Ascii.GetBytes(username, 0, username.Length, authenticationRequest, index);
             index += username.Length;
 
             // Length of the password
-            authenticationRequest[index++] = (byte) password.Length;
+            authenticationRequest[index++] = (byte)password.Length;
 
             // Password
-            _ =SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
+            _ = SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
 
             return authenticationRequest;
         }

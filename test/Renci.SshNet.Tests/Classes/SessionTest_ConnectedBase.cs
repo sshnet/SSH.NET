@@ -46,8 +46,7 @@ namespace Renci.SshNet.Tests.Classes
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
-        internal SshIdentification ServerIdentification { get; set; }
-        protected bool CallSessionConnectWhenArrange { get; set; }
+        protected SshIdentification ServerIdentification { get; private set; }
 
         /// <summary>
         /// Should the "server" wait for the client kexinit before sending its own.
@@ -100,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
+            { Timeout = TimeSpan.FromSeconds(20) };
             _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
@@ -133,9 +132,9 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint)
-                {
-                    ShutdownRemoteCommunicationSocket = false
-                };
+            {
+                ShutdownRemoteCommunicationSocket = false
+            };
             ServerListener.Connected += socket =>
                 {
                     ServerSocket = socket;
@@ -162,8 +161,6 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Start();
 
             ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
-
-            CallSessionConnectWhenArrange = true;
 
             void SendKeyExchangeInit()
             {
@@ -204,33 +201,41 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                            .Returns(() => ServerIdentification);
+                                            .Returns(ServerIdentification);
             _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
             _ = _keyExchangeMock.Setup(p => p.Name)
                                 .Returns(_keyExchangeAlgorithm);
             _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
-            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())
-                                .Returns((Cipher) null);
-            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
-                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool serverAead) =>
+                                {
+                                    serverAead = false;
+                                    return (Cipher)null;
+                                });
+            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool clientAead) =>
+                                {
+                                    clientAead = false;
+                                    return (Cipher)null;
+                                });
             _ = _keyExchangeMock.Setup(p => p.CreateServerHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool serverEtm) =>
                                 {
                                     serverEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
                                 .Returns((ref bool clientEtm) =>
                                 {
                                     clientEtm = false;
-                                    return (HashAlgorithm) null;
+                                    return (HashAlgorithm)null;
                                 });
             _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
                                   .Callback(ClientAuthentication_Callback)
@@ -244,10 +249,7 @@ namespace Renci.SshNet.Tests.Classes
             SetupData();
             SetupMocks();
 
-            if (CallSessionConnectWhenArrange)
-            {
-                Session.Connect();
-            }
+            Session.Connect();
         }
 
         protected virtual void ClientAuthentication_Callback()

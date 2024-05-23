@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 
 # Build outputs
 build/target/
+
+# Docs
+docfx/_site/
+docfx/api/

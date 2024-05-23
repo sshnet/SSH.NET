@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -38,7 +40,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Small()
         {
-            var value = new[] {0, 1, 4, 3, 7, 9};
+            var value = new[] { 0, 1, 4, 3, 7, 9 };
 
             var actual = Extensions.Reverse(value);
 

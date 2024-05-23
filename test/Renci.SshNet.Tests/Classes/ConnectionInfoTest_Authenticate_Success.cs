@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes

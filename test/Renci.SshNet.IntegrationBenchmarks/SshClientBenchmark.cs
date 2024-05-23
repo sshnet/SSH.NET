@@ -73,6 +73,18 @@ namespace Renci.SshNet.IntegrationBenchmarks
         }
 
         [Benchmark]
+        public string RunBigCommand()
+        {
+            using var command = _sshClient!.CreateCommand("head -c 10000000 /dev/urandom | base64"); // 10MB of data please
+
+            var asyncResult = command.BeginExecute();
+
+            command.OutputStream.CopyTo(Stream.Null);
+
+            return command.EndExecute(asyncResult);
+        }
+
+        [Benchmark]
         public string ShellStreamReadLine()
         {
             using (var shellStream = _sshClient!.CreateShellStream("xterm", 80, 24, 800, 600, 1024, ShellStreamTerminalModes))

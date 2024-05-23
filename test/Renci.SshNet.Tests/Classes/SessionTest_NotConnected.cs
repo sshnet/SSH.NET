@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendMessageShouldThrowShhConnectionException()
+        public void SendMessageShouldThrowSshConnectionException()
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
@@ -133,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
             var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out var exception);
@@ -145,23 +145,23 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_ConnectionInfoShouldReturnConnectionInfoPassedThroughConstructor()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
             Assert.AreSame(_connectionInfo, session.ConnectionInfo);
         }
 
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne(0));
         }
 
         [TestMethod]
-        public void ISession_SendMessageShouldThrowShhConnectionException()
+        public void ISession_SendMessageShouldThrowSshConnectionException()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
 
             try
             {
@@ -179,7 +179,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
-            var session = (ISession) _session;
+            var session = (ISession)_session;
 
             var actual = session.TrySendMessage(new IgnoreMessage());
 
@@ -190,7 +190,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandle_WaitHandle_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
             const WaitHandle waitHandle = null;
-            var session = (ISession) _session;
+            var session = (ISession)_session;
 
             try
             {
@@ -208,7 +208,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
             const WaitHandle waitHandle = null;
-            var session = (ISession) _session;
+            var session = (ISession)_session;
 
             try
             {
@@ -225,9 +225,9 @@ namespace Renci.SshNet.Tests.Classes
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
             return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
-                {
-                    Timeout = timeout
-                };
+            {
+                Timeout = timeout
+            };
         }
     }
 }

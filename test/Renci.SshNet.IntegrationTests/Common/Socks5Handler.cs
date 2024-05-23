@@ -45,7 +45,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
             var addressBytes = new byte[host.Length + 2];
             addressBytes[0] = 0x03;
-            addressBytes[1] = (byte) host.Length;
+            addressBytes[1] = (byte)host.Length;
             Encoding.ASCII.GetBytes(host, 0, host.Length, addressBytes, 2);
             return Connect(addressBytes, port);
         }
@@ -87,7 +87,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                     }
 
                     //  Send username length
-                    SocketWriteByte(socket, (byte) username.Length);
+                    SocketWriteByte(socket, (byte)username.Length);
 
                     //  Send username
                     SocketAbstraction.Send(socket, username);
@@ -100,7 +100,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                     }
 
                     //  Send username length
-                    SocketWriteByte(socket, (byte) password.Length);
+                    SocketWriteByte(socket, (byte)password.Length);
 
                     //  Send username
                     SocketAbstraction.Send(socket, password);

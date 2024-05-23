@@ -1,4 +1,4 @@
-﻿ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
+ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -7,25 +7,21 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 [![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
 
 ## Introduction
+
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported
 for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism
 to achieve the best performance possible.
 
 ## Documentation
-There is MSDN-style class documentation in a .chm file for each release, which you can find in the Assets section
-of the [latest release](https://github.com/sshnet/SSH.NET/releases/latest) page.  Please note that you will need
-to [right-click and "unblock"](https://support.microsoft.com/en-us/help/2021383/some-chm-files-may-not-render-properly-on-windows-vista-and-windows-7)
-the CHM file after you download it.
 
-Currently (4/18/2020), the documentation is very sparse.  Fortunately, there are a large number of tests in
-[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/test/Renci.SshNet.Tests) that demonstrate
-usage with working code.
-
+Documentation is hosted at https://sshnet.github.io/SSH.NET/. Currently (4/18/2020), the documentation is very sparse.
+Fortunately, there are a large number of [tests](https://github.com/sshnet/SSH.NET/tree/develop/test/) that demonstrate usage with working code.
 If the test for the functionality you would like to see documented is not complete, then you are cordially
 invited to read the source, Luke, and highly encouraged to generate a pull request for the implementation of
 the missing test once you figure things out.  🤓
 
 ## Features
+
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 
 * Provide SFTP functionality for both synchronous and asynchronous operations
@@ -42,11 +38,15 @@ the missing test once you figure things out.  🤓
 ## Encryption Method
 
 **SSH.NET** supports the following encryption methods:
+* aes128-ctr
+* aes192-ctr
 * aes256-ctr
-* 3des-cbc
+* aes128-gcm<span></span>@openssh.com (.NET 6 and higher)
+* aes256-gcm<span></span>@openssh.com (.NET 6 and higher)
 * aes128-cbc
 * aes192-cbc
 * aes256-cbc
+* 3des-cbc
 * blowfish-cbc
 * twofish-cbc
 * twofish192-cbc
@@ -56,8 +56,6 @@ the missing test once you figure things out.  🤓
 * arcfour128
 * arcfour256
 * cast128-cbc
-* aes128-ctr
-* aes192-ctr
 
 ## Key Exchange Method
 
@@ -77,10 +75,10 @@ the missing test once you figure things out.  🤓
 ## Public Key Authentication
 
 **SSH.NET** supports the following private key formats:
-* RSA in OpenSSL PEM and ssh.com format
-* DSA in OpenSSL PEM and ssh.com format
-* ECDSA 256/384/521 in OpenSSL PEM format
-* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format
+* RSA in OpenSSL PEM ("BEGIN RSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
+* DSA in OpenSSL PEM ("BEGIN DSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
+* ECDSA 256/384/521 in OpenSSL PEM format ("BEGIN EC PRIVATE KEY")
+* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 
 Private keys can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
@@ -105,22 +103,29 @@ Private keys can be encrypted using one of the following cipher methods:
 ## Message Authentication Code
 
 **SSH.NET** supports the following MAC algorithms:
-* hmac-md5
-* hmac-md5-96
-* hmac-sha1
-* hmac-sha1-96
 * hmac-sha2-256
-* hmac-sha2-256-96
 * hmac-sha2-512
 * hmac-sha2-512-96
-* hmac-md5-etm<span></span>@openssh.com
-* hmac-md5-96-etm<span></span>@openssh.com
-* hmac-sha1-etm<span></span>@openssh.com
-* hmac-sha1-96-etm<span></span>@openssh.com
+* hmac-sha2-256-96
+* hmac-sha1
+* hmac-sha1-96
+* hmac-md5
+* hmac-md5-96
 * hmac-sha2-256-etm<span></span>@openssh.com
 * hmac-sha2-512-etm<span></span>@openssh.com
+* hmac-sha1-etm<span></span>@openssh.com
+* hmac-sha1-96-etm<span></span>@openssh.com
+* hmac-md5-etm<span></span>@openssh.com
+* hmac-md5-96-etm<span></span>@openssh.com
+
+## Compression
+
+**SSH.NET** supports the following compression algorithms:
+* none (default)
+* zlib<span></span>@openssh.com (.NET 6 and higher)
 
 ## Framework Support
+
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
 * .NET Standard 2.0 and 2.1
@@ -160,6 +165,10 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
     client.Connect();
 }
 ```
+
+## Building the library
+
+The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
 
 ## Supporting SSH.NET
 

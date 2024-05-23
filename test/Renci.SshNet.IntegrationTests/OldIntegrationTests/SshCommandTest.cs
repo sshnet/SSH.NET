@@ -326,19 +326,17 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var callbackCalled = false;
+                using var callbackCalled = new ManualResetEventSlim();
 
-                var cmd = client.CreateCommand("sleep 5s; echo 'test'");
+                using var cmd = client.CreateCommand("sleep 5s; echo 'test'");
                 var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
                 {
-                    callbackCalled = true;
+                    callbackCalled.Set();
                 }), null);
 
                 cmd.EndExecute(asyncResult);
 
-                Thread.Sleep(100);
-
-                Assert.IsTrue(callbackCalled);
+                Assert.IsTrue(callbackCalled.Wait(TimeSpan.FromSeconds(1)));
 
                 client.Disconnect();
             }
@@ -353,16 +351,18 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var currentThreadId = Thread.CurrentThread.ManagedThreadId;
                 int callbackThreadId = 0;
+                using var callbackCalled = new ManualResetEventSlim();
 
-                var cmd = client.CreateCommand("sleep 5s; echo 'test'");
+                using var cmd = client.CreateCommand("sleep 5s; echo 'test'");
                 var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
                 {
                     callbackThreadId = Thread.CurrentThread.ManagedThreadId;
+                    callbackCalled.Set();
                 }), null);
 
                 cmd.EndExecute(asyncResult);
 
-                Thread.Sleep(100);
+                Assert.IsTrue(callbackCalled.Wait(TimeSpan.FromSeconds(1)));
 
                 Assert.AreNotEqual(currentThreadId, callbackThreadId);
 

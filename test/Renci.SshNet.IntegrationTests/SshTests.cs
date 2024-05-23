@@ -4,6 +4,7 @@ using System.Net.Sockets;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.IntegrationTests
 {
@@ -86,12 +87,12 @@ namespace Renci.SshNet.IntegrationTests
             const string remoteFile = "/home/sshnet/test.sh";
 
             List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                          "Line 5 ",
-                                          "Line 6",
-                                          "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
+                "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 5 ",
+                "Line 6",
+                "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -171,7 +172,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_Command_IntermittendOutput_EndExecute()
+        public void Ssh_Command_IntermittentOutput_EndExecute()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -228,16 +229,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        /// <summary>
-        /// Ignored for now, because:
-        /// * OutputStream.Read(...) does not block when no data is available
-        /// * SshCommand.(Begin)Execute consumes *OutputStream*, advancing its position.
-        /// 
-        /// https://github.com/sshnet/SSH.NET/issues/650
-        /// </summary>
         [TestMethod]
-        [Ignore]
-        public void Ssh_Command_IntermittendOutput_OutputStream()
+        public void Ssh_Command_IntermittentOutput_OutputStream()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -296,8 +289,16 @@ namespace Renci.SshNet.IntegrationTests
 
                         var actualResult = command.EndExecute(asyncResult);
 
-                        Assert.AreEqual(expectedResult, actualResult);
-                        Assert.AreEqual(expectedResult, command.Result);
+                        // command.Result (also returned from EndExecute) consumes OutputStream,
+                        // which we've already read from, so Result will be empty.
+                        // TODO consider the suggested changes in https://github.com/sshnet/SSH.NET/issues/650
+
+                        //Assert.AreEqual(expectedResult, actualResult);
+                        //Assert.AreEqual(expectedResult, command.Result);
+
+                        // For now just assert the current behaviour.
+                        Assert.AreEqual(0, actualResult.Length);
+                        Assert.AreEqual(0, command.Result.Length);
                     }
                 }
                 finally
@@ -491,7 +492,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                            var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                             httpRequest.Host = hostName;
                             httpRequest.Method = "GET";
                             httpRequest.AllowAutoRedirect = false;
@@ -560,7 +561,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                        var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                         httpRequest.Host = hostName;
                         httpRequest.Method = "GET";
                         httpRequest.Accept = "text/html";
@@ -940,7 +941,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
+
                 using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
                 {
                     sw.Write(script);

@@ -33,8 +33,8 @@ namespace Renci.SshNet.Tests.Classes
 
             _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, SocketFactoryMock.Object))
                                    .Returns(ConnectorMock.Object);
-           _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
-                             .Throws(_connectException);
+            _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
+                              .Throws(_connectException);
         }
 
         protected override void Act()
@@ -87,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendMessageShouldThrowShhConnectionException()
+        public void SendMessageShouldThrowSshConnectionException()
         {
             try
             {
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_SendMessageShouldThrowShhConnectionException()
+        public void ISession_SendMessageShouldThrowSshConnectionException()
         {
             var session = (ISession)_session;
 
@@ -255,9 +255,9 @@ namespace Renci.SshNet.Tests.Classes
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
             return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
-                {
-                    Timeout = timeout
-                };
+            {
+                Timeout = timeout
+            };
         }
     }
 }

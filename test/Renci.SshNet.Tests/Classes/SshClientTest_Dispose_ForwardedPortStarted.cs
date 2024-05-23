@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 
 namespace Renci.SshNet.Tests.Classes
@@ -76,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var connected = _sshClient.IsConnected;
                 Assert.Fail("IsConnected should have thrown {0} but returned {1}.",
-                    typeof (ObjectDisposedException).FullName, connected);
+                    typeof(ObjectDisposedException).FullName, connected);
             }
             catch (ObjectDisposedException)
             {

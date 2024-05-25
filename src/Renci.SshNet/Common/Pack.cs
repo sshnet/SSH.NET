@@ -33,13 +33,24 @@ namespace Renci.SshNet.Common
         /// <returns>Converted <see cref="uint" />.</returns>
         internal static uint LittleEndianToUInt32(byte[] buffer)
         {
+            return LittleEndianToUInt32(buffer, offset: 0);
+        }
+
+        /// <summary>
+        /// Converts little endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        /// <returns>Converted <see cref="uint" />.</returns>
+        internal static uint LittleEndianToUInt32(byte[] buffer, int offset)
+        {
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            return BinaryPrimitives.ReadUInt32LittleEndian(buffer);
+            return BinaryPrimitives.ReadUInt32LittleEndian(buffer.AsSpan(offset));
 #else
-            uint n = buffer[0];
-            n |= (uint)buffer[1] << 8;
-            n |= (uint)buffer[2] << 16;
-            n |= (uint)buffer[3] << 24;
+            uint n = buffer[offset++];
+            n |= (uint)buffer[offset++] << 8;
+            n |= (uint)buffer[offset++] << 16;
+            n |= (uint)buffer[offset] << 24;
             return n;
 #endif
         }
@@ -99,7 +110,7 @@ namespace Renci.SshNet.Common
         internal static byte[] UInt32ToLittleEndian(uint value)
         {
             var buffer = new byte[4];
-            UInt32ToLittleEndian(value, buffer);
+            UInt32ToLittleEndian(value, buffer, offset: 0);
             return buffer;
         }
 
@@ -108,15 +119,16 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <param name="buffer">The buffer.</param>
-        private static void UInt32ToLittleEndian(uint value, byte[] buffer)
+        /// <param name="offset">The buffer offset.</param>
+        internal static void UInt32ToLittleEndian(uint value, byte[] buffer, int offset)
         {
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            BinaryPrimitives.WriteUInt32LittleEndian(buffer, value);
+            BinaryPrimitives.WriteUInt32LittleEndian(buffer.AsSpan(offset), value);
 #else
-            buffer[0] = (byte)(value & 0x000000FF);
-            buffer[1] = (byte)((value & 0x0000FF00) >> 8);
-            buffer[2] = (byte)((value & 0x00FF0000) >> 16);
-            buffer[3] = (byte)((value & 0xFF000000) >> 24);
+            buffer[offset++] = (byte)(value & 0x000000FF);
+            buffer[offset++] = (byte)((value & 0x0000FF00) >> 8);
+            buffer[offset++] = (byte)((value & 0x00FF0000) >> 16);
+            buffer[offset] = (byte)((value & 0xFF000000) >> 24);
 #endif
         }
 

@@ -9,20 +9,18 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// AES GCM cipher implementation.
-    /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
+    /// ChaCha20Poly1305 cipher implementation.
+    /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00"/>.
     /// </summary>
-    internal sealed class AesGcmCipher : StreamCipher, IDisposable
+    internal sealed class ChaCha20Poly1305Cipher : SymmetricCipher, IDisposable
     {
-        private readonly byte[] _iv;
-        private readonly AesGcm _aesGcm;
+        private readonly ChaCha20Poly1305 _chacha20poly1305;
+
+        private readonly byte[] _sequenceNumber = new byte[12];
+        private ChaCha20Cipher _aadCipher;
 
         /// <summary>
         /// Gets the minimun block size.
-        /// The reader is reminded that SSH requires that the data to be
-        /// encrypted MUST be padded out to a multiple of the block size
-        /// (16-octets for AES-GCM).
-        /// <see href="https://datatracker.ietf.org/doc/html/rfc5647#section-7.1"/>.
         /// </summary>
         public override byte MinimumSize
         {
@@ -34,9 +32,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         /// <summary>
         /// Gets the tag size in bytes.
-        /// Both AEAD_AES_128_GCM and AEAD_AES_256_GCM produce a 16-octet
-        /// Authentication Tag
-        /// <see href="https://datatracker.ietf.org/doc/html/rfc5647#section-6.3"/>.
+        /// Poly1305 [Poly1305], also by Daniel Bernstein, is a one-time Carter-
+        /// Wegman MAC that computes a 128 bit integrity tag given a message
+        /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00#section-1"/>.
         /// </summary>
         public override int TagSize
         {
@@ -47,20 +45,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AesGcmCipher"/> class.
+        /// Initializes a new instance of the <see cref="ChaCha20Poly1305Cipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="iv">The IV.</param>
-        public AesGcmCipher(byte[] key, byte[] iv)
+        public ChaCha20Poly1305Cipher(byte[] key)
             : base(key)
         {
-            // SSH AES-GCM requires a 12-octet Initial IV
-            _iv = iv.Take(12);
-#if NET8_0_OR_GREATER
-            _aesGcm = new AesGcm(key, TagSize);
-#else
-            _aesGcm = new AesGcm(key);
-#endif
+            _chacha20poly1305 = new ChaCha20Poly1305(key.AsSpan(0, 32));
         }
 
         /// <summary>
@@ -84,29 +75,33 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
+            var packetLengthField = _aadCipher.Encrypt(input, offset, 4);
             var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
 
             var output = new byte[length + TagSize];
-            packetLengthField.CopyTo(output);
+            Array.Copy(packetLengthField, output, 4);
             var cipherText = new Span<byte>(output, 4, length - 4);
             var tag = new Span<byte>(output, length, TagSize);
 
-            _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
-
-            IncrementCounter();
+            _chacha20poly1305.Encrypt(nonce: _sequenceNumber, plainText, cipherText, tag, associatedData: packetLengthField);
 
             return output;
+        }
+
+        public override void SetSequenceNumber(uint sequenceNumber)
+        {
+            BinaryPrimitives.WriteUInt64BigEndian(_sequenceNumber, sequenceNumber);
+            _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);
         }
 
         /// <summary>
         /// Decrypts the first block which is packet length field.
         /// </summary>
-        /// <param name="input">The packet length field.</param>
-        /// <returns>The raw packet length field.</returns>
+        /// <param name="input">The encrpted packet length field.</param>
+        /// <returns>The decrypted packet length field.</returns>
         public override byte[] Decrypt(byte[] input)
         {
-            return input;
+            return _aadCipher.Decrypt(input);
         }
 
         /// <summary>
@@ -139,25 +134,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var output = new byte[length];
             var plainText = new Span<byte>(output);
 
-            _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
-
-            IncrementCounter();
+            _chacha20poly1305.Decrypt(nonce: _sequenceNumber, cipherText, tag, plainText, associatedData: packetLengthField);
 
             return output;
-        }
-
-        /// <summary>
-        /// With AES-GCM, the 12-octet IV is broken into two fields: a 4-octet
-        /// fixed field and an 8 - octet invocation counter field.The invocation
-        /// field is treated as a 64 - bit integer and is incremented after each
-        /// invocation of AES - GCM to process a binary packet.
-        /// <see href="https://datatracker.ietf.org/doc/html/rfc5647#section-7.1"/>.
-        /// </summary>
-        private void IncrementCounter()
-        {
-            var invocationCounter = new Span<byte>(_iv, 4, 8);
-            var count = BinaryPrimitives.ReadUInt64BigEndian(invocationCounter);
-            BinaryPrimitives.WriteUInt64BigEndian(invocationCounter, count + 1);
         }
 
         /// <summary>
@@ -168,7 +147,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (disposing)
             {
-                _aesGcm.Dispose();
+                _chacha20poly1305.Dispose();
             }
         }
 

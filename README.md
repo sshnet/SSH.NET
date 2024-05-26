@@ -38,6 +38,7 @@ the missing test once you figure things out.  🤓
 ## Encryption Method
 
 **SSH.NET** supports the following encryption methods:
+* chacha20-poly1305<span></span>@openssh.com (.NET 6 and higher)
 * aes128-ctr
 * aes192-ctr
 * aes256-ctr

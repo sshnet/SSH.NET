@@ -14,6 +14,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const uint ChachaConst2 = 0x79622d32;
         private const uint ChachaConst3 = 0x6b206574;
 
+        private readonly byte[] _keyStream = new byte[64];
+        private int _index;
+
         private uint _s00;
         private uint _s01;
         private uint _s02;
@@ -58,10 +61,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if (keySize is not 256)
             {
-                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize), nameof(key));
             }
 
-            SetState(key, nonce.Take(12), counter);
+            if (nonce is null)
+            {
+                throw new ArgumentNullException(nameof(nonce));
+            }
+
+            var nonceSize = nonce.Length * 8;
+
+            if (nonceSize is not 96)
+            {
+                throw new ArgumentNullException(string.Format("NonceSize '{0}' is not valid for this algorithm.", nonceSize), nameof(nonce));
+            }
+
+            SetState(key, nonce, counter);
         }
 
         /// <summary>
@@ -94,7 +109,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return Encrypt(input, offset, length);
         }
 
-        private void AdvanceCounter()
+        private void IncrementCounter()
         {
             unchecked
             {
@@ -117,19 +132,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("output buffer too short");
             }
 
-            var index = 0;
-            var keyStream = new byte[64];
-
             for (var i = 0; i < inputCount; i++)
             {
-                if (index == 0)
+                if (_index == 0)
                 {
-                    GenerateKeyStream(keyStream);
-                    AdvanceCounter();
+                    GenerateKeyStream(_keyStream);
+                    IncrementCounter();
                 }
 
-                outputBuffer[outputOffset + i] = (byte)(keyStream[index++] ^ inputBuffer[inputOffset + i]);
-                index &= 63;
+                outputBuffer[outputOffset + i] = (byte)(_keyStream[_index++] ^ inputBuffer[inputOffset + i]);
+                _index &= 63;
             }
 
             return inputCount;

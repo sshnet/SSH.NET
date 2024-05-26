@@ -1058,6 +1058,7 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
+                    _clientCipher.SetSequenceNumber(_outboundPacketSequence);
                     if (_clientEtm)
                     {
                         // The length of the "packet length" field in bytes
@@ -1245,9 +1246,14 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null && !_serverAead && (_serverMac == null || !_serverEtm))
+                if (_serverCipher != null)
                 {
-                    firstBlock = _serverCipher.Decrypt(firstBlock);
+                    _serverCipher.SetSequenceNumber(_inboundPacketSequence);
+
+                    if (_serverMac == null || !_serverEtm)
+                    {
+                        firstBlock = _serverCipher.Decrypt(firstBlock);
+                    }
                 }
 
                 packetLength = Pack.BigEndianToUInt32(firstBlock);

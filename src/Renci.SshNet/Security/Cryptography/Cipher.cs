@@ -23,6 +23,14 @@
         public virtual int TagSize { get; }
 
         /// <summary>
+        /// Sets the sequence numbner.
+        /// </summary>
+        /// <param name="sequenceNumber">The sequence number.</param>
+        public virtual void SetSequenceNumber(uint sequenceNumber)
+        {
+        }
+
+        /// <summary>
         /// Encrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
@@ -50,7 +58,7 @@
         /// <returns>
         /// The decrypted data.
         /// </returns>
-        public byte[] Decrypt(byte[] input)
+        public virtual byte[] Decrypt(byte[] input)
         {
             return Decrypt(input, 0, input.Length);
         }

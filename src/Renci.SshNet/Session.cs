@@ -19,7 +19,6 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
-using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet
 {
@@ -1251,7 +1250,11 @@ namespace Renci.SshNet
                 plainFirstBlock = firstBlock;
 
                 // First block is not encrypted in AES GCM mode.
-                if (_serverCipher is not null and not AesGcmCipher)
+                if (_serverCipher is not null
+#if NET6_0_OR_GREATER
+        and not Security.Cryptography.Ciphers.AesGcmCipher 
+#endif
+                    )
                 {
                     _serverCipher.SetSequenceNumber(_inboundPacketSequence);
 

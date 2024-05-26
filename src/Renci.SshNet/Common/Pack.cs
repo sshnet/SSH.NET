@@ -205,14 +205,7 @@ namespace Renci.SshNet.Common
             return buffer;
         }
 
-        internal static byte[] UInt64ToBigEndian(ulong value)
-        {
-            var buffer = new byte[8];
-            UInt64ToBigEndian(value, buffer, offset: 0);
-            return buffer;
-        }
-
-        private static void UInt64ToBigEndian(ulong value, byte[] buffer, int offset)
+        internal static void UInt64ToBigEndian(ulong value, byte[] buffer, int offset)
         {
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(offset), value);

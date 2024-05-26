@@ -100,16 +100,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Decrypts the first block which is packet length field.
-        /// </summary>
-        /// <param name="input">The packet length field.</param>
-        /// <returns>The raw packet length field.</returns>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return input;
-        }
-
-        /// <summary>
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">

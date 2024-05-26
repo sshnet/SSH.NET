@@ -1,10 +1,9 @@
-﻿#if NET6_0_OR_GREATER
-using System;
-using System.Buffers.Binary;
+﻿using System;
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security.Chaos.NaCl.Internal;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -12,12 +11,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// ChaCha20Poly1305 cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00"/>.
     /// </summary>
-    internal sealed class ChaCha20Poly1305Cipher : SymmetricCipher, IDisposable
+    internal sealed class ChaCha20Poly1305Cipher : StreamCipher
     {
-        private readonly ChaCha20Poly1305 _chacha20poly1305;
-
         private readonly byte[] _sequenceNumber = new byte[12];
         private ChaCha20Cipher _aadCipher;
+        private ChaCha20Cipher _cipher;
+        private byte[] _polyKeyBytes;
+        private Array8<uint> _polyKey;
 
         /// <summary>
         /// Gets the minimun block size.
@@ -51,7 +51,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public ChaCha20Poly1305Cipher(byte[] key)
             : base(key)
         {
-            _chacha20poly1305 = new ChaCha20Poly1305(key.AsSpan(0, 32));
         }
 
         /// <summary>
@@ -75,29 +74,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var packetLengthField = _aadCipher.Encrypt(input, offset, 4);
-            var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
-
             var output = new byte[length + TagSize];
-            Array.Copy(packetLengthField, output, 4);
-            var cipherText = new Span<byte>(output, 4, length - 4);
-            var tag = new Span<byte>(output, length, TagSize);
 
-            _chacha20poly1305.Encrypt(nonce: _sequenceNumber, plainText, cipherText, tag, associatedData: packetLengthField);
+            var packetLengthField = _aadCipher.Encrypt(input, offset, 4);
+            Array.Copy(packetLengthField, output, 4);
+
+            var cipherText = _cipher.Encrypt(input, offset + 4, length - 4);
+            Array.Copy(cipherText, 0, output, 4, cipherText.Length);
+
+            Poly1305Donna.poly1305_auth(output, length, output, 0, length, ref _polyKey);
 
             return output;
-        }
-
-        internal override void SetSequenceNumber(uint sequenceNumber)
-        {
-            BinaryPrimitives.WriteUInt64BigEndian(_sequenceNumber, sequenceNumber);
-            _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);
         }
 
         /// <summary>
         /// Decrypts the first block which is packet length field.
         /// </summary>
-        /// <param name="input">The encrpted packet length field.</param>
+        /// <param name="input">The encrypted packet length field.</param>
         /// <returns>The decrypted packet length field.</returns>
         public override byte[] Decrypt(byte[] input)
         {
@@ -127,37 +120,40 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             Debug.Assert(offset == 8, "The offset must be 8");
 
-            var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
-            var cipherText = new ReadOnlySpan<byte>(input, offset, length);
-            var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
+            var cipherText = input.Take(offset, length);
 
-            var output = new byte[length];
-            var plainText = new Span<byte>(output);
+            var tag = new byte[TagSize];
+            Poly1305Donna.poly1305_auth(tag, 0, input, offset - 4, length + 4, ref _polyKey);
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            if (!System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(tag, new ReadOnlySpan<byte>(input, offset + length, TagSize)))
+#else
+            if (!Chaos.NaCl.CryptoBytes.ConstantTimeEquals(tag, 0, input, offset + length, TagSize))
+#endif
+            {
+                throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+            }
 
-            _chacha20poly1305.Decrypt(nonce: _sequenceNumber, cipherText, tag, plainText, associatedData: packetLengthField);
+            var output = _cipher.Decrypt(cipherText);
 
             return output;
         }
 
-        /// <summary>
-        /// Dispose the instance.
-        /// </summary>
-        /// <param name="disposing">Set to True to dispose of resouces.</param>
-        public void Dispose(bool disposing)
+        internal override void SetSequenceNumber(uint sequenceNumber)
         {
-            if (disposing)
-            {
-                _chacha20poly1305.Dispose();
-            }
-        }
+            Pack.UInt64ToBigEndian(sequenceNumber, _sequenceNumber, 4);
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);
+            _cipher = new ChaCha20Cipher(Key.Take(32), nonce: _sequenceNumber);
+
+            _polyKeyBytes = _cipher.Encrypt(new byte[32]);
+            _polyKey.x0 = Pack.LittleEndianToUInt32(_polyKeyBytes, 0);
+            _polyKey.x1 = Pack.LittleEndianToUInt32(_polyKeyBytes, 4);
+            _polyKey.x2 = Pack.LittleEndianToUInt32(_polyKeyBytes, 8);
+            _polyKey.x3 = Pack.LittleEndianToUInt32(_polyKeyBytes, 12);
+            _polyKey.x4 = Pack.LittleEndianToUInt32(_polyKeyBytes, 16);
+            _polyKey.x5 = Pack.LittleEndianToUInt32(_polyKeyBytes, 20);
+            _polyKey.x6 = Pack.LittleEndianToUInt32(_polyKeyBytes, 24);
+            _polyKey.x7 = Pack.LittleEndianToUInt32(_polyKeyBytes, 28);
         }
     }
 }
-#endif

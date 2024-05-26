@@ -19,6 +19,7 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet
 {
@@ -1232,6 +1233,7 @@ namespace Renci.SshNet
 
             byte[] data;
             uint packetLength;
+            byte[] plainFirstBlock;
 
             // avoid reading from socket while IsSocketConnected is attempting to determine whether the
             // socket is still connected by invoking Socket.Poll(...) and subsequently verifying value of
@@ -1246,17 +1248,21 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null)
+                plainFirstBlock = firstBlock;
+
+                // First block is not encrypted in AES GCM mode.
+                if (_serverCipher is not null and not AesGcmCipher)
                 {
                     _serverCipher.SetSequenceNumber(_inboundPacketSequence);
 
+                    // First block is not encrypted in ETM mode.
                     if (_serverMac == null || !_serverEtm)
                     {
-                        firstBlock = _serverCipher.Decrypt(firstBlock);
+                        plainFirstBlock = _serverCipher.Decrypt(firstBlock);
                     }
                 }
 
-                packetLength = Pack.BigEndianToUInt32(firstBlock);
+                packetLength = Pack.BigEndianToUInt32(plainFirstBlock);
 
                 // Test packet minimum and maximum boundaries
                 if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
@@ -1282,7 +1288,7 @@ namespace Renci.SshNet
                 // to read the packet including server MAC in a single pass (except for the initial block).
                 data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
                 Pack.UInt32ToBigEndian(_inboundPacketSequence, data);
-                Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
+                Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, blockSize);
 
                 if (bytesToRead > 0)
                 {
@@ -1324,6 +1330,7 @@ namespace Renci.SshNet
             // validate decrypted message against MAC
             if (_serverMac != null && !_serverEtm)
             {
+                Buffer.BlockCopy(plainFirstBlock, 0, data, inboundPacketSequenceLength, blockSize);
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))

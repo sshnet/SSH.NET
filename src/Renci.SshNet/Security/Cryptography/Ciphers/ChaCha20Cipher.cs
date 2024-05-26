@@ -14,9 +14,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const uint ChachaConst2 = 0x79622d32;
         private const uint ChachaConst3 = 0x6b206574;
 
-        private readonly byte[] _keyStream = new byte[64];
-        private int _index;
-
         private uint _s00;
         private uint _s01;
         private uint _s02;
@@ -132,16 +129,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("output buffer too short");
             }
 
+            var keyStream = new byte[64];
+            var index = 0;
             for (var i = 0; i < inputCount; i++)
             {
-                if (_index == 0)
+                if (index == 0)
                 {
-                    GenerateKeyStream(_keyStream);
+                    GenerateKeyStream(keyStream);
                     IncrementCounter();
                 }
 
-                outputBuffer[outputOffset + i] = (byte)(_keyStream[_index++] ^ inputBuffer[inputOffset + i]);
-                _index &= 63;
+                outputBuffer[outputOffset + i] = (byte)(keyStream[index++] ^ inputBuffer[inputOffset + i]);
+                index &= 63;
             }
 
             return inputCount;

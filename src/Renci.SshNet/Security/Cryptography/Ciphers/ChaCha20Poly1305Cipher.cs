@@ -88,7 +88,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return output;
         }
 
-        public override void SetSequenceNumber(uint sequenceNumber)
+        internal override void SetSequenceNumber(uint sequenceNumber)
         {
             BinaryPrimitives.WriteUInt64BigEndian(_sequenceNumber, sequenceNumber);
             _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);

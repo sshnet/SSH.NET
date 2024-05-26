@@ -1,4 +1,4 @@
-﻿namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// Base class for cipher implementation.
@@ -26,7 +26,7 @@
         /// Sets the sequence numbner.
         /// </summary>
         /// <param name="sequenceNumber">The sequence number.</param>
-        public virtual void SetSequenceNumber(uint sequenceNumber)
+        internal virtual void SetSequenceNumber(uint sequenceNumber)
         {
         }
 

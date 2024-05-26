@@ -1259,7 +1259,7 @@ namespace Renci.SshNet
                 packetLength = Pack.BigEndianToUInt32(firstBlock);
 
                 // Test packet minimum and maximum boundaries
-                if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+                if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                 {
                     throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
                                                      DisconnectReason.ProtocolError);

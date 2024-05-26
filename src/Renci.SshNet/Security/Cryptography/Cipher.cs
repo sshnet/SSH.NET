@@ -23,7 +23,7 @@ namespace Renci.SshNet.Security.Cryptography
         public virtual int TagSize { get; }
 
         /// <summary>
-        /// Sets the sequence numbner.
+        /// Sets the sequence number.
         /// </summary>
         /// <param name="sequenceNumber">The sequence number.</param>
         internal virtual void SetSequenceNumber(uint sequenceNumber)

@@ -1232,7 +1232,6 @@ namespace Renci.SshNet
 
             byte[] data;
             uint packetLength;
-            byte[] plainFirstBlock;
 
             // avoid reading from socket while IsSocketConnected is attempting to determine whether the
             // socket is still connected by invoking Socket.Poll(...) and subsequently verifying value of
@@ -1247,7 +1246,7 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                plainFirstBlock = firstBlock;
+                var plainFirstBlock = firstBlock;
 
                 // First block is not encrypted in AES GCM mode.
                 if (_serverCipher is not null
@@ -1291,7 +1290,16 @@ namespace Renci.SshNet
                 // to read the packet including server MAC in a single pass (except for the initial block).
                 data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
                 Pack.UInt32ToBigEndian(_inboundPacketSequence, data);
-                Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, blockSize);
+
+                // Use raw packet length field to calculate the mac in AEAD mode.
+                if (_serverAead)
+                {
+                    Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, blockSize);
+                }
+                else
+                {
+                    Buffer.BlockCopy(plainFirstBlock, 0, data, inboundPacketSequenceLength, blockSize);
+                }
 
                 if (bytesToRead > 0)
                 {
@@ -1333,7 +1341,6 @@ namespace Renci.SshNet
             // validate decrypted message against MAC
             if (_serverMac != null && !_serverEtm)
             {
-                Buffer.BlockCopy(plainFirstBlock, 0, data, inboundPacketSequenceLength, blockSize);
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))

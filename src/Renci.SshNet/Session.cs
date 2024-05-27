@@ -1252,7 +1252,7 @@ namespace Renci.SshNet
                 // First block is not encrypted in AES GCM mode.
                 if (_serverCipher is not null
 #if NET6_0_OR_GREATER
-        and not Security.Cryptography.Ciphers.AesGcmCipher 
+        and not Security.Cryptography.Ciphers.AesGcmCipher
 #endif
                     )
                 {

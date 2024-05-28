@@ -62,10 +62,19 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IPrivateKeySource, IDisposable
+    public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+",
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+
+        [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
+        private static partial Regex GetPrivateKeyRegex();
+#else
+        private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern,
                                                                   RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+#endif
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;
@@ -324,7 +333,7 @@ namespace Renci.SshNet
                         throw new SshException("Invalid passphrase.");
                     }
 
-                    if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
+                    if (keyType.Contains("rsa"))
                     {
                         var exponent = reader.ReadBigIntWithBits(); // e
                         var d = reader.ReadBigIntWithBits(); // d
@@ -340,7 +349,7 @@ namespace Renci.SshNet
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     }
-                    else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
+                    else if (keyType.Contains("dsa"))
                     {
                         var zero = reader.ReadUInt32();
                         if (zero != 0)

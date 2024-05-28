@@ -305,6 +305,10 @@ dotnet_diagnostic.MA0110.severity = silent
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
 dotnet_diagnostic.MA0026.severity = silent
 
+# MA0042: Do not use blocking calls in an async method
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0042.md
+dotnet_diagnostic.MA0042.severity = silent
+
 #### .NET Compiler Platform analysers rules ####
 
 # CA1031: Do not catch general exception types
@@ -398,3 +402,7 @@ dotnet_diagnostic.IDE0032.severity = silent
 # CA1812: Avoid uninstantiated internal classes
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812
 dotnet_diagnostic.CA1812.severity = silent
+
+# CA1849: Call async methods when in an async method
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/CA1849
+dotnet_diagnostic.CA1849.severity = silent

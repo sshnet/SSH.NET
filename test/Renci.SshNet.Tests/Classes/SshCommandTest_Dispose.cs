@@ -73,14 +73,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void OutputStreamShouldHaveBeenDisposed()
         {
-            try
-            {
-                _outputStream.ReadByte();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Assert.AreEqual(-1, _outputStream.ReadByte());
         }
 
         [TestMethod]
@@ -92,14 +85,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExtendedOutputStreamShouldHaveBeenDisposed()
         {
-            try
-            {
-                _extendedOutputStream.ReadByte();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Assert.AreEqual(-1, _extendedOutputStream.ReadByte());
         }
 
         [TestMethod]

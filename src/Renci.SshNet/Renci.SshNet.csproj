@@ -22,6 +22,12 @@
     <PackageReleaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/$(Version)</PackageReleaseNotes>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CI)' != ''">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
 
@@ -237,7 +238,7 @@ namespace Renci.SshNet.Connection
             index += addressBytes.Length;
 
             // Port number
-            Pack.UInt16ToBigEndian(port, connectionRequest, index);
+            BinaryPrimitives.WriteUInt16BigEndian(connectionRequest.AsSpan(index), port);
 
             return connectionRequest;
         }

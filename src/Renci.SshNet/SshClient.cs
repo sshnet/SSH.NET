@@ -286,6 +286,24 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, int bufferSize)
+        {
+            EnsureSessionIsOpen();
+
+            return new Shell(Session, input, output, extendedOutput, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
         /// <param name="terminalName">Name of the terminal.</param>
         /// <param name="columns">The columns.</param>
         /// <param name="rows">The rows.</param>
@@ -313,7 +331,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
-            return CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, terminalModes: null, 1024);
+            return CreateShell(input, output, extendedOutput, 1024);
         }
 
         /// <summary>
@@ -351,6 +369,37 @@ namespace Renci.SshNet
             _ = _inputStream.Seek(0, SeekOrigin.Begin);
 
             return CreateShell(_inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="encoding">The encoding to use to send the input.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, int bufferSize)
+        {
+            /*
+             * TODO Issue #1224: let shell dispose of input stream when we own the stream!
+             */
+
+            _inputStream = new MemoryStream();
+
+            using (var writer = new StreamWriter(_inputStream, encoding, bufferSize: 1024, leaveOpen: true))
+            {
+                writer.Write(input);
+                writer.Flush();
+            }
+
+            _ = _inputStream.Seek(0, SeekOrigin.Begin);
+
+            return CreateShell(_inputStream, output, extendedOutput, bufferSize);
         }
 
         /// <summary>
@@ -448,6 +497,21 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell stream.
+        /// </summary>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public ShellStream CreateShellStream(int bufferSize)
+        {
+            EnsureSessionIsOpen();
+
+            return ServiceFactory.CreateShellStream(Session, bufferSize);
         }
 
         /// <summary>

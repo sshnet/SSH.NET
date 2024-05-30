@@ -24,6 +24,7 @@ namespace Renci.SshNet
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
+        private readonly bool _disablePTY;
         private ManualResetEvent _dataReaderTaskCompleted;
         private IChannelSession _channel;
         private AutoResetEvent _channelClosedWaitHandle;
@@ -92,6 +93,24 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Shell"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the buffer for output stream.</param>
+        internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize)
+        {
+            _session = session;
+            _input = input;
+            _outputStream = output;
+            _extendedOutputStream = extendedOutput;
+            _bufferSize = bufferSize;
+            _disablePTY = true;
+        }
+
+        /// <summary>
         /// Starts this shell.
         /// </summary>
         /// <exception cref="SshException">Shell is started.</exception>
@@ -112,7 +131,19 @@ namespace Renci.SshNet
             _session.ErrorOccured += Session_ErrorOccured;
 
             _channel.Open();
-            _ = _channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes);
+            if (!_disablePTY)
+            {
+                if (!_channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+
+            if (!_channel.SendShellRequest())
+            {
+                throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+            }
+
             _ = _channel.SendShellRequest();
 
             _channelClosedWaitHandle = new AutoResetEvent(initialState: false);

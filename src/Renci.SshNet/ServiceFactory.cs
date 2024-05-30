@@ -207,6 +207,20 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Creates a shell stream.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public ShellStream CreateShellStream(ISession session, int bufferSize)
+        {
+            return new ShellStream(session, bufferSize);
+        }
+
+        /// <summary>
         /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
         /// any embedded double quote with a backslash.
         /// </summary>

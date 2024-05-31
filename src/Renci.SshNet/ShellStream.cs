@@ -29,6 +29,7 @@ namespace Renci.SshNet
         private readonly object _sync = new object();
 
         private readonly byte[] _writeBuffer;
+        private readonly bool _disablePTY;
         private int _writeLength; // The length of the data in _writeBuffer.
 
         private byte[] _readBuffer;
@@ -172,6 +173,8 @@ namespace Renci.SshNet
 
             _readBuffer = new byte[bufferSize];
             _writeBuffer = new byte[bufferSize];
+
+            _disablePTY = true;
 
             try
             {
@@ -897,7 +900,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void WriteLine(string line)
         {
-            Write(line + "\r");
+            Write(line + (_disablePTY ? "\n" : "\r"));
         }
 
         /// <inheritdoc/>

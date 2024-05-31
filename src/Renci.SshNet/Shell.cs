@@ -78,18 +78,14 @@ namespace Renci.SshNet
         /// <param name="terminalModes">The terminal modes.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+            : this(session, input, output, extendedOutput, bufferSize, disablePTY: false)
         {
-            _session = session;
-            _input = input;
-            _outputStream = output;
-            _extendedOutputStream = extendedOutput;
             _terminalName = terminalName;
             _columns = columns;
             _rows = rows;
             _width = width;
             _height = height;
             _terminalModes = terminalModes;
-            _bufferSize = bufferSize;
         }
 
         /// <summary>
@@ -101,19 +97,35 @@ namespace Renci.SshNet
         /// <param name="extendedOutput">The extended output.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize)
+            : this(session, input, output, extendedOutput, bufferSize, disablePTY: true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Shell"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the buffer for output stream.</param>
+        /// <param name="disablePTY">Disables pseudo terminal allocation or not.</param>
+        private Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize, bool disablePTY)
         {
             _session = session;
             _input = input;
             _outputStream = output;
             _extendedOutputStream = extendedOutput;
             _bufferSize = bufferSize;
-            _disablePTY = true;
+            _disablePTY = disablePTY;
         }
 
         /// <summary>
         /// Starts this shell.
         /// </summary>
         /// <exception cref="SshException">Shell is started.</exception>
+        /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
+        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         public void Start()
         {
             if (IsStarted)

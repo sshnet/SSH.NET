@@ -23,6 +23,7 @@ namespace Renci.SshNet.IntegrationTests
 
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
             _remoteSshdConfig.AllowTcpForwarding()
+                             .PermitTTY(true)
                              .PrintMotd(false)
                              .Update()
                              .Restart();
@@ -73,6 +74,23 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
                     Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_CreateShellStream_WithoutPseudoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var shellStream = client.CreateShellStream(bufferSize: 1024))
+                {
+                    shellStream.WriteLine("echo Hello!");
+                    var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
+                    Assert.IsNotNull(line);
+                    Assert.IsTrue(line.EndsWith("Hello!"), line);
                 }
             }
         }
@@ -158,6 +176,32 @@ namespace Renci.SshNet.IntegrationTests
                 using (var extOutput = new MemoryStream())
                 {
                     var shell = client.CreateShell(input, output, extOutput);
+                    shell.Start();
+
+                    var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
+                    inputWriter.WriteLine("echo $PATH");
+
+                    var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
+                    Console.WriteLine(outputReader.ReadToEnd());
+
+                    shell.Stop();
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_CreateShell_WithoutPseudoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var input = new MemoryStream())
+                using (var output = new MemoryStream())
+                using (var extOutput = new MemoryStream())
+                {
+                    var shell = client.CreateShell(input, output, extOutput);
+
                     shell.Start();
 
                     var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);

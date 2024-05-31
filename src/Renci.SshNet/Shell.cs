@@ -144,8 +144,6 @@ namespace Renci.SshNet
                 throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
             }
 
-            _ = _channel.SendShellRequest();
-
             _channelClosedWaitHandle = new AutoResetEvent(initialState: false);
 
             // Start input stream listener

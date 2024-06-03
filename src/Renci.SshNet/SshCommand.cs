@@ -40,6 +40,9 @@ namespace Renci.SshNet
         private ChannelInputStream? _inputStream;
         private TimeSpan _commandTimeout;
 
+        private int _exitStatus;
+        private volatile bool _haveExitStatus; // volatile to prevent re-ordering of reads/writes of _exitStatus.
+
         /// <summary>
         /// Gets the command text.
         /// </summary>
@@ -66,9 +69,22 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the command exit status.
+        /// Gets the number representing the exit status of the command, if applicable,
+        /// otherwise <see langword="null"/>.
         /// </summary>
-        public int ExitStatus { get; private set; }
+        /// <remarks>
+        /// The value is not <see langword="null"/> when an exit status code has been returned
+        /// from the server. If the command terminated due to a signal, <see cref="ExitSignal"/>
+        /// may be not <see langword="null"/> instead.
+        /// </remarks>
+        /// <seealso cref="ExitSignal"/>
+        public int? ExitStatus
+        {
+            get
+            {
+                return _haveExitStatus ? _exitStatus : null;
+            }
+        }
 
         /// <summary>
         /// Gets the name of the signal due to which the command
@@ -276,7 +292,8 @@ namespace Renci.SshNet
                 AsyncState = state,
             };
 
-            ExitStatus = default;
+            _exitStatus = default;
+            _haveExitStatus = false;
             ExitSignal = null;
             _result = null;
             _stdOut = null;
@@ -492,7 +509,8 @@ namespace Renci.SshNet
         {
             if (e.Info is ExitStatusRequestInfo exitStatusInfo)
             {
-                ExitStatus = (int)exitStatusInfo.ExitStatus;
+                _exitStatus = (int)exitStatusInfo.ExitStatus;
+                _haveExitStatus = true;
 
                 Debug.Assert(!exitStatusInfo.WantReply, "exit-status is want_reply := false by definition.");
             }

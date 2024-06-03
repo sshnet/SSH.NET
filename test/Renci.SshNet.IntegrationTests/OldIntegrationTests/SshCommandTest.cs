@@ -68,6 +68,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
             Assert.AreEqual(string.Empty, cmd.Result);
             Assert.AreEqual("TERM", cmd.ExitSignal);
+            Assert.IsNull(cmd.ExitStatus);
         }
 
         [TestMethod]
@@ -90,6 +91,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
             Assert.AreEqual(string.Empty, cmd.Result);
             Assert.AreEqual("KILL", cmd.ExitSignal);
+            Assert.IsNull(cmd.ExitStatus);
         }
 
         [TestMethod]
@@ -110,6 +112,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
             Assert.IsTrue(asyncResult.IsCompleted);
             Assert.AreEqual(testValue, cmd.Result);
+            Assert.AreEqual(0, cmd.ExitStatus);
             Assert.IsNull(cmd.ExitSignal);
         }
 

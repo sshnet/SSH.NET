@@ -11,7 +11,7 @@ Establish an SSH connection and run a command:
 using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("path/to/my/key")))
 {
     client.Connect();
-    SshCommand cmd = client.RunCommand("echo 'Hello World!'");
+    using SshCommand cmd = client.RunCommand("echo 'Hello World!'");
     Console.WriteLine(cmd.Result); // "Hello World!\n"
 }
 ```
@@ -62,9 +62,9 @@ string expectedFingerPrint = "LKOy5LvmtEe17S4lyxVXqvs7uPMy+yF79MQpHeCs/Qo";
 using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 {
     client.HostKeyReceived += (sender, e) =>
-        {
-            e.CanTrust = expectedFingerPrint.Equals(e.FingerPrintSHA256);
-        };
+    {
+        e.CanTrust = expectedFingerPrint.Equals(e.FingerPrintSHA256);
+    };
     client.Connect();
 }
 ```
@@ -75,7 +75,7 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 using (var client = new SshClient("sftp.foo.com", "user", "password"))
 {
     client.Connect();
-    ShellStream shellStream = client.CreateShellStream("ShellName", 80, 24, 800, 600, 1024);
+    using ShellStream shellStream = client.CreateShellStream("ShellName", 80, 24, 800, 600, 1024);
     client.Disconnect();
 }
 ```
@@ -86,23 +86,22 @@ using (var client = new SshClient("sftp.foo.com", "user", "password"))
 using (var client = new SshClient("sftp.foo.com", "user", "password"))
 {
     client.Connect();
-    ShellStream shellStream = client.CreateShellStream("ShellName", 80, 24, 800, 600, 1024);
+    using ShellStream shellStream = client.CreateShellStream("ShellName", 80, 24, 800, 600, 1024);
     // Get logged in and get user prompt
-    string prompt = stream.Expect(new Regex(@"[$>]"));
+    string prompt = shellStream.Expect(new Regex(@"[$>]"));
     // Send command and expect password or user prompt
-    stream.WriteLine("su - root");
-    prompt = stream.Expect(new Regex(@"([$#>:])"));
+    shellStream.WriteLine("su - root");
+    prompt = shellStream.Expect(new Regex(@"([$#>:])"));
     // Check to send password
     if (prompt.Contains(":"))
     {
         // Send password
-        stream.WriteLine("password");
-        prompt = stream.Expect(new Regex(@"[$#>]"));
+        shellStream.WriteLine("password");
+        prompt = shellStream.Expect(new Regex(@"[$#>]"));
     }
     client.Disconnect();
 }
 ```
-
 
 ### Stream data to a command
 

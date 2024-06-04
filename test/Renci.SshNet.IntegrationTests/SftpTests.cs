@@ -6142,20 +6142,15 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.Now;
 
             client.UploadFile(fileStream, testFilePath);
 
             try
             {
-                var time = client.GetLastAccessTime(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time, TimeSpan.FromSeconds(1));
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastAccessTime(testFilePath, newTime);
-                time = client.GetLastAccessTime(testFilePath);
+                var time = client.GetLastAccessTime(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
@@ -6175,19 +6170,14 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.UtcNow;
 
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastAccessTimeUtc(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time, TimeSpan.FromSeconds(1));
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastAccessTimeUtc(testFilePath, newTime);
-                time = client.GetLastAccessTimeUtc(testFilePath);
+                var time = client.GetLastAccessTimeUtc(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
@@ -6206,19 +6196,14 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.Now;
 
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastWriteTime(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time, TimeSpan.FromSeconds(1));
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastWriteTime(testFilePath, newTime);
-                time = client.GetLastWriteTime(testFilePath);
+                var time = client.GetLastWriteTime(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }

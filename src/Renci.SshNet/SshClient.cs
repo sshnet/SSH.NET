@@ -281,7 +281,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell.
+        /// Creates the shell without allocating pseudo terminal.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
@@ -320,7 +320,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell.
+        /// Creates the shell without allocating pseudo terminal.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
@@ -372,7 +372,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell.
+        /// Creates the shell without allocating pseudo terminal.
         /// </summary>
         /// <param name="encoding">The encoding to use to send the input.</param>
         /// <param name="input">The input.</param>
@@ -437,7 +437,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
-            return CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, terminalModes: null, 1024);
+            return CreateShell(encoding, input, output, extendedOutput, 1024);
         }
 
         /// <summary>
@@ -500,7 +500,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell stream.
+        /// Creates the shell stream without allocating pseudo terminal.
         /// </summary>
         /// <param name="bufferSize">The size of the buffer.</param>
         /// <returns>

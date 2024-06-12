@@ -31,7 +31,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_CreateShellStream_WithPseudoTerminal()
+        public void Ssh_CreateShellStream()
         {
             using (var client = new SshClient(_connectionInfoFactory.Create()))
             {
@@ -50,25 +50,26 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_CreateShellStream_WithoutPseudoTerminal()
+        public void Ssh_CreateShellStreamNoTerminal()
         {
             using (var client = new SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
-                using (var shellStream = client.CreateShellStream(bufferSize: 1024))
+                using (var shellStream = client.CreateShellStreamNoTerminal(bufferSize: 1024))
                 {
-                    shellStream.WriteLine("echo Hello!");
+                    var foo = new string('a', 90);
+                    shellStream.WriteLine($"echo {foo}");
                     var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
                     Assert.IsNotNull(line);
-                    Assert.IsTrue(line.EndsWith("Hello!"), line);
+                    Assert.IsTrue(line.EndsWith(foo), line);
                 }
             }
         }
 
 
         [TestMethod]
-        public void Ssh_CreateShell_WithPseudoTerminal()
+        public void Ssh_CreateShell()
         {
             using (var client = new SshClient(_connectionInfoFactory.Create()))
             {
@@ -94,7 +95,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_CreateShell_WithoutPseudoTerminal()
+        public void Ssh_CreateShellNoTerminal()
         {
             using (var client = new SshClient(_connectionInfoFactory.Create()))
             {
@@ -104,15 +105,19 @@ namespace Renci.SshNet.IntegrationTests
                 using (var output = new MemoryStream())
                 using (var extOutput = new MemoryStream())
                 {
-                    var shell = client.CreateShell(input, output, extOutput);
+                    var shell = client.CreateShellNoTerminal(input, output, extOutput, 1024);
 
                     shell.Start();
 
                     var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
-                    inputWriter.WriteLine("echo $PATH");
+                    var foo = new string('a', 90);
+                    inputWriter.WriteLine(foo);
 
                     var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
-                    Console.WriteLine(outputReader.ReadToEnd());
+                    var outputString = outputReader.ReadToEnd();
+
+                    Assert.IsNotNull(outputString);
+                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
 
                     shell.Stop();
                 }

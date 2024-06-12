@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private StatVfsResponse _sftpStatVfsResponse;
         private ulong _bAvail;
         private string _path;
-        private SftpFileSytemInformation _actual;
+        private SftpFileSystemInformation _actual;
 
         [TestInitialize]
         public void Setup()

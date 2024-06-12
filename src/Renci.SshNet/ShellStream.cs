@@ -888,6 +888,8 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void WriteLine(string line)
         {
+            // By default, the terminal driver translates carriage return to line feed on input.
+            // See option ICRLF at https://www.man7.org/linux/man-pages/man3/termios.3.html.
             Write(line + (_disablePTY ? "\n" : "\r"));
         }
 

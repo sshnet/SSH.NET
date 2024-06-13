@@ -6,7 +6,7 @@ namespace Renci.SshNet.Sftp
     /// Contains File system information exposed by statvfs@openssh.com request.
     /// </summary>
 #pragma warning disable SA1649 // File name should match first type name
-    public class SftpFileSytemInformation
+    public class SftpFileSystemInformation
 #pragma warning restore SA1649 // File name should match first type name
     {
 #pragma warning disable SA1310 // Field names should not contain underscore
@@ -119,7 +119,7 @@ namespace Renci.SshNet.Sftp
         public ulong MaxNameLenght { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpFileSytemInformation" /> class.
+        /// Initializes a new instance of the <see cref="SftpFileSystemInformation" /> class.
         /// </summary>
         /// <param name="bsize">The bsize.</param>
         /// <param name="frsize">The frsize.</param>
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="sid">The sid.</param>
         /// <param name="flag">The flag.</param>
         /// <param name="namemax">The namemax.</param>
-        internal SftpFileSytemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
+        internal SftpFileSystemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
         {
             FileSystemBlockSize = bsize;
             BlockSize = frsize;

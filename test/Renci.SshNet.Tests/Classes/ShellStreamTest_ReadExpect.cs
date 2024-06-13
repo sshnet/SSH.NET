@@ -390,10 +390,6 @@ namespace Renci.SshNet.Tests.Classes
 
             public bool SendExecRequest(string command) => throw new NotImplementedException();
 
-            public bool SendExitSignalRequest(string signalName, bool coreDumped, string errorMessage, string language) => throw new NotImplementedException();
-
-            public bool SendExitStatusRequest(uint exitStatus) => throw new NotImplementedException();
-
             public bool SendKeepAliveRequest() => throw new NotImplementedException();
 
             public bool SendLocalFlowRequest(bool clientCanDo) => throw new NotImplementedException();

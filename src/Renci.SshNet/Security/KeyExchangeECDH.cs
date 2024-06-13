@@ -50,6 +50,8 @@ namespace Renci.SshNet.Security
                 Buffer.BlockCopy(q.X, 0, _clientExchangeValue, 1, q.X.Length);
                 Buffer.BlockCopy(q.Y, 0, _clientExchangeValue, q.X.Length + 1, q.Y.Length);
 
+                SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
+
                 return;
             }
 #endif

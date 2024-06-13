@@ -207,13 +207,18 @@ namespace Renci.SshNet.IntegrationTests
 
                     var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
                     var foo = new string('a', 90);
-                    inputWriter.WriteLine(foo);
+                    inputWriter.WriteLine($"echo {foo}");
+                    inputWriter.Flush();
+                    input.Position = 0;
 
+                    Thread.Sleep(1000);
+
+                    output.Position = 0;
                     var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
-                    var outputString = outputReader.ReadToEnd();
+                    var outputString = outputReader.ReadLine();
 
                     Assert.IsNotNull(outputString);
-                    Assert.IsTrue(outputString.TrimEnd().EndsWith(foo), outputString);
+                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
 
                     shell.Stop();
                 }

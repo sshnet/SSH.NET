@@ -117,7 +117,7 @@ namespace Renci.SshNet.IntegrationTests
                     var outputString = outputReader.ReadToEnd();
 
                     Assert.IsNotNull(outputString);
-                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
+                    Assert.IsTrue(outputString.TrimEnd('\r').EndsWith(foo), outputString);
 
                     shell.Stop();
                 }

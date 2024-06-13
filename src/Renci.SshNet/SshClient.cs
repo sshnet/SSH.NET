@@ -480,7 +480,7 @@ namespace Renci.SshNet
         {
             EnsureSessionIsOpen();
 
-            return ServiceFactory.CreateShellStream(Session, bufferSize);
+            return ServiceFactory.CreateShellStreamNoTerminal(Session, bufferSize);
         }
 
         /// <summary>

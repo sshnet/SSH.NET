@@ -24,7 +24,7 @@ namespace Renci.SshNet
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
-        private readonly bool _disablePTY;
+        private readonly bool _noTerminal;
         private ManualResetEvent _dataReaderTaskCompleted;
         private IChannelSession _channel;
         private AutoResetEvent _channelClosedWaitHandle;
@@ -78,7 +78,7 @@ namespace Renci.SshNet
         /// <param name="terminalModes">The terminal modes.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
-            : this(session, input, output, extendedOutput, bufferSize, disablePTY: false)
+            : this(session, input, output, extendedOutput, bufferSize, noTerminal: false)
         {
             _terminalName = terminalName;
             _columns = columns;
@@ -97,7 +97,7 @@ namespace Renci.SshNet
         /// <param name="extendedOutput">The extended output.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize)
-            : this(session, input, output, extendedOutput, bufferSize, disablePTY: true)
+            : this(session, input, output, extendedOutput, bufferSize, noTerminal: true)
         {
         }
 
@@ -109,15 +109,15 @@ namespace Renci.SshNet
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
-        /// <param name="disablePTY">Disables pseudo terminal allocation or not.</param>
-        private Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize, bool disablePTY)
+        /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
+        private Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize, bool noTerminal)
         {
             _session = session;
             _input = input;
             _outputStream = output;
             _extendedOutputStream = extendedOutput;
             _bufferSize = bufferSize;
-            _disablePTY = disablePTY;
+            _noTerminal = noTerminal;
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Renci.SshNet
             _session.ErrorOccured += Session_ErrorOccured;
 
             _channel.Open();
-            if (!_disablePTY)
+            if (!_noTerminal)
             {
                 if (!_channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes))
                 {

@@ -402,7 +402,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShellNoTerminal(Stream input, Stream output, Stream extendedOutput, int bufferSize = 1024)
+        public Shell CreateShellNoTerminal(Stream input, Stream output, Stream extendedOutput, int bufferSize = -1)
         {
             EnsureSessionIsOpen();
 
@@ -476,7 +476,7 @@ namespace Renci.SshNet
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public ShellStream CreateShellStreamNoTerminal(int bufferSize = 1024)
+        public ShellStream CreateShellStreamNoTerminal(int bufferSize = -1)
         {
             EnsureSessionIsOpen();
 

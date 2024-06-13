@@ -14,6 +14,8 @@ namespace Renci.SshNet
     /// </summary>
     public class Shell : IDisposable
     {
+        private const int DefaultBufferSize = 1024;
+
         private readonly ISession _session;
         private readonly string _terminalName;
         private readonly uint _columns;
@@ -112,6 +114,18 @@ namespace Renci.SshNet
         /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
         private Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize, bool noTerminal)
         {
+            if (bufferSize == -1)
+            {
+                bufferSize = DefaultBufferSize;
+            }
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
+#else
+            if (bufferSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+            }
+#endif
             _session = session;
             _input = input;
             _outputStream = output;

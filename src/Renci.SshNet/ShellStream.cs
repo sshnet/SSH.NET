@@ -20,6 +20,8 @@ namespace Renci.SshNet
     /// </summary>
     public class ShellStream : Stream
     {
+        private const int DefaultBufferSize = 1024;
+
         private readonly ISession _session;
         private readonly Encoding _encoding;
         private readonly IChannelSession _channel;
@@ -96,7 +98,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
-               : this(session, bufferSize, disablePTY: false)
+               : this(session, bufferSize, noTerminal: false)
         {
             try
             {
@@ -127,7 +129,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The channel could not be opened.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, int bufferSize)
-            : this(session, bufferSize, disablePTY: true)
+            : this(session, bufferSize, noTerminal: true)
         {
             try
             {
@@ -150,10 +152,14 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The SSH session.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
-        /// <param name="disablePTY">Disables pseudo terminal allocation or not.</param>
+        /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
         /// <exception cref="SshException">The channel could not be opened.</exception>
-        private ShellStream(ISession session, int bufferSize, bool disablePTY)
+        private ShellStream(ISession session, int bufferSize, bool noTerminal)
         {
+            if (bufferSize == -1)
+            {
+                bufferSize = DefaultBufferSize;
+            }
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
 #else
@@ -177,7 +183,7 @@ namespace Renci.SshNet
             _readBuffer = new byte[bufferSize];
             _writeBuffer = new byte[bufferSize];
 
-            _noTerminal = disablePTY;
+            _noTerminal = noTerminal;
         }
 
         /// <summary>

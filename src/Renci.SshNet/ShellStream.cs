@@ -29,7 +29,7 @@ namespace Renci.SshNet
         private readonly object _sync = new object();
 
         private readonly byte[] _writeBuffer;
-        private readonly bool _disablePTY;
+        private readonly bool _noTerminal;
         private int _writeLength; // The length of the data in _writeBuffer.
 
         private byte[] _readBuffer;
@@ -177,7 +177,7 @@ namespace Renci.SshNet
             _readBuffer = new byte[bufferSize];
             _writeBuffer = new byte[bufferSize];
 
-            _disablePTY = disablePTY;
+            _noTerminal = disablePTY;
         }
 
         /// <summary>
@@ -890,7 +890,7 @@ namespace Renci.SshNet
         {
             // By default, the terminal driver translates carriage return to line feed on input.
             // See option ICRLF at https://www.man7.org/linux/man-pages/man3/termios.3.html.
-            Write(line + (_disablePTY ? "\n" : "\r"));
+            Write(line + (_noTerminal ? "\n" : "\r"));
         }
 
         /// <inheritdoc/>

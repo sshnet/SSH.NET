@@ -665,12 +665,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
-        /// A <see cref="SftpFileSytemInformation"/> instance that contains file status information.
+        /// A <see cref="SftpFileSystemInformation"/> instance that contains file status information.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        SftpFileSytemInformation GetStatus(string path);
+        SftpFileSystemInformation GetStatus(string path);
 
         /// <summary>
         /// Asynchronously gets status using statvfs@openssh.com request.
@@ -678,13 +678,13 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>
-        /// A <see cref="Task{SftpFileSytemInformation}"/> that represents the status operation.
-        /// The task result contains the <see cref="SftpFileSytemInformation"/> instance that contains file status information.
+        /// A <see cref="Task{SftpFileSystemInformation}"/> that represents the status operation.
+        /// The task result contains the <see cref="SftpFileSystemInformation"/> instance that contains file status information.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        Task<SftpFileSytemInformation> GetStatusAsync(string path, CancellationToken cancellationToken);
+        Task<SftpFileSystemInformation> GetStatusAsync(string path, CancellationToken cancellationToken);
 
         /// <summary>
         /// Retrieves list of files in remote directory.

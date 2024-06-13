@@ -1987,9 +1987,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
-        /// A <see cref="SftpFileSytemInformation"/> for the specified path.
+        /// A <see cref="SftpFileSystemInformation"/> for the specified path.
         /// </returns>
-        public SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false)
+        public SftpFileSystemInformation RequestStatVfs(string path, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)
             {
@@ -1998,7 +1998,7 @@ namespace Renci.SshNet.Sftp
 
             SshException exception = null;
 
-            SftpFileSytemInformation information = null;
+            SftpFileSystemInformation information = null;
 
             using (var wait = new AutoResetEvent(initialState: false))
             {
@@ -2045,7 +2045,7 @@ namespace Renci.SshNet.Sftp
         /// <see cref="Task{Task}.Result"/> contains the file system information for the specified
         /// path.
         /// </returns>
-        public async Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
+        public async Task<SftpFileSystemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
         {
             if (ProtocolVersion < 3)
             {
@@ -2054,12 +2054,12 @@ namespace Renci.SshNet.Sftp
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var tcs = new TaskCompletionSource<SftpFileSytemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var tcs = new TaskCompletionSource<SftpFileSystemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new StatVfsRequest(ProtocolVersion,
@@ -2079,10 +2079,10 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The file handle.</param>
         /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
-        /// A <see cref="SftpFileSytemInformation"/> for the specified path.
+        /// A <see cref="SftpFileSystemInformation"/> for the specified path.
         /// </returns>
         /// <exception cref="NotSupportedException">This operation is not supported for the current SFTP protocol version.</exception>
-        internal SftpFileSytemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
+        internal SftpFileSystemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)
             {
@@ -2091,7 +2091,7 @@ namespace Renci.SshNet.Sftp
 
             SshException exception = null;
 
-            SftpFileSytemInformation information = null;
+            SftpFileSystemInformation information = null;
 
             using (var wait = new AutoResetEvent(initialState: false))
             {

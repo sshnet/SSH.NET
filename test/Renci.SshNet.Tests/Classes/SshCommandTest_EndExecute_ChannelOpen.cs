@@ -94,20 +94,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void EndExecuteShouldThrowArgumentExceptionWhenInvokedAgainWithSameAsyncResult()
+        public void EndExecuteShouldNotThrowWhenInvokedAgainWithSameAsyncResult()
         {
-            try
-            {
-                _sshCommand.EndExecute(_asyncResult);
-                Assert.Fail();
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("EndExecute can only be called once for each asynchronous operation.", ex.Message);
-                Assert.IsNull(ex.ParamName);
-            }
+            Assert.AreEqual(_sshCommand.Result, _sshCommand.EndExecute(_asyncResult));
         }
 
         [TestMethod]

@@ -370,7 +370,7 @@ namespace Renci.SshNet.Sftp
         /// The file system information for the specified path, or <see langword="null"/> when
         /// the request failed and <paramref name="nullOnError"/> is <see langword="true"/>.
         /// </returns>
-        SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false);
+        SftpFileSystemInformation RequestStatVfs(string path, bool nullOnError = false);
 
         /// <summary>
         /// Asynchronously performs a <c>statvfs@openssh.com</c> extended request.
@@ -382,7 +382,7 @@ namespace Renci.SshNet.Sftp
         /// <see cref="Task{Task}.Result"/> contains the file system information for the specified
         /// path.
         /// </returns>
-        Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken);
+        Task<SftpFileSystemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken);
 
         /// <summary>
         /// Performs SSH_FXP_SYMLINK request.

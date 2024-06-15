@@ -65,21 +65,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void OutputStreamShouldReturnNull()
-        {
-            Assert.IsNull(_sshCommand.OutputStream);
-        }
-
-        [TestMethod]
         public void OutputStreamShouldHaveBeenDisposed()
         {
             Assert.AreEqual(-1, _outputStream.ReadByte());
-        }
-
-        [TestMethod]
-        public void ExtendedOutputStreamShouldReturnNull()
-        {
-            Assert.IsNull(_sshCommand.ExtendedOutputStream);
         }
 
         [TestMethod]

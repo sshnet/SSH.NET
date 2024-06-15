@@ -121,6 +121,25 @@ namespace Renci.SshNet
         /// returned instance in order to notify the command that no more data will be sent.
         /// Failure to do so may result in the command executing indefinitely.
         /// </remarks>
+        /// <example>
+        /// This example shows how to stream some data to 'cat' and have the server echo it back.
+        /// <code>
+        /// using (SshCommand command = mySshClient.CreateCommand("cat"))
+        /// {
+        ///     Task executeTask = command.ExecuteAsync(CancellationToken.None);
+        ///
+        ///     using (Stream inputStream = command.CreateInputStream())
+        ///     {
+        ///         inputStream.Write("Hello World!"u8);
+        ///     }
+        ///
+        ///     await executeTask;
+        ///
+        ///     Console.WriteLine(command.ExitStatus); // 0
+        ///     Console.WriteLine(command.Result); // "Hello World!"
+        /// }
+        /// </code>
+        /// </example>
         public Stream CreateInputStream()
         {
             if (_channel == null)

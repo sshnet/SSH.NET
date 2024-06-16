@@ -123,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             Assert.AreEqual((uint)size, sshDataStream.ReadUInt32());
 
             var actualData = new byte[size];
-            sshDataStream.Read(actualData, 0, size);
+            _ = sshDataStream.Read(actualData, 0, size);
             Assert.IsTrue(actualData.SequenceEqual(data.Take(offset, size)));
 
             Assert.IsTrue(sshDataStream.IsEndOfData);

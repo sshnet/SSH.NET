@@ -20,6 +20,8 @@ namespace Renci.SshNet
     /// </summary>
     public class ShellStream : Stream
     {
+        private const int DefaultBufferSize = 1024;
+
         private readonly ISession _session;
         private readonly Encoding _encoding;
         private readonly IChannelSession _channel;
@@ -29,6 +31,7 @@ namespace Renci.SshNet
         private readonly object _sync = new object();
 
         private readonly byte[] _writeBuffer;
+        private readonly bool _noTerminal;
         private int _writeLength; // The length of the data in _writeBuffer.
 
         private byte[] _readBuffer;
@@ -95,7 +98,68 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+               : this(session, bufferSize, noTerminal: false)
         {
+            try
+            {
+                _channel.Open();
+
+                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShellStream"/> class.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <exception cref="SshException">The channel could not be opened.</exception>
+        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
+        internal ShellStream(ISession session, int bufferSize)
+            : this(session, bufferSize, noTerminal: true)
+        {
+            try
+            {
+                _channel.Open();
+
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShellStream"/> class.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
+        /// <exception cref="SshException">The channel could not be opened.</exception>
+        private ShellStream(ISession session, int bufferSize, bool noTerminal)
+        {
+            if (bufferSize == -1)
+            {
+                bufferSize = DefaultBufferSize;
+            }
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
 #else
@@ -119,25 +183,7 @@ namespace Renci.SshNet
             _readBuffer = new byte[bufferSize];
             _writeBuffer = new byte[bufferSize];
 
-            try
-            {
-                _channel.Open();
-
-                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
-                {
-                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
-                }
-
-                if (!_channel.SendShellRequest())
-                {
-                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
-                }
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
+            _noTerminal = noTerminal;
         }
 
         /// <summary>
@@ -848,7 +894,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void WriteLine(string line)
         {
-            Write(line + "\r");
+            // By default, the terminal driver translates carriage return to line feed on input.
+            // See option ICRLF at https://www.man7.org/linux/man-pages/man3/termios.3.html.
+            Write(line + (_noTerminal ? "\n" : "\r"));
         }
 
         /// <inheritdoc/>

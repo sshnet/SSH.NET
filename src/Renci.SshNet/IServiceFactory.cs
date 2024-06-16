@@ -138,6 +138,17 @@ namespace Renci.SshNet
                                       int bufferSize);
 
         /// <summary>
+        /// Creates a shell stream without allocating a pseudo terminal.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize);
+
+        /// <summary>
         /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
         /// any embedded double quote with a backslash.
         /// </summary>

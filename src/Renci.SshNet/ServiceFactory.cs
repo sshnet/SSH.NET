@@ -206,6 +206,12 @@ namespace Renci.SshNet
             return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
         }
 
+        /// <inheritdoc/>
+        public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
+        {
+            return new ShellStream(session, bufferSize);
+        }
+
         /// <summary>
         /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
         /// any embedded double quote with a backslash.

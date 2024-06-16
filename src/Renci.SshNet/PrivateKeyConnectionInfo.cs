@@ -5,13 +5,12 @@ using System.Collections.ObjectModel;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides connection information when private key authentication method is used
+    /// Provides connection information when private key authentication method is used.
     /// </summary>
-    /// <example>
-    ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using private key" />
-    ///   </example>
     public class PrivateKeyConnectionInfo : ConnectionInfo, IDisposable
     {
+        private bool _isDisposed;
+
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
@@ -23,14 +22,9 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using private key" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile Multiple" language="C#" title="Connect using multiple private key" />
-        /// </example>
         public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, keyFiles)
         {
-
         }
 
         /// <summary>
@@ -46,7 +40,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">The port.</param>
@@ -61,7 +55,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">The port.</param>
@@ -77,7 +71,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
@@ -91,7 +85,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
@@ -106,7 +100,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
@@ -122,7 +116,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">The port.</param>
@@ -139,27 +133,25 @@ namespace Renci.SshNet
             KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -168,8 +160,7 @@ namespace Renci.SshNet
                 {
                     foreach (var authenticationMethod in AuthenticationMethods)
                     {
-                        var disposable = authenticationMethod as IDisposable;
-                        if (disposable != null)
+                        if (authenticationMethod is IDisposable disposable)
                         {
                             disposable.Dispose();
                         }
@@ -181,17 +172,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         ~PrivateKeyConnectionInfo()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

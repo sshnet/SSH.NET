@@ -6,13 +6,30 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_INFO_RESPONSE message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_INFO_RESPONSE", 61)]
-    internal class InformationResponseMessage : Message
+    internal sealed class InformationResponseMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_INFO_RESPONSE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 61;
+            }
+        }
+
         /// <summary>
         /// Gets authentication responses.
         /// </summary>
-        public IList<string> Responses { get; private set; }
+        public List<string> Responses { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -47,7 +64,8 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            Write((uint) Responses.Count);
+            Write((uint)Responses.Count);
+
             foreach (var response in Responses)
             {
                 Write(response);

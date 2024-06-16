@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpUnblockRequest : SftpRequest
+    internal sealed class SftpUnblockRequest : SftpRequest
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -35,7 +36,7 @@ namespace Renci.SshNet.Sftp.Requests
             }
         }
 
-        public SftpUnblockRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt64 length, Action<SftpStatusResponse> statusAction)
+        public SftpUnblockRequest(uint protocolVersion, uint requestId, byte[] handle, ulong offset, ulong length, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Handle = handle;
@@ -46,6 +47,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             Handle = ReadBinary();
             Offset = ReadUInt64();
             Length = ReadUInt64();
@@ -54,6 +56,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(Handle);
             Write(Offset);
             Write(Length);

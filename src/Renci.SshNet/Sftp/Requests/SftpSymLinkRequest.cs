@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpSymLinkRequest : SftpRequest
+    internal sealed class SftpSymLinkRequest : SftpRequest
     {
         private byte[] _newLinkPath;
         private byte[] _existingPath;

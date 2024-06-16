@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Authentication
@@ -6,9 +7,26 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_REQUEST message. Server as a base message for other user authentication requests.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_REQUEST", AuthenticationMessageCode)]
     public abstract class RequestMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return AuthenticationMessageCode;
+            }
+        }
+
         /// <summary>
         /// Returns the authentication message code for <c>SSH_MSG_USERAUTH_REQUEST</c>.
         /// </summary>
@@ -106,6 +124,11 @@ namespace Renci.SshNet.Messages.Authentication
         {
             throw new NotImplementedException();
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_REQUEST ({MethodName})";
+        }
     }
 }
-

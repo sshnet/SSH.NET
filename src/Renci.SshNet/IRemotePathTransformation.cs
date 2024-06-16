@@ -14,6 +14,4 @@
         /// </returns>
         string Transform(string path);
     }
-
-
 }

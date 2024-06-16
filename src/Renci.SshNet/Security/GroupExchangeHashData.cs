@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
 {
-    internal class GroupExchangeHashData : SshData
+    internal sealed class GroupExchangeHashData : SshData
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;
@@ -15,7 +16,6 @@ namespace Renci.SshNet.Security
             private get { return Utf8.GetString(_serverVersion, 0, _serverVersion.Length); }
             set { _serverVersion = Utf8.GetBytes(value); }
         }
-
 
         public string ClientVersion
         {

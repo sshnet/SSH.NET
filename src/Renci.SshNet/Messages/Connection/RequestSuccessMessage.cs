@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_REQUEST_SUCCESS message.
     /// </summary>
-    [Message("SSH_MSG_REQUEST_SUCCESS", 81)]
     public class RequestSuccessMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_REQUEST_SUCCESS";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 81;
+            }
+        }
+
         /// <summary>
         /// Gets the bound port.
         /// </summary>
@@ -22,8 +39,12 @@
             get
             {
                 var capacity = base.BufferCapacity;
+
                 if (BoundPort.HasValue)
+                {
                     capacity += 4; // BoundPort
+                }
+
                 return capacity;
             }
         }
@@ -33,7 +54,6 @@
         /// </summary>
         public RequestSuccessMessage()
         {
-
         }
 
         /// <summary>
@@ -51,7 +71,9 @@
         protected override void LoadData()
         {
             if (!IsEndOfData)
+            {
                 BoundPort = ReadUInt32();
+            }
         }
 
         /// <summary>
@@ -60,7 +82,9 @@
         protected override void SaveData()
         {
             if (BoundPort.HasValue)
+            {
                 Write(BoundPort.Value);
+            }
         }
 
         internal override void Process(Session session)

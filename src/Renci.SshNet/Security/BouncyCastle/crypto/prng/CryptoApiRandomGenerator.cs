@@ -9,9 +9,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Prng
         private readonly RandomNumberGenerator rndProv;
 
         public CryptoApiRandomGenerator()
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
             : this(Abstractions.CryptoAbstraction.CreateRandomNumberGenerator())
-#endif
         {
         }
 
@@ -34,15 +32,7 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Prng
 
         public virtual void NextBytes(byte[] bytes)
         {
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
             rndProv.GetBytes(bytes);
-#else
-            if (bytes == null)
-                throw new ArgumentNullException("bytes");
-
-            var buffer = Windows.Security.Cryptography.CryptographicBuffer.GenerateRandom((uint)bytes.Length);
-            System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.CopyTo(buffer, bytes);
-#endif
         }
 
         public virtual void NextBytes(byte[] bytes, int start, int len)

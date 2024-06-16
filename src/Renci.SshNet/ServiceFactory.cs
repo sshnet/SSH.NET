@@ -1,33 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.NetConf;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Abstractions;
-using Renci.SshNet.Connection;
-using System.Net.Sockets;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Basic factory for creating new services.
     /// </summary>
-    internal partial class ServiceFactory : IServiceFactory
+    internal sealed partial class ServiceFactory : IServiceFactory
     {
         /// <summary>
         /// Defines the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/>
         /// can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
         /// </summary>
-        private static int PartialSuccessLimit = 5;
+        private const int PartialSuccessLimit = 5;
 
         /// <summary>
-        /// Creates a <see cref="IClientAuthentication"/>.
+        /// Creates an <see cref="IClientAuthentication"/>.
         /// </summary>
         /// <returns>
-        /// A <see cref="IClientAuthentication"/>.
+        /// An <see cref="IClientAuthentication"/>.
         /// </returns>
         public IClientAuthentication CreateClientAuthentication()
         {
@@ -43,8 +45,8 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="ISession"/> for the specified <see cref="ConnectionInfo"/>.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
         public ISession CreateSession(ConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
             return new Session(connectionInfo, this, socketFactory);
@@ -55,7 +57,7 @@ namespace Renci.SshNet
         /// the specified operation timeout and encoding.
         /// </summary>
         /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
-        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="sftpMessageFactory">The factory to use for creating SFTP messages.</param>
         /// <returns>
@@ -77,49 +79,67 @@ namespace Renci.SshNet
             return new PipeStream();
         }
 
-        /// <summary>
-        /// Negotiates a key exchange algorithm, and creates a <see cref="IKeyExchange" /> for the negotiated
-        /// algorithm.
-        /// </summary>
-        /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where key is the name of the algorithm, and value is the type implementing this algorithm.</param>
-        /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
-        /// <returns>
-        /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
-        /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
-        public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
+        /// <inheritdoc/>
+        public IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms)
         {
-            if (clientAlgorithms == null)
-                throw new ArgumentNullException("clientAlgorithms");
-            if (serverAlgorithms == null)
-                throw new ArgumentNullException("serverAlgorithms");
+            if (clientAlgorithms is null)
+            {
+                throw new ArgumentNullException(nameof(clientAlgorithms));
+            }
+
+            if (serverAlgorithms is null)
+            {
+                throw new ArgumentNullException(nameof(serverAlgorithms));
+            }
 
             // find an algorithm that is supported by both client and server
-            var keyExchangeAlgorithmType = (from c in clientAlgorithms
-                                            from s in serverAlgorithms
-                                            where s == c.Key
-                                            select c.Value).FirstOrDefault();
+            var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
+                                               from s in serverAlgorithms
+                                               where s == c.Key
+                                               select c.Value).FirstOrDefault();
 
-            if (keyExchangeAlgorithmType == null)
+            if (keyExchangeAlgorithmFactory is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
+            return keyExchangeAlgorithmFactory();
         }
 
+        /// <summary>
+        /// Creates a new <see cref="INetConfSession"/> in a given <see cref="ISession"/>
+        /// and with the specified operation timeout.
+        /// </summary>
+        /// <param name="session">The <see cref="ISession"/> to create the <see cref="INetConfSession"/> in.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.</param>
+        /// <returns>
+        /// An <see cref="INetConfSession"/>.
+        /// </returns>
+        public INetConfSession CreateNetConfSession(ISession session, int operationTimeout)
+        {
+            return new NetConfSession(session, operationTimeout);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
+        /// buffer size.
+        /// </summary>
+        /// <param name="fileName">The file to read.</param>
+        /// <param name="sftpSession">The SFTP session to use.</param>
+        /// <param name="bufferSize">The size of buffer.</param>
+        /// <returns>
+        /// An <see cref="ISftpFileReader"/>.
+        /// </returns>
         public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            const int defaultMaxPendingReads = 3;
+            const int defaultMaxPendingReads = 10;
 
             // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
             // causes a performance degradation on Sun SSH
-            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
+            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, callback: null, state: null);
             var handle = sftpSession.EndOpen(openAsyncResult);
 
-            var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
+            var statAsyncResult = sftpSession.BeginLStat(fileName, callback: null, state: null);
 
             long? fileSize;
             int maxPendingReads;
@@ -132,7 +152,7 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(10, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
+                maxPendingReads = Math.Min(100, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
             }
             catch (SshException ex)
             {
@@ -145,6 +165,12 @@ namespace Renci.SshNet
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="ISftpResponseFactory"/> instance.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ISftpResponseFactory"/>.
+        /// </returns>
         public ISftpResponseFactory CreateSftpResponseFactory()
         {
             return new SftpResponseFactory();
@@ -157,7 +183,7 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
@@ -168,7 +194,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
@@ -178,6 +204,12 @@ namespace Renci.SshNet
         public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
             return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <inheritdoc/>
+        public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
+        {
+            return new ShellStream(session, bufferSize);
         }
 
         /// <summary>
@@ -209,10 +241,15 @@ namespace Renci.SshNet
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            if (connectionInfo is null)
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
+            if (socketFactory is null)
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             switch (connectionInfo.ProxyType)
             {

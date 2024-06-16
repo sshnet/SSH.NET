@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -7,7 +8,7 @@ namespace Renci.SshNet.Channels
     internal abstract class ClientChannel : Channel
     {
         /// <summary>
-        /// Initializes a new <see cref="ClientChannel"/> instance.
+        /// Initializes a new instance of the <see cref="ClientChannel"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -43,15 +44,13 @@ namespace Renci.SshNet.Channels
             // Channel is consider to be open when confirmation message was received
             IsOpen = true;
 
-            var openConfirmed = OpenConfirmed;
-            if (openConfirmed != null)
-                openConfirmed(this, new ChannelOpenConfirmedEventArgs(remoteChannelNumber, initialWindowSize, maximumPacketSize));
+            OpenConfirmed?.Invoke(this, new ChannelOpenConfirmedEventArgs(remoteChannelNumber, initialWindowSize, maximumPacketSize));
         }
 
         /// <summary>
         /// Send message to open a channel.
         /// </summary>
-        /// <param name="message">Message to send</param>
+        /// <param name="message">Message to send.</param>
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
@@ -68,9 +67,7 @@ namespace Renci.SshNet.Channels
         /// <param name="language">The language.</param>
         protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
         {
-            var openFailed = OpenFailed;
-            if (openFailed != null)
-                openFailed(this, new ChannelOpenFailedEventArgs(LocalChannelNumber, reasonCode, description, language));
+            OpenFailed?.Invoke(this, new ChannelOpenFailedEventArgs(LocalChannelNumber, reasonCode, description, language));
         }
 
         private void OnChannelOpenConfirmation(object sender, MessageEventArgs<ChannelOpenConfirmationMessage> e)
@@ -79,8 +76,9 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    OnOpenConfirmation(e.Message.RemoteChannelNumber, e.Message.InitialWindowSize,
-                        e.Message.MaximumPacketSize);
+                    OnOpenConfirmation(e.Message.RemoteChannelNumber,
+                                       e.Message.InitialWindowSize,
+                                       e.Message.MaximumPacketSize);
                 }
                 catch (Exception ex)
                 {
@@ -116,12 +114,14 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// Does nothing when <paramref name="session"/> is <see langword="null"/>.
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
+            {
                 return;
+            }
 
             session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
             session.ChannelOpenFailureReceived -= OnChannelOpenFailure;

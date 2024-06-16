@@ -1,0 +1,48 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "output": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": "**/*.{md,yml}",
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern",
+      "template"
+    ],
+    "globalMetadata": {
+      "_appName": "SSH.NET",
+      "_appTitle": "SSH.NET - A Secure Shell (SSH) library for .NET, optimized for parallelism",
+      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "images/icon.png",
+      "_appFooter": "Copyright (c) Renci, Oleg Kapeljushnik, Gert Driesen and contributors",
+      "_enableSearch": true
+    }
+  }
+}

@@ -1,11 +1,12 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Threading;
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Connection
 {
@@ -28,24 +29,43 @@ namespace Renci.SshNet.Connection
     ///   </item>
     /// </list>
     /// </remarks>
-    internal sealed class HttpConnector : ProxyConnector
+    internal sealed partial class HttpConnector : ProxyConnector
     {
-        public HttpConnector(ISocketFactory socketFactory) : base(socketFactory)
+        private const string HttpResponsePattern = @"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$";
+        private const string HttpHeaderPattern = @"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex HttpResponseRegex = GetHttpResponseRegex();
+        private static readonly Regex HttpHeaderRegex = GetHttpHeaderRegex();
+
+        [GeneratedRegex(HttpResponsePattern)]
+        private static partial Regex GetHttpResponseRegex();
+
+        [GeneratedRegex(HttpHeaderPattern)]
+        private static partial Regex GetHttpHeaderRegex();
+#else
+        private static readonly Regex HttpResponseRegex = new Regex(HttpResponsePattern, RegexOptions.Compiled);
+        private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
+#endif
+
+        public HttpConnector(ISocketFactory socketFactory)
+            : base(socketFactory)
         {
         }
 
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
-            var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
-            var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
+            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format(CultureInfo.InvariantCulture,
+                                                                                "CONNECT {0}:{1} HTTP/1.0\r\n",
+                                                                                connectionInfo.Host,
+                                                                                connectionInfo.Port)));
 
-            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", connectionInfo.Host, connectionInfo.Port)));
-
-            //  Sent proxy authorization if specified
+            // Send proxy authorization if specified
             if (!string.IsNullOrEmpty(connectionInfo.ProxyUsername))
             {
-                var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", connectionInfo.ProxyUsername, connectionInfo.ProxyPassword))));
+                var authorization = string.Format(CultureInfo.InvariantCulture,
+                                                  "Proxy-Authorization: Basic {0}\r\n",
+                                                  Convert.ToBase64String(SshData.Ascii.GetBytes($"{connectionInfo.ProxyUsername}:{connectionInfo.ProxyPassword}")));
                 SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(authorization));
             }
 
@@ -57,24 +77,22 @@ namespace Renci.SshNet.Connection
             while (true)
             {
                 var response = SocketReadLine(socket, connectionInfo.Timeout);
-                if (response == null)
+                if (response is null)
                 {
                     // server shut down socket
                     break;
                 }
 
-                if (statusCode == null)
+                if (statusCode is null)
                 {
-                    var statusMatch = httpResponseRe.Match(response);
+                    var statusMatch = HttpResponseRegex.Match(response);
                     if (statusMatch.Success)
                     {
                         var httpStatusCode = statusMatch.Result("${statusCode}");
-                        statusCode = (HttpStatusCode)int.Parse(httpStatusCode);
+                        statusCode = (HttpStatusCode)int.Parse(httpStatusCode, CultureInfo.InvariantCulture);
                         if (statusCode != HttpStatusCode.OK)
                         {
-                            throw new ProxyException(string.Format("HTTP: Status code {0}, \"{1}\"",
-                                                                   httpStatusCode,
-                                                                   statusMatch.Result("${reasonPhrase}")));
+                            throw new ProxyException($"HTTP: Status code {httpStatusCode}, \"{statusMatch.Result("${reasonPhrase}")}\"");
                         }
                     }
 
@@ -82,31 +100,33 @@ namespace Renci.SshNet.Connection
                 }
 
                 // continue on parsing message headers coming from the server
-                var headerMatch = httpHeaderRe.Match(response);
+                var headerMatch = HttpHeaderRegex.Match(response);
                 if (headerMatch.Success)
                 {
                     var fieldName = headerMatch.Result("${fieldName}");
                     if (fieldName.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
                     {
-                        contentLength = int.Parse(headerMatch.Result("${fieldValue}"));
+                        contentLength = int.Parse(headerMatch.Result("${fieldValue}"), CultureInfo.InvariantCulture);
                     }
+
                     continue;
                 }
 
                 // check if we've reached the CRLF which separates request line and headers from the message body
                 if (response.Length == 0)
                 {
-                    //  read response body if specified
+                    // read response body if specified
                     if (contentLength > 0)
                     {
                         var contentBody = new byte[contentLength];
-                        SocketRead(socket, contentBody, 0, contentLength, connectionInfo.Timeout);
+                        _ = SocketRead(socket, contentBody, 0, contentLength, connectionInfo.Timeout);
                     }
+
                     break;
                 }
             }
 
-            if (statusCode == null)
+            if (statusCode is null)
             {
                 throw new ProxyException("HTTP response does not contain status line.");
             }
@@ -120,7 +140,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         /// <returns>
-        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
+        /// The line read from the socket, or <see langword="null"/> when the remote server has shutdown and all data has been received.
         /// </returns>
         private static string SocketReadLine(Socket socket, TimeSpan readTimeout)
         {

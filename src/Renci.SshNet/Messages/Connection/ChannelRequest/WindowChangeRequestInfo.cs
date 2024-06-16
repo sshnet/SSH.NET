@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "window-change" type channel request information
+    /// Represents "window-change" type channel request information.
     /// </summary>
-    internal class WindowChangeRequestInfo : RequestInfo
+    internal sealed class WindowChangeRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channe request name
+        /// Channe request name.
         /// </summary>
         public const string Name = "window-change";
 

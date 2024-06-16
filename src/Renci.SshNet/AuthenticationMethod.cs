@@ -1,10 +1,9 @@
-﻿using Renci.SshNet.Common;
-using System;
+﻿using System;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Base class for all supported authentication methods
+    /// Base class for all supported authentication methods.
     /// </summary>
     public abstract class AuthenticationMethod : IAuthenticationMethod
     {
@@ -14,7 +13,9 @@ namespace Renci.SshNet
         /// <value>
         /// The name of the authentication method.
         /// </value>
+#pragma warning disable CA2119 // Seal methods that satisfy private interfaces
         public abstract string Name { get; }
+#pragma warning restore CA2119 // Seal methods that satisfy private interfaces
 
         /// <summary>
         /// Gets connection username.
@@ -22,7 +23,7 @@ namespace Renci.SshNet
         public string Username { get; private set; }
 
         /// <summary>
-        /// Gets list of allowed authentications.
+        /// Gets or sets the list of allowed authentications.
         /// </summary>
         public string[] AllowedAuthentications { get; protected set; }
 
@@ -30,11 +31,13 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
         protected AuthenticationMethod(string username)
         {
-            if (username.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(username))
+            {
                 throw new ArgumentException("username");
+            }
 
             Username = username;
         }
@@ -57,7 +60,7 @@ namespace Renci.SshNet
         /// </returns>
         AuthenticationResult IAuthenticationMethod.Authenticate(ISession session)
         {
-            return Authenticate((Session) session);
+            return Authenticate((Session)session);
         }
     }
 }

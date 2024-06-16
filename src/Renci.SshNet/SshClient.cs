@@ -235,7 +235,7 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             ConnectionInfo.Encoding = encoding;
-            return new SshCommand(Session, commandText, encoding);
+            return new SshCommand(Session!, commandText, encoding);
         }
 
         /// <summary>

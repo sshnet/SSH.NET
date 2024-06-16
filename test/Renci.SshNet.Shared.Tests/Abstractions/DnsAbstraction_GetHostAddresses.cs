@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-#if SILVERLIGHT
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Tests.Abstractions
@@ -53,14 +49,12 @@ namespace Renci.SshNet.Tests.Abstractions
             var addresses = DnsAbstraction.GetHostAddresses(hostNameOrAddress);
             Assert.IsNotNull(addresses);
 
-#if !SILVERLIGHT
             var hostEntry = Dns.GetHostEntry(Dns.GetHostName());
             Assert.IsNotNull(hostEntry);
 
             Assert.AreEqual(hostEntry.AddressList.Length, addresses.Length);
             for (var i = 0; i < hostEntry.AddressList.Length; i++)
                 Assert.AreEqual(hostEntry.AddressList[i], addresses[i]);
-#endif
         }
 
         [TestMethod]

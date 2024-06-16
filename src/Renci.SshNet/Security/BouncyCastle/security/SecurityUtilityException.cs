@@ -2,7 +2,7 @@ using System;
 
 namespace Renci.SshNet.Security.Org.BouncyCastle.Security
 {
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
     [Serializable]
 #endif
     internal class SecurityUtilityException

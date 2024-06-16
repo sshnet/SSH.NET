@@ -1,22 +1,32 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXDH_INIT message.
     /// </summary>
-    [Message("SSH_MSG_KEXDH_INIT", 30)]
-    internal class KeyExchangeDhInitMessage : Message, IKeyExchangedAllowed
+    internal sealed class KeyExchangeDhInitMessage : Message, IKeyExchangedAllowed
     {
-        private byte[] _eBytes;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEXDH_INIT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 30;
+            }
+        }
 
         /// <summary>
         /// Gets the E value.
         /// </summary>
-        public BigInteger E
-        {
-            get { return _eBytes.ToBigInteger(); }
-        }
+        public byte[] E { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -30,7 +40,7 @@ namespace Renci.SshNet.Messages.Transport
             {
                 var capacity = base.BufferCapacity;
                 capacity += 4; // E length
-                capacity += _eBytes.Length; // E
+                capacity += E.Length; // E
                 return capacity;
             }
         }
@@ -39,9 +49,9 @@ namespace Renci.SshNet.Messages.Transport
         /// Initializes a new instance of the <see cref="KeyExchangeDhInitMessage"/> class.
         /// </summary>
         /// <param name="clientExchangeValue">The client exchange value.</param>
-        public KeyExchangeDhInitMessage(BigInteger clientExchangeValue)
+        public KeyExchangeDhInitMessage(byte[] clientExchangeValue)
         {
-            _eBytes = clientExchangeValue.ToByteArray().Reverse();
+            E = clientExchangeValue;
         }
 
         /// <summary>
@@ -49,7 +59,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            _eBytes = ReadBinary();
+            E = ReadBinary();
         }
 
         /// <summary>
@@ -57,7 +67,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            WriteBinaryString(_eBytes);
+            WriteBinaryString(E);
         }
 
         internal override void Process(Session session)

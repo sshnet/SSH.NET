@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -60,6 +61,11 @@ namespace Renci.SshNet.Channels
         uint LocalPacketSize { get; }
 
         /// <summary>
+        /// Gets the remote channel number.
+        /// </summary>
+        uint RemoteChannelNumber { get; }
+
+        /// <summary>
         /// Gets the maximum size of a data packet that can be sent using the channel.
         /// </summary>
         /// <value>
@@ -73,7 +79,7 @@ namespace Renci.SshNet.Channels
         /// Gets a value indicating whether this channel is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this channel is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this channel is open; otherwise, <see langword="false"/>.
         /// </value>
         bool IsOpen { get; }
 

@@ -58,7 +58,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Security
         /// </remarks>
         /// <param name="generator">The source to generate all random bytes from.</param>
         public SecureRandom(IRandomGenerator generator)
+#pragma warning disable CA5394 // Do not use insecure randomness
             : base(0)
+#pragma warning restore CA5394 // Do not use insecure randomness
         {
             this.generator = generator;
         }

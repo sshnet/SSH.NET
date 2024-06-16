@@ -5,10 +5,14 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.
     /// </summary>
-    public class SftpFileSytemInformation
+#pragma warning disable SA1649 // File name should match first type name
+    public class SftpFileSystemInformation
+#pragma warning restore SA1649 // File name should match first type name
     {
+#pragma warning disable SA1310 // Field names should not contain underscore
         internal const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
         internal const ulong SSH_FXE_STATVFS_ST_NOSUID = 0x2;
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         private readonly ulong _flag;
 
@@ -88,7 +92,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether this instance is read only.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance is read only; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this instance is read only; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsReadOnly
         {
@@ -99,7 +103,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether [supports set uid].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [supports set uid]; otherwise, <c>false</c>.
+        /// <see langword="true"/> if [supports set uid]; otherwise, <see langword="false"/>.
         /// </value>
         public bool SupportsSetUid
         {
@@ -115,7 +119,7 @@ namespace Renci.SshNet.Sftp
         public ulong MaxNameLenght { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpFileSytemInformation" /> class.
+        /// Initializes a new instance of the <see cref="SftpFileSystemInformation" /> class.
         /// </summary>
         /// <param name="bsize">The bsize.</param>
         /// <param name="frsize">The frsize.</param>
@@ -128,7 +132,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="sid">The sid.</param>
         /// <param name="flag">The flag.</param>
         /// <param name="namemax">The namemax.</param>
-        internal SftpFileSytemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
+        internal SftpFileSystemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
         {
             FileSystemBlockSize = bsize;
             BlockSize = frsize;

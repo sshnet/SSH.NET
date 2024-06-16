@@ -1,30 +1,40 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REPLY", MessageNumber)]
-    internal class KeyExchangeDhGroupExchangeReply : Message
+    internal sealed class KeyExchangeDhGroupExchangeReply : Message
     {
-        internal const byte MessageNumber = 33;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_REPLY";
+            }
+        }
 
-        private byte[] _fBytes;
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 33;
+            }
+        }
 
         /// <summary>
-        /// Gets server public host key and certificates
+        /// Gets server public host key and certificates.
         /// </summary>
-        /// <value>The host key.</value>
+        /// <value>
+        /// The host key.
+        /// </value>
         public byte[] HostKey { get; private set; }
 
         /// <summary>
         /// Gets the F value.
         /// </summary>
-        public BigInteger F
-        {
-            get { return _fBytes.ToBigInteger(); }
-        }
+        public byte[] F { get; private set; }
 
         /// <summary>
         /// Gets the signature of H.
@@ -46,7 +56,7 @@ namespace Renci.SshNet.Messages.Transport
                 capacity += 4; // HostKey length
                 capacity += HostKey.Length; // HostKey
                 capacity += 4; // F length
-                capacity += _fBytes.Length; // F
+                capacity += F.Length; // F
                 capacity += 4; // Signature length
                 capacity += Signature.Length; // Signature
                 return capacity;
@@ -59,7 +69,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             HostKey = ReadBinary();
-            _fBytes = ReadBinary();
+            F = ReadBinary();
             Signature = ReadBinary();
         }
 
@@ -69,7 +79,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void SaveData()
         {
             WriteBinaryString(HostKey);
-            WriteBinaryString(_fBytes);
+            WriteBinaryString(F);
             WriteBinaryString(Signature);
         }
 

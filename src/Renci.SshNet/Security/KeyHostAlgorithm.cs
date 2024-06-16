@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Text;
+
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -9,169 +11,100 @@ namespace Renci.SshNet.Security
     public class KeyHostAlgorithm : HostAlgorithm
     {
         /// <summary>
-        /// Gets the key.
+        /// Gets the key used in this host key algorithm.
         /// </summary>
         public Key Key { get; private set; }
 
         /// <summary>
-        /// Gets the public key data.
+        /// Gets the signature implementation used in this host key algorithm.
         /// </summary>
+        public DigitalSignature DigitalSignature { get; private set; }
+
+        /// <summary>
+        /// Gets the encoded public key data.
+        /// </summary>
+        /// <value>
+        /// The encoded public key data.
+        /// </value>
         public override byte[] Data
         {
             get
             {
-                return new SshKeyData(Name, Key.Public).GetBytes();
+                var keyFormatIdentifier = Key is RsaKey ? "ssh-rsa" : Name;
+                return new SshKeyData(keyFormatIdentifier, Key.Public).GetBytes();
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
-        /// <param name="name">Host key name.</param>
-        /// <param name="key">Host key.</param>
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key">The key used in this host key algorithm.</param>
         public KeyHostAlgorithm(string name, Key key)
             : base(name)
         {
             Key = key;
+            DigitalSignature = key.DigitalSignature;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HostAlgorithm"/> class.
+        /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
-        /// <param name="name">Host key name.</param>
-        /// <param name="key">Host key.</param>
-        /// <param name="data">Host key encoded data.</param>
-        public KeyHostAlgorithm(string name, Key key, byte[] data)
+        /// <param name="name">The signature format identifier.</param>
+        /// <param name="key">The key used in this host key algorithm.</param>
+        /// <param name="digitalSignature">The signature implementation used in this host key algorithm.</param>
+        /// <remarks>
+        /// The key used by <paramref name="digitalSignature"/> is intended to be equal to <paramref name="key"/>.
+        /// This is not verified.
+        /// </remarks>
+        public KeyHostAlgorithm(string name, Key key, DigitalSignature digitalSignature)
             : base(name)
         {
             Key = key;
-
-            var sshKey = new SshKeyData();
-            sshKey.Load(data);
-            Key.Public = sshKey.Keys;
+            DigitalSignature = digitalSignature;
         }
 
         /// <summary>
-        /// Signs the specified data.
+        /// Signs and encodes the specified data.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="data">The data to be signed.</param>
         /// <returns>
-        /// Signed data.
+        /// The encoded signature.
         /// </returns>
         public override byte[] Sign(byte[] data)
         {
-            return new SignatureKeyData(Name, Key.Sign(data)).GetBytes();
+            return new SignatureKeyData(Name, DigitalSignature.Sign(data)).GetBytes();
         }
 
         /// <summary>
         /// Verifies the signature.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <param name="signature">The signature.</param>
+        /// <param name="data">The data to verify the signature against.</param>
+        /// <param name="signature">The encoded signature data.</param>
         /// <returns>
-        ///   <c>True</c> is signature was successfully verifies; otherwise <c>false</c>.
+        /// <see langword="true"/> if <paramref name="signature"/> is the result of signing <paramref name="data"/>
+        /// with the corresponding private key to <see cref="Key"/>.
         /// </returns>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {
             var signatureData = new SignatureKeyData();
             signatureData.Load(signature);
 
-            return Key.VerifySignature(data, signatureData.Signature);
+            return DigitalSignature.Verify(data, signatureData.Signature);
         }
 
-        private class SshKeyData : SshData
-        {
-            private byte[] _name;
-            private IList<byte[]> _keys;
-
-            public BigInteger[] Keys
-            {
-                get
-                {
-                    var keys = new BigInteger[_keys.Count];
-                    for (var i = 0; i < _keys.Count; i++)
-                    {
-                        var key = _keys[i];
-                        keys[i] = key.ToBigInteger2();
-                    }
-                    return keys;
-                }
-                private set
-                {
-                    _keys = new List<byte[]>(value.Length);
-                    foreach (var key in value)
-                    {
-                        _keys.Add(key.ToByteArray().Reverse());
-                    }
-                }
-            }
-
-            private string Name
-            {
-                get { return Utf8.GetString(_name, 0, _name.Length); }
-                set { _name = Utf8.GetBytes(value); }
-            }
-
-            protected override int BufferCapacity
-            {
-                get
-                {
-                    var capacity = base.BufferCapacity;
-                    capacity += 4; // Name length
-                    capacity += _name.Length; // Name
-                    foreach (var key in _keys)
-                    {
-                        capacity += 4; // Key length
-                        capacity += key.Length; // Key
-                    }
-                    return capacity;
-                }
-            }
-
-            public SshKeyData()
-            {
-            }
-
-            public SshKeyData(string name, params BigInteger[] keys)
-            {
-                Name = name;
-                Keys = keys;
-            }
-
-            protected override void LoadData()
-            {
-                _name = ReadBinary();
-                _keys = new List<byte[]>();
-
-                while (!IsEndOfData)
-                {
-                    _keys.Add(ReadBinary());
-                }
-            }
-
-            protected override void SaveData()
-            {
-                WriteBinaryString(_name);
-
-                foreach (var key in _keys)
-                {
-                    WriteBinaryString(key);
-                }
-            }
-        }
-
-        private class SignatureKeyData : SshData
+        internal sealed class SignatureKeyData : SshData
         {
             /// <summary>
-            /// Gets or sets the name of the algorithm as UTF-8 encoded byte array.
+            /// Gets or sets the signature format identifier.
             /// </summary>
             /// <value>
-            /// The name of the algorithm.
+            /// The signature format identifier.
             /// </value>
-            private byte[] AlgorithmName { get; set; }
+            public string AlgorithmName { get; set; }
 
             /// <summary>
-            /// Gets or sets the signature.
+            /// Gets the signature.
             /// </summary>
             /// <value>
             /// The signature.
@@ -190,7 +123,7 @@ namespace Renci.SshNet.Security
                 {
                     var capacity = base.BufferCapacity;
                     capacity += 4; // AlgorithmName length
-                    capacity += AlgorithmName.Length; // AlgorithmName
+                    capacity += Encoding.UTF8.GetByteCount(AlgorithmName); // AlgorithmName
                     capacity += 4; // Signature length
                     capacity += Signature.Length; // Signature
                     return capacity;
@@ -203,7 +136,7 @@ namespace Renci.SshNet.Security
 
             public SignatureKeyData(string name, byte[] signature)
             {
-                AlgorithmName = Utf8.GetBytes(name);
+                AlgorithmName = name;
                 Signature = signature;
             }
 
@@ -212,7 +145,7 @@ namespace Renci.SshNet.Security
             /// </summary>
             protected override void LoadData()
             {
-                AlgorithmName = ReadBinary();
+                AlgorithmName = ReadString();
                 Signature = ReadBinary();
             }
 
@@ -221,7 +154,7 @@ namespace Renci.SshNet.Security
             /// </summary>
             protected override void SaveData()
             {
-                WriteBinaryString(AlgorithmName);
+                Write(AlgorithmName);
                 WriteBinaryString(Signature);
             }
         }

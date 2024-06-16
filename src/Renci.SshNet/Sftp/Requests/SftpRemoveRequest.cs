@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpRemoveRequest : SftpRequest
+    internal sealed class SftpRemoveRequest : SftpRequest
     {
         private byte[] _fileName;
 

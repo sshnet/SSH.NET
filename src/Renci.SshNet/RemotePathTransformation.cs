@@ -27,7 +27,7 @@
         private static readonly IRemotePathTransformation DoubleQuoteTransformation = new RemotePathDoubleQuoteTransformation();
 
         /// <summary>
-        /// Quotes a path in a way to be suitable to be used with a shell-based server.
+        /// Gets a <see cref="IRemotePathTransformation"/> that quotes a path in a way to be suitable to be used with a shell-based server.
         /// </summary>
         /// <returns>
         /// A quoted path.
@@ -85,7 +85,7 @@
         }
 
         /// <summary>
-        /// Performs no transformation.
+        /// Gets a <see cref="IRemotePathTransformation"/> that performs no transformation.
         /// </summary>
         /// <remarks>
         /// Recommended for servers that do not require any character to be escaped or enclosed in quotes,
@@ -97,7 +97,7 @@
         }
 
         /// <summary>
-        /// Encloses a path in double quotes, and escapes any embedded double quote with a backslash.
+        /// Gets a <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any embedded double quote with a backslash.
         /// </summary>
         /// <value>
         /// A transformation that encloses a path in double quotes, and escapes any embedded double quote with

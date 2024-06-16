@@ -1,9 +1,10 @@
-﻿using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
+﻿using Renci.SshNet.Abstractions;
+using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
 using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECDH256 : KeyExchangeECDH
+    internal sealed class KeyExchangeECDH256 : KeyExchangeECDH
     {
         /// <summary>
         /// Gets algorithm name.
@@ -33,6 +34,21 @@ namespace Renci.SshNet.Security
         protected override int HashSize
         {
             get { return 256; }
+        }
+
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>
+        /// The hash of the data.
+        /// </returns>
+        protected override byte[] Hash(byte[] hashData)
+        {
+            using (var sha256 = CryptoAbstraction.CreateSHA256())
+            {
+                return sha256.ComputeHash(hashData, 0, hashData.Length);
+            }
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
-using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Generators;
-using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters;
-using Renci.SshNet.Security.Org.BouncyCastle.Security;
-using Renci.SshNet.Security.Org.BouncyCastle.Math.EC;
 using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
 using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Agreement;
+using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Generators;
+using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters;
+using Renci.SshNet.Security.Org.BouncyCastle.Math.EC;
+using Renci.SshNet.Security.Org.BouncyCastle.Security;
 
 namespace Renci.SshNet.Security
 {
@@ -21,34 +22,30 @@ namespace Renci.SshNet.Security
         /// </value>
         protected abstract X9ECParameters CurveParameter { get; }
 
-        protected ECDHCBasicAgreement KeyAgreement;
-        protected ECDomainParameters DomainParameters;
+        private ECDHCBasicAgreement _keyAgreement;
+        private ECDomainParameters _domainParameters;
 
-        /// <summary>
-        /// Starts key exchange algorithm
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-            DomainParameters = new ECDomainParameters(CurveParameter.Curve,
+            _domainParameters = new ECDomainParameters(CurveParameter.Curve,
                                                       CurveParameter.G,
                                                       CurveParameter.N,
                                                       CurveParameter.H,
                                                       CurveParameter.GetSeed());
 
             var g = new ECKeyPairGenerator();
-            g.Init(new ECKeyGenerationParameters(DomainParameters, new SecureRandom()));
+            g.Init(new ECKeyGenerationParameters(_domainParameters, new SecureRandom()));
 
             var aKeyPair = g.GenerateKeyPair();
-            KeyAgreement = new ECDHCBasicAgreement();
-            KeyAgreement.Init(aKeyPair.Private);
+            _keyAgreement = new ECDHCBasicAgreement();
+            _keyAgreement.Init(aKeyPair.Private);
             _clientExchangeValue = ((ECPublicKeyParameters)aKeyPair.Public).Q.GetEncoded();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
@@ -68,12 +65,12 @@ namespace Renci.SshNet.Security
         {
             var message = e.Message;
 
-            //  Unregister message once received
+            // Unregister message once received
             Session.UnRegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             HandleServerEcdhReply(message.KS, message.QS, message.Signature);
 
-            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            // When SSH_MSG_KEXDH_REPLY received key exchange is completed
             Finish();
         }
 
@@ -83,11 +80,10 @@ namespace Renci.SshNet.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected override void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
+        private void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            _serverExchangeValue = serverExchangeValue;
             _signature = signature;
 
             var cordSize = (serverExchangeValue.Length - 1) / 2;
@@ -96,12 +92,12 @@ namespace Renci.SshNet.Security
             var y = new byte[cordSize];
             Buffer.BlockCopy(serverExchangeValue, cordSize + 1, y, 0, y.Length);
 
-            var c = (FpCurve)DomainParameters.Curve;
+            var c = (FpCurve)_domainParameters.Curve;
             var q = c.CreatePoint(new Org.BouncyCastle.Math.BigInteger(1, x), new Org.BouncyCastle.Math.BigInteger(1, y));
-            var publicKey = new ECPublicKeyParameters("ECDH", q, DomainParameters);
+            var publicKey = new ECPublicKeyParameters("ECDH", q, _domainParameters);
 
-            var k1 = KeyAgreement.CalculateAgreement(publicKey);
-            SharedKey = k1.ToByteArray().ToBigInteger2();
+            var k1 = _keyAgreement.CalculateAgreement(publicKey);
+            SharedKey = k1.ToByteArray().ToBigInteger2().ToByteArray().Reverse();
         }
     }
 }

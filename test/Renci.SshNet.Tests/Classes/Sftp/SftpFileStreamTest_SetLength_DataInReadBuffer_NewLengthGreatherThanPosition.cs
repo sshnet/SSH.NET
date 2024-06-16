@@ -107,8 +107,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                  FileMode.Open,
                                                  FileAccess.ReadWrite,
                                                  (int)_bufferSize);
-            _sftpFileStream.Read(_readBytes1, 0, _readBytes1.Length);
-            _sftpFileStream.Read(_readBytes2, 0, _readBytes2.Length); // this will return bytes from the buffer
+            int readBytesCount1 = _sftpFileStream.Read(_readBytes1, 0, _readBytes1.Length);
+            Assert.AreEqual(_readBytes1.Length, readBytesCount1);
+            int readBytesCount2 = _sftpFileStream.Read(_readBytes2, 0, _readBytes2.Length); // this will return bytes from the buffer
+            Assert.AreEqual(_readBytes2.Length, readBytesCount2);
         }
 
         protected override void Act()

@@ -101,6 +101,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
+            timeout.EnsureValidTimeout(nameof(timeout));
+
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {
                 return;
@@ -159,10 +161,10 @@ namespace Renci.SshNet
             var ip = IPAddress.Any;
             if (!string.IsNullOrEmpty(BoundHost))
             {
-                ip = DnsAbstraction.GetHostAddresses(BoundHost)[0];
+                ip = Dns.GetHostAddresses(BoundHost)[0];
             }
 
-            var ep = new IPEndPoint(ip, (int) BoundPort);
+            var ep = new IPEndPoint(ip, (int)BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
@@ -736,7 +738,7 @@ namespace Renci.SshNet
                     break;
                 }
 
-                _ = text.Append((char) byteRead);
+                _ = text.Append((char)byteRead);
             }
 
             return text.ToString();

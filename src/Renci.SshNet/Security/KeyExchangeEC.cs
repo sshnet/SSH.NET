@@ -53,16 +53,16 @@ namespace Renci.SshNet.Security
         protected override byte[] CalculateHash()
         {
             var hashData = new KeyExchangeHashData
-                {
-                    ClientVersion = Session.ClientVersion,
-                    ServerVersion = Session.ServerVersion,
-                    ClientPayload = _clientPayload,
-                    ServerPayload = _serverPayload,
-                    HostKey = _hostKey,
-                    ClientExchangeValue = _clientExchangeValue,
-                    ServerExchangeValue = _serverExchangeValue,
-                    SharedKey = SharedKey,
-                };
+            {
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                ClientExchangeValue = _clientExchangeValue,
+                ServerExchangeValue = _serverExchangeValue,
+                SharedKey = SharedKey,
+            };
 
             return Hash(hashData.GetBytes());
         }
@@ -78,17 +78,13 @@ namespace Renci.SshNet.Security
             return ValidateExchangeHash(_hostKey, _signature);
         }
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
         }
-   }
+    }
 }

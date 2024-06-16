@@ -71,9 +71,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Stops port forwarding.
         /// </summary>
-#pragma warning disable CA1716 // Identifiers should not match keywords
         public virtual void Stop()
-#pragma warning restore CA1716 // Identifiers should not match keywords
         {
             if (IsStarted)
             {
@@ -102,6 +100,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected virtual void StopPort(TimeSpan timeout)
         {
+            timeout.EnsureValidTimeout(nameof(timeout));
+
             RaiseClosing();
 
             var session = Session;

@@ -1,10 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.IO;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -32,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 100;
             _writeBufferSize = 500;
-            _readBytes1 = new byte[random.Next(1, (int) _readBufferSize - 10)];
+            _readBytes1 = new byte[random.Next(1, (int)_readBufferSize - 10)];
             _readBytes2 = new byte[random.Next(1, 3)];
             _serverBytes = GenerateRandom(_readBytes1.Length + 10); // store 5 bytes in read buffer
         }
@@ -105,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.IsOpen)
                                .Returns(true);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.RequestRead(_handle, (ulong) (_readBytes1.Length + _readBytes2.Length), _readBufferSize))
+                               .Setup(p => p.RequestRead(_handle, (ulong)(_readBytes1.Length + _readBytes2.Length), _readBufferSize))
                                .Returns(serverBytes3);
 
             var bytesRead = _target.Read(readBytes3, 1, 2);

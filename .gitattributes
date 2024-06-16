@@ -1,6 +1,6 @@
 * text=auto
 
-*.cs text
+*.cs text diff=csharp
 *.xaml text
 *.sln eol=crlf
 *.csproj eol=crlf
@@ -17,4 +17,7 @@
 *.snk binary
 
 # Ensure key files have LF endings for easier usage with ssh-keygen
+# Also, the dockerfile used for integration tests fails if key files have cr-lf
 test/Data/* eol=lf
+test/Renci.SshNet.IntegrationTests/server/**/* eol=lf
+test/Renci.SshNet.IntegrationTests/user/* eol=lf

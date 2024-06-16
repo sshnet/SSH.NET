@@ -1,9 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -207,7 +209,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshException));
+                    Assert.IsInstanceOfType<SshException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Invalid passphrase.", ex.Message);
                 }
@@ -228,7 +230,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshPassPhraseNullOrEmptyException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsInstanceOfType<SshPassPhraseNullOrEmptyException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
                 }
@@ -249,7 +251,7 @@ namespace Renci.SshNet.Tests.Classes
                 }
                 catch (SshPassPhraseNullOrEmptyException ex)
                 {
-                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsInstanceOfType<SshPassPhraseNullOrEmptyException>(ex);
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
                 }
@@ -687,9 +689,11 @@ namespace Renci.SshNet.Tests.Classes
 
             var algorithms = rsaPrivateKeyFile.HostKeyAlgorithms.ToList();
 
-            Assert.AreEqual("rsa-sha2-512", algorithms[0].Name);
-            Assert.AreEqual("rsa-sha2-256", algorithms[1].Name);
-            Assert.AreEqual("ssh-rsa", algorithms[2].Name);
+            // ssh-rsa should be attempted first during authentication by default.
+            // See https://github.com/sshnet/SSH.NET/issues/1233#issuecomment-1871196405
+            Assert.AreEqual("ssh-rsa", algorithms[0].Name);
+            Assert.AreEqual("rsa-sha2-512", algorithms[1].Name);
+            Assert.AreEqual("rsa-sha2-256", algorithms[2].Name);
         }
     }
 }

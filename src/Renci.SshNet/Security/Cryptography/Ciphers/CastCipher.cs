@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -708,15 +709,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static void Bits32ToInts(uint inData, int[] b, int offset)
         {
-            b[offset + 3] = (int) (inData & 0xff);
-            b[offset + 2] = (int) ((inData >> 8) & 0xff);
-            b[offset + 1] = (int) ((inData >> 16) & 0xff);
-            b[offset] = (int) ((inData >> 24) & 0xff);
+            b[offset + 3] = (int)(inData & 0xff);
+            b[offset + 2] = (int)((inData >> 8) & 0xff);
+            b[offset + 1] = (int)((inData >> 16) & 0xff);
+            b[offset] = (int)((inData >> 24) & 0xff);
         }
 
         private static uint IntsTo32Bits(int[] b, int i)
         {
-            return (uint) (((b[i] & 0xff) << 24) |
+            return (uint)(((b[i] & 0xff) << 24) |
                            ((b[i + 1] & 0xff) << 16) |
                            ((b[i + 2] & 0xff) << 8) |
                            (b[i + 3] & 0xff));

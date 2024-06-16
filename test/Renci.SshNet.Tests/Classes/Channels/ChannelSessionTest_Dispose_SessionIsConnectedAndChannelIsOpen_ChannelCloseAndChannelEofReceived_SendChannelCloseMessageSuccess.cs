@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -23,24 +26,24 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private IList<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
         private ChannelSession _channel;
-        private SemaphoreLight _sessionSemaphore;
+        private SemaphoreSlim _sessionSemaphore;
         private int _initialSessionSemaphoreCount;
 
         protected override void SetupData()
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(0, int.MaxValue);
-            _localPacketSize = (uint) random.Next(0, int.MaxValue);
-            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(0, int.MaxValue);
+            _localPacketSize = (uint)random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint)random.Next(0, int.MaxValue);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _initialSessionSemaphoreCount = random.Next(10, 20);
-            _sessionSemaphore = new SemaphoreLight(_initialSessionSemaphoreCount);
+            _sessionSemaphore = new SemaphoreSlim(_initialSessionSemaphoreCount);
         }
 
         protected override void SetupMocks()

@@ -1,6 +1,8 @@
 ﻿using System.Net.Sockets;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -42,10 +45,10 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _terminalName = random.Next().ToString();
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
-            _widthPixels = (uint) random.Next();
-            _heightPixels = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
+            _widthPixels = (uint)random.Next();
+            _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 
@@ -116,7 +119,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void NoDataShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
@@ -125,8 +128,8 @@ namespace Renci.SshNet.Tests.Classes
             byte[] bytesSent = null;
 
             _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(It.IsAny<byte[]>()))
-                               .Callback<byte[]>(data => bytesSent = data);
+                               .Setup(p => p.SendData(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                               .Callback<byte[], int, int>((data, offset, count) => bytesSent = data.Take(offset, count));
 
             _shellStream.Flush();
 
@@ -135,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(_bufferData.IsEqualTo(bytesSent.Take(_bufferData.Length)));
             Assert.IsTrue(_data.Take(0, _count).IsEqualTo(bytesSent.Take(_bufferData.Length, _count)));
 
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

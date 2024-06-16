@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private StatVfsResponse _sftpStatVfsResponse;
         private ulong _bAvail;
         private string _path;
-        private SftpFileSytemInformation _actual;
+        private SftpFileSystemInformation _actual;
 
         [TestInitialize]
         public void Setup()
@@ -75,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _path = random.Next().ToString();
-            _bAvail = (ulong) random.Next(0, int.MaxValue);
+            _bAvail = (ulong)random.Next(0, int.MaxValue);
             _sftpStatVfsRequestBytes = new SftpStatVfsRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                       .WithRequestId(2)
                                                                       .WithPath(_path)
@@ -138,8 +138,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.SendData(_sftpStatVfsRequestBytes))
                                    .Callback(() =>
                                        {
-                                            _channelSessionMock.Raise(c => c.DataReceived += null,
-                                                                      new ChannelDataEventArgs(0, _sftpStatVfsResponse.GetBytes()));
+                                           _channelSessionMock.Raise(c => c.DataReceived += null,
+                                                                     new ChannelDataEventArgs(0, _sftpStatVfsResponse.GetBytes()));
                                        });
         }
 
@@ -169,5 +169,5 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.AreEqual(_bAvail, _actual.AvailableBlocks);
         }
-   }
+    }
 }

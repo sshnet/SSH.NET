@@ -20,9 +20,6 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents private key information.
     /// </summary>
-    /// <example>
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
-    /// </example>
     /// <remarks>
     /// <para>
     /// The following private keys are supported:
@@ -65,10 +62,19 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IPrivateKeySource, IDisposable
+    public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+";
+
+#if NET7_0_OR_GREATER
+        private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+
+        [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
+        private static partial Regex GetPrivateKeyRegex();
+#else
+        private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern,
                                                                   RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+#endif
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
         private Key _key;
@@ -250,11 +256,11 @@ namespace Renci.SshNet
                 case "RSA":
                     var rsaKey = new RsaKey(decryptedData);
                     _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);
@@ -268,11 +274,11 @@ namespace Renci.SshNet
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
                     if (_key is RsaKey parsedRsaKey)
                     {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
                     else
                     {
@@ -327,7 +333,7 @@ namespace Renci.SshNet
                         throw new SshException("Invalid passphrase.");
                     }
 
-                    if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
+                    if (keyType.Contains("rsa"))
                     {
                         var exponent = reader.ReadBigIntWithBits(); // e
                         var d = reader.ReadBigIntWithBits(); // d
@@ -337,13 +343,13 @@ namespace Renci.SshNet
                         var p = reader.ReadBigIntWithBits(); // q
                         var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
 #pragma warning disable CA2000 // Dispose objects before losing scope
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
-                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
                     }
-                    else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
+                    else if (keyType.Contains("dsa"))
                     {
                         var zero = reader.ReadUInt32();
                         if (zero != 0)
@@ -476,9 +482,9 @@ namespace Renci.SshNet
             var rounds = 0;
             if (kdfOptionsLen > 0)
             {
-                var saltLength = (int) keyReader.ReadUInt32();
+                var saltLength = (int)keyReader.ReadUInt32();
                 salt = keyReader.ReadBytes(saltLength);
-                rounds = (int) keyReader.ReadUInt32();
+                rounds = (int)keyReader.ReadUInt32();
             }
 
             // number of public keys, only supporting 1 for now
@@ -492,7 +498,7 @@ namespace Renci.SshNet
             _ = keyReader.ReadString(Encoding.UTF8);
 
             // possibly encrypted private key
-            var privateKeyLength = (int) keyReader.ReadUInt32();
+            var privateKeyLength = (int)keyReader.ReadUInt32();
             var privateKeyBytes = keyReader.ReadBytes(privateKeyLength);
 
             // decrypt private key if necessary
@@ -554,8 +560,8 @@ namespace Renci.SshNet
             var privateKeyReader = new SshDataReader(privateKeyBytes);
 
             // check ints should match, they wouldn't match for example if the wrong passphrase was supplied
-            var checkInt1 = (int) privateKeyReader.ReadUInt32();
-            var checkInt2 = (int) privateKeyReader.ReadUInt32();
+            var checkInt1 = (int)privateKeyReader.ReadUInt32();
+            var checkInt2 = (int)privateKeyReader.ReadUInt32();
             if (checkInt1 != checkInt2)
             {
                 throw new SshException(string.Format(CultureInfo.InvariantCulture,
@@ -573,18 +579,20 @@ namespace Renci.SshNet
             switch (keyType)
             {
                 case "ssh-ed25519":
-                    // public key
-                    publicKey = privateKeyReader.ReadBignum2();
+                    // https://datatracker.ietf.org/doc/html/draft-miller-ssh-agent-11#section-3.2.3
 
-                    // private key
+                    // ENC(A)
+                    _ = privateKeyReader.ReadBignum2();
+
+                    // k || ENC(A)
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
-                    parsedKey = new ED25519Key(publicKey.Reverse(), unencryptedPrivateKey);
+                    parsedKey = new ED25519Key(unencryptedPrivateKey);
                     break;
                 case "ecdsa-sha2-nistp256":
                 case "ecdsa-sha2-nistp384":
                 case "ecdsa-sha2-nistp521":
                     // curve
-                    var len = (int) privateKeyReader.ReadUInt32();
+                    var len = (int)privateKeyReader.ReadUInt32();
                     var curve = Encoding.ASCII.GetString(privateKeyReader.ReadBytes(len));
 
                     // public key
@@ -614,7 +622,7 @@ namespace Renci.SshNet
             var padding = privateKeyReader.ReadBytes();
             for (var i = 0; i < padding.Length; i++)
             {
-                if ((int) padding[i] != i + 1)
+                if ((int)padding[i] != i + 1)
                 {
                     throw new SshException("Padding of openssh key format contained wrong byte at position: " +
                                            i.ToString(CultureInfo.InvariantCulture));
@@ -649,7 +657,7 @@ namespace Renci.SshNet
                 var key = _key;
                 if (key != null)
                 {
-                    ((IDisposable) key).Dispose();
+                    ((IDisposable)key).Dispose();
                     _key = null;
                 }
 
@@ -698,7 +706,7 @@ namespace Renci.SshNet
             /// <returns>mpint read.</returns>
             public BigInteger ReadBigIntWithBits()
             {
-                var length = (int) base.ReadUInt32();
+                var length = (int)base.ReadUInt32();
 
                 length = (length + 7) / 8;
 

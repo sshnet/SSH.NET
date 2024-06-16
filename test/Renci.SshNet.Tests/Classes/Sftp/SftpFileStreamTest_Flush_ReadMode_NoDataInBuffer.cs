@@ -30,10 +30,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint) random.Next(1, 1000);
+            _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 100;
             _writeBufferSize = 500;
-            _readBytes = new byte[random.Next(1, (int) _readBufferSize)];
+            _readBytes = new byte[random.Next(1, (int)_readBufferSize)];
             _serverBytes = GenerateRandom(_readBytes.Length);
         }
 
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          _path,
                                          FileMode.Open,
                                          FileAccess.Read,
-                                         (int) _bufferSize);
+                                         (int)_bufferSize);
             _ = _target.Read(_readBytes, 0, _readBytes.Length);
         }
 
@@ -101,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.IsOpen)
                                .Returns(true);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.RequestRead(_handle, (ulong) _readBytes.Length, _readBufferSize))
+                               .Setup(p => p.RequestRead(_handle, (ulong)_readBytes.Length, _readBufferSize))
                                .Returns(serverBytes2);
 
             var bytesRead = _target.Read(readBytes2, 2, 3);

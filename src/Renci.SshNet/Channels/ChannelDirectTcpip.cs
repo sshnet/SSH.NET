@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -59,13 +60,13 @@ namespace Renci.SshNet.Channels
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            var ep = (IPEndPoint) socket.RemoteEndPoint;
+            var ep = (IPEndPoint)socket.RemoteEndPoint;
 
             // Open channel
             SendMessage(new ChannelOpenMessage(LocalChannelNumber,
                                                LocalWindowSize,
                                                LocalPacketSize,
-                                               new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
+                                               new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint)ep.Port)));
 
             // Wait for channel to open
             WaitOnHandle(_channelOpen);

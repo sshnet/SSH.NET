@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -90,11 +93,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldAcceptChannelOpenMessageForBoundAddressAndBoundPort()
         {
-            var channelNumber = (uint) new Random().Next(1001, int.MaxValue);
-            var initialWindowSize = (uint) new Random().Next(0, int.MaxValue);
-            var maximumPacketSize = (uint) new Random().Next(0, int.MaxValue);
+            var channelNumber = (uint)new Random().Next(1001, int.MaxValue);
+            var initialWindowSize = (uint)new Random().Next(0, int.MaxValue);
+            var maximumPacketSize = (uint)new Random().Next(0, int.MaxValue);
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var originatorPort = (uint) new Random().Next(0, int.MaxValue);
+            var originatorPort = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
             var channelDisposed = new ManualResetEvent(false);
 

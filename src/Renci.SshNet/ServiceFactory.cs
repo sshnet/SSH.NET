@@ -79,19 +79,8 @@ namespace Renci.SshNet
             return new PipeStream();
         }
 
-        /// <summary>
-        /// Negotiates a key exchange algorithm, and creates a <see cref="IKeyExchange" /> for the negotiated
-        /// algorithm.
-        /// </summary>
-        /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where key is the name of the algorithm, and value is the type implementing this algorithm.</param>
-        /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
-        /// <returns>
-        /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
-        public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
+        /// <inheritdoc/>
+        public IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms)
         {
             if (clientAlgorithms is null)
             {
@@ -104,17 +93,17 @@ namespace Renci.SshNet
             }
 
             // find an algorithm that is supported by both client and server
-            var keyExchangeAlgorithmType = (from c in clientAlgorithms
-                                            from s in serverAlgorithms
-                                            where s == c.Key
-                                            select c.Value).FirstOrDefault();
+            var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
+                                               from s in serverAlgorithms
+                                               where s == c.Key
+                                               select c.Value).FirstOrDefault();
 
-            if (keyExchangeAlgorithmType is null)
+            if (keyExchangeAlgorithmFactory is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
+            return keyExchangeAlgorithmFactory();
         }
 
         /// <summary>
@@ -205,7 +194,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
@@ -215,6 +204,12 @@ namespace Renci.SshNet
         public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
             return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <inheritdoc/>
+        public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
+        {
+            return new ShellStream(session, bufferSize);
         }
 
         /// <summary>

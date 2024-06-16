@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+#if !NET6_0_OR_GREATER
+using System.Net;
+#endif
 
 using Renci.SshNet.Common;
 
@@ -46,8 +49,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                                  .GetAwaiter()
                                                  .GetResult();
 #else
-                            var request = (HttpWebRequest) WebRequest.Create(url);
-                            var response = (HttpWebResponse) request.GetResponse();
+                        var request = (HttpWebRequest)WebRequest.Create(url);
+                        var response = (HttpWebResponse)request.GetResponse();
 #endif // NET6_0_OR_GREATER
 
                         Assert.IsNotNull(response);
@@ -122,10 +125,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                      {
                                          var data = ReadStream(response.Content.ReadAsStream());
 #else
-                                        var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
-                                        using (var response = (HttpWebResponse) request.GetResponse())
-                                        {
-                                            var data = ReadStream(response.GetResponseStream());
+                                     var request = (HttpWebRequest)WebRequest.Create("http://localhost:8084");
+                                     using (var response = (HttpWebResponse)request.GetResponse())
+                                     {
+                                         var data = ReadStream(response.GetResponseStream());
 #endif // NET6_0_OR_GREATER
                                          var end = DateTime.Now;
 

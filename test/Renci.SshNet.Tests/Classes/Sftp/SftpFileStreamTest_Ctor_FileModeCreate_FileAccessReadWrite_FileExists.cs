@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
@@ -41,10 +44,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.Truncate, true))
                            .Returns(_handle);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
+                           .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
                            .Returns(_readBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
+                           .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
                            .Returns(_writeBufferSize);
         }
 

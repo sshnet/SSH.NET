@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Threading;
-#if SILVERLIGHT
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Tests.Abstractions

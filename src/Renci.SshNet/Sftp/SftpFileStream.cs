@@ -13,9 +13,10 @@ namespace Renci.SshNet.Sftp
     /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
-#pragma warning disable CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
+#pragma warning disable IDE0079 // We intentionally want to suppress the below warning.
+    [SuppressMessage("Performance", "CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'", Justification = "TODO: This should be addressed in the future.")]
+#pragma warning restore IDE0079
     public class SftpFileStream : Stream
-#pragma warning restore CA1844 // Provide memory-based overrides of async methods when subclassing 'Stream'
     {
         private readonly object _lock = new object();
         private readonly int _readBufferSize;
@@ -35,6 +36,7 @@ namespace Renci.SshNet.Sftp
         private bool _canRead;
         private bool _canSeek;
         private bool _canWrite;
+        private TimeSpan _timeout;
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
@@ -87,7 +89,6 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         /// <exception cref="IOException">IO operation failed. </exception>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Be design this is the exception that stream need to throw.")]
         public override long Length
         {
             get
@@ -176,7 +177,19 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The timeout.
         /// </value>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(Timeout));
+
+                _timeout = value;
+            }
+        }
 
         private SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
         {
@@ -196,8 +209,8 @@ namespace Renci.SshNet.Sftp
              * or SSH_FXP_WRITE message.
              */
 
-            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
-            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
+            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
 
             _position = position;
         }
@@ -308,8 +321,8 @@ namespace Renci.SshNet.Sftp
              * or SSH_FXP_WRITE message.
              */
 
-            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
-            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
+            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
 
             if (mode == FileMode.Append)
             {
@@ -553,7 +566,7 @@ namespace Renci.SshNet.Sftp
                     var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
                     if (bytesAvailableInBuffer <= 0)
                     {
-                        var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
+                        var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
                         if (data.Length == 0)
                         {
@@ -811,7 +824,7 @@ namespace Renci.SshNet.Sftp
                 // Read more data into the internal buffer if necessary.
                 if (_bufferPosition >= _bufferLen)
                 {
-                    var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
+                    var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
                     if (data.Length == 0)
                     {
                         // We've reached EOF.
@@ -898,7 +911,7 @@ namespace Renci.SshNet.Sftp
                         if (newPosn >= (_position - _bufferPosition) &&
                            newPosn < (_position - _bufferPosition + _bufferLen))
                         {
-                            _bufferPosition = (int) (newPosn - (_position - _bufferPosition));
+                            _bufferPosition = (int)(newPosn - (_position - _bufferPosition));
                             _position = newPosn;
                             return _position;
                         }
@@ -1069,7 +1082,7 @@ namespace Renci.SshNet.Sftp
                     {
                         using (var wait = new AutoResetEvent(initialState: false))
                         {
-                            _session.RequestWrite(_handle, (ulong) _position, buffer, offset, tempLen, wait);
+                            _session.RequestWrite(_handle, (ulong)_position, buffer, offset, tempLen, wait);
                         }
                     }
                     else
@@ -1091,7 +1104,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(initialState: false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -1215,7 +1228,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(initialState: false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), writeBuffer, 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), writeBuffer, 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -1299,7 +1312,7 @@ namespace Renci.SshNet.Sftp
             {
                 using (var wait = new AutoResetEvent(initialState: false))
                 {
-                    _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
+                    _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
                 }
 
                 _bufferPosition = 0;

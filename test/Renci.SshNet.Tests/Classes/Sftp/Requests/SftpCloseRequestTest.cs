@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
@@ -73,10 +75,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             var sshDataStream = new SshDataStream(bytes);
 
             Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
-            Assert.AreEqual((byte) SftpMessageTypes.Close, sshDataStream.ReadByte());
+            Assert.AreEqual((byte)SftpMessageTypes.Close, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
-            Assert.AreEqual((uint) _handle.Length, sshDataStream.ReadUInt32());
+            Assert.AreEqual((uint)_handle.Length, sshDataStream.ReadUInt32());
             var actualHandle = new byte[_handle.Length];
             sshDataStream.Read(actualHandle, 0, actualHandle.Length);
             Assert.IsTrue(_handle.SequenceEqual(actualHandle));

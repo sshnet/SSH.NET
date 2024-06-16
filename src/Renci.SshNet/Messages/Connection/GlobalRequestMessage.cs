@@ -3,10 +3,27 @@
     /// <summary>
     /// Represents SSH_MSG_GLOBAL_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_GLOBAL_REQUEST", 80)]
     public class GlobalRequestMessage : Message
     {
         private byte[] _requestName;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_GLOBAL_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 80;
+            }
+        }
 
         /// <summary>
         /// Gets the name of the request.

@@ -47,10 +47,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.RequestOpenAsync(_path, Flags.Read | Flags.Write | Flags.CreateNewOrOpen, _cancellationToken))
                                .ReturnsAsync(_handle);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
+                               .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
                                .Returns(_readBufferSize);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
+                               .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
                                .Returns(_writeBufferSize);
         }
 

@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Create_directory_with_contents_and_list_it()
         {
             var testDirectory = "/home/sshnet/sshnet-test";
-            var testFileName =  "test-file.txt";
+            var testFileName = "test-file.txt";
             var testFilePath = $"{testDirectory}/{testFileName}";
             var testContent = "file content";
 

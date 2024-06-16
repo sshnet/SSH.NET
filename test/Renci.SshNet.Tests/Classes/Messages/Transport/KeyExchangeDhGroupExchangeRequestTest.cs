@@ -20,9 +20,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         public void Init()
         {
             var random = new Random();
-            _minimum = (uint) random.Next(1, int.MaxValue);
-            _preferred = (uint) random.Next(1, int.MaxValue);
-            _maximum = (uint) random.Next(1, int.MaxValue);
+            _minimum = (uint)random.Next(1, int.MaxValue);
+            _preferred = (uint)random.Next(1, int.MaxValue);
+            _maximum = (uint)random.Next(1, int.MaxValue);
         }
 
 
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             var sshDataStream = new SshDataStream(bytes);
 
-            Assert.AreEqual(KeyExchangeDhGroupExchangeRequest.MessageNumber, sshDataStream.ReadByte());
+            Assert.AreEqual(request.MessageNumber, sshDataStream.ReadByte());
             Assert.AreEqual(_minimum, sshDataStream.ReadUInt32());
             Assert.AreEqual(_preferred, sshDataStream.ReadUInt32());
             Assert.AreEqual(_maximum, sshDataStream.ReadUInt32());

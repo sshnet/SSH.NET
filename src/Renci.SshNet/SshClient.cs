@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Renci.SshNet
         /// </value>
         private bool _isDisposed;
 
-        private MemoryStream _inputStream;
+        private MemoryStream? _inputStream;
 
         /// <summary>
         /// Gets the list of forwarded ports.
@@ -44,12 +45,6 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="SshClient" /> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Connect using PasswordConnectionInfo object with passwod change option" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using PrivateKeyConnectionInfo" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout when connecting" />
-        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         public SshClient(ConnectionInfo connectionInfo)
             : this(connectionInfo, ownsConnectionInfo: false)
@@ -66,7 +61,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
 #pragma warning disable CA2000 // Dispose objects before losing scope
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
@@ -80,9 +74,6 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect" language="C#" title="Connect using username and password" />
-        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         public SshClient(string host, string username, string password)
@@ -97,10 +88,6 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using username and private key" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using username and private key and pass phrase" />
-        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
@@ -116,10 +103,6 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using private key" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using private key and pass phrase" />
-        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         public SshClient(string host, string username, params IPrivateKeySource[] keyFiles)
@@ -177,10 +160,6 @@ namespace Renci.SshNet
         /// Adds the forwarded port.
         /// </summary>
         /// <param name="port">The port.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
-        /// </example>
         /// <exception cref="InvalidOperationException">Forwarded port is already added to a different client.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="port"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -256,7 +235,7 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             ConnectionInfo.Encoding = encoding;
-            return new SshCommand(Session, commandText, encoding);
+            return new SshCommand(Session!, commandText, encoding);
         }
 
         /// <summary>
@@ -265,10 +244,6 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
         /// <remarks>This method internally uses asynchronous calls.</remarks>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Result" language="C#" title="Running simple command" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Parallel" language="C#" title="Run many commands in parallel" />
-        /// </example>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
@@ -298,7 +273,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             EnsureSessionIsOpen();
 
@@ -359,7 +334,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             /*
              * TODO Issue #1224: let shell dispose of input stream when we own the stream!
@@ -417,6 +392,25 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Creates the shell without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public Shell CreateShellNoTerminal(Stream input, Stream output, Stream extendedOutput, int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return new Shell(Session, input, output, extendedOutput, bufferSize);
+        }
+
+        /// <summary>
         /// Creates the shell stream.
         /// </summary>
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
@@ -432,7 +426,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when nonzero). Pixel dimensions refer
@@ -461,18 +455,34 @@ namespace Renci.SshNet
         /// <remarks>
         /// <para>
         /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
         /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint>? terminalModeValues)
         {
             EnsureSessionIsOpen();
 
             return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell stream without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public ShellStream CreateShellStreamNoTerminal(int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return ServiceFactory.CreateShellStreamNoTerminal(Session, bufferSize);
         }
 
         /// <summary>

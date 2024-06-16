@@ -79,7 +79,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var cts = new CancellationTokenSource();
                 cts.CancelAfter(TimeSpan.FromMinutes(1));
                 var count = 0;
-                await foreach(var file in sftp.ListDirectoryAsync(".", cts.Token))
+                await foreach (var file in sftp.ListDirectoryAsync(".", cts.Token))
                 {
                     count++;
                     Debug.WriteLine(file.FullName);

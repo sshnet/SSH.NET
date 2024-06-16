@@ -112,7 +112,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.Arrange();
 
             _sftpFileStream = new SftpFileStream(SftpSessionMock.Object, _path, FileMode.Open, FileAccess.ReadWrite, (int)_bufferSize);
-            _sftpFileStream.Read(_readBytes, 0, _readBytes.Length);
+            int readBytesCount = _sftpFileStream.Read(_readBytes, 0, _readBytes.Length);
+            Assert.AreEqual(_readBytes.Length, readBytesCount);
             _sftpFileStream.Write(new byte[] { 0x01, 0x02, 0x03, 0x04 }, 0, 4);
         }
 

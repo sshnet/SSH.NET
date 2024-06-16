@@ -138,7 +138,7 @@ namespace Renci.SshNet
                                       int bufferSize);
 
         /// <summary>
-        /// Creates a shell stream without allocating pseudo terminal.
+        /// Creates a shell stream without allocating a pseudo terminal.
         /// </summary>
         /// <param name="session">The SSH session.</param>
         /// <param name="bufferSize">Size of the buffer.</param>

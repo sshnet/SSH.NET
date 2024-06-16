@@ -206,15 +206,7 @@ namespace Renci.SshNet
             return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
         }
 
-        /// <summary>
-        /// Creates a shell stream without allocating pseudo terminal.
-        /// </summary>
-        /// <param name="session">The SSH session.</param>
-        /// <param name="bufferSize">The size of the buffer.</param>
-        /// <returns>
-        /// The created <see cref="ShellStream"/> instance.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <inheritdoc/>
         public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
         {
             return new ShellStream(session, bufferSize);

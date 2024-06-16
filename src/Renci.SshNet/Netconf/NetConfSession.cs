@@ -150,7 +150,17 @@ namespace Renci.SshNet.NetConf
                 var nsMgr = new XmlNamespaceManager(ServerCapabilities.NameTable);
                 nsMgr.AddNamespace("nc", "urn:ietf:params:xml:ns:netconf:base:1.0");
 
-                _usingFramingProtocol = ServerCapabilities.SelectSingleNode("/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']", nsMgr) != null;
+                const string xpath = "/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']";
+
+                // Per RFC6242 section 4.1, If the :base:1.1 capability is advertised by both
+                // peers, the chunked transfer mechanism is used for the remainder of the NETCONF
+                // session. Otherwise, the old end-of-message based mechanism(see Section 4.3) is used.
+
+                // This will currently evaluate to false since we (the client) do not advertise 1.1 capability.
+                // Despite some code existing for the 1.1 framing protocol, it is thought to be incorrect or
+                // incomplete. The NETCONF code is practically untested at the time of writing.
+                _usingFramingProtocol = ServerCapabilities.SelectSingleNode(xpath, nsMgr) != null
+                    && ClientCapabilities.SelectSingleNode(xpath, nsMgr) != null;
 
                 _ = _serverCapabilitiesConfirmed.Set();
             }

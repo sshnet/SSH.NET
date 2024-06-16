@@ -23,6 +23,7 @@ namespace Renci.SshNet.IntegrationTests
 
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
             _remoteSshdConfig.AllowTcpForwarding()
+                             .PermitTTY(true)
                              .PrintMotd(false)
                              .Update()
                              .Restart();
@@ -73,6 +74,24 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
                     Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_CreateShellStreamNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var shellStream = client.CreateShellStreamNoTerminal(bufferSize: 1024))
+                {
+                    var foo = new string('a', 90);
+                    shellStream.WriteLine($"echo {foo}");
+                    var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
+                    Assert.IsNotNull(line);
+                    Assert.IsTrue(line.EndsWith(foo), line);
                 }
             }
         }
@@ -165,6 +184,41 @@ namespace Renci.SshNet.IntegrationTests
 
                     var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
                     Console.WriteLine(outputReader.ReadToEnd());
+
+                    shell.Stop();
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_CreateShellNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var input = new MemoryStream())
+                using (var output = new MemoryStream())
+                using (var extOutput = new MemoryStream())
+                {
+                    var shell = client.CreateShellNoTerminal(input, output, extOutput, 1024);
+
+                    shell.Start();
+
+                    var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
+                    var foo = new string('a', 90);
+                    inputWriter.WriteLine($"echo {foo}");
+                    inputWriter.Flush();
+                    input.Position = 0;
+
+                    Thread.Sleep(1000);
+
+                    output.Position = 0;
+                    var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
+                    var outputString = outputReader.ReadLine();
+
+                    Assert.IsNotNull(outputString);
+                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
 
                     shell.Stop();
                 }

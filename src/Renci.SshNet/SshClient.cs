@@ -392,7 +392,8 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell without allocating pseudo terminal.
+        /// Creates the shell without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
@@ -469,7 +470,8 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates the shell stream without allocating pseudo terminal.
+        /// Creates the shell stream without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
         /// </summary>
         /// <param name="bufferSize">The size of the buffer.</param>
         /// <returns>

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -245,25 +247,29 @@ namespace Renci.SshNet.Connection
 
         private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
         {
-            var ip = Dns.GetHostAddresses(hostname)[0];
-
-            byte[] address;
-
-#pragma warning disable IDE0010 // Add missing cases
-            switch (ip.AddressFamily)
+            if (IPAddress.TryParse(hostname, out var ipAddress))
             {
-                case AddressFamily.InterNetwork:
-                    addressType = 0x01; // IPv4
-                    address = ip.GetAddressBytes();
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    addressType = 0x04; // IPv6
-                    address = ip.GetAddressBytes();
-                    break;
-                default:
-                    throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                Debug.Assert(ipAddress.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6);
+
+                addressType = ipAddress.AddressFamily == AddressFamily.InterNetwork
+                    ? (byte)0x01 // IPv4
+                    : (byte)0x04; // IPv6
+
+                return ipAddress.GetAddressBytes();
             }
-#pragma warning restore IDE0010 // Add missing cases
+
+            addressType = 0x03; // Domain name
+
+            var byteCount = Encoding.UTF8.GetByteCount(hostname);
+
+            if (byteCount > byte.MaxValue)
+            {
+                throw new ProxyException(string.Format("SOCKS5: SOCKS 5 cannot support host names longer than 255 chars ('{0}').", hostname));
+            }
+
+            var address = new byte[1 + byteCount];
+            address[0] = (byte)byteCount;
+            _ = Encoding.UTF8.GetBytes(hostname, 0, hostname.Length, address, 1);
 
             return address;
         }

@@ -14,6 +14,8 @@ namespace Renci.SshNet
     /// </summary>
     public class Shell : IDisposable
     {
+        private const int DefaultBufferSize = 1024;
+
         private readonly ISession _session;
         private readonly string _terminalName;
         private readonly uint _columns;
@@ -24,6 +26,7 @@ namespace Renci.SshNet
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
+        private readonly bool _noTerminal;
         private ManualResetEvent _dataReaderTaskCompleted;
         private IChannelSession _channel;
         private AutoResetEvent _channelClosedWaitHandle;
@@ -77,24 +80,66 @@ namespace Renci.SshNet
         /// <param name="terminalModes">The terminal modes.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+            : this(session, input, output, extendedOutput, bufferSize, noTerminal: false)
         {
-            _session = session;
-            _input = input;
-            _outputStream = output;
-            _extendedOutputStream = extendedOutput;
             _terminalName = terminalName;
             _columns = columns;
             _rows = rows;
             _width = width;
             _height = height;
             _terminalModes = terminalModes;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Shell"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the buffer for output stream.</param>
+        internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize)
+            : this(session, input, output, extendedOutput, bufferSize, noTerminal: true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Shell"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the buffer for output stream.</param>
+        /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
+        private Shell(ISession session, Stream input, Stream output, Stream extendedOutput, int bufferSize, bool noTerminal)
+        {
+            if (bufferSize == -1)
+            {
+                bufferSize = DefaultBufferSize;
+            }
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
+#else
+            if (bufferSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
+            }
+#endif
+            _session = session;
+            _input = input;
+            _outputStream = output;
+            _extendedOutputStream = extendedOutput;
             _bufferSize = bufferSize;
+            _noTerminal = noTerminal;
         }
 
         /// <summary>
         /// Starts this shell.
         /// </summary>
         /// <exception cref="SshException">Shell is started.</exception>
+        /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
+        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         public void Start()
         {
             if (IsStarted)
@@ -112,8 +157,18 @@ namespace Renci.SshNet
             _session.ErrorOccured += Session_ErrorOccured;
 
             _channel.Open();
-            _ = _channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes);
-            _ = _channel.SendShellRequest();
+            if (!_noTerminal)
+            {
+                if (!_channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+
+            if (!_channel.SendShellRequest())
+            {
+                throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+            }
 
             _channelClosedWaitHandle = new AutoResetEvent(initialState: false);
 

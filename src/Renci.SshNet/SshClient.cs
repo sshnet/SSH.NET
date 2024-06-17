@@ -235,7 +235,7 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             ConnectionInfo.Encoding = encoding;
-            return new SshCommand(Session, commandText, encoding);
+            return new SshCommand(Session!, commandText, encoding);
         }
 
         /// <summary>
@@ -392,6 +392,25 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Creates the shell without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public Shell CreateShellNoTerminal(Stream input, Stream output, Stream extendedOutput, int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return new Shell(Session, input, output, extendedOutput, bufferSize);
+        }
+
+        /// <summary>
         /// Creates the shell stream.
         /// </summary>
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
@@ -448,6 +467,22 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell stream without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public ShellStream CreateShellStreamNoTerminal(int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return ServiceFactory.CreateShellStreamNoTerminal(Session, bufferSize);
         }
 
         /// <summary>

@@ -85,7 +85,7 @@ namespace Renci.SshNet.Abstractions
             }
         }
 
-        public static async Task ConnectAsync(this Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        public static async Task ConnectAsync(this Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

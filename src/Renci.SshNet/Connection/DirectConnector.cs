@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Renci.SshNet.Connection
@@ -12,12 +13,12 @@ namespace Renci.SshNet.Connection
 
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            return SocketConnect(connectionInfo.Host, connectionInfo.Port, connectionInfo.Timeout);
+            return SocketConnect(new DnsEndPoint(connectionInfo.Host, connectionInfo.Port), connectionInfo.Timeout);
         }
 
         public override System.Threading.Tasks.Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            return SocketConnectAsync(connectionInfo.Host, connectionInfo.Port, cancellationToken);
+            return SocketConnectAsync(new DnsEndPoint(connectionInfo.Host, connectionInfo.Port), cancellationToken);
         }
     }
 }

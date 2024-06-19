@@ -284,7 +284,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_Command_IntermittentOutput_OutputStream()
+        public async Task Ssh_Command_IntermittentOutput_OutputStream()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -325,9 +325,11 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var command = sshClient.CreateCommand(remoteFile))
                     {
-                        var asyncResult = command.BeginExecute();
+                        await command.ExecuteAsync();
 
-                        using (var reader = new StreamReader(command.OutputStream, new UTF8Encoding(false), false, 10))
+                        Assert.AreEqual(13, command.ExitStatus);
+
+                        using (var reader = new StreamReader(command.OutputStream))
                         {
                             var lines = new List<string>();
                             string line = null;
@@ -338,21 +340,10 @@ namespace Renci.SshNet.IntegrationTests
 
                             Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
                             Assert.AreEqual(expectedResult, string.Join("\n", lines));
-                            Assert.AreEqual(13, command.ExitStatus);
                         }
 
-                        var actualResult = command.EndExecute(asyncResult);
-
-                        // command.Result (also returned from EndExecute) consumes OutputStream,
-                        // which we've already read from, so Result will be empty.
-                        // TODO consider the suggested changes in https://github.com/sshnet/SSH.NET/issues/650
-
-                        //Assert.AreEqual(expectedResult, actualResult);
-                        //Assert.AreEqual(expectedResult, command.Result);
-
-                        // For now just assert the current behaviour.
-                        Assert.AreEqual(0, actualResult.Length);
-                        Assert.AreEqual(0, command.Result.Length);
+                        // We have already consumed OutputStream ourselves, so we expect Result to be empty.
+                        Assert.AreEqual("", command.Result);
                     }
                 }
                 finally

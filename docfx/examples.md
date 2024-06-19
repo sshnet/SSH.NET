@@ -113,16 +113,17 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
     // Make the server echo back the input file with "cat"
     using (SshCommand command = client.CreateCommand("cat"))
     {
-        IAsyncResult asyncResult = command.BeginExecute();
+        Task executeTask = command.ExecuteAsync(CancellationToken.None);
 
         using (Stream inputStream = command.CreateInputStream())
         {
             inputStream.Write("Hello World!"u8);
         }
 
-        string result = command.EndExecute(asyncResult);
+        await executeTask;
 
-        Console.WriteLine(result); // "Hello World!"
+        Console.WriteLine(command.ExitStatus); // 0
+        Console.WriteLine(command.Result); // "Hello World!"
     }
 }
 ```

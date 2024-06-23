@@ -180,3 +180,11 @@ dotnet_diagnostic.CA5350.severity = none
 # CA5351: Do Not Use Broken Cryptographic Algorithms
 # https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca5351
 dotnet_diagnostic.CA5351.severity = none
+
+# MA0040: Forward the CancellationToken parameter to methods that take one
+# Partial/noisy duplicate of CA2016
+dotnet_diagnostic.MA0040.severity = none
+
+# MA0042: Do not use blocking calls in an async method
+# duplicate of CA1849
+dotnet_diagnostic.MA0042.severity = none

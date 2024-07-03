@@ -153,9 +153,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>
-        /// true if the stream supports reading; otherwise, false.
-        /// </returns>
+        /// <value>
+        /// <see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>.
+        /// </value>
         public override bool CanRead
         {
             get { return false; }
@@ -164,9 +164,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
-        /// </returns>
+        /// <value>
+        /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
+        /// </value>
         public override bool CanSeek
         {
             get { return false; }
@@ -175,35 +175,35 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
-        /// </returns>
+        /// <value>
+        /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
+        /// </value>
         public override bool CanWrite
         {
             get { return true; }
         }
 
         /// <summary>
-        /// Gets the length in bytes of the stream.
+        /// Throws <see cref="NotSupportedException"/>.
         /// </summary>
-        /// <returns>
-        /// A long value representing the length of the stream in bytes.
-        /// </returns>
-        /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <exception cref="NotSupportedException">Always.</exception>
+#pragma warning disable SA1623 // The property's documentation should begin with 'Gets or sets'
         public override long Length
+#pragma warning restore SA1623 // The property's documentation should begin with 'Gets or sets'
         {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
-        /// Gets or sets the position within the current stream.
+        /// Gets the position within the current stream.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// The current position within the stream.
-        /// </returns>
-        /// <exception cref="NotSupportedException">The stream does not support seeking.</exception>
+        /// </value>
+        /// <exception cref="NotSupportedException">The setter is called.</exception>
+#pragma warning disable SA1623 // The property's documentation should begin with 'Gets or sets'
         public override long Position
+#pragma warning restore SA1623 // The property's documentation should begin with 'Gets or sets'
         {
             get { return _totalPosition; }
             set { throw new NotSupportedException(); }

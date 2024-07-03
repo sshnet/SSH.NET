@@ -41,9 +41,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public override bool CanRead
         {
             get { return _canRead; }
@@ -52,9 +52,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public override bool CanSeek
         {
             get { return _canSeek; }
@@ -63,9 +63,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public override bool CanWrite
         {
             get { return _canWrite; }
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets the length in bytes of the stream.
         /// </summary>
-        /// <returns>A long value representing the length of the stream in bytes.</returns>
+        /// <value>A long value representing the length of the stream in bytes.</value>
         /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         /// <exception cref="IOException">IO operation failed. </exception>
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets or sets the position within the current stream.
         /// </summary>
-        /// <returns>The current position within the stream.</returns>
+        /// <value>The current position within the stream.</value>
         /// <exception cref="IOException">An I/O error occurs. </exception>
         /// <exception cref="NotSupportedException">The stream does not support seeking. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>

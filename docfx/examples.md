@@ -5,8 +5,6 @@ Getting Started
 
 ### Run a command
 
-Establish an SSH connection and run a command:
-
 ```cs
 using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("path/to/my/key")))
 {
@@ -16,9 +14,7 @@ using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("p
 }
 ```
 
-### Upload and list files
-
-SFTP Connection / Exchange 
+### Upload and list files using SFTP
 
 ```cs
 using (var client = new SftpClient("sftp.foo.com", "guest", "pwd"))
@@ -39,7 +35,7 @@ using (var client = new SftpClient("sftp.foo.com", "guest", "pwd"))
 
 ### Multi-factor authentication
 
-Establish an SFTP connection using both password and public-key authentication:
+Establish a connection using both password and public-key authentication:
 
 ```cs
 var connectionInfo = new ConnectionInfo("sftp.foo.com",
@@ -54,7 +50,7 @@ using (var client = new SftpClient(connectionInfo))
 
 ### Verify host identify
 
-Establish an SSH connection using user name and password, and reject the connection if the fingerprint of the server does not match the expected fingerprint:
+Establish a connection using user name and password, and reject the connection if the fingerprint of the server does not match the expected fingerprint:
 
 ```cs
 string expectedFingerPrint = "LKOy5LvmtEe17S4lyxVXqvs7uPMy+yF79MQpHeCs/Qo";

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
-using System.Net.Sockets;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -35,8 +37,11 @@ namespace Renci.SshNet.Tests.Classes
         {
             if (_forwardedPort != null)
             {
-                _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-                _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(1));
+                _ = _sessionMock.Setup(p => p.ConnectionInfo)
+                                .Returns(_connectionInfoMock.Object);
+                _ = _connectionInfoMock.Setup(p => p.Timeout)
+                                       .Returns(TimeSpan.FromSeconds(1));
+
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
@@ -53,7 +58,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.IsConnected).Returns(false);
+            _ = _sessionMock.Setup(p => p.IsConnected)
+                            .Returns(false);
 
             _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint)_bindEndpoint.Port, _remoteEndpoint.Address, (uint)_remoteEndpoint.Port); 
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
@@ -90,19 +96,17 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldIgnoreReceivedSignalForNewConnection()
         {
-            var channelNumber = (uint)new Random().Next(1001, int.MaxValue);
-            var initialWindowSize = (uint)new Random().Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)new Random().Next(0, int.MaxValue);
+            var channelNumber = (uint) new Random().Next(1001, int.MaxValue);
+            var initialWindowSize = (uint) new Random().Next(0, int.MaxValue);
+            var maximumPacketSize = (uint) new Random().Next(0, int.MaxValue);
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
-            var originatorPort = (uint)new Random().Next(0, int.MaxValue);
+            var originatorPort = (uint) new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
 
-            _sessionMock.Setup(
-                p =>
-                    p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
-
+            _ = _sessionMock.Setup(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
+            
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
+                    new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
                     maximumPacketSize,
                     new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress,
                         originatorPort))));

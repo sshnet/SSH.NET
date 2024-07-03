@@ -1,13 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Connection;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -45,9 +49,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
                                                  "proxyUser",
                                                  "proxyPwd",
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
+                                                 new KeyboardInteractiveAuthenticationMethod("user"))
+                {
+                    Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200))
+                };
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
             _stopWatch = new Stopwatch();
             _actualException = null;
 
@@ -57,9 +63,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
                               .Returns(_proxyConnector);
         }
 
@@ -67,20 +73,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.TearDown();
 
-            if (_server != null)
-            {
-                _server.Dispose();
-            }
-
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_proxyConnector != null)
-            {
-                _proxyConnector.Dispose();
-            }
+            _server?.Dispose();
+            _proxyServer?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()
@@ -89,7 +84,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SshOperationTimeoutException ex)
@@ -100,6 +95,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _stopWatch.Stop();
             }
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]
@@ -133,7 +131,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(new byte[0]);
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

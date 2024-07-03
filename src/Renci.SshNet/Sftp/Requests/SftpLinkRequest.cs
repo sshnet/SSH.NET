@@ -1,9 +1,10 @@
-﻿using Renci.SshNet.Sftp.Responses;
-using System;
+﻿using System;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpLinkRequest : SftpRequest
+    internal sealed class SftpLinkRequest : SftpRequest
     {
         private byte[] _newLinkPath;
         private byte[] _existingPath;
@@ -67,6 +68,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             _newLinkPath = ReadBinary();
             _existingPath = ReadBinary();
             IsSymLink = ReadBoolean();
@@ -75,6 +77,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(_newLinkPath);
             WriteBinaryString(_existingPath);
             Write(IsSymLink);

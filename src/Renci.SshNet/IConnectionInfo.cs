@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
@@ -13,7 +14,7 @@ namespace Renci.SshNet
         /// Signals that an authentication banner message was received from the server.
         /// </summary>
         /// <param name="sender">The session in which the banner message was received.</param>
-        /// <param name="e">The banner message.{</param>
+        /// <param name="e">The banner message.</param>
         void UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e);
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Renci.SshNet
     internal interface ISshConnectionInfo: IConnectionInfo
     {
         /// <summary>
-        /// Gets or sets the timeout to used when waiting for a server to acknowledge closing a channel.
+        /// Gets the timeout to used when waiting for a server to acknowledge closing a channel.
         /// </summary>
         /// <value>
         /// The channel close timeout. The default value is 1 second.
@@ -135,7 +136,7 @@ namespace Renci.SshNet
         IConnectionInfo ProxyConnection { get; }
 
         /// <summary>
-        /// Gets or sets connection timeout.
+        /// Gets the connection timeout.
         /// </summary>
         /// <value>
         /// The connection timeout. The default value is 30 seconds.

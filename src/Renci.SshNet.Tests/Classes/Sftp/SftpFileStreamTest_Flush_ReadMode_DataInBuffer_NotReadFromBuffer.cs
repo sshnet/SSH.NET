@@ -1,10 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.IO;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -36,24 +39,24 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpen(_path, Flags.Read, false))
-                           .Returns(_handle);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                           .Returns(_readBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                           .Returns(_writeBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.IsOpen)
-                           .Returns(true);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
-                           .Returns(_serverBytes);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.IsOpen)
-                           .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestOpen(_path, Flags.Read, false))
+                               .Returns(_handle);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                               .Returns(_readBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                               .Returns(_writeBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
+                               .Returns(_serverBytes);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
         }
 
         protected override void Arrange()
@@ -65,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                          FileMode.Open,
                                          FileAccess.Read,
                                          (int)_bufferSize);
-            _target.Read(_readBytes, 0, _readBytes.Length);
+            _ = _target.Read(_readBytes, 0, _readBytes.Length);
         }
 
         protected override void Act()
@@ -76,9 +79,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void PositionShouldReturnSameValueAsBeforeFlush()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.IsOpen)
-                           .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
 
             Assert.AreEqual(_readBytes.Length, _target.Position);
 
@@ -94,12 +97,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                             .Add(serverBytes2.Take(0, 3))
                                                             .Build();
 
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.IsOpen)
-                           .Returns(true);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestRead(_handle, (ulong)_readBytes.Length, _readBufferSize))
-                           .Returns(serverBytes2);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestRead(_handle, (ulong)_readBytes.Length, _readBufferSize))
+                               .Returns(serverBytes2);
 
             var bytesRead = _target.Read(readBytes2, 2, 3);
 

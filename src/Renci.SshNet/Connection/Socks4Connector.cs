@@ -1,8 +1,9 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Text;
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Connection
 {
@@ -10,7 +11,7 @@ namespace Renci.SshNet.Connection
     /// Establishes a tunnel via a SOCKS4 proxy server.
     /// </summary>
     /// <remarks>
-    /// https://www.openssh.com/txt/socks4.protocol
+    /// https://www.openssh.com/txt/socks4.protocol.
     /// </remarks>
     internal sealed class Socks4Connector : ProxyConnector
     {
@@ -31,13 +32,13 @@ namespace Renci.SshNet.Connection
             var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, proxyConnection.Username);
             SocketAbstraction.Send(socket, connectionRequest);
 
-            //  Read reply version
+            // Read reply version
             if (SocketReadByte(socket, connectionInfo.Timeout) != 0x00)
             {
                 throw new ProxyException("SOCKS4: Null is expected.");
             }
 
-            //  Read response code
+            // Read response code
             var code = SocketReadByte(socket, connectionInfo.Timeout);
 
             switch (code)
@@ -55,7 +56,7 @@ namespace Renci.SshNet.Connection
             }
 
             var destBuffer = new byte[6]; // destination port and IP address should be ignored
-            SocketRead(socket, destBuffer, 0, destBuffer.Length, connectionInfo.Timeout);
+            _ = SocketRead(socket, destBuffer, 0, destBuffer.Length, connectionInfo.Timeout);
         }
 
         private static byte[] CreateSocks4ConnectionRequest(string hostname, ushort port, string username)
@@ -125,14 +126,10 @@ namespace Renci.SshNet.Connection
         {
             if (proxyUser == null)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
-#if FEATURE_ENCODING_ASCII
             return Encoding.ASCII.GetBytes(proxyUser);
-#else
-            return new ASCIIEncoding().GetBytes(proxyUser);
-#endif
         }
     }
 }

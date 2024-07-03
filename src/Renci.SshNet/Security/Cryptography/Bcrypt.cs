@@ -499,14 +499,10 @@ namespace Renci.SshNet.Security.Cryptography
                 throw new ArgumentOutOfRangeException("workFactor", "The work factor must be between 4 and 31 (inclusive)");
 
             byte[] rnd = new byte[BCRYPT_SALT_LEN];
-#if FEATURE_RNG_CREATE
+
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
-#elif FEATURE_RNG_CSP
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-#endif
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
+
             rng.GetBytes(rnd);
-#endif
 
             StringBuilder rs = new StringBuilder();
             rs.AppendFormat("$2a${0:00}$", workFactor);

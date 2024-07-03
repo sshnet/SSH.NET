@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "signal" type channel request information
     /// </summary>
-    internal class SignalRequestInfo : RequestInfo
+    internal sealed class SignalRequestInfo : RequestInfo
     {
         private byte[] _signalName;
 

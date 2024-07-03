@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected virtual void SetupMocks()
         {
         }
-
+        
         protected sealed override void Arrange()
         {
             CreateMocks();

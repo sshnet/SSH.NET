@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     [TestClass]
     public class SftpFileStreamTest_Finalize_SessionOpen : SftpFileStreamTestBase
     {
-        private SftpFileStream _target;
+        private WeakReference<SftpFileStream> _target;
         private string _path;
         private byte[] _handle;
         private uint _bufferSize;
@@ -31,35 +31,39 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.CreateNewOrOpen, false))
-                           .Returns(_handle);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                           .Returns(_readBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                           .Returns(_writeBufferSize);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestClose(_handle));
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.CreateNewOrOpen, false))
+                               .Returns(_handle);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                               .Returns(_readBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                               .Returns(_writeBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestClose(_handle));
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _target = new SftpFileStream(SftpSessionMock.Object,
-                                         _path,
-                                         FileMode.OpenOrCreate,
-                                         FileAccess.ReadWrite,
-                                         (int) _bufferSize);
-            _target = null;
+            _target = CreateWeakSftpFileStream();
         }
 
         protected override void Act()
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
+        }
+
+        [TestMethod]
+        public void SftpFileStreamShouldHaveBeenFinalized()
+        {
+            Assert.IsFalse(_target.TryGetTarget(out _));
         }
 
         [TestMethod]
@@ -72,6 +76,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public void RequestCloseOnSftpSessionShouldNeverBeInvoked()
         {
             SftpSessionMock.Verify(p => p.RequestClose(_handle), Times.Never);
+        }
+
+        private WeakReference<SftpFileStream> CreateWeakSftpFileStream()
+        {
+            var sftpFileStream = new SftpFileStream(SftpSessionMock.Object,
+                                                    _path,
+                                                    FileMode.OpenOrCreate,
+                                                    FileAccess.ReadWrite,
+                                                    (int) _bufferSize);
+            return new WeakReference<SftpFileStream>(sftpFileStream);
         }
     }
 }

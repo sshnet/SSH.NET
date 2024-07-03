@@ -1,13 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Connection;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -39,12 +43,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 // it sends the CONNECT request
                 if (_bytesReceivedByProxy.Count == _expectedHttpRequest.Length)
                 {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH.NET\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("SSH.NET\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
                 }
             };
             _proxyServer.Start();
@@ -57,9 +61,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
                                                  null,
                                                  "proxyPwd",
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
+                                                 new KeyboardInteractiveAuthenticationMethod("user"))
+                {
+                    Timeout = TimeSpan.FromMilliseconds(20)
+                };
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(20);
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}{2}",
                                                  _connectionInfo.Host,
                                                  _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),
@@ -72,9 +78,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _= SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
                               .Returns(_proxyConnector);
         }
 
@@ -88,20 +94,16 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 _clientSocket.Close();
             }
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_proxyConnector != null)
-            {
-                _proxyConnector.Dispose();
-            }
+            _proxyServer?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()
         {
             _actual = Connector.Connect(_connectionInfo);
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

@@ -139,6 +139,10 @@ namespace Renci.SshNet.Tests.Classes
                     new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress,
                         originatorPort))));
 
+            // CreateChannelForwardedTcpip gets called on a separate thread.
+            // Sleep on this thread briefly to avoid a race.
+            Thread.Sleep(500);
+
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Once);
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);
             channelMock.Verify(p => p.Dispose(), Times.Once);

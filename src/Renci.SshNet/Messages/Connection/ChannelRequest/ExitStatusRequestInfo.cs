@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "exit-status" type channel request information
     /// </summary>
-    internal class ExitStatusRequestInfo : RequestInfo
+    internal sealed class ExitStatusRequestInfo : RequestInfo
     {
         /// <summary>
         /// Channel request name.

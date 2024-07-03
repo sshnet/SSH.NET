@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -21,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes
 
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
             _connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
-            _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
+            _session = new Session(_connectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
             _connectException = new SshConnectionException();
         }
 
@@ -29,11 +31,11 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.SetupMocks();
 
-            _serviceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_connectorMock.Object);
-            _connectorMock.Setup(p => p.Connect(_connectionInfo))
-                          .Throws(_connectException);
-            _connectorMock.Setup(p => p.Dispose());
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, SocketFactoryMock.Object))
+                                   .Returns(ConnectorMock.Object);
+            _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
+                             .Throws(_connectException);
+            _ = ConnectorMock.Setup(p => p.Dispose());
         }
 
         protected override void Act()
@@ -164,9 +166,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession)_session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
             Assert.IsNull(exception);
@@ -254,13 +255,10 @@ namespace Renci.SshNet.Tests.Classes
 
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
-            var connectionInfo = new ConnectionInfo(
-                serverEndPoint.Address.ToString(),
-                serverEndPoint.Port,
-                "eric",
-                new NoneAuthenticationMethod("eric"));
-            connectionInfo.Timeout = timeout;
-            return connectionInfo;
+            return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
+                {
+                    Timeout = timeout
+                };
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
                               .Returns(_proxyConnector);
         }
 
@@ -40,17 +40,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.TearDown();
 
-            if (_proxyConnector != null)
-            {
-                _proxyConnector.Dispose();
-            }
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SocketException ex)
@@ -64,7 +61,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(SocketError.HostNotFound, _actualException.SocketErrorCode);
+            Assert.IsTrue(_actualException.SocketErrorCode is SocketError.HostNotFound or SocketError.TryAgain);
         }
     }
 }

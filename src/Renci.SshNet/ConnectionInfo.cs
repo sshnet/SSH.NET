@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Security;
-using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Security;
+using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 
 namespace Renci.SshNet
 {
@@ -21,7 +24,7 @@ namespace Renci.SshNet
     /// </remarks>
     public class ConnectionInfo : IConnectionInfoInternal
     {
-        internal static int DefaultPort = 22;
+        internal const int DefaultPort = 22;
 
         /// <summary>
         /// The default connection timeout.
@@ -146,7 +149,7 @@ namespace Renci.SshNet
         /// Gets or sets the character encoding.
         /// </summary>
         /// <value>
-        /// The character encoding. The default is <see cref="System.Text.Encoding.UTF8"/>.
+        /// The character encoding. The default is <see cref="Encoding.UTF8"/>.
         /// </value>
         public Encoding Encoding { get; set; }
 
@@ -217,7 +220,7 @@ namespace Renci.SshNet
         public string ServerVersion { get; internal set; }
 
         /// <summary>
-        /// Get the client version.
+        /// Gets the client version.
         /// </summary>
         public string ClientVersion { get; internal set; }
 
@@ -277,14 +280,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
-            : this(host, port, username, ProxyTypes.None, null, authenticationMethods)
-        { 
-            if (proxyType != ProxyTypes.None)
-            {
-                ProxyType = proxyType;
-                ProxyConnection = new ProxyConnectionInfo(proxyHost, proxyPort, proxyUsername, proxyPassword);
-            }
-        }
+            : this(host, port, username, proxyType, proxyType == ProxyTypes.None ? null : new ProxyConnectionInfo(proxyHost, proxyPort, proxyUsername, proxyPassword), authenticationMethods)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
@@ -302,22 +299,42 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, IConnectionInfo proxyConnection, params AuthenticationMethod[] authenticationMethods)
         {
-            if (host == null)
-                throw new ArgumentNullException("host");
+            if (host is null)
+            {
+                throw new ArgumentNullException(nameof(host));
+            }
+
             port.ValidatePort("port");
 
-            if (username == null)
-                throw new ArgumentNullException("username");
+            if (username is null)
+            {
+                throw new ArgumentNullException(nameof(username));
+            }
+
             if (username.All(char.IsWhiteSpace))
-                throw new ArgumentException("Cannot be empty or contain only whitespace.", "username");
+            {
+                throw new ArgumentException("Cannot be empty or contain only whitespace.", nameof(username));
+            }
 
-            
-            if (authenticationMethods == null)
-                throw new ArgumentNullException("authenticationMethods");
+            if (proxyType != ProxyTypes.None)
+            {
+                if (proxyConnection is null)
+                {
+                    throw new ArgumentNullException(nameof(proxyConnection));
+                }
+            }
+
+            if (authenticationMethods is null)
+            {
+                throw new ArgumentNullException(nameof(authenticationMethods));
+            }
+
             if (authenticationMethods.Length == 0)
-                throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
+            {
+                throw new ArgumentException("At least one authentication method should be specified.", nameof(authenticationMethods));
+            }
 
-            //  Set default connection values
+            // Set default connection values
             Timeout = DefaultTimeout;
             ChannelCloseTimeout = DefaultChannelCloseTimeout;
             RetryAttempts = 10;
@@ -326,100 +343,85 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
-                    {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
-                    {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
-                    {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
-                    {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
-                    {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},
-                    {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
-                    {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
-                    {"diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512)},
-                    {"diffie-hellman-group14-sha256", typeof (KeyExchangeDiffieHellmanGroup14Sha256)},
-                    {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
-                    {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
+                    { "curve25519-sha256", typeof(KeyExchangeECCurve25519) },
+                    { "curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519) },
+                    { "ecdh-sha2-nistp256", typeof(KeyExchangeECDH256) },
+                    { "ecdh-sha2-nistp384", typeof(KeyExchangeECDH384) },
+                    { "ecdh-sha2-nistp521", typeof(KeyExchangeECDH521) },
+                    { "diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256) },
+                    { "diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1) },
+                    { "diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512) },
+                    { "diffie-hellman-group14-sha256", typeof(KeyExchangeDiffieHellmanGroup14Sha256) },
+                    { "diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1) },
+                    { "diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1) },
                 };
 
             Encryptions = new Dictionary<string, CipherInfo>
                 {
-                    {"aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
-                    {"3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), null))},
-                    {"aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
-                    {"aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
-                    {"aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
-                    {"blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), null))},
-                    {"twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
-                    {"twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
-                    {"twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
-                    {"twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
-                    ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
-                    ////{"serpent192-cbc", typeof(...)},
-                    ////{"serpent128-cbc", typeof(...)},
-                    {"arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, false))},
-                    {"arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, true))},
-                    {"arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, true))},
-                    ////{"idea-cbc", typeof(...)},
-                    {"cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), null))},
-                    ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
-                    {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
-                    {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
+                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: false)) },
+                    { "arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
+                    { "arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
+                    { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
+                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    {"hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5)},
-                    {"hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96))},
-                    {"hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1)},
-                    {"hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96))},
-                    {"hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256)},
-                    {"hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96))},
-                    {"hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512)},
-                    {"hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96))},
-                    //{"umac-64@openssh.com", typeof(HMacSha1)},
-                    {"hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160)},
-                    {"hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160)},
-                    //{"none", typeof(...)},
+                    { "hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5) },
+                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
+                    { "hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1) },
+                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
+                    { "hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256) },
+                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
+                    { "hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512) },
+                    { "hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96)) },
+                    { "hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
+                    { "hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
                 };
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
-                    {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
-#if FEATURE_ECDSA
-                    {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
-                    {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
-                    {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
-#endif
-                    {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
-                    {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
-                    //{"x509v3-sign-rsa", () => { ... },
-                    //{"x509v3-sign-dss", () => { ... },
-                    //{"spki-sign-rsa", () => { ... },
-                    //{"spki-sign-dss", () => { ... },
-                    //{"pgp-sign-rsa", () => { ... },
-                    //{"pgp-sign-dss", () => { ... },
+                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data) },
+                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
+                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
+                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
+                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); }},
+                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); }},
+                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
+                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
                 };
 
             CompressionAlgorithms = new Dictionary<string, Type>
                 {
-                    //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
-                    //{"zlib", typeof(Zlib)}, 
-                    {"none", null},
+                    { "none", null },
                 };
 
             ChannelRequests = new Dictionary<string, RequestInfo>
                 {
-                    {EnvironmentVariableRequestInfo.Name, new EnvironmentVariableRequestInfo()},
-                    {ExecRequestInfo.Name, new ExecRequestInfo()},
-                    {ExitSignalRequestInfo.Name, new ExitSignalRequestInfo()},
-                    {ExitStatusRequestInfo.Name, new ExitStatusRequestInfo()},
-                    {PseudoTerminalRequestInfo.Name, new PseudoTerminalRequestInfo()},
-                    {ShellRequestInfo.Name, new ShellRequestInfo()},
-                    {SignalRequestInfo.Name, new SignalRequestInfo()},
-                    {SubsystemRequestInfo.Name, new SubsystemRequestInfo()},
-                    {WindowChangeRequestInfo.Name, new WindowChangeRequestInfo()},
-                    {X11ForwardingRequestInfo.Name, new X11ForwardingRequestInfo()},
-                    {XonXoffRequestInfo.Name, new XonXoffRequestInfo()},
-                    {EndOfWriteRequestInfo.Name, new EndOfWriteRequestInfo()},
-                    {KeepAliveRequestInfo.Name, new KeepAliveRequestInfo()},
+                    { EnvironmentVariableRequestInfo.Name, new EnvironmentVariableRequestInfo() },
+                    { ExecRequestInfo.Name, new ExecRequestInfo() },
+                    { ExitSignalRequestInfo.Name, new ExitSignalRequestInfo() },
+                    { ExitStatusRequestInfo.Name, new ExitStatusRequestInfo() },
+                    { PseudoTerminalRequestInfo.Name, new PseudoTerminalRequestInfo() },
+                    { ShellRequestInfo.Name, new ShellRequestInfo() },
+                    { SignalRequestInfo.Name, new SignalRequestInfo() },
+                    { SubsystemRequestInfo.Name, new SubsystemRequestInfo() },
+                    { WindowChangeRequestInfo.Name, new WindowChangeRequestInfo() },
+                    { X11ForwardingRequestInfo.Name, new X11ForwardingRequestInfo() },
+                    { XonXoffRequestInfo.Name, new XonXoffRequestInfo() },
+                    { EndOfWriteRequestInfo.Name, new EndOfWriteRequestInfo() },
+                    { KeepAliveRequestInfo.Name, new KeepAliveRequestInfo() },
                 };
 
             Host = host;
@@ -442,8 +444,10 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {
-            if (serviceFactory == null)
-                throw new ArgumentNullException("serviceFactory");
+            if (serviceFactory is null)
+            {
+                throw new ArgumentNullException(nameof(serviceFactory));
+            }
 
             IsAuthenticated = false;
             var clientAuthentication = serviceFactory.CreateClientAuthentication();
@@ -455,15 +459,10 @@ namespace Renci.SshNet
         /// Signals that an authentication banner message was received from the server.
         /// </summary>
         /// <param name="sender">The session in which the banner message was received.</param>
-        /// <param name="e">The banner message.{</param>
+        /// <param name="e">The banner message.</param>
         void IConnectionInfoInternal.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
-            var authenticationBanner = AuthenticationBanner;
-            if (authenticationBanner != null)
-            {
-                authenticationBanner(this,
-                    new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
-            }
+            AuthenticationBanner?.Invoke(this, new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
         }
 
         IAuthenticationMethod IConnectionInfoInternal.CreateNoneAuthenticationMethod()

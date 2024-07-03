@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -41,31 +42,31 @@ namespace Renci.SshNet.Tests.Classes
         {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.Connect());
-            _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateShellStream(_sessionMock.Object,
-                                                               _terminalName,
-                                                               _widthColumns,
-                                                               _heightRows,
-                                                               _widthPixels,
-                                                               _heightPixels,
-                                                               null,
-                                                               _bufferSize))
-                               .Returns(_expected);
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSocketFactory())
+                                   .Returns(SocketFactoryMock.Object);
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                                   .Returns(SessionMock.Object);
+            _ = SessionMock.InSequence(sequence)
+                            .Setup(p => p.Connect());
+            _ = ServiceFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.CreateShellStream(SessionMock.Object,
+                                                                   _terminalName,
+                                                                   _widthColumns,
+                                                                   _heightRows,
+                                                                   _widthPixels,
+                                                                   _heightPixels,
+                                                                   null,
+                                                                   _bufferSize))
+                                   .Returns(_expected);
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _sshClient.Connect();
         }
 
@@ -82,7 +83,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShellStreamOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateShellStream(_sessionMock.Object,
+            ServiceFactoryMock.Verify(p => p.CreateShellStream(SessionMock.Object,
                                                                 _terminalName,
                                                                 _widthColumns,
                                                                 _heightRows,
@@ -105,20 +106,20 @@ namespace Renci.SshNet.Tests.Classes
             var sessionMock = new Mock<ISession>(MockBehavior.Loose);
             var channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
-            sessionMock.Setup(p => p.ConnectionInfo)
-                       .Returns(new ConnectionInfo("A", "B", new PasswordAuthenticationMethod("A", "B")));
-            sessionMock.Setup(p => p.CreateChannelSession())
-                       .Returns(channelSessionMock.Object);
-            channelSessionMock.Setup(p => p.Open());
-            channelSessionMock.Setup(p => p.SendPseudoTerminalRequest(_terminalName,
+            _ = sessionMock.Setup(p => p.ConnectionInfo)
+                           .Returns(new ConnectionInfo("A", "B", new PasswordAuthenticationMethod("A", "B")));
+            _ = sessionMock.Setup(p => p.CreateChannelSession())
+                           .Returns(channelSessionMock.Object);
+            _ = channelSessionMock.Setup(p => p.Open());
+            _ = channelSessionMock.Setup(p => p.SendPseudoTerminalRequest(_terminalName,
                                                                       _widthColumns,
                                                                       _heightRows,
                                                                       _widthPixels,
                                                                       _heightPixels,
                                                                       null))
-                              .Returns(true);
-            channelSessionMock.Setup(p => p.SendShellRequest())
-                              .Returns(true);
+                                  .Returns(true);
+            _ = channelSessionMock.Setup(p => p.SendShellRequest())
+                                  .Returns(true);
 
             return new ShellStream(sessionMock.Object,
                                    _terminalName,

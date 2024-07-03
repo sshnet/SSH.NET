@@ -48,15 +48,8 @@ namespace Renci.SshNet.Tests.Classes
 
         private void TearDown()
         {
-            if (ServerListener != null)
-            {
-                ServerListener.Dispose();
-            }
-
-            if (Session != null)
-            {
-                Session.Dispose();
-            }
+            ServerListener?.Dispose();
+            Session?.Dispose();
 
             if (ClientSocket != null && ClientSocket.Connected)
             {
@@ -93,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes
                             ServerHostKeyAlgorithms = new string[0]
                         };
                     var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
-                    ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+                    _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };
             ServerListener.BytesReceived += (received, socket) =>
                 {
@@ -102,7 +95,7 @@ namespace Renci.SshNet.Tests.Classes
                     if (!_authenticationStarted)
                     {
                         var serviceAcceptMessage =ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication).Build();
-                        ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
+                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
                         _authenticationStarted = true;
                     }
                 };
@@ -156,30 +149,38 @@ namespace Renci.SshNet.Tests.Classes
 
         private void SetupMocks()
         {
-            _serviceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, _socketFactoryMock.Object))
-                               .Returns(_connectorMock.Object);
-            _connectorMock.Setup(p => p.Connect(ConnectionInfo))
-                          .Returns(ClientSocket);
-            _connectorMock.Setup(p => p.Dispose());
-            _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
-                               .Returns(_protocolVersionExchangeMock.Object);
-            _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                        .Returns(ServerIdentification);
-            _serviceFactoryMock.Setup(
-                p =>
-                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
-            _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
-            _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
-            _keyExchangeMock.Setup(p => p.ExchangeHash).Returns(SessionId);
-            _keyExchangeMock.Setup(p => p.CreateServerCipher()).Returns((Cipher)null);
-            _keyExchangeMock.Setup(p => p.CreateClientCipher()).Returns((Cipher)null);
-            _keyExchangeMock.Setup(p => p.CreateServerHash()).Returns((HashAlgorithm)null);
-            _keyExchangeMock.Setup(p => p.CreateClientHash()).Returns((HashAlgorithm)null);
-            _keyExchangeMock.Setup(p => p.CreateCompressor()).Returns((Compressor)null);
-            _keyExchangeMock.Setup(p => p.CreateDecompressor()).Returns((Compressor)null);
-            _keyExchangeMock.Setup(p => p.Dispose());
-            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Returns(_clientAuthenticationMock.Object);
-            _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
+            _ = _serviceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, _socketFactoryMock.Object))
+                                   .Returns(_connectorMock.Object);
+            _ = _connectorMock.Setup(p => p.Connect(ConnectionInfo))
+                              .Returns(ClientSocket);
+            _ = _connectorMock.Setup(p => p.Dispose());
+            _ = _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
+                                   .Returns(_protocolVersionExchangeMock.Object);
+            _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
+                                            .Returns(ServerIdentification);
+            _ = _serviceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm }))
+                                   .Returns(_keyExchangeMock.Object);
+            _ = _keyExchangeMock.Setup(p => p.Name)
+                                .Returns(_keyExchangeAlgorithm);
+            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
+            _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
+                                .Returns(SessionId);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())
+                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
+                                .Returns((Cipher) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerHash())
+                                .Returns((HashAlgorithm) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateClientHash())
+                                .Returns((HashAlgorithm) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
+                                .Returns((Compressor) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
+                                .Returns((Compressor) null);
+            _ = _keyExchangeMock.Setup(p => p.Dispose());
+            _ = _serviceFactoryMock.Setup(p => p.CreateClientAuthentication())
+                                   .Returns(_clientAuthenticationMock.Object);
+            _ = _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
         }
 
         protected virtual void Arrange()
@@ -200,7 +201,7 @@ namespace Renci.SshNet.Tests.Classes
                 try
                 {
                     var disconnect = _disconnectMessage.GetPacket(8, null);
-                    ServerSocket.Send(disconnect, 4, disconnect.Length - 4, SocketFlags.None);
+                    _ = ServerSocket.Send(disconnect, 4, disconnect.Length - 4, SocketFlags.None);
                     Session.Disconnect();
                 }
                 finally

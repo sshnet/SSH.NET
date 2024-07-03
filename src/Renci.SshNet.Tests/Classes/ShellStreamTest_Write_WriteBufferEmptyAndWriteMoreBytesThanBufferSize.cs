@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 
-            _data = CryptoAbstraction.GenerateRandom(_bufferSize * 2 + 10);
+            _data = CryptoAbstraction.GenerateRandom((_bufferSize * 2) + 10);
             _offset = 0;
             _count = _data.Length;
 
@@ -70,32 +70,32 @@ namespace Renci.SshNet.Tests.Classes
         {
             _mockSequence = new MockSequence();
 
-            _sessionMock.InSequence(_mockSequence)
-                        .Setup(p => p.ConnectionInfo)
-                        .Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(_mockSequence)
-                               .Setup(p => p.Encoding)
-                               .Returns(new UTF8Encoding());
-            _sessionMock.InSequence(_mockSequence)
-                        .Setup(p => p.CreateChannelSession())
-                        .Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.Open());
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendPseudoTerminalRequest(_terminalName,
-                                                                       _widthColumns,
-                                                                       _heightRows,
-                                                                       _widthPixels,
-                                                                       _heightPixels,
-                                                                       _terminalModes))
-                               .Returns(true);
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendShellRequest())
-                               .Returns(true);
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_expectedBytesSent1));
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_expectedBytesSent2));
+            _ = _sessionMock.InSequence(_mockSequence)
+                            .Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.InSequence(_mockSequence)
+                                   .Setup(p => p.Encoding)
+                                   .Returns(new UTF8Encoding());
+            _ = _sessionMock.InSequence(_mockSequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelSessionMock.Object);
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.Open());
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendPseudoTerminalRequest(_terminalName,
+                                                                           _widthColumns,
+                                                                           _heightRows,
+                                                                           _widthPixels,
+                                                                           _heightPixels,
+                                                                           _terminalModes))
+                                   .Returns(true);
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendShellRequest())
+                                   .Returns(true);
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(_expectedBytesSent1));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(_expectedBytesSent2));
         }
 
         private void Arrange()
@@ -129,10 +129,10 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void FlushShouldSendRemaningBytesToServer()
         {
-            var expectedBytesSent = _data.Take(_bufferSize * 2, _data.Length - _bufferSize * 2);
+            var expectedBytesSent = _data.Take(_bufferSize * 2, _data.Length - (_bufferSize * 2));
 
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(expectedBytesSent));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(expectedBytesSent));
 
             _shellStream.Flush();
 

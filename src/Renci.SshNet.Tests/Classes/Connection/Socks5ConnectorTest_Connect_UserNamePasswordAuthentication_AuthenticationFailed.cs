@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -38,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     // We received the greeting
 
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                             // SOCKS version
                             0x05,
@@ -50,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     // We received the username/password authentication request
 
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                             // Authentication version
                             0x01,
@@ -72,43 +73,35 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
-                              .Returns(_proxyConnector);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+                                  .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_clientSocket != null)
-            {
-                _clientSocket.Dispose();
-            }
-
-            if (_proxyConnector != null)
-            {
-                _proxyConnector.Dispose();
-            }
+            _proxyServer?.Dispose();
+            _clientSocket?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (ProxyException ex)
             {
                 _actualException = ex;
             }
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]
@@ -171,7 +164,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(new byte[0]);
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

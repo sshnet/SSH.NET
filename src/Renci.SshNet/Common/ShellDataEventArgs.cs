@@ -3,20 +3,10 @@
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for Shell DataReceived event
+    /// Provides data for Shell DataReceived event.
     /// </summary>
     public class ShellDataEventArgs : EventArgs
     {
-        /// <summary>
-        /// Gets the data.
-        /// </summary>
-        public byte[] Data { get; private set; }
-
-        /// <summary>
-        /// Gets the line data.
-        /// </summary>
-        public string Line { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ShellDataEventArgs"/> class.
         /// </summary>
@@ -34,5 +24,15 @@ namespace Renci.SshNet.Common
         {
             Line = line;
         }
+
+        /// <summary>
+        /// Gets the data.
+        /// </summary>
+        public byte[] Data { get; }
+
+        /// <summary>
+        /// Gets the line data.
+        /// </summary>
+        public string Line { get; }
     }
 }

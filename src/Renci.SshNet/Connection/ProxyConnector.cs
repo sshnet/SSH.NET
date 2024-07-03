@@ -1,12 +1,7 @@
-﻿#if !FEATURE_SOCKET_DISPOSE
-using Renci.SshNet.Common;
-#endif
-using System;
+﻿using System;
 using System.Net.Sockets;
-#if FEATURE_TAP
 using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet.Connection
 {
@@ -20,27 +15,30 @@ namespace Renci.SshNet.Connection
         protected internal IConnector GetProxyConnector(IConnectionInfo proxyConnectionInfo)
         {
             if (proxyConnectionInfo == null)
+            {
                 throw new ArgumentNullException("connectionInfo.ProxyConnection");
-            if (!(proxyConnectionInfo is IProxyConnectionInfo))
+            }
+            if (proxyConnectionInfo is not IProxyConnectionInfo)
+            {
                 throw new ArgumentException("Expecting ProxyConnection to be of type IProxyConnectionInfo");
+            }
             return ServiceFactory.CreateConnector(proxyConnectionInfo, SocketFactory);
         }
 
         protected abstract void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket);
 
-#if FEATURE_TAP
         // ToDo: Performs async/sync fallback, true async version should be implemented in derived classes
         protected virtual Task HandleProxyConnectAsync(IConnectionInfo connectionInfo, Socket socket, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, false))
+            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
             {
                 HandleProxyConnect(connectionInfo, socket);
             }
+
             return Task.CompletedTask;
         }
-#endif
 
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
@@ -61,7 +59,6 @@ namespace Renci.SshNet.Connection
             }
         }
 
-#if FEATURE_TAP
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
             ProxyConnection = GetProxyConnector(connectionInfo.ProxyConnection);
@@ -80,6 +77,5 @@ namespace Renci.SshNet.Connection
                 throw;
             }
         }
-#endif
     }
 }

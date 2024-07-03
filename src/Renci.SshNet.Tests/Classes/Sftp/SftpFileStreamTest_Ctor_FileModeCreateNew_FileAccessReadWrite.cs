@@ -37,15 +37,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.CreateNew, false))
-                           .Returns(_handle);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
-                           .Returns(_readBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
-                           .Returns(_writeBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.CreateNew, false))
+                               .Returns(_handle);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
+                               .Returns(_readBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
+                               .Returns(_writeBufferSize);
         }
 
         protected override void Act()
@@ -84,7 +84,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void PositionShouldReturnZero()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
 
             var actual = _target.Position;
 
@@ -100,8 +102,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var data = new byte[] { 5, 4, 3, 2, 1 };
             var expected = new byte[] { 0, 5, 4, 3, 2, 1, 0, 0 };
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize)).Returns(data);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
+                               .Returns(data);
 
             var actual = _target.Read(buffer, 1, data.Length);
 
@@ -117,9 +123,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var data = GenerateRandom(5, _random);
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
-                .Returns(data);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
+                               .Returns(data);
 
             var actual = _target.ReadByte();
 
@@ -134,8 +143,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var buffer = new byte[_writeBufferSize];
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestWrite(_handle, 0UL, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null));
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestWrite(_handle, 0UL, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null));
 
             _target.Write(buffer, 0, buffer.Length);
 

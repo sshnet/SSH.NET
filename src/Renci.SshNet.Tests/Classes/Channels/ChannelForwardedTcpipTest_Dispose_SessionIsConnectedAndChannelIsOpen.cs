@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
@@ -53,10 +55,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             if (_channelThread != null)
             {
-                if (_channelThread.IsAlive)
-                    _channelThread.Abort();
+                _channelThread.Join();
                 _channelThread = null;
             }
+
             if (_channel != null)
             {
                 _channel.Dispose();
@@ -67,15 +69,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
-
-            _remoteEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
-
-            _remoteListener = new AsyncSocketListener(_remoteEndpoint);
-            _remoteListener.Connected += socket => _connectedRegister.Add(socket);
-            _remoteListener.Disconnected += socket => _disconnectedRegister.Add(socket);
-            _remoteListener.Start();
-
-            _remoteEndpoint.Port = ((IPEndPoint)_remoteListener.ListenerEndPoint).Port;
 
             _localChannelNumber = (uint) random.Next(0, int.MaxValue);
             _localWindowSize = (uint) random.Next(2000, 3000);
@@ -90,56 +83,72 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _disconnectedRegister = new List<Socket>();
             _connectionInfoTimeout = TimeSpan.FromSeconds(5);
 
+            _remoteEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+
+            _remoteListener = new AsyncSocketListener(_remoteEndpoint);
+            _remoteListener.Connected += _connectedRegister.Add;
+            _remoteListener.Disconnected += _disconnectedRegister.Add;
+            _remoteListener.Start();
+
+            _remoteEndpoint.Port = ((IPEndPoint)_remoteListener.ListenerEndPoint).Port;
+
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(sequence).Setup(p => p.Timeout).Returns(_connectionInfoTimeout);
-            _sessionMock.InSequence(sequence).Setup(
-                p => p.SendMessage(
-                    It.Is<ChannelOpenConfirmationMessage>(
-                        m => m.LocalChannelNumber == _remoteChannelNumber
-                             &&
-                             m.InitialWindowSize == _localWindowSize
-                             &&
-                             m.MaximumPacketSize == _localPacketSize
-                             &&
-                             m.RemoteChannelNumber == _localChannelNumber)
-                    ));
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
-                .Returns(true);
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
-                .Returns(true);
-            _sessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(sequence).Setup(p => p.ChannelCloseTimeout).Returns(_channelCloseTimeout);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.TryWait(It.IsAny<EventWaitHandle>(), _channelCloseTimeout))
-                        .Callback<WaitHandle, TimeSpan>((waitHandle, channelCloseTimeout) =>
-                        {
-                            _sessionMock.Raise(
-                                s => s.ChannelCloseReceived += null,
-                                new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
-                            waitHandle.WaitOne();
-                        })
-                        .Returns(WaitResult.Success);
 
-            _channel = new ChannelForwardedTcpip(
-                _sessionMock.Object,
-                _localChannelNumber,
-                _localWindowSize,
-                _localPacketSize,
-                _remoteChannelNumber,
-                _remoteWindowSize,
-                _remotePacketSize);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.InSequence(sequence)
+                                   .Setup(p => p.Timeout)
+                                   .Returns(_connectionInfoTimeout);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.SendMessage(It.Is<ChannelOpenConfirmationMessage>(m =>
+                                    m.LocalChannelNumber == _remoteChannelNumber &&
+                                    m.InitialWindowSize == _localWindowSize &&
+                                    m.MaximumPacketSize == _localPacketSize &&
+                                    m.RemoteChannelNumber == _localChannelNumber)));
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                            .Returns(true);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                            .Returns(true);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.InSequence(sequence)
+                                   .Setup(p => p.ChannelCloseTimeout)
+                                   .Returns(_channelCloseTimeout);
+            _ = _sessionMock.InSequence(sequence)
+                            .Setup(p => p.TryWait(It.IsAny<EventWaitHandle>(), _channelCloseTimeout))
+                            .Callback<WaitHandle, TimeSpan>((waitHandle, channelCloseTimeout) =>
+                                {
+                                    _sessionMock.Raise(
+                                        s => s.ChannelCloseReceived += null,
+                                        new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
+                                    _ = waitHandle.WaitOne();
+                                })
+                            .Returns(WaitResult.Success);
+
+            _channel = new ChannelForwardedTcpip(_sessionMock.Object,
+                                                 _localChannelNumber,
+                                                 _localWindowSize,
+                                                 _localPacketSize,
+                                                 _remoteChannelNumber,
+                                                 _remoteWindowSize,
+                                                 _remotePacketSize);
 
             _channelThread = new Thread(() =>
                 {
@@ -153,7 +162,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     }
                     finally
                     {
-                        _channelBindFinishedWaitHandle.Set();
+                        _ = _channelBindFinishedWaitHandle.Set();
                     }
                 });
             _channelThread.Start();
@@ -178,7 +187,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void BindShouldHaveFinishedWithoutException()
         {
-            Assert.IsNull(_channelException, _channelException != null ? _channelException.ToString() : null);
+            Assert.IsNull(_channelException, _channelException?.ToString());
             Assert.IsTrue(_channelBindFinishedWaitHandle.WaitOne(0));
         }
 

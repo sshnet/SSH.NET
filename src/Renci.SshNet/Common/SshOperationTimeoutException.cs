@@ -34,8 +34,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public SshOperationTimeoutException(string message, Exception innerException) :
-            base(message, innerException)
+        public SshOperationTimeoutException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 

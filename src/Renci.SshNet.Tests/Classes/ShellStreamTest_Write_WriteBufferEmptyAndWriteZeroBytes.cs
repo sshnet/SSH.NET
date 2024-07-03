@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
-using Renci.SshNet.Abstractions;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -64,28 +66,28 @@ namespace Renci.SshNet.Tests.Classes
         {
             _mockSequence = new MockSequence();
 
-            _sessionMock.InSequence(_mockSequence)
-                        .Setup(p => p.ConnectionInfo)
-                        .Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(_mockSequence)
-                               .Setup(p => p.Encoding)
-                               .Returns(new UTF8Encoding());
-            _sessionMock.InSequence(_mockSequence)
-                        .Setup(p => p.CreateChannelSession())
-                        .Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.Open());
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendPseudoTerminalRequest(_terminalName,
-                                                                       _widthColumns,
-                                                                       _heightRows,
-                                                                       _widthPixels,
-                                                                       _heightPixels,
-                                                                       _terminalModes))
-                               .Returns(true);
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendShellRequest())
-                               .Returns(true);
+            _ = _sessionMock.InSequence(_mockSequence)
+                            .Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.InSequence(_mockSequence)
+                                   .Setup(p => p.Encoding)
+                                   .Returns(new UTF8Encoding());
+            _ = _sessionMock.InSequence(_mockSequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelSessionMock.Object);
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.Open());
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                    .Setup(p => p.SendPseudoTerminalRequest(_terminalName,
+                                                                            _widthColumns,
+                                                                            _heightRows,
+                                                                            _widthPixels,
+                                                                            _heightPixels,
+                                                                            _terminalModes))
+                                    .Returns(true);
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendShellRequest())
+                                   .Returns(true);
         }
 
         private void Arrange()

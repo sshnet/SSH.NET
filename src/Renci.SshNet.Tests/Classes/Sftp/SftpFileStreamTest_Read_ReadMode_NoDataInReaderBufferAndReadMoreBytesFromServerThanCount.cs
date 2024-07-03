@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public void SubsequentReadShouldReturnAllRemaningBytesFromReadBufferAndReadAgainWhenCountIsGreaterThanNumberOfRemainingBytesAndNewReadReturnsZeroBytes()
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestRead(_handle, (ulong)(_serverData.Length), _readBufferSize)).Returns(Array<byte>.Empty);
+            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestRead(_handle, (ulong)(_serverData.Length), _readBufferSize)).Returns(Array.Empty<byte>());
 
             var buffer = new byte[_numberOfBytesToWriteToReadBuffer + 1];
 

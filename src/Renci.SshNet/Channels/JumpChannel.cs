@@ -2,9 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Channels
 {
@@ -13,9 +11,9 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal class JumpChannel
     {
-        private Socket listener;
-        private ISession _session;
-        private EventWaitHandle _channelOpen = new AutoResetEvent(false);
+        private Socket _listener;
+        private readonly ISession _session;
+        private readonly EventWaitHandle _channelOpen = new AutoResetEvent(false);
 
         /// <summary>
         /// Gets the bound host.
@@ -57,7 +55,9 @@ namespace Renci.SshNet.Channels
         public JumpChannel(ISession session, string host, uint port)
         {
             if (host == null)
+            {
                 throw new ArgumentNullException("host");
+            }
 
             port.ValidatePort("port");
 
@@ -70,31 +70,31 @@ namespace Renci.SshNet.Channels
         public Socket Connect()
         {
             var ep = new IPEndPoint(IPAddress.Loopback, 0);
-            listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
-            listener.Bind(ep);
-            listener.Listen(1);
+            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+            _listener.Bind(ep);
+            _listener.Listen(1);
             
             IsStarted = true;
 
             // update bound port (in case original was passed as zero)
-            ep.Port = ((IPEndPoint)listener.LocalEndPoint).Port;
+            ep.Port = ((IPEndPoint)_listener.LocalEndPoint).Port;
 
             var e = new SocketAsyncEventArgs();
             e.Completed += AcceptCompleted;
             
             // only accept new connections while we are started
-            if (!listener.AcceptAsync(e))
+            if (!_listener.AcceptAsync(e))
             {
                 AcceptCompleted(null, e);
             }
 
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ep);
 
             //  Wait for channel to open
             _session.WaitOnHandle(_channelOpen);
-            listener.Dispose();
-            listener = null;
+            _listener.Dispose();
+            _listener = null;
 
             return socket;
         }
@@ -118,8 +118,16 @@ namespace Renci.SshNet.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected void Dispose(bool disposing)
         {
+
             if (_isDisposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                // Don't dispose the _session here, as it's considered 'owned' by the object that instantiated this JumpChannel (usually SSHConnector)
+            }
 
             _isDisposed = true;
         }
@@ -138,7 +146,7 @@ namespace Renci.SshNet.Channels
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (e.SocketError == SocketError.OperationAborted || e.SocketError == SocketError.NotSocket)
+            if (e.SocketError is SocketError.OperationAborted or SocketError.NotSocket)
             {
                 // server was stopped
                 return;
@@ -154,7 +162,7 @@ namespace Renci.SshNet.Channels
                 return;
             }
 
-            _channelOpen.Set();
+            _ = _channelOpen.Set();
 
             // process connection
             ProcessAccept(clientSocket);

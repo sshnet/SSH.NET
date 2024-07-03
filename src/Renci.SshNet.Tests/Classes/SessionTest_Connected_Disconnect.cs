@@ -1,8 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
@@ -100,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_SendMessageShouldThrowSshConnectionException()
         {
             var session = (ISession) Session;
@@ -182,9 +183,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
-            Exception exception;
 
-            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out var exception);
 
             Assert.AreEqual(WaitResult.Disconnected, result);
             Assert.IsNull(exception);

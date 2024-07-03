@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -38,8 +40,11 @@ namespace Renci.SshNet.Tests.Classes
         {
             if (_forwardedPort != null && _forwardedPort.IsStarted)
             {
-                _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-                _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(5));
+                _ = _sessionMock.Setup(p => p.ConnectionInfo)
+                                .Returns(_connectionInfoMock.Object);
+                _ = _connectionInfoMock.Setup(p => p.Timeout)
+                                       .Returns(TimeSpan.FromSeconds(5));
+
                 _forwardedPort.Stop();
             }
 
@@ -87,11 +92,21 @@ namespace Renci.SshNet.Tests.Classes
         {
             var seq = new MockSequence();
 
-            _sessionMock.InSequence(seq).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _sessionMock.InSequence(seq).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(seq).Setup(p => p.Timeout).Returns(_connectionTimeout);
-            _channelMock.InSequence(seq).Setup(p => p.Dispose()).Callback(() => _channelDisposed.Set());
+            _ = _sessionMock.InSequence(seq)
+                            .Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.InSequence(seq)
+                            .Setup(p => p.CreateChannelDirectTcpip())
+                            .Returns(_channelMock.Object);
+            _ = _sessionMock.InSequence(seq)
+                            .Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.InSequence(seq)
+                                   .Setup(p => p.Timeout)
+                                   .Returns(_connectionTimeout);
+            _ = _channelMock.InSequence(seq)
+                            .Setup(p => p.Dispose())
+                            .Callback(() => _channelDisposed.Set());
         }
 
         private void Arrange()
@@ -110,7 +125,7 @@ namespace Renci.SshNet.Tests.Classes
             _client.Shutdown(SocketShutdown.Send);
 
             // wait for channel to be disposed
-            _channelDisposed.WaitOne(TimeSpan.FromMilliseconds(200));
+            _ = _channelDisposed.WaitOne(TimeSpan.FromMilliseconds(200));
         }
 
         [TestMethod]

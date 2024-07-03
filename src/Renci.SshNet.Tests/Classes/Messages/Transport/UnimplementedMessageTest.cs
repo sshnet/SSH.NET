@@ -1,6 +1,5 @@
 ﻿using Renci.SshNet.Messages.Transport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
@@ -19,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         [Ignore] // placeholder
         public void UnimplementedMessageConstructorTest()
         {
-            UnimplementedMessage target = new UnimplementedMessage();
+            var target = new UnimplementedMessage();
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

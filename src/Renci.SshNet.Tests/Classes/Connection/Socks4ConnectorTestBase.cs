@@ -1,7 +1,9 @@
-﻿using Moq;
+﻿using System.Net;
+
+using Moq;
+
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
-using System.Net;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {

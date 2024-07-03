@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "break" type channel request information
     /// </summary>
-    internal class BreakRequestInfo : RequestInfo
+    internal sealed class BreakRequestInfo : RequestInfo
     {
         /// <summary>
         /// Channel request name

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Net;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
 
@@ -15,8 +18,6 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;
-        private Mock<IConnector> _connectorMock;
-        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
 
         protected override void OnInit()
         {
@@ -24,8 +25,6 @@ namespace Renci.SshNet.Tests.Classes
 
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
-            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
-            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
         }
 
         [TestMethod]
@@ -35,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                new Session(connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
+                _ = new Session(connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -54,7 +53,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                new Session(connectionInfo, serviceFactory, _socketFactoryMock.Object);
+                _ = new Session(connectionInfo, serviceFactory, _socketFactoryMock.Object);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -73,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                new Session(connectionInfo, _serviceFactoryMock.Object, socketFactory);
+                _ = new Session(connectionInfo, _serviceFactoryMock.Object, socketFactory);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -85,13 +84,10 @@ namespace Renci.SshNet.Tests.Classes
 
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)
         {
-            var connectionInfo = new ConnectionInfo(
-                serverEndPoint.Address.ToString(),
-                serverEndPoint.Port,
-                "eric",
-                new NoneAuthenticationMethod("eric"));
-            connectionInfo.Timeout = timeout;
-            return connectionInfo;
+            return new ConnectionInfo(serverEndPoint.Address.ToString(), serverEndPoint.Port, "eric", new NoneAuthenticationMethod("eric"))
+                {
+                    Timeout = timeout
+                };
         }
     }
 }

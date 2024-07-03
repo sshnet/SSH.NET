@@ -1,14 +1,12 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Connection
 {
@@ -18,11 +16,14 @@ namespace Renci.SshNet.Connection
 
         protected ConnectorBase(IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
-            if (serviceFactory == null)
-                throw new ArgumentNullException("serviceFactory");
-
-            if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            if (serviceFactory is null)
+            {
+                throw new ArgumentNullException(nameof(serviceFactory));
+            }
+            if (socketFactory is null)
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             ServiceFactory = serviceFactory;
             SocketFactory = socketFactory;
@@ -34,21 +35,86 @@ namespace Renci.SshNet.Connection
 
         public abstract Socket Connect(IConnectionInfo connectionInfo);
 
-#if FEATURE_TAP
         public abstract Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken);
-#endif
+
+        /// <summary>
+        /// Establishes a socket connection to the specified host and port.
+        /// </summary>
+        /// <param name="host">The host name of the server to connect to.</param>
+        /// <param name="port">The port to connect to.</param>
+        /// <param name="timeout">The maximum time to wait for the connection to be established.</param>
+        /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="ConnectionInfo.Timeout"/>.</exception>
+        /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
+        protected Socket SocketConnect(string host, int port, TimeSpan timeout)
+        {
+            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
+            var ep = new IPEndPoint(ipAddress, port);
+
+            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+
+            var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                SocketAbstraction.Connect(socket, ep, timeout);
+
+                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                socket.SendBufferSize = socketBufferSize;
+                socket.ReceiveBufferSize = socketBufferSize;
+                return socket;
+            }
+            catch (Exception)
+            {
+                socket.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Establishes a socket connection to the specified host and port.
+        /// </summary>
+        /// <param name="host">The host name of the server to connect to.</param>
+        /// <param name="port">The port to connect to.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="ConnectionInfo.Timeout"/>.</exception>
+        /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
+        protected async Task<Socket> SocketConnectAsync(string host, int port, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+            var ep = new IPEndPoint(ipAddress, port);
+
+            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+
+            var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                await SocketAbstraction.ConnectAsync(socket, ep, cancellationToken).ConfigureAwait(false);
+
+                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                socket.SendBufferSize = socketBufferSize;
+                socket.ReceiveBufferSize = socketBufferSize;
+                return socket;
+            }
+            catch (Exception)
+            {
+                socket.Dispose();
+                throw;
+            }
+        }
 
         protected static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
+            _ = SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
             return buffer[0];
         }
 
         protected static byte SocketReadByte(Socket socket, TimeSpan readTimeout)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, readTimeout);
+            _ = SocketRead(socket, buffer, 0, 1, readTimeout);
             return buffer[0];
         }
 
@@ -91,6 +157,7 @@ namespace Renci.SshNet.Connection
                 throw new SshConnectionException("An established connection was aborted by the server.",
                                                  DisconnectReason.ConnectionLost);
             }
+
             return bytesRead;
         }
 

@@ -6,7 +6,7 @@
     public abstract class Algorithm
     {
         /// <summary>
-        /// Gets algorithm name.
+        /// Gets the algorithm name.
         /// </summary>
         public abstract string Name { get; }
     }

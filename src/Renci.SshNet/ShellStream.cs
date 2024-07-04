@@ -189,9 +189,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/>.
-        /// </returns>
+        /// </value>
         /// <remarks>
         /// It is safe to read from <see cref="ShellStream"/> even after disposal.
         /// </remarks>
@@ -203,9 +203,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public override bool CanSeek
         {
             get { return false; }
@@ -214,10 +214,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if this stream has not been disposed and the underlying channel
         /// is still open, otherwise <see langword="false"/>.
-        /// </returns>
+        /// </value>
         /// <remarks>
         /// A value of <see langword="true"/> does not necessarily mean a write will succeed. It is possible
         /// that the channel is closed and/or the stream is disposed by another thread between a call to
@@ -245,7 +245,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the number of bytes currently available for reading.
         /// </summary>
-        /// <returns>A long value representing the length of the stream in bytes.</returns>
+        /// <value>A value representing the length of the stream in bytes.</value>
         public override long Length
         {
             get
@@ -262,9 +262,9 @@ namespace Renci.SshNet
         /// This property always returns 0, and throws <see cref="NotSupportedException"/>
         /// when calling the setter.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// 0.
-        /// </returns>
+        /// </value>
         /// <exception cref="NotSupportedException">The setter is called.</exception>
 #pragma warning disable SA1623 // The property's documentation should begin with 'Gets or sets'
         public override long Position

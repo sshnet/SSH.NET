@@ -14,7 +14,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents SSH command that can be executed.
+    /// Represents an SSH command that can be executed.
     /// </summary>
     public class SshCommand : IDisposable
     {
@@ -404,7 +404,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see cref="Result"/>.</returns>
-        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        /// <exception cref="ArgumentException"><paramref name="asyncResult"/> does not correspond to the currently executing command.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
@@ -488,7 +488,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Executes command specified by <see cref="CommandText"/> property.
+        /// Executes the command specified by <see cref="CommandText"/>.
         /// </summary>
         /// <returns><see cref="Result"/>.</returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -501,12 +501,10 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Executes the specified command text.
+        /// Executes the specified command.
         /// </summary>
         /// <param name="commandText">The command text.</param>
-        /// <returns>
-        /// The result of the command execution.
-        /// </returns>
+        /// <returns><see cref="Result"/>.</returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute(string commandText)

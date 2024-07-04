@@ -1,6 +1,5 @@
 ﻿using System;
-
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -406,8 +405,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="outOff">The out off.</param>
         protected static void DesFunc(int[] wKey, byte[] input, int inOff, byte[] outBytes, int outOff)
         {
-            var left = Pack.BigEndianToUInt32(input, inOff);
-            var right = Pack.BigEndianToUInt32(input, inOff + 4);
+            var left = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff));
+            var right = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff + 4));
 
             var work = ((left >> 4) ^ right) & 0x0f0f0f0f;
             right ^= work;
@@ -473,8 +472,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             left ^= work;
             right ^= work << 4;
 
-            Pack.UInt32ToBigEndian(right, outBytes, outOff);
-            Pack.UInt32ToBigEndian(left, outBytes, outOff + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff), right);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff + 4), left);
         }
     }
 }

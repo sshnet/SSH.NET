@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -90,7 +91,7 @@ namespace Renci.SshNet.Connection
             connectionRequest[index++] = 0x01; // establish a TCP/IP stream connection
 
             // Port number
-            Pack.UInt16ToBigEndian(port, connectionRequest, index);
+            BinaryPrimitives.WriteUInt16BigEndian(connectionRequest.AsSpan(index), port);
             index += 2;
 
             // Address

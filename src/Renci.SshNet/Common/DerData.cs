@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 
 namespace Renci.SshNet.Common
@@ -198,7 +199,8 @@ namespace Renci.SshNet.Common
         /// <param name="data">UInt32 data to write.</param>
         public void Write(uint data)
         {
-            var bytes = Pack.UInt32ToBigEndian(data);
+            var bytes = new byte[sizeof(uint)];
+            BinaryPrimitives.WriteUInt32BigEndian(bytes, data);
             _data.Add(Integer);
             var length = GetLength(bytes.Length);
             WriteBytes(length);

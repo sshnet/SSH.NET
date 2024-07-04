@@ -1,6 +1,5 @@
 ﻿using System;
-
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -65,15 +64,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
              * the array is in bytes, the increment is 8x8 bits = 64
              */
 
-            var l0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var r0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var l0 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var r0 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             var result = new uint[2];
             CastEncipher(l0, r0, result);
 
             // now stuff them into the destination block
-            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), result[0]);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), result[1]);
 
             return BlockSize;
         }
@@ -94,15 +93,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
-            var l16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var r16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var l16 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var r16 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             var result = new uint[2];
             CastDecipher(l16, r16, result);
 
             // now stuff them into the destination block
-            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), result[0]);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), result[1]);
 
             return BlockSize;
         }

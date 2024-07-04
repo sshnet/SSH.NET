@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             try
             {
-                _target.Read(buffer, 0, buffer.Length);
+                _ = _target.Read(buffer, 0, buffer.Length);
                 Assert.Fail();
             }
             catch (NotSupportedException ex)

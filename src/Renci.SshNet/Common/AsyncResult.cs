@@ -92,9 +92,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a user-defined object that qualifies or contains information about an asynchronous operation.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// A user-defined object that qualifies or contains information about an asynchronous operation.
-        /// </returns>
+        /// </value>
         public object AsyncState
         {
             get { return _asyncState; }
@@ -103,9 +103,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value indicating whether the asynchronous operation completed synchronously.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if the asynchronous operation completed synchronously; otherwise, <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public bool CompletedSynchronously
         {
             get { return _completedState == StateCompletedSynchronously; }
@@ -114,9 +114,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// A <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.
-        /// </returns>
+        /// </value>
         public WaitHandle AsyncWaitHandle
         {
             get
@@ -147,9 +147,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value indicating whether the asynchronous operation has completed.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if the operation is complete; otherwise, <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public bool IsCompleted
         {
             get { return _completedState != StatePending; }

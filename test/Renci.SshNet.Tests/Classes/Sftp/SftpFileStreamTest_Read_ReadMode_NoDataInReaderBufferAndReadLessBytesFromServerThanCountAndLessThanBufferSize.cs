@@ -140,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 .Returns(Array.Empty<byte>());
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
-            _target.Read(new byte[10], 0, 10);
+            _ = _target.Read(new byte[10], 0, 10);
 
             Assert.AreEqual(_actual, _target.Position);
 

@@ -21,8 +21,8 @@ namespace Renci.SshNet.Compression
         /// </summary>
         /// <param name="delayedCompression">
         /// <see langword="false"/> to start compression after receiving SSH_MSG_NEWKEYS.
-        /// <see langword="true"/> to delay compression util receiving SSH_MSG_USERAUTH_SUCCESS.
-        /// <see href="https://www.openssh.com/txt/draft-miller-secsh-compression-delayed-00.txt"/>.
+        /// <see langword="true"/> to delay compression until SSH_MSG_USERAUTH_SUCCESS is received.
+        /// See <see href="https://www.openssh.com/txt/draft-miller-secsh-compression-delayed-00.txt"/>.
         /// </param>
         protected Compressor(bool delayedCompression)
         {

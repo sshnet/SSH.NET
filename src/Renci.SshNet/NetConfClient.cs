@@ -208,6 +208,13 @@ namespace Renci.SshNet
         /// <summary>
         /// Sends the receive RPC.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// var rpcXmlTemplate = "<rpc xmlns='urn:ietf:params:xml:ns:netconf:base:1.0' message-id='1'>{0}</rpc>"'
+        /// rpc.LoadXml(String.Format(rpcXmlTemplate, "<get-config><source><running/></source></get-config>"));
+        /// var rpcResponse = client.SendReceiveRpc(rpc);
+        /// </code>
+        /// </example>
         /// <param name="rpc">The RPC.</param>
         /// <returns>
         /// Reply message to RPC request.
@@ -226,6 +233,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Sends the receive RPC.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// var rpcXmlTemplate = "<rpc xmlns='urn:ietf:params:xml:ns:netconf:base:1.0' message-id='1'>{0}</rpc>"'
+        /// var rpcResponse = client.SendReceiveRpc(String.Format(rpcXmlTemplate, "<get-config><source><running/></source></get-config>"));
+        /// </code>
+        /// </example>
         /// <param name="xml">The XML.</param>
         /// <returns>
         /// Reply message to RPC request.

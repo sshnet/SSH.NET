@@ -70,6 +70,19 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         /// <summary>
+        /// Specifies whether TTY is permitted.
+        /// </summary>
+        /// <param name="value"><see langword="true"/> to permit TTY.</param>
+        /// <returns>
+        /// The current <see cref="RemoteSshdConfig"/> instance.
+        /// </returns>
+        public RemoteSshdConfig PermitTTY(bool? value = true)
+        {
+            _config.PermitTTY = value;
+            return this;
+        }
+
+        /// <summary>
         /// Specifies whether TCP forwarding is permitted.
         /// </summary>
         /// <param name="value"><see langword="true"/> to allow TCP forwarding.</param>

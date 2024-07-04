@@ -362,3 +362,6 @@ dotnet_diagnostic.IDE0047.severity = silent
 # IDE0032: Use auto-implemented property
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
 dotnet_diagnostic.IDE0032.severity = silent
+
+# CA1849: Call async methods when in an async method
+dotnet_diagnostic.CA1849.severity = silent

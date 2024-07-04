@@ -47,17 +47,17 @@ namespace Renci.SshNet.Abstractions
             return socket;
         }
 
-        public static void Connect(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
+        public static void Connect(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: false);
         }
 
-        public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        public static async Task ConnectAsync(Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
 
-        private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
+        private static void ConnectCore(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs

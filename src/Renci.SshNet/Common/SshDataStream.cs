@@ -60,31 +60,25 @@ namespace Renci.SshNet.Common
         private int Read(Span<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
-            try
-            {
-                var numRead = Read(sharedBuffer, 0, buffer.Length);
+            
+            var numRead = Read(sharedBuffer, 0, buffer.Length);
 
-                new ReadOnlySpan<byte>(sharedBuffer, 0, numRead).CopyTo(buffer);
-                return numRead;
-            }
-            finally
-            {
-                System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
-            }
+            sharedBuffer.AsSpan(0, numRead).CopyTo(buffer);
+            
+            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
+            
+            return numRead;
         }
 
         private void Write(ReadOnlySpan<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
-            try
-            {
-                buffer.CopyTo(sharedBuffer);
-                Write(sharedBuffer, 0, buffer.Length);
-            }
-            finally
-            {
-                System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
-            }
+            
+            buffer.CopyTo(sharedBuffer);
+            
+            Write(sharedBuffer, 0, buffer.Length);
+            
+            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
         }
 #endif
 

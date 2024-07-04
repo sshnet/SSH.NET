@@ -108,9 +108,9 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the digital signature implementation for this key.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// An implementation of an RSA digital signature using the SHA-1 hash algorithm.
-        /// </returns>
+        /// </value>
         protected internal override DigitalSignature DigitalSignature
         {
             get

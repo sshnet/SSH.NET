@@ -16,10 +16,10 @@
         /// <summary>
         /// Gets the size of the authentication tag for ciphers which implement Authenticated Encryption (AE).
         /// </summary>
-        /// <returns>
+        /// <value>
         /// When this <see cref="Cipher"/> implements Authenticated Encryption, the size, in bytes,
         /// of the authentication tag included in the encrypted message.
-        /// </returns>
+        /// </value>
         public virtual int TagSize { get; }
 
         /// <summary>

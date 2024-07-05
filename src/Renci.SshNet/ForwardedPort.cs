@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -17,26 +18,17 @@ namespace Renci.SshNet
         internal ISession Session { get; set; }
 
         /// <summary>
-        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
-        /// </summary>
-        internal event EventHandler Closing;
-
-        /// <summary>
-        /// The <see cref="IForwardedPort.Closing"/> event occurs as the forwarded port is being stopped.
-        /// </summary>
-        event EventHandler IForwardedPort.Closing
-        {
-            add { Closing += value; }
-            remove { Closing -= value; }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
-        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
+        /// <see langword="true"/> if port forwarding is started; otherwise, <see langword="false"/>.
         /// </value>
         public abstract bool IsStarted { get; }
+
+        /// <summary>
+        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
+        /// </summary>
+        public event EventHandler Closing;
 
         /// <summary>
         /// Occurs when an exception is thrown.
@@ -51,6 +43,8 @@ namespace Renci.SshNet
         /// <summary>
         /// Starts port forwarding.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The current <see cref="ForwardedPort"/> is already started -or- is not linked to a SSH session.</exception>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
         public virtual void Start()
         {
             CheckDisposed();
@@ -86,6 +80,15 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Starts port forwarding.
         /// </summary>
         protected abstract void StartPort();
@@ -97,25 +100,27 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected virtual void StopPort(TimeSpan timeout)
         {
+            timeout.EnsureValidTimeout(nameof(timeout));
+
             RaiseClosing();
 
             var session = Session;
-            if (session != null)
+            if (session is not null)
             {
                 session.ErrorOccured -= Session_ErrorOccured;
             }
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langowrd="true"/> to release both managed and unmanaged resources; <see langowrd="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
                 var session = Session;
-                if (session != null)
+                if (session is not null)
                 {
                     StopPort(session.ConnectionInfo.Timeout);
                     Session = null;

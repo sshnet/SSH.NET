@@ -31,7 +31,7 @@ namespace Renci.SshNet.Sftp
 
         protected override void SaveData()
         {
-            Write((byte) SftpMessageType);
+            Write((byte)SftpMessageType);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Renci.SshNet.Sftp
             // write the length of the SFTP message where we were positioned before we started
             // writing the SFTP message data
             stream.Position = startPosition;
-            stream.Write((uint) dataLength);
+            stream.Write((uint)dataLength);
 
             // move back to we were positioned when we finished writing the SFTP message data
             stream.Position = endPosition;

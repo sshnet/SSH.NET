@@ -1,24 +1,24 @@
 ﻿using System;
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements CAST cipher algorithm
+    /// Implements CAST cipher algorithm.
     /// </summary>
     public sealed class CastCipher : BlockCipher
     {
-        private static readonly int MaxRounds = 16;
+        private const int MaxRounds = 16;
 
-        private static readonly int RedRounds = 12;
+        private const int RedRounds = 12;
 
         /// <summary>
-        /// The rotating round key
+        /// The rotating round key.
         /// </summary>
         private readonly int[] _kr = new int[17];
 
         /// <summary>
-        /// The masking round key
+        /// The masking round key.
         /// </summary>
         private readonly uint[] _km = new uint[17];
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public CastCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
@@ -58,19 +58,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            // process the input block
-            // batch the units up into a 32 bit chunk and go for it
-            // the array is in bytes, the increment is 8x8 bits = 64
+            /*
+             * process the input block
+             * batch the units up into a 32 bit chunk and go for it
+             * the array is in bytes, the increment is 8x8 bits = 64
+             */
 
-            var l0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var r0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var l0 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var r0 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             var result = new uint[2];
             CastEncipher(l0, r0, result);
 
             // now stuff them into the destination block
-            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), result[0]);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), result[1]);
 
             return BlockSize;
         }
@@ -91,15 +93,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
-            var l16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var r16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var l16 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var r16 = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             var result = new uint[2];
             CastDecipher(l16, r16, result);
 
             // now stuff them into the destination block
-            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), result[0]);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), result[1]);
 
             return BlockSize;
         }
@@ -575,7 +577,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F1(uint d, uint kmi, int kri)
         {
             var I = kmi + d;
@@ -589,7 +590,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F2(uint d, uint kmi, int kri)
         {
             var I = kmi ^ d;
@@ -603,7 +603,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="d">The input to be processed.</param>
         /// <param name="kmi">The mask to be used from Km[n].</param>
         /// <param name="kri">The rotation value to be used.</param>
-        /// <returns></returns>
         private static uint F3(uint d, uint kmi, int kri)
         {
             var I = kmi - d;
@@ -709,15 +708,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static void Bits32ToInts(uint inData, int[] b, int offset)
         {
-            b[offset + 3] = (int) (inData & 0xff);
-            b[offset + 2] = (int) ((inData >> 8) & 0xff);
-            b[offset + 1] = (int) ((inData >> 16) & 0xff);
-            b[offset] = (int) ((inData >> 24) & 0xff);
+            b[offset + 3] = (int)(inData & 0xff);
+            b[offset + 2] = (int)((inData >> 8) & 0xff);
+            b[offset + 1] = (int)((inData >> 16) & 0xff);
+            b[offset] = (int)((inData >> 24) & 0xff);
         }
 
         private static uint IntsTo32Bits(int[] b, int i)
         {
-            return (uint) (((b[i] & 0xff) << 24) |
+            return (uint)(((b[i] & 0xff) << 24) |
                            ((b[i + 1] & 0xff) << 16) |
                            ((b[i + 2] & 0xff) << 8) |
                            (b[i + 3] & 0xff));

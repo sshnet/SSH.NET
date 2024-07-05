@@ -15,7 +15,7 @@ namespace Renci.SshNet
         /// <returns>
         /// A quoted path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>
         /// If <paramref name="path"/> contains a single-quote, that character is embedded

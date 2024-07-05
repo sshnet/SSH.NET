@@ -5,7 +5,6 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEXINIT message.
     /// </summary>
-    [Message("SSH_MSG_KEXINIT", 20)]
     public class KeyExchangeInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
@@ -19,6 +18,24 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         #region Message Properties
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEXINIT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 20;
+            }
+        }
 
         /// <summary>
         /// Gets session cookie.
@@ -109,7 +126,7 @@ namespace Renci.SshNet.Messages.Transport
         /// Gets or sets a value indicating whether first key exchange packet follows.
         /// </summary>
         /// <value>
-        /// <c>true</c> if first key exchange packet follows; otherwise, <c>false</c>.
+        /// <see langword="true"/> if first key exchange packet follows; otherwise, <see langword="false"/>.
         /// </value>
         public bool FirstKexPacketFollows { get; set; }
 

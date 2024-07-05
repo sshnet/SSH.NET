@@ -1,4 +1,5 @@
-﻿//
+﻿#pragma warning disable SA1028 // Code should not contain trailing whitespace
+//
 // System.Numerics.BigInteger
 //
 // Authors:
@@ -44,6 +45,7 @@
 *
 *
 * ***************************************************************************/
+#pragma warning restore SA1028 // Code should not contain trailing whitespace
 
 using System;
 using System.Collections.Generic;
@@ -106,7 +108,7 @@ namespace Renci.SshNet.Common
 
                 var msbBitCount = BitScanBackward(_data[msbIndex]) + 1;
 
-                return msbIndex * 4 * 8 + msbBitCount + ((_sign > 0) ? 0 : 1);
+                return (msbIndex * 4 * 8) + msbBitCount + ((_sign > 0) ? 0 : 1);
             }
         }
 
@@ -145,8 +147,8 @@ namespace Renci.SshNet.Common
 
                 p1 += (b / a) * p0;
                 b %= a;
-
             }
+
             return 0;
         }
 
@@ -179,7 +181,7 @@ namespace Renci.SshNet.Common
         {
             var bytesArray = new byte[(bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0)];
             CryptoAbstraction.GenerateRandom(bytesArray);
-            bytesArray[bytesArray.Length - 1] = (byte) (bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
+            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
             return new BigInteger(bytesArray);
         }
 
@@ -205,12 +207,12 @@ namespace Renci.SshNet.Common
             else if (value > 0)
             {
                 _sign = 1;
-                _data = new[] { (uint) value };
+                _data = new[] { (uint)value };
             }
             else
             {
                 _sign = -1;
-                _data = new[] { (uint) -value };
+                _data = new[] { (uint)-value };
             }
         }
 
@@ -288,8 +290,8 @@ namespace Renci.SshNet.Common
             else
             {
                 _sign = 1;
-                var low = (uint) value;
-                var high = (uint) (value >> 32);
+                var low = (uint)value;
+                var high = (uint)(value >> 32);
 
                 _data = new uint[high != 0 ? 2 : 1];
                 _data[0] = low;
@@ -337,7 +339,7 @@ namespace Renci.SshNet.Common
                 BigInteger res = mantissa;
                 res = exponent > Bias ? res << (exponent - Bias) : res >> (Bias - exponent);
 
-                _sign = (short) (Negative(bytes) ? -1 : 1);
+                _sign = (short)(Negative(bytes) ? -1 : 1);
                 _data = res._data;
             }
         }
@@ -347,7 +349,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">A single-precision floating-point value.</param>
         public BigInteger(float value)
-            : this((double) value)
+            : this((double)value)
         {
         }
 
@@ -373,18 +375,18 @@ namespace Renci.SshNet.Common
                 return;
             }
 
-            _sign = (short) ((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
+            _sign = (short)((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
 
             _data = new uint[size];
-            _data[0] = (uint) bits[0];
+            _data[0] = (uint)bits[0];
             if (size > 1)
             {
-                _data[1] = (uint) bits[1];
+                _data[1] = (uint)bits[1];
             }
 
             if (size > 2)
             {
-                _data[2] = (uint) bits[2];
+                _data[2] = (uint)bits[2];
             }
         }
 
@@ -392,7 +394,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="BigInteger"/> structure using the values in a byte array.
         /// </summary>
         /// <param name="value">An array of <see cref="byte"/> values in little-endian order.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         [CLSCompliant(false)]
         public BigInteger(byte[] value)
         {
@@ -419,7 +421,9 @@ namespace Renci.SshNet.Common
                 _sign = 1;
             }
 
+#pragma warning disable CA1508 // Avoid dead conditional code | this is the following bug in the analyzer rule: https://github.com/dotnet/roslyn-analyzers/issues/6991
             if (_sign == 1)
+#pragma warning restore CA1508 // Avoid dead conditional code
             {
                 while (value[len - 1] == 0)
                 {
@@ -442,10 +446,10 @@ namespace Renci.SshNet.Common
                 var j = 0;
                 for (var i = 0; i < fullWords; ++i)
                 {
-                    _data[i] = (uint) value[j++] |
-                               (uint) (value[j++] << 8) |
-                               (uint) (value[j++] << 16) |
-                               (uint) (value[j++] << 24);
+                    _data[i] = (uint)value[j++] |
+                               (uint)(value[j++] << 8) |
+                               (uint)(value[j++] << 16) |
+                               (uint)(value[j++] << 24);
                 }
 
                 size = len & 0x3;
@@ -454,7 +458,7 @@ namespace Renci.SshNet.Common
                     var idx = _data.Length - 1;
                     for (var i = 0; i < size; ++i)
                     {
-                        _data[idx] |= (uint) (value[j++] << (i * 8));
+                        _data[idx] |= (uint)(value[j++] << (i * 8));
                     }
                 }
             }
@@ -475,14 +479,14 @@ namespace Renci.SshNet.Common
 
                 for (var i = 0; i < fullWords; ++i)
                 {
-                    word = (uint) value[j++] |
-                           (uint) (value[j++] << 8) |
-                           (uint) (value[j++] << 16) |
-                           (uint) (value[j++] << 24);
+                    word = (uint)value[j++] |
+                           (uint)(value[j++] << 8) |
+                           (uint)(value[j++] << 16) |
+                           (uint)(value[j++] << 24);
 
-                    sub = (ulong) word - borrow;
-                    word = (uint) sub;
-                    borrow = (uint) (sub >> 32) & 0x1u;
+                    sub = (ulong)word - borrow;
+                    word = (uint)sub;
+                    borrow = (uint)(sub >> 32) & 0x1u;
                     _data[i] = ~word;
                 }
 
@@ -494,13 +498,13 @@ namespace Renci.SshNet.Common
                     uint storeMask = 0;
                     for (var i = 0; i < size; ++i)
                     {
-                        word |= (uint) (value[j++] << (i * 8));
+                        word |= (uint)(value[j++] << (i * 8));
                         storeMask = (storeMask << 8) | 0xFF;
                     }
 
                     sub = word - borrow;
-                    word = (uint) sub;
-                    borrow = (uint) (sub >> 32) & 0x1u;
+                    word = (uint)sub;
+                    borrow = (uint)(sub >> 32) & 0x1u;
 
                     if ((~word & storeMask) == 0)
                     {
@@ -514,8 +518,9 @@ namespace Renci.SshNet.Common
 
                 if (borrow != 0)
                 {
-                    // FIXME I believe this can't happen, can someone write a test for it?
+#pragma warning disable CA2201 // Do not raise reserved exception types
                     throw new Exception("non zero final carry");
+#pragma warning restore CA2201 // Do not raise reserved exception types
                 }
             }
         }
@@ -535,14 +540,14 @@ namespace Renci.SshNet.Common
             var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
             var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
 
-            return ((ulong) i1 | ((ulong) i2 << 32));
+            return (ulong)i1 | ((ulong)i2 << 32);
         }
 
         /// <summary>
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is an even number.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the BigInteger object is an even number; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is an even number; otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsEven
         {
@@ -553,8 +558,8 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is <see cref="One"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is <see cref="One"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is <see cref="One"/>;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsOne
         {
@@ -570,7 +575,7 @@ namespace Renci.SshNet.Common
             x = (x + (x >> 4)) & 0x0F0F0F0F;
             x += x >> 8;
             x += x >> 16;
-            return (int) (x & 0x0000003F);
+            return (int)(x & 0x0000003F);
         }
 
         /// <summary>
@@ -672,8 +677,8 @@ namespace Renci.SshNet.Common
         /// Gets a value Indicating whether the value of the current <see cref="BigInteger"/> object is a power of two.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is a power of two;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is a power of two;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsPowerOfTwo
         {
@@ -709,8 +714,8 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether the value of the current <see cref="BigInteger"/> object is <see cref="Zero"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the value of the <see cref="BigInteger"/> object is <see cref="Zero"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the value of the <see cref="BigInteger"/> object is <see cref="Zero"/>;
+        /// otherwise, <see langword="false"/>.
         /// </value>
         public readonly bool IsZero
         {
@@ -768,7 +773,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator int(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -784,7 +791,7 @@ namespace Renci.SshNet.Common
 
             if (value._sign == 1)
             {
-                if (data > (uint) int.MaxValue)
+                if (data > (uint)int.MaxValue)
                 {
                     throw new OverflowException();
                 }
@@ -813,7 +820,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator uint(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -835,15 +844,17 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator short(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (int) value;
+            var val = (int)value;
             if (val is < short.MinValue or > short.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (short) val;
+            return (short)val;
         }
 
         /// <summary>
@@ -854,15 +865,17 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator ushort(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (uint) value;
+            var val = (uint)value;
             if (val > ushort.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (ushort) val;
+            return (ushort)val;
         }
 
         /// <summary>
@@ -872,15 +885,17 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator byte(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (uint) value;
+            var val = (uint)value;
             if (val > byte.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (byte) val;
+            return (byte)val;
         }
 
         /// <summary>
@@ -891,15 +906,17 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator sbyte(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            var val = (int) value;
+            var val = (int)value;
             if (val is < sbyte.MinValue or > sbyte.MaxValue)
             {
                 throw new OverflowException();
             }
 
-            return (sbyte) val;
+            return (sbyte)val;
         }
 
         /// <summary>
@@ -909,7 +926,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator long(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -927,7 +946,7 @@ namespace Renci.SshNet.Common
             {
                 if (value._sign == 1)
                 {
-                    return (long) low;
+                    return (long)low;
                 }
 
                 var res = (long)low;
@@ -973,7 +992,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator ulong(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1002,7 +1023,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator double(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1014,7 +1037,7 @@ namespace Renci.SshNet.Common
                 case 1:
                     return BuildDouble(value._sign, value._data[0], 0);
                 case 2:
-                    return BuildDouble(value._sign, (ulong) value._data[1] << 32 | (ulong) value._data[0], 0);
+                    return BuildDouble(value._sign, (ulong)value._data[1] << 32 | (ulong)value._data[0], 0);
                 default:
                     var index = value._data.Length - 1;
                     var word = value._data[index];
@@ -1041,9 +1064,11 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator float(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
-            return (float) (double) value;
+            return (float)(double)value;
         }
 
         /// <summary>
@@ -1053,7 +1078,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator decimal(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1069,17 +1096,17 @@ namespace Renci.SshNet.Common
             int lo = 0, mi = 0, hi = 0;
             if (data.Length > 2)
             {
-                hi = (int) data[2];
+                hi = (int)data[2];
             }
 
             if (data.Length > 1)
             {
-                mi = (int) data[1];
+                mi = (int)data[1];
             }
 
             if (data.Length > 0)
             {
-                lo = (int) data[0];
+                lo = (int)data[0];
             }
 
             return new decimal(lo, mi, hi, value._sign < 0, 0);
@@ -1092,7 +1119,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(int value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1105,7 +1134,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(uint value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1117,7 +1148,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(short value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1130,7 +1163,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(ushort value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1142,20 +1177,24 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(byte value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
 
         /// <summary>
-        /// 
+        /// Defines an implicit conversion of a signed byte to a <see cref="BigInteger"/> value.
         /// </summary>
         /// <param name="value">The value to convert to a <see cref="BigInteger"/>.</param>
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(sbyte value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1167,7 +1206,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(long value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1180,7 +1221,9 @@ namespace Renci.SshNet.Common
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
         [CLSCompliant(false)]
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static implicit operator BigInteger(ulong value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1192,7 +1235,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(double value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1204,7 +1249,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(float value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1216,7 +1263,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// An object that contains the value of the <paramref name="value"/> parameter.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static explicit operator BigInteger(decimal value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return new BigInteger(value);
         }
@@ -1255,7 +1304,7 @@ namespace Renci.SshNet.Common
 
             if (r > 0)
             {
-                //left > right
+                // left > right
                 return new BigInteger(left._sign, CoreSub(left._data, right._data));
             }
 
@@ -1279,7 +1328,7 @@ namespace Renci.SshNet.Common
 
             if (left._sign == 0)
             {
-                return new BigInteger((short) -right._sign, right._data);
+                return new BigInteger((short)-right._sign, right._data);
             }
 
             if (left._sign == right._sign)
@@ -1351,7 +1400,7 @@ namespace Renci.SshNet.Common
                 ulong carry = 0;
                 for (var j = 0; j < b.Length; ++j)
                 {
-                    carry = carry + ((ulong) ai) * b[j] + res[k];
+                    carry = carry + (((ulong)ai) * b[j]) + res[k];
                     res[k++] = (uint)carry;
                     carry >>= 32;
                 }
@@ -1375,7 +1424,7 @@ namespace Renci.SshNet.Common
                 Array.Resize(ref res, m + 1);
             }
 
-            return new BigInteger((short) (left._sign*right._sign), res);
+            return new BigInteger((short)(left._sign * right._sign), res);
         }
 
         /// <summary>
@@ -1475,7 +1524,7 @@ namespace Renci.SshNet.Common
                 return value;
             }
 
-            return new BigInteger((short) -value._sign, value._data);
+            return new BigInteger((short)-value._sign, value._data);
         }
 
         /// <summary>
@@ -1488,7 +1537,9 @@ namespace Renci.SshNet.Common
         /// <remarks>
         /// The sign of the operand is unchanged.
         /// </remarks>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator +(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return value;
         }
@@ -1500,7 +1551,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The value of the <paramref name="value"/> parameter incremented by 1.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ++(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1534,7 +1587,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The value of the <paramref name="value"/> parameter decremented by 1.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator --(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1569,7 +1624,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>And</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator &(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1659,7 +1716,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>Or</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator |(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1749,7 +1808,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The result of the bitwise <c>Or</c> operation.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ^(BigInteger left, BigInteger right)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (left._sign == 0)
             {
@@ -1838,7 +1899,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// The bitwise one's complement of <paramref name="value"/>.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator ~(BigInteger value)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (value._data is null)
             {
@@ -1895,9 +1958,14 @@ namespace Renci.SshNet.Common
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
 
-        //returns the 0-based index of the most significant set bit
-        //returns 0 if no bit is set, so extra care when using it
-        static int BitScanBackward(uint word)
+        /// <summary>
+        /// Returns the zero-based index of the most significant set bit.
+        /// </summary>
+        /// <param name="word">The value to scan.</param>
+        /// <returns>
+        /// The zero-based index of the most significant set bit, or zero if no bit is set.
+        /// </returns>
+        private static int BitScanBackward(uint word)
         {
             for (var i = 31; i >= 0; --i)
             {
@@ -1919,7 +1987,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that has been shifted to the left by the specified number of bits.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator <<(BigInteger value, int shift)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (shift == 0 || value._data is null)
             {
@@ -1976,7 +2046,9 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that has been shifted to the right by the specified number of bits.
         /// </returns>
+#pragma warning disable CA2225 // Operator overloads have named alternates
         public static BigInteger operator >>(BigInteger value, int shift)
+#pragma warning restore CA2225 // Operator overloads have named alternates
         {
             if (shift == 0 || value._sign == 0)
             {
@@ -2072,7 +2144,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(BigInteger left, BigInteger right)
         {
@@ -2085,13 +2157,12 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if left is <paramref name="left"/> than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if left is <paramref name="left"/> than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(BigInteger left, long right)
         {
             return left.CompareTo(right) < 0;
         }
-
 
         /// <summary>
         /// Returns a value that indicates whether a 64-bit signed integer is less than a <see cref="BigInteger"/> value.
@@ -2099,8 +2170,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <(long left, BigInteger right)
         {
@@ -2113,7 +2184,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <(BigInteger left, ulong right)
@@ -2127,7 +2198,7 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <(ulong left, BigInteger right)
@@ -2142,8 +2213,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(BigInteger left, BigInteger right)
         {
@@ -2157,8 +2228,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(BigInteger left, long right)
         {
@@ -2171,8 +2242,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator <=(long left, BigInteger right)
         {
@@ -2186,8 +2257,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <=(BigInteger left, ulong right)
@@ -2202,8 +2273,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is less than or equal to <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator <=(ulong left, BigInteger right)
@@ -2218,8 +2289,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(BigInteger left, BigInteger right)
         {
@@ -2232,8 +2303,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(BigInteger left, long right)
         {
@@ -2246,8 +2317,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >(long left, BigInteger right)
         {
@@ -2260,8 +2331,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >(BigInteger left, ulong right)
@@ -2275,8 +2346,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >(ulong left, BigInteger right)
@@ -2291,8 +2362,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(BigInteger left, BigInteger right)
         {
@@ -2306,8 +2377,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(BigInteger left, long right)
         {
@@ -2321,8 +2392,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator >=(long left, BigInteger right)
         {
@@ -2336,8 +2407,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >=(BigInteger left, ulong right)
@@ -2352,8 +2423,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> is greater than <paramref name="right"/>;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> is greater than <paramref name="right"/>;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator >=(ulong left, BigInteger right)
@@ -2367,8 +2438,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(BigInteger left, BigInteger right)
         {
@@ -2381,8 +2452,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(BigInteger left, long right)
         {
@@ -2395,8 +2466,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator ==(long left, BigInteger right)
         {
@@ -2409,8 +2480,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator ==(BigInteger left, ulong right)
@@ -2424,8 +2495,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator ==(ulong left, BigInteger right)
@@ -2439,8 +2510,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(BigInteger left, BigInteger right)
         {
@@ -2453,8 +2524,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(BigInteger left, long right)
         {
@@ -2467,8 +2538,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool operator !=(long left, BigInteger right)
         {
@@ -2481,8 +2552,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator !=(BigInteger left, ulong right)
@@ -2496,8 +2567,8 @@ namespace Renci.SshNet.Common
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="left"/> and <paramref name="right"/> are not equal;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="left"/> and <paramref name="right"/> are not equal;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public static bool operator !=(ulong left, BigInteger right)
@@ -2510,9 +2581,9 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="obj">The object to compare.</param>
         /// <returns>
-        /// <c>true</c> if the <paramref name="obj"/> parameter is a <see cref="BigInteger"/> object or a type capable
+        /// <see langword="true"/> if the <paramref name="obj"/> parameter is a <see cref="BigInteger"/> object or a type capable
         /// of implicit conversion to a <see cref="BigInteger"/> value, and its value is equal to the value of the
-        /// current <see cref="BigInteger"/> object; otherwise, <c>false</c>.
+        /// current <see cref="BigInteger"/> object; otherwise, <see langword="false"/>.
         /// </returns>
         public override readonly bool Equals(object obj)
         {
@@ -2530,8 +2601,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The object to compare.</param>
         /// <returns>
-        /// <c>true</c> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
-        /// otherwise, <c>false</c>.
+        /// <see langword="true"/> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         public readonly bool Equals(BigInteger other)
         {
@@ -2564,7 +2635,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The signed 64-bit integer value to compare.</param>
         /// <returns>
-        /// <c>true</c> if the signed 64-bit integer and the current instance have the same value; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the signed 64-bit integer and the current instance have the same value; otherwise, <see langword="false"/>.
         /// </returns>
         public readonly bool Equals(long other)
         {
@@ -2576,7 +2647,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="other">The unsigned 64-bit integer to compare.</param>
         /// <returns>
-        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <see langword="false"/>.
         /// </returns>
         [CLSCompliant(false)]
         public readonly bool Equals(ulong other)
@@ -2672,7 +2743,11 @@ namespace Renci.SshNet.Common
                         return additional + baseStr;
                     }
 
+#if NET
+                    return string.Concat("-", additional, baseStr.AsSpan(1));
+#else
                     return "-" + additional + baseStr.Substring(1);
+#endif // NET
                 }
 
                 return baseStr;
@@ -2713,7 +2788,7 @@ namespace Renci.SshNet.Common
 
             if (characterSet.Length < radix)
             {
-                throw new ArgumentException("charSet length less than radix", "characterSet");
+                throw new ArgumentException("charSet length less than radix", nameof(radix));
             }
 
             if (radix == 1)
@@ -2731,7 +2806,7 @@ namespace Renci.SshNet.Common
                 return _sign == 1 ? "1" : "-1";
             }
 
-            var digits = new List<char>(1 + _data.Length * 3 / 10);
+            var digits = new List<char>(1 + ((_data.Length * 3) / 10));
 
             BigInteger a;
             if (_sign == 1)
@@ -2752,7 +2827,7 @@ namespace Renci.SshNet.Common
             while (a != 0)
             {
                 a = DivRem(a, radix, out var rem);
-                digits.Add(characterSet[(int) rem]);
+                digits.Add(characterSet[(int)rem]);
             }
 
             if (_sign == -1 && radix == 10)
@@ -2795,7 +2870,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that is equivalent to the number specified in the <paramref name="value"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> is not in the correct format.</exception>
         public static BigInteger Parse(string value)
         {
@@ -2820,7 +2895,7 @@ namespace Renci.SshNet.Common
         /// <para>-or-</para>
         /// <para><paramref name="style"/> includes the <see cref="NumberStyles.AllowHexSpecifier"/> or <see cref="NumberStyles.HexNumber"/> flag along with another value.</para>
         /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> does not comply with the input pattern specified by <see cref="NumberStyles"/>.</exception>
         public static BigInteger Parse(string value, NumberStyles style)
         {
@@ -2835,7 +2910,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         /// A value that is equivalent to the number specified in the <paramref name="value"/> parameter.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> is not in the correct format.</exception>
         public static BigInteger Parse(string value, IFormatProvider provider)
         {
@@ -2856,7 +2931,7 @@ namespace Renci.SshNet.Common
         /// <para>-or-</para>
         /// <para><paramref name="style"/> includes the <see cref="NumberStyles.AllowHexSpecifier"/> or <see cref="NumberStyles.HexNumber"/> flag along with another value.</para>
         /// </exception>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <exception cref="FormatException"><paramref name="value"/> does not comply with the input pattern specified by <see cref="NumberStyles"/>.</exception>
         public static BigInteger Parse(string value, NumberStyles style, IFormatProvider provider)
         {
@@ -2873,11 +2948,11 @@ namespace Renci.SshNet.Common
         /// returns a value that indicates whether the conversion succeeded.
         /// </summary>
         /// <param name="value">The string representation of a number.</param>
-        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or zero (0) if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <c>null</c> or is not of the correct format. This parameter is passed uninitialized.</param>
+        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or zero (0) if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <see langword="null"/> or is not of the correct format. This parameter is passed uninitialized.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="value"/> was converted successfully; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="value"/> was converted successfully; otherwise, <see langword="false"/>.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         public static bool TryParse(string value, out BigInteger result)
         {
             return Parse(value, tryParse: true, out result, out _);
@@ -2890,9 +2965,9 @@ namespace Renci.SshNet.Common
         /// <param name="value">The string representation of a number.</param>
         /// <param name="style">A bitwise combination of enumeration values that indicates the style elements that can be present in <paramref name="value"/>.</param>
         /// <param name="provider">An object that supplies culture-specific formatting information about <paramref name="value"/>.</param>
-        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or <see cref="Zero"/> if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <c>null</c> or is not of the correct format. This parameter is passed uninitialized.</param>
+        /// <param name="result">When this method returns, contains the <see cref="BigInteger"/> equivalent to the number that is contained in value, or <see cref="Zero"/> if the conversion fails. The conversion fails if the <paramref name="value"/> parameter is <see langword="null"/> or is not of the correct format. This parameter is passed uninitialized.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="value"/> was converted successfully; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="value"/> was converted successfully; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// <para><paramref name="style"/> is not a <see cref="NumberStyles"/> value.</para>
@@ -2910,7 +2985,9 @@ namespace Renci.SshNet.Common
             return true;
         }
 
+#pragma warning disable S4136 // Method overloads should be grouped together
         private static bool Parse(string value, NumberStyles style, IFormatProvider fp, bool tryParse, out BigInteger result, out Exception exc)
+#pragma warning restore S4136 // Method overloads should be grouped together
         {
             result = Zero;
             exc = null;
@@ -2939,7 +3016,7 @@ namespace Renci.SshNet.Common
             if (fp != null)
             {
                 var typeNfi = typeof(NumberFormatInfo);
-                nfi = (NumberFormatInfo) fp.GetFormat(typeNfi);
+                nfi = (NumberFormatInfo)fp.GetFormat(typeNfi);
             }
 
             nfi ??= NumberFormatInfo.CurrentInfo;
@@ -2949,16 +3026,16 @@ namespace Renci.SshNet.Common
                 return false;
             }
 
-            var allowCurrencySymbol = (style & NumberStyles.AllowCurrencySymbol) != 0;
-            var allowHexSpecifier = (style & NumberStyles.AllowHexSpecifier) != 0;
-            var allowThousands = (style & NumberStyles.AllowThousands) != 0;
-            var allowDecimalPoint = (style & NumberStyles.AllowDecimalPoint) != 0;
-            var allowParentheses = (style & NumberStyles.AllowParentheses) != 0;
-            var allowTrailingSign = (style & NumberStyles.AllowTrailingSign) != 0;
-            var allowLeadingSign = (style & NumberStyles.AllowLeadingSign) != 0;
-            var allowTrailingWhite = (style & NumberStyles.AllowTrailingWhite) != 0;
-            var allowLeadingWhite = (style & NumberStyles.AllowLeadingWhite) != 0;
-            var allowExponent = (style & NumberStyles.AllowExponent) != 0;
+            var allowCurrencySymbol = (style & NumberStyles.AllowCurrencySymbol) == NumberStyles.AllowCurrencySymbol;
+            var allowHexSpecifier = (style & NumberStyles.AllowHexSpecifier) == NumberStyles.AllowHexSpecifier;
+            var allowThousands = (style & NumberStyles.AllowThousands) == NumberStyles.AllowThousands;
+            var allowDecimalPoint = (style & NumberStyles.AllowDecimalPoint) == NumberStyles.AllowDecimalPoint;
+            var allowParentheses = (style & NumberStyles.AllowParentheses) == NumberStyles.AllowParentheses;
+            var allowTrailingSign = (style & NumberStyles.AllowTrailingSign) == NumberStyles.AllowTrailingSign;
+            var allowLeadingSign = (style & NumberStyles.AllowLeadingSign) == NumberStyles.AllowLeadingSign;
+            var allowTrailingWhite = (style & NumberStyles.AllowTrailingWhite) == NumberStyles.AllowTrailingWhite;
+            var allowLeadingWhite = (style & NumberStyles.AllowLeadingWhite) == NumberStyles.AllowLeadingWhite;
+            var allowExponent = (style & NumberStyles.AllowExponent) == NumberStyles.AllowExponent;
 
             var pos = 0;
 
@@ -3089,15 +3166,15 @@ namespace Renci.SshNet.Common
                     byte digitValue;
                     if (char.IsDigit(hexDigit))
                     {
-                        digitValue = (byte) (hexDigit - '0');
+                        digitValue = (byte)(hexDigit - '0');
                     }
                     else if (char.IsLower(hexDigit))
                     {
-                        digitValue = (byte) (hexDigit - 'a' + 10);
+                        digitValue = (byte)(hexDigit - 'a' + 10);
                     }
                     else
                     {
-                        digitValue = (byte) (hexDigit - 'A' + 10);
+                        digitValue = (byte)(hexDigit - 'A' + 10);
                     }
 
                     if (firstHexDigit && digitValue >= 8)
@@ -3223,7 +3300,11 @@ namespace Renci.SshNet.Common
                 {
                     if (!tryParse)
                     {
-                        exc = new OverflowException("Value too large or too small. exp=" + exponent + " rem = " + remainder + " pow = " + Pow(10, -exponent));
+                        exc = new OverflowException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "Value too large or too small. exp= {0} rem = {1} pow = {2}",
+                                                                  exponent,
+                                                                  remainder,
+                                                                  Pow(10, -exponent)));
                     }
 
                     return false;
@@ -3252,20 +3333,20 @@ namespace Renci.SshNet.Common
 
         private static bool CheckStyle(NumberStyles style, bool tryParse, ref Exception exc)
         {
-            if ((style & NumberStyles.AllowHexSpecifier) != 0)
+            if ((style & NumberStyles.AllowHexSpecifier) == NumberStyles.AllowHexSpecifier)
             {
                 var ne = style ^ NumberStyles.AllowHexSpecifier;
-                if ((ne & NumberStyles.AllowLeadingWhite) != 0)
+                if ((ne & NumberStyles.AllowLeadingWhite) == NumberStyles.AllowLeadingWhite)
                 {
                     ne ^= NumberStyles.AllowLeadingWhite;
                 }
 
-                if ((ne & NumberStyles.AllowTrailingWhite) != 0)
+                if ((ne & NumberStyles.AllowTrailingWhite) == NumberStyles.AllowTrailingWhite)
                 {
                     ne ^= NumberStyles.AllowTrailingWhite;
                 }
 
-                if (ne != 0)
+                if (ne != NumberStyles.None)
                 {
                     if (!tryParse)
                     {
@@ -3397,7 +3478,7 @@ namespace Renci.SshNet.Common
             }
 
             exc = null;
-            exponent = (int) exp;
+            exponent = (int)exp;
             pos = i;
             return true;
         }
@@ -3424,7 +3505,7 @@ namespace Renci.SshNet.Common
             return char.IsDigit(e);
         }
 
-        private static Exception GetFormatException()
+        private static FormatException GetFormatException()
         {
             return new FormatException("Input string was not in the correct format");
         }
@@ -3519,7 +3600,7 @@ namespace Renci.SshNet.Common
 
                 if (c is >= '0' and <= '9')
                 {
-                    var d = (byte) (c - '0');
+                    var d = (byte)(c - '0');
 
                     val = (val * 10) + d;
 
@@ -3545,7 +3626,9 @@ namespace Renci.SshNet.Common
             {
                 result = val;
             }
+#pragma warning disable CA1508 // Avoid dead conditional code | this is the following bug in the analyzer rule: https://github.com/dotnet/roslyn-analyzers/issues/6991
             else if (sign == -1)
+#pragma warning restore CA1508 // Avoid dead conditional code
             {
                 result = new BigInteger(-1, val._data);
             }
@@ -3836,7 +3919,6 @@ namespace Renci.SshNet.Common
                 g = x;
                 x = y % x;
                 y = g;
-
             }
 
             if (x.IsZero)
@@ -3926,7 +4008,7 @@ namespace Renci.SshNet.Common
             {
                 if ((value._data[length] & (1 << curBit)) != 0)
                 {
-                    bitCount = curBit + length * 32;
+                    bitCount = curBit + (length * 32);
                     break;
                 }
             }
@@ -3992,7 +4074,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public override readonly int GetHashCode()
         {
-            var hash = (uint) (_sign * 0x01010101u);
+            var hash = (uint)(_sign * 0x01010101u);
             if (_data != null)
             {
                 foreach (var bit in _data)
@@ -4001,7 +4083,7 @@ namespace Renci.SshNet.Common
                 }
             }
 
-            return (int) hash;
+            return (int)hash;
         }
 
         /// <summary>
@@ -4259,8 +4341,8 @@ namespace Renci.SshNet.Common
                 other = -other;
             }
 
-            var low = (uint) other;
-            var high = (uint) ((ulong) other >> 32);
+            var low = (uint)other;
+            var high = (uint)((ulong)other >> 32);
 
             var r = LongCompare(low, high);
             if (ls == -1)
@@ -4472,7 +4554,7 @@ namespace Renci.SshNet.Common
                 if (carry == 0)
                 {
                     var ex = FirstNonFfByte(word);
-                    var needExtra = (word & (1 << (ex * 8 - 1))) == 0;
+                    var needExtra = (word & (1 << ((ex * 8) - 1))) == 0;
                     var to = ex + (needExtra ? 1 : 0);
 
                     if (to != extra)
@@ -4555,14 +4637,14 @@ namespace Renci.SshNet.Common
             for (i = 0; i < len; i++)
             {
                 sum += a[i];
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
                 sum >>= 32;
             }
 
             if (sum != 0)
             {
                 Array.Resize(ref res, len + 1);
-                res[i] = (uint) sum;
+                res[i] = (uint)sum;
             }
 
             return res;
@@ -4788,7 +4870,7 @@ namespace Renci.SshNet.Common
                     q[j] = (uint)div;
                 }
 
-                r[0] = (uint) rem;
+                r[0] = (uint)rem;
             }
             else if (m >= n)
             {
@@ -4807,14 +4889,14 @@ namespace Renci.SshNet.Common
                 {
                     int i;
 
-                    var rr = Base * un[j + n] + un[j + n - 1];
+                    var rr = (Base * un[j + n]) + un[j + n - 1];
                     var qq = rr / vn[n - 1];
                     rr -= qq * vn[n - 1];
 
-                    for (;;)
+                    for (; ; )
                     {
                         // Estimate too big ?
-                        if ((qq >= Base) || (qq * vn[n - 2] > (rr * Base + un[j + n - 2])))
+                        if ((qq >= Base) || (qq * vn[n - 2] > ((rr * Base) + un[j + n - 2])))
                         {
                             qq--;
                             rr += (ulong)vn[n - 1];
@@ -4826,7 +4908,6 @@ namespace Renci.SshNet.Common
 
                         break;
                     }
-
 
                     // Multiply and subtract
                     long b = 0;

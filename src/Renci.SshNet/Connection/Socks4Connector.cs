@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers.Binary;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -17,7 +19,8 @@ namespace Renci.SshNet.Connection
     {
         public Socks4Connector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
             : base(serviceFactory, socketFactory)
-        { }
+        {
+        }
 
         /// <summary>
         /// Establishes a connection to the server via a SOCKS5 proxy.
@@ -64,21 +67,23 @@ namespace Renci.SshNet.Connection
             var addressBytes = GetSocks4DestinationAddress(hostname);
             var proxyUserBytes = GetProxyUserBytes(username);
 
-            var connectionRequest = new byte
-                [
-                    // SOCKS version number
-                    1 +
-                    // Command code
-                    1 +
-                    // Port number
-                    2 +
-                    // IP address
-                    addressBytes.Length +
-                    // Username
-                    proxyUserBytes.Length +
-                    // Null terminator
-                    1
-                ];
+            var connectionRequest = new byte[// SOCKS version number
+                                             1 +
+
+                                             // Command code
+                                             1 +
+
+                                             // Port number
+                                             2 +
+
+                                             // IP address
+                                             addressBytes.Length +
+
+                                             // Username
+                                             proxyUserBytes.Length +
+
+                                             // Null terminator
+                                             1];
 
             var index = 0;
 
@@ -89,7 +94,7 @@ namespace Renci.SshNet.Connection
             connectionRequest[index++] = 0x01; // establish a TCP/IP stream connection
 
             // Port number
-            Pack.UInt16ToBigEndian(port, connectionRequest, index);
+            BinaryPrimitives.WriteUInt16BigEndian(connectionRequest.AsSpan(index), port);
             index += 2;
 
             // Address
@@ -108,7 +113,7 @@ namespace Renci.SshNet.Connection
 
         private static byte[] GetSocks4DestinationAddress(string hostname)
         {
-            var addresses = DnsAbstraction.GetHostAddresses(hostname);
+            var addresses = Dns.GetHostAddresses(hostname);
 
             for (var i = 0; i < addresses.Length; i++)
             {

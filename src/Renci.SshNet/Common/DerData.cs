@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 
 namespace Renci.SshNet.Common
@@ -26,7 +27,7 @@ namespace Renci.SshNet.Common
         /// Gets a value indicating whether end of data is reached.
         /// </summary>
         /// <value>
-        /// <c>true</c> if end of data is reached; otherwise, <c>false</c>.
+        /// <see langword="true"/> if end of data is reached; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsEndOfData
         {
@@ -48,7 +49,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="DerData"/> class.
         /// </summary>
         /// <param name="data">DER encoded data.</param>
-        /// <param name="construct">its a construct</param>
+        /// <param name="construct">its a construct.</param>
         public DerData(byte[] data, bool construct = false)
         {
             _data = new List<byte>(data);
@@ -198,7 +199,8 @@ namespace Renci.SshNet.Common
         /// <param name="data">UInt32 data to write.</param>
         public void Write(uint data)
         {
-            var bytes = Pack.UInt32ToBigEndian(data);
+            var bytes = new byte[sizeof(uint)];
+            BinaryPrimitives.WriteUInt32BigEndian(bytes, data);
             _data.Add(Integer);
             var length = GetLength(bytes.Length);
             WriteBytes(length);
@@ -339,7 +341,7 @@ namespace Renci.SshNet.Common
                 return data;
             }
 
-            return new[] { (byte) length };
+            return new[] { (byte)length };
         }
 
         /// <summary>

@@ -7,13 +7,13 @@ using Renci.SshNet.Channels;
 
 namespace Renci.SshNet.Connection
 {
-    class SshConnector : ConnectorBase
+    internal sealed class SshConnector : ConnectorBase
     {
-        private ISession _jumpSession;
+        private Session _jumpSession;
         private JumpChannel _jumpChannel;
 
-        public SshConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory):
-            base (serviceFactory, socketFactory)
+        public SshConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
         {
         }
 
@@ -24,10 +24,12 @@ namespace Renci.SshNet.Connection
             {
                 throw new ArgumentNullException("connectionInfo.ProxyConnection");
             }
+
             if (proxyConnection.GetType() != typeof(ConnectionInfo))
             {
                 throw new ArgumentException("Expecting connectionInfo to be of type ConnectionInfo");
             }
+
             _jumpSession = new Session((ConnectionInfo)proxyConnection, ServiceFactory, SocketFactory);
             _jumpSession.Connect();
             _jumpChannel = new JumpChannel(_jumpSession, connectionInfo.Host, (uint)connectionInfo.Port);
@@ -41,6 +43,7 @@ namespace Renci.SshNet.Connection
             {
                 throw new ArgumentNullException("connectionInfo.ProxyConnection");
             }
+
             if (proxyConnection.GetType() != typeof(ConnectionInfo))
             {
                 throw new ArgumentException("Expecting connectionInfo to be of type ConnectionInfo");
@@ -54,7 +57,7 @@ namespace Renci.SshNet.Connection
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !disposedValue)
+            if (disposing)
             {
                 var jumpChannel = _jumpChannel;
                 if (jumpChannel != null)
@@ -70,6 +73,7 @@ namespace Renci.SshNet.Connection
                     _jumpSession = null;
                 }
             }
+
             base.Dispose(disposing);
         }
     }

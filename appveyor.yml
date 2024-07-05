@@ -1,14 +1,59 @@
-os: Visual Studio 2022
+image:
+  - Ubuntu2204
+  - Visual Studio 2022
 
-before_build:
-  - nuget restore src\Renci.SshNet.sln
+services:
+  - docker
 
-build:
-  project: src\Renci.SshNet.sln
-  verbosity: minimal
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu2204
 
-test_script:
-- cmd: >-
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net462\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
+  init:
+    - git config --global core.autocrlf input
     
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net7.0\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration" --blame
+  before_build:
+    - sh: mkdir artifacts -p
+          
+  build_script:
+    - echo build
+    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+
+  test_script:
+    - sh: echo "Run unit tests"
+    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - sh: echo "Run integration tests"
+    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+
+-
+  matrix:
+    only:
+      - image: Visual Studio 2022
+
+  init:
+    - git config --global core.autocrlf true
+
+  before_build:
+    - ps: mkdir artifacts -f
+
+  build_script:
+    - echo build
+    - dotnet build Renci.SshNet.sln -c Debug
+    - dotnet publish -c Release -r win-x64 /warnaserror .\test\Renci.SshNet.AotCompatibilityTestApp\
+    - dotnet pack -c Release
+
+  test_script:
+    - ps: echo "Run unit tests for .NET 8.0"
+    - ps: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: echo "Run unit tests for .NET Framework 4.6.2"
+    - ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+
+artifacts:
+  - path: artifacts
+    name: TestResults
+
+  - path: src/**/*.nupkg
+  - path: src/**/*.snupkg

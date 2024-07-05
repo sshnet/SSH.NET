@@ -2,11 +2,15 @@
 
 namespace Renci.SshNet.Connection
 {
+    /// <summary>
+    /// Represents a factory to create <see cref="Socket"/> instances.
+    /// </summary>
     internal sealed class SocketFactory : ISocketFactory
     {
-        public Socket Create(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType)
+        /// <inheritdoc/>
+        public Socket Create(SocketType socketType, ProtocolType protocolType)
         {
-            return new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+            return new Socket(socketType, protocolType) { NoDelay = true };
         }
     }
 }

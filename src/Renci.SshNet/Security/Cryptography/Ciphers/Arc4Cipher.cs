@@ -3,14 +3,16 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements ARCH4 cipher algorithm
+    /// Implements ARCH4 cipher algorithm.
     /// </summary>
     public sealed class Arc4Cipher : StreamCipher
     {
-        private static readonly int STATE_LENGTH = 256;
+#pragma warning disable SA1310 // Field names should not contain underscore
+        private const int STATE_LENGTH = 256;
+#pragma warning restore SA1310 // Field names should not contain underscore
 
         /// <summary>
-        ///  Holds the state of the RC4 engine
+        /// Holds the state of the RC4 engine.
         /// </summary>
         private byte[] _engineState;
 
@@ -33,8 +35,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="Arc4Cipher" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="dischargeFirstBytes">if set to <c>true</c> will disharged first 1536 bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+        /// <param name="dischargeFirstBytes">if set to <see langword="true"/> will disharged first 1536 bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <see langword="null"/>.</exception>
         public Arc4Cipher(byte[] key, bool dischargeFirstBytes)
             : base(key)
         {
@@ -46,38 +48,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 _ = Encrypt(new byte[1536]);
             }
-        }
-
-        /// <summary>
-        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
-        /// </summary>
-        /// <param name="inputBuffer">The input data to encrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes encrypted.
-        /// </returns>
-        public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            return ProcessBytes(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-        }
-
-        /// <summary>
-        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
-        /// </summary>
-        /// <param name="inputBuffer">The input data to decrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes decrypted.
-        /// </returns>
-        public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            return ProcessBytes(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
 
         /// <summary>
@@ -100,18 +70,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns>
-        /// The decrypted data.
-        /// </returns>
-        public override byte[] Decrypt(byte[] input)
-        {
-            return Decrypt(input, 0, input.Length);
-        }
-
-        /// <summary>
-        /// Decrypts the specified input.
-        /// </summary>
-        /// <param name="input">The input.</param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting.</param>
         /// <param name="length">The number of bytes to decrypt from <paramref name="input"/>.</param>
         /// <returns>
@@ -119,21 +77,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            var output = new byte[length];
-            _ = ProcessBytes(input, offset, length, output, 0);
-            return output;
+            return Encrypt(input, offset, length);
         }
 
         private int ProcessBytes(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + inputCount) > inputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("input buffer too short");
+                throw new ArgumentException("input buffer too short");
             }
 
             if ((outputOffset + inputCount) > outputBuffer.Length)
             {
-                throw new IndexOutOfRangeException("output buffer too short");
+                throw new ArgumentException("output buffer too short");
             }
 
             for (var i = 0; i < inputCount; i++)
@@ -163,7 +119,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // reset the state of the engine
             for (var i = 0; i < STATE_LENGTH; i++)
             {
-                _engineState[i] = (byte) i;
+                _engineState[i] = (byte)i;
             }
 
             var i1 = 0;

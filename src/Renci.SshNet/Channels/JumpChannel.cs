@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Channels
@@ -9,11 +10,12 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal class JumpChannel
+    internal sealed class JumpChannel : IDisposable
     {
-        private Socket _listener;
         private readonly ISession _session;
-        private readonly EventWaitHandle _channelOpen = new AutoResetEvent(false);
+        private readonly EventWaitHandle _channelOpen = new AutoResetEvent(initialState: false);
+
+        private Socket _listener;
 
         /// <summary>
         /// Gets the bound host.
@@ -47,16 +49,16 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Initializes a new instance of the <see cref="JumpChannel"/> class.
         /// </summary>
-        /// <param name="session"></param>
+        /// <param name="session">The session used to create the channel.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public JumpChannel(ISession session, string host, uint port)
         {
             if (host == null)
             {
-                throw new ArgumentNullException("host");
+                throw new ArgumentNullException(nameof(host));
             }
 
             port.ValidatePort("port");
@@ -73,25 +75,27 @@ namespace Renci.SshNet.Channels
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
             _listener.Listen(1);
-            
+
             IsStarted = true;
 
             // update bound port (in case original was passed as zero)
             ep.Port = ((IPEndPoint)_listener.LocalEndPoint).Port;
 
-            var e = new SocketAsyncEventArgs();
-            e.Completed += AcceptCompleted;
-            
-            // only accept new connections while we are started
-            if (!_listener.AcceptAsync(e))
+            using (var e = new SocketAsyncEventArgs())
             {
-                AcceptCompleted(null, e);
+                e.Completed += AcceptCompleted;
+
+                // only accept new connections while we are started
+                if (!_listener.AcceptAsync(e))
+                {
+                    AcceptCompleted(sender: null, e);
+                }
             }
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ep);
 
-            //  Wait for channel to open
+            // Wait for channel to open
             _session.WaitOnHandle(_channelOpen);
             _listener.Dispose();
             _listener = null;
@@ -108,17 +112,16 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-
             if (_isDisposed)
             {
                 return;
@@ -138,11 +141,10 @@ namespace Renci.SshNet.Channels
         /// </summary>
         ~JumpChannel()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         #endregion
-
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
@@ -183,7 +185,7 @@ namespace Renci.SshNet.Channels
 
                 using (var channel = _session.CreateChannelDirectTcpip())
                 {
-                    channel.Open(Host, Port, null, clientSocket);
+                    channel.Open(Host, Port, forwardedPort: null, clientSocket);
                     channel.Bind();
                 }
             }

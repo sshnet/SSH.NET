@@ -5,14 +5,26 @@
     /// </summary>
     public enum ProxyTypes
     {
-        /// <summary>No proxy server.</summary>
+        /// <summary>
+        /// No proxy server.
+        /// </summary>
         None,
-        /// <summary>A SOCKS4 proxy server.</summary>
+
+        /// <summary>
+        /// A SOCKS4 proxy server.
+        /// </summary>
         Socks4,
-        /// <summary>A SOCKS5 proxy server.</summary>
+
+        /// <summary>
+        /// A SOCKS5 proxy server.
+        /// </summary>
         Socks5,
-        /// <summary>A HTTP proxy server.</summary>
+
+        /// <summary>
+        /// An HTTP proxy server.
+        /// </summary>
         Http,
+
         /// <summary>A Ssh jump server.</summary>
         Ssh,
     }

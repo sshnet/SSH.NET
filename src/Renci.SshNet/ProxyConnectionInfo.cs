@@ -1,16 +1,18 @@
-﻿using Renci.SshNet.Common;
-using System;
+﻿using System;
+using System.Net;
 using System.Text;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Connection info for connecting to a proxy host
+    /// Connection info for connecting to a proxy host.
     /// </summary>
     public class ProxyConnectionInfo : IProxyConnectionInfo
     {
         /// <summary>
-        /// Gets the character encoding.
+        /// Gets or sets the character encoding.
         /// </summary>
         /// <value>
         /// The character encoding.
@@ -18,12 +20,12 @@ namespace Renci.SshNet
         public Encoding Encoding { get; set; }
 
         /// <summary>
-        /// Proxy Host to connect through.
+        /// Gets the proxy host to connect through.
         /// </summary>
         public string Host { get; private set; }
 
         /// <summary>
-        /// Proxy Port to connect through
+        /// Gets the proxy port to connect through.
         /// </summary>
         public int Port { get; private set; }
 
@@ -49,44 +51,45 @@ namespace Renci.SshNet
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
-        /// Proxy connection Type when this connection should connect through another proxy host.
+        /// Gets the proxy connection Type when this connection should connect through another proxy host.
         /// </summary>
         public ProxyTypes ProxyType { get; private set; }
 
         /// <summary>
-        /// Proxy host to connect through.
+        /// Gets the proxy connection to connect through.
         /// </summary>
         public IConnectionInfo ProxyConnection { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of <see cref="ProxyConnectionInfo"/>.
+        /// Initializes a new instance of the <see cref="ProxyConnectionInfo"/> class.
         /// </summary>
-        /// <param name="host">Poxy host to connect through</param>
-        /// <param name="port">Proxy port to connect through</param>
+        /// <param name="host">Poxy host to connect through.</param>
+        /// <param name="port">Proxy port to connect through.</param>
         /// <param name="username">Username to use when authenticating the proxy host connection.</param>
         /// <param name="password">Password to use when authenticating the proxy host connection.</param>
-        public ProxyConnectionInfo(string host, int port, string username, string password): this(host, port, username, password, ProxyTypes.None, null)
+        public ProxyConnectionInfo(string host, int port, string username, string password)
+            : this(host, port, username, password, ProxyTypes.None, proxyConnection: null)
         {
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="ProxyConnectionInfo"/>.
+        /// Initializes a new instance of the <see cref="ProxyConnectionInfo"/> class.
         /// </summary>
-        /// <param name="host">Poxy host to connect through</param>
-        /// <param name="port">Proxy port to connect through</param>
+        /// <param name="host">Poxy host to connect through.</param>
+        /// <param name="port">Proxy port to connect through.</param>
         /// <param name="username">Username to use when authenticating the proxy host connection.</param>
         /// <param name="password">Password to use when authenticating the proxy host connection.</param>
         /// <param name="proxyType">Proxy type of proxy connection used to connect to this proxy host.</param>
         /// <param name="proxyConnection">Connection info to connect to proxy host, through which this proxy host is connected.</param>
         /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name=" host" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
         public ProxyConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, IConnectionInfo proxyConnection)
         {
-
             if (host == null)
             {
                 throw new ArgumentNullException("proxyHost");
             }
+
             port.ValidatePort("proxyPort");
 
             Host = host;

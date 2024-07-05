@@ -3,11 +3,28 @@
     /// <summary>
     /// Represents SSH_MSG_DISCONNECT message.
     /// </summary>
-    [Message("SSH_MSG_DISCONNECT", 1)]
     public class DisconnectMessage : Message, IKeyExchangedAllowed
     {
         private byte[] _description;
         private byte[] _language;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_DISCONNECT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 1;
+            }
+        }
 
         /// <summary>
         /// Gets disconnect reason code.
@@ -76,7 +93,7 @@
         /// </summary>
         protected override void LoadData()
         {
-            ReasonCode = (DisconnectReason) ReadUInt32();
+            ReasonCode = (DisconnectReason)ReadUInt32();
             _description = ReadBinary();
             _language = ReadBinary();
         }
@@ -86,7 +103,7 @@
         /// </summary>
         protected override void SaveData()
         {
-            Write((uint) ReasonCode);
+            Write((uint)ReasonCode);
             WriteBinaryString(_description);
             WriteBinaryString(_language);
         }

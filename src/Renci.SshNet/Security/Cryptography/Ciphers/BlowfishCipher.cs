@@ -1,5 +1,5 @@
 ﻿using System;
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -8,6 +8,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public sealed class BlowfishCipher : BlockCipher
     {
+        private const int Rounds = 16;
+
+        private const int SboxSk = 256;
+
+        private const int PSize = Rounds + 2;
+
         #region Static reference tables
 
         private static readonly uint[] KP =
@@ -293,19 +299,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         #endregion
 
-        private const int Rounds = 16;
-
-        private const int SboxSk = 256;
-
-        private const int PSize = Rounds + 2;
-
         /// <summary>
-        /// The s-boxes
+        /// The s-boxes.
         /// </summary>
-        private readonly uint[] _s0, _s1, _s2, _s3;
+        private readonly uint[] _s0;
+        private readonly uint[] _s1;
+        private readonly uint[] _s2;
+        private readonly uint[] _s3;
 
         /// <summary>
-        /// The p-array
+        /// The p-array.
         /// </summary>
         private readonly uint[] _p;
 
@@ -315,7 +318,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public BlowfishCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
@@ -354,8 +357,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("inputCount");
             }
 
-            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var xr = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             xl ^= _p[0];
 
@@ -367,8 +370,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[Rounds + 1];
 
-            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), xr);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), xl);
 
             return BlockSize;
         }
@@ -391,8 +394,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("inputCount");
             }
 
-            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var xr = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             xl ^= _p[Rounds + 1];
 
@@ -404,8 +407,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[0];
 
-            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), xr);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), xl);
 
             return BlockSize;
         }

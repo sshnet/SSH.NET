@@ -15,7 +15,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The transformed path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <example>
         /// <list type="table">
         ///   <listheader>

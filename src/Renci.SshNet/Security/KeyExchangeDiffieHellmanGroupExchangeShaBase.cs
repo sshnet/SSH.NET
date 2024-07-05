@@ -20,33 +20,29 @@ namespace Renci.SshNet.Security
         protected override byte[] CalculateHash()
         {
             var groupExchangeHashData = new GroupExchangeHashData
-                {
-                    ClientVersion = Session.ClientVersion,
-                    ServerVersion = Session.ServerVersion,
-                    ClientPayload = _clientPayload,
-                    ServerPayload = _serverPayload,
-                    HostKey = _hostKey,
-                    MinimumGroupSize = MinimumGroupSize,
-                    PreferredGroupSize = PreferredGroupSize,
-                    MaximumGroupSize = MaximumProupSize,
-                    Prime = _prime,
-                    SubGroup = _group,
-                    ClientExchangeValue = _clientExchangeValue,
-                    ServerExchangeValue = _serverExchangeValue,
-                    SharedKey = SharedKey,
-                };
+            {
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                MinimumGroupSize = MinimumGroupSize,
+                PreferredGroupSize = PreferredGroupSize,
+                MaximumGroupSize = MaximumProupSize,
+                Prime = _prime,
+                SubGroup = _group,
+                ClientExchangeValue = _clientExchangeValue,
+                ServerExchangeValue = _serverExchangeValue,
+                SharedKey = SharedKey,
+            };
 
             return Hash(groupExchangeHashData.GetBytes());
         }
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             // Register SSH_MSG_KEX_DH_GEX_GROUP message
             Session.RegisterMessage("SSH_MSG_KEX_DH_GEX_GROUP");

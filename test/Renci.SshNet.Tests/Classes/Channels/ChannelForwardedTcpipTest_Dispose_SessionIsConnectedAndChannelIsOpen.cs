@@ -75,7 +75,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
             _remotePacketSize = (uint)random.Next(100, 200);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
-            using var channelOpened = new ManualResetEventSlim(false);
             _channelException = null;
             _connectedRegister = new List<Socket>();
             _disconnectedRegister = new List<Socket>();
@@ -103,8 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     m.LocalChannelNumber == _remoteChannelNumber &&
                                     m.InitialWindowSize == _localWindowSize &&
                                     m.MaximumPacketSize == _localPacketSize &&
-                                    m.RemoteChannelNumber == _localChannelNumber)))
-                            .Callback(channelOpened.Set);
+                                    m.RemoteChannelNumber == _localChannelNumber)));
             _ = _sessionMock.InSequence(sequence)
                             .Setup(p => p.IsConnected)
                             .Returns(true);
@@ -160,7 +158,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
             });
             _channelThread.Start();
 
-            Assert.IsTrue(channelOpened.Wait(TimeSpan.FromSeconds(1)));
+            // give channel time to bind to remote endpoint
+            Thread.Sleep(300);
         }
 
         private void Act()

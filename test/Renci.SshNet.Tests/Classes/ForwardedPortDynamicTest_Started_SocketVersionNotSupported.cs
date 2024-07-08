@@ -89,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes
             CreateMocks();
             SetupMocks();
 
-            _forwardedPort = new ForwardedPortDynamic(8121);
+            _forwardedPort = new ForwardedPortDynamic(0);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) =>
                 {

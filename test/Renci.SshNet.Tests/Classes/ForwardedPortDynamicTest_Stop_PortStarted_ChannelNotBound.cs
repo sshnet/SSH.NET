@@ -52,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _endpoint = new IPEndPoint(IPAddress.Loopback, 8121);
+            _endpoint = new IPEndPoint(IPAddress.Loopback, 0);
 
             _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -73,6 +73,8 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
             _forwardedPort.Start();
+
+            _endpoint.Port = (int)_forwardedPort.BoundPort;
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {

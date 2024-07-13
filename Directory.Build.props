@@ -23,6 +23,11 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
+  <!-- don't treat NuGet Audit warnings as errors -->
+  <PropertyGroup>
+    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+  </PropertyGroup>
+
   <!--
         Disable nullable warnings on old frameworks because of missing annotations.
   -->

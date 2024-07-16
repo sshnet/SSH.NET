@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,17 +44,11 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect ErrorOccurred" language="C#" title="Handle ErrorOccurred event" />
-        /// </example>
         event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
         /// Occurs when host key received.
         /// </summary>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
-        /// </example>
         event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>

@@ -85,8 +85,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", nameof(IAsyncResult)), _actualException.Message);
-            Assert.IsNull(_actualException.ParamName);
+            Assert.AreEqual("asyncResult", _actualException.ParamName);
         }
     }
 }

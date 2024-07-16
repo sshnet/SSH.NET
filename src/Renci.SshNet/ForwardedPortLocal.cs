@@ -58,9 +58,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
-        /// </example>
         public ForwardedPortLocal(uint boundPort, string host, uint port)
             : this(string.Empty, boundPort, host, port)
         {
@@ -141,6 +138,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
+            timeout.EnsureValidTimeout(nameof(timeout));
+
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {
                 return;
@@ -201,15 +200,15 @@ namespace Renci.SshNet
 
         private void InternalStart()
         {
-            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
-            var ep = new IPEndPoint(addr, (int) BoundPort);
+            var addr = Dns.GetHostAddresses(BoundHost)[0];
+            var ep = new IPEndPoint(addr, (int)BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
             _listener.Listen(5);
 
             // update bound port (in case original was passed as zero)
-            BoundPort = (uint) ((IPEndPoint) _listener.LocalEndPoint).Port;
+            BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
 
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
@@ -306,10 +305,10 @@ namespace Renci.SshNet
 
             try
             {
-                var originatorEndPoint = (IPEndPoint) clientSocket.RemoteEndPoint;
+                var originatorEndPoint = (IPEndPoint)clientSocket.RemoteEndPoint;
 
                 RaiseRequestReceived(originatorEndPoint.Address.ToString(),
-                    (uint) originatorEndPoint.Port);
+                    (uint)originatorEndPoint.Port);
 
                 using (var channel = Session.CreateChannelDirectTcpip())
                 {

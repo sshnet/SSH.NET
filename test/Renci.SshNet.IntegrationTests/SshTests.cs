@@ -4,6 +4,7 @@ using System.Net.Sockets;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.IntegrationTests
 {
@@ -22,6 +23,7 @@ namespace Renci.SshNet.IntegrationTests
 
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
             _remoteSshdConfig.AllowTcpForwarding()
+                             .PermitTTY(true)
                              .PrintMotd(false)
                              .Update()
                              .Restart();
@@ -71,16 +73,25 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsNotNull(line);
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
-                    // TODO: ReadLine should return null when the buffer is empty and the channel has been closed (issue #672)
-                    try
-                    {
-                        line = shellStream.ReadLine();
-                        Assert.Fail(line);
-                    }
-                    catch (NullReferenceException)
-                    {
+                    Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
+                }
+            }
+        }
 
-                    }
+        [TestMethod]
+        public void Ssh_CreateShellStreamNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var shellStream = client.CreateShellStreamNoTerminal(bufferSize: 1024))
+                {
+                    var foo = new string('a', 90);
+                    shellStream.WriteLine($"echo {foo}");
+                    var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
+                    Assert.IsNotNull(line);
+                    Assert.IsTrue(line.EndsWith(foo), line);
                 }
             }
         }
@@ -90,18 +101,17 @@ namespace Renci.SshNet.IntegrationTests
         /// </summary>
         [TestMethod]
         [Category("Reproduction Tests")]
-        [Ignore]
         public void Ssh_ShellStream_IntermittendOutput()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
-            var expectedResult = string.Join("\n",
-                                             "Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                             "Line 5 ",
-                                             "Line 6");
+            List<string> expectedLines = ["renci-ssh-tests-server:~$ Line 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Line 5 ",
+                "Line 6",
+                "renci-ssh-tests-server:~$ "]; // No idea how stable this is.
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.Append("#!/bin/sh\n");
@@ -131,8 +141,8 @@ namespace Renci.SshNet.IntegrationTests
                     using (var shellStream = sshClient.CreateShellStream("xterm", 80, 24, 800, 600, 1024, terminalModes))
                     {
                         shellStream.WriteLine(remoteFile);
-                        Thread.Sleep(1200);
-                        using (var reader = new StreamReader(shellStream, new UTF8Encoding(false), false, 10))
+                        shellStream.WriteLine("exit");
+                        using (var reader = new StreamReader(shellStream))
                         {
                             var lines = new List<string>();
                             string line = null;
@@ -140,8 +150,8 @@ namespace Renci.SshNet.IntegrationTests
                             {
                                 lines.Add(line);
                             }
-                            Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
-                            Assert.AreEqual(expectedResult, string.Join("\n", lines));
+
+                            CollectionAssert.AreEqual(expectedLines, lines, string.Join("\n", lines));
                         }
                     }
                 }
@@ -181,7 +191,42 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_Command_IntermittendOutput_EndExecute()
+        public void Ssh_CreateShellNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var input = new MemoryStream())
+                using (var output = new MemoryStream())
+                using (var extOutput = new MemoryStream())
+                {
+                    var shell = client.CreateShellNoTerminal(input, output, extOutput, 1024);
+
+                    shell.Start();
+
+                    var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
+                    var foo = new string('a', 90);
+                    inputWriter.WriteLine($"echo {foo}");
+                    inputWriter.Flush();
+                    input.Position = 0;
+
+                    Thread.Sleep(1000);
+
+                    output.Position = 0;
+                    var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
+                    var outputString = outputReader.ReadLine();
+
+                    Assert.IsNotNull(outputString);
+                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
+
+                    shell.Stop();
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_Command_IntermittentOutput_EndExecute()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -238,16 +283,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        /// <summary>
-        /// Ignored for now, because:
-        /// * OutputStream.Read(...) does not block when no data is available
-        /// * SshCommand.(Begin)Execute consumes *OutputStream*, advancing its position.
-        /// 
-        /// https://github.com/sshnet/SSH.NET/issues/650
-        /// </summary>
         [TestMethod]
-        [Ignore]
-        public void Ssh_Command_IntermittendOutput_OutputStream()
+        public async Task Ssh_Command_IntermittentOutput_OutputStream()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -288,9 +325,11 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var command = sshClient.CreateCommand(remoteFile))
                     {
-                        var asyncResult = command.BeginExecute();
+                        await command.ExecuteAsync();
 
-                        using (var reader = new StreamReader(command.OutputStream, new UTF8Encoding(false), false, 10))
+                        Assert.AreEqual(13, command.ExitStatus);
+
+                        using (var reader = new StreamReader(command.OutputStream))
                         {
                             var lines = new List<string>();
                             string line = null;
@@ -301,13 +340,10 @@ namespace Renci.SshNet.IntegrationTests
 
                             Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
                             Assert.AreEqual(expectedResult, string.Join("\n", lines));
-                            Assert.AreEqual(13, command.ExitStatus);
                         }
 
-                        var actualResult = command.EndExecute(asyncResult);
-
-                        Assert.AreEqual(expectedResult, actualResult);
-                        Assert.AreEqual(expectedResult, command.Result);
+                        // We have already consumed OutputStream ourselves, so we expect Result to be empty.
+                        Assert.AreEqual("", command.Result);
                     }
                 }
                 finally
@@ -501,7 +537,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                            var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                             httpRequest.Host = hostName;
                             httpRequest.Method = "GET";
                             httpRequest.AllowAutoRedirect = false;
@@ -570,7 +606,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest) WebRequest.Create("http://" + localEndPoint);
+                        var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
                         httpRequest.Host = hostName;
                         httpRequest.Method = "GET";
                         httpRequest.Accept = "text/html";
@@ -616,8 +652,8 @@ namespace Renci.SshNet.IntegrationTests
             var hostAddresses = Dns.GetHostAddresses(Dns.GetHostName());
             var ipv4HostAddress = hostAddresses.First(p => p.AddressFamily == AddressFamily.InterNetwork);
 
-            var endpoint1 = new IPEndPoint(ipv4HostAddress, 666);
-            var endpoint2 = new IPEndPoint(ipv4HostAddress, 667);
+            var endpoint1 = new IPEndPoint(ipv4HostAddress, 10000);
+            var endpoint2 = new IPEndPoint(ipv4HostAddress, 10001);
 
             var bytesReceivedOnListener1 = new List<byte>();
             var bytesReceivedOnListener2 = new List<byte>();
@@ -635,7 +671,7 @@ namespace Renci.SshNet.IntegrationTests
                 client.Connect();
 
                 var forwardedPort1 = new ForwardedPortRemote(IPAddress.Loopback,
-                                                             10000,
+                                                             10002,
                                                              endpoint1.Address,
                                                              (uint)endpoint1.Port);
                 forwardedPort1.Exception += (sender, args) => Console.WriteLine(@"forwardedPort1 exception: " + args.Exception);
@@ -643,7 +679,7 @@ namespace Renci.SshNet.IntegrationTests
                 forwardedPort1.Start();
 
                 var forwardedPort2 = new ForwardedPortRemote(IPAddress.Loopback,
-                                                             10001,
+                                                             10003,
                                                              endpoint2.Address,
                                                              (uint)endpoint2.Port);
                 forwardedPort2.Exception += (sender, args) => Console.WriteLine(@"forwardedPort2 exception: " + args.Exception);
@@ -950,7 +986,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var sftpClient = new SftpClient(connectionInfoFactory.Create()))
             {
                 sftpClient.Connect();
-                
+
                 using (var sw = sftpClient.CreateText(remoteFile, new UTF8Encoding(false)))
                 {
                     sw.Write(script);

@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -24,14 +25,10 @@ namespace Renci.SshNet.Security
         private ECDHCBasicAgreement _keyAgreement;
         private ECDomainParameters _domainParameters;
 
-        /// <summary>
-        /// Starts key exchange algorithm.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 

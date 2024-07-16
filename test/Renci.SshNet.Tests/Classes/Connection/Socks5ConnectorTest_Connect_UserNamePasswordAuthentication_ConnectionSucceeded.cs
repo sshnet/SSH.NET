@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
             _bytesReceivedByProxy = new List<byte>();
 
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
 
             _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
                                  .Returns(_clientSocket);
         }
 
@@ -193,8 +193,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
             expectedSocksRequest.Add(0x00);
             expectedSocksRequest.Add(0x01);
             // Destination port
-            expectedSocksRequest.Add(0x03);
-            expectedSocksRequest.Add(0x09);
+            expectedSocksRequest.Add(0x04);
+            expectedSocksRequest.Add(0x05);
 
             var errorText = string.Format("Expected:{0}{1}{0}but was:{0}{2}",
                                           Environment.NewLine,
@@ -217,7 +217,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void CreateOnSocketFactoryShouldHaveBeenInvokedOnce()
         {
-            SocketFactoryMock.Verify(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+            SocketFactoryMock.Verify(p => p.Create(SocketType.Stream, ProtocolType.Tcp),
                                      Times.Once());
         }
     }

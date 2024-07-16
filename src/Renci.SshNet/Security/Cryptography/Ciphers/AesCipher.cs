@@ -1,86 +1,90 @@
-﻿using System;
+using System;
 using System.Security.Cryptography;
+
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// AES cipher implementation.
     /// </summary>
-    public sealed class AesCipher : BlockCipher, IDisposable
+    public sealed partial class AesCipher : BlockCipher, IDisposable
     {
-        private readonly Aes _aes;
-        private ICryptoTransform _encryptor;
-        private ICryptoTransform _decryptor;
+        private readonly BlockCipher _impl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AesCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
-        /// <param name="padding">The padding.</param>
+        /// <param name="iv">The IV.</param>
+        /// <param name="pkcs7Padding">Enable PKCS7 padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
-        public AesCipher(byte[] key, CipherMode mode, CipherPadding padding)
-            : base(key, 16, mode, padding)
+        public AesCipher(byte[] key, byte[] iv, AesCipherMode mode, bool pkcs7Padding = false)
+            : base(key, 16, mode: null, padding: null)
         {
-            var aes = Aes.Create();
-            aes.Key = key;
-#pragma warning disable CA5358 // Do not use unsafe cipher modes; this is the basis for other modes.
-            aes.Mode = System.Security.Cryptography.CipherMode.ECB;
-#pragma warning restore CA5358 // Do not use unsafe cipher modes
-            aes.Padding = PaddingMode.None;
-            _aes = aes;
+            if (mode == AesCipherMode.OFB)
+            {
+                // OFB is not supported on modern .NET
+                _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new PKCS7Padding() : null);
+            }
+#if !NET6_0_OR_GREATER
+            else if (mode == AesCipherMode.CFB)
+            {
+                // CFB not supported on NetStandard 2.1
+                _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new PKCS7Padding() : null);
+            }
+#endif
+            else if (mode == AesCipherMode.CTR)
+            {
+                // CTR not supported by the BCL, use an optimized implementation
+                _impl = new CtrImpl(key, iv);
+            }
+            else
+            {
+                _impl = new BclImpl(
+                    key,
+                    iv,
+                    (System.Security.Cryptography.CipherMode)mode,
+                    pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None);
+            }
         }
 
-        /// <summary>
-        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
-        /// </summary>
-        /// <param name="inputBuffer">The input data to encrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes encrypted.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
+        /// <inheritdoc/>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            _encryptor ??= _aes.CreateEncryptor();
+            return _impl.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+        }
 
-            return _encryptor.TransformBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+        /// <inheritdoc/>
+        public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        {
+            return _impl.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+        }
+
+        /// <inheritdoc/>
+        public override byte[] Encrypt(byte[] input, int offset, int length)
+        {
+            return _impl.Encrypt(input, offset, length);
+        }
+
+        /// <inheritdoc/>
+        public override byte[] Decrypt(byte[] input, int offset, int length)
+        {
+            return _impl.Decrypt(input, offset, length);
         }
 
         /// <summary>
-        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+        /// Dispose the instance.
         /// </summary>
-        /// <param name="inputBuffer">The input data to decrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes decrypted.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="IndexOutOfRangeException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
-        public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        /// <param name="disposing">Set to True to dispose of resouces.</param>
+        public void Dispose(bool disposing)
         {
-            _decryptor ??= _aes.CreateDecryptor();
-
-            return _decryptor.TransformBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (disposing && _impl is IDisposable disposableImpl)
             {
-                _encryptor?.Dispose();
-                _encryptor = null;
-
-                _decryptor?.Dispose();
-                _decryptor = null;
+                disposableImpl.Dispose();
             }
         }
 

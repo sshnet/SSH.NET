@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
@@ -34,11 +37,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
             _readBufferSize = 20;
-            _writeBufferSize = (uint) _random.Next(5, 1000);
+            _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
             _buffer = new byte[2]; // should be less than size of read buffer
-            _serverData1 = GenerateRandom((int) _readBufferSize, _random);
-            _serverData2 = GenerateRandom((int) _readBufferSize, _random);
+            _serverData1 = GenerateRandom((int)_readBufferSize, _random);
+            _serverData2 = GenerateRandom((int)_readBufferSize, _random);
         }
 
         protected override void SetupMocks()
@@ -47,10 +50,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.CreateNewOrOpen, false))
                            .Returns(_handle);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
+                           .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
                            .Returns(_readBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
+                           .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
                            .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence)
                            .Setup(p => p.IsOpen)
@@ -68,7 +71,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.Arrange();
 
             _target = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
-            _target.Read(_buffer, 0, _buffer.Length);
+            int readBytesCount = _target.Read(_buffer, 0, _buffer.Length);
+            Assert.AreEqual(_buffer.Length, readBytesCount);
         }
 
         protected override void Act()

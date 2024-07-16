@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -32,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
             _readBufferSize = 20;
-            _writeBufferSize = (uint) _random.Next(5, 1000);
+            _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
             _buffer = new byte[_readBufferSize];
             _serverData = GenerateRandom(_buffer.Length, _random);
@@ -65,7 +68,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.Arrange();
 
             _target = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
-            _target.Read(_buffer, 0, _buffer.Length);
+            int readBytesCount = _target.Read(_buffer, 0, _buffer.Length);
+            Assert.AreEqual(_buffer.Length, readBytesCount);
         }
 
         protected override void Act()

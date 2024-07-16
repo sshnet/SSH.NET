@@ -1,16 +1,16 @@
 ﻿using System;
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
-#endif // FEATURE_BINARY_SERIALIZATION
+#endif // NETFRAMEWORK
 
 namespace Renci.SshNet.Common
 {
     /// <summary>
     /// The exception that is thrown when SCP error occurred.
     /// </summary>
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
     [Serializable]
-#endif // FEATURE_BINARY_SERIALIZATION
+#endif // NETFRAMEWORK
     public class ScpException : SshException
     {
         /// <summary>
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Common
         {
         }
 
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="ScpException"/> class.
         /// </summary>
@@ -51,6 +51,6 @@ namespace Renci.SshNet.Common
             : base(info, context)
         {
         }
-#endif // FEATURE_BINARY_SERIALIZATION
+#endif // NETFRAMEWORK
     }
 }

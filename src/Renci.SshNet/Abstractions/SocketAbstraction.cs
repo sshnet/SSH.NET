@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Abstractions
 {
-    internal static class SocketAbstraction
+    internal static partial class SocketAbstraction
     {
         public static bool CanRead(Socket socket)
         {
@@ -47,25 +47,24 @@ namespace Renci.SshNet.Abstractions
             return socket;
         }
 
-        public static void Connect(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
+        public static void Connect(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: false);
         }
 
-        public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        public static async Task ConnectAsync(Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
 
-        private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
+        private static void ConnectCore(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
-#if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
-                {
-                    UserToken = connectCompleted,
-                    RemoteEndPoint = remoteEndpoint
-                };
+            {
+                UserToken = connectCompleted,
+                RemoteEndPoint = remoteEndpoint
+            };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
@@ -97,7 +96,7 @@ namespace Renci.SshNet.Abstractions
 
             if (args.SocketError != SocketError.Success)
             {
-                var socketError = (int) args.SocketError;
+                var socketError = (int)args.SocketError;
 
                 if (ownsSocket)
                 {
@@ -113,19 +112,6 @@ namespace Renci.SshNet.Abstractions
 
             // dispose SocketAsyncEventArgs
             args.Dispose();
-#elif FEATURE_SOCKET_APM
-            var connectResult = socket.BeginConnect(remoteEndpoint, null, null);
-            if (!connectResult.AsyncWaitHandle.WaitOne(connectTimeout, false))
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                    "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
-            socket.EndConnect(connectResult);
-#elif FEATURE_SOCKET_TAP
-            if (!socket.ConnectAsync(remoteEndpoint).Wait(connectTimeout))
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                    "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
-#else
-            #error Connecting to a remote endpoint is not implemented.
-#endif
         }
 
         public static void ClearReadBuffer(Socket socket)
@@ -143,7 +129,7 @@ namespace Renci.SshNet.Abstractions
 
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
-            socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
+            socket.ReceiveTimeout = timeout.AsTimeout(nameof(timeout));
 
             try
             {
@@ -288,7 +274,7 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = (int) readTimeout.TotalMilliseconds;
+            socket.ReceiveTimeout = readTimeout.AsTimeout(nameof(readTimeout));
 
             do
             {
@@ -325,10 +311,12 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+#if NET6_0_OR_GREATER == false
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
-            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
+            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
         }
+#endif
 
         public static void Send(Socket socket, byte[] data)
         {
@@ -384,12 +372,10 @@ namespace Renci.SshNet.Abstractions
 #pragma warning restore IDE0010 // Add missing cases
         }
 
-#if FEATURE_SOCKET_EAP
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var eventWaitHandle = (ManualResetEvent) e.UserToken;
+            var eventWaitHandle = (ManualResetEvent)e.UserToken;
             _ = eventWaitHandle?.Set();
         }
-#endif // FEATURE_SOCKET_EAP
     }
 }

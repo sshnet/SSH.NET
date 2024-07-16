@@ -1,5 +1,5 @@
 ﻿using System;
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -357,8 +357,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("inputCount");
             }
 
-            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var xr = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             xl ^= _p[0];
 
@@ -370,8 +370,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[Rounds + 1];
 
-            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), xr);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), xl);
 
             return BlockSize;
         }
@@ -394,8 +394,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("inputCount");
             }
 
-            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
-            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset));
+            var xr = BinaryPrimitives.ReadUInt32BigEndian(inputBuffer.AsSpan(inputOffset + 4));
 
             xl ^= _p[Rounds + 1];
 
@@ -407,8 +407,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[0];
 
-            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset), xr);
+            BinaryPrimitives.WriteUInt32BigEndian(outputBuffer.AsSpan(outputOffset + 4), xl);
 
             return BlockSize;
         }

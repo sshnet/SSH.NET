@@ -51,7 +51,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return (uint) Interlocked.Increment(ref _requestId);
+                return (uint)Interlocked.Increment(ref _requestId);
             }
         }
 
@@ -488,13 +488,10 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
-#pragma warning restore CA1508 // Avoid dead conditional code
 
             return handle;
         }
@@ -516,9 +513,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpOpenRequest(ProtocolVersion,
@@ -626,9 +623,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -665,9 +660,9 @@ namespace Renci.SshNet.Sftp
             cancellationToken.ThrowIfCancellationRequested();
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 _ = await tcs.Task.ConfigureAwait(false);
@@ -852,9 +847,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -881,9 +874,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpReadRequest(ProtocolVersion,
@@ -953,9 +946,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -980,9 +971,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpWriteRequest(ProtocolVersion,
@@ -1042,9 +1033,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1148,9 +1137,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1174,9 +1161,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpFStatRequest(ProtocolVersion,
@@ -1216,9 +1203,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1250,9 +1235,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1292,9 +1275,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1318,9 +1299,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpOpenDirRequest(ProtocolVersion,
@@ -1373,9 +1354,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1401,9 +1380,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpReadDirRequest(ProtocolVersion,
@@ -1451,9 +1430,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1474,9 +1451,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRemoveRequest(ProtocolVersion,
@@ -1524,9 +1501,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1557,9 +1532,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1601,9 +1574,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1618,9 +1589,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRealPathRequest(ProtocolVersion,
@@ -1736,9 +1707,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1834,9 +1803,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1858,9 +1825,9 @@ namespace Renci.SshNet.Sftp
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new SftpRenameRequest(ProtocolVersion,
@@ -1926,9 +1893,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -1968,9 +1933,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2013,9 +1976,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2027,9 +1988,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
-        /// A <see cref="SftpFileSytemInformation"/> for the specified path.
+        /// A <see cref="SftpFileSystemInformation"/> for the specified path.
         /// </returns>
-        public SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false)
+        public SftpFileSystemInformation RequestStatVfs(string path, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)
             {
@@ -2038,7 +1999,7 @@ namespace Renci.SshNet.Sftp
 
             SshException exception = null;
 
-            SftpFileSytemInformation information = null;
+            SftpFileSystemInformation information = null;
 
             using (var wait = new AutoResetEvent(initialState: false))
             {
@@ -2067,9 +2028,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2087,7 +2046,7 @@ namespace Renci.SshNet.Sftp
         /// <see cref="Task{Task}.Result"/> contains the file system information for the specified
         /// path.
         /// </returns>
-        public async Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
+        public async Task<SftpFileSystemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
         {
             if (ProtocolVersion < 3)
             {
@@ -2096,12 +2055,12 @@ namespace Renci.SshNet.Sftp
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var tcs = new TaskCompletionSource<SftpFileSytemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var tcs = new TaskCompletionSource<SftpFileSystemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSytemInformation>) s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
                 SendRequest(new StatVfsRequest(ProtocolVersion,
@@ -2121,10 +2080,10 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The file handle.</param>
         /// <param name="nullOnError">if set to <see langword="true"/> [null on error].</param>
         /// <returns>
-        /// A <see cref="SftpFileSytemInformation"/> for the specified path.
+        /// A <see cref="SftpFileSystemInformation"/> for the specified path.
         /// </returns>
         /// <exception cref="NotSupportedException">This operation is not supported for the current SFTP protocol version.</exception>
-        internal SftpFileSytemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
+        internal SftpFileSystemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)
             {
@@ -2133,7 +2092,7 @@ namespace Renci.SshNet.Sftp
 
             SshException exception = null;
 
-            SftpFileSytemInformation information = null;
+            SftpFileSystemInformation information = null;
 
             using (var wait = new AutoResetEvent(initialState: false))
             {
@@ -2161,9 +2120,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (!nullOnError && exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2207,9 +2164,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-#pragma warning disable CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             if (exception is not null)
-#pragma warning restore CA1508 // Avoid dead conditional code; Remove when we upgrade to newer SDK in which bug is fixed
             {
                 throw exception;
             }
@@ -2269,7 +2224,7 @@ namespace Renci.SshNet.Sftp
              * WinSCP uses data length of 32739 bytes (total 32768 bytes; 32739 + 25 + 4 bytes for handle)
              */
 
-            var lengthOfNonDataProtocolFields = 25u + (uint) handle.Length;
+            var lengthOfNonDataProtocolFields = 25u + (uint)handle.Length;
             var maximumPacketSize = Channel.RemotePacketSize;
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
         }

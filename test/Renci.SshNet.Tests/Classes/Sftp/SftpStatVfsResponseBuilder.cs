@@ -89,11 +89,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             if (isReadOnly)
             {
-                _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
+                _flag &= SftpFileSystemInformation.SSH_FXE_STATVFS_ST_RDONLY;
             }
             else
             {
-                _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
+                _flag |= SftpFileSystemInformation.SSH_FXE_STATVFS_ST_RDONLY;
             }
 
             return this;
@@ -103,11 +103,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             if (supportsSetUid)
             {
-                _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
+                _flag |= SftpFileSystemInformation.SSH_FXE_STATVFS_ST_NOSUID;
             }
             else
             {
-                _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
+                _flag &= SftpFileSystemInformation.SSH_FXE_STATVFS_ST_NOSUID;
             }
 
             return this;
@@ -121,7 +121,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         public StatVfsResponse Build()
         {
-            var fileSystemInfo = new SftpFileSytemInformation(_bsize,
+            var fileSystemInfo = new SftpFileSystemInformation(_bsize,
                                                               _frsize,
                                                               _blocks,
                                                               _bfree,
@@ -148,7 +148,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             get { return SftpMessageTypes.ExtendedReply; }
         }
 
-        public SftpFileSytemInformation Information { get; set; }
+        public SftpFileSystemInformation Information { get; set; }
 
         public StatVfsResponse(uint protocolVersion)
             : base(protocolVersion)
@@ -159,7 +159,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             base.LoadData();
 
-            Information = new SftpFileSytemInformation(ReadUInt64(), // FileSystemBlockSize
+            Information = new SftpFileSystemInformation(ReadUInt64(), // FileSystemBlockSize
                                                        ReadUInt64(), // BlockSize
                                                        ReadUInt64(), // TotalBlocks
                                                        ReadUInt64(), // FreeBlocks

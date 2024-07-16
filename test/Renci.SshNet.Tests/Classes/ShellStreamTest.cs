@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -35,8 +38,8 @@ namespace Renci.SshNet.Tests.Classes
 
             var random = new Random();
             _terminalName = random.Next().ToString(CultureInfo.InvariantCulture);
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
             _widthPixels = (uint)random.Next();
             _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
@@ -86,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes
 
             shellStream.Write(text);
 
-            _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>()), Times.Never);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
@@ -96,11 +99,28 @@ namespace Renci.SshNet.Tests.Classes
             const string line = null;
             var lineTerminator = _encoding.GetBytes("\r");
 
-            _channelSessionMock.Setup(p => p.SendData(lineTerminator));
+            _ = _channelSessionMock.Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(lineTerminator.Length).IsEqualTo(lineTerminator)),
+                                       0,
+                                       lineTerminator.Length));
 
             shellStream.WriteLine(line);
 
-            _channelSessionMock.Verify(p => p.SendData(lineTerminator), Times.Once);
+            _channelSessionMock.VerifyAll();
+        }
+
+        [TestMethod]
+        public void Write_AfterDispose_ThrowsObjectDisposedException()
+        {
+            var shellStream = CreateShellStream();
+
+            _channelSessionMock.Setup(p => p.Dispose());
+
+            shellStream.Dispose();
+
+            var bytes = _encoding.GetBytes("Hello World!");
+
+            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
         }
 
         private ShellStream CreateShellStream()

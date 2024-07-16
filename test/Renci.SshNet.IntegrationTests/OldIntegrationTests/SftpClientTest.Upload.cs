@@ -93,11 +93,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 for (var i = 0; i < maxFiles; i++)
                 {
                     var testInfo = new TestInfo
-                        {
-                            UploadedFileName = Path.GetTempFileName(),
-                            DownloadedFileName = Path.GetTempFileName(),
-                            RemoteFileName = Path.GetRandomFileName()
-                        };
+                    {
+                        UploadedFileName = Path.GetTempFileName(),
+                        DownloadedFileName = Path.GetTempFileName(),
+                        RemoteFileName = Path.GetRandomFileName()
+                    };
 
                     CreateTestFile(testInfo.UploadedFileName, maxSize);
 
@@ -201,7 +201,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     testInfo.DownloadedHash = CalculateMD5(testInfo.DownloadedFileName);
 
                     Console.WriteLine(remoteFile);
-                    Console.WriteLine("UploadedBytes: "+ testInfo.UploadResult.UploadedBytes);
+                    Console.WriteLine("UploadedBytes: " + testInfo.UploadResult.UploadedBytes);
                     Console.WriteLine("DownloadedBytes: " + testInfo.DownloadResult.DownloadedBytes);
                     Console.WriteLine("UploadedHash: " + testInfo.UploadedHash);
                     Console.WriteLine("DownloadedHash: " + testInfo.DownloadedHash);
@@ -261,7 +261,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     asyncResult = sftp.BeginUploadFile(fileStream,
                                                        remoteFileName,
-                                                       delegate(IAsyncResult ar)
+                                                       delegate (IAsyncResult ar)
                                                            {
                                                                sftp.EndUploadFile(ar);
                                                                uploadDelegateCalled = true;
@@ -285,7 +285,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     asyncResult = sftp.BeginDownloadFile(remoteFileName,
                                                          fileStream,
-                                                         delegate(IAsyncResult ar)
+                                                         delegate (IAsyncResult ar)
                                                             {
                                                                 sftp.EndDownloadFile(ar);
                                                                 downloadDelegateCalled = true;
@@ -306,7 +306,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 asyncResult = null;
                 asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory,
-                                                      delegate(IAsyncResult ar)
+                                                      delegate (IAsyncResult ar)
                                                         {
                                                             _ = sftp.EndListDirectory(ar);
                                                             listDirectoryDelegateCalled = true;

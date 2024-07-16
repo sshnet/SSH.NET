@@ -115,16 +115,41 @@ namespace Renci.SshNet
             return enabledMessageMetadata.Create();
         }
 
-        public void DisableNonKeyExchangeMessages()
+        /// <summary>
+        /// Disables non-KeyExchange messages.
+        /// </summary>
+        /// <param name="strict">
+        /// <see langword="true"/> to indicate the strict key exchange mode; otherwise <see langword="false"/>.
+        /// <para>In strict key exchange mode, only below messages are allowed:</para>
+        /// <list type="bullet">
+        /// <item>SSH_MSG_KEXINIT -> 20</item>
+        /// <item>SSH_MSG_NEWKEYS -> 21</item>
+        /// <item>SSH_MSG_DISCONNECT -> 1</item>
+        /// </list>
+        /// <para>Note:</para>
+        /// <para>  The relevant KEX Reply MSG will be allowed from a sub class of KeyExchange class.</para>
+        /// <para>  For example, it calls <c>Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");</c> if the curve25519-sha256 KEX algorithm is selected per negotiation.</para>
+        /// </param>
+        public void DisableNonKeyExchangeMessages(bool strict)
         {
             for (var i = 0; i < AllMessages.Length; i++)
             {
                 var messageMetadata = AllMessages[i];
 
                 var messageNumber = messageMetadata.Number;
-                if (messageNumber is (> 2 and < 20) or > 30)
+                if (strict)
                 {
-                    _enabledMessagesByNumber[messageNumber] = null;
+                    if (messageNumber is not 20 and not 21 and not 1)
+                    {
+                        _enabledMessagesByNumber[messageNumber] = null;
+                    }
+                }
+                else
+                {
+                    if (messageNumber is (> 2 and < 20) or > 30)
+                    {
+                        _enabledMessagesByNumber[messageNumber] = null;
+                    }
                 }
             }
         }

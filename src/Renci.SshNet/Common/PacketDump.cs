@@ -30,7 +30,7 @@ namespace Renci.SshNet.Common
             var line = new byte[lineWidth];
             var indentChars = new string(' ', indentLevel);
 
-            for (var pos = 0; pos < data.Length; )
+            for (var pos = 0; pos < data.Length;)
             {
                 var linePos = 0;
 

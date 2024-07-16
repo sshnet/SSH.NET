@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
-
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
@@ -38,16 +34,11 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", "Verbose");
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener());
-
             _sshServerImage = new ImageFromDockerfileBuilder()
                 .WithName("renci-ssh-tests-server-image")
                 .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))
-                .WithDockerfile("Dockerfile")
+                .WithDockerfile("Dockerfile.TestServer")
                 .WithDeleteIfExists(true)
-                
                 .Build();
 
             await _sshServerImage.CreateAsync();
@@ -62,6 +53,14 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
             SshServerPort = _sshServer.GetMappedPublicPort(22);
             SshServerHostName = _sshServer.Hostname;
+
+            // Socket fails on Linux, reporting inability early. This is the Linux behavior by design.
+            // https://github.com/dotnet/runtime/issues/47484#issuecomment-769239699
+            // At this point we have to wait until the ssh server in the container is available
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                await Task.Delay(300);
+            }
         }
 
         public async Task DisposeAsync()

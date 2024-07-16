@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -77,17 +80,17 @@ namespace Renci.SshNet.Tests.Classes
             _channelBound = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
 
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port, _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port, _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
 
             _client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 100,
-                    SendTimeout = 100,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 100,
+                SendTimeout = 100,
+                SendBufferSize = 0
+            };
         }
 
         private void SetupMocks()

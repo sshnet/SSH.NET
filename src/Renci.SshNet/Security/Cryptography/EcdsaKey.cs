@@ -140,10 +140,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the ECDSA public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array with the ASCII-encoded curve identifier (e.g. "nistp256")
+        /// at index 0, and the public curve point Q at index 1.
         /// </value>
         public override BigInteger[] Public
         {
@@ -213,14 +214,6 @@ namespace Renci.SshNet.Security
                 // returns Curve-Name and x/y as ECPoint
                 return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
             }
-            set
-            {
-                var curve_s = Encoding.ASCII.GetString(value[0].ToByteArray().Reverse());
-                var curve_oid = GetCurveOid(curve_s);
-
-                var publickey = value[1].ToByteArray().Reverse();
-                Import(curve_oid, publickey, privatekey: null);
-            }
         }
 
         /// <summary>
@@ -228,16 +221,39 @@ namespace Renci.SshNet.Security
         /// </summary>
         public byte[] PrivateKey { get; private set; }
 
+#if NETFRAMEWORK
+        /// <summary>
+        /// Gets the <see cref="ECDsa"/> object.
+        /// </summary>
+        public ECDsaCng Ecdsa { get; private set; }
+#else
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
         /// </summary>
-        public EcdsaKey()
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public EcdsaKey(SshKeyData publicKeyData)
         {
+            if (publicKeyData is null)
+            {
+                throw new ArgumentNullException(nameof(publicKeyData));
+            }
+
+            if (!publicKeyData.Name.StartsWith("ecdsa-sha2-", StringComparison.Ordinal) || publicKeyData.Keys.Length != 2)
+            {
+                throw new ArgumentException($"Invalid ECDSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
+            }
+
+            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray().Reverse());
+            var curve_oid = GetCurveOid(curve_s);
+
+            var publickey = publicKeyData.Keys[1].ToByteArray().Reverse();
+            Import(curve_oid, publickey, privatekey: null);
         }
 
         /// <summary>
@@ -362,7 +378,7 @@ namespace Renci.SshNet.Security
                 PrivateKey = privatekey;
             }
 
-            var headerSize = Marshal.SizeOf(typeof(BCRYPT_ECCKEY_BLOB));
+            var headerSize = Marshal.SizeOf<BCRYPT_ECCKEY_BLOB>();
             var blobSize = headerSize + qx.Length + qy.Length;
             if (privatekey != null)
             {

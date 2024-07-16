@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected ConnectionInfo CreateConnectionInfo(string hostName)
         {
             return new ConnectionInfo(hostName,
-                                      777,
+                                      1027,
                                       "user",
                                       new KeyboardInteractiveAuthenticationMethod("user"));
         }

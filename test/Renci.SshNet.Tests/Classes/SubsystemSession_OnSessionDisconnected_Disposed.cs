@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes
         private int _operationTimeout;
         private IList<EventArgs> _disconnectedRegister;
         private IList<ExceptionEventArgs> _errorOccurredRegister;
-            
+
         [TestInitialize]
         public void Setup()
         {

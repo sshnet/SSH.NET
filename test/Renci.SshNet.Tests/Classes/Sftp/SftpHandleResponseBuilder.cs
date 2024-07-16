@@ -29,10 +29,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpHandleResponse Build()
         {
             var sftpHandleResponse = new SftpHandleResponse(_protocolVersion)
-                {
-                    ResponseId = _responseId,
-                    Handle = _handle
-                };
+            {
+                ResponseId = _responseId,
+                Handle = _handle
+            };
             return sftpHandleResponse;
         }
     }

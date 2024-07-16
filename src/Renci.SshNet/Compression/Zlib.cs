@@ -7,7 +7,9 @@ namespace Renci.SshNet.Compression
     /// <summary>
     /// Represents the "zlib" compression algorithm.
     /// </summary>
+#pragma warning disable CA1724 // Type names should not match namespaces
     public class Zlib : Compressor
+#pragma warning restore CA1724 // Type names should not match namespaces
     {
         private readonly ZLibStream _compressor;
         private readonly ZLibStream _decompressor;

@@ -1,0 +1,159 @@
+﻿using System;
+using System.Diagnostics;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security.Chaos.NaCl.Internal;
+
+namespace Renci.SshNet.Security.Cryptography.Ciphers
+{
+    /// <summary>
+    /// ChaCha20Poly1305 cipher implementation.
+    /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00"/>.
+    /// </summary>
+    internal sealed class ChaCha20Poly1305Cipher : StreamCipher
+    {
+        private readonly byte[] _sequenceNumber = new byte[12];
+        private ChaCha20Cipher _aadCipher;
+        private ChaCha20Cipher _cipher;
+        private byte[] _polyKeyBytes;
+        private Array8<uint> _polyKey;
+
+        /// <summary>
+        /// Gets the minimun block size.
+        /// </summary>
+        public override byte MinimumSize
+        {
+            get
+            {
+                return 16;
+            }
+        }
+
+        /// <summary>
+        /// Gets the tag size in bytes.
+        /// Poly1305 [Poly1305], also by Daniel Bernstein, is a one-time Carter-
+        /// Wegman MAC that computes a 128 bit integrity tag given a message
+        /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00#section-1"/>.
+        /// </summary>
+        public override int TagSize
+        {
+            get
+            {
+                return 16;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChaCha20Poly1305Cipher"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        public ChaCha20Poly1305Cipher(byte[] key)
+            : base(key)
+        {
+        }
+
+        /// <summary>
+        /// Encrypts the specified input.
+        /// </summary>
+        /// <param name="input">
+        /// The input data with below format:
+        ///   <code>
+        ///   [outbound sequence field][packet length field][padding length field sz][payload][random paddings]
+        ///   [----4 bytes----(offset)][------4 bytes------][----------------Plain Text---------------(length)]
+        ///   </code>
+        /// </param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
+        /// <returns>
+        /// The encrypted data with below format:
+        ///   <code>
+        ///   [packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
+        ///   [------4 bytes------][------------------Cipher Text--------------------][-------TAG-------]
+        ///   </code>
+        /// </returns>
+        public override byte[] Encrypt(byte[] input, int offset, int length)
+        {
+            var output = new byte[length + TagSize];
+
+            var packetLengthField = _aadCipher.Encrypt(input, offset, 4);
+            Array.Copy(packetLengthField, output, 4);
+
+            var cipherText = _cipher.Encrypt(input, offset + 4, length - 4);
+            Array.Copy(cipherText, 0, output, 4, cipherText.Length);
+
+            Poly1305Donna.poly1305_auth(output, length, output, 0, length, ref _polyKey);
+
+            return output;
+        }
+
+        /// <summary>
+        /// Decrypts the first block which is packet length field.
+        /// </summary>
+        /// <param name="input">The encrypted packet length field.</param>
+        /// <returns>The decrypted packet length field.</returns>
+        public override byte[] Decrypt(byte[] input)
+        {
+            return _aadCipher.Decrypt(input);
+        }
+
+        /// <summary>
+        /// Decrypts the specified input.
+        /// </summary>
+        /// <param name="input">
+        /// The input data with below format:
+        ///   <code>
+        ///   [inbound sequence field][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
+        ///   [--------4 bytes-------][--4 bytes--(offset)][--------------Cipher Text----------------(length)][-------TAG-------]
+        ///   </code>
+        /// </param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
+        /// <param name="length">The number of bytes to decrypt and authenticate from <paramref name="input"/>.</param>
+        /// <returns>
+        /// The decrypted data with below format:
+        /// <code>
+        ///   [padding length field sz][payload][random paddings]
+        ///   [--------------------Plain Text-------------------]
+        /// </code>
+        /// </returns>
+        public override byte[] Decrypt(byte[] input, int offset, int length)
+        {
+            Debug.Assert(offset == 8, "The offset must be 8");
+
+            var cipherText = input.Take(offset, length);
+
+            var tag = new byte[TagSize];
+            Poly1305Donna.poly1305_auth(tag, 0, input, offset - 4, length + 4, ref _polyKey);
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+            if (!System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(tag, new ReadOnlySpan<byte>(input, offset + length, TagSize)))
+#else
+            if (!Chaos.NaCl.CryptoBytes.ConstantTimeEquals(tag, 0, input, offset + length, TagSize))
+#endif
+            {
+                throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+            }
+
+            var output = _cipher.Decrypt(cipherText);
+
+            return output;
+        }
+
+        internal override void SetSequenceNumber(uint sequenceNumber)
+        {
+            Pack.UInt64ToBigEndian(sequenceNumber, _sequenceNumber, 4);
+
+            _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);
+            _cipher = new ChaCha20Cipher(Key.Take(32), nonce: _sequenceNumber);
+
+            _polyKeyBytes = _cipher.Encrypt(new byte[32]);
+            _polyKey.x0 = Pack.LittleEndianToUInt32(_polyKeyBytes, 0);
+            _polyKey.x1 = Pack.LittleEndianToUInt32(_polyKeyBytes, 4);
+            _polyKey.x2 = Pack.LittleEndianToUInt32(_polyKeyBytes, 8);
+            _polyKey.x3 = Pack.LittleEndianToUInt32(_polyKeyBytes, 12);
+            _polyKey.x4 = Pack.LittleEndianToUInt32(_polyKeyBytes, 16);
+            _polyKey.x5 = Pack.LittleEndianToUInt32(_polyKeyBytes, 20);
+            _polyKey.x6 = Pack.LittleEndianToUInt32(_polyKeyBytes, 24);
+            _polyKey.x7 = Pack.LittleEndianToUInt32(_polyKeyBytes, 28);
+        }
+    }
+}

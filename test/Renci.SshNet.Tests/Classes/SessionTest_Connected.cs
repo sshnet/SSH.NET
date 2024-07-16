@@ -47,16 +47,29 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ShouldNotIncludeStrictKexPseudoAlgorithmInSubsequentKex()
         {
-            ServerBytesReceivedRegister.Clear();
+            using var kexReceived = new ManualResetEventSlim();
+            bool kexContainsPseudoAlg = true;
+
+            ServerListener.BytesReceived += ServerListener_BytesReceived;
+
+            void ServerListener_BytesReceived(byte[] bytesReceived, System.Net.Sockets.Socket socket)
+            {
+                if (bytesReceived.Length > 5 && bytesReceived[5] == 20)
+                {
+                    // SSH_MSG_KEXINIT = 20
+                    var kexInitMessage = new KeyExchangeInitMessage();
+                    kexInitMessage.Load(bytesReceived, 6, bytesReceived.Length - 6);
+                    kexContainsPseudoAlg = kexInitMessage.KeyExchangeAlgorithms.Contains("kex-strict-c-v00@openssh.com");
+                    kexReceived.Set();
+                }
+            }
+
             Session.SendMessage(Session.ClientInitMessage);
 
-            Thread.Sleep(100);
+            Assert.IsTrue(kexReceived.Wait(1000));
+            Assert.IsFalse(kexContainsPseudoAlg);
 
-            Assert.IsTrue(ServerBytesReceivedRegister.Count > 0);
-
-            var kexInitMessage = new KeyExchangeInitMessage();
-            kexInitMessage.Load(ServerBytesReceivedRegister[0], 4 + 1 + 1, ServerBytesReceivedRegister[0].Length - 4 - 1 - 1);
-            Assert.IsFalse(kexInitMessage.KeyExchangeAlgorithms.Contains("kex-strict-c-v00@openssh.com"));
+            ServerListener.BytesReceived -= ServerListener_BytesReceived;
         }
 
         [TestMethod]

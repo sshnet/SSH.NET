@@ -393,11 +393,7 @@ namespace Renci.SshNet
 
                     Debug.Assert(_readHead <= searchHead && searchHead <= _readTail);
 
-#if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfMatch = _readBuffer.IndexOf(expectBytes, searchHead, _readTail - searchHead);
-#else
                     var indexOfMatch = _readBuffer.AsSpan(searchHead, _readTail - searchHead).IndexOf(expectBytes);
-#endif
 
                     if (indexOfMatch >= 0)
                     {
@@ -417,7 +413,7 @@ namespace Renci.SshNet
 
                     if (timeout == Timeout.InfiniteTimeSpan)
                     {
-                        Monitor.Wait(_sync);
+                        _ = Monitor.Wait(_sync);
                     }
                     else
                     {
@@ -665,24 +661,16 @@ namespace Renci.SshNet
                 {
                     AssertValid();
 
-#if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfCr = _readBuffer.IndexOf(_carriageReturnBytes, _readHead, _readTail - _readHead);
-#else
                     var indexOfCr = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_carriageReturnBytes);
-#endif
+
                     if (indexOfCr >= 0)
                     {
                         // We have found \r. We only need to search for \n up to and just after the \r
                         // (in order to consume \r\n if we can).
-#if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
-                            ? _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length)
-                            : _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr);
-#else
                         var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
                             ? _readBuffer.AsSpan(_readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length).IndexOf(_lineFeedBytes)
                             : _readBuffer.AsSpan(_readHead, indexOfCr).IndexOf(_lineFeedBytes);
-#endif
+
                         if (indexOfLf >= 0 && indexOfLf < indexOfCr)
                         {
                             // If there is \n before the \r, then return up to the \n
@@ -720,11 +708,8 @@ namespace Renci.SshNet
                     else
                     {
                         // There is no \r. What about \n?
-#if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = _readBuffer.IndexOf(_lineFeedBytes, _readHead, _readTail - _readHead);
-#else
                         var indexOfLf = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_lineFeedBytes);
-#endif
+
                         if (indexOfLf >= 0)
                         {
                             var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfLf);

@@ -77,15 +77,6 @@ The main types provided by this library are:
 * aes192-cbc
 * aes256-cbc
 * 3des-cbc
-* blowfish-cbc
-* twofish-cbc
-* twofish192-cbc
-* twofish128-cbc
-* twofish256-cbc
-* arcfour
-* arcfour128
-* arcfour256
-* cast128-cbc
 
 ## Key Exchange Methods
 
@@ -135,18 +126,10 @@ Private keys can be encrypted using one of the following cipher methods:
 **SSH.NET** supports the following MAC algorithms:
 * hmac-sha2-256
 * hmac-sha2-512
-* hmac-sha2-512-96
-* hmac-sha2-256-96
 * hmac-sha1
-* hmac-sha1-96
-* hmac-md5
-* hmac-md5-96
 * hmac-sha2-256-etm<span></span>@openssh.com
 * hmac-sha2-512-etm<span></span>@openssh.com
 * hmac-sha1-etm<span></span>@openssh.com
-* hmac-sha1-96-etm<span></span>@openssh.com
-* hmac-md5-etm<span></span>@openssh.com
-* hmac-md5-96-etm<span></span>@openssh.com
 
 ## Compression
 

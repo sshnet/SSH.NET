@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
+
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Utilities;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
-using Renci.SshNet.Security.Chaos.NaCl.Internal;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -14,10 +19,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     internal sealed class ChaCha20Poly1305Cipher : StreamCipher
     {
         private readonly byte[] _sequenceNumber = new byte[12];
-        private ChaCha20Cipher _aadCipher;
-        private ChaCha20Cipher _cipher;
-        private byte[] _polyKeyBytes;
-        private Array8<uint> _polyKey;
+        private readonly ChaCha7539Engine _aadCipher = new ChaCha7539Engine();
+        private readonly ChaCha7539Engine _cipher = new ChaCha7539Engine();
+        private readonly Poly1305 _mac = new Poly1305();
 
         /// <summary>
         /// Gets the minimun block size.
@@ -76,13 +80,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var output = new byte[length + TagSize];
 
-            var packetLengthField = _aadCipher.Encrypt(input, offset, 4);
-            Array.Copy(packetLengthField, output, 4);
+            _aadCipher.ProcessBytes(input, offset, 4, output, 0);
+            _cipher.ProcessBytes(input, offset + 4, length - 4, output, 4);
 
-            var cipherText = _cipher.Encrypt(input, offset + 4, length - 4);
-            Array.Copy(cipherText, 0, output, 4, cipherText.Length);
-
-            Poly1305Donna.poly1305_auth(output, length, output, 0, length, ref _polyKey);
+            _mac.BlockUpdate(output, 0, length);
+            _ = _mac.DoFinal(output, length);
 
             return output;
         }
@@ -94,7 +96,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>The decrypted packet length field.</returns>
         public override byte[] Decrypt(byte[] input)
         {
-            return _aadCipher.Decrypt(input);
+            var output = new byte[input.Length];
+            _aadCipher.ProcessBytes(input, 0, input.Length, output, 0);
+
+            return output;
         }
 
         /// <summary>
@@ -120,40 +125,33 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             Debug.Assert(offset == 8, "The offset must be 8");
 
-            var cipherText = input.Take(offset, length);
-
             var tag = new byte[TagSize];
-            Poly1305Donna.poly1305_auth(tag, 0, input, offset - 4, length + 4, ref _polyKey);
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-            if (!System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(tag, new ReadOnlySpan<byte>(input, offset + length, TagSize)))
-#else
-            if (!Chaos.NaCl.CryptoBytes.ConstantTimeEquals(tag, 0, input, offset + length, TagSize))
-#endif
+            _mac.BlockUpdate(input, offset - 4, length + 4);
+            _ = _mac.DoFinal(tag, 0);
+            if (!Arrays.FixedTimeEquals(TagSize, tag, 0, input, offset + length))
             {
                 throw new SshConnectionException("MAC error", DisconnectReason.MacError);
             }
 
-            var output = _cipher.Decrypt(cipherText);
+            var output = new byte[length];
+            _cipher.ProcessBytes(input, offset, length, output, 0);
 
             return output;
         }
 
         internal override void SetSequenceNumber(uint sequenceNumber)
         {
-            Pack.UInt64ToBigEndian(sequenceNumber, _sequenceNumber, 4);
+            BinaryPrimitives.WriteUInt64BigEndian(_sequenceNumber.AsSpan(4), sequenceNumber);
 
-            _aadCipher = new ChaCha20Cipher(Key.Take(32, 32), nonce: _sequenceNumber);
-            _cipher = new ChaCha20Cipher(Key.Take(32), nonce: _sequenceNumber);
+            // ChaCha20 encryption and decryption is completely
+            // symmetrical, so the 'forEncryption' is
+            // irrelevant. (Like 90% of stream ciphers)
+            _aadCipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 32, 32), _sequenceNumber));
+            _cipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 0, 32), _sequenceNumber));
 
-            _polyKeyBytes = _cipher.Encrypt(new byte[32]);
-            _polyKey.x0 = Pack.LittleEndianToUInt32(_polyKeyBytes, 0);
-            _polyKey.x1 = Pack.LittleEndianToUInt32(_polyKeyBytes, 4);
-            _polyKey.x2 = Pack.LittleEndianToUInt32(_polyKeyBytes, 8);
-            _polyKey.x3 = Pack.LittleEndianToUInt32(_polyKeyBytes, 12);
-            _polyKey.x4 = Pack.LittleEndianToUInt32(_polyKeyBytes, 16);
-            _polyKey.x5 = Pack.LittleEndianToUInt32(_polyKeyBytes, 20);
-            _polyKey.x6 = Pack.LittleEndianToUInt32(_polyKeyBytes, 24);
-            _polyKey.x7 = Pack.LittleEndianToUInt32(_polyKeyBytes, 28);
+            var polyKeyBytes = new byte[32];
+            _cipher.ProcessBytes(new byte[32], 0, 32, polyKeyBytes, 0);
+            _mac.Init(new KeyParameter(polyKeyBytes));
         }
     }
 }

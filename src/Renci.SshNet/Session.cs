@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Org.BouncyCastle.Utilities;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -1315,11 +1317,7 @@ namespace Renci.SshNet
             if (_serverMac != null && _serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
-#else
-                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
-#endif
+                if (!Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
@@ -1343,11 +1341,7 @@ namespace Renci.SshNet
             if (_serverMac != null && !_serverEtm)
             {
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
-#else
-                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
-#endif
+                if (!Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }

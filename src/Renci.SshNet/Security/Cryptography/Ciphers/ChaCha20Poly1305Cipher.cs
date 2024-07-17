@@ -18,7 +18,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     internal sealed class ChaCha20Poly1305Cipher : SymmetricCipher
     {
-        private readonly byte[] _sequenceNumber = new byte[12];
         private readonly ChaCha7539Engine _aadCipher = new ChaCha7539Engine();
         private readonly ChaCha7539Engine _cipher = new ChaCha7539Engine();
         private readonly Poly1305 _mac = new Poly1305();
@@ -141,13 +140,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         internal override void SetSequenceNumber(uint sequenceNumber)
         {
-            BinaryPrimitives.WriteUInt64BigEndian(_sequenceNumber.AsSpan(4), sequenceNumber);
+            var iv = new byte[12];
+            BinaryPrimitives.WriteUInt64BigEndian(iv.AsSpan(4), sequenceNumber);
 
             // ChaCha20 encryption and decryption is completely
             // symmetrical, so the 'forEncryption' is
             // irrelevant. (Like 90% of stream ciphers)
-            _aadCipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 32, 32), _sequenceNumber));
-            _cipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 0, 32), _sequenceNumber));
+            _aadCipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 32, 32), iv));
+            _cipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 0, 32), iv));
 
             var polyKeyBytes = new byte[32];
             _cipher.ProcessBytes(new byte[32], 0, 32, polyKeyBytes, 0);

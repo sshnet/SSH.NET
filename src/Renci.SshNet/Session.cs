@@ -1267,7 +1267,7 @@ namespace Renci.SshNet
                     }
                 }
 
-                packetLength = BinaryPrimitives.ReadUInt32BigEndian(firstBlock);
+                packetLength = BinaryPrimitives.ReadUInt32BigEndian(plainFirstBlock);
 
                 // Test packet minimum and maximum boundaries
                 if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)

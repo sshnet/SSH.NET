@@ -151,6 +151,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             var polyKeyBytes = new byte[32];
             _cipher.ProcessBytes(new byte[32], 0, 32, polyKeyBytes, 0);
+            _cipher.ProcessBytes(new byte[32], 0, 32, new byte[32], 0); // this ProcessBytes is required to set the block counter of ChaCha to 1
             _mac.Init(new KeyParameter(polyKeyBytes));
         }
     }

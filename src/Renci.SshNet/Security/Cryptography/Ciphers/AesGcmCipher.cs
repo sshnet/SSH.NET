@@ -12,7 +12,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    internal sealed class AesGcmCipher : StreamCipher, IDisposable
+    internal sealed class AesGcmCipher : SymmetricCipher, IDisposable
     {
         private readonly byte[] _iv;
         private readonly AesGcm _aesGcm;

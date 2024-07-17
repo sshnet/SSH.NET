@@ -23,6 +23,7 @@ namespace Renci.SshNet.IntegrationTests
 
             _remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
             _remoteSshdConfig.AllowTcpForwarding()
+                             .PermitTTY(true)
                              .PrintMotd(false)
                              .Update()
                              .Restart();
@@ -73,6 +74,24 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsTrue(line.EndsWith("Hello!"), line);
 
                     Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Ssh_CreateShellStreamNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var shellStream = client.CreateShellStreamNoTerminal(bufferSize: 1024))
+                {
+                    var foo = new string('a', 90);
+                    shellStream.WriteLine($"echo {foo}");
+                    var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
+                    Assert.IsNotNull(line);
+                    Assert.IsTrue(line.EndsWith(foo), line);
                 }
             }
         }
@@ -172,6 +191,41 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void Ssh_CreateShellNoTerminal()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var input = new MemoryStream())
+                using (var output = new MemoryStream())
+                using (var extOutput = new MemoryStream())
+                {
+                    var shell = client.CreateShellNoTerminal(input, output, extOutput, 1024);
+
+                    shell.Start();
+
+                    var inputWriter = new StreamWriter(input, Encoding.ASCII, 1024);
+                    var foo = new string('a', 90);
+                    inputWriter.WriteLine($"echo {foo}");
+                    inputWriter.Flush();
+                    input.Position = 0;
+
+                    Thread.Sleep(1000);
+
+                    output.Position = 0;
+                    var outputReader = new StreamReader(output, Encoding.ASCII, false, 1024);
+                    var outputString = outputReader.ReadLine();
+
+                    Assert.IsNotNull(outputString);
+                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
+
+                    shell.Stop();
+                }
+            }
+        }
+
+        [TestMethod]
         public void Ssh_Command_IntermittentOutput_EndExecute()
         {
             const string remoteFile = "/home/sshnet/test.sh";
@@ -230,7 +284,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Ssh_Command_IntermittentOutput_OutputStream()
+        public async Task Ssh_Command_IntermittentOutput_OutputStream()
         {
             const string remoteFile = "/home/sshnet/test.sh";
 
@@ -271,9 +325,11 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var command = sshClient.CreateCommand(remoteFile))
                     {
-                        var asyncResult = command.BeginExecute();
+                        await command.ExecuteAsync();
 
-                        using (var reader = new StreamReader(command.OutputStream, new UTF8Encoding(false), false, 10))
+                        Assert.AreEqual(13, command.ExitStatus);
+
+                        using (var reader = new StreamReader(command.OutputStream))
                         {
                             var lines = new List<string>();
                             string line = null;
@@ -284,21 +340,10 @@ namespace Renci.SshNet.IntegrationTests
 
                             Assert.AreEqual(6, lines.Count, string.Join("\n", lines));
                             Assert.AreEqual(expectedResult, string.Join("\n", lines));
-                            Assert.AreEqual(13, command.ExitStatus);
                         }
 
-                        var actualResult = command.EndExecute(asyncResult);
-
-                        // command.Result (also returned from EndExecute) consumes OutputStream,
-                        // which we've already read from, so Result will be empty.
-                        // TODO consider the suggested changes in https://github.com/sshnet/SSH.NET/issues/650
-
-                        //Assert.AreEqual(expectedResult, actualResult);
-                        //Assert.AreEqual(expectedResult, command.Result);
-
-                        // For now just assert the current behaviour.
-                        Assert.AreEqual(0, actualResult.Length);
-                        Assert.AreEqual(0, command.Result.Length);
+                        // We have already consumed OutputStream ourselves, so we expect Result to be empty.
+                        Assert.AreEqual("", command.Result);
                     }
                 }
                 finally

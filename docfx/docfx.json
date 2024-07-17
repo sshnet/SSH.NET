@@ -11,7 +11,10 @@
         }
       ],
       "outputFormat": "apiPage",
-      "output": "api"
+      "output": "api",
+      "properties": {
+          "TargetFramework": "net8.0"
+      }
     }
   ],
   "build": {

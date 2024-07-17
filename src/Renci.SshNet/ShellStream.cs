@@ -20,6 +20,8 @@ namespace Renci.SshNet
     /// </summary>
     public class ShellStream : Stream
     {
+        private const int DefaultBufferSize = 1024;
+
         private readonly ISession _session;
         private readonly Encoding _encoding;
         private readonly IChannelSession _channel;
@@ -29,6 +31,7 @@ namespace Renci.SshNet
         private readonly object _sync = new object();
 
         private readonly byte[] _writeBuffer;
+        private readonly bool _noTerminal;
         private int _writeLength; // The length of the data in _writeBuffer.
 
         private byte[] _readBuffer;
@@ -95,7 +98,68 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+               : this(session, bufferSize, noTerminal: false)
         {
+            try
+            {
+                _channel.Open();
+
+                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShellStream"/> class.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <exception cref="SshException">The channel could not be opened.</exception>
+        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
+        internal ShellStream(ISession session, int bufferSize)
+            : this(session, bufferSize, noTerminal: true)
+        {
+            try
+            {
+                _channel.Open();
+
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShellStream"/> class.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="noTerminal">Disables pseudo terminal allocation or not.</param>
+        /// <exception cref="SshException">The channel could not be opened.</exception>
+        private ShellStream(ISession session, int bufferSize, bool noTerminal)
+        {
+            if (bufferSize == -1)
+            {
+                bufferSize = DefaultBufferSize;
+            }
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
 #else
@@ -119,33 +183,15 @@ namespace Renci.SshNet
             _readBuffer = new byte[bufferSize];
             _writeBuffer = new byte[bufferSize];
 
-            try
-            {
-                _channel.Open();
-
-                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
-                {
-                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
-                }
-
-                if (!_channel.SendShellRequest())
-                {
-                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
-                }
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
+            _noTerminal = noTerminal;
         }
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/>.
-        /// </returns>
+        /// </value>
         /// <remarks>
         /// It is safe to read from <see cref="ShellStream"/> even after disposal.
         /// </remarks>
@@ -157,9 +203,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="false"/>.
-        /// </returns>
+        /// </value>
         public override bool CanSeek
         {
             get { return false; }
@@ -168,10 +214,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// <see langword="true"/> if this stream has not been disposed and the underlying channel
         /// is still open, otherwise <see langword="false"/>.
-        /// </returns>
+        /// </value>
         /// <remarks>
         /// A value of <see langword="true"/> does not necessarily mean a write will succeed. It is possible
         /// that the channel is closed and/or the stream is disposed by another thread between a call to
@@ -199,7 +245,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the number of bytes currently available for reading.
         /// </summary>
-        /// <returns>A long value representing the length of the stream in bytes.</returns>
+        /// <value>A value representing the length of the stream in bytes.</value>
         public override long Length
         {
             get
@@ -216,9 +262,9 @@ namespace Renci.SshNet
         /// This property always returns 0, and throws <see cref="NotSupportedException"/>
         /// when calling the setter.
         /// </summary>
-        /// <returns>
+        /// <value>
         /// 0.
-        /// </returns>
+        /// </value>
         /// <exception cref="NotSupportedException">The setter is called.</exception>
 #pragma warning disable SA1623 // The property's documentation should begin with 'Gets or sets'
         public override long Position
@@ -347,11 +393,7 @@ namespace Renci.SshNet
 
                     Debug.Assert(_readHead <= searchHead && searchHead <= _readTail);
 
-#if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfMatch = _readBuffer.IndexOf(expectBytes, searchHead, _readTail - searchHead);
-#else
                     var indexOfMatch = _readBuffer.AsSpan(searchHead, _readTail - searchHead).IndexOf(expectBytes);
-#endif
 
                     if (indexOfMatch >= 0)
                     {
@@ -371,7 +413,7 @@ namespace Renci.SshNet
 
                     if (timeout == Timeout.InfiniteTimeSpan)
                     {
-                        Monitor.Wait(_sync);
+                        _ = Monitor.Wait(_sync);
                     }
                     else
                     {
@@ -619,24 +661,16 @@ namespace Renci.SshNet
                 {
                     AssertValid();
 
-#if NETFRAMEWORK || NETSTANDARD2_0
-                    var indexOfCr = _readBuffer.IndexOf(_carriageReturnBytes, _readHead, _readTail - _readHead);
-#else
                     var indexOfCr = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_carriageReturnBytes);
-#endif
+
                     if (indexOfCr >= 0)
                     {
                         // We have found \r. We only need to search for \n up to and just after the \r
                         // (in order to consume \r\n if we can).
-#if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
-                            ? _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length)
-                            : _readBuffer.IndexOf(_lineFeedBytes, _readHead, indexOfCr);
-#else
                         var indexOfLf = indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length <= _readTail - _readHead
                             ? _readBuffer.AsSpan(_readHead, indexOfCr + _carriageReturnBytes.Length + _lineFeedBytes.Length).IndexOf(_lineFeedBytes)
                             : _readBuffer.AsSpan(_readHead, indexOfCr).IndexOf(_lineFeedBytes);
-#endif
+
                         if (indexOfLf >= 0 && indexOfLf < indexOfCr)
                         {
                             // If there is \n before the \r, then return up to the \n
@@ -674,11 +708,8 @@ namespace Renci.SshNet
                     else
                     {
                         // There is no \r. What about \n?
-#if NETFRAMEWORK || NETSTANDARD2_0
-                        var indexOfLf = _readBuffer.IndexOf(_lineFeedBytes, _readHead, _readTail - _readHead);
-#else
                         var indexOfLf = _readBuffer.AsSpan(_readHead, _readTail - _readHead).IndexOf(_lineFeedBytes);
-#endif
+
                         if (indexOfLf >= 0)
                         {
                             var returnText = _encoding.GetString(_readBuffer, _readHead, indexOfLf);
@@ -848,7 +879,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void WriteLine(string line)
         {
-            Write(line + "\r");
+            // By default, the terminal driver translates carriage return to line feed on input.
+            // See option ICRLF at https://www.man7.org/linux/man-pages/man3/termios.3.html.
+            Write(line + (_noTerminal ? "\n" : "\r"));
         }
 
         /// <inheritdoc/>

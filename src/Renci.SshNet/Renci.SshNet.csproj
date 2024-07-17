@@ -11,7 +11,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>SSH.NET</PackageId>
     <Title>SSH.NET</Title>
-    <Version>2024.0.0</Version>
+    <Version>2024.1.0</Version>
     <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
     <Copyright>Copyright © Renci 2010-$([System.DateTime]::UtcNow.Year)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -37,6 +37,11 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
     <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -235,29 +235,7 @@ namespace Renci.SshNet.Common
                 throw new ArgumentNullException(nameof(right));
             }
 
-            if (left == right)
-            {
-                return true;
-            }
-
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             return left.AsSpan().SequenceEqual(right);
-#else
-            if (left.Length != right.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < left.Length; i++)
-            {
-                if (left[i] != right[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-#endif
         }
 
         /// <summary>
@@ -296,44 +274,6 @@ namespace Renci.SshNet.Common
 
             return value;
         }
-
-#if NETFRAMEWORK || NETSTANDARD2_0
-        public static int IndexOf(this byte[] array, byte[] value, int startIndex, int count)
-        {
-            if (value.Length > count)
-            {
-                return -1;
-            }
-
-            if (value.Length == 0)
-            {
-                return 0;
-            }
-
-            for (var i = startIndex; i < startIndex + count - value.Length + 1; i++)
-            {
-                if (MatchesAtIndex(i))
-                {
-                    return i - startIndex;
-                }
-            }
-
-            return -1;
-
-            bool MatchesAtIndex(int i)
-            {
-                for (var j = 0; j < value.Length; j++)
-                {
-                    if (array[i + j] != value[j])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-#endif
 
         /// <summary>
         /// Pads with leading zeros if needed.

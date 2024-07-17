@@ -5,9 +5,11 @@ using System.IO.Compression;
 namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// Represents "zlib" compression implementation.
+    /// Represents the "zlib" compression algorithm.
     /// </summary>
-    internal class Zlib : Compressor
+#pragma warning disable CA1724 // Type names should not match namespaces
+    public class Zlib : Compressor
+#pragma warning restore CA1724 // Type names should not match namespaces
     {
         private readonly ZLibStream _compressor;
         private readonly ZLibStream _decompressor;
@@ -15,11 +17,20 @@ namespace Renci.SshNet.Compression
         private MemoryStream _decompressorStream;
         private bool _isDisposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Zlib"/> class.
+        /// </summary>
         public Zlib()
             : this(delayedCompression: false)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Zlib"/> class.
+        /// </summary>
+        /// <param name="delayedCompression">
+        /// <inheritdoc cref="Compressor(bool)" path="/param[@name='delayedCompression']"/>
+        /// </param>
         protected Zlib(bool delayedCompression)
             : base(delayedCompression)
         {
@@ -30,14 +41,13 @@ namespace Renci.SshNet.Compression
             _decompressor = new ZLibStream(_decompressorStream, CompressionMode.Decompress);
         }
 
-        /// <summary>
-        /// Gets algorithm name.
-        /// </summary>
+        /// <inheritdoc/>
         public override string Name
         {
             get { return "zlib"; }
         }
 
+        /// <inheritdoc/>
         protected override byte[] CompressCore(byte[] data, int offset, int length)
         {
             _compressorStream.SetLength(0);
@@ -48,6 +58,7 @@ namespace Renci.SshNet.Compression
             return _compressorStream.ToArray();
         }
 
+        /// <inheritdoc/>
         protected override byte[] DecompressCore(byte[] data, int offset, int length)
         {
             _decompressorStream.Write(data, offset, length);

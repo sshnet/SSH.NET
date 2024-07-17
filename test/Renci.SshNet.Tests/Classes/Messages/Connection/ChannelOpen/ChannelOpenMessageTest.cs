@@ -102,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             Assert.AreEqual((uint)target.ChannelType.Length, actualChannelTypeLength);
 
             var actualChannelType = new byte[actualChannelTypeLength];
-            sshDataStream.Read(actualChannelType, 0, (int)actualChannelTypeLength);
+            _ = sshDataStream.Read(actualChannelType, 0, (int)actualChannelTypeLength);
             Assert.IsTrue(target.ChannelType.SequenceEqual(actualChannelType));
 
             Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
@@ -110,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             Assert.AreEqual(maximumPacketSize, sshDataStream.ReadUInt32());
 
             var actualInfo = new byte[infoBytes.Length];
-            sshDataStream.Read(actualInfo, 0, actualInfo.Length);
+            _ = sshDataStream.Read(actualInfo, 0, actualInfo.Length);
             Assert.IsTrue(infoBytes.SequenceEqual(actualInfo));
 
             Assert.IsTrue(sshDataStream.IsEndOfData);

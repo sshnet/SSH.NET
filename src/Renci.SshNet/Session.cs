@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -1047,7 +1048,7 @@ namespace Renci.SshNet
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
                 // write outbound packet sequence to start of packet data
-                Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+                BinaryPrimitives.WriteUInt32BigEndian(packetData, _outboundPacketSequence);
 
                 if (_clientMac != null && !_clientEtm)
                 {
@@ -1250,7 +1251,7 @@ namespace Renci.SshNet
                     firstBlock = _serverCipher.Decrypt(firstBlock);
                 }
 
-                packetLength = Pack.BigEndianToUInt32(firstBlock);
+                packetLength = BinaryPrimitives.ReadUInt32BigEndian(firstBlock);
 
                 // Test packet minimum and maximum boundaries
                 if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
@@ -1275,7 +1276,7 @@ namespace Renci.SshNet
                 // byte[] for the purpose of calculating the client hash. Room for the server MAC is foreseen
                 // to read the packet including server MAC in a single pass (except for the initial block).
                 data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
-                Pack.UInt32ToBigEndian(_inboundPacketSequence, data);
+                BinaryPrimitives.WriteUInt32BigEndian(data, _inboundPacketSequence);
                 Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
 
                 if (bytesToRead > 0)

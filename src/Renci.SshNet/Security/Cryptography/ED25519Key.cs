@@ -103,7 +103,10 @@ namespace Renci.SshNet.Security
         /// </param>
         public ED25519Key(byte[] privateKeyData)
         {
-            PrivateKey = privateKeyData.Take(Ed25519.SecretKeySize);
+            PrivateKey = new byte[Ed25519.SecretKeySize];
+            PublicKey = new byte[Ed25519.PublicKeySize];
+            Buffer.BlockCopy(privateKeyData, 0, privateKeyData, 0, Ed25519.SecretKeySize);
+            Ed25519.GeneratePublicKey(privateKeyData, 0, PublicKey, 0);
         }
 
         /// <summary>

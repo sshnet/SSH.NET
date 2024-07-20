@@ -54,7 +54,7 @@ namespace Renci.SshNet.Security.Cryptography
         public override byte[] Sign(byte[] input)
         {
             var signature = new byte[Ed25519.SignatureSize];
-            Ed25519.Sign(_key.PrivateKey, 0, input, 0, input.Length, signature, 0);
+            Ed25519.Sign(_key.PrivateKey, 0, _key.PublicKey, 0, input, 0, input.Length, signature, 0);
             return signature;
         }
 

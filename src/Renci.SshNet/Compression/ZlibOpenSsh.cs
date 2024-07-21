@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-namespace Renci.SshNet.Compression
+﻿namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Represents the "zlib@openssh.com" compression algorithm.
@@ -21,4 +20,3 @@ namespace Renci.SshNet.Compression
         }
     }
 }
-#endif

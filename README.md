@@ -134,7 +134,7 @@ Private keys can be encrypted using one of the following cipher methods:
 
 **SSH.NET** supports the following compression algorithms:
 * none (default)
-* zlib<span></span>@openssh.com (.NET 6 and higher)
+* zlib<span></span>@openssh.com
 
 ## Framework Support
 

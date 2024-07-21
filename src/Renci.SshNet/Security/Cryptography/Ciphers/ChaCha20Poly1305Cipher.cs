@@ -149,10 +149,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _aadCipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 32, 32), iv));
             _cipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 0, 32), iv));
 
-            var polyKeyBytes = new byte[32];
-            _cipher.ProcessBytes(new byte[32], 0, 32, polyKeyBytes, 0);
-            _cipher.ProcessBytes(new byte[32], 0, 32, new byte[32], 0); // this ProcessBytes is required to set the block counter of ChaCha to 1
-            _mac.Init(new KeyParameter(polyKeyBytes));
+            var keyStream = new byte[64];
+            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
+            _mac.Init(new KeyParameter(keyStream, 0, 32));
         }
     }
 }

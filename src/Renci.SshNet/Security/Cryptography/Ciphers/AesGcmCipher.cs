@@ -1,8 +1,13 @@
-﻿#if NET6_0_OR_GREATER
-using System;
+﻿using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
+#if NET6_0_OR_GREATER
 using System.Security.Cryptography;
+#endif
+
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Common;
 
@@ -12,10 +17,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    internal sealed class AesGcmCipher : SymmetricCipher, IDisposable
+    internal sealed class AesGcmCipher
+#if NET6_0_OR_GREATER
+        : SymmetricCipher, IDisposable
+#else
+        : SymmetricCipher
+#endif
     {
         private readonly byte[] _iv;
+#if NET6_0_OR_GREATER
         private readonly AesGcm _aesGcm;
+#endif
+        private readonly GcmBlockCipher _cipher;
 
         /// <summary>
         /// Gets the minimun block size.
@@ -56,11 +69,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
+#if NET6_0_OR_GREATER
+            if (AesGcm.IsSupported)
+            {
 #if NET8_0_OR_GREATER
-            _aesGcm = new AesGcm(key, TagSize);
+                _aesGcm = new AesGcm(key, TagSize);
 #else
-            _aesGcm = new AesGcm(key);
+                _aesGcm = new AesGcm(key);
 #endif
+                return;
+            }
+#endif
+            _cipher = new GcmBlockCipher(new AesEngine());
         }
 
         /// <summary>
@@ -85,14 +105,27 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
-            var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
-
             var output = new byte[length + TagSize];
             packetLengthField.CopyTo(output);
-            var cipherText = new Span<byte>(output, 4, length - 4);
-            var tag = new Span<byte>(output, length, TagSize);
+#if NET6_0_OR_GREATER
+            if (AesGcm.IsSupported)
+            {
+                var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
+                var cipherText = new Span<byte>(output, 4, length - 4);
+                var tag = new Span<byte>(output, length, TagSize);
 
-            _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
+                _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
+
+                IncrementCounter();
+
+                return output;
+            }
+#endif
+            var parameters = new AeadParameters(new KeyParameter(Key), TagSize * 8, nonce: _iv, associatedText: packetLengthField.ToArray());
+            _cipher.Init(forEncryption: true, parameters);
+
+            var len = _cipher.ProcessBytes(input, offset + 4, length - 4, output, 4);
+            _cipher.DoFinal(output, len + 4);
 
             IncrementCounter();
 
@@ -123,13 +156,27 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Debug.Assert(offset == 8, "The offset must be 8");
 
             var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
-            var cipherText = new ReadOnlySpan<byte>(input, offset, length);
-            var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
-
             var output = new byte[length];
-            var plainText = new Span<byte>(output);
+#if NET6_0_OR_GREATER
+            if (AesGcm.IsSupported)
+            {
+                var cipherText = new ReadOnlySpan<byte>(input, offset, length);
+                var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
-            _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
+                var plainText = new Span<byte>(output);
+
+                _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
+
+                IncrementCounter();
+
+                return output;
+            }
+#endif
+            var parameters = new AeadParameters(new KeyParameter(Key), TagSize * 8, nonce: _iv, associatedText: packetLengthField.ToArray());
+            _cipher.Init(forEncryption: false, parameters);
+
+            var len = _cipher.ProcessBytes(input, offset, length + TagSize, output, 0);
+            _cipher.DoFinal(output, len);
 
             IncrementCounter();
 
@@ -150,6 +197,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             BinaryPrimitives.WriteUInt64BigEndian(invocationCounter, count + 1);
         }
 
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Dispose the instance.
         /// </summary>
@@ -158,7 +206,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (disposing)
             {
-                _aesGcm.Dispose();
+                _aesGcm?.Dispose();
             }
         }
 
@@ -169,6 +217,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+#endif
     }
 }
-#endif

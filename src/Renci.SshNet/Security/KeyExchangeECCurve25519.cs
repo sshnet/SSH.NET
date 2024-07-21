@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Abstractions;
+﻿using System.Security.Cryptography;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security.Chaos.NaCl;
@@ -68,10 +70,14 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
+#if NET6_0_OR_GREATER
+            return SHA256.HashData(hashData);
+#else
+            using (var sha256 = SHA256.Create())
             {
-                return sha256.ComputeHash(hashData, 0, hashData.Length);
+                return sha256.ComputeHash(hashData);
             }
+#endif
         }
 
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)

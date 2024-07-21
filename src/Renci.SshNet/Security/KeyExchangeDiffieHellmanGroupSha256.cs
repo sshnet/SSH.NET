@@ -1,4 +1,4 @@
-﻿using Renci.SshNet.Abstractions;
+﻿using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -27,10 +27,14 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
+#if NET6_0_OR_GREATER
+            return SHA256.HashData(hashData);
+#else
+            using (var sha256 = SHA256.Create())
             {
                 return sha256.ComputeHash(hashData);
             }
+#endif
         }
     }
 }

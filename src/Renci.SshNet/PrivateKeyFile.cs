@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
@@ -380,19 +379,27 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-            using (var md5 = CryptoAbstraction.CreateMD5())
+#if !NET6_0_OR_GREATER
+            using var md5 = MD5.Create();
+#endif
+            var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
+
+#if NET6_0_OR_GREATER
+            var hash = MD5.HashData(passwordBytes);
+#else
+            var hash = md5.ComputeHash(passwordBytes);
+#endif
+            cipherKey.AddRange(hash);
+
+            while (cipherKey.Count < length)
             {
-                var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
-
-                var hash = md5.ComputeHash(passwordBytes);
+                hash = passwordBytes.Concat(hash);
+#if NET6_0_OR_GREATER
+                hash = MD5.HashData(hash);
+#else
+                hash = md5.ComputeHash(hash);
+#endif
                 cipherKey.AddRange(hash);
-
-                while (cipherKey.Count < length)
-                {
-                    hash = passwordBytes.Concat(hash);
-                    hash = md5.ComputeHash(hash);
-                    cipherKey.AddRange(hash);
-                }
             }
 
             return cipherKey.ToArray().Take(length);
@@ -426,22 +433,30 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-            using (var md5 = CryptoAbstraction.CreateMD5())
+#if !NET6_0_OR_GREATER
+            using var md5 = MD5.Create();
+#endif
+            var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
+
+            // Use 8 bytes binary salt
+            var initVector = passwordBytes.Concat(binarySalt.Take(8));
+
+#if NET6_0_OR_GREATER
+            var hash = MD5.HashData(initVector);
+#else
+            var hash = md5.ComputeHash(initVector);
+#endif
+            cipherKey.AddRange(hash);
+
+            while (cipherKey.Count < cipherInfo.KeySize / 8)
             {
-                var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
-
-                // Use 8 bytes binary salt
-                var initVector = passwordBytes.Concat(binarySalt.Take(8));
-
-                var hash = md5.ComputeHash(initVector);
+                hash = hash.Concat(initVector);
+#if NET6_0_OR_GREATER
+                hash = MD5.HashData(hash);
+#else
+                hash = md5.ComputeHash(hash);
+#endif
                 cipherKey.AddRange(hash);
-
-                while (cipherKey.Count < cipherInfo.KeySize / 8)
-                {
-                    hash = hash.Concat(initVector);
-                    hash = md5.ComputeHash(hash);
-                    cipherKey.AddRange(hash);
-                }
             }
 
             var cipher = cipherInfo.Cipher(cipherKey.ToArray(), binarySalt);

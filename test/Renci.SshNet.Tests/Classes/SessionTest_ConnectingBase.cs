@@ -181,7 +181,12 @@ namespace Renci.SshNet.Tests.Classes
                     {
                         var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
                                                                               .Build(ServerOutboundPacketSequence);
-                        var hash = Abstractions.CryptoAbstraction.CreateSHA256().ComputeHash(serviceAcceptMessage);
+
+#if NET6_0_OR_GREATER
+                        var hash = SHA256.HashData(serviceAcceptMessage);
+#else
+                        var hash = SHA256.Create().ComputeHash(serviceAcceptMessage);
+#endif
 
                         var packet = new byte[serviceAcceptMessage.Length - 4 + hash.Length];
 

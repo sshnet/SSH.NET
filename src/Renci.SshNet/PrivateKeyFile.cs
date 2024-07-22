@@ -379,28 +379,22 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-#if !NET6_0_OR_GREATER
-            using var md5 = MD5.Create();
-#endif
-            var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
-
-#if NET6_0_OR_GREATER
-            var hash = MD5.HashData(passwordBytes);
-#else
-            var hash = md5.ComputeHash(passwordBytes);
-#endif
-            cipherKey.AddRange(hash);
-
-            while (cipherKey.Count < length)
+#pragma warning disable CA1850 // Prefer static HashData method; We'll reuse the object on lower targets.
+            using (var md5 = MD5.Create())
             {
-                hash = passwordBytes.Concat(hash);
-#if NET6_0_OR_GREATER
-                hash = MD5.HashData(hash);
-#else
-                hash = md5.ComputeHash(hash);
-#endif
+                var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
+
+                var hash = md5.ComputeHash(passwordBytes);
                 cipherKey.AddRange(hash);
+
+                while (cipherKey.Count < length)
+                {
+                    hash = passwordBytes.Concat(hash);
+                    hash = md5.ComputeHash(hash);
+                    cipherKey.AddRange(hash);
+                }
             }
+#pragma warning restore CA1850 // Prefer static HashData method
 
             return cipherKey.ToArray().Take(length);
         }
@@ -433,31 +427,25 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-#if !NET6_0_OR_GREATER
-            using var md5 = MD5.Create();
-#endif
-            var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
-
-            // Use 8 bytes binary salt
-            var initVector = passwordBytes.Concat(binarySalt.Take(8));
-
-#if NET6_0_OR_GREATER
-            var hash = MD5.HashData(initVector);
-#else
-            var hash = md5.ComputeHash(initVector);
-#endif
-            cipherKey.AddRange(hash);
-
-            while (cipherKey.Count < cipherInfo.KeySize / 8)
+#pragma warning disable CA1850 // Prefer static HashData method; We'll reuse the object on lower targets.
+            using (var md5 = MD5.Create())
             {
-                hash = hash.Concat(initVector);
-#if NET6_0_OR_GREATER
-                hash = MD5.HashData(hash);
-#else
-                hash = md5.ComputeHash(hash);
-#endif
+                var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
+
+                // Use 8 bytes binary salt
+                var initVector = passwordBytes.Concat(binarySalt.Take(8));
+
+                var hash = md5.ComputeHash(initVector);
                 cipherKey.AddRange(hash);
+
+                while (cipherKey.Count < cipherInfo.KeySize / 8)
+                {
+                    hash = hash.Concat(initVector);
+                    hash = md5.ComputeHash(hash);
+                    cipherKey.AddRange(hash);
+                }
             }
+#pragma warning restore CA1850 // Prefer static HashData method
 
             var cipher = cipherInfo.Cipher(cipherKey.ToArray(), binarySalt);
 

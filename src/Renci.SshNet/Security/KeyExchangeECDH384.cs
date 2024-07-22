@@ -1,7 +1,7 @@
-using System.Security.Cryptography;
-
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
+
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {
@@ -46,14 +46,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-#if NET6_0_OR_GREATER
-            return SHA384.HashData(hashData);
-#else
-            using (var sha384 = SHA384.Create())
-            {
-                return sha384.ComputeHash(hashData);
-            }
-#endif
+            return CryptoAbstraction.HashSHA384(hashData);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Security.Cryptography;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Common
@@ -100,25 +100,11 @@ namespace Renci.SshNet.Common
             HostKeyName = host.Name;
             KeyLength = host.Key.KeyLength;
 
-            _lazyFingerPrint = new Lazy<byte[]>(() =>
-                {
-#if NET6_0_OR_GREATER
-                    return MD5.HashData(HostKey);
-#else
-                    using var md5 = MD5.Create();
-                    return md5.ComputeHash(HostKey);
-#endif
-                });
+            _lazyFingerPrint = new Lazy<byte[]>(() => CryptoAbstraction.HashMD5(HostKey));
 
             _lazyFingerPrintSHA256 = new Lazy<string>(() =>
                 {
-#if NET6_0_OR_GREATER
-                    return Convert.ToBase64String(SHA256.HashData(HostKey))
-#else
-                    using var sha256 = SHA256.Create();
-
-                    return Convert.ToBase64String(sha256.ComputeHash(HostKey))
-#endif
+                    return Convert.ToBase64String(CryptoAbstraction.HashSHA256(HostKey))
 #if NET || NETSTANDARD2_1_OR_GREATER
                                   .Replace("=", string.Empty, StringComparison.Ordinal);
 #else

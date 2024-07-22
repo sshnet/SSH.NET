@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Connection;
@@ -182,11 +183,7 @@ namespace Renci.SshNet.Tests.Classes
                         var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
                                                                               .Build(ServerOutboundPacketSequence);
 
-#if NET6_0_OR_GREATER
-                        var hash = SHA256.HashData(serviceAcceptMessage);
-#else
-                        var hash = SHA256.Create().ComputeHash(serviceAcceptMessage);
-#endif
+                        var hash = CryptoAbstraction.HashSHA256(serviceAcceptMessage);
 
                         var packet = new byte[serviceAcceptMessage.Length - 4 + hash.Length];
 

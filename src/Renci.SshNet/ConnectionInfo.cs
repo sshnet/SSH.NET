@@ -381,16 +381,18 @@ namespace Renci.SshNet
                     { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>();
-            Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-            Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-            Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-            Encryptions.Add("aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
-            Encryptions.Add("aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
-            Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)));
+            Encryptions = new Dictionary<string, CipherInfo>
+                {
+                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv), isAead: true) },
+                    { "aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv), isAead: true) },
+                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {

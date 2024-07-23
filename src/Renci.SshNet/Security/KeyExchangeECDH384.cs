@@ -40,10 +40,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha384 = CryptoAbstraction.CreateSHA384())
-            {
-                return sha384.ComputeHash(hashData, 0, hashData.Length);
-            }
+            return CryptoAbstraction.HashSHA384(hashData);
         }
     }
 }

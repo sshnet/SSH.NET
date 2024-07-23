@@ -83,8 +83,7 @@ namespace Renci.SshNet.Messages
                     var paddingLength = GetPaddingLength(paddingMultiplier, excludePacketLengthFieldWhenPadding ? packetLength - 4 : packetLength);
 
                     // add padding bytes
-                    var paddingBytes = new byte[paddingLength];
-                    CryptoAbstraction.GenerateRandom(paddingBytes);
+                    var paddingBytes = CryptoAbstraction.GenerateRandom(paddingLength);
                     sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                     var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
@@ -128,8 +127,7 @@ namespace Renci.SshNet.Messages
                     WriteBytes(sshDataStream);
 
                     // add padding bytes
-                    var paddingBytes = new byte[paddingLength];
-                    CryptoAbstraction.GenerateRandom(paddingBytes);
+                    var paddingBytes = CryptoAbstraction.GenerateRandom(paddingLength);
                     sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                     return sshDataStream.ToArray();

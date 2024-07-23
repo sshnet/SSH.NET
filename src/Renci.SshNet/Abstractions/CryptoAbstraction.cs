@@ -1,10 +1,15 @@
 using System.Security.Cryptography;
 
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Security;
+
 namespace Renci.SshNet.Abstractions
 {
     internal static class CryptoAbstraction
     {
         private static readonly RandomNumberGenerator Randomizer = RandomNumberGenerator.Create();
+
+        internal static readonly SecureRandom SecureRandom = new SecureRandom(new CryptoApiRandomGenerator(Randomizer));
 
         /// <summary>
         /// Generates a <see cref="byte"/> array of the specified length, and fills it with a

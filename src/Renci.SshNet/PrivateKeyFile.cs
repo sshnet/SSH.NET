@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
@@ -380,7 +379,8 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-            using (var md5 = CryptoAbstraction.CreateMD5())
+#pragma warning disable CA1850 // Prefer static HashData method; We'll reuse the object on lower targets.
+            using (var md5 = MD5.Create())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
 
@@ -394,6 +394,7 @@ namespace Renci.SshNet
                     cipherKey.AddRange(hash);
                 }
             }
+#pragma warning restore CA1850 // Prefer static HashData method
 
             return cipherKey.ToArray().Take(length);
         }
@@ -426,7 +427,8 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-            using (var md5 = CryptoAbstraction.CreateMD5())
+#pragma warning disable CA1850 // Prefer static HashData method; We'll reuse the object on lower targets.
+            using (var md5 = MD5.Create())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
@@ -443,6 +445,7 @@ namespace Renci.SshNet
                     cipherKey.AddRange(hash);
                 }
             }
+#pragma warning restore CA1850 // Prefer static HashData method
 
             var cipher = cipherInfo.Cipher(cipherKey.ToArray(), binarySalt);
 

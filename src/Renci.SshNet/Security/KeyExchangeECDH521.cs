@@ -1,4 +1,4 @@
-﻿using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
 
 using Renci.SshNet.Abstractions;
@@ -46,10 +46,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha512 = CryptoAbstraction.CreateSHA512())
-            {
-                return sha512.ComputeHash(hashData, 0, hashData.Length);
-            }
+            return CryptoAbstraction.HashSHA512(hashData);
         }
     }
 }

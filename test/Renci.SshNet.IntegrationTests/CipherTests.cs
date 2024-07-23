@@ -82,7 +82,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             DoTest(Cipher.Chacha20Poly1305);
         }
-        
+
         private void DoTest(Cipher cipher)
         {
             _remoteSshdConfig.ClearCiphers()

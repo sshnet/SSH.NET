@@ -3,7 +3,6 @@
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -44,7 +43,7 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
             var g = new X25519KeyPairGenerator();
-            g.Init(new X25519KeyGenerationParameters(new SecureRandom()));
+            g.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
 
             var aKeyPair = g.GenerateKeyPair();
             _keyAgreement = new X25519Agreement();

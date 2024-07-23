@@ -100,17 +100,11 @@ namespace Renci.SshNet.Common
             HostKeyName = host.Name;
             KeyLength = host.Key.KeyLength;
 
-            _lazyFingerPrint = new Lazy<byte[]>(() =>
-                {
-                    using var md5 = CryptoAbstraction.CreateMD5();
-                    return md5.ComputeHash(HostKey);
-                });
+            _lazyFingerPrint = new Lazy<byte[]>(() => CryptoAbstraction.HashMD5(HostKey));
 
             _lazyFingerPrintSHA256 = new Lazy<string>(() =>
                 {
-                    using var sha256 = CryptoAbstraction.CreateSHA256();
-
-                    return Convert.ToBase64String(sha256.ComputeHash(HostKey))
+                    return Convert.ToBase64String(CryptoAbstraction.HashSHA256(HostKey))
 #if NET || NETSTANDARD2_1_OR_GREATER
                                   .Replace("=", string.Empty, StringComparison.Ordinal);
 #else

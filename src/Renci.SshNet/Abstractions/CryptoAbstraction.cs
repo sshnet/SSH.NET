@@ -1,10 +1,10 @@
-﻿using System;
+using System.Security.Cryptography;
 
 namespace Renci.SshNet.Abstractions
 {
     internal static class CryptoAbstraction
     {
-        private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = CreateRandomNumberGenerator();
+        private static readonly RandomNumberGenerator Randomizer = RandomNumberGenerator.Create();
 
         /// <summary>
         /// Generates a <see cref="byte"/> array of the specified length, and fills it with a
@@ -14,51 +14,68 @@ namespace Renci.SshNet.Abstractions
         public static byte[] GenerateRandom(int length)
         {
             var random = new byte[length];
-            GenerateRandom(random);
+            Randomizer.GetBytes(random);
             return random;
         }
 
-        /// <summary>
-        /// Fills an array of bytes with a cryptographically strong random sequence of values.
-        /// </summary>
-        /// <param name="data">The array to fill with cryptographically strong random bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
-        /// <remarks>
-        /// The length of the byte array determines how many random bytes are produced.
-        /// </remarks>
-        public static void GenerateRandom(byte[] data)
+        public static byte[] HashMD5(byte[] source)
         {
-            Randomizer.GetBytes(data);
+#if NET
+            return MD5.HashData(source);
+#else
+            using (var md5 = MD5.Create())
+            {
+                return md5.ComputeHash(source);
+            }
+#endif
         }
 
-        public static System.Security.Cryptography.RandomNumberGenerator CreateRandomNumberGenerator()
+        public static byte[] HashSHA1(byte[] source)
         {
-            return System.Security.Cryptography.RandomNumberGenerator.Create();
+#if NET
+            return SHA1.HashData(source);
+#else
+            using (var sha1 = SHA1.Create())
+            {
+                return sha1.ComputeHash(source);
+            }
+#endif
         }
 
-        public static System.Security.Cryptography.MD5 CreateMD5()
+        public static byte[] HashSHA256(byte[] source)
         {
-            return System.Security.Cryptography.MD5.Create();
+#if NET
+            return SHA256.HashData(source);
+#else
+            using (var sha256 = SHA256.Create())
+            {
+                return sha256.ComputeHash(source);
+            }
+#endif
         }
 
-        public static System.Security.Cryptography.SHA1 CreateSHA1()
+        public static byte[] HashSHA384(byte[] source)
         {
-            return System.Security.Cryptography.SHA1.Create();
+#if NET
+            return SHA384.HashData(source);
+#else
+            using (var sha384 = SHA384.Create())
+            {
+                return sha384.ComputeHash(source);
+            }
+#endif
         }
 
-        public static System.Security.Cryptography.SHA256 CreateSHA256()
+        public static byte[] HashSHA512(byte[] source)
         {
-            return System.Security.Cryptography.SHA256.Create();
-        }
-
-        public static System.Security.Cryptography.SHA384 CreateSHA384()
-        {
-            return System.Security.Cryptography.SHA384.Create();
-        }
-
-        public static System.Security.Cryptography.SHA512 CreateSHA512()
-        {
-            return System.Security.Cryptography.SHA512.Create();
+#if NET
+            return SHA512.HashData(source);
+#else
+            using (var sha512 = SHA512.Create())
+            {
+                return sha512.ComputeHash(source);
+            }
+#endif
         }
     }
 }

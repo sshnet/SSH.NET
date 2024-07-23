@@ -852,7 +852,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="output"></param>
         public void Pbkdf(byte[] password, byte[] salt, int rounds, byte[] output)
         {
-            using (var sha512 = CryptoAbstraction.CreateSHA512())
+            using (var sha512 = SHA512.Create())
             {
                 int nblocks = (output.Length + 31) / 32;
                 byte[] hpass = sha512.ComputeHash(password);

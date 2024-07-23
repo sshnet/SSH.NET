@@ -76,13 +76,13 @@ namespace Renci.SshNet.IntegrationTests
         {
             DoTest(Cipher.Aes256Gcm);
         }
-
+#endif
         [TestMethod]
         public void ChaCha20Poly1305()
         {
             DoTest(Cipher.Chacha20Poly1305);
         }
-#endif
+        
         private void DoTest(Cipher cipher)
         {
             _remoteSshdConfig.ClearCiphers()

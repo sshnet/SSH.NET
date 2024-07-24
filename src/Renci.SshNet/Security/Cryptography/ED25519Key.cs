@@ -1,7 +1,8 @@
 ﻿using System;
 
+using Org.BouncyCastle.Math.EC.Rfc8032;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Security.Chaos.NaCl;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
@@ -49,7 +50,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return PublicKey.Length * 8;
+                return Ed25519.PublicKeySize * 8;
             }
         }
 
@@ -91,8 +92,7 @@ namespace Renci.SshNet.Security
                 throw new ArgumentException($"Invalid Ed25519 public key data ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
             }
 
-            PublicKey = publicKeyData.Keys[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
-            PrivateKey = new byte[Ed25519.ExpandedPrivateKeySizeInBytes];
+            PublicKey = publicKeyData.Keys[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySize);
         }
 
         /// <summary>
@@ -103,11 +103,10 @@ namespace Renci.SshNet.Security
         /// </param>
         public ED25519Key(byte[] privateKeyData)
         {
-            var seed = new byte[Ed25519.PrivateKeySeedSizeInBytes];
-            Buffer.BlockCopy(privateKeyData, 0, seed, 0, seed.Length);
-            Ed25519.KeyPairFromSeed(out var publicKey, out var privateKey, seed);
-            PublicKey = publicKey;
-            PrivateKey = privateKey;
+            PrivateKey = new byte[Ed25519.SecretKeySize];
+            PublicKey = new byte[Ed25519.PublicKeySize];
+            Buffer.BlockCopy(privateKeyData, 0, PrivateKey, 0, Ed25519.SecretKeySize);
+            Ed25519.GeneratePublicKey(privateKeyData, 0, PublicKey, 0);
         }
 
         /// <summary>

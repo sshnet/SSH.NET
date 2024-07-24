@@ -5,8 +5,8 @@ using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Security;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Security
                                                       CurveParameter.GetSeed());
 
             var g = new ECKeyPairGenerator();
-            g.Init(new ECKeyGenerationParameters(_domainParameters, new SecureRandom()));
+            g.Init(new ECKeyGenerationParameters(_domainParameters, CryptoAbstraction.SecureRandom));
 
             var aKeyPair = g.GenerateKeyPair();
             _keyAgreement = new ECDHCBasicAgreement();

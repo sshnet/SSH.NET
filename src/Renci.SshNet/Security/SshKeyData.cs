@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
+using Org.BouncyCastle.Math.EC.Rfc8032;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Security.Chaos.NaCl;
 
 namespace Renci.SshNet.Security
 {
@@ -88,7 +89,7 @@ namespace Renci.SshNet.Security
                 var keyData = key.ToByteArray().Reverse();
                 if (Name == "ssh-ed25519")
                 {
-                    keyData = keyData.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+                    keyData = keyData.TrimLeadingZeros().Pad(Ed25519.PublicKeySize);
                 }
 
                 WriteBinaryString(keyData);

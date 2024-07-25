@@ -12,9 +12,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         public KeyExchangeInitMessage()
         {
-            var cookie = new byte[16];
-            CryptoAbstraction.GenerateRandom(cookie);
-            Cookie = cookie;
+            Cookie = CryptoAbstraction.GenerateRandom(16);
         }
 
         #region Message Properties

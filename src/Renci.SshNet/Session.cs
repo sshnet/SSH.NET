@@ -1300,7 +1300,7 @@ namespace Renci.SshNet
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
 #else
-                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
+                if (!Org.BouncyCastle.Utilities.Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
 #endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
@@ -1328,7 +1328,7 @@ namespace Renci.SshNet
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
 #else
-                if (!Security.Chaos.NaCl.CryptoBytes.ConstantTimeEquals(clientHash, 0, data, data.Length - serverMacLength, serverMacLength))
+                if (!Org.BouncyCastle.Utilities.Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
 #endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);

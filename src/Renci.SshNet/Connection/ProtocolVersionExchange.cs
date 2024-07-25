@@ -22,7 +22,7 @@ namespace Renci.SshNet.Connection
     internal sealed partial class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
-        private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$";
+        private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.*?)([ ](?<comments>.+))?$";
 
 #if NET7_0_OR_GREATER
         private static readonly Regex ServerVersionRegex = GetServerVersionRegex();

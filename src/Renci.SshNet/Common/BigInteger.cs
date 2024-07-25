@@ -179,8 +179,7 @@ namespace Renci.SshNet.Common
         /// <returns>A random number of the specified length.</returns>
         public static BigInteger Random(int bitLength)
         {
-            var bytesArray = new byte[(bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0)];
-            CryptoAbstraction.GenerateRandom(bytesArray);
+            var bytesArray = CryptoAbstraction.GenerateRandom((bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0));
             bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
             return new BigInteger(bytesArray);
         }

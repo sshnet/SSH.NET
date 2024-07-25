@@ -426,9 +426,7 @@ namespace Renci.SshNet
             CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
                 {
                     { "none", null },
-#if NET6_0_OR_GREATER
                     { "zlib@openssh.com", () => new ZlibOpenSsh() },
-#endif
                 };
 
             ChannelRequests = new Dictionary<string, RequestInfo>

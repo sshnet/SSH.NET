@@ -27,10 +27,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha512 = CryptoAbstraction.CreateSHA512())
-            {
-                return sha512.ComputeHash(hashData);
-            }
+            return CryptoAbstraction.HashSHA512(hashData);
         }
     }
 }

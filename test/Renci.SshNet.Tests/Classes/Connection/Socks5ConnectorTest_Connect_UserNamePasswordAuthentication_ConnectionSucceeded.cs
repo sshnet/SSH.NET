@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
             _bytesReceivedByProxy = new List<byte>();
 
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
 
             _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
                                  .Returns(_clientSocket);
         }
 
@@ -217,7 +217,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void CreateOnSocketFactoryShouldHaveBeenInvokedOnce()
         {
-            SocketFactoryMock.Verify(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+            SocketFactoryMock.Verify(p => p.Create(SocketType.Stream, ProtocolType.Tcp),
                                      Times.Once());
         }
     }

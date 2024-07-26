@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -164,7 +165,7 @@ namespace Renci.SshNet
                 ip = Dns.GetHostAddresses(BoundHost)[0];
             }
 
-            var ep = new IPEndPoint(ip, (int) BoundPort);
+            var ep = new IPEndPoint(ip, (int)BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
@@ -479,7 +480,7 @@ namespace Renci.SshNet
                 return false;
             }
 
-            var port = Pack.BigEndianToUInt16(portBuffer);
+            var port = BinaryPrimitives.ReadUInt16BigEndian(portBuffer);
 
             var ipBuffer = new byte[4];
             if (SocketAbstraction.Read(socket, ipBuffer, 0, ipBuffer.Length, timeout) == 0)
@@ -602,7 +603,7 @@ namespace Renci.SshNet
                 return false;
             }
 
-            var port = Pack.BigEndianToUInt16(portBuffer);
+            var port = BinaryPrimitives.ReadUInt16BigEndian(portBuffer);
 
             RaiseRequestReceived(host, port);
 
@@ -738,7 +739,7 @@ namespace Renci.SshNet
                     break;
                 }
 
-                _ = text.Append((char) byteRead);
+                _ = text.Append((char)byteRead);
             }
 
             return text.ToString();

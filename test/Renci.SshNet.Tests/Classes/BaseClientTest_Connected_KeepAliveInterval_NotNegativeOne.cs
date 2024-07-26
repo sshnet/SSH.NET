@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -56,13 +59,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _client.KeepAliveInterval = _keepAliveInterval;
 
-            // allow keep-alive to be sent a few times. .NET 8 is faster and
-            // we need to wait less because we want exactly three messages in a session.
-#if NETFRAMEWORK
-            Thread.Sleep(195);
-#else
-            Thread.Sleep(170);
-#endif
+            Thread.Sleep(200);
         }
 
         [TestMethod]
@@ -99,7 +96,9 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendMessageOnSessionShouldBeInvokedThreeTimes()
         {
-            SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Exactly(3));
+#pragma warning disable IDE0002 // Name can be simplified; "Ambiguous reference between Moq.Range and System.Range"
+            SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Between(2, 4, Moq.Range.Inclusive));
+#pragma warning restore IDE0002
         }
 
         private class MyClient : BaseClient

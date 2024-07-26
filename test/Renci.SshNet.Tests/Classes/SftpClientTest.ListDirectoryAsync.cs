@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Properties;
 

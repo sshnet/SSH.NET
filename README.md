@@ -1,4 +1,4 @@
-﻿ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
+ ![Logo](https://raw.githubusercontent.com/sshnet/SSH.NET/develop/images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -6,60 +6,78 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 [![NuGet download count](https://img.shields.io/nuget/dt/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
 [![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
 
-## Introduction
-This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported
-for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism
-to achieve the best performance possible.
+## Key Features
 
-## Documentation
-There is MSDN-style class documentation in a .chm file for each release, which you can find in the Assets section
-of the [latest release](https://github.com/sshnet/SSH.NET/releases/latest) page.  Please note that you will need
-to [right-click and "unblock"](https://support.microsoft.com/en-us/help/2021383/some-chm-files-may-not-render-properly-on-windows-vista-and-windows-7)
-the CHM file after you download it.
-
-Currently (4/18/2020), the documentation is very sparse.  Fortunately, there are a large number of tests in
-[Renci.SshNet.Tests](https://github.com/sshnet/SSH.NET/tree/develop/test/Renci.SshNet.Tests) that demonstrate
-usage with working code.
-
-If the test for the functionality you would like to see documented is not complete, then you are cordially
-invited to read the source, Luke, and highly encouraged to generate a pull request for the implementation of
-the missing test once you figure things out.  🤓
-
-## Features
 * Execution of SSH command using both synchronous and asynchronous methods
-* Return command execution exit status and other information 
-* Provide SFTP functionality for both synchronous and asynchronous operations
-* Provides SCP functionality
-* Provide status report for upload and download sftp operations to allow accurate progress bar implementation 
+* SFTP functionality for both synchronous and asynchronous operations
+* SCP functionality
 * Remote, dynamic and local port forwarding 
-* Shell/Terminal implementation
-* Specify key file pass phrase
-* Use multiple key files to authenticate
-* Supports publickey, password and keyboard-interactive authentication methods 
-* Supports two-factor or higher authentication
-* Supports SOCKS4, SOCKS5 and HTTP Proxy
+* Interactive shell/terminal implementation
+* Authentication via publickey, password and keyboard-interactive methods, including multi-factor
+* Connection via SOCKS4, SOCKS5 or HTTP proxy
 
-## Encryption Method
+## How to Use
+
+### Run a command
+
+```cs
+using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("path/to/my/key")))
+{
+    client.Connect();
+    using SshCommand cmd = client.RunCommand("echo 'Hello World!'");
+    Console.WriteLine(cmd.Result); // "Hello World!\n"
+}
+```
+
+### Upload and list files using SFTP
+
+```cs
+using (var client = new SftpClient("sftp.foo.com", "guest", "pwd"))
+{
+    client.Connect();
+
+    using (FileStream fs = File.OpenRead(@"C:\tmp\test-file.txt"))
+    {
+        client.UploadFile(fs, "/home/guest/test-file.txt");
+    }
+
+    foreach (ISftpFile file in client.ListDirectory("/home/guest/"))
+    {
+        Console.WriteLine($"{file.FullName} {file.LastWriteTime}");
+    }
+}
+```
+
+## Main Types
+
+The main types provided by this library are:
+
+* Renci.SshNet.SshClient
+* Renci.SshNet.SftpClient
+* Renci.SshNet.ScpClient
+* Renci.SshNet.PrivateKeyFile
+* Renci.SshNet.SshCommand
+* Renci.SshNet.ShellStream
+
+## Additional Documentation
+
+* [Further examples](https://sshnet.github.io/SSH.NET/examples.html)
+* [API browser](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.html)
+
+## Encryption Methods
 
 **SSH.NET** supports the following encryption methods:
+* aes128-ctr
+* aes192-ctr
 * aes256-ctr
-* 3des-cbc
+* aes128-gcm<span></span>@openssh.com (.NET 6 and higher)
+* aes256-gcm<span></span>@openssh.com (.NET 6 and higher)
 * aes128-cbc
 * aes192-cbc
 * aes256-cbc
-* blowfish-cbc
-* twofish-cbc
-* twofish192-cbc
-* twofish128-cbc
-* twofish256-cbc
-* arcfour
-* arcfour128
-* arcfour256
-* cast128-cbc
-* aes128-ctr
-* aes192-ctr
+* 3des-cbc
 
-## Key Exchange Method
+## Key Exchange Methods
 
 **SSH.NET** supports the following key exchange methods:
 * curve25519-sha256
@@ -77,10 +95,10 @@ the missing test once you figure things out.  🤓
 ## Public Key Authentication
 
 **SSH.NET** supports the following private key formats:
-* RSA in OpenSSL PEM and ssh.com format
-* DSA in OpenSSL PEM and ssh.com format
-* ECDSA 256/384/521 in OpenSSL PEM format
-* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format
+* RSA in OpenSSL PEM ("BEGIN RSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
+* DSA in OpenSSL PEM ("BEGIN DSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
+* ECDSA 256/384/521 in OpenSSL PEM format ("BEGIN EC PRIVATE KEY")
+* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 
 Private keys can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
@@ -105,61 +123,29 @@ Private keys can be encrypted using one of the following cipher methods:
 ## Message Authentication Code
 
 **SSH.NET** supports the following MAC algorithms:
-* hmac-md5
-* hmac-md5-96
-* hmac-sha1
-* hmac-sha1-96
 * hmac-sha2-256
-* hmac-sha2-256-96
 * hmac-sha2-512
-* hmac-sha2-512-96
-* hmac-md5-etm<span></span>@openssh.com
-* hmac-md5-96-etm<span></span>@openssh.com
-* hmac-sha1-etm<span></span>@openssh.com
-* hmac-sha1-96-etm<span></span>@openssh.com
+* hmac-sha1
 * hmac-sha2-256-etm<span></span>@openssh.com
 * hmac-sha2-512-etm<span></span>@openssh.com
+* hmac-sha1-etm<span></span>@openssh.com
+
+## Compression
+
+**SSH.NET** supports the following compression algorithms:
+* none (default)
+* zlib<span></span>@openssh.com
 
 ## Framework Support
+
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
 * .NET Standard 2.0 and 2.1
 * .NET 6 (and higher)
 
-## Usage
+## Building the library
 
-### Multi-factor authentication
-
-Establish a SFTP connection using both password and public-key authentication:
-
-```cs
-var connectionInfo = new ConnectionInfo("sftp.foo.com",
-                                        "guest",
-                                        new PasswordAuthenticationMethod("guest", "pwd"),
-                                        new PrivateKeyAuthenticationMethod("rsa.key"));
-using (var client = new SftpClient(connectionInfo))
-{
-    client.Connect();
-}
-
-```
-
-### Verify host identify
-
-Establish a SSH connection using user name and password, and reject the connection if the fingerprint of the server does not match the expected fingerprint:
-
-```cs
-string expectedFingerPrint = "LKOy5LvmtEe17S4lyxVXqvs7uPMy+yF79MQpHeCs/Qo";
-
-using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
-{
-    client.HostKeyReceived += (sender, e) =>
-        {
-            e.CanTrust = expectedFingerPrint.Equals(e.FingerPrintSHA256);
-        };
-    client.Connect();
-}
-```
+The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
 
 ## Supporting SSH.NET
 

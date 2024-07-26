@@ -8,11 +8,7 @@ using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
-#if SILVERLIGHT
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Renci.SshNet.Tests
 {

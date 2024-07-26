@@ -20,9 +20,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         public void Init()
         {
             var random = new Random();
-            _minimum = (uint) random.Next(1, int.MaxValue);
-            _preferred = (uint) random.Next(1, int.MaxValue);
-            _maximum = (uint) random.Next(1, int.MaxValue);
+            _minimum = (uint)random.Next(1, int.MaxValue);
+            _preferred = (uint)random.Next(1, int.MaxValue);
+            _maximum = (uint)random.Next(1, int.MaxValue);
         }
 
 

@@ -11,8 +11,8 @@ for:
     only:
       - image: Ubuntu2204
 
-  install:
-    - sh: sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0=8.0.100-1
+  init:
+    - git config --global core.autocrlf input
     
   before_build:
     - sh: mkdir artifacts -p
@@ -21,17 +21,22 @@ for:
     - echo build
     - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - dotnet build -f net48 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   test_script:
     - sh: echo "Run unit tests"
     - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
     - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - sh: dotnet test -f net48 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_48_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_48_coverage.xml --filter Name~Zlib test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
 -
   matrix:
     only:
       - image: Visual Studio 2022
+
+  init:
+    - git config --global core.autocrlf true
 
   before_build:
     - ps: mkdir artifacts -f
@@ -39,6 +44,8 @@ for:
   build_script:
     - echo build
     - dotnet build Renci.SshNet.sln -c Debug
+    - dotnet publish -c Release -r win-x64 /warnaserror .\test\Renci.SshNet.AotCompatibilityTestApp\
+    - dotnet pack -c Release
 
   test_script:
     - ps: echo "Run unit tests for .NET 8.0"
@@ -48,4 +55,7 @@ for:
 
 artifacts:
   - path: artifacts
-    name: artifacts
+    name: TestResults
+
+  - path: src/**/*.nupkg
+  - path: src/**/*.snupkg

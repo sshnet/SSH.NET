@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 
 namespace Renci.SshNet.Tests.Classes
@@ -17,9 +19,9 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
             _netConfClient = new NetConfClient(_connectionInfo, false, ServiceFactoryMock.Object)
-                {
-                    OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout)
-                };
+            {
+                OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout)
+            };
             _netConfClientWeakRefence = new WeakReference(_netConfClient);
         }
 

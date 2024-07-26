@@ -1,8 +1,8 @@
-﻿using Renci.SshNet.Sftp.Requests;
-using Renci.SshNet.Sftp.Responses;
-
-using System;
+﻿using System;
 using System.Text;
+
+using Renci.SshNet.Sftp.Requests;
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _extendedAction = extendedAction;
             return this;
         }
-        
+
         public SftpStatVfsRequestBuilder WithStatusAction(Action<SftpStatusResponse> statusAction)
         {
             _statusAction = statusAction;

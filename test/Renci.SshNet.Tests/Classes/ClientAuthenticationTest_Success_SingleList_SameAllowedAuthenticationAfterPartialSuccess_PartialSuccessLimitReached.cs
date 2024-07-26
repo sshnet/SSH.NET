@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -75,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"password"});
+                                            .Returns(new[] { "password" });
 
             /* Enumerate supported authentication methods */
 
@@ -144,7 +147,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual("Reached authentication attempt limit for method (x_password_x).",_actualException.Message);
+            Assert.AreEqual("Reached authentication attempt limit for method (x_password_x).", _actualException.Message);
         }
     }
 }

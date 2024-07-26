@@ -37,7 +37,7 @@ namespace Renci.SshNet.Messages
             base.WriteBytes(stream);
         }
 
-        internal byte[] GetPacket(byte paddingMultiplier, Compressor compressor, bool isEncryptThenMAC = false)
+        internal byte[] GetPacket(byte paddingMultiplier, Compressor compressor, bool excludePacketLengthFieldWhenPadding = false)
         {
             const int outboundPacketSequenceSize = 4;
 
@@ -73,18 +73,17 @@ namespace Renci.SshNet.Messages
                         WriteBytes(sshDataStream);
                     }
 
-                    messageLength = (int) sshDataStream.Length - (outboundPacketSequenceSize + 4 + 1);
+                    messageLength = (int)sshDataStream.Length - (outboundPacketSequenceSize + 4 + 1);
 
                     var packetLength = messageLength + 4 + 1;
 
                     // determine the padding length
-                    // in Encrypt-then-MAC mode, the length field is not encrypted, so we should keep it out of the
+                    // in Encrypt-then-MAC mode or AEAD, the length field is not encrypted, so we should keep it out of the
                     // padding length calculation
-                    var paddingLength = GetPaddingLength(paddingMultiplier, isEncryptThenMAC ? packetLength - 4 : packetLength);
+                    var paddingLength = GetPaddingLength(paddingMultiplier, excludePacketLengthFieldWhenPadding ? packetLength - 4 : packetLength);
 
                     // add padding bytes
-                    var paddingBytes = new byte[paddingLength];
-                    CryptoAbstraction.GenerateRandom(paddingBytes);
+                    var paddingBytes = CryptoAbstraction.GenerateRandom(paddingLength);
                     sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                     var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
@@ -106,9 +105,9 @@ namespace Renci.SshNet.Messages
                 var packetLength = messageLength + 4 + 1;
 
                 // determine the padding length
-                // in Encrypt-then-MAC mode, the length field is not encrypted, so we should keep it out of the
+                // in Encrypt-then-MAC mode or AEAD, the length field is not encrypted, so we should keep it out of the
                 // padding length calculation
-                var paddingLength = GetPaddingLength(paddingMultiplier, isEncryptThenMAC ? packetLength - 4 : packetLength);
+                var paddingLength = GetPaddingLength(paddingMultiplier, excludePacketLengthFieldWhenPadding ? packetLength - 4 : packetLength);
 
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
 
@@ -128,8 +127,7 @@ namespace Renci.SshNet.Messages
                     WriteBytes(sshDataStream);
 
                     // add padding bytes
-                    var paddingBytes = new byte[paddingLength];
-                    CryptoAbstraction.GenerateRandom(paddingBytes);
+                    var paddingBytes = CryptoAbstraction.GenerateRandom(paddingLength);
                     sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                     return sshDataStream.ToArray();
@@ -139,7 +137,7 @@ namespace Renci.SshNet.Messages
 
         private static uint GetPacketDataLength(int messageLength, byte paddingLength)
         {
-            return (uint) (messageLength + paddingLength + 1);
+            return (uint)(messageLength + paddingLength + 1);
         }
 
         private static byte GetPaddingLength(byte paddingMultiplier, long packetLength)

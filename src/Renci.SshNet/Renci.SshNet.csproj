@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
     <PackageId>SSH.NET</PackageId>
     <Title>SSH.NET</Title>
     <Description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.</Description>
@@ -21,31 +22,34 @@
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CI)' != ''">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
-    <EnableAotAnalyzer>true</EnableAotAnalyzer>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);FEATURE_BINARY_SERIALIZATION</DefineConstants>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   
   <ItemGroup>
     <!--
-    3.7.57-alpha comes from the project's CI feed as defined in nuget.config,
-    in order to pick up https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029.
-    When a newer version is published to nuget.org, update the version here and delete
-    nuget.config (or just the CI feed).
+    Any version which is 3.7.57-alpha or above, in order to pick up
+    https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029.
     -->
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.57-alpha" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.70-alpha" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
     <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
   </ItemGroup>
 
   <ItemGroup>

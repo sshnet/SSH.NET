@@ -1,5 +1,5 @@
 ﻿using System;
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -300,7 +300,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 int l = Pc1[j];
 
-                pc1m[j] = (key[(uint) l >> 3] & Bytebit[l & 07]) != 0;
+                pc1m[j] = (key[(uint)l >> 3] & Bytebit[l & 07]) != 0;
             }
 
             for (var i = 0; i < 16; i++)
@@ -368,15 +368,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var i1 = newKey[i];
                 var i2 = newKey[i + 1];
 
-                newKey[i] = (int) ((uint) ((i1 & 0x00fc0000) << 6) |
-                                   (uint) ((i1 & 0x00000fc0) << 10) |
-                                   ((uint) (i2 & 0x00fc0000) >> 10) |
-                                   ((uint) (i2 & 0x00000fc0) >> 6));
+                newKey[i] = (int)((uint)((i1 & 0x00fc0000) << 6) |
+                                   (uint)((i1 & 0x00000fc0) << 10) |
+                                   ((uint)(i2 & 0x00fc0000) >> 10) |
+                                   ((uint)(i2 & 0x00000fc0) >> 6));
 
-                newKey[i + 1] = (int) ((uint) ((i1 & 0x0003f000) << 12) |
-                                       (uint) ((i1 & 0x0000003f) << 16) |
-                                       ((uint) (i2 & 0x0003f000) >> 4) |
-                                       (uint) (i2 & 0x0000003f));
+                newKey[i + 1] = (int)((uint)((i1 & 0x0003f000) << 12) |
+                                       (uint)((i1 & 0x0000003f) << 16) |
+                                       ((uint)(i2 & 0x0003f000) >> 4) |
+                                       (uint)(i2 & 0x0000003f));
             }
 
             return newKey;
@@ -405,8 +405,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="outOff">The out off.</param>
         protected static void DesFunc(int[] wKey, byte[] input, int inOff, byte[] outBytes, int outOff)
         {
-            var left = Pack.BigEndianToUInt32(input, inOff);
-            var right = Pack.BigEndianToUInt32(input, inOff + 4);
+            var left = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff));
+            var right = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff + 4));
 
             var work = ((left >> 4) ^ right) & 0x0f0f0f0f;
             right ^= work;
@@ -434,7 +434,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = right ^ (uint) wKey[(round * 4) + 1];
+                work = right ^ (uint)wKey[(round * 4) + 1];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];
@@ -472,8 +472,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             left ^= work;
             right ^= work << 4;
 
-            Pack.UInt32ToBigEndian(right, outBytes, outOff);
-            Pack.UInt32ToBigEndian(left, outBytes, outOff + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff), right);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff + 4), left);
         }
     }
 }

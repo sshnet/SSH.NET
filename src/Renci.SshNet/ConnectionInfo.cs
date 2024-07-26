@@ -5,7 +5,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Authentication;
@@ -55,7 +54,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported encryptions for this connection.
         /// </summary>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public IDictionary<string, CipherInfo> Encryptions { get; private set; }
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
         /// Gets supported hash algorithms for this connection.
@@ -380,47 +381,33 @@ namespace Renci.SshNet
                     { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>
-                {
-                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
-                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
-                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
-                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: false)) },
-                    { "arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
-                    { "arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
-                    { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
-                };
+            Encryptions = new Dictionary<string, CipherInfo>();
+            Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+            Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+            Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+#if NET6_0_OR_GREATER
+            if (AesGcm.IsSupported)
+            {
+                Encryptions.Add("aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
+                Encryptions.Add("aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
+            }
+#endif
+            Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)));
 
-#pragma warning disable IDE0200 // Remove unnecessary lambda expression; We want to prevent instantiating the HashAlgorithm objects.
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
                     /* Encrypt-and-MAC (encrypt-and-authenticate) variants */
-                    { "hmac-sha2-256", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key), isEncryptThenMAC: false) },
-                    { "hmac-sha2-512", new HashInfo(64*8, key => CryptoAbstraction.CreateHMACSHA512(key), isEncryptThenMAC: false) },
-                    { "hmac-sha2-512-96", new HashInfo(64*8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96), isEncryptThenMAC: false) },
-                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96), isEncryptThenMAC: false) },
-                    { "hmac-sha1", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key), isEncryptThenMAC: false) },
-                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96), isEncryptThenMAC: false) },
-                    { "hmac-md5", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key), isEncryptThenMAC: false) },
-                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96), isEncryptThenMAC: false) },
+                    { "hmac-sha2-256", new HashInfo(32*8, key => new HMACSHA256(key)) },
+                    { "hmac-sha2-512", new HashInfo(64*8, key => new HMACSHA512(key)) },
+                    { "hmac-sha1", new HashInfo(20*8, key => new HMACSHA1(key)) },
                     /* Encrypt-then-MAC variants */
-                    { "hmac-sha2-256-etm@openssh.com", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key), isEncryptThenMAC: true) },
-                    { "hmac-sha2-512-etm@openssh.com", new HashInfo(64*8, key => CryptoAbstraction.CreateHMACSHA512(key), isEncryptThenMAC: true) },
-                    { "hmac-sha1-etm@openssh.com", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key), isEncryptThenMAC: true) },
-                    { "hmac-sha1-96-etm@openssh.com", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96), isEncryptThenMAC: true) },
-                    { "hmac-md5-etm@openssh.com", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key), isEncryptThenMAC: true) },
-                    { "hmac-md5-96-etm@openssh.com", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96), isEncryptThenMAC: true) },
+                    { "hmac-sha2-256-etm@openssh.com", new HashInfo(32*8, key => new HMACSHA256(key), isEncryptThenMAC: true) },
+                    { "hmac-sha2-512-etm@openssh.com", new HashInfo(64*8, key => new HMACSHA512(key), isEncryptThenMAC: true) },
+                    { "hmac-sha1-etm@openssh.com", new HashInfo(20*8, key => new HMACSHA1(key), isEncryptThenMAC: true) },
                 };
-#pragma warning restore IDE0200 // Remove unnecessary lambda expression
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
@@ -439,6 +426,7 @@ namespace Renci.SshNet
             CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
                 {
                     { "none", null },
+                    { "zlib@openssh.com", () => new ZlibOpenSsh() },
                 };
 
             ChannelRequests = new Dictionary<string, RequestInfo>

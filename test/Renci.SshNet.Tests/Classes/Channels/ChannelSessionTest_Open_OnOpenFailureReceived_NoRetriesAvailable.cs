@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -30,9 +33,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(2000, 3000);
-            _localPacketSize = (uint) random.Next(1000, 2000);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(2000, 3000);
+            _localPacketSize = (uint)random.Next(1000, 2000);
             _initialSessionSemaphoreCount = random.Next(10, 20);
             _sessionSemaphore = new SemaphoreSlim(_initialSessionSemaphoreCount);
             _channelClosedRegister = new List<ChannelEventArgs>();
@@ -74,8 +77,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                         _failureReasonCode,
                                         _failureLanguage
                                         )));
-                        w.WaitOne();
-                    });
+                            w.WaitOne();
+                        });
             SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
             ConnectionInfoMock.InSequence(sequence).Setup(p => p.RetryAttempts).Returns(1);
         }
@@ -105,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void OpenShouldHaveThrownSshException()
         {
             Assert.IsNotNull(_actualException);
-            Assert.AreEqual(typeof (SshException), _actualException.GetType());
+            Assert.AreEqual(typeof(SshException), _actualException.GetType());
             Assert.IsNull(_actualException.InnerException);
             Assert.AreEqual("Failed to open a channel after 1 attempts.", _actualException.Message);
         }

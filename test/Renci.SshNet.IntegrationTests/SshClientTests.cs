@@ -23,6 +23,28 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void Test_BigCommand()
+        {
+            using var command = _sshClient.CreateCommand("head -c 10000000 /dev/urandom | base64"); // 10MB of data please
+
+            var asyncResult = command.BeginExecute();
+
+            long totalBytesRead = 0;
+            int bytesRead;
+            byte[] buffer = new byte[4096];
+
+            while ((bytesRead = command.OutputStream.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                totalBytesRead += bytesRead;
+            }
+
+            var result = command.EndExecute(asyncResult);
+
+            Assert.AreEqual(13_508_775, totalBytesRead);
+            Assert.AreEqual(0, result.Length);
+        }
+
+        [TestMethod]
         public void Send_InputStream_to_Command()
         {
             var inputByteArray = Encoding.UTF8.GetBytes("Hello world!");
@@ -60,29 +82,6 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         inputStream.WriteByte(inputByteArray[i]);
                     }
-                }
-
-                command.EndExecute(asyncResult);
-
-                Assert.AreEqual("Hello world!", command.Result);
-                Assert.AreEqual(string.Empty, command.Error);
-            }
-        }
-
-        [TestMethod]
-        public void Send_InputStream_to_Command_InputStreamNotInUsingBlock_StillWorks()
-        {
-            var inputByteArray = Encoding.UTF8.GetBytes("Hello world!");
-
-            // Make the server echo back the input file with "cat"
-            using (var command = _sshClient.CreateCommand("cat"))
-            {
-                var asyncResult = command.BeginExecute();
-
-                var inputStream = command.CreateInputStream();
-                for (var i = 0; i < inputByteArray.Length; i++)
-                {
-                    inputStream.WriteByte(inputByteArray[i]);
                 }
 
                 command.EndExecute(asyncResult);

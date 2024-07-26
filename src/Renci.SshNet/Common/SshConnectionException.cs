@@ -1,7 +1,8 @@
 ﻿using System;
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
-#endif // FEATURE_BINARY_SERIALIZATION
+
+#endif // NETFRAMEWORK
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Common
@@ -9,9 +10,9 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// The exception that is thrown when connection was terminated.
     /// </summary>
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
     [Serializable]
-#endif // FEATURE_BINARY_SERIALIZATION
+#endif // NETFRAMEWORK
     public class SshConnectionException : SshException
     {
         /// <summary>
@@ -70,7 +71,7 @@ namespace Renci.SshNet.Common
             DisconnectReason = disconnectReasonCode;
         }
 
-#if FEATURE_BINARY_SERIALIZATION
+#if NETFRAMEWORK
         /// <summary>
         /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
         /// </summary>
@@ -82,6 +83,6 @@ namespace Renci.SshNet.Common
             : base(info, context)
         {
         }
-#endif // FEATURE_BINARY_SERIALIZATION
+#endif // NETFRAMEWORK
     }
 }

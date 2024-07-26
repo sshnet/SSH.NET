@@ -47,24 +47,24 @@ namespace Renci.SshNet.Abstractions
             return socket;
         }
 
-        public static void Connect(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
+        public static void Connect(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: false);
         }
 
-        public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        public static async Task ConnectAsync(Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
 
-        private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
+        private static void ConnectCore(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
             var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
-                {
-                    UserToken = connectCompleted,
-                    RemoteEndPoint = remoteEndpoint
-                };
+            {
+                UserToken = connectCompleted,
+                RemoteEndPoint = remoteEndpoint
+            };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Abstractions
 
             if (args.SocketError != SocketError.Success)
             {
-                var socketError = (int) args.SocketError;
+                var socketError = (int)args.SocketError;
 
                 if (ownsSocket)
                 {
@@ -374,7 +374,7 @@ namespace Renci.SshNet.Abstractions
 
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var eventWaitHandle = (ManualResetEvent) e.UserToken;
+            var eventWaitHandle = (ManualResetEvent)e.UserToken;
             _ = eventWaitHandle?.Set();
         }
     }

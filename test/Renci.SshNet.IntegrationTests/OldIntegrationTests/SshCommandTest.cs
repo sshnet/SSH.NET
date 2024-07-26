@@ -19,14 +19,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var testValue = Guid.NewGuid().ToString();
-                var command = client.RunCommand(string.Format("echo {0}", testValue));
+                using var command = client.RunCommand(string.Format("echo {0}", testValue));
                 var result = command.Result;
                 result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
 
                 client.Disconnect();
                 #endregion
 
-                Assert.IsTrue(result.Equals(testValue));
+                Assert.AreEqual(testValue, result);
             }
         }
 
@@ -39,49 +39,105 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
 
                 var testValue = Guid.NewGuid().ToString();
-                var command = string.Format("echo {0}", testValue);
-                var cmd = client.CreateCommand(command);
+                var command = string.Format("echo -n {0}", testValue);
+                using var cmd = client.CreateCommand(command);
                 var result = cmd.Execute();
-                result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
 
                 client.Disconnect();
                 #endregion
 
-                Assert.IsTrue(result.Equals(testValue));
+                Assert.AreEqual(testValue, result);
             }
         }
 
         [TestMethod]
-        public void Test_Execute_OutputStream()
+        [Timeout(5000)]
+        public void Test_CancelAsync_Unfinished_Command()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
-            {
-                #region Example SshCommand CreateCommand Execute OutputStream
-                client.Connect();
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
 
-                var cmd = client.CreateCommand("ls -l");   //  very long list
-                var asynch = cmd.BeginExecute();
+            var asyncResult = cmd.BeginExecute();
 
-                var reader = new StreamReader(cmd.OutputStream);
+            cmd.CancelAsync();
 
-                while (!asynch.IsCompleted)
-                {
-                    var result = reader.ReadToEnd();
-                    if (string.IsNullOrEmpty(result))
-                    {
-                        continue;
-                    }
+            var tce = Assert.ThrowsException<TaskCanceledException>(() => cmd.EndExecute(asyncResult));
+            Assert.AreEqual(CancellationToken.None, tce.CancellationToken);
+            Assert.IsTrue(asyncResult.IsCompleted);
+            Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
+            Assert.AreEqual(string.Empty, cmd.Result);
+            Assert.AreEqual("TERM", cmd.ExitSignal);
+            Assert.IsNull(cmd.ExitStatus);
+        }
 
-                    Console.Write(result);
-                }
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task Test_CancelAsync_Kill_Unfinished_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
 
-                _ = cmd.EndExecute(asynch);
+            var asyncResult = cmd.BeginExecute();
 
-                client.Disconnect();
-                #endregion
+            Task<string> executeTask = Task.Factory.FromAsync(asyncResult, cmd.EndExecute);
 
-                Assert.Inconclusive();
-            }
+            cmd.CancelAsync(forceKill: true);
+
+            var tce = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => executeTask);
+            Assert.AreEqual(CancellationToken.None, tce.CancellationToken);
+            Assert.IsTrue(asyncResult.IsCompleted);
+            Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
+            Assert.AreEqual(string.Empty, cmd.Result);
+            Assert.AreEqual("KILL", cmd.ExitSignal);
+            Assert.IsNull(cmd.ExitStatus);
+        }
+
+        [TestMethod]
+        public void Test_CancelAsync_Finished_Command()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            using var cmd = client.CreateCommand($"echo -n {testValue}");
+
+            var asyncResult = cmd.BeginExecute();
+
+            Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5)));
+
+            cmd.CancelAsync(); // Should not throw
+            Assert.AreEqual(testValue, cmd.EndExecute(asyncResult)); // Should not throw
+            cmd.CancelAsync(); // Should not throw
+
+            Assert.IsTrue(asyncResult.IsCompleted);
+            Assert.AreEqual(testValue, cmd.Result);
+            Assert.AreEqual(0, cmd.ExitStatus);
+            Assert.IsNull(cmd.ExitSignal);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task Test_ExecuteAsync_CancellationToken()
+        {
+            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            client.Connect();
+            var testValue = Guid.NewGuid().ToString();
+            using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
+            using CancellationTokenSource cts = new();
+
+            Task executeTask = cmd.ExecuteAsync(cts.Token);
+
+            cts.Cancel();
+
+            var tce = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => executeTask);
+            Assert.AreSame(executeTask, tce.Task);
+            Assert.AreEqual(cts.Token, tce.CancellationToken);
+            Assert.AreEqual(string.Empty, cmd.Result);
+            Assert.AreEqual("TERM", cmd.ExitSignal);
+            Assert.IsNull(cmd.ExitStatus);
         }
 
         [TestMethod]
@@ -92,47 +148,45 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 #region Example SshCommand CreateCommand Execute ExtendedOutputStream
 
                 client.Connect();
-                var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
-                var result = cmd.Execute();
+                using var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
+                using var reader = new StreamReader(cmd.ExtendedOutputStream);
 
-                Console.Write(result);
-
-                var reader = new StreamReader(cmd.ExtendedOutputStream);
-                Console.WriteLine("DEBUG:");
-                Console.Write(reader.ReadToEnd());
+                Assert.AreEqual("12345\n", cmd.Execute());
+                Assert.AreEqual("654321\n", reader.ReadToEnd());
 
                 client.Disconnect();
 
                 #endregion
-
-                Assert.Inconclusive();
             }
         }
 
         [TestMethod]
-        [ExpectedException(typeof(SshOperationTimeoutException))]
         public void Test_Execute_Timeout()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                #region Example SshCommand CreateCommand Execute CommandTimeout
                 client.Connect();
-                var cmd = client.CreateCommand("sleep 10s");
-                cmd.CommandTimeout = TimeSpan.FromSeconds(5);
-                cmd.Execute();
+                using var cmd = client.CreateCommand("sleep 10s");
+                cmd.CommandTimeout = TimeSpan.FromSeconds(2);
+                Assert.ThrowsException<SshOperationTimeoutException>(cmd.Execute);
                 client.Disconnect();
-                #endregion
             }
         }
 
         [TestMethod]
-        public void Test_Execute_Infinite_Timeout()
+        public async Task Test_ExecuteAsync_Timeout()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                var cmd = client.CreateCommand("sleep 10s");
-                cmd.Execute();
+                using var cmd = client.CreateCommand("sleep 10s");
+                cmd.CommandTimeout = TimeSpan.FromSeconds(2);
+
+                Task executeTask = cmd.ExecuteAsync();
+
+                Assert.IsTrue(((IAsyncResult)executeTask).AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3)));
+
+                await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => executeTask);
                 client.Disconnect();
             }
         }
@@ -144,7 +198,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var cmd = client.CreateCommand(";");
+                using var cmd = client.CreateCommand(";");
                 cmd.Execute();
                 if (string.IsNullOrEmpty(cmd.Error))
                 {
@@ -162,7 +216,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                var cmd = client.CreateCommand(";");
+                using var cmd = client.CreateCommand(";");
                 cmd.Execute();
                 if (string.IsNullOrEmpty(cmd.Error))
                 {
@@ -175,24 +229,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Disconnect();
 
                 Assert.IsTrue(result);
-            }
-        }
-
-        [TestMethod]
-        public void Test_Execute_Command_with_ExtendedOutput()
-        {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
-            {
-                client.Connect();
-                var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
-                cmd.Execute();
-
-                //var extendedData = Encoding.ASCII.GetString(cmd.ExtendedOutputStream.ToArray());
-                var extendedData = new StreamReader(cmd.ExtendedOutputStream, Encoding.ASCII).ReadToEnd();
-                client.Disconnect();
-
-                Assert.AreEqual("12345\n", cmd.Result);
-                Assert.AreEqual("654321\n", extendedData);
             }
         }
 
@@ -218,17 +254,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                #region Example SshCommand RunCommand ExitStatus
                 client.Connect();
 
-                var cmd = client.RunCommand("exit 128");
-                
-                Console.WriteLine(cmd.ExitStatus);
+                using var cmd = client.RunCommand("exit 128");
 
-                client.Disconnect();
-                #endregion
-
-                Assert.IsTrue(cmd.ExitStatus == 128);
+                Assert.AreEqual(128, cmd.ExitStatus);
+                Assert.IsNull(cmd.ExitSignal);
             }
         }
 
@@ -239,16 +270,25 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var cmd = client.CreateCommand("sleep 5s; echo 'test'");
-                var asyncResult = cmd.BeginExecute(null, null);
+                using var callbackCalled = new ManualResetEventSlim();
+
+                using var cmd = client.CreateCommand("sleep 2s; echo 'test'");
+                var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
+                {
+                    callbackCalled.Set();
+                }), state: null);
+
                 while (!asyncResult.IsCompleted)
                 {
                     Thread.Sleep(100);
                 }
 
+                Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
+
                 cmd.EndExecute(asyncResult);
 
-                Assert.IsTrue(cmd.Result == "test\n");
+                Assert.AreEqual("test\n", cmd.Result);
+                Assert.IsTrue(callbackCalled.Wait(TimeSpan.FromSeconds(1)));
 
                 client.Disconnect();
             }
@@ -261,41 +301,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var cmd = client.CreateCommand("sleep 5s; ;");
+                using var cmd = client.CreateCommand("sleep 2s; ;");
                 var asyncResult = cmd.BeginExecute(null, null);
-                while (!asyncResult.IsCompleted)
-                {
-                    Thread.Sleep(100);
-                }
+
+                Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5)));
 
                 cmd.EndExecute(asyncResult);
 
                 Assert.IsFalse(string.IsNullOrEmpty(cmd.Error));
-
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        public void Test_Execute_Command_Asynchronously_With_Callback()
-        {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
-            {
-                client.Connect();
-
-                var callbackCalled = false;
-
-                var cmd = client.CreateCommand("sleep 5s; echo 'test'");
-                var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
-                {
-                    callbackCalled = true;
-                }), null);
-
-                cmd.EndExecute(asyncResult);
-
-                Thread.Sleep(100);
-
-                Assert.IsTrue(callbackCalled);
 
                 client.Disconnect();
             }
@@ -310,16 +323,18 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var currentThreadId = Thread.CurrentThread.ManagedThreadId;
                 int callbackThreadId = 0;
+                using var callbackCalled = new ManualResetEventSlim();
 
-                var cmd = client.CreateCommand("sleep 5s; echo 'test'");
+                using var cmd = client.CreateCommand("sleep 2s; echo 'test'");
                 var asyncResult = cmd.BeginExecute(new AsyncCallback((s) =>
                 {
                     callbackThreadId = Thread.CurrentThread.ManagedThreadId;
+                    callbackCalled.Set();
                 }), null);
 
                 cmd.EndExecute(asyncResult);
 
-                Thread.Sleep(100);
+                Assert.IsTrue(callbackCalled.Wait(TimeSpan.FromSeconds(1)));
 
                 Assert.AreNotEqual(currentThreadId, callbackThreadId);
 
@@ -336,7 +351,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                var cmd = client.CreateCommand("echo 12345");
+                using var cmd = client.CreateCommand("echo 12345");
                 cmd.Execute();
                 Assert.AreEqual("12345\n", cmd.Result);
                 cmd.Execute("echo 23456");
@@ -351,35 +366,22 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                var cmd = client.CreateCommand("ls -l");
+                using var cmd = client.CreateCommand("ls -l");
 
-                Assert.IsTrue(string.IsNullOrEmpty(cmd.Result));
-                client.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        public void Test_Get_Error_Without_Execution()
-        {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
-            {
-                client.Connect();
-                var cmd = client.CreateCommand("ls -l");
-
-                Assert.IsTrue(string.IsNullOrEmpty(cmd.Error));
+                Assert.AreEqual(string.Empty, cmd.Result);
+                Assert.AreEqual(string.Empty, cmd.Error);
                 client.Disconnect();
             }
         }
 
         [WorkItem(703), TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_EndExecute_Before_BeginExecute()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
-                var cmd = client.CreateCommand("ls -l");
-                cmd.EndExecute(null);
+                using var cmd = client.CreateCommand("ls -l");
+                Assert.ThrowsException<ArgumentNullException>(() => cmd.EndExecute(null));
                 client.Disconnect();
             }
         }
@@ -399,15 +401,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 client.Connect();
 
-                var cmd = client.CreateCommand("sleep 15s;echo 123"); // Perform long running task
+                using var cmd = client.CreateCommand("sleep 2s;echo 123"); // Perform long running task
 
                 var asynch = cmd.BeginExecute();
 
-                while (!asynch.IsCompleted)
-                {
-                    //  Waiting for command to complete...
-                    Thread.Sleep(2000);
-                }
+                Assert.IsTrue(asynch.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5)));
+
                 result = cmd.EndExecute(asynch);
                 client.Disconnect();
 
@@ -419,31 +418,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        public void Test_Execute_Invalid_Command()
-        {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
-            {
-                #region Example SshCommand CreateCommand Error
 
-                client.Connect();
-
-                var cmd = client.CreateCommand(";");
-                cmd.Execute();
-                if (!string.IsNullOrEmpty(cmd.Error))
-                {
-                    Console.WriteLine(cmd.Error);
-                }
-
-                client.Disconnect();
-
-                #endregion
-
-                Assert.Inconclusive();
-            }
-        }
-
-        [TestMethod]
-        
         public void Test_MultipleThread_100_MultipleConnections()
         {
             try
@@ -499,13 +474,30 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             }
         }
 
+        [TestMethod]
+        public void Test_ExecuteAsync_Dispose_CommandFinishes()
+        {
+            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                client.Connect();
+
+                var cmd = client.CreateCommand("sleep 5s");
+                var asyncResult = cmd.BeginExecute(null, null);
+
+                cmd.Dispose();
+
+                Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
+
+                Assert.ThrowsException<ObjectDisposedException>(() => cmd.EndExecute(asyncResult));
+            }
+        }
+
         private static bool ExecuteTestCommand(SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();
-            var command = string.Format("echo {0}", testValue);
-            var cmd = s.CreateCommand(command);
+            var command = string.Format("echo -n {0}", testValue);
+            using var cmd = s.CreateCommand(command);
             var result = cmd.Execute();
-            result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
             return result.Equals(testValue);
         }
     }

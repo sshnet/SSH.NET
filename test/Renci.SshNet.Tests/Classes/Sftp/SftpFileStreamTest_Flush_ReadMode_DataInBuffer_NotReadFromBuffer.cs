@@ -30,10 +30,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString();
             _handle = GenerateRandom(5, random);
-            _bufferSize = (uint) random.Next(1, 1000);
+            _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = 100;
             _writeBufferSize = 500;
-            _readBytes = new byte[random.Next(1, (int) _readBufferSize - 10)];
+            _readBytes = new byte[random.Next(1, (int)_readBufferSize - 10)];
             _serverBytes = GenerateRandom(_readBytes.Length + 5); // store 5 bytes in read buffer
         }
 

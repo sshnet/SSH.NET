@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Renci.SshNet
         /// </value>
         private bool _isDisposed;
 
-        private MemoryStream _inputStream;
+        private MemoryStream? _inputStream;
 
         /// <summary>
         /// Gets the list of forwarded ports.
@@ -60,7 +61,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
 #pragma warning disable CA2000 // Dispose objects before losing scope
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
@@ -235,7 +235,7 @@ namespace Renci.SshNet
             EnsureSessionIsOpen();
 
             ConnectionInfo.Encoding = encoding;
-            return new SshCommand(Session, commandText, encoding);
+            return new SshCommand(Session!, commandText, encoding);
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             EnsureSessionIsOpen();
 
@@ -334,7 +334,7 @@ namespace Renci.SshNet
         /// Returns a representation of a <see cref="Shell" /> object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             /*
              * TODO Issue #1224: let shell dispose of input stream when we own the stream!
@@ -392,6 +392,25 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Creates the shell without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public Shell CreateShellNoTerminal(Stream input, Stream output, Stream extendedOutput, int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return new Shell(Session, input, output, extendedOutput, bufferSize);
+        }
+
+        /// <summary>
         /// Creates the shell stream.
         /// </summary>
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
@@ -443,11 +462,27 @@ namespace Renci.SshNet
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint>? terminalModeValues)
         {
             EnsureSessionIsOpen();
 
             return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell stream without allocating a pseudo terminal,
+        /// similar to the <c>ssh -T</c> option.
+        /// </summary>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public ShellStream CreateShellStreamNoTerminal(int bufferSize = -1)
+        {
+            EnsureSessionIsOpen();
+
+            return ServiceFactory.CreateShellStreamNoTerminal(Session, bufferSize);
         }
 
         /// <summary>

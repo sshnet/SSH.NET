@@ -1,6 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Xml;
 
 using Renci.SshNet.Common;
@@ -18,7 +20,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds <see cref="INetConfSession"/> instance that used to communicate to the server.
         /// </summary>
-        private INetConfSession _netConfSession;
+        private INetConfSession? _netConfSession;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -46,7 +48,7 @@ namespace Renci.SshNet
         /// <value>
         /// The current NetConf session.
         /// </value>
-        internal INetConfSession NetConfSession
+        internal INetConfSession? NetConfSession
         {
             get { return _netConfSession; }
         }
@@ -149,7 +151,7 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            _operationTimeout = SshNet.Session.Infinite;
+            _operationTimeout = Timeout.Infinite;
             AutomaticMessageIdHandling = true;
         }
 
@@ -159,9 +161,18 @@ namespace Renci.SshNet
         /// <value>
         /// The NetConf server capabilities.
         /// </value>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ServerCapabilities
         {
-            get { return _netConfSession.ServerCapabilities; }
+            get
+            {
+                if (_netConfSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return _netConfSession.ServerCapabilities;
+            }
         }
 
         /// <summary>
@@ -170,9 +181,18 @@ namespace Renci.SshNet
         /// <value>
         /// The NetConf client capabilities.
         /// </value>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ClientCapabilities
         {
-            get { return _netConfSession.ClientCapabilities; }
+            get
+            {
+                if (_netConfSession is null)
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
+
+                return _netConfSession.ClientCapabilities;
+            }
         }
 
         /// <summary>
@@ -188,6 +208,13 @@ namespace Renci.SshNet
         /// <summary>
         /// Sends the receive RPC.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// var rpcXmlTemplate = "<rpc xmlns='urn:ietf:params:xml:ns:netconf:base:1.0' message-id='1'>{0}</rpc>"'
+        /// rpc.LoadXml(String.Format(rpcXmlTemplate, "<get-config><source><running/></source></get-config>"));
+        /// var rpcResponse = client.SendReceiveRpc(rpc);
+        /// </code>
+        /// </example>
         /// <param name="rpc">The RPC.</param>
         /// <returns>
         /// Reply message to RPC request.
@@ -195,12 +222,23 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendReceiveRpc(XmlDocument rpc)
         {
+            if (_netConfSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
         }
 
         /// <summary>
         /// Sends the receive RPC.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// var rpcXmlTemplate = "<rpc xmlns='urn:ietf:params:xml:ns:netconf:base:1.0' message-id='1'>{0}</rpc>"'
+        /// var rpcResponse = client.SendReceiveRpc(String.Format(rpcXmlTemplate, "<get-config><source><running/></source></get-config>"));
+        /// </code>
+        /// </example>
         /// <param name="xml">The XML.</param>
         /// <returns>
         /// Reply message to RPC request.
@@ -221,6 +259,11 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendCloseRpc()
         {
+            if (_netConfSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
             var rpc = new XmlDocument();
             rpc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><rpc message-id=\"6666\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"><close-session/></rpc>");
             return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
@@ -243,7 +286,7 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            _netConfSession.Disconnect();
+            _netConfSession?.Disconnect();
         }
 
         /// <summary>

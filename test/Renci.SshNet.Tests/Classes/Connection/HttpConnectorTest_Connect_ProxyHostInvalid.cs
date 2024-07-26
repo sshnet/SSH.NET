@@ -1,5 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -8,6 +9,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
     {
         private ConnectionInfo _connectionInfo;
         private SocketException _actualException;
+        private Socket _clientSocket;
 
         protected override void SetupData()
         {
@@ -23,6 +25,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));
             _actualException = null;
+            _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        protected override void SetupMocks()
+        {
+            _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void Act()

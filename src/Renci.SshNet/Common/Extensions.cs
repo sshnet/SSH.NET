@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
@@ -62,6 +63,41 @@ namespace Renci.SshNet.Common
             }
 
             return data.ToBigInteger();
+        }
+
+        public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
+        {
+            var data = bigInt.ToByteArray();
+
+            if (isUnsigned && data[data.Length - 1] == 0)
+            {
+                data = data.Take(data.Length - 1);
+            }
+
+            if (isBigEndian)
+            {
+                _ = data.Reverse();
+            }
+
+            return data;
+        }
+
+        // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
+        public static byte[] ExportKeyParameter(this BigInteger value, int length)
+        {
+            var target = value.ToByteArray(isUnsigned: true, isBigEndian: true);
+
+            // The BCL crypto is expecting exactly-sized byte arrays (sized to "length").
+            // If our byte array is smaller than required, then size it up.
+            // Otherwise, just return as is: if it is too large, we'll let the BCL throw the error.
+            if (target.Length < length)
+            {
+                var correctlySized = new byte[length];
+                Buffer.BlockCopy(target, 0, correctlySized, length - target.Length, target.Length);
+                return correctlySized;
+            }
+
+            return target;
         }
 
         /// <summary>
@@ -199,29 +235,7 @@ namespace Renci.SshNet.Common
                 throw new ArgumentNullException(nameof(right));
             }
 
-            if (left == right)
-            {
-                return true;
-            }
-
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             return left.AsSpan().SequenceEqual(right);
-#else
-            if (left.Length != right.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < left.Length; i++)
-            {
-                if (left[i] != right[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-#endif
         }
 
         /// <summary>
@@ -260,44 +274,6 @@ namespace Renci.SshNet.Common
 
             return value;
         }
-
-#if NETFRAMEWORK || NETSTANDARD2_0
-        public static int IndexOf(this byte[] array, byte[] value, int startIndex, int count)
-        {
-            if (value.Length > count)
-            {
-                return -1;
-            }
-
-            if (value.Length == 0)
-            {
-                return 0;
-            }
-
-            for (var i = startIndex; i < startIndex + count - value.Length + 1; i++)
-            {
-                if (MatchesAtIndex(i))
-                {
-                    return i - startIndex;
-                }
-            }
-
-            return -1;
-
-            bool MatchesAtIndex(int i)
-            {
-                for (var j = 0; j < value.Length; j++)
-                {
-                    if (array[i + j] != value[j])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-#endif
 
         /// <summary>
         /// Pads with leading zeros if needed.

@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             SetupData();
             SetupMocks();
         }
-        
+
         protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),

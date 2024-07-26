@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Channels
@@ -118,27 +119,6 @@ namespace Renci.SshNet.Channels
         /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
         /// </returns>
         bool SendSignalRequest(string signalName);
-
-        /// <summary>
-        /// Sends the exit status request.
-        /// </summary>
-        /// <param name="exitStatus">The exit status.</param>
-        /// <returns>
-        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
-        /// </returns>
-        bool SendExitStatusRequest(uint exitStatus);
-
-        /// <summary>
-        /// Sends the exit signal request.
-        /// </summary>
-        /// <param name="signalName">Name of the signal.</param>
-        /// <param name="coreDumped">if set to <see langword="true"/> [core dumped].</param>
-        /// <param name="errorMessage">The error message.</param>
-        /// <param name="language">The language.</param>
-        /// <returns>
-        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
-        /// </returns>
-        bool SendExitSignalRequest(string signalName, bool coreDumped, string errorMessage, string language);
 
         /// <summary>
         /// Sends eow@openssh.com request.

@@ -38,9 +38,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "user",
                                                  "pwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(20)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(20)
+            };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
                                                  "Proxy-Authorization: Basic dXNlcjpwd2Q={2}{2}",
                                                  _connectionInfo.Host,
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "\r\n");
             _bytesReceivedByProxy = new List<byte>();
             _disconnected = false;
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
 
             _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
             _proxyServer.Connected += (socket) =>
@@ -68,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
                                  .Returns(_clientSocket);
         }
 
@@ -126,7 +126,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void CreateOnSocketFactoryShouldHaveBeenInvokedOnce()
         {
-            SocketFactoryMock.Verify(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+            SocketFactoryMock.Verify(p => p.Create(SocketType.Stream, ProtocolType.Tcp),
                                      Times.Once());
         }
     }

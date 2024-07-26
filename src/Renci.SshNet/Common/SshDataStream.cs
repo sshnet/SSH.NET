@@ -56,20 +56,41 @@ namespace Renci.SshNet.Common
             }
         }
 
+#if NET462 || NETSTANDARD2_0
+        private int Read(Span<byte> buffer)
+        {
+            var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
+
+            var numRead = Read(sharedBuffer, 0, buffer.Length);
+
+            sharedBuffer.AsSpan(0, numRead).CopyTo(buffer);
+
+            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
+
+            return numRead;
+        }
+
+        private void Write(ReadOnlySpan<byte> buffer)
+        {
+            var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
+
+            buffer.CopyTo(sharedBuffer);
+
+            Write(sharedBuffer, 0, buffer.Length);
+
+            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
+        }
+#endif
+
         /// <summary>
         /// Writes an <see cref="uint"/> to the SSH data stream.
         /// </summary>
         /// <param name="value"><see cref="uint"/> data to write.</param>
         public void Write(uint value)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             Span<byte> bytes = stackalloc byte[4];
             System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
             Write(bytes);
-#else
-            var bytes = Pack.UInt32ToBigEndian(value);
-            Write(bytes, 0, bytes.Length);
-#endif
         }
 
         /// <summary>
@@ -78,14 +99,9 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="ulong"/> data to write.</param>
         public void Write(ulong value)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             Span<byte> bytes = stackalloc byte[8];
             System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(bytes, value);
             Write(bytes);
-#else
-            var bytes = Pack.UInt64ToBigEndian(value);
-            Write(bytes, 0, bytes.Length);
-#endif
         }
 
         /// <summary>
@@ -131,7 +147,7 @@ namespace Renci.SshNet.Common
             var count = encoding.GetByteCount(value);
             var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
             encoding.GetBytes(value, bytes);
-            Write((uint) count);
+            Write((uint)count);
             Write(bytes);
 #else
             var bytes = encoding.GetBytes(s);
@@ -183,7 +199,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         public void WriteBinary(byte[] buffer, int offset, int count)
         {
-            Write((uint) count);
+            Write((uint)count);
             Write(buffer, offset, count);
         }
 
@@ -196,7 +212,7 @@ namespace Renci.SshNet.Common
         public BigInteger ReadBigInt()
         {
             var length = ReadUInt32();
-            var data = ReadBytes((int) length);
+            var data = ReadBytes((int)length);
             return new BigInteger(data.Reverse());
         }
 
@@ -208,14 +224,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public ushort ReadUInt16()
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             Span<byte> bytes = stackalloc byte[2];
             ReadBytes(bytes);
             return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(bytes);
-#else
-            var data = ReadBytes(2);
-            return Pack.BigEndianToUInt16(data);
-#endif
         }
 
         /// <summary>
@@ -226,14 +237,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public uint ReadUInt32()
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             Span<byte> span = stackalloc byte[4];
             ReadBytes(span);
             return System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(span);
-#else
-            var data = ReadBytes(4);
-            return Pack.BigEndianToUInt32(data);
-#endif // NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         }
 
         /// <summary>
@@ -244,14 +250,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public ulong ReadUInt64()
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             Span<byte> span = stackalloc byte[8];
             ReadBytes(span);
             return System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(span);
-#else
-            var data = ReadBytes(8);
-            return Pack.BigEndianToUInt64(data);
-#endif // NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         }
 
         /// <summary>
@@ -272,7 +273,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
 
-            var bytes = ReadBytes((int) length);
+            var bytes = ReadBytes((int)length);
             return encoding.GetString(bytes, 0, bytes.Length);
         }
 
@@ -316,7 +317,6 @@ namespace Renci.SshNet.Common
             return data;
         }
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
         /// <summary>
         /// Reads data into the specified <paramref name="buffer" />.
         /// </summary>
@@ -330,6 +330,5 @@ namespace Renci.SshNet.Common
                 throw new ArgumentOutOfRangeException(nameof(buffer), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", buffer.Length, bytesRead));
             }
         }
-#endif // NETSTANDARD2_1 || NET6_0_OR_GREATER
     }
 }

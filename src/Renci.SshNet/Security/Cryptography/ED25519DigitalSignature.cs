@@ -1,6 +1,8 @@
 ﻿using System;
+
+using Org.BouncyCastle.Math.EC.Rfc8032;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Security.Chaos.NaCl;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -38,7 +40,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="InvalidOperationException">Invalid signature.</exception>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            return Ed25519.Verify(signature, input, _key.PublicKey);
+            return Ed25519.Verify(signature, 0, _key.PublicKey, 0, input, 0, input.Length);
         }
 
         /// <summary>
@@ -51,7 +53,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="SshException">Invalid ED25519Key key.</exception>
         public override byte[] Sign(byte[] input)
         {
-            return Ed25519.Sign(input, _key.PrivateKey);
+            var signature = new byte[Ed25519.SignatureSize];
+            Ed25519.Sign(_key.PrivateKey, 0, _key.PublicKey, 0, input, 0, input.Length, signature, 0);
+            return signature;
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -715,8 +714,14 @@ namespace Renci.SshNet.Channels
                     }
                     else
                     {
-                        // TODO: we should also send a SSH_MSG_CHANNEL_FAILURE message
-                        throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Request '{0}' is not supported.", e.Message.RequestName));
+                        var unknownRequestInfo = new UnknownRequestInfo(e.Message.RequestName);
+                        unknownRequestInfo.Load(e.Message.RequestData);
+
+                        if (unknownRequestInfo.WantReply)
+                        {
+                            var reply = new ChannelFailureMessage(RemoteChannelNumber);
+                            SendMessage(reply);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -758,7 +763,7 @@ namespace Renci.SshNet.Channels
 
         private void AdjustDataWindow(byte[] messageData)
         {
-            LocalWindowSize -= (uint) messageData.Length;
+            LocalWindowSize -= (uint)messageData.Length;
 
             // Adjust window if window size is too low
             if (LocalWindowSize < LocalPacketSize)
@@ -789,10 +794,10 @@ namespace Renci.SshNet.Channels
                     }
                     else
                     {
-                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, (uint) messageLength),
+                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, (uint)messageLength),
                             serverWindowSize);
                         RemoteWindowSize -= bytesThatCanBeSent;
-                        return (int) bytesThatCanBeSent;
+                        return (int)bytesThatCanBeSent;
                     }
                 }
 

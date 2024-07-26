@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -30,18 +30,18 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
-                {
-                    Timeout = TimeSpan.FromMilliseconds(5000)
-                };
+            {
+                Timeout = TimeSpan.FromMilliseconds(5000)
+            };
             _stopWatch = new Stopwatch();
             _actualException = null;
 
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
         }
 
         protected override void SetupMocks()
         {
-            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
                                  .Returns(_clientSocket);
         }
 
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void CreateOnSocketFactoryShouldHaveBeenInvokedOnce()
         {
-            SocketFactoryMock.Verify(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+            SocketFactoryMock.Verify(p => p.Create(SocketType.Stream, ProtocolType.Tcp),
                                      Times.Once());
         }
     }

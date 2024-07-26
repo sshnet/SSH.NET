@@ -3,8 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
@@ -60,12 +63,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(2000, 3000);
-            _localPacketSize = (uint) random.Next(1000, 2000);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(2000, 3000);
+            _localPacketSize = (uint)random.Next(1000, 2000);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _remoteHost = random.Next().ToString(CultureInfo.InvariantCulture);
-            _port = (uint) random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
+            _port = (uint)random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
             _channelBindFinishedWaitHandle = new ManualResetEvent(false);
             _clientReceivedFinishedWaitHandle = new ManualResetEvent(false);
             _channelException = null;
@@ -127,12 +130,21 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                 })
                             .Returns(WaitResult.Success);
 
+            using var barrier = new Barrier(2);
+
             var localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _listener = new AsyncSocketListener(localEndpoint);
             _listener.Connected += socket =>
                 {
                     try
                     {
+                        // We need the Connect side and the Accept side to be
+                        // fully completed before continuing: we are implicitly
+                        // checking that RemoteEndPoint on the Accept socket
+                        // matches LocalEndPoint on the Connect socket when
+                        // checking the correctness of the ChannelOpenMessage
+                        // in the mock.
+                        _ = barrier.SignalAndWait(TimeSpan.FromSeconds(1));
                         _channel = new ChannelDirectTcpip(_sessionMock.Object,
                                                           _localChannelNumber,
                                                           _localWindowSize,
@@ -153,6 +165,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _client = new Socket(localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _client.Connect(localEndpoint);
+            _ = barrier.SignalAndWait(TimeSpan.FromSeconds(1));
 
             var clientReceiveThread = new Thread(
                 () =>

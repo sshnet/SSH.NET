@@ -2,8 +2,11 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -62,41 +65,15 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void OutputStreamShouldReturnNull()
-        {
-            Assert.IsNull(_sshCommand.OutputStream);
-        }
-
-        [TestMethod]
         public void OutputStreamShouldHaveBeenDisposed()
         {
-            try
-            {
-                _outputStream.ReadByte();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-        }
-
-        [TestMethod]
-        public void ExtendedOutputStreamShouldReturnNull()
-        {
-            Assert.IsNull(_sshCommand.ExtendedOutputStream);
+            Assert.AreEqual(-1, _outputStream.ReadByte());
         }
 
         [TestMethod]
         public void ExtendedOutputStreamShouldHaveBeenDisposed()
         {
-            try
-            {
-                _extendedOutputStream.ReadByte();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            Assert.AreEqual(-1, _extendedOutputStream.ReadByte());
         }
 
         [TestMethod]

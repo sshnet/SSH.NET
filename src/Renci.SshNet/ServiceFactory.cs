@@ -94,9 +94,9 @@ namespace Renci.SshNet
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
-                                            from s in serverAlgorithms
-                                            where s == c.Key
-                                            select c.Value).FirstOrDefault();
+                                               from s in serverAlgorithms
+                                               where s == c.Key
+                                               select c.Value).FirstOrDefault();
 
             if (keyExchangeAlgorithmFactory is null)
             {
@@ -204,6 +204,12 @@ namespace Renci.SshNet
         public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
             return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <inheritdoc/>
+        public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
+        {
+            return new ShellStream(session, bufferSize);
         }
 
         /// <summary>

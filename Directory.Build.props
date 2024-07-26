@@ -5,6 +5,7 @@
         Assembly Info properties that apply to all projects/assemblies.
     -->
   <PropertyGroup>
+    <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Renci.SshNet.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -20,6 +21,18 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>preview-All</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- don't treat NuGet Audit warnings as errors -->
+  <PropertyGroup>
+    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <!--
+        Disable nullable warnings on old frameworks because of missing annotations.
+  -->
+  <PropertyGroup Condition=" !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
+    <NoWarn>$(NoWarn);CS8602</NoWarn>
   </PropertyGroup>
 
   <!--

@@ -31,6 +31,9 @@ namespace Renci.SshNet
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
 
+        private static readonly string ClientVersionString =
+            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
+
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
@@ -313,7 +316,13 @@ namespace Renci.SshNet
         /// <value>
         /// The client version.
         /// </value>
-        public string ClientVersion { get; private set; }
+        public string ClientVersion
+        {
+            get
+            {
+                return ClientVersionString;
+            }
+        }
 
         /// <summary>
         /// Gets the connection info.
@@ -534,7 +543,6 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(socketFactory));
             }
 
-            ClientVersion = "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion;
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;

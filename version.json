@@ -1,25 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "2024.0.1-beta.{height}",
+  "version": "2024.1.1-prerelease.{height}",
   "publicReleaseRefSpec": [
-      "^refs/heads/master$", // we release out of master
-      "^refs/tags/\\d{4}\\.\\d+\\.\\d+(-beta\\d+)?$" // we also release tags starting with year.minor.build[-betaN]
+      "^refs/heads/develop$",
+      "^refs/tags/\\d{4}\\.\\d+\\.\\d+"
   ],
-  "cloudBuild": {
-    "buildNumber": {
-      "enabled": true
-    }
-  },
   "assemblyVersion": {
-    "precision": "build"
+    "precision": "revision"
   },
   "nugetPackageVersion": {
-   "precision": "build"
-  },
-  "release": {
-    "tagName" : "{version}",
-    "branchName" : "master",
-    "versionIncrement" : "build",
-    "firstUnstableTag" : "beta"
+    "semVer": 2
   }
 }

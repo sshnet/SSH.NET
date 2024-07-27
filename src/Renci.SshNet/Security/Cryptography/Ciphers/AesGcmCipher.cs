@@ -4,12 +4,13 @@ using System.Diagnostics;
 #if NET6_0_OR_GREATER
 using System.Security.Cryptography;
 #endif
-
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -165,7 +166,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 var plainText = new Span<byte>(output);
 
-                _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
+                try
+                {
+                    _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
+                }
+#if NET8_0_OR_GREATER
+                catch (AuthenticationTagMismatchException)
+#else
+                catch (CryptographicException ex) when (ex.Message == "The computed authentication tag did not match the input authentication tag.")
+#endif
+                {
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+                }
 
                 IncrementCounter();
 
@@ -176,7 +188,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _cipher.Init(forEncryption: false, parameters);
 
             var len = _cipher.ProcessBytes(input, offset, length + TagSize, output, 0);
-            _cipher.DoFinal(output, len);
+            try
+            {
+                _cipher.DoFinal(output, len);
+            }
+            catch (InvalidCipherTextException)
+            {
+                throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+            }
 
             IncrementCounter();
 

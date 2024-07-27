@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,7 +32,10 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClientVersionIsRenciSshNet()
         {
-            Assert.AreEqual("SSH-2.0-Renci.SshNet.SshClient.0.0.1", Session.ClientVersion);
+            Assert.IsTrue(Regex.IsMatch(
+                Session.ClientVersion,
+                // Ends with e.g. 2024.1.1 plus some optional metadata not containing '-'
+                @"^SSH-2\.0-Renci\.SshNet\.SshClient\.\d{4}\.\d+\.\d+(_[a-zA-Z0-9_\.]+)?$"));
         }
 
         [TestMethod]

@@ -72,6 +72,7 @@ The main types provided by this library are:
 * aes256-ctr
 * aes128-gcm<span></span>@openssh.com
 * aes256-gcm<span></span>@openssh.com
+* chacha20-poly1305<span></span>@openssh.com
 * aes128-cbc
 * aes192-cbc
 * aes256-cbc
@@ -134,7 +135,7 @@ Private keys can be encrypted using one of the following cipher methods:
 
 **SSH.NET** supports the following compression algorithms:
 * none (default)
-* zlib<span></span>@openssh.com (.NET 6 and higher)
+* zlib<span></span>@openssh.com
 
 ## Framework Support
 

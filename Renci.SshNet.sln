@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		stylecop.json = stylecop.json
 		THIRD-PARTY-NOTICES.TXT = THIRD-PARTY-NOTICES.TXT
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D21A4D03-0AC2-4613-BB6D-74D2D16A72CC}"

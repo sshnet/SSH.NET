@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Utilities;
 using Org.BouncyCastle.Math.EC;
 
 using Renci.SshNet.Abstractions;
@@ -55,7 +55,7 @@ namespace Renci.SshNet.Security
                 return;
             }
 #endif
-            var curveParameter = SecNamedCurves.GetByName(CurveName);
+            var curveParameter = SshNamedCurves.GetByName(CurveName);
             _domainParameters = new ECDomainParameters(curveParameter.Curve,
                                       curveParameter.G,
                                       curveParameter.N,

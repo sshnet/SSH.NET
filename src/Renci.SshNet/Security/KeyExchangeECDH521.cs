@@ -17,7 +17,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         protected override string CurveName
         {
-            get { return "secp521r1"; }
+            get { return "nistp384"; }
         }
 
         /// <summary>

@@ -31,6 +31,9 @@ namespace Renci.SshNet
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
 
+        private static readonly string ClientVersionString =
+            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
+
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
@@ -318,7 +321,13 @@ namespace Renci.SshNet
         /// <value>
         /// The client version.
         /// </value>
-        public string ClientVersion { get; private set; }
+        public string ClientVersion
+        {
+            get
+            {
+                return ClientVersionString;
+            }
+        }
 
         /// <summary>
         /// Gets the connection info.
@@ -539,7 +548,6 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(socketFactory));
             }
 
-            ClientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
@@ -1064,6 +1072,7 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
+                    _clientCipher.SetSequenceNumber(_outboundPacketSequence);
                     if (_clientEtm)
                     {
                         // The length of the "packet length" field in bytes
@@ -1251,15 +1260,28 @@ namespace Renci.SshNet
                     return null;
                 }
 
-                if (_serverCipher != null && !_serverAead && (_serverMac == null || !_serverEtm))
+                var plainFirstBlock = firstBlock;
+
+                // First block is not encrypted in AES GCM mode.
+                if (_serverCipher is not null
+#if NET6_0_OR_GREATER
+        and not Security.Cryptography.Ciphers.AesGcmCipher
+#endif
+                    )
                 {
-                    firstBlock = _serverCipher.Decrypt(firstBlock);
+                    _serverCipher.SetSequenceNumber(_inboundPacketSequence);
+
+                    // First block is not encrypted in ETM mode.
+                    if (_serverMac == null || !_serverEtm)
+                    {
+                        plainFirstBlock = _serverCipher.Decrypt(firstBlock);
+                    }
                 }
 
-                packetLength = BinaryPrimitives.ReadUInt32BigEndian(firstBlock);
+                packetLength = BinaryPrimitives.ReadUInt32BigEndian(plainFirstBlock);
 
                 // Test packet minimum and maximum boundaries
-                if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+                if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                 {
                     throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
                                                      DisconnectReason.ProtocolError);
@@ -1282,7 +1304,16 @@ namespace Renci.SshNet
                 // to read the packet including server MAC in a single pass (except for the initial block).
                 data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
                 BinaryPrimitives.WriteUInt32BigEndian(data, _inboundPacketSequence);
-                Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
+
+                // Use raw packet length field to calculate the mac in AEAD mode.
+                if (_serverAead)
+                {
+                    Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, blockSize);
+                }
+                else
+                {
+                    Buffer.BlockCopy(plainFirstBlock, 0, data, inboundPacketSequenceLength, blockSize);
+                }
 
                 if (bytesToRead > 0)
                 {

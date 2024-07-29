@@ -1,9 +1,9 @@
 ﻿using System;
 
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
 using Org.BouncyCastle.Math.EC;
 
 using Renci.SshNet.Abstractions;
@@ -14,19 +14,28 @@ namespace Renci.SshNet.Security
 {
     internal abstract class KeyExchangeECDH : KeyExchangeEC
     {
-#if NET8_0_OR_GREATER
-        private System.Security.Cryptography.ECDiffieHellman _clientECDH;
-#endif
         private ECDHCBasicAgreement _keyAgreement;
         private ECDomainParameters _domainParameters;
 
+#if NET8_0_OR_GREATER
+        private System.Security.Cryptography.ECDiffieHellman _clientECDH;
+
         /// <summary>
-        /// Gets the name of the curve.
+        /// Gets the curve.
         /// </summary>
         /// <value>
-        /// The name of the curve.
+        /// The curve.
         /// </value>
-        protected abstract string CurveName { get; }
+        protected abstract System.Security.Cryptography.ECCurve Curve { get; }
+#endif
+
+        /// <summary>
+        /// Gets the parameter of the curve.
+        /// </summary>
+        /// <value>
+        /// The parameter of the curve.
+        /// </value>
+        protected abstract X9ECParameters CurveParameter { get; }
 
         /// <inheritdoc/>
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
@@ -41,7 +50,7 @@ namespace Renci.SshNet.Security
             if (!OperatingSystem.IsWindows() || OperatingSystem.IsWindowsVersionAtLeast(10))
             {
                 _clientECDH = System.Security.Cryptography.ECDiffieHellman.Create();
-                _clientECDH.GenerateKey(System.Security.Cryptography.ECCurve.CreateFromFriendlyName(CurveName));
+                _clientECDH.GenerateKey(Curve);
 
                 var q = _clientECDH.PublicKey.ExportParameters().Q;
 
@@ -55,12 +64,11 @@ namespace Renci.SshNet.Security
                 return;
             }
 #endif
-            var curveParameter = SshNamedCurves.GetByName(CurveName);
-            _domainParameters = new ECDomainParameters(curveParameter.Curve,
-                                      curveParameter.G,
-                                      curveParameter.N,
-                                      curveParameter.H,
-                                      curveParameter.GetSeed());
+            _domainParameters = new ECDomainParameters(CurveParameter.Curve,
+                                      CurveParameter.G,
+                                      CurveParameter.N,
+                                      CurveParameter.H,
+                                      CurveParameter.GetSeed());
 
             var g = new ECKeyPairGenerator();
             g.Init(new ECKeyGenerationParameters(_domainParameters, CryptoAbstraction.SecureRandom));
@@ -120,7 +128,7 @@ namespace Renci.SshNet.Security
                 using var serverECDH = System.Security.Cryptography.ECDiffieHellman.Create(
                     new System.Security.Cryptography.ECParameters
                     {
-                        Curve = System.Security.Cryptography.ECCurve.CreateFromFriendlyName(CurveName),
+                        Curve = Curve,
                         Q =
                         {
                             X = x,

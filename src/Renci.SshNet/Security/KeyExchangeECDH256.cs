@@ -1,4 +1,7 @@
-﻿using Renci.SshNet.Abstractions;
+﻿using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {
@@ -12,12 +15,28 @@ namespace Renci.SshNet.Security
             get { return "ecdh-sha2-nistp256"; }
         }
 
+#if NET8_0_OR_GREATER
         /// <summary>
-        /// Gets curve name.
+        /// Gets the curve.
         /// </summary>
-        protected override string CurveName
+        protected override System.Security.Cryptography.ECCurve Curve
         {
-            get { return "nistp256"; }
+            get
+            {
+                return System.Security.Cryptography.ECCurve.NamedCurves.nistP256;
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Gets Curve Parameter.
+        /// </summary>
+        protected override X9ECParameters CurveParameter
+        {
+            get
+            {
+                return SecNamedCurves.GetByOid(SecObjectIdentifiers.SecP256r1);
+            }
         }
 
         /// <summary>

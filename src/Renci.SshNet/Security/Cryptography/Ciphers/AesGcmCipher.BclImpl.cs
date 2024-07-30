@@ -1,4 +1,4 @@
-﻿#if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
 using System;
 using System.Security.Cryptography;
 
@@ -26,10 +26,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public override void Encrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset)
             {
-                var plainText = new Span<byte>(input, offset, length);
+                var plainText = new ReadOnlySpan<byte>(input, offset, length);
                 var cipherText = new Span<byte>(output, outOffset, length);
                 var tag = new Span<byte>(output, outOffset + length, _tagSize);
-                var associatedData = new Span<byte>(input, aadOffset, aadLength);
+                var associatedData = new ReadOnlySpan<byte>(input, aadOffset, aadLength);
 
                 _aesGcm.Encrypt(nonce, plainText, cipherText, tag, associatedData);
             }

@@ -1,35 +1,26 @@
 ﻿using System;
-#if NET8_0_OR_GREATER
-using System.Security.Cryptography;
-#endif
 
 using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal abstract class KeyExchangeECDH : KeyExchangeEC
+    internal abstract partial class KeyExchangeECDH : KeyExchangeEC
     {
 #if NET8_0_OR_GREATER
-        private ECDiffieHellman _clientECDH;
-#endif
-        private ECDHCBasicAgreement _keyAgreement;
-        private ECDomainParameters _domainParameters;
+        private Impl _impl;
 
-#if NET8_0_OR_GREATER
         /// <summary>
         /// Gets the curve.
         /// </summary>
         /// <value>
         /// The curve.
         /// </value>
-        protected abstract ECCurve Curve { get; }
+        protected abstract System.Security.Cryptography.ECCurve Curve { get; }
+#else
+        private BouncyCastleImpl _impl;
 #endif
 
         /// <summary>
@@ -52,30 +43,17 @@ namespace Renci.SshNet.Security
 #if NET8_0_OR_GREATER
             if (!OperatingSystem.IsWindows() || OperatingSystem.IsWindowsVersionAtLeast(10))
             {
-                _clientECDH = ECDiffieHellman.Create();
-                _clientECDH.GenerateKey(Curve);
-
-                var q = _clientECDH.PublicKey.ExportParameters().Q;
-
-                _clientExchangeValue = new byte[1 + q.X.Length + q.Y.Length];
-                _clientExchangeValue[0] = 0x04;
-                Buffer.BlockCopy(q.X, 0, _clientExchangeValue, 1, q.X.Length);
-                Buffer.BlockCopy(q.Y, 0, _clientExchangeValue, q.X.Length + 1, q.Y.Length);
-
-                SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
-
-                return;
+                _impl = new BclImpl(Curve);
             }
+            else
+            {
+                _impl = new BouncyCastleImpl(CurveParameter);
+            }
+#else
+            _impl = new BouncyCastleImpl(CurveParameter);
 #endif
-            _domainParameters = new ECDomainParameters(CurveParameter);
 
-            var g = new ECKeyPairGenerator();
-            g.Init(new ECKeyGenerationParameters(_domainParameters, CryptoAbstraction.SecureRandom));
-
-            var aKeyPair = g.GenerateKeyPair();
-            _keyAgreement = new ECDHCBasicAgreement();
-            _keyAgreement.Init(aKeyPair.Private);
-            _clientExchangeValue = ((ECPublicKeyParameters)aKeyPair.Public).Q.GetEncoded();
+            _clientExchangeValue = _impl.GenerateClientECPoint();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
@@ -115,51 +93,38 @@ namespace Renci.SshNet.Security
             _hostKey = hostKey;
             _signature = signature;
 
-            var cordSize = (serverExchangeValue.Length - 1) / 2;
-            var x = new byte[cordSize];
-            Buffer.BlockCopy(serverExchangeValue, 1, x, 0, x.Length); // first byte is format. should be checked and passed to bouncy castle?
-            var y = new byte[cordSize];
-            Buffer.BlockCopy(serverExchangeValue, cordSize + 1, y, 0, y.Length);
+            var agreement = _impl.CalculateAgreement(serverExchangeValue);
 
-#if NET8_0_OR_GREATER
-            if (!OperatingSystem.IsWindows() || OperatingSystem.IsWindowsVersionAtLeast(10))
-            {
-                using var serverECDH = ECDiffieHellman.Create(
-                    new ECParameters
-                    {
-                        Curve = Curve,
-                        Q =
-                        {
-                            X = x,
-                            Y = y,
-                        },
-                    });
-
-                var k = _clientECDH.DeriveRawSecretAgreement(serverECDH.PublicKey);
-                SharedKey = k.ToBigInteger2().ToByteArray().Reverse();
-
-                return;
-            }
-#endif
-            var c = _domainParameters.Curve;
-            var q = c.CreatePoint(new Org.BouncyCastle.Math.BigInteger(1, x), new Org.BouncyCastle.Math.BigInteger(1, y));
-            var publicKey = new ECPublicKeyParameters("ECDH", q, _domainParameters);
-
-            var k1 = _keyAgreement.CalculateAgreement(publicKey);
-            SharedKey = k1.ToByteArray().ToBigInteger2().ToByteArray().Reverse();
+            SharedKey = agreement.ToBigInteger2().ToByteArray().Reverse();
         }
-
-#if NET8_0_OR_GREATER
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
+
             if (disposing)
             {
-                _clientECDH?.Dispose();
+                _impl?.Dispose();
             }
         }
-#endif
+
+        private abstract class Impl : IDisposable
+        {
+            public abstract byte[] GenerateClientECPoint();
+
+            public abstract byte[] CalculateAgreement(byte[] serverECPoint);
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }

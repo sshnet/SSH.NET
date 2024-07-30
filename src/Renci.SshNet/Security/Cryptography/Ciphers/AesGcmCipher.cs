@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
-#if NET6_0_OR_GREATER
-using System.Security.Cryptography;
-#endif
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -18,18 +10,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    internal sealed class AesGcmCipher
-#if NET6_0_OR_GREATER
-        : SymmetricCipher, IDisposable
-#else
-        : SymmetricCipher
-#endif
+    internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
     {
         private readonly byte[] _iv;
 #if NET6_0_OR_GREATER
-        private readonly AesGcm _aesGcm;
+        private readonly Impl _impl;
+
+#else
+        private readonly BouncyCastleImpl _impl;
 #endif
-        private readonly GcmBlockCipher _cipher;
 
         /// <summary>
         /// Gets the minimun block size.
@@ -71,17 +60,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
 #if NET6_0_OR_GREATER
-            if (AesGcm.IsSupported)
+            if (System.Security.Cryptography.AesGcm.IsSupported)
             {
-#if NET8_0_OR_GREATER
-                _aesGcm = new AesGcm(key, TagSize);
-#else
-                _aesGcm = new AesGcm(key);
-#endif
-                return;
+                _impl = new BclImpl(key, TagSize);
             }
+            else
+            {
+                _impl = new BouncyCastleImpl(key, TagSize);
+            }
+#else
+            _impl = new BouncyCastleImpl(key, TagSize);
 #endif
-            _cipher = new GcmBlockCipher(new AesEngine());
         }
 
         /// <summary>
@@ -105,28 +94,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
             var output = new byte[length + TagSize];
-            packetLengthField.CopyTo(output);
-#if NET6_0_OR_GREATER
-            if (AesGcm.IsSupported)
-            {
-                var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
-                var cipherText = new Span<byte>(output, 4, length - 4);
-                var tag = new Span<byte>(output, length, TagSize);
+            Buffer.BlockCopy(input, offset, output, 0, 4);
 
-                _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
-
-                IncrementCounter();
-
-                return output;
-            }
-#endif
-            var parameters = new AeadParameters(new KeyParameter(Key), TagSize * 8, nonce: _iv, associatedText: packetLengthField.ToArray());
-            _cipher.Init(forEncryption: true, parameters);
-
-            var len = _cipher.ProcessBytes(input, offset + 4, length - 4, output, 4);
-            _cipher.DoFinal(output, len + 4);
+            _impl.Encrypt(_iv, input, offset + 4, length - 4, offset, 4, output, 4);
 
             IncrementCounter();
 
@@ -156,46 +127,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             Debug.Assert(offset == 8, "The offset must be 8");
 
-            var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
             var output = new byte[length];
-#if NET6_0_OR_GREATER
-            if (AesGcm.IsSupported)
-            {
-                var cipherText = new ReadOnlySpan<byte>(input, offset, length);
-                var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
 
-                var plainText = new Span<byte>(output);
-
-                try
-                {
-                    _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
-                }
-#if NET8_0_OR_GREATER
-                catch (AuthenticationTagMismatchException)
-#else
-                catch (CryptographicException ex) when (ex.Message == "The computed authentication tag did not match the input authentication tag.")
-#endif
-                {
-                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
-                }
-
-                IncrementCounter();
-
-                return output;
-            }
-#endif
-            var parameters = new AeadParameters(new KeyParameter(Key), TagSize * 8, nonce: _iv, associatedText: packetLengthField.ToArray());
-            _cipher.Init(forEncryption: false, parameters);
-
-            var len = _cipher.ProcessBytes(input, offset, length + TagSize, output, 0);
-            try
-            {
-                _cipher.DoFinal(output, len);
-            }
-            catch (InvalidCipherTextException)
-            {
-                throw new SshConnectionException("MAC error", DisconnectReason.MacError);
-            }
+            _impl.Decrypt(_iv, input, offset, length, offset - 4, 4, output, 0);
 
             IncrementCounter();
 
@@ -216,7 +150,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             BinaryPrimitives.WriteUInt64BigEndian(invocationCounter, count + 1);
         }
 
-#if NET6_0_OR_GREATER
         /// <summary>
         /// Dispose the instance.
         /// </summary>
@@ -225,7 +158,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (disposing)
             {
-                _aesGcm?.Dispose();
+                _impl.Dispose();
             }
         }
 
@@ -236,6 +169,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-#endif
+
+        private abstract class Impl : IDisposable
+        {
+            public abstract void Encrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset);
+
+            public abstract void Decrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset);
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }

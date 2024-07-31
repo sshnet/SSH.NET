@@ -1,4 +1,4 @@
-using Org.BouncyCastle.Asn1.Sec;
+﻿using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
 
 using Renci.SshNet.Abstractions;
@@ -15,6 +15,19 @@ namespace Renci.SshNet.Security
             get { return "ecdh-sha2-nistp521"; }
         }
 
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Gets the curve.
+        /// </summary>
+        protected override System.Security.Cryptography.ECCurve Curve
+        {
+            get
+            {
+                return System.Security.Cryptography.ECCurve.NamedCurves.nistP521;
+            }
+        }
+#endif
+
         /// <summary>
         /// Gets Curve Parameter.
         /// </summary>
@@ -22,7 +35,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return SecNamedCurves.GetByName("secp521r1");
+                return SecNamedCurves.GetByOid(SecObjectIdentifiers.SecP521r1);
             }
         }
 

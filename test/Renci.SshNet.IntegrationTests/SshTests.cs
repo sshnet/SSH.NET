@@ -655,17 +655,32 @@ namespace Renci.SshNet.IntegrationTests
             var endpoint1 = new IPEndPoint(ipv4HostAddress, 10000);
             var endpoint2 = new IPEndPoint(ipv4HostAddress, 10001);
 
+            var isBytesReceivedOnLister1 = false;
+            var isBytesReceivedOnLister2 = false;
+
             var bytesReceivedOnListener1 = new List<byte>();
             var bytesReceivedOnListener2 = new List<byte>();
 
             using (var socketListener1 = new AsyncSocketListener(endpoint1))
             using (var socketListener2 = new AsyncSocketListener(endpoint2))
+            using (var bytesReceivedEventOnListener1 = new AutoResetEvent(false))
+            using (var bytesReceivedEventOnListener2 = new AutoResetEvent(false))
             using (var client = new SshClient(_connectionInfoFactory.Create()))
             {
-                socketListener1.BytesReceived += (received, socket) => bytesReceivedOnListener1.AddRange(received);
+                socketListener1.BytesReceived += (received, socket) =>
+                {
+                    bytesReceivedOnListener1.AddRange(received);
+                    bytesReceivedEventOnListener1.Set();
+                };
+
                 socketListener1.Start();
 
-                socketListener2.BytesReceived += (received, socket) => bytesReceivedOnListener2.AddRange(received);
+                socketListener2.BytesReceived += (received, socket) =>
+                {
+                    bytesReceivedOnListener2.AddRange(received);
+                    bytesReceivedEventOnListener2.Set();
+                };
+
                 socketListener2.Start();
 
                 client.Connect();
@@ -706,9 +721,15 @@ namespace Renci.SshNet.IntegrationTests
                     s.Close();
                 }
 
+                isBytesReceivedOnLister1 = bytesReceivedEventOnListener1.WaitOne(1000);
+                isBytesReceivedOnLister2 = bytesReceivedEventOnListener2.WaitOne(1000);
+
                 forwardedPort1.Stop();
                 forwardedPort2.Stop();
             }
+
+            Assert.IsTrue(isBytesReceivedOnLister1);
+            Assert.IsTrue(isBytesReceivedOnLister2);
 
             var textReceivedOnListener1 = Encoding.ASCII.GetString(bytesReceivedOnListener1.ToArray());
             Assert.AreEqual("ABC\r\n", textReceivedOnListener1);

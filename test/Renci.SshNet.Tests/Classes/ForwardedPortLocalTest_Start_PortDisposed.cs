@@ -40,7 +40,7 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8121);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
                 random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 

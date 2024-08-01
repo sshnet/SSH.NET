@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _ = _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                             .Callback<WaitHandle>(p => p.WaitOne());
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
@@ -95,6 +95,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                     closeForwardedPortThread.Join();
                 };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
@@ -124,7 +125,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _ = _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                             .Callback<WaitHandle>(p => p.WaitOne());
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
@@ -152,6 +153,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                     signalSessionErrorOccurredThread.Join();
                 };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
@@ -223,25 +225,26 @@ namespace Renci.SshNet.Tests.Classes.Channels
             Socket handler = null;
             ChannelDirectTcpip channel = null;
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
 
                 localPortListener.Connected += socket =>
-                    {
-                        channel = new ChannelDirectTcpip(_sessionMock.Object,
-                                                         _localChannelNumber,
-                                                         _localWindowSize,
-                                                         _localPacketSize);
-                        channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
-                        channel.Bind();
-                        channel.Dispose();
+                {
+                    channel = new ChannelDirectTcpip(_sessionMock.Object,
+                                                        _localChannelNumber,
+                                                        _localWindowSize,
+                                                        _localPacketSize);
+                    channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
+                    channel.Bind();
+                    channel.Dispose();
 
-                        handler = socket;
+                    handler = socket;
 
-                        _ = channelBindFinishedWaitHandle.Set();
-                    };
+                    _ = channelBindFinishedWaitHandle.Set();
+                };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);

@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelDirectTcpip> _channelMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
         private Socket _client;
         private IList<EventArgs> _closingRegister;
@@ -71,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _connectionTimeout = TimeSpan.FromSeconds(5);
             _channelDisposed = new ManualResetEvent(false);
-            _forwardedPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _forwardedPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
 
             _forwardedPort = new ForwardedPortDynamic((uint)_forwardedPortEndPoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
         }
 
         private void SetupMocks()

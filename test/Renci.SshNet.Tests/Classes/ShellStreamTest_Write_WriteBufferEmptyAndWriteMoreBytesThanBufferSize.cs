@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ShellStreamTest_Write_WriteBufferEmptyAndWriteMoreBytesThanBufferSize
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IChannelSession> _channelSessionMock;
         private MockSequence _mockSequence;
         private string _terminalName;
@@ -65,7 +65,7 @@ namespace Renci.SshNet.Tests.Classes
         private void CreateMocks()
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
         }
 

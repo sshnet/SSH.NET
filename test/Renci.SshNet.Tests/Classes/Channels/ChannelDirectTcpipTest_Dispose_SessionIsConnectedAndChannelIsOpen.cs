@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     public class ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IForwardedPort> _forwardedPortMock;
         private ChannelDirectTcpip _channel;
         private uint _localChannelNumber;
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remotePacketSize = (uint)random.Next(100, 200);
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             using var barrier = new Barrier(2);
 
-            var localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
             _listener = new AsyncSocketListener(localEndpoint);
             _listener.Connected += socket =>
                 {
@@ -162,6 +162,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     }
                 };
             _listener.Start();
+            localEndpoint.Port = ((IPEndPoint)_listener.ListenerEndPoint).Port;
 
             _client = new Socket(localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _client.Connect(localEndpoint);

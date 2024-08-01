@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortLocalTest_Stop_PortStarted_ChannelBound
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortLocal _forwardedPort;
         private IList<EventArgs> _closingRegister;
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private void CreateMocks()
         {
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
         }
@@ -74,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8121);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
             _channelBound = new ManualResetEvent(false);

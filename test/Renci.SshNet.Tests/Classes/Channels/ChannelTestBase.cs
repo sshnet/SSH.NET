@@ -7,7 +7,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     public abstract class ChannelTestBase
     {
         internal Mock<ISession> SessionMock { get; private set; }
-        internal Mock<IConnectionInfo> ConnectionInfoMock { get; private set; }
+        internal Mock<ISshConnectionInfo> ConnectionInfoMock { get; private set; }
 
         [TestInitialize]
         public void Initialize()
@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         protected void CreateMocks()
         {
             SessionMock = new Mock<ISession>(MockBehavior.Strict);
-            ConnectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            ConnectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
         }
 
         protected abstract void SetupMocks();

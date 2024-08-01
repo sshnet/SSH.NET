@@ -6,8 +6,8 @@ namespace Renci.SshNet.Connection
 {
     internal sealed class DirectConnector : ConnectorBase
     {
-        public DirectConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public DirectConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
         {
         }
 

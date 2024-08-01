@@ -195,6 +195,11 @@ namespace Renci.SshNet
 
         private bool _isDisconnectMessageSent;
 
+        /// <summary>
+        /// Holds the proxyConnector object, through which the SSH server is connected.
+        /// </summary>
+        private IConnector _proxyConnector;
+
         private int _nextChannelNumber;
 
         /// <summary>
@@ -578,8 +583,8 @@ namespace Renci.SshNet
                 // Build list of available messages while connecting
                 _sshMessageFactory = new SshMessageFactory();
 
-                _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .Connect(ConnectionInfo);
+                _proxyConnector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
+                _socket = _proxyConnector.Connect(ConnectionInfo);
 
                 var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                             .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
@@ -1993,6 +1998,13 @@ namespace Renci.SshNet
                         _socket.Dispose();
                         DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
+
+                        var proxyConnector = _proxyConnector;
+                        if (proxyConnector != null)
+                        {
+                            proxyConnector.Dispose();
+                            _proxyConnector = null;
+                        }
                     }
                 }
                 finally
@@ -2269,7 +2281,7 @@ namespace Renci.SshNet
         /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        IConnectionInfo ISession.ConnectionInfo
+        ISshConnectionInfo ISession.ConnectionInfo
         {
             get { return ConnectionInfo; }
         }

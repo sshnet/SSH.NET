@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _channelSessionStub = new ChannelSessionStub();
 
-            var connectionInfoMock = new Mock<IConnectionInfo>();
+            var connectionInfoMock = new Mock<ISshConnectionInfo>();
 
             connectionInfoMock.Setup(p => p.Encoding).Returns(Encoding.UTF8);
 

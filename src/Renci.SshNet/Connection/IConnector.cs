@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Renci.SshNet.Connection
@@ -6,7 +7,7 @@ namespace Renci.SshNet.Connection
     /// <summary>
     /// Represents a means to connect to a SSH endpoint.
     /// </summary>
-    internal interface IConnector
+    internal interface IConnector : IDisposable
     {
         /// <summary>
         /// Connects to a SSH endpoint using the specified <see cref="IConnectionInfo"/>.

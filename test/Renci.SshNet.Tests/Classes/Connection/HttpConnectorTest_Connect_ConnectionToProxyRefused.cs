@@ -7,14 +7,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Connection;
+
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class HttpConnectorTest_Connect_ConnectionToProxyRefused : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private SocketException _actualException;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private Stopwatch _stopWatch;
 
         protected override void SetupData()
@@ -26,23 +30,27 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "user",
                                                  ProxyTypes.Http,
                                                  IPAddress.Loopback.ToString(),
-                                                 8122,
+                                                 8121,
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
             {
                 Timeout = TimeSpan.FromMilliseconds(5000)
             };
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _stopWatch = new Stopwatch();
             _actualException = null;
 
             _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()
         {
             _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
-                                 .Returns(_clientSocket);
+                             .Returns(_clientSocket);
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+                              .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -50,6 +58,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             base.TearDown();
 
             _clientSocket?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()

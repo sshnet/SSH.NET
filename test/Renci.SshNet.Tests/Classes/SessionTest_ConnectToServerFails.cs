@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.SetupData();
 
-            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
             _connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
             _session = new Session(_connectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
             _connectException = new SshConnectionException();
@@ -34,7 +34,8 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, SocketFactoryMock.Object))
                                    .Returns(ConnectorMock.Object);
             _ = ConnectorMock.Setup(p => p.Connect(_connectionInfo))
-                              .Throws(_connectException);
+                             .Throws(_connectException);
+            _ = ConnectorMock.Setup(p => p.Dispose());
         }
 
         protected override void Act()

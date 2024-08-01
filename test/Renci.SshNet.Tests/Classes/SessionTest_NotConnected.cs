@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void SetupData()
         {
-            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
             _connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
         }
 

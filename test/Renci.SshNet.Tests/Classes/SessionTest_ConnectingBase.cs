@@ -35,6 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         private string[] _keyExchangeAlgorithms;
         private bool _authenticationStarted;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
 
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
@@ -127,6 +128,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerIdentification = new SshIdentification("2.0", "OurServerStub");
             _authenticationStarted = false;
             _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
 
             Session = new Session(ConnectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
@@ -200,7 +202,7 @@ namespace Renci.SshNet.Tests.Classes
             };
             ServerListener.Start();
 
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+            ClientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()
@@ -219,6 +221,7 @@ namespace Renci.SshNet.Tests.Classes
                                   .Returns(ConnectorMock.Object);
             _ = ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
                              .Returns(ClientSocket);
+            _ = ConnectorMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))

@@ -28,6 +28,7 @@ namespace Renci.SshNet.Tests.Classes
         private Socket _clientSocket;
         private SshConnectionException _actualException;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
 
         [TestInitialize]
         public void Setup()
@@ -52,13 +53,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void SetupData()
         {
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
-            _connectionInfo = new ConnectionInfo(_serverEndPoint.Address.ToString(), _serverEndPoint.Port, "user", new PasswordAuthenticationMethod("user", "password"))
-            {
-                Timeout = TimeSpan.FromMilliseconds(200)
-            };
-            _actualException = null;
-            _socketFactory = new SocketFactory();
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
 
             _serverListener = new AsyncSocketListener(_serverEndPoint);
             _serverListener.Connected += (socket) =>
@@ -75,10 +70,19 @@ namespace Renci.SshNet.Tests.Classes
                     _serverSocket.Shutdown(SocketShutdown.Send);
                 };
             _serverListener.Start();
+            _serverEndPoint.Port = ((IPEndPoint)_serverListener.ListenerEndPoint).Port;
+
+            _connectionInfo = new ConnectionInfo(_serverEndPoint.Address.ToString(), _serverEndPoint.Port, "user", new PasswordAuthenticationMethod("user", "password"))
+            {
+                Timeout = TimeSpan.FromMilliseconds(200)
+            };
+            _actualException = null;
+            _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
 
             _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
 
-            _clientSocket = new DirectConnector(_socketFactory).Connect(_connectionInfo);
+            _clientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(_connectionInfo);
         }
 
         protected void SetupMocks()
@@ -87,6 +91,7 @@ namespace Renci.SshNet.Tests.Classes
                                    .Returns(_connectorMock.Object);
             _ = _connectorMock.Setup(p => p.Connect(_connectionInfo))
                               .Returns(_clientSocket);
+            _ = _connectorMock.Setup(p => p.Dispose());
             _ = _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                    .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(_session.ClientVersion, _clientSocket, _connectionInfo.Timeout))

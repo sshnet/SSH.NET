@@ -254,13 +254,15 @@ namespace Renci.SshNet
             switch (connectionInfo.ProxyType)
             {
                 case ProxyTypes.None:
-                    return new DirectConnector(socketFactory);
+                    return new DirectConnector(this, socketFactory);
                 case ProxyTypes.Socks4:
-                    return new Socks4Connector(socketFactory);
+                    return new Socks4Connector(this, socketFactory);
                 case ProxyTypes.Socks5:
-                    return new Socks5Connector(socketFactory);
+                    return new Socks5Connector(this, socketFactory);
                 case ProxyTypes.Http:
-                    return new HttpConnector(socketFactory);
+                    return new HttpConnector(this, socketFactory);
+                case ProxyTypes.Ssh:
+                    return new SshConnector(this, socketFactory);
                 default:
                     throw new NotSupportedException(string.Format("ProxyTypes '{0}' is not supported.", connectionInfo.ProxyType));
             }

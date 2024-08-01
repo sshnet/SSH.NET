@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortDynamicTest_Dispose_PortStopped
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
@@ -42,9 +42,9 @@ namespace Renci.SshNet.Tests.Classes
         {
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _endpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _endpoint = new IPEndPoint(IPAddress.Loopback, 0);
 
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
             _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
@@ -56,7 +56,10 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Session = _sessionMock.Object;
             _forwardedPort.Start();
+
             _forwardedPort.Stop();
+
+            _endpoint.Port = (int)_forwardedPort.BoundPort;
 
             _closingRegister.Clear();
         }

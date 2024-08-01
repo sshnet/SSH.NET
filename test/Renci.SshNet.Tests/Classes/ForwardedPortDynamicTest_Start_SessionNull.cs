@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _endpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _endpoint = new IPEndPoint(IPAddress.Loopback, 8121);
 
             _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);

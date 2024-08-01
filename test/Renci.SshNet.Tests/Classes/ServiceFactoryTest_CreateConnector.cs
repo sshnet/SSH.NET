@@ -12,21 +12,21 @@ namespace Renci.SshNet.Tests.Classes
     public class ServiceFactoryTest_CreateConnector
     {
         private ServiceFactory _serviceFactory;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<ISocketFactory> _socketFactoryMock;
 
         [TestInitialize]
         public void Setup()
         {
             _serviceFactory = new ServiceFactory();
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
         }
 
         [TestMethod]
         public void ConnectionInfoIsNull()
         {
-            const IConnectionInfo connectionInfo = null;
+            const ISshConnectionInfo connectionInfo = null;
 
             try
             {

@@ -24,5 +24,8 @@
         /// An HTTP proxy server.
         /// </summary>
         Http,
+
+        /// <summary>A Ssh jump server.</summary>
+        Ssh,
     }
 }

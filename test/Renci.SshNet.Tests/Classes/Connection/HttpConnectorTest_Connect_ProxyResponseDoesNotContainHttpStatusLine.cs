@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -18,8 +19,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class HttpConnectorTest_Connect_ProxyResponseDoesNotContainHttpStatusLine : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private AsyncSocketListener _proxyServer;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private List<byte> _bytesReceivedByProxy;
         private bool _disconnected;
         private ProxyException _actualException;
@@ -28,43 +31,47 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
+            _proxyServer.Disconnected += socket => _disconnected = true;
+            _proxyServer.BytesReceived += (bytesReceived, socket) =>
+            {
+                if (_bytesReceivedByProxy.Count == 0)
+                {
+                    _ = socket.Send(Encoding.ASCII.GetBytes("Whatever\r\n"));
+
+                    socket.Shutdown(SocketShutdown.Send);
+                }
+
+                _bytesReceivedByProxy.AddRange(bytesReceived);
+            };
+            _proxyServer.Start();
+
             _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
                                                  777,
                                                  "user",
                                                  ProxyTypes.Http,
                                                  IPAddress.Loopback.ToString(),
-                                                 8122,
+                                                 ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"))
             {
                 Timeout = TimeSpan.FromMilliseconds(100)
             };
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _bytesReceivedByProxy = new List<byte>();
             _actualException = null;
 
             _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
-            _proxyServer.Disconnected += socket => _disconnected = true;
-            _proxyServer.BytesReceived += (bytesReceived, socket) =>
-                {
-                    if (_bytesReceivedByProxy.Count == 0)
-                    {
-                        _ = socket.Send(Encoding.ASCII.GetBytes("Whatever\r\n"));
-
-                        socket.Shutdown(SocketShutdown.Send);
-                    }
-
-                    _bytesReceivedByProxy.AddRange(bytesReceived);
-                };
-            _proxyServer.Start();
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()
         {
             _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
-                                 .Returns(_clientSocket);
+                             .Returns(_clientSocket);
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+                              .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -72,6 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             base.TearDown();
 
             _proxyServer?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()

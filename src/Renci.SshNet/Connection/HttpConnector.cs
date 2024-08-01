@@ -48,24 +48,25 @@ namespace Renci.SshNet.Connection
         private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
 #endif
 
-        public HttpConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public HttpConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
         {
         }
 
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
+            var proxyConnection = (IProxyConnectionInfo)connectionInfo.ProxyConnection;
             SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format(CultureInfo.InvariantCulture,
                                                                                 "CONNECT {0}:{1} HTTP/1.0\r\n",
                                                                                 connectionInfo.Host,
                                                                                 connectionInfo.Port)));
 
             // Send proxy authorization if specified
-            if (!string.IsNullOrEmpty(connectionInfo.ProxyUsername))
+            if (!string.IsNullOrEmpty(proxyConnection.Username))
             {
                 var authorization = string.Format(CultureInfo.InvariantCulture,
                                                   "Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes($"{connectionInfo.ProxyUsername}:{connectionInfo.ProxyPassword}")));
+                                                  Convert.ToBase64String(SshData.Ascii.GetBytes($"{proxyConnection.Username}:{proxyConnection.Password}")));
                 SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(authorization));
             }
 

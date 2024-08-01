@@ -7,7 +7,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents remote connection information.
     /// </summary>
-    internal interface IConnectionInfoInternal : IConnectionInfo
+    internal interface IConnectionInfoInternal : ISshConnectionInfo
     {
         /// <summary>
         /// Signals that an authentication banner message was received from the server.

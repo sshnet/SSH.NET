@@ -35,9 +35,9 @@ namespace Renci.SshNet
         public string BoundHost { get; }
 
         /// <summary>
-        /// Gets the bound port.
+        /// Gets or sets the bound port.
         /// </summary>
-        public uint BoundPort { get; }
+        public uint BoundPort { get; protected set; }
 
         private Socket _listener;
         private CountdownEvent _pendingChannelCountdown;
@@ -170,6 +170,9 @@ namespace Renci.SshNet
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             _listener.Bind(ep);
             _listener.Listen(5);
+
+            // update bound port (in case original was passed as zero)
+            BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
 
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;

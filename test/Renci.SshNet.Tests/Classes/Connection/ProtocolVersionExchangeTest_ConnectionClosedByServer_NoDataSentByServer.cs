@@ -53,7 +53,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             _clientVersion = "\uD55C";
             _timeout = TimeSpan.FromSeconds(5);
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             _dataReceivedByServer = new List<byte>();
 
             _server = new AsyncSocketListener(_serverEndPoint);
@@ -64,6 +64,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     socket.Shutdown(SocketShutdown.Send);
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
+
+            _serverEndPoint.Port = ((IPEndPoint)_server.ListenerEndPoint).Port;
 
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _client.Connect(_serverEndPoint);

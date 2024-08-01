@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -17,9 +18,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class Socks5ConnectorTest_Connect_TimeoutConnectionReply : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private Exception _actualException;
         private AsyncSocketListener _proxyServer;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private List<byte> _bytesReceivedByProxy;
         private Stopwatch _stopWatch;
 
@@ -29,14 +32,20 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 8121);
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _proxyConnectionInfo.Timeout = _connectionInfo.Timeout;
             _stopWatch = new Stopwatch();
             _bytesReceivedByProxy = new List<byte>();
 
             _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
 
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _proxyConnectionInfo.Timeout = _connectionInfo.Timeout;
+
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
             {
                 _bytesReceivedByProxy.AddRange(bytesReceived);
@@ -59,6 +68,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             _ = SocketFactoryMock.Setup(p => p.Create(SocketType.Stream, ProtocolType.Tcp))
                                  .Returns(_clientSocket);
+            _ = ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+                                  .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -67,6 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             _proxyServer?.Dispose();
             _clientSocket?.Dispose();
+            _proxyConnector?.Dispose();
         }
 
         protected override void Act()

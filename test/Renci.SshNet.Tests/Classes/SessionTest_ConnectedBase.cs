@@ -34,6 +34,7 @@ namespace Renci.SshNet.Tests.Classes
         private string _keyExchangeAlgorithm;
         private bool _authenticationStarted;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
 
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
@@ -93,10 +94,40 @@ namespace Renci.SshNet.Tests.Classes
         {
             Random = new Random();
 
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
+
+            ServerListener = new AsyncSocketListener(_serverEndPoint)
+            {
+                ShutdownRemoteCommunicationSocket = false
+            };
+            ServerListener.Connected += socket =>
+            {
+                ServerSocket = socket;
+
+                // Since we're mocking the protocol version exchange, we'll immediately start KEX upon
+                // having established the connection instead of when the client has been identified
+
+                if (!WaitForClientKeyExchangeInit)
+                {
+                    SendKeyExchangeInit();
+                }
+            };
+            ServerListener.BytesReceived += (received, socket) =>
+            {
+                ServerBytesReceivedRegister.Add(received);
+
+                if (WaitForClientKeyExchangeInit && received.Length > 5 && received[5] == 20)
+                {
+                    // This is the KEXINIT. Send one back.
+                    SendKeyExchangeInit();
+                    WaitForClientKeyExchangeInit = false;
+                }
+            };
+            ServerListener.Start();
+
             ConnectionInfo = new ConnectionInfo(
                 _serverEndPoint.Address.ToString(),
-                _serverEndPoint.Port,
+                ((IPEndPoint)ServerListener.ListenerEndPoint).Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
             { Timeout = TimeSpan.FromSeconds(20) };
@@ -110,57 +141,29 @@ namespace Renci.SshNet.Tests.Classes
             ServerIdentification = new SshIdentification("2.0", "OurServerStub");
             _authenticationStarted = false;
             _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
 
             Session = new Session(ConnectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
             Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
             Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
             Session.KeyExchangeInitReceived += (sender, args) =>
-                {
-                    var newKeysMessage = new NewKeysMessage();
-                    var newKeys = newKeysMessage.GetPacket(8, null);
-                    _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
-
-                    if (!_authenticationStarted)
-                    {
-                        var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
-                                                                              .Build();
-                        _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
-
-                        _authenticationStarted = true;
-                    }
-                };
-
-            ServerListener = new AsyncSocketListener(_serverEndPoint)
             {
-                ShutdownRemoteCommunicationSocket = false
+                var newKeysMessage = new NewKeysMessage();
+                var newKeys = newKeysMessage.GetPacket(8, null);
+                _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+
+                if (!_authenticationStarted)
+                {
+                    var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
+                                                                          .Build();
+                    _ = ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
+
+                    _authenticationStarted = true;
+                }
             };
-            ServerListener.Connected += socket =>
-                {
-                    ServerSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we'll immediately start KEX upon
-                    // having established the connection instead of when the client has been identified
-
-                    if (!WaitForClientKeyExchangeInit)
-                    {
-                        SendKeyExchangeInit();
-                    }
-                };
-            ServerListener.BytesReceived += (received, socket) =>
-                {
-                    ServerBytesReceivedRegister.Add(received);
-
-                    if (WaitForClientKeyExchangeInit && received.Length > 5 && received[5] == 20)
-                    {
-                        // This is the KEXINIT. Send one back.
-                        SendKeyExchangeInit();
-                        WaitForClientKeyExchangeInit = false;
-                    }
-                };
-            ServerListener.Start();
-
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+            ClientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(ConnectionInfo);
 
             void SendKeyExchangeInit()
             {
@@ -198,6 +201,7 @@ namespace Renci.SshNet.Tests.Classes
                                   .Returns(ConnectorMock.Object);
             _ = ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
                              .Returns(ClientSocket);
+            _ = ConnectorMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))

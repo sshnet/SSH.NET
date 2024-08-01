@@ -46,6 +46,11 @@ namespace Renci.SshNet.Tests.Common
         /// </value>
         public bool ShutdownRemoteCommunicationSocket { get; set; }
 
+        public EndPoint ListenerEndPoint
+        {
+            get { return _listener?.LocalEndPoint; }
+        }
+
         public void Start()
         {
             _listener = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -234,7 +239,11 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 // Read data from the client socket.
-                bytesRead = handler.EndReceive(ar);
+                bytesRead = handler.EndReceive(ar, out var errorCode);
+                if (errorCode != SocketError.Success)
+                {
+                    bytesRead = 0;
+                }
             }
             catch (SocketException ex)
             {

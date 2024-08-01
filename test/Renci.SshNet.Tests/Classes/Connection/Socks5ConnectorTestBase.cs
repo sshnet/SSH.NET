@@ -11,19 +11,23 @@ namespace Renci.SshNet.Tests.Classes.Connection
 {
     public abstract class Socks5ConnectorTestBase : TripleATestBase
     {
+        internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
         internal Socks5Connector Connector { get; private set; }
         internal SocketFactory SocketFactory { get; private set; }
+        internal ServiceFactory ServiceFactory { get; private set; }
 
         protected virtual void CreateMocks()
         {
+            ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
         }
 
         protected virtual void SetupData()
         {
-            Connector = new Socks5Connector(SocketFactoryMock.Object);
+            Connector = new Socks5Connector(ServiceFactoryMock.Object, SocketFactoryMock.Object);
             SocketFactory = new SocketFactory();
+            ServiceFactory = new ServiceFactory();
         }
 
         protected virtual void SetupMocks()
@@ -37,14 +41,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
             SetupMocks();
         }
 
-        protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
+        protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword, int proxyPort)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),
                                       1029,
                                       "user",
                                       ProxyTypes.Socks5,
                                       IPAddress.Loopback.ToString(),
-                                      8122,
+                                      proxyPort,
                                       proxyUser,
                                       proxyPassword,
                                       new KeyboardInteractiveAuthenticationMethod("user"));

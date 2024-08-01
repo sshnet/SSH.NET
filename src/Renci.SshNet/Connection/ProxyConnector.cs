@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +11,24 @@ namespace Renci.SshNet.Connection
     /// </summary>
     internal abstract class ProxyConnector : ConnectorBase
     {
-        protected ProxyConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        protected ProxyConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
         {
+        }
+
+        protected internal IConnector GetProxyConnector(IConnectionInfo proxyConnectionInfo)
+        {
+            if (proxyConnectionInfo == null)
+            {
+                throw new ArgumentNullException("connectionInfo.ProxyConnection");
+            }
+
+            if (proxyConnectionInfo is not IProxyConnectionInfo)
+            {
+                throw new ArgumentException("Expecting ProxyConnection to be of type IProxyConnectionInfo");
+            }
+
+            return ServiceFactory.CreateConnector(proxyConnectionInfo, SocketFactory);
         }
 
         protected abstract void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket);
@@ -53,7 +67,8 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            var socket = SocketConnect(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), connectionInfo.Timeout);
+            ProxyConnection = GetProxyConnector(connectionInfo.ProxyConnection);
+            var socket = ProxyConnection.Connect(connectionInfo.ProxyConnection);
 
             try
             {
@@ -79,7 +94,8 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            var socket = await SocketConnectAsync(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), cancellationToken).ConfigureAwait(false);
+            ProxyConnection = GetProxyConnector(connectionInfo.ProxyConnection);
+            var socket = await ProxyConnection.ConnectAsync(connectionInfo.ProxyConnection, cancellationToken).ConfigureAwait(false);
 
             try
             {

@@ -10,28 +10,8 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents remote connection information.
     /// </summary>
-    internal interface IConnectionInfo
+    public interface IConnectionInfo
     {
-        /// <summary>
-        /// Gets the timeout to used when waiting for a server to acknowledge closing a channel.
-        /// </summary>
-        /// <value>
-        /// The channel close timeout. The default value is 1 second.
-        /// </value>
-        /// <remarks>
-        /// If a server does not send a <c>SSH2_MSG_CHANNEL_CLOSE</c> message before the specified timeout
-        /// elapses, the channel will be closed immediately.
-        /// </remarks>
-        TimeSpan ChannelCloseTimeout { get; }
-
-        /// <summary>
-        /// Gets the supported channel requests for this connection.
-        /// </summary>
-        /// <value>
-        /// The supported channel requests for this connection.
-        /// </value>
-        IDictionary<string, RequestInfo> ChannelRequests { get; }
-
         /// <summary>
         /// Gets the character encoding.
         /// </summary>
@@ -65,24 +45,43 @@ namespace Renci.SshNet
         ProxyTypes ProxyType { get; }
 
         /// <summary>
-        /// Gets proxy connection host.
+        /// Gets the connection info to connect to the proxy.
         /// </summary>
-        string ProxyHost { get; }
+        IConnectionInfo ProxyConnection { get; }
 
         /// <summary>
-        /// Gets proxy connection port.
+        /// Gets the connection timeout.
         /// </summary>
-        int ProxyPort { get; }
+        /// <value>
+        /// The connection timeout. The default value is 30 seconds.
+        /// </value>
+        TimeSpan Timeout { get; }
+    }
+
+    /// <summary>
+    /// Represents remote SSH connection information.
+    /// </summary>
+    internal interface ISshConnectionInfo : IConnectionInfo
+    {
+        /// <summary>
+        /// Gets the timeout to used when waiting for a server to acknowledge closing a channel.
+        /// </summary>
+        /// <value>
+        /// The channel close timeout. The default value is 1 second.
+        /// </value>
+        /// <remarks>
+        /// If a server does not send a <c>SSH2_MSG_CHANNEL_CLOSE</c> message before the specified timeout
+        /// elapses, the channel will be closed immediately.
+        /// </remarks>
+        TimeSpan ChannelCloseTimeout { get; }
 
         /// <summary>
-        /// Gets proxy connection username.
+        /// Gets the supported channel requests for this connection.
         /// </summary>
-        string ProxyUsername { get; }
-
-        /// <summary>
-        /// Gets proxy connection password.
-        /// </summary>
-        string ProxyPassword { get; }
+        /// <value>
+        /// The supported channel requests for this connection.
+        /// </value>
+        IDictionary<string, RequestInfo> ChannelRequests { get; }
 
         /// <summary>
         /// Gets the number of retry attempts when session channel creation failed.
@@ -93,16 +92,24 @@ namespace Renci.SshNet
         int RetryAttempts { get; }
 
         /// <summary>
-        /// Gets the connection timeout.
-        /// </summary>
-        /// <value>
-        /// The connection timeout. The default value is 30 seconds.
-        /// </value>
-        TimeSpan Timeout { get; }
-
-        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
+    }
+
+    /// <summary>
+    /// Represents proxy connection information (HTTP, SOCKS4, SOCKS5).
+    /// </summary>
+    internal interface IProxyConnectionInfo : IConnectionInfo
+    {
+        /// <summary>
+        /// Gets the username to authenticate this proxy host.
+        /// </summary>
+        string Username { get; }
+
+        /// <summary>
+        /// Gets the password to authenticat this proxy host.
+        /// </summary>
+        string Password { get; }
     }
 }

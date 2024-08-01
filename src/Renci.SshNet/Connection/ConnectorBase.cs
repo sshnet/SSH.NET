@@ -12,17 +12,27 @@ namespace Renci.SshNet.Connection
 {
     internal abstract class ConnectorBase : IConnector
     {
-        protected ConnectorBase(ISocketFactory socketFactory)
+        private bool _disposedValue;
+
+        protected ConnectorBase(IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
+            if (serviceFactory is null)
+            {
+                throw new ArgumentNullException(nameof(serviceFactory));
+            }
+
             if (socketFactory is null)
             {
                 throw new ArgumentNullException(nameof(socketFactory));
             }
 
+            ServiceFactory = serviceFactory;
             SocketFactory = socketFactory;
         }
 
+        internal IServiceFactory ServiceFactory { get; private set; }
         internal ISocketFactory SocketFactory { get; private set; }
+        internal IConnector ProxyConnection { get; set; }
 
         public abstract Socket Connect(IConnectionInfo connectionInfo);
 
@@ -142,6 +152,35 @@ namespace Renci.SshNet.Connection
             }
 
             return bytesRead;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    var proxyConnection = ProxyConnection;
+                    if (proxyConnection != null)
+                    {
+                        proxyConnection.Dispose();
+                        ProxyConnection = null;
+                    }
+
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

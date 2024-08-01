@@ -655,8 +655,8 @@ namespace Renci.SshNet.IntegrationTests
             var endpoint1 = new IPEndPoint(ipv4HostAddress, 10000);
             var endpoint2 = new IPEndPoint(ipv4HostAddress, 10001);
 
-            var isBytesReceivedOnLister1 = false;
-            var isBytesReceivedOnLister2 = false;
+            var areBytesReceivedOnListener1 = false;
+            var areBytesReceivedOnListener2 = false;
 
             var bytesReceivedOnListener1 = new List<byte>();
             var bytesReceivedOnListener2 = new List<byte>();
@@ -721,15 +721,15 @@ namespace Renci.SshNet.IntegrationTests
                     s.Close();
                 }
 
-                isBytesReceivedOnLister1 = bytesReceivedEventOnListener1.WaitOne(1000);
-                isBytesReceivedOnLister2 = bytesReceivedEventOnListener2.WaitOne(1000);
+                areBytesReceivedOnListener1 = bytesReceivedEventOnListener1.WaitOne(1000);
+                areBytesReceivedOnListener2 = bytesReceivedEventOnListener2.WaitOne(1000);
 
                 forwardedPort1.Stop();
                 forwardedPort2.Stop();
             }
 
-            Assert.IsTrue(isBytesReceivedOnLister1);
-            Assert.IsTrue(isBytesReceivedOnLister2);
+            Assert.IsTrue(areBytesReceivedOnListener1);
+            Assert.IsTrue(areBytesReceivedOnListener2);
 
             var textReceivedOnListener1 = Encoding.ASCII.GetString(bytesReceivedOnListener1.ToArray());
             Assert.AreEqual("ABC\r\n", textReceivedOnListener1);

@@ -61,6 +61,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                        {
                            new Thread(() =>
                            {
+                               _closeTimer.Start();
                                Thread.Sleep(100);
                                // raise ChannelCloseReceived event to set waithandle for receiving
                                // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
@@ -68,7 +69,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                SessionMock.Raise(s => s.ChannelCloseReceived += null,
                                                  new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
                            }).Start();
-                           _closeTimer.Start();
                            try
                            {
                                waitHandle.WaitOne();

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,6 +44,7 @@ namespace Renci.SshNet.Tests.Classes
         protected IList<ExceptionEventArgs> ErrorOccurredRegister { get; private set; }
         protected AsyncSocketListener ServerListener { get; private set; }
         protected IList<byte[]> ServerBytesReceivedRegister { get; private set; }
+        protected ManualResetEventSlim FirstKexReceived { get; private set; }
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
@@ -87,6 +89,12 @@ namespace Renci.SshNet.Tests.Classes
                 ClientSocket.Shutdown(SocketShutdown.Both);
                 ClientSocket.Dispose();
             }
+
+            if (FirstKexReceived != null)
+            {
+                FirstKexReceived.Dispose();
+                FirstKexReceived = null;
+            }
         }
 
         protected virtual void SetupData()
@@ -107,6 +115,7 @@ namespace Renci.SshNet.Tests.Classes
             DisconnectReceivedRegister = new List<MessageEventArgs<DisconnectMessage>>();
             ErrorOccurredRegister = new List<ExceptionEventArgs>();
             ServerBytesReceivedRegister = new List<byte[]>();
+            FirstKexReceived = new ManualResetEventSlim();
             ServerIdentification = new SshIdentification("2.0", "OurServerStub");
             _authenticationStarted = false;
             _socketFactory = new SocketFactory();
@@ -151,11 +160,16 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     ServerBytesReceivedRegister.Add(received);
 
-                    if (WaitForClientKeyExchangeInit && received.Length > 5 && received[5] == 20)
+                    if (received.Length > 5 && received[5] == 20)
                     {
-                        // This is the KEXINIT. Send one back.
-                        SendKeyExchangeInit();
-                        WaitForClientKeyExchangeInit = false;
+                        if (WaitForClientKeyExchangeInit)
+                        {
+                            // This is the KEXINIT. Send one back.
+                            SendKeyExchangeInit();
+                            WaitForClientKeyExchangeInit = false;
+                        }
+
+                        FirstKexReceived.Set();
                     }
                 };
             ServerListener.Start();

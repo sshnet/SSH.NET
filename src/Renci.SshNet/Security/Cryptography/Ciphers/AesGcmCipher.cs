@@ -12,6 +12,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
     {
+        private const int PacketLengthFieldLength = 4;
         private readonly byte[] _iv;
 #if NET6_0_OR_GREATER
         private readonly Impl _impl;
@@ -95,9 +96,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             var output = new byte[length + TagSize];
-            Buffer.BlockCopy(input, offset, output, 0, 4);
+            Buffer.BlockCopy(input, offset, output, 0, PacketLengthFieldLength);
 
-            _impl.Encrypt(_iv, input, offset + 4, length - 4, offset, 4, output, 4);
+            _impl.Encrypt(
+                nonce: _iv,
+                input,
+                plainTextOffset: offset + PacketLengthFieldLength,
+                plainTextLength: length - PacketLengthFieldLength,
+                associatedDataOffset: offset,
+                associatedDataLength: PacketLengthFieldLength,
+                output,
+                cipherTextOffset: PacketLengthFieldLength);
 
             IncrementCounter();
 
@@ -129,7 +138,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             var output = new byte[length];
 
-            _impl.Decrypt(_iv, input, offset, length, offset - 4, 4, output, 0);
+            _impl.Decrypt(
+                nonce: _iv,
+                input,
+                cipherTextOffset: offset,
+                cipherTextLength: length,
+                associatedDataOffset: offset - PacketLengthFieldLength,
+                associatedDataLength: PacketLengthFieldLength,
+                output,
+                plainTextOffset: 0);
 
             IncrementCounter();
 
@@ -172,9 +189,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private abstract class Impl : IDisposable
         {
-            public abstract void Encrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset);
+            public abstract void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset);
 
-            public abstract void Decrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset);
+            public abstract void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset);
 
             protected virtual void Dispose(bool disposing)
             {

@@ -24,22 +24,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _tagSize = tagSize;
             }
 
-            public override void Encrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset)
+            public override void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
             {
-                var plainText = new ReadOnlySpan<byte>(input, offset, length);
-                var cipherText = new Span<byte>(output, outOffset, length);
-                var tag = new Span<byte>(output, outOffset + length, _tagSize);
-                var associatedData = new ReadOnlySpan<byte>(input, aadOffset, aadLength);
+                var cipherTextLength = plainTextLength;
+                var plainText = new ReadOnlySpan<byte>(input, plainTextOffset, plainTextLength);
+                var cipherText = new Span<byte>(output, cipherTextOffset, cipherTextLength);
+                var tag = new Span<byte>(output, cipherTextOffset + cipherTextLength, _tagSize);
+                var associatedData = new ReadOnlySpan<byte>(input, associatedDataOffset, associatedDataLength);
 
                 _aesGcm.Encrypt(nonce, plainText, cipherText, tag, associatedData);
             }
 
-            public override void Decrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset)
+            public override void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var cipherText = new ReadOnlySpan<byte>(input, offset, length);
-                var tag = new ReadOnlySpan<byte>(input, offset + length, _tagSize);
-                var plainText = new Span<byte>(output, outOffset, length);
-                var associatedData = new ReadOnlySpan<byte>(input, aadOffset, aadLength);
+                var plainTextLength = cipherTextLength;
+                var cipherText = new ReadOnlySpan<byte>(input, cipherTextOffset, cipherTextLength);
+                var tag = new ReadOnlySpan<byte>(input, cipherTextOffset + cipherTextLength, _tagSize);
+                var plainText = new Span<byte>(output, plainTextOffset, plainTextLength);
+                var associatedData = new ReadOnlySpan<byte>(input, associatedDataOffset, associatedDataLength);
 
                 try
                 {

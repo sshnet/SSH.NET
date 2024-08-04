@@ -23,24 +23,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _cipher = new GcmBlockCipher(new AesEngine());
             }
 
-            public override void Encrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset)
+            public override void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
             {
-                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(aadOffset, aadLength));
+                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
                 _cipher.Init(forEncryption: true, parameters);
 
-                var len = _cipher.ProcessBytes(input, offset, length, output, outOffset);
-                _ = _cipher.DoFinal(output, outOffset + len);
+                var cipherTextLength = _cipher.ProcessBytes(input, plainTextOffset, plainTextLength, output, cipherTextOffset);
+                _ = _cipher.DoFinal(output, cipherTextOffset + cipherTextLength);
             }
 
-            public override void Decrypt(byte[] nonce, byte[] input, int offset, int length, int aadOffset, int aadLength, byte[] output, int outOffset)
+            public override void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(aadOffset, aadLength));
+                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
                 _cipher.Init(forEncryption: false, parameters);
 
-                var len = _cipher.ProcessBytes(input, offset, length + _tagSize, output, outOffset);
+                var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSize, output, plainTextOffset);
                 try
                 {
-                    _ = _cipher.DoFinal(output, len);
+                    _ = _cipher.DoFinal(output, plainTextLength);
                 }
                 catch (InvalidCipherTextException)
                 {

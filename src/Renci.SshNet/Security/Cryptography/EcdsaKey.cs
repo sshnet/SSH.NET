@@ -7,6 +7,12 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Parameters;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
@@ -23,6 +29,7 @@ namespace Renci.SshNet.Security
         private const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
 #pragma warning restore SA1310 // Field names should not contain underscore
 
+        private int _keySize;
         private EcdsaDigitalSignature _digitalSignature;
         private bool _isDisposed;
 
@@ -66,6 +73,27 @@ namespace Renci.SshNet.Security
         public override string ToString()
         {
             return string.Format("ecdsa-sha2-nistp{0}", KeyLength);
+        }
+
+        /// <summary>
+        /// Gets the Digest to use.
+        /// </summary>
+        public IDigest Digest
+        {
+            get
+            {
+                switch (KeyLength)
+                {
+                    case 256:
+                        return new Sha256Digest();
+                    case 384:
+                        return new Sha384Digest();
+                    case 521:
+                        return new Sha512Digest();
+                    default:
+                        throw new SshException("Unknown KeySize: " + KeyLength.ToString());
+                }
+            }
         }
 
 #if NETFRAMEWORK
@@ -122,7 +150,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return Ecdsa.KeySize;
+                return _keySize;
             }
         }
 
@@ -153,56 +181,81 @@ namespace Renci.SshNet.Security
                 byte[] curve;
                 byte[] qx;
                 byte[] qy;
-#if NETFRAMEWORK
-                var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
 
-                KeyBlobMagicNumber magic;
-                using (var br = new BinaryReader(new MemoryStream(blob)))
+                if (PublicKeyParameters != null)
                 {
-                    magic = (KeyBlobMagicNumber)br.ReadInt32();
-                    var cbKey = br.ReadInt32();
-                    qx = br.ReadBytes(cbKey);
-                    qy = br.ReadBytes(cbKey);
+                    var oid = PublicKeyParameters.PublicKeyParamSet.GetID();
+                    switch (oid)
+                    {
+                        case ECDSA_P256_OID_VALUE:
+                            curve = Encoding.ASCII.GetBytes("nistp256");
+                            break;
+                        case ECDSA_P384_OID_VALUE:
+                            curve = Encoding.ASCII.GetBytes("nistp384");
+                            break;
+                        case ECDSA_P521_OID_VALUE:
+                            curve = Encoding.ASCII.GetBytes("nistp521");
+                            break;
+                        default:
+                            throw new SshException("Unexpected OID: " + oid);
+                    }
+
+                    qx = PublicKeyParameters.Q.XCoord.GetEncoded();
+                    qy = PublicKeyParameters.Q.YCoord.GetEncoded();
                 }
+                else
+                {
+#if NETFRAMEWORK
+                    var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
+
+                    KeyBlobMagicNumber magic;
+                    using (var br = new BinaryReader(new MemoryStream(blob)))
+                    {
+                        magic = (KeyBlobMagicNumber)br.ReadInt32();
+                        var cbKey = br.ReadInt32();
+                        qx = br.ReadBytes(cbKey);
+                        qy = br.ReadBytes(cbKey);
+                    }
 
 #pragma warning disable IDE0010 // Add missing cases
-                switch (magic)
-                {
-                    case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp256");
-                        break;
-                    case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P384_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp384");
-                        break;
-                    case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P521_MAGIC:
-                        curve = Encoding.ASCII.GetBytes("nistp521");
-                        break;
-                    default:
-                        throw new SshException("Unexpected Curve Magic: " + magic);
-                }
+                    switch (magic)
+                    {
+                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC:
+                            curve = Encoding.ASCII.GetBytes("nistp256");
+                            break;
+                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P384_MAGIC:
+                            curve = Encoding.ASCII.GetBytes("nistp384");
+                            break;
+                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P521_MAGIC:
+                            curve = Encoding.ASCII.GetBytes("nistp521");
+                            break;
+                        default:
+                            throw new SshException("Unexpected Curve Magic: " + magic);
+                    }
 #pragma warning restore IDE0010 // Add missing cases
 #else
-                var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
-                qx = parameter.Q.X;
-                qy = parameter.Q.Y;
-                switch (parameter.Curve.Oid.FriendlyName)
-                {
-                    case "ECDSA_P256":
-                    case "nistP256":
-                        curve = Encoding.ASCII.GetBytes("nistp256");
-                        break;
-                    case "ECDSA_P384":
-                    case "nistP384":
-                        curve = Encoding.ASCII.GetBytes("nistp384");
-                        break;
-                    case "ECDSA_P521":
-                    case "nistP521":
-                        curve = Encoding.ASCII.GetBytes("nistp521");
-                        break;
-                    default:
-                        throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
-                }
+                    var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
+                    qx = parameter.Q.X;
+                    qy = parameter.Q.Y;
+                    switch (parameter.Curve.Oid.FriendlyName)
+                    {
+                        case "ECDSA_P256":
+                        case "nistP256":
+                            curve = Encoding.ASCII.GetBytes("nistp256");
+                            break;
+                        case "ECDSA_P384":
+                        case "nistP384":
+                            curve = Encoding.ASCII.GetBytes("nistp384");
+                            break;
+                        case "ECDSA_P521":
+                        case "nistP521":
+                            curve = Encoding.ASCII.GetBytes("nistp521");
+                            break;
+                        default:
+                            throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
+                    }
 #endif
+                }
 
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
@@ -214,6 +267,18 @@ namespace Renci.SshNet.Security
                 // returns Curve-Name and x/y as ECPoint
                 return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
             }
+        }
+
+        internal ECPrivateKeyParameters PrivateKeyParameters
+        {
+            get;
+            private set;
+        }
+
+        internal ECPublicKeyParameters PublicKeyParameters
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -322,6 +387,65 @@ namespace Renci.SshNet.Security
 
         private void Import(string curve_oid, byte[] publickey, byte[] privatekey)
         {
+            // ECPoint as BigInteger(2)
+            var cord_size = (publickey.Length - 1) / 2;
+            var qx = new byte[cord_size];
+            Buffer.BlockCopy(publickey, 1, qx, 0, qx.Length);
+
+            var qy = new byte[cord_size];
+            Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
+
+            var isMono = Type.GetType("Mono.Runtime") != null;
+
+            if (isMono)
+            {
+                DerObjectIdentifier oid;
+                switch (curve_oid)
+                {
+                    case ECDSA_P256_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP256r1;
+                        _keySize = 256;
+                        break;
+                    case ECDSA_P384_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP384r1;
+                        _keySize = 384;
+                        break;
+                    case ECDSA_P521_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP521r1;
+                        _keySize = 521;
+                        break;
+                    default:
+                        throw new SshException("Unexpected OID: " + curve_oid);
+                }
+
+                var x9ECParameters = SecNamedCurves.GetByOid(oid);
+                var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
+
+                if (privatekey != null)
+                {
+                    privatekey = privatekey.TrimLeadingZeros().Pad(cord_size);
+                    PrivateKey = privatekey;
+
+                    PrivateKeyParameters = new ECPrivateKeyParameters(
+                        new Org.BouncyCastle.Math.BigInteger(1, privatekey),
+                        domainParameter);
+
+                    PublicKeyParameters = new ECPublicKeyParameters(
+                        domainParameter.G.Multiply(PrivateKeyParameters.D).Normalize(),
+                        domainParameter);
+                }
+                else
+                {
+                    PublicKeyParameters = new ECPublicKeyParameters(
+                        x9ECParameters.Curve.CreatePoint(
+                            new Org.BouncyCastle.Math.BigInteger(1, qx),
+                            new Org.BouncyCastle.Math.BigInteger(1, qy)),
+                        domainParameter);
+                }
+
+                return;
+            }
+
 #if NETFRAMEWORK
             KeyBlobMagicNumber curve_magic;
 
@@ -364,14 +488,6 @@ namespace Renci.SshNet.Security
                     throw new SshException("Unknown: " + curve_oid);
             }
 
-            // ECPoint as BigInteger(2)
-            var cord_size = (publickey.Length - 1) / 2;
-            var qx = new byte[cord_size];
-            Buffer.BlockCopy(publickey, 1, qx, 0, qx.Length);
-
-            var qy = new byte[cord_size];
-            Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
-
             if (privatekey != null)
             {
                 privatekey = privatekey.Pad(cord_size);
@@ -401,20 +517,13 @@ namespace Renci.SshNet.Security
             _key = CngKey.Import(blob, privatekey is null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);
 
             Ecdsa = new ECDsaCng(_key);
+            _keySize = Ecdsa.KeySize;
 #else
             var curve = ECCurve.CreateFromValue(curve_oid);
             var parameter = new ECParameters
             {
                 Curve = curve
             };
-
-            // ECPoint as BigInteger(2)
-            var cord_size = (publickey.Length - 1) / 2;
-            var qx = new byte[cord_size];
-            Buffer.BlockCopy(publickey, 1, qx, 0, qx.Length);
-
-            var qy = new byte[cord_size];
-            Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
 
             parameter.Q.X = qx;
             parameter.Q.Y = qy;
@@ -426,6 +535,7 @@ namespace Renci.SshNet.Security
             }
 
             Ecdsa = ECDsa.Create(parameter);
+            _keySize = Ecdsa.KeySize;
 #endif
         }
 

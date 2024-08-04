@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 
+using Org.BouncyCastle.Crypto.Signers;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -41,6 +43,16 @@ namespace Renci.SshNet.Security.Cryptography
             // for 521 sig_size is 132
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
+
+            if (_key.PublicKeyParameters != null)
+            {
+                var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
+                signer.Init(forSigning: false, _key.PublicKeyParameters);
+                signer.BlockUpdate(input, 0, input.Length);
+
+                return signer.VerifySignature(ssh_data.Signature);
+            }
+
 #if NETFRAMEWORK
             var ecdsa = _key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
@@ -59,13 +71,27 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Sign(byte[] input)
         {
+            byte[] signed = null;
+
+            if (_key.PrivateKeyParameters != null)
+            {
+                var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
+                signer.Init(forSigning: true, _key.PrivateKeyParameters);
+                signer.BlockUpdate(input, 0, input.Length);
+
+                signed = signer.GenerateSignature();
+            }
+            else
+            {
 #if NETFRAMEWORK
-            var ecdsa = _key.Ecdsa;
-            ecdsa.HashAlgorithm = _key.HashAlgorithm;
-            var signed = ecdsa.SignData(input);
+                var ecdsa = _key.Ecdsa;
+                ecdsa.HashAlgorithm = _key.HashAlgorithm;
+                signed = ecdsa.SignData(input);
 #else
-            var signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
+                signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
 #endif
+            }
+
             var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };
             return ssh_data.GetBytes();
         }

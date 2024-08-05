@@ -16,7 +16,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private readonly byte[] _iv;
 #if NET6_0_OR_GREATER
         private readonly Impl _impl;
-
 #else
         private readonly BouncyCastleImpl _impl;
 #endif

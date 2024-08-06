@@ -1,4 +1,4 @@
-// Avoid looking for .editorconfig files in parent directories
+﻿// Avoid looking for .editorconfig files in parent directories
 root=true
 
 [*]
@@ -86,10 +86,6 @@ dotnet_diagnostic.S1144.severity = none
 #
 # This is a duplicate of IDE0060.
 dotnet_diagnostic.S1172.severity = none
-
-# S1199: Nested code blocks should not be used
-# https://rules.sonarsource.com/csharp/RSPEC-1199
-dotnet_diagnostic.S1199.severity = none
 
 # S1481: Unused local variables should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1481

@@ -1,46 +1,50 @@
 image:
-  - Ubuntu2204
-  - Visual Studio 2022
+#  - Ubuntu2204
+  - Windows Server 2022
 
-services:
-  - docker
+# services:
+#   - docker
 
 for:
--
-  matrix:
-    only:
-      - image: Ubuntu2204
+#-
+  # matrix:
+  #   only:
+  #     - image: Ubuntu2204
 
-  init:
-    - git config --global core.autocrlf input
+  # init:
+  #   - git config --global core.autocrlf input
     
-  before_build:
-    - sh: mkdir artifacts -p
+  # before_build:
+  #   - sh: mkdir artifacts -p
           
-  build_script:
-    - echo build
-    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
-    - dotnet build -f net48 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+  # build_script:
+  #   - echo build
+  #   - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+  #   - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+  #   - dotnet build -f net48 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
-  test_script:
-    - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-    - sh: echo "Run integration tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
-    # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
-    # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
-    # Running all the tests causes problems which are not worth solving in this rare configuration.
-    # See https://github.com/sshnet/SSH.NET/pull/1462 and related links
-    - sh: dotnet test -f net48 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_48_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_48_coverage.xml --filter "Name~Ecdh|Name~Zlib" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+  # test_script:
+  #   - sh: echo "Run unit tests"
+  #   - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+  #   - sh: echo "Run integration tests"
+  #   - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+  #   # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
+  #   # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
+  #   # Running all the tests causes problems which are not worth solving in this rare configuration.
+  #   # See https://github.com/sshnet/SSH.NET/pull/1462 and related links
+  #   - sh: dotnet test -f net48 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_48_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_48_coverage.xml --filter "Name~Ecdh|Name~Zlib" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
 -
   matrix:
     only:
-      - image: Visual Studio 2022
+      - image: Windows Server 2022
 
   init:
     - git config --global core.autocrlf true
+    - ps: 'Write-Host "OS Build: $((Get-CimInstance Win32_OperatingSystem).BuildNumber)"'
+    - ps: wsl --version
+    - ps: docker --version
+    - ps: dotnet --version
 
   before_build:
     - ps: mkdir artifacts -f

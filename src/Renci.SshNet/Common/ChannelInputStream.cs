@@ -116,10 +116,7 @@ namespace Renci.SshNet.Common
                 throw new ArgumentOutOfRangeException(nameof(offset), "offset or count is negative.");
             }
 
-            if (_isDisposed)
-            {
-                throw CreateObjectDisposedException();
-            }
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
             if (count == 0)
             {
@@ -207,11 +204,6 @@ namespace Renci.SshNet.Common
         {
             get { return _totalPosition; }
             set { throw new NotSupportedException(); }
-        }
-
-        private ObjectDisposedException CreateObjectDisposedException()
-        {
-            return new ObjectDisposedException(GetType().FullName);
         }
     }
 }

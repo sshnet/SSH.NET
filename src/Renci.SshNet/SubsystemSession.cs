@@ -57,7 +57,7 @@ namespace Renci.SshNet
         {
             get
             {
-                EnsureNotDisposed();
+                ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
                 return _channel;
             }
@@ -106,7 +106,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The channel session could not be opened, or the subsystem could not be executed.</exception>
         public void Connect()
         {
-            EnsureNotDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
             if (IsOpen)
             {
@@ -166,7 +166,7 @@ namespace Renci.SshNet
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
-            EnsureNotDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
             EnsureSessionIsOpen();
 
             _channel.SendData(data);
@@ -535,18 +535,6 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
-        }
-
-        private void EnsureNotDisposed()
-        {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-#else
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
         }
     }
 }

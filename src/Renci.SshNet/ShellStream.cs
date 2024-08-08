@@ -231,7 +231,7 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override void Flush()
         {
-            ThrowIfDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
 
             Debug.Assert(_writeLength >= 0 && _writeLength <= _writeBuffer.Length);
 
@@ -766,18 +766,6 @@ namespace Renci.SshNet
             }
         }
 
-        private void ThrowIfDisposed()
-        {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_disposed, this);
-#else
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
-        }
-
         /// <summary>
         /// Reads all of the text currently available in the shell.
         /// </summary>
@@ -847,7 +835,7 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            ThrowIfDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
 
             while (count > 0)
             {

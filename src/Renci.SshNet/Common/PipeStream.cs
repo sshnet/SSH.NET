@@ -90,7 +90,7 @@ namespace Renci.SshNet.Common
         {
             lock (_sync)
             {
-                ThrowIfDisposed();
+                ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
 
                 AssertValid();
 
@@ -231,18 +231,6 @@ namespace Renci.SshNet.Common
         {
             get { return 0; }
             set { throw new NotSupportedException(); }
-        }
-
-        private void ThrowIfDisposed()
-        {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_disposed, this);
-#else
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
         }
     }
 }

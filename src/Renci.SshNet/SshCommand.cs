@@ -254,14 +254,7 @@ namespace Renci.SshNet
 #pragma warning disable CA1849 // Call async methods when in an async method; PipeStream.DisposeAsync would complete synchronously anyway.
         public Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-#else
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
             if (cancellationToken.IsCancellationRequested)
             {

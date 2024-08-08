@@ -1364,14 +1364,7 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_session is null, this);
-#else
-            if (_session is null)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowHelper.ThrowObjectDisposedIf(_session is null, this);
 
             if (!_session.IsOpen)
             {

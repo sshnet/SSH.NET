@@ -65,12 +65,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _impl = new BclImpl(key, TagSize);
             }
             else
+#endif
             {
                 _impl = new BouncyCastleImpl(key, TagSize);
             }
-#else
-            _impl = new BouncyCastleImpl(key, TagSize);
-#endif
         }
 
         /// <summary>

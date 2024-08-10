@@ -25,18 +25,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public override void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
             {
-                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
+                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce);
                 _cipher.Init(forEncryption: true, parameters);
-
+                _cipher.ProcessAadBytes(input, associatedDataOffset, associatedDataLength);
                 var cipherTextLength = _cipher.ProcessBytes(input, plainTextOffset, plainTextLength, output, cipherTextOffset);
                 _ = _cipher.DoFinal(output, cipherTextOffset + cipherTextLength);
             }
 
             public override void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
+                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce);
                 _cipher.Init(forEncryption: false, parameters);
-
+                _cipher.ProcessAadBytes(input, associatedDataOffset, associatedDataLength);
                 var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSize, output, plainTextOffset);
                 try
                 {

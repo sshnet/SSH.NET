@@ -1,9 +1,12 @@
 ﻿using System.Diagnostics;
+#if !NET6_0_OR_GREATER
+using System.Net;
+#endif
 
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
-{    
+{
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
@@ -21,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
 
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.google.com", 80);
+                using var port1 = new ForwardedPortLocal("localhost", 8085, "www.google.com", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
                 {
@@ -46,8 +49,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                                  .GetAwaiter()
                                                  .GetResult();
 #else
-                            var request = (HttpWebRequest) WebRequest.Create(url);
-                            var response = (HttpWebResponse) request.GetResponse();
+                        var request = (HttpWebRequest)WebRequest.Create(url);
+                        var response = (HttpWebResponse)request.GetResponse();
 #endif // NET6_0_OR_GREATER
 
                         Assert.IsNotNull(response);
@@ -102,7 +105,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
+                using var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
                 {
@@ -122,10 +125,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                      {
                                          var data = ReadStream(response.Content.ReadAsStream());
 #else
-                                        var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
-                                        using (var response = (HttpWebResponse) request.GetResponse())
-                                        {
-                                            var data = ReadStream(response.GetResponseStream());
+                                     var request = (HttpWebRequest)WebRequest.Create("http://localhost:8084");
+                                     using (var response = (HttpWebResponse)request.GetResponse())
+                                     {
+                                         var data = ReadStream(response.GetResponseStream());
 #endif // NET6_0_OR_GREATER
                                          var end = DateTime.Now;
 

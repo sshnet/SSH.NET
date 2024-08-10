@@ -73,7 +73,7 @@ namespace Renci.SshNet
         /// Negotiates a key exchange algorithm, and creates a <see cref="IKeyExchange" /> for the negotiated
         /// algorithm.
         /// </summary>
-        /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where the key is the name of the algorithm, and the value is the type implementing this algorithm.</param>
+        /// <param name="clientAlgorithms">A dictionary of the key exchange algorithms supported by the client where the key is the name of the algorithm, and the value is a factory returning this algorithm.</param>
         /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
         /// <returns>
         /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
@@ -81,7 +81,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
-        IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
+        IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms);
 
         /// <summary>
         /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
@@ -136,6 +136,17 @@ namespace Renci.SshNet
                                       uint height,
                                       IDictionary<TerminalModes, uint> terminalModeValues,
                                       int bufferSize);
+
+        /// <summary>
+        /// Creates a shell stream without allocating a pseudo terminal.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize);
 
         /// <summary>
         /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes

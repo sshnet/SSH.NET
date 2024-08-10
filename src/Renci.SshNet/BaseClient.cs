@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace Renci.SshNet
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
-        private Timer _keepAliveTimer;
+        private Timer? _keepAliveTimer;
         private ConnectionInfo _connectionInfo;
         private bool _isDisposed;
 
@@ -32,7 +33,7 @@ namespace Renci.SshNet
         /// <value>
         /// The current session.
         /// </value>
-        internal ISession Session { get; private set; }
+        internal ISession? Session { get; private set; }
 
         /// <summary>
         /// Gets the factory for creating new services.
@@ -72,7 +73,7 @@ namespace Renci.SshNet
         /// <see langword="true"/> if this client is connected; otherwise, <see langword="false"/>.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public bool IsConnected
+        public virtual bool IsConnected
         {
             get
             {
@@ -101,12 +102,14 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
 
+                value.EnsureValidTimeout(nameof(KeepAliveInterval));
+
                 if (value == _keepAliveInterval)
                 {
                     return;
                 }
 
-                if (value == SshNet.Session.InfiniteTimeSpan)
+                if (value == Timeout.InfiniteTimeSpan)
                 {
                     // stop the timer when the value is -1 milliseconds
                     StopKeepAliveTimer();
@@ -140,18 +143,17 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect ErrorOccurred" language="C#" title="Handle ErrorOccurred event" />
-        /// </example>
-        public event EventHandler<ExceptionEventArgs> ErrorOccurred;
+        public event EventHandler<ExceptionEventArgs>? ErrorOccurred;
 
         /// <summary>
         /// Occurs when host key received.
         /// </summary>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
-        /// </example>
-        public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+        public event EventHandler<HostKeyEventArgs>? HostKeyReceived;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        public event EventHandler<SshIdentificationEventArgs>? ServerIdentificationReceived;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
@@ -192,10 +194,10 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(serviceFactory));
             }
 
-            ConnectionInfo = connectionInfo;
+            _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
-            _keepAliveInterval = SshNet.Session.InfiniteTimeSpan;
+            _keepAliveInterval = Timeout.InfiniteTimeSpan;
         }
 
         /// <summary>
@@ -227,14 +229,19 @@ namespace Renci.SshNet
             // forwarded port with a client instead of with a session
             //
             // To be discussed with Oleg (or whoever is interested)
-            if (IsSessionConnected())
+            if (IsConnected)
             {
                 throw new InvalidOperationException("The client is already connected.");
             }
 
             OnConnecting();
 
-            Session = CreateAndConnectSession();
+            // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
+            var session = Session;
+            if (session is null || !session.IsConnected)
+            {
+                Session = CreateAndConnectSession();
+            }
 
             try
             {
@@ -286,14 +293,19 @@ namespace Renci.SshNet
             // forwarded port with a client instead of with a session
             //
             // To be discussed with Oleg (or whoever is interested)
-            if (IsSessionConnected())
+            if (IsConnected)
             {
                 throw new InvalidOperationException("The client is already connected.");
             }
 
             OnConnecting();
 
-            Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+            // The session may already/still be connected here because e.g. in SftpClient, IsConnected also checks the internal SFTP session
+            var session = Session;
+            if (session is null || !session.IsConnected)
+            {
+                Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             try
             {
@@ -380,14 +392,19 @@ namespace Renci.SshNet
         {
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
         {
             ErrorOccurred?.Invoke(this, e);
         }
 
-        private void Session_HostKeyReceived(object sender, HostKeyEventArgs e)
+        private void Session_HostKeyReceived(object? sender, HostKeyEventArgs e)
         {
             HostKeyReceived?.Invoke(this, e);
+        }
+
+        private void Session_ServerIdentificationReceived(object? sender, SshIdentificationEventArgs e)
+        {
+            ServerIdentificationReceived?.Invoke(this, e);
         }
 
         /// <summary>
@@ -416,14 +433,12 @@ namespace Renci.SshNet
 
                 Disconnect();
 
-                if (_ownsConnectionInfo && _connectionInfo is not null)
+                if (_ownsConnectionInfo)
                 {
                     if (_connectionInfo is IDisposable connectionInfoDisposable)
                     {
                         connectionInfoDisposable.Dispose();
                     }
-
-                    _connectionInfo = null;
                 }
 
                 _isDisposed = true;
@@ -494,7 +509,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void StartKeepAliveTimer()
         {
-            if (_keepAliveInterval == SshNet.Session.InfiniteTimeSpan)
+            if (_keepAliveInterval == Timeout.InfiniteTimeSpan)
             {
                 return;
             }
@@ -524,6 +539,7 @@ namespace Renci.SshNet
         private ISession CreateAndConnectSession()
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -542,6 +558,7 @@ namespace Renci.SshNet
         private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 
@@ -561,6 +578,7 @@ namespace Renci.SshNet
         {
             session.ErrorOccured -= Session_ErrorOccured;
             session.HostKeyReceived -= Session_HostKeyReceived;
+            session.ServerIdentificationReceived -= Session_ServerIdentificationReceived;
             session.Dispose();
         }
 

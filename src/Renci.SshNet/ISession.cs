@@ -36,7 +36,7 @@ namespace Renci.SshNet
         /// <value>
         /// The session semaphore.
         /// </value>
-        SemaphoreLight SessionSemaphore { get; }
+        SemaphoreSlim SessionSemaphore { get; }
 
         /// <summary>
         /// Gets a <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete.
@@ -259,6 +259,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         event EventHandler<ExceptionEventArgs> ErrorOccured;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.

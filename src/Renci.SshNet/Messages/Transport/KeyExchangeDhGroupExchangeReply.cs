@@ -3,10 +3,25 @@
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REPLY", MessageNumber)]
     internal sealed class KeyExchangeDhGroupExchangeReply : Message
     {
-        internal const byte MessageNumber = 33;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_REPLY";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 33;
+            }
+        }
 
         /// <summary>
         /// Gets server public host key and certificates.

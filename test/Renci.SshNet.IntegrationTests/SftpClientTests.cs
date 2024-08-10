@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Create_directory_with_contents_and_list_it()
         {
             var testDirectory = "/home/sshnet/sshnet-test";
-            var testFileName =  "test-file.txt";
+            var testFileName = "test-file.txt";
             var testFilePath = $"{testDirectory}/{testFileName}";
             var testContent = "file content";
 
@@ -34,21 +34,21 @@ namespace Renci.SshNet.IntegrationTests
             Assert.IsTrue(_sftpClient.Exists(testFilePath));
 
             // Check if ListDirectory works
-            var files = _sftpClient.ListDirectory(testDirectory);
+            var expectedFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>()
+                {
+                    ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
+                };
+
+            var actualFiles = _sftpClient.ListDirectory(testDirectory)
+                .Select(f => (f.FullName, f.IsRegularFile, f.IsDirectory))
+                .ToList();
 
             _sftpClient.DeleteFile(testFilePath);
             _sftpClient.DeleteDirectory(testDirectory);
 
-            var builder = new StringBuilder();
-            foreach (var file in files)
-            {
-                builder.AppendLine($"{file.FullName} {file.IsRegularFile} {file.IsDirectory}");
-            }
-
-            Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True
-/home/sshnet/sshnet-test/.. False True
-/home/sshnet/sshnet-test/test-file.txt True False
-", builder.ToString());
+            CollectionAssert.AreEquivalent(expectedFiles, actualFiles);
         }
 
         [TestMethod]
@@ -69,21 +69,24 @@ namespace Renci.SshNet.IntegrationTests
             Assert.IsTrue(_sftpClient.Exists(testFilePath));
 
             // Check if ListDirectory works
-            var files = _sftpClient.ListDirectoryAsync(testDirectory, CancellationToken.None);
+            var expectedFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>()
+                {
+                    ("/home/sshnet/sshnet-test/.", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/..", IsRegularFile: false, IsDirectory: true),
+                    ("/home/sshnet/sshnet-test/test-file.txt", IsRegularFile: true, IsDirectory: false),
+                };
 
-            var builder = new StringBuilder();
-            await foreach (var file in files)
+            var actualFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>();
+
+            await foreach (var file in _sftpClient.ListDirectoryAsync(testDirectory, CancellationToken.None))
             {
-                builder.AppendLine($"{file.FullName} {file.IsRegularFile} {file.IsDirectory}");
+                actualFiles.Add((file.FullName, file.IsRegularFile, file.IsDirectory));
             }
 
             _sftpClient.DeleteFile(testFilePath);
             _sftpClient.DeleteDirectory(testDirectory);
 
-            Assert.AreEqual(@"/home/sshnet/sshnet-test/. False True
-/home/sshnet/sshnet-test/.. False True
-/home/sshnet/sshnet-test/test-file.txt True False
-", builder.ToString());
+            CollectionAssert.AreEquivalent(expectedFiles, actualFiles);
         }
 
         [TestMethod]

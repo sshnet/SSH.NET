@@ -29,7 +29,11 @@ namespace Renci.SshNet.IntegrationTests
                     while ((line = sr.ReadLine()) != null)
                     {
                         // skip comments
+#if NET
+                        if (line.StartsWith('#'))
+#else
                         if (line.StartsWith("#"))
+#endif
                         {
                             continue;
                         }
@@ -69,7 +73,7 @@ namespace Renci.SshNet.IntegrationTests
             {
                 // Use linux line ending
                 sw.NewLine = "\n";
-                     
+
                 foreach (var hostEntry in Entries)
                 {
                     sw.Write(hostEntry.IPAddress);

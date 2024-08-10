@@ -17,9 +17,7 @@ namespace Renci.SshNet
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(initialState: false);
-#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables
         private bool _isSignatureRequired;
-#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables
         private bool _isDisposed;
 
         /// <summary>
@@ -240,7 +238,7 @@ namespace Renci.SshNet
             protected override void SaveData()
             {
                 WriteBinaryString(_sessionId);
-                Write((byte) RequestMessage.AuthenticationMessageCode);
+                Write((byte)RequestMessage.AuthenticationMessageCode);
                 WriteBinaryString(_message.Username);
                 WriteBinaryString(_serviceName);
                 WriteBinaryString(_authenticationMethod);

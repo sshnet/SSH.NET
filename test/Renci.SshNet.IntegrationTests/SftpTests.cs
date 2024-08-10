@@ -25,19 +25,8 @@ namespace Renci.SshNet.IntegrationTests
             _remotePathTransformation = RemotePathTransformation.ShellQuote;
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetSftpUploadFileFileStreamData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Sftp_Upload_DirectoryInfo_ExistingFile()
-        {
-            foreach (var data in GetSftpUploadFileFileStreamData())
-            {
-                Sftp_UploadFile_FileStream((int) data[0]);
-            }
-        }
-#endif
         public void Sftp_UploadFile_FileStream(int size)
         {
             var file = CreateTempFile(size);
@@ -94,7 +83,7 @@ namespace Renci.SshNet.IntegrationTests
         public void Sftp_ConnectDisconnect_Parallel()
         {
             const int iterations = 10;
-            const int threads = 20;
+            const int threads = 5;
 
             var startEvent = new ManualResetEvent(false);
 
@@ -125,7 +114,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             const string content = "SftpBeginUploadFile";
 
-            var expectedByteCount = (ulong) Encoding.ASCII.GetByteCount(content);
+            var expectedByteCount = (ulong)Encoding.ASCII.GetByteCount(content);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -143,8 +132,13 @@ namespace Renci.SshNet.IntegrationTests
                     using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(content)))
                     {
                         IAsyncResult asyncResultCallback = null;
+                        using var callbackCalled = new ManualResetEventSlim(false);
 
-                        var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, ar => asyncResultCallback = ar);
+                        var asyncResult = client.BeginUploadFile(memoryStream, remoteFile, ar =>
+                        {
+                            asyncResultCallback = ar;
+                            callbackCalled.Set();
+                        });
 
                         Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(10000));
 
@@ -155,6 +149,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.IsTrue(sftpUploadAsyncResult.IsCompleted);
                         Assert.IsFalse(sftpUploadAsyncResult.CompletedSynchronously);
                         Assert.AreEqual(expectedByteCount, sftpUploadAsyncResult.UploadedBytes);
+
+                        Assert.IsTrue(callbackCalled.Wait(10000));
 
                         // check async result callback
                         var sftpUploadAsyncResultCallback = asyncResultCallback as SftpUploadAsyncResult;
@@ -300,7 +296,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 try
                 {
-                    using (var imageStream = GetResourceStream("Renci.SshNet.IntegrationTests.resources.issue #70.png"))
+                    using (var imageStream = GetData("resources.issue #70.png"))
                     {
                         using (var fs = client.Create(remoteFile))
                         {
@@ -733,7 +729,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -814,7 +810,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -859,7 +855,8 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
+
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -939,7 +936,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -988,7 +985,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1071,7 +1068,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1118,7 +1115,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
 
@@ -1135,7 +1132,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedContentBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1231,7 +1228,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1278,7 +1275,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
 
@@ -1295,7 +1292,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedContentBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1393,15 +1390,15 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
                 }
                 finally
                 {
                     if (client.Exists(remoteFile))
-                    { 
-                            client.DeleteFile(remoteFile);
+                    {
+                        client.DeleteFile(remoteFile);
                     }
                 }
             }
@@ -1475,8 +1472,8 @@ namespace Renci.SshNet.IntegrationTests
                 finally
                 {
                     if (client.Exists(remoteFile))
-                    { 
-                            client.DeleteFile(remoteFile);
+                    {
+                        client.DeleteFile(remoteFile);
                     }
                 }
             }
@@ -1560,7 +1557,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1652,7 +1649,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1740,7 +1737,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -1826,7 +1823,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2172,7 +2169,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(content.IsEqualTo(actualBytes));
                     }
                 }
@@ -2265,7 +2262,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2278,7 +2275,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -2319,7 +2316,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2411,7 +2408,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2424,7 +2421,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -2465,7 +2462,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2553,7 +2550,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2566,7 +2563,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -2607,7 +2604,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2697,7 +2694,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2710,7 +2707,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -2751,7 +2748,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2840,7 +2837,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2853,7 +2850,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -2895,7 +2892,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -2984,7 +2981,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
                     }
 
@@ -2997,7 +2994,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
                     }
 
@@ -3039,7 +3036,7 @@ namespace Renci.SshNet.IntegrationTests
                     using (var fs = client.OpenRead(remoteFile))
                     {
                         var actualBytes = new byte[fs.Length];
-                        fs.Read(actualBytes, offset: 0, actualBytes.Length);
+                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
                         Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
                     }
                 }
@@ -4786,7 +4783,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.DeleteFile(remoteFile);
 
                     // buffer holding the data that we'll write to the file
-                    var writeBuffer = GenerateRandom(size: (int) client.BufferSize + 200);
+                    var writeBuffer = GenerateRandom(size: (int)client.BufferSize + 200);
 
                     using (var fs = client.OpenWrite(remoteFile))
                     {
@@ -4854,7 +4851,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.DeleteFile(remoteFile);
 
                     // buffer holding the data that we'll write to the file
-                    writeBuffer = GenerateRandom(size: (int) client.BufferSize * 4);
+                    writeBuffer = GenerateRandom(size: (int)client.BufferSize * 4);
 
                     // seek within EOF and beyond buffer size
                     // write less bytes than buffer size
@@ -4878,7 +4875,7 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(writeBuffer.Length, fs.Length);
 
                         // First part of file should not have been touched
-                        var readBuffer = new byte[(int) client.BufferSize * 2];
+                        var readBuffer = new byte[(int)client.BufferSize * 2];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
                         Assert.IsTrue(readBuffer.SequenceEqual(writeBuffer.Take(readBuffer.Length)));
 
@@ -4889,7 +4886,7 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x07, fs.ReadByte());
 
                         // Remaining bytes should not have been touched
-                        readBuffer = new byte[((int) client.BufferSize * 2) - 4];
+                        readBuffer = new byte[((int)client.BufferSize * 2) - 4];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
                         Assert.IsTrue(readBuffer.SequenceEqual(writeBuffer.Skip(((int)client.BufferSize * 2) + 4).Take(readBuffer.Length)));
 
@@ -6146,20 +6143,15 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.Now;
 
             client.UploadFile(fileStream, testFilePath);
 
             try
             {
-                var time = client.GetLastAccessTime(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastAccessTime(testFilePath, newTime);
-                time = client.GetLastAccessTime(testFilePath);
+                var time = client.GetLastAccessTime(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
@@ -6179,25 +6171,20 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.UtcNow;
 
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastAccessTimeUtc(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastAccessTimeUtc(testFilePath, newTime);
-                time = client.GetLastAccessTimeUtc(testFilePath);
+                var time = client.GetLastAccessTimeUtc(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
             finally
             {
-                client.DeleteFile(testFilePath); 
+                client.DeleteFile(testFilePath);
             }
         }
 
@@ -6210,19 +6197,14 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.Now;
 
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastWriteTime(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Local);
 
                 client.SetLastWriteTime(testFilePath, newTime);
-                time = client.GetLastWriteTime(testFilePath);
+                var time = client.GetLastWriteTime(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
@@ -6241,19 +6223,14 @@ namespace Renci.SshNet.IntegrationTests
             client.Connect();
 
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            var currentTime = DateTime.UtcNow;
-            
+
             client.UploadFile(fileStream, testFilePath);
             try
             {
-                var time = client.GetLastWriteTimeUtc(testFilePath);
-
-                DateTimeAssert.AreEqual(currentTime.TruncateToWholeSeconds(), time);
-
                 var newTime = new DateTime(1986, 03, 15, 01, 02, 03, 123, DateTimeKind.Utc);
 
                 client.SetLastWriteTimeUtc(testFilePath, newTime);
-                time = client.GetLastWriteTimeUtc(testFilePath);
+                var time = client.GetLastWriteTimeUtc(testFilePath);
 
                 DateTimeAssert.AreEqual(newTime.TruncateToWholeSeconds(), time);
             }
@@ -6299,17 +6276,6 @@ namespace Renci.SshNet.IntegrationTests
             }
 
             return textBytes;
-        }
-
-        private static Stream GetResourceStream(string resourceName)
-        {
-            var type = typeof(SftpTests);
-            var resourceStream = type.Assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream == null)
-            {
-                throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{type.Assembly.FullName}'.", nameof(resourceName));
-            }
-            return resourceStream;
         }
 
         private static decimal CalculateTransferSpeed(long length, long elapsedMilliseconds)

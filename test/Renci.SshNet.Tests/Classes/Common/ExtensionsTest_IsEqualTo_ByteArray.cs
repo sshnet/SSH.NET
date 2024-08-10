@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
     public class ExtensionsTest_IsEqualTo_ByteArray
     {
         private Random _random;
@@ -74,8 +74,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldReturnFalseWhenLeftIsNotEqualToRight()
         {
-            Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a}, new byte[] {0x0a, 0x0d}));
-            Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a, 0x0d}, new byte[] {0x0a}));
+            Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a }, new byte[] { 0x0a, 0x0d }));
+            Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[] { 0x0a }));
             Assert.IsFalse(Extensions.IsEqualTo(new byte[0], new byte[] { 0x0a }));
             Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[0]));
         }

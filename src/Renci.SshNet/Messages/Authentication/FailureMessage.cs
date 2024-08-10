@@ -5,9 +5,26 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_FAILURE message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_FAILURE", 51)]
     public class FailureMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_FAILURE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 51;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the allowed authentications if available.
         /// </summary>
@@ -51,14 +68,18 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
             throw new NotImplementedException();
-#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
         }
 
         internal override void Process(Session session)
         {
             session.OnUserAuthenticationFailureReceived(this);
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_FAILURE {string.Join(",", AllowedAuthentications)} ({nameof(PartialSuccess)}:{PartialSuccess})";
         }
     }
 }

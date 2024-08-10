@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -39,12 +42,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
 
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(0, int.MaxValue);
-            _localPacketSize = (uint) random.Next(0, int.MaxValue);
-            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(0, int.MaxValue);
+            _localPacketSize = (uint)random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint)random.Next(0, int.MaxValue);
             _closeTimer = new Stopwatch();
             _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
             _channelClosedRegister = new List<ChannelEventArgs>();
@@ -63,6 +66,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         {
                             new Thread(() =>
                             {
+                                _closeTimer.Start();
                                 Thread.Sleep(100);
                                 // raise ChannelCloseReceived event to set waithandle for receiving
                                 // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
@@ -71,7 +75,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                                    new MessageEventArgs<ChannelCloseMessage>(
                                                        new ChannelCloseMessage(_localChannelNumber)));
                             }).Start();
-                            _closeTimer.Start();
                             try
                             {
                                 w.WaitOne();

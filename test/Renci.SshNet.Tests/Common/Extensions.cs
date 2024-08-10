@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+
 using Renci.SshNet.Common;
-using System;
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Common

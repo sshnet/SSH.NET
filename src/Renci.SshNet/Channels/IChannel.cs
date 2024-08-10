@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -58,6 +59,11 @@ namespace Renci.SshNet.Channels
         /// </para>
         /// </remarks>
         uint LocalPacketSize { get; }
+
+        /// <summary>
+        /// Gets the remote channel number.
+        /// </summary>
+        uint RemoteChannelNumber { get; }
 
         /// <summary>
         /// Gets the maximum size of a data packet that can be sent using the channel.

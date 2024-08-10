@@ -15,7 +15,7 @@ namespace Renci.SshNet
     /// </summary>
     public class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
     {
-        private readonly RequestMessage _requestMessage;
+        private readonly RequestMessagePassword _requestMessage;
         private readonly byte[] _password;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;

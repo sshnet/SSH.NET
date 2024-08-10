@@ -7,7 +7,11 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 tab_width = 4
-end_of_line = crlf
+
+[*.{xml,csproj,props}]
+
+indent_size = 2
+tab_width = 2
 
 [*.cs]
 
@@ -59,11 +63,23 @@ dotnet_diagnostic.S1125.severity = none
 # This is a duplicate of MA0026.
 dotnet_diagnostic.S1135.severity = none
 
+
+# SA1137: Elements should have the same indentation
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1137.md
+# duplicate of IDE0055
+dotnet_diagnostic.SA1137.severity = none
+
 # S1168: Empty arrays and collections should be returned instead of null
 # https://rules.sonarsource.com/csharp/RSPEC-1168
 #
 # We sometimes return null to avoid allocating an empty List<T>.
 dotnet_diagnostic.S1168.severity = none
+
+# S1144: Unused private types or members should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1144
+#
+# This is a duplicate of IDE0051.
+dotnet_diagnostic.S1144.severity = none
 
 # S1172: Unused method parameters should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1172
@@ -83,11 +99,30 @@ dotnet_diagnostic.S1481.severity = none
 # This is a duplicate of IDE0059.
 dotnet_diagnostic.S1854.severity = none
 
+# S1944: Invalid casts should be avoided
+# https://rules.sonarsource.com/csharp/RSPEC-1944/
+#
+# Disabled due to build performance impact.
+dotnet_diagnostic.S1944.severity = none
+
+# S2053: Hashes should include an unpredictable salt
+# https://rules.sonarsource.com/csharp/RSPEC-2053/
+#
+# Disabled due to build performance impact /
+# We need to specify the salt.
+dotnet_diagnostic.S2053.severity = none
+
 # S2259: Null pointers should not be dereferenced
 # https://rules.sonarsource.com/csharp/RSPEC-2259
 #
 # The analysis is not precise enough, leading to false positives.
 dotnet_diagnostic.S2259.severity = none
+
+# S2292: Trivial properties should be auto-implemented
+# https://rules.sonarsource.com/csharp/RSPEC-2292
+#
+# This is a duplicate of IDE0032.
+dotnet_diagnostic.S2292.severity = none
 
 # S2445: Blocks should be synchronized on read-only fields
 # https://rules.sonarsource.com/csharp/RSPEC-2445
@@ -104,8 +139,9 @@ dotnet_diagnostic.S2551.severity = none
 # S2583: Conditionally executed code should be reachable
 # https://rules.sonarsource.com/csharp/RSPEC-2583
 #
+# Disabled due to build performance impact /
 # This rule produces false errors in, for example, for loops.
-#dotnet_diagnostic.S2583.severity = none
+dotnet_diagnostic.S2583.severity = none
 
 # S2699: Tests should include assertions
 # https://rules.sonarsource.com/csharp/RSPEC-2699
@@ -118,6 +154,12 @@ dotnet_diagnostic.S2551.severity = none
 #     _timer.Dispose();
 # }
 dotnet_diagnostic.S2699.severity = none
+
+# S2930: "IDisposables" should be disposed
+# https://rules.sonarsource.com/csharp/RSPEC-2930/
+#
+# Duplicate of CA2000.
+dotnet_diagnostic.S2930.severity = none
 
 # S2933: Fields that are only assigned in the constructor should be "readonly"
 # https://rules.sonarsource.com/csharp/RSPEC-2933
@@ -143,6 +185,10 @@ dotnet_diagnostic.S3218.severity = none
 # LINQ is the root of all evil :p
 dotnet_diagnostic.S3267.severity = none
 
+# S3329: Cipher Block Chaining IVs should be unpredictable
+# https://rules.sonarsource.com/csharp/RSPEC-3329/
+dotnet_diagnostic.S3329.severity = none
+
 # S3376: Attribute, EventArgs, and Exception type names should end with the type being extended
 # https://rules.sonarsource.com/csharp/RSPEC-3376
 #
@@ -150,11 +196,53 @@ dotnet_diagnostic.S3267.severity = none
 # consider enabling S3376 in favor of MA0058.
 dotnet_diagnostic.S3376.severity = none
 
+# S3442: "abstract" classes should not have "public" constructors
+# https://rules.sonarsource.com/csharp/RSPEC-3442
+#
+# This is a duplicate of MA0017.
+dotnet_diagnostic.S3442.severity = none
+
+# S3450: Parameters with "[DefaultParameterValue]" attributes should also be marked "[Optional]"
+# https://rules.sonarsource.com/csharp/RSPEC-3450
+#
+# This is a duplicate of MA0087.
+dotnet_diagnostic.S3450.severity = none
+
+# S3459: Unassigned members should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-3459/
+#
+# Duplicate of IDE0051/IDE0052
+dotnet_diagnostic.S3459.severity = none
+
+# S3626: Jump statements should not be redundant
+# https://rules.sonarsource.com/csharp/RSPEC-3626/
+#
+# Disabled due to build performance impact.
+dotnet_diagnostic.S3626.severity = none
+
+# S3655: Empty nullable value should not be accessed
+# https://rules.sonarsource.com/csharp/RSPEC-3655/
+#
+# Disabled due to build performance impact.
+dotnet_diagnostic.S3655.severity = none
+
 # S3871: Exception types should be "public"
 # https://rules.sonarsource.com/csharp/RSPEC-3871
 #
 # This is a duplicate of CA1064.
 dotnet_diagnostic.S3871.severity = none
+
+# S3900: Arguments of public methods should be validated against null
+# https://rules.sonarsource.com/csharp/RSPEC-3900/
+#
+# This is a duplicate of CA1062.
+dotnet_diagnostic.S3900.severity = none
+
+# S3903: Types should be defined in named namespaces
+# https://rules.sonarsource.com/csharp/RSPEC-3903
+#
+# This is a duplicate of MA0047.
+dotnet_diagnostic.S3903.severity = none
 
 # S3925: "ISerializable" should be implemented correctly
 # https://rules.sonarsource.com/csharp/RSPEC-3925
@@ -168,6 +256,12 @@ dotnet_diagnostic.S3925.severity = none
 # This is a duplicate of MA0015.
 dotnet_diagnostic.S3928.severity = none
 
+# S3949: Calculations should not overflow
+# https://rules.sonarsource.com/csharp/RSPEC-3949/
+#
+# Disabled due to build performance impact.
+dotnet_diagnostic.S3949.severity = none
+
 # S3998: Threads should not lock on objects with weak identity
 # https://rules.sonarsource.com/csharp/RSPEC-3998
 #
@@ -179,6 +273,16 @@ dotnet_diagnostic.S3998.severity = none
 #
 # This is a duplicate of MA0062.
 dotnet_diagnostic.S4070.severity = none
+
+# S4158: Empty collections should not be accessed or iterated
+# https://rules.sonarsource.com/csharp/RSPEC-4158/
+#
+# Disabled due to build performance impact.
+dotnet_diagnostic.S4158.severity = none
+
+# S4423: Weak SSL/TLS protocols should not be used
+# https://rules.sonarsource.com/csharp/RSPEC-4423/
+dotnet_diagnostic.S4423.severity = none
 
 # S4456: Parameter validation in yielding methods should be wrapped
 # https://rules.sonarsource.com/csharp/RSPEC-4456
@@ -196,6 +300,26 @@ dotnet_diagnostic.S4487.severity = none
 # https://rules.sonarsource.com/csharp/RSPEC-4581
 #
 # This is a partial duplicate of MA0067, and we do not want to report the use of 'default' for a Guid as error.
+dotnet_diagnostic.S4581.severity = none
+
+# S4830: Server certificates should be verified during SSL/TLS connections
+# https://rules.sonarsource.com/csharp/RSPEC-4830/
+dotnet_diagnostic.S4830.severity = none
+
+# S5542: Encryption algorithms should be used with secure mode and padding scheme
+# https://rules.sonarsource.com/csharp/RSPEC-5542/
+dotnet_diagnostic.S5542.severity = none
+
+# S5547: Cipher algorithms should be robust
+# https://rules.sonarsource.com/csharp/RSPEC-5547/
+dotnet_diagnostic.S5547.severity = none
+
+# S5659: JWT should be signed and verified with strong cipher algorithms
+# https://rules.sonarsource.com/csharp/RSPEC-5659/
+dotnet_diagnostic.S5659.severity = none
+
+# S5773: Types allowed to be deserialized should be restricted
+# https://rules.sonarsource.com/csharp/RSPEC-5773/
 dotnet_diagnostic.S4581.severity = none
 
 #### StyleCop rules ####
@@ -221,6 +345,11 @@ dotnet_diagnostic.SA1008.severity = none
 # var x = (int) z;
 dotnet_diagnostic.SA1009.severity = none
 
+# SA1025: Code should not contain multiple whitespace in a row
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1025.md
+# duplicate of IDE0055
+dotnet_diagnostic.SA1025.severity = none
+
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
 
@@ -231,6 +360,12 @@ dotnet_diagnostic.SA1101.severity = none
 # arrayBuilder.Add(new StatisticsCallInfo(callsByType.Key,
 #                                         callsForType.Count);
 dotnet_diagnostic.SA1116.severity = none
+
+# SA1121: Use built-in type alias
+# https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1121.md
+#
+# Duplicate of IDE0049.
+dotnet_diagnostic.SA1121.severity = none
 
 # SA1200: Using directives must be placed correctly
 #
@@ -263,6 +398,11 @@ dotnet_diagnostic.SA1413.severity = none
 # This is a duplicate of IDE0011.
 dotnet_diagnostic.SA1503.severity = none
 
+# SA1512: Single-line comments should not be followed by a blank line
+#
+# Blank lines can improve readability.
+dotnet_diagnostic.SA1512.severity = none
+
 # SA1516: Elements must be separated by blank line
 #
 # When enabled, a diagnostic is produced for properties with both a get and set accessor.
@@ -290,6 +430,9 @@ dotnet_diagnostic.SA1520.severity = none
 #
 # We do not use file headers.
 dotnet_diagnostic.SA1633.severity = none
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
 
 # SA1648: <inheritdoc> must be used with inheriting class
 #
@@ -518,9 +661,7 @@ dotnet_diagnostic.CA1510.severity = none
 #
 # This is a duplicate of S927, but contains at least one bug:
 # https://github.com/dotnet/roslyn-analyzers/issues/6461
-#
-# Since we do not enable any of the Sonar rules by default, we'll leave CA1725 enabled.
-dotnet_diagnostic.CA1725.severity = error
+dotnet_diagnostic.CA1725.severity = none
 
 # CA1825: Avoid zero-length array allocations
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
@@ -547,7 +688,7 @@ dotnet_diagnostic.CA1852.severity = none
 # CA1859: Change return type for improved performance
 #
 # By default, this diagnostic is only reported for private members.
-dotnet_code_quality.CA1859.api_surface = all
+dotnet_code_quality.CA1859.api_surface = private,internal
 
 # CA2208: Instantiate argument exceptions correctly
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2208
@@ -555,7 +696,40 @@ dotnet_code_quality.CA1859.api_surface = all
 # This is similar to, but less powerful than, MA0015.
 dotnet_diagnostic.CA2208.severity = none
 
+# CA5358: Do Not Use Unsafe Cipher Modes / Review cipher mode usage with cryptography experts
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5358
+#
+# We use ECB mode as the basis for other modes (e.g. CTR)
+dotnet_diagnostic.CA5358.severity = none
+
+# CA5389: Do not add archive item's path to the target file system path
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5389
+dotnet_diagnostic.CA5389.severity = none
+
+# CA5390: Do not hard-code encryption key
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5390
+dotnet_diagnostic.CA5390.severity = none
+
+# CA5401: Do not use CreateEncryptor with non-default IV
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5401
+dotnet_diagnostic.CA5401.severity = none
+
+# CA5402: Use CreateEncryptor with the default IV
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5402
+dotnet_diagnostic.CA5402.severity = none
+
+# CA5403: Do not hard-code certificate
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca5403
+dotnet_diagnostic.CA5403.severity = none
+
 #### Roslyn IDE analyser rules ####
+
+# IDE0028: Simplify collection initialization; and
+# IDE0305: Simplify collection initialization
+#
+# Temporarily suppressing collection expression recommendations coming from .NET 8 SDK
+dotnet_diagnostic.IDE0028.severity = none
+dotnet_diagnostic.IDE0305.severity = none
 
 # IDE0032: Use auto-implemented property
 #
@@ -579,18 +753,6 @@ dotnet_diagnostic.IDE0046.severity = suggestion
 # 
 # Removing "unnecessary" parentheses is not always a clear win for readability.
 dotnet_diagnostic.IDE0047.severity = suggestion
-
-# IDE0055: Fix formatting
-#
-# When enabled, diagnostics are reported for indented object initializers.
-# For example:
-# _content = new Person
-#     {
-#         Name = "\u13AAlarm"
-#     };
-#
-# There are no settings to configure this correctly, unless https://github.com/dotnet/roslyn/issues/63256 (or similar) is ever implemented.
-dotnet_diagnostic.IDE0055.severity = none
 
 # IDE0130: Namespace does not match folder structure
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0130
@@ -762,7 +924,7 @@ csharp_indent_block_contents = true
 
 # Spacing options
 
-csharp_space_after_cast = true
+csharp_space_after_cast = false
 csharp_space_after_keywords_in_control_flow_statements = true
 csharp_space_between_parentheses = false
 csharp_space_before_colon_in_inheritance_clause = true

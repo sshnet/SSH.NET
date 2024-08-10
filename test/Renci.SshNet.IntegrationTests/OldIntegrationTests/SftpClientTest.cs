@@ -14,7 +14,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (FileStream file = new FileStream(fileName, FileMode.Open))
             {
-                var hash = MD5.HashData(file);
+                byte[] hash;
+                using (var md5 = MD5.Create())
+                {
+                    hash = md5.ComputeHash(file);
+                }
 
                 file.Close();
 

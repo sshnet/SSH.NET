@@ -23,27 +23,9 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void HmacMd5()
-        {
-            DoTest(MessageAuthenticationCodeAlgorithm.HmacMd5);
-        }
-
-        [TestMethod]
-        public void HmacMd5_96()
-        {
-            DoTest(MessageAuthenticationCodeAlgorithm.HmacMd5_96);
-        }
-
-        [TestMethod]
         public void HmacSha1()
         {
             DoTest(MessageAuthenticationCodeAlgorithm.HmacSha1);
-        }
-
-        [TestMethod]
-        public void HmacSha1_96()
-        {
-            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha1_96);
         }
 
         [TestMethod]
@@ -56,6 +38,25 @@ namespace Renci.SshNet.IntegrationTests
         public void HmacSha2_512()
         {
             DoTest(MessageAuthenticationCodeAlgorithm.HmacSha2_512);
+        }
+
+
+        [TestMethod]
+        public void HmacSha1_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha1Etm);
+        }
+
+        [TestMethod]
+        public void HmacSha2_256_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha2_256_Etm);
+        }
+
+        [TestMethod]
+        public void HmacSha2_512_Etm()
+        {
+            DoTest(MessageAuthenticationCodeAlgorithm.HmacSha2_512_Etm);
         }
 
         private void DoTest(MessageAuthenticationCodeAlgorithm macAlgorithm)

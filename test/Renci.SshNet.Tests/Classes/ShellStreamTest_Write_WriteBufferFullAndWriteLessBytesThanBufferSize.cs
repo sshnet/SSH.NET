@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -89,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.SendShellRequest())
                                .Returns(true);
             _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_bufferData));
+                               .Setup(p => p.SendData(_bufferData, 0, _bufferData.Length));
         }
 
         private void Arrange()
@@ -118,18 +121,21 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BufferShouldBeSentToServer()
         {
-            _channelSessionMock.Verify(p => p.SendData(_bufferData), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
 
         [TestMethod]
         public void FlushShouldSendRemainingBytesInBufferToServer()
         {
-            _channelSessionMock.InSequence(_mockSequence)
-                               .Setup(p => p.SendData(_data));
+            _ = _channelSessionMock.InSequence(_mockSequence)
+                                   .Setup(p => p.SendData(
+                                       It.Is<byte[]>(data => data.Take(_data.Length).IsEqualTo(_data)),
+                                       0,
+                                       _data.Length));
 
             _shellStream.Flush();
 
-            _channelSessionMock.Verify(p => p.SendData(_data), Times.Once);
+            _channelSessionMock.VerifyAll();
         }
     }
 }

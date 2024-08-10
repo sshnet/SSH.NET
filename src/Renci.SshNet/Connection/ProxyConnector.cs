@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Renci.SshNet.Connection
 #if NET || NETSTANDARD2_1_OR_GREATER
             await using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
-            using (cancellationToken.Register(o => ((Socket) o).Dispose(), socket, useSynchronizationContext: false))
+            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
 #endif // NET || NETSTANDARD2_1_OR_GREATER
             {
 #pragma warning disable MA0042 // Do not use blocking calls in an async method; false positive caused by https://github.com/meziantou/Meziantou.Analyzer/issues/613
@@ -52,7 +53,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
+            var socket = SocketConnect(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), connectionInfo.Timeout);
 
             try
             {
@@ -78,7 +79,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            var socket = await SocketConnectAsync(connectionInfo.ProxyHost, connectionInfo.ProxyPort, cancellationToken).ConfigureAwait(false);
+            var socket = await SocketConnectAsync(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), cancellationToken).ConfigureAwait(false);
 
             try
             {

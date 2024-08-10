@@ -1,6 +1,7 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
+﻿using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {
@@ -14,6 +15,19 @@ namespace Renci.SshNet.Security
             get { return "ecdh-sha2-nistp384"; }
         }
 
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Gets the curve.
+        /// </summary>
+        protected override System.Security.Cryptography.ECCurve Curve
+        {
+            get
+            {
+                return System.Security.Cryptography.ECCurve.NamedCurves.nistP384;
+            }
+        }
+#endif
+
         /// <summary>
         /// Gets Curve Parameter.
         /// </summary>
@@ -21,7 +35,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return SecNamedCurves.GetByName("P-384");
+                return SecNamedCurves.GetByOid(SecObjectIdentifiers.SecP384r1);
             }
         }
 
@@ -45,10 +59,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha384 = CryptoAbstraction.CreateSHA384())
-            {
-                return sha384.ComputeHash(hashData, 0, hashData.Length);
-            }
+            return CryptoAbstraction.HashSHA384(hashData);
         }
     }
 }

@@ -64,6 +64,25 @@ namespace Renci.SshNet.IntegrationTests
             DoTest(Cipher.Aes256Ctr);
         }
 
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        public void Aes128Gcm()
+        {
+            DoTest(Cipher.Aes128Gcm);
+        }
+
+        [TestMethod]
+        public void Aes256Gcm()
+        {
+            DoTest(Cipher.Aes256Gcm);
+        }
+#endif
+        [TestMethod]
+        public void ChaCha20Poly1305()
+        {
+            DoTest(Cipher.Chacha20Poly1305);
+        }
+
         private void DoTest(Cipher cipher)
         {
             _remoteSshdConfig.ClearCiphers()

@@ -1,6 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Tests.Common;
-using System;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -35,9 +37,9 @@ namespace Renci.SshNet.Tests.Classes
             var operationTimeout = TimeSpan.FromMilliseconds(_random.Next(0, int.MaxValue - 1));
             var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
             var target = new SftpClient(connectionInfo)
-                {
-                    OperationTimeout = operationTimeout
-                };
+            {
+                OperationTimeout = operationTimeout
+            };
 
             var actual = target.OperationTimeout;
 
@@ -50,9 +52,9 @@ namespace Renci.SshNet.Tests.Classes
             var operationTimeout = TimeSpan.FromMilliseconds(-1);
             var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
             var target = new SftpClient(connectionInfo)
-                {
-                    OperationTimeout = operationTimeout
-                };
+            {
+                OperationTimeout = operationTimeout
+            };
 
             var actual = target.OperationTimeout;
 
@@ -65,9 +67,9 @@ namespace Renci.SshNet.Tests.Classes
             var operationTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
             var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
             var target = new SftpClient(connectionInfo)
-                {
-                    OperationTimeout = operationTimeout
-                };
+            {
+                OperationTimeout = operationTimeout
+            };
 
             var actual = target.OperationTimeout;
 
@@ -88,8 +90,9 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
-                Assert.AreEqual("value", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("OperationTimeout", ex.ParamName);
             }
         }
 
@@ -107,8 +110,9 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
-                Assert.AreEqual("value", ex.ParamName);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
+
+                Assert.AreEqual("OperationTimeout", ex.ParamName);
             }
         }
 

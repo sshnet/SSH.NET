@@ -112,9 +112,6 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
-        /// </example>
         public ForwardedPortRemote(uint boundPort, string host, uint port)
             : this(string.Empty, boundPort, host, port)
         {
@@ -128,9 +125,9 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
-            : this(DnsAbstraction.GetHostAddresses(boundHost)[0],
+            : this(Dns.GetHostAddresses(boundHost)[0],
                    boundPort,
-                   DnsAbstraction.GetHostAddresses(host)[0],
+                   Dns.GetHostAddresses(host)[0],
                    port)
         {
         }
@@ -191,6 +188,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for the port to stop.</param>
         protected override void StopPort(TimeSpan timeout)
         {
+            timeout.EnsureValidTimeout(nameof(timeout));
+
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {
                 return;
@@ -271,7 +270,7 @@ namespace Renci.SshNet
                                 using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
-                                    channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
+                                    channel.Bind(new IPEndPoint(HostAddress, (int)Port), this);
                                 }
                             }
                             catch (Exception exp)

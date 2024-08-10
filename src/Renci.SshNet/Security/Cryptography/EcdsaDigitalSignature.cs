@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Globalization;
-#if NETFRAMEWORK
-using System.Security.Cryptography;
-#endif // NETFRAMEWORK
 
 using Renci.SshNet.Common;
 
@@ -45,7 +42,7 @@ namespace Renci.SshNet.Security.Cryptography
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
 #if NETFRAMEWORK
-            var ecdsa = (ECDsaCng)_key.Ecdsa;
+            var ecdsa = _key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             return ecdsa.VerifyData(input, ssh_data.Signature);
 #else
@@ -63,7 +60,7 @@ namespace Renci.SshNet.Security.Cryptography
         public override byte[] Sign(byte[] input)
         {
 #if NETFRAMEWORK
-            var ecdsa = (ECDsaCng)_key.Ecdsa;
+            var ecdsa = _key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             var signed = ecdsa.SignData(input);
 #else
@@ -159,7 +156,7 @@ namespace Renci.SshNet.Security.Cryptography
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
                 }
 
-                return ReadBytes((int) length);
+                return ReadBytes((int)length);
             }
 
             protected override int BufferCapacity

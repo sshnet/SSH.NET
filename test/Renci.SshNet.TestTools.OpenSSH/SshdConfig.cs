@@ -136,6 +136,15 @@ namespace Renci.SshNet.TestTools.OpenSSH
         public string Protocol { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether TTY is permitted.
+        /// </summary>
+        /// <value>
+        /// <see langword="true"/> to permit and <see langword="false"/> to not permit TTY,
+        /// or <see langword="null"/> if this option is not configured.
+        /// </value>
+        public bool? PermitTTY { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether TCP forwarding is allowed.
         /// </summary>
         /// <value>
@@ -238,6 +247,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 writer.WriteLine("KbdInteractiveAuthentication " + _booleanFormatter.Format(KeyboardInteractiveAuthentication.Value));
             }
 
+            if (PermitTTY is not null)
+            {
+                writer.WriteLine("PermitTTY " + _booleanFormatter.Format(PermitTTY.Value));
+            }
+
             if (AllowTcpForwarding is not null)
             {
                 writer.WriteLine("AllowTcpForwarding " + _booleanFormatter.Format(AllowTcpForwarding.Value));
@@ -329,7 +343,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     sshdConfig.KeyboardInteractiveAuthentication = ToBool(value);
                     break;
                 case "LogLevel":
-                    sshdConfig.LogLevel = Enum.Parse<LogLevel>(value, ignoreCase: true);
+                    sshdConfig.LogLevel = (LogLevel)Enum.Parse(typeof(LogLevel), value, ignoreCase: true);
                     break;
                 case "Subsystem":
                     sshdConfig.Subsystems.Add(Subsystem.FromConfig(value));
@@ -364,6 +378,9 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "Protocol":
                     sshdConfig.Protocol = value;
                     break;
+                case "PermitTTY":
+                    sshdConfig.PermitTTY = ToBool(value);
+                    break;
                 case "AllowTcpForwarding":
                     sshdConfig.AllowTcpForwarding = ToBool(value);
                     break;
@@ -385,6 +402,7 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 case "AuthorizedKeysFile":
                 case "PasswordAuthentication":
                 case "GatewayPorts":
+                case "Include":
                     break;
                 default:
                     throw new NotSupportedException($"Global option '{name}' is not supported.");

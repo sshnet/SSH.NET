@@ -19,21 +19,8 @@ namespace Renci.SshNet.IntegrationTests
             _remotePathTransformation = RemotePathTransformation.ShellQuote;
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadStreamDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_Stream_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpDownloadStreamDirectoryDoesNotExistData())
-            {
-                Scp_Download_Stream_DirectoryDoesNotExist((IRemotePathTransformation) data[0],
-                                                           (string) data[1],
-                                                           (string) data[2]);
-            }
-        }
-#endif
         public void Scp_Download_Stream_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                               string remotePath,
                                                               string remoteFile)
@@ -106,21 +93,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadStreamFileDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_Stream_FileDoesNotExist()
-        {
-            foreach (var data in GetScpDownloadStreamFileDoesNotExistData())
-            {
-                Scp_Download_Stream_FileDoesNotExist((IRemotePathTransformation)data[0],
-                                                      (string)data[1],
-                                                      (string)data[2]);
-            }
-        }
-#endif
         public void Scp_Download_Stream_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                          string remotePath,
                                                          string remoteFile)
@@ -195,20 +169,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_DirectoryInfo_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpDownloadDirectoryInfoDirectoryDoesNotExistData())
-            {
-                Scp_Download_DirectoryInfo_DirectoryDoesNotExist((IRemotePathTransformation)data[0],
-                                                                 (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Download_DirectoryInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                      string remotePath)
         {
@@ -265,20 +227,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_DirectoryInfo_ExistingFile()
-        {
-            foreach (var data in GetScpDownloadDirectoryInfoExistingFileData())
-            {
-                Scp_Download_DirectoryInfo_ExistingFile((IRemotePathTransformation)data[0],
-                                                         (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Download_DirectoryInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                             string remotePath)
         {
@@ -340,20 +290,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_DirectoryInfo_ExistingDirectory()
-        {
-            foreach (var data in GetScpDownloadDirectoryInfoExistingDirectoryData())
-            {
-                Scp_Download_DirectoryInfo_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                             (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Download_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                  string remotePath)
         {
@@ -495,21 +433,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_FileInfo_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpDownloadFileInfoDirectoryDoesNotExistData())
-            {
-                Scp_Download_FileInfo_DirectoryDoesNotExist((IRemotePathTransformation)data[0],
-                                                            (string)data[1],
-                                                            (string)data[2]);
-            }
-        }
-#endif
         public void Scp_Download_FileInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                 string remotePath,
                                                                 string remoteFile)
@@ -580,21 +505,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoFileDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_FileInfo_FileDoesNotExist()
-        {
-            foreach (var data in GetScpDownloadFileInfoFileDoesNotExistData())
-            {
-                Scp_Download_FileInfo_FileDoesNotExist((IRemotePathTransformation)data[0],
-                                                        (string)data[1],
-                                                        (string)data[2]);
-            }
-        }
-#endif
         public void Scp_Download_FileInfo_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                            string remotePath,
                                                            string remoteFile)
@@ -667,20 +579,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_FileInfo_ExistingDirectory()
-        {
-            foreach (var data in GetScpDownloadFileInfoExistingDirectoryData())
-            {
-                Scp_Download_FileInfo_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                        (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Download_FileInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                             string remotePath)
         {
@@ -748,22 +648,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_FileInfo_ExistingFile()
-        {
-            foreach (var data in GetScpDownloadFileInfoExistingFileData())
-            {
-                Scp_Download_FileInfo_ExistingFile((IRemotePathTransformation)data[0],
-                                                        (string)data[1],
-                                                        (string)data[2],
-                                                        (int)data[3]);
-            }
-        }
-#endif
         public void Scp_Download_FileInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                        string remotePath,
                                                        string remoteFile,
@@ -854,20 +740,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadStreamExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_Stream_ExistingDirectory()
-        {
-            foreach (var data in GetScpDownloadStreamExistingDirectoryData())
-            {
-                Scp_Download_Stream_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                      (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Download_Stream_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                           string remotePath)
         {
@@ -934,22 +808,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpDownloadStreamExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Download_Stream_ExistingFile()
-        {
-            foreach (var data in GetScpDownloadStreamExistingFileData())
-            {
-                Scp_Download_Stream_ExistingFile((IRemotePathTransformation)data[0],
-                                                 (string)data[1],
-                                                 (string)data[2],
-                                                 (int)data[3]);
-            }
-        }
-#endif
         public void Scp_Download_Stream_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                      string remotePath,
                                                      string remoteFile,
@@ -1035,21 +895,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileStream_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpUploadFileStreamDirectoryDoesNotExistData())
-            {
-                Scp_Upload_FileStream_DirectoryDoesNotExist((IRemotePathTransformation)data[0],
-                                                            (string)data[1],
-                                                            (string)data[2]);
-            }
-        }
-#endif
         public void Scp_Upload_FileStream_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                 string remotePath,
                                                                 string remoteFile)
@@ -1118,20 +965,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileStream_ExistingDirectory()
-        {
-            foreach (var data in GetScpUploadFileStreamExistingDirectoryData())
-            {
-                Scp_Upload_FileStream_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                        (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_FileStream_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                             string remoteFile)
         {
@@ -1193,20 +1028,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(ScpUploadFileStreamExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileStream_ExistingFile()
-        {
-            foreach (var data in ScpUploadFileStreamExistingFileData())
-            {
-                Scp_Upload_FileStream_ExistingFile((IRemotePathTransformation)data[0],
-                                                   (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_FileStream_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                        string remoteFile)
         {
@@ -1274,22 +1097,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamFileDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileStream_FileDoesNotExist()
-        {
-            foreach (var data in GetScpUploadFileStreamFileDoesNotExistData())
-            {
-                Scp_Upload_FileStream_FileDoesNotExist((IRemotePathTransformation)data[0],
-                                                       (string)data[1],
-                                                       (string)data[2],
-                                                       (int)data[3]);
-            }
-        }
-#endif
         public void Scp_Upload_FileStream_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                            string remotePath,
                                                            string remoteFile,
@@ -1387,21 +1196,8 @@ namespace Renci.SshNet.IntegrationTests
         /// <summary>
         /// https://github.com/sshnet/SSH.NET/issues/289
         /// </summary>
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileInfo_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpUploadFileInfoDirectoryDoesNotExistData())
-            {
-                Scp_Upload_FileInfo_DirectoryDoesNotExist((IRemotePathTransformation)data[0],
-                                                          (string)data[1],
-                                                          (string)data[2]);
-            }
-        }
-#endif
         public void Scp_Upload_FileInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                               string remotePath,
                                                               string remoteFile)
@@ -1480,20 +1276,8 @@ namespace Renci.SshNet.IntegrationTests
         /// <summary>
         /// https://github.com/sshnet/SSH.NET/issues/286
         /// </summary>
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileInfo_ExistingDirectory()
-        {
-            foreach (var data in GetScpUploadFileInfoExistingDirectoryData())
-            {
-                Scp_Upload_FileInfo_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                      (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_FileInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                           string remoteFile)
         {
@@ -1554,20 +1338,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileInfo_ExistingFile()
-        {
-            foreach (var data in GetScpUploadFileInfoExistingFileData())
-            {
-                Scp_Upload_FileInfo_ExistingFile((IRemotePathTransformation)data[0],
-                                                 (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_FileInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                      string remoteFile)
         {
@@ -1596,10 +1368,10 @@ namespace Renci.SshNet.IntegrationTests
                 }
 
                 var fileInfo = new FileInfo(file)
-                    {
-                        LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
-                        LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
-                    };
+                {
+                    LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
+                    LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
+                };
 
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {
@@ -1644,22 +1416,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoFileDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_FileInfo_FileDoesNotExist()
-        {
-            foreach (var data in GetScpUploadFileInfoFileDoesNotExistData())
-            {
-                Scp_Upload_FileInfo_FileDoesNotExist((IRemotePathTransformation)data[0],
-                                                     (string)data[1],
-                                                     (string)data[2],
-                                                     (int)data[3]);
-            }
-        }
-#endif
         public void Scp_Upload_FileInfo_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                          string remotePath,
                                                          string remoteFile,
@@ -1705,10 +1463,10 @@ namespace Renci.SshNet.IntegrationTests
                 }
 
                 var fileInfo = new FileInfo(file)
-                    {
-                        LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
-                        LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
-                    };
+                {
+                    LastAccessTimeUtc = new DateTime(1973, 8, 13, 20, 15, 33, DateTimeKind.Utc),
+                    LastWriteTimeUtc = new DateTime(1974, 1, 24, 3, 55, 12, DateTimeKind.Utc)
+                };
 
                 using (var client = new ScpClient(_connectionInfoFactory.Create()))
                 {
@@ -1763,20 +1521,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_DirectoryInfo_DirectoryDoesNotExist()
-        {
-            foreach (var data in GetScpUploadDirectoryInfoDirectoryDoesNotExistData())
-            {
-                Scp_Upload_DirectoryInfo_DirectoryDoesNotExist((IRemotePathTransformation)data[0],
-                                                               (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_DirectoryInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                    string remoteDirectory)
         {
@@ -1840,20 +1586,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoExistingDirectoryData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_DirectoryInfo_ExistingDirectory()
-        {
-            foreach (var data in GetScpUploadDirectoryInfoExistingDirectoryData())
-            {
-                Scp_Upload_DirectoryInfo_ExistingDirectory((IRemotePathTransformation)data[0],
-                                                           (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                string remoteDirectory)
         {
@@ -2056,20 +1790,8 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-#if FEATURE_MSTEST_DATATEST
         [DataTestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoExistingFileData), DynamicDataSourceType.Method)]
-#else
-        [TestMethod]
-        public void Scp_Upload_DirectoryInfo_ExistingFile()
-        {
-            foreach (var data in GetScpUploadDirectoryInfoExistingFileData())
-            {
-                Scp_Upload_DirectoryInfo_ExistingFile((IRemotePathTransformation)data[0],
-                                                      (string)data[1]);
-            }
-        }
-#endif
         public void Scp_Upload_DirectoryInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                           string remoteDirectory)
         {

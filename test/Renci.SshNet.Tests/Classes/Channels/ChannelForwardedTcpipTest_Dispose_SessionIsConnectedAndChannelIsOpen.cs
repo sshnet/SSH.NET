@@ -30,7 +30,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private TimeSpan _channelCloseTimeout;
         private IPEndPoint _remoteEndpoint;
         private AsyncSocketListener _remoteListener;
-        private EventWaitHandle _channelBindFinishedWaitHandle;
         private Exception _channelException;
         private IList<Socket> _connectedRegister;
         private IList<Socket> _disconnectedRegister;
@@ -69,14 +68,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
-            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(2000, 3000);
-            _localPacketSize = (uint) random.Next(1000, 2000);
-            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint) random.Next(100, 200);
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(2000, 3000);
+            _localPacketSize = (uint)random.Next(1000, 2000);
+            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint)random.Next(100, 200);
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
-            _channelBindFinishedWaitHandle = new ManualResetEvent(false);
             _channelException = null;
             _connectedRegister = new List<Socket>();
             _disconnectedRegister = new List<Socket>();
@@ -148,29 +146,27 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                                  _remotePacketSize);
 
             _channelThread = new Thread(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        _channel.Bind(_remoteEndpoint, _forwardedPortMock.Object);
-                    }
-                    catch (Exception ex)
-                    {
-                        _channelException = ex;
-                    }
-                    finally
-                    {
-                        _ = _channelBindFinishedWaitHandle.Set();
-                    }
-                });
+                    _channel.Bind(_remoteEndpoint, _forwardedPortMock.Object);
+                }
+                catch (Exception ex)
+                {
+                    _channelException = ex;
+                }
+            });
             _channelThread.Start();
 
             // give channel time to bind to remote endpoint
-            Thread.Sleep(100);
+            Thread.Sleep(300);
         }
 
         private void Act()
         {
             _channel.Dispose();
+
+            Assert.IsTrue(_channelThread.Join(TimeSpan.FromSeconds(1)));
         }
 
         [TestMethod]
@@ -185,7 +181,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void BindShouldHaveFinishedWithoutException()
         {
             Assert.IsNull(_channelException, _channelException?.ToString());
-            Assert.IsTrue(_channelBindFinishedWaitHandle.WaitOne(0));
         }
 
         [TestMethod]

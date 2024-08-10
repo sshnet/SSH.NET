@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,10 +44,17 @@ namespace Renci.SshNet.Tests.Classes
         protected IList<ExceptionEventArgs> ErrorOccurredRegister { get; private set; }
         protected AsyncSocketListener ServerListener { get; private set; }
         protected IList<byte[]> ServerBytesReceivedRegister { get; private set; }
+        protected ManualResetEventSlim FirstKexReceived { get; private set; }
         protected Session Session { get; private set; }
         protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
-        internal SshIdentification ServerIdentification { get; private set; }
+        protected SshIdentification ServerIdentification { get; private set; }
+
+        /// <summary>
+        /// Should the "server" wait for the client kexinit before sending its own.
+        /// A regression test simulating e.g. cisco devices.
+        /// </summary>
+        protected bool WaitForClientKeyExchangeInit { get; set; }
 
         [TestInitialize]
         public void Setup()
@@ -58,16 +66,16 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void TearDown()
         {
-            if (ServerSocket != null)
-            {
-                ServerSocket.Dispose();
-                ServerSocket = null;
-            }
-
             if (ServerListener != null)
             {
                 ServerListener.Dispose();
                 ServerListener = null;
+            }
+
+            if (ServerSocket != null)
+            {
+                ServerSocket.Dispose();
+                ServerSocket = null;
             }
 
             if (Session != null)
@@ -81,6 +89,12 @@ namespace Renci.SshNet.Tests.Classes
                 ClientSocket.Shutdown(SocketShutdown.Both);
                 ClientSocket.Dispose();
             }
+
+            if (FirstKexReceived != null)
+            {
+                FirstKexReceived.Dispose();
+                FirstKexReceived = null;
+            }
         }
 
         protected virtual void SetupData()
@@ -93,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
                 _serverEndPoint.Port,
                 "user",
                 new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
+            { Timeout = TimeSpan.FromSeconds(20) };
             _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
             SessionId = new byte[10];
             Random.NextBytes(SessionId);
@@ -101,6 +115,7 @@ namespace Renci.SshNet.Tests.Classes
             DisconnectReceivedRegister = new List<MessageEventArgs<DisconnectMessage>>();
             ErrorOccurredRegister = new List<ExceptionEventArgs>();
             ServerBytesReceivedRegister = new List<byte[]>();
+            FirstKexReceived = new ManualResetEventSlim();
             ServerIdentification = new SshIdentification("2.0", "OurServerStub");
             _authenticationStarted = false;
             _socketFactory = new SocketFactory();
@@ -114,38 +129,6 @@ namespace Renci.SshNet.Tests.Classes
                     var newKeysMessage = new NewKeysMessage();
                     var newKeys = newKeysMessage.GetPacket(8, null);
                     _ = ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
-                };
-
-            ServerListener = new AsyncSocketListener(_serverEndPoint)
-                {
-                    ShutdownRemoteCommunicationSocket = false
-                };
-            ServerListener.Connected += socket =>
-                {
-                    ServerSocket = socket;
-
-                    // Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
-                    // having established the connection instead of when the client has been identified
-
-                    var keyExchangeInitMessage = new KeyExchangeInitMessage
-                        {
-                            CompressionAlgorithmsClientToServer = new string[0],
-                            CompressionAlgorithmsServerToClient = new string[0],
-                            EncryptionAlgorithmsClientToServer = new string[0],
-                            EncryptionAlgorithmsServerToClient = new string[0],
-                            KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
-                            LanguagesClientToServer = new string[0],
-                            LanguagesServerToClient = new string[0],
-                            MacAlgorithmsClientToServer = new string[0],
-                            MacAlgorithmsServerToClient = new string[0],
-                            ServerHostKeyAlgorithms = new string[0]
-                        };
-                    var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
-                    _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
-                };
-            ServerListener.BytesReceived += (received, socket) =>
-                {
-                    ServerBytesReceivedRegister.Add(received);
 
                     if (!_authenticationStarted)
                     {
@@ -156,9 +139,61 @@ namespace Renci.SshNet.Tests.Classes
                         _authenticationStarted = true;
                     }
                 };
+
+            ServerListener = new AsyncSocketListener(_serverEndPoint)
+            {
+                ShutdownRemoteCommunicationSocket = false
+            };
+            ServerListener.Connected += socket =>
+                {
+                    ServerSocket = socket;
+
+                    // Since we're mocking the protocol version exchange, we'll immediately start KEX upon
+                    // having established the connection instead of when the client has been identified
+
+                    if (!WaitForClientKeyExchangeInit)
+                    {
+                        SendKeyExchangeInit();
+                    }
+                };
+            ServerListener.BytesReceived += (received, socket) =>
+                {
+                    ServerBytesReceivedRegister.Add(received);
+
+                    if (received.Length > 5 && received[5] == 20)
+                    {
+                        if (WaitForClientKeyExchangeInit)
+                        {
+                            // This is the KEXINIT. Send one back.
+                            SendKeyExchangeInit();
+                            WaitForClientKeyExchangeInit = false;
+                        }
+
+                        FirstKexReceived.Set();
+                    }
+                };
             ServerListener.Start();
 
             ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+
+            void SendKeyExchangeInit()
+            {
+                var keyExchangeInitMessage = new KeyExchangeInitMessage
+                {
+                    CompressionAlgorithmsClientToServer = new string[0],
+                    CompressionAlgorithmsServerToClient = new string[0],
+                    EncryptionAlgorithmsClientToServer = new string[0],
+                    EncryptionAlgorithmsServerToClient = new string[0],
+                    KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
+                    LanguagesClientToServer = new string[0],
+                    LanguagesServerToClient = new string[0],
+                    MacAlgorithmsClientToServer = new string[0],
+                    MacAlgorithmsServerToClient = new string[0],
+                    ServerHostKeyAlgorithms = new string[0]
+                };
+                var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
+                _ = ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+            }
         }
 
         private void CreateMocks()
@@ -184,21 +219,37 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
             _ = _keyExchangeMock.Setup(p => p.Name)
                                 .Returns(_keyExchangeAlgorithm);
-            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
+            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
-            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher())
-                                .Returns((Cipher) null);
-            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher())
-                                .Returns((Cipher) null);
-            _ = _keyExchangeMock.Setup(p => p.CreateServerHash())
-                                .Returns((HashAlgorithm) null);
-            _ = _keyExchangeMock.Setup(p => p.CreateClientHash())
-                                .Returns((HashAlgorithm) null);
+            _ = _keyExchangeMock.Setup(p => p.CreateServerCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool serverAead) =>
+                                {
+                                    serverAead = false;
+                                    return (Cipher)null;
+                                });
+            _ = _keyExchangeMock.Setup(p => p.CreateClientCipher(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool clientAead) =>
+                                {
+                                    clientAead = false;
+                                    return (Cipher)null;
+                                });
+            _ = _keyExchangeMock.Setup(p => p.CreateServerHash(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool serverEtm) =>
+                                {
+                                    serverEtm = false;
+                                    return (HashAlgorithm)null;
+                                });
+            _ = _keyExchangeMock.Setup(p => p.CreateClientHash(out It.Ref<bool>.IsAny))
+                                .Returns((ref bool clientEtm) =>
+                                {
+                                    clientEtm = false;
+                                    return (HashAlgorithm)null;
+                                });
             _ = _keyExchangeMock.Setup(p => p.CreateCompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.CreateDecompressor())
-                                .Returns((Compressor) null);
+                                .Returns((Compressor)null);
             _ = _keyExchangeMock.Setup(p => p.Dispose());
             _ = ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
                                   .Callback(ClientAuthentication_Callback)
@@ -238,11 +289,12 @@ namespace Renci.SshNet.Tests.Classes
             public byte[] Build()
             {
                 var serviceName = _serviceName.ToArray();
+                var target = new ServiceAcceptMessage();
 
                 var sshDataStream = new SshDataStream(4 + 1 + 1 + 4 + serviceName.Length);
                 sshDataStream.Write((uint)(sshDataStream.Capacity - 4)); // packet length
                 sshDataStream.WriteByte(0); // padding length
-                sshDataStream.WriteByte(ServiceAcceptMessage.MessageNumber);
+                sshDataStream.WriteByte(target.MessageNumber);
                 sshDataStream.WriteBinary(serviceName);
                 return sshDataStream.ToArray();
             }

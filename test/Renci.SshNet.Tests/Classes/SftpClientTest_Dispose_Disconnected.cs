@@ -19,9 +19,9 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
             _sftpClient = new SftpClient(_connectionInfo, false, ServiceFactoryMock.Object)
-                {
-                    OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout)
-                };
+            {
+                OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout)
+            };
         }
 
         protected override void SetupMocks()

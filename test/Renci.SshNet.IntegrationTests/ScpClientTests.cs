@@ -20,7 +20,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             var file = $"/tmp/{Guid.NewGuid()}.txt";
             var fileContent = "File content !@#$%^&*()_+{}:,./<>[];'\\|";
-        
+
             using var uploadStream = new MemoryStream(Encoding.UTF8.GetBytes(fileContent));
             _scpClient.Upload(uploadStream, file);
 

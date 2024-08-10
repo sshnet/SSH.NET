@@ -4,11 +4,11 @@ namespace Renci.SshNet.Sftp.Responses
 {
     internal sealed class StatVfsReplyInfo : ExtendedReplyInfo
     {
-        public SftpFileSytemInformation Information { get; private set; }
+        public SftpFileSystemInformation Information { get; private set; }
 
         public override void LoadData(SshDataStream stream)
         {
-            Information = new SftpFileSytemInformation(stream.ReadUInt64(), // FileSystemBlockSize
+            Information = new SftpFileSystemInformation(stream.ReadUInt64(), // FileSystemBlockSize
                                                        stream.ReadUInt64(), // BlockSize
                                                        stream.ReadUInt64(), // TotalBlocks
                                                        stream.ReadUInt64(), // FreeBlocks

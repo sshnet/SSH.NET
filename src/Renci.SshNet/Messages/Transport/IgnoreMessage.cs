@@ -1,19 +1,33 @@
 ﻿using System;
-using System.Globalization;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_IGNORE message.
     /// </summary>
-    [Message("SSH_MSG_IGNORE", MessageNumber)]
     public class IgnoreMessage : Message
     {
-        internal const byte MessageNumber = 2;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_IGNORE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 2;
+            }
+        }
 
         /// <summary>
-        /// Gets ignore message data if any.
+        /// Gets ignore message data if this message has been initialised
+        /// with data to be sent. Otherwise, returns an empty array.
         /// </summary>
         public byte[] Data { get; private set; }
 
@@ -61,21 +75,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            var dataLength = ReadUInt32();
-            if (dataLength > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
-            }
-
-            if (dataLength > (DataStream.Length - DataStream.Position))
-            {
-                DiagnosticAbstraction.Log("SSH_MSG_IGNORE: Length exceeds data bytes, data ignored.");
-                Data = Array.Empty<byte>();
-            }
-            else
-            {
-                Data = ReadBytes((int) dataLength);
-            }
+            // Do nothing - this data is supposed to be ignored.
         }
 
         /// <summary>

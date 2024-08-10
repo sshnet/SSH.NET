@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
@@ -31,15 +34,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _fileMode = FileMode.Append;
             _fileAccess = FileAccess.Write;
             _bufferSize = _random.Next(5, 1000);
-            _readBufferSize = (uint) _random.Next(5, 1000);
-            _writeBufferSize = (uint) _random.Next(5, 1000);
+            _readBufferSize = (uint)_random.Next(5, 1000);
+            _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
             _fileAttributes = new SftpFileAttributesBuilder().WithLastAccessTime(DateTime.UtcNow.AddSeconds(_random.Next()))
                                                              .WithLastWriteTime(DateTime.UtcNow.AddSeconds(_random.Next()))
                                                              .WithSize(_random.Next())
                                                              .WithUserId(_random.Next())
                                                              .WithGroupId(_random.Next())
-                                                             .WithPermissions((uint) _random.Next())
+                                                             .WithPermissions((uint)_random.Next())
                                                              .Build();
         }
 
@@ -49,10 +52,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Append | Flags.CreateNewOrOpen, false))
                                .Returns(_handle);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
+                               .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
                                .Returns(_readBufferSize);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
+                               .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
                                .Returns(_writeBufferSize);
             _ = SftpSessionMock.InSequence(MockSequence)
                                .Setup(p => p.RequestFStat(_handle, false))
@@ -159,7 +162,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                .Setup(p => p.IsOpen)
                                .Returns(true);
             _ = SftpSessionMock.InSequence(MockSequence)
-                               .Setup(p => p.RequestWrite(_handle, (ulong) _fileAttributes.Size, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null));
+                               .Setup(p => p.RequestWrite(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, It.IsNotNull<AutoResetEvent>(), null));
 
             _target.Write(buffer, 0, buffer.Length);
 

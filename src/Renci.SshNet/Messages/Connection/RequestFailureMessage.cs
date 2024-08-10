@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_REQUEST_FAILURE message.
     /// </summary>
-    [Message("SSH_MSG_REQUEST_FAILURE", 82)]
     public class RequestFailureMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_REQUEST_FAILURE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 82;
+            }
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

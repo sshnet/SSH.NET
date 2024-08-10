@@ -6,18 +6,34 @@
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0001.md
 #
 # TODO: Re-enable when issues are fixed
-dotnet_diagnostic.MA0001.severity = suggestion
+dotnet_diagnostic.MA0001.severity = silent
 
 # MA0110: Use the Regex source generator
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
-dotnet_diagnostic.MA0110.severity = none
+dotnet_diagnostic.MA0110.severity = silent
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = silent
 
 #### .NET Compiler Platform analysers rules ####
 
 # CA1307: Specify StringComparison for clarity
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1307
-dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1307.severity = silent
 
 # CA1822: Mark members as static
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1822
-dotnet_code_quality.CA1822.api_surface = none
+dotnet_diagnostic.CA1822.severity = silent
+
+# IDE0046: Use conditional expression for return
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
+dotnet_diagnostic.IDE0046.severity = silent
+
+# IDE0047: Remove unnecessary parentheses
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
+dotnet_diagnostic.IDE0047.severity = silent
+
+# IDE0032: Use auto-implemented property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
+dotnet_diagnostic.IDE0032.severity = silent

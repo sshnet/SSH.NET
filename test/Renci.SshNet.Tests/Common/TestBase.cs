@@ -1,7 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -49,9 +50,12 @@ namespace Renci.SshNet.Tests.Common
             }
         }
 
-        protected static Stream GetData(string name)
+        internal static Stream GetData(string name)
         {
-            return ExecutingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
+            string resourceName = $"Renci.SshNet.Tests.Data.{name}";
+
+            return ExecutingAssembly.GetManifestResourceStream(resourceName)
+                ?? throw new ArgumentException($"Resource '{resourceName}' not found in assembly '{typeof(TestBase).Assembly.FullName}'.");
         }
     }
 }

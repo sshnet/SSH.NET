@@ -33,13 +33,6 @@ dotnet_diagnostic.S2589.severity = none
 
 dotnet_diagnostic.S2372.severity = none
 
-#### SYSLIB diagnostics ####
-
-# SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
-#
-# TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
-dotnet_diagnostic.SYSLIB1045.severity = none
-
 #### StyleCop Analyzers rules ####
 
 # SA1123: Do not place regions within elements
@@ -108,9 +101,17 @@ MA0053.public_class_should_be_sealed = false
 # TODO: Remove exclusion when issues are fixed
 dotnet_diagnostic.MA0055.severity = none
 
+# MA0089: Optimize string method usage
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0089.md
+dotnet_diagnostic.MA0089.severity = none
+
 # MA0110: Use the Regex source generator
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0110.md
 dotnet_diagnostic.MA0110.severity = none
+
+# MA0026: Fix TODO comment
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0026.md
+dotnet_diagnostic.MA0026.severity = none
 
 #### .NET Compiler Platform analysers rules ####
 
@@ -152,10 +153,38 @@ dotnet_diagnostic.CA3075.severity = none
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0004
 dotnet_diagnostic.IDE0004.severity = none
 
+# IDE0047: Remove unnecessary parentheses
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
+dotnet_diagnostic.IDE0047.severity = none
+
 # IDE0048: Add parentheses for clarity
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0047-ide0048
 dotnet_diagnostic.IDE0048.severity = none
 
 # IDE0305: Collection initialization can be simplified
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0305
 dotnet_diagnostic.IDE0305.severity = none
+
+# IDE0046: Use conditional expression for return
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
+dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0032: Use auto-implemented property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0032
+dotnet_diagnostic.IDE0032.severity = none
+
+# CA5350: Do Not Use Weak Cryptographic Algorithms
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca5350
+dotnet_diagnostic.CA5350.severity = none
+
+# CA5351: Do Not Use Broken Cryptographic Algorithms
+# https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/quality-rules/ca5351
+dotnet_diagnostic.CA5351.severity = none
+
+# MA0040: Forward the CancellationToken parameter to methods that take one
+# Partial/noisy duplicate of CA2016
+dotnet_diagnostic.MA0040.severity = none
+
+# MA0042: Do not use blocking calls in an async method
+# duplicate of CA1849
+dotnet_diagnostic.MA0042.severity = none

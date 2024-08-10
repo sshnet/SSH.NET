@@ -5,8 +5,8 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Security;
@@ -43,15 +43,20 @@ namespace Renci.SshNet
         /// </value>
         private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
 
+        private TimeSpan _timeout;
+        private TimeSpan _channelCloseTimeout;
+
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
+        public IDictionary<string, Func<IKeyExchange>> KeyExchangeAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets supported encryptions for this connection.
         /// </summary>
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         public IDictionary<string, CipherInfo> Encryptions { get; private set; }
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
         /// <summary>
         /// Gets supported hash algorithms for this connection.
@@ -71,7 +76,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported compression algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Type> CompressionAlgorithms { get; private set; }
+        public IDictionary<string, Func<Compressor>> CompressionAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets the supported channel requests for this connection.
@@ -144,10 +149,19 @@ namespace Renci.SshNet
         /// <value>
         /// The connection timeout. The default value is 30 seconds.
         /// </value>
-        /// <example>
-        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
-        /// </example>
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Timeout
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(Timeout));
+
+                _timeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
@@ -159,7 +173,19 @@ namespace Renci.SshNet
         /// If a server does not send a <c>SSH_MSG_CHANNEL_CLOSE</c> message before the specified timeout
         /// elapses, the channel will be closed immediately.
         /// </remarks>
-        public TimeSpan ChannelCloseTimeout { get; set; }
+        public TimeSpan ChannelCloseTimeout
+        {
+            get
+            {
+                return _channelCloseTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(ChannelCloseTimeout));
+
+                _channelCloseTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the character encoding.
@@ -190,9 +216,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
-        /// </example>
         public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 
         /// <summary>
@@ -343,72 +366,68 @@ namespace Renci.SshNet
             MaxSessions = 10;
             Encoding = Encoding.UTF8;
 
-            KeyExchangeAlgorithms = new Dictionary<string, Type>
+            KeyExchangeAlgorithms = new Dictionary<string, Func<IKeyExchange>>
                 {
-                    { "curve25519-sha256", typeof(KeyExchangeECCurve25519) },
-                    { "curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519) },
-                    { "ecdh-sha2-nistp256", typeof(KeyExchangeECDH256) },
-                    { "ecdh-sha2-nistp384", typeof(KeyExchangeECDH384) },
-                    { "ecdh-sha2-nistp521", typeof(KeyExchangeECDH521) },
-                    { "diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256) },
-                    { "diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1) },
-                    { "diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512) },
-                    { "diffie-hellman-group14-sha256", typeof(KeyExchangeDiffieHellmanGroup14Sha256) },
-                    { "diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1) },
-                    { "diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1) },
+                    { "curve25519-sha256", () => new KeyExchangeECCurve25519() },
+                    { "curve25519-sha256@libssh.org", () => new KeyExchangeECCurve25519() },
+                    { "ecdh-sha2-nistp256", () => new KeyExchangeECDH256() },
+                    { "ecdh-sha2-nistp384", () => new KeyExchangeECDH384() },
+                    { "ecdh-sha2-nistp521", () => new KeyExchangeECDH521() },
+                    { "diffie-hellman-group-exchange-sha256", () => new KeyExchangeDiffieHellmanGroupExchangeSha256() },
+                    { "diffie-hellman-group-exchange-sha1", () => new KeyExchangeDiffieHellmanGroupExchangeSha1() },
+                    { "diffie-hellman-group16-sha512", () => new KeyExchangeDiffieHellmanGroup16Sha512() },
+                    { "diffie-hellman-group14-sha256", () => new KeyExchangeDiffieHellmanGroup14Sha256() },
+                    { "diffie-hellman-group14-sha1", () => new KeyExchangeDiffieHellmanGroup14Sha1() },
+                    { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>
-                {
-                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
-                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: false)) },
-                    { "arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
-                    { "arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, dischargeFirstBytes: true)) },
-                    { "cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), padding: null)) },
-                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
-                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), padding: null)) },
-                };
+            Encryptions = new Dictionary<string, CipherInfo>();
+            Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+            Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+            Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
+#if NET6_0_OR_GREATER
+            if (AesGcm.IsSupported)
+            {
+                Encryptions.Add("aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
+                Encryptions.Add("aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
+            }
+#endif
+            Encryptions.Add("chacha20-poly1305@openssh.com", new CipherInfo(512, (key, iv) => new ChaCha20Poly1305Cipher(key), isAead: true));
+            Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
+            Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)));
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    { "hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5) },
-                    { "hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96)) },
-                    { "hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1) },
-                    { "hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)) },
-                    { "hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256) },
-                    { "hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96)) },
-                    { "hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512) },
-                    { "hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96)) },
-                    { "hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
-                    { "hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160) },
+                    /* Encrypt-and-MAC (encrypt-and-authenticate) variants */
+                    { "hmac-sha2-256", new HashInfo(32*8, key => new HMACSHA256(key)) },
+                    { "hmac-sha2-512", new HashInfo(64*8, key => new HMACSHA512(key)) },
+                    { "hmac-sha1", new HashInfo(20*8, key => new HMACSHA1(key)) },
+                    /* Encrypt-then-MAC variants */
+                    { "hmac-sha2-256-etm@openssh.com", new HashInfo(32*8, key => new HMACSHA256(key), isEncryptThenMAC: true) },
+                    { "hmac-sha2-512-etm@openssh.com", new HashInfo(64*8, key => new HMACSHA512(key), isEncryptThenMAC: true) },
+                    { "hmac-sha1-etm@openssh.com", new HashInfo(20*8, key => new HMACSHA1(key), isEncryptThenMAC: true) },
                 };
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
-                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data) },
-                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data) },
-                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data) },
-                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data) },
+                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(new SshKeyData(data))) },
+                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(new SshKeyData(data))) },
 #pragma warning disable SA1107 // Code should not contain multiple statements on one line
-                    { "rsa-sha2-512", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-512", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
-                    { "rsa-sha2-256", data => { var key = new RsaKey(); return new KeyHostAlgorithm("rsa-sha2-256", key, data, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
+                    { "rsa-sha2-512", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
+                    { "rsa-sha2-256", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
-                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data) },
-                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data) },
+                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(data))) },
+                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))) },
                 };
 
-            CompressionAlgorithms = new Dictionary<string, Type>
+            CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
                 {
                     { "none", null },
+                    { "zlib@openssh.com", () => new ZlibOpenSsh() },
                 };
 
             ChannelRequests = new Dictionary<string, RequestInfo>

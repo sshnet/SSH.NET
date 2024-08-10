@@ -13,6 +13,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
     {
         private const int PacketLengthFieldLength = 4;
+        private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;
 #if NET6_0_OR_GREATER
         private readonly Impl _impl;
@@ -45,7 +46,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             get
             {
-                return 16;
+                return TagSizeInBytes;
             }
         }
 
@@ -62,12 +63,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 #if NET6_0_OR_GREATER
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
-                _impl = new BclImpl(key, TagSize, _iv);
+                _impl = new BclImpl(key, _iv);
             }
             else
 #endif
             {
-                _impl = new BouncyCastleImpl(key, TagSize, _iv);
+                _impl = new BouncyCastleImpl(key, _iv);
             }
         }
 

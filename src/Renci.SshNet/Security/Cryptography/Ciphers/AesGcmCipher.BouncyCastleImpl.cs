@@ -14,13 +14,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             private readonly GcmBlockCipher _cipher;
             private readonly AeadParameters _parameters;
-            private readonly int _tagSizeInBytes;
 
-            public BouncyCastleImpl(byte[] key, int tagSizeInBytes, byte[] nonce)
+            public BouncyCastleImpl(byte[] key, byte[] nonce)
             {
                 _cipher = new GcmBlockCipher(new AesEngine());
-                _parameters = new AeadParameters(new KeyParameter(key), tagSizeInBytes * 8, nonce);
-                _tagSizeInBytes = tagSizeInBytes;
+                _parameters = new AeadParameters(new KeyParameter(key), TagSizeInBytes * 8, nonce);
             }
 
             public override void Encrypt(byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
@@ -35,7 +33,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 _cipher.Init(forEncryption: false, _parameters);
                 _cipher.ProcessAadBytes(input, associatedDataOffset, associatedDataLength);
-                var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSizeInBytes, output, plainTextOffset);
+                var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + TagSizeInBytes, output, plainTextOffset);
                 try
                 {
                     _ = _cipher.DoFinal(output, plainTextLength);

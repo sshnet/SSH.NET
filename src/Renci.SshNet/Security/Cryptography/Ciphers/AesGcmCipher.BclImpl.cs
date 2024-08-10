@@ -12,18 +12,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private sealed class BclImpl : Impl
         {
             private readonly AesGcm _aesGcm;
-            private readonly int _tagSizeInBytes;
             private readonly byte[] _nonce;
 
-            public BclImpl(byte[] key, int tagSizeInBytes, byte[] nonce)
+            public BclImpl(byte[] key, byte[] nonce)
             {
 #if NET8_0_OR_GREATER
-                _aesGcm = new AesGcm(key, tagSizeInBytes);
+                _aesGcm = new AesGcm(key, TagSizeInBytes);
 #else
                 _aesGcm = new AesGcm(key);
 #endif
                 _nonce = nonce;
-                _tagSizeInBytes = tagSizeInBytes;
             }
 
             public override void Encrypt(byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
@@ -31,7 +29,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var cipherTextLength = plainTextLength;
                 var plainText = new ReadOnlySpan<byte>(input, plainTextOffset, plainTextLength);
                 var cipherText = new Span<byte>(output, cipherTextOffset, cipherTextLength);
-                var tag = new Span<byte>(output, cipherTextOffset + cipherTextLength, _tagSizeInBytes);
+                var tag = new Span<byte>(output, cipherTextOffset + cipherTextLength, TagSizeInBytes);
                 var associatedData = new ReadOnlySpan<byte>(input, associatedDataOffset, associatedDataLength);
 
                 _aesGcm.Encrypt(_nonce, plainText, cipherText, tag, associatedData);
@@ -41,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 var plainTextLength = cipherTextLength;
                 var cipherText = new ReadOnlySpan<byte>(input, cipherTextOffset, cipherTextLength);
-                var tag = new ReadOnlySpan<byte>(input, cipherTextOffset + cipherTextLength, _tagSizeInBytes);
+                var tag = new ReadOnlySpan<byte>(input, cipherTextOffset + cipherTextLength, TagSizeInBytes);
                 var plainText = new Span<byte>(output, plainTextOffset, plainTextLength);
                 var associatedData = new ReadOnlySpan<byte>(input, associatedDataOffset, associatedDataLength);
 

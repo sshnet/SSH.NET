@@ -62,12 +62,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 #if NET6_0_OR_GREATER
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
-                _impl = new BclImpl(key, TagSize);
+                _impl = new BclImpl(key, TagSize, _iv);
             }
             else
 #endif
             {
-                _impl = new BouncyCastleImpl(key, TagSize);
+                _impl = new BouncyCastleImpl(key, TagSize, _iv);
             }
         }
 
@@ -96,7 +96,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Buffer.BlockCopy(input, offset, output, 0, PacketLengthFieldLength);
 
             _impl.Encrypt(
-                nonce: _iv,
                 input,
                 plainTextOffset: offset + PacketLengthFieldLength,
                 plainTextLength: length - PacketLengthFieldLength,
@@ -136,7 +135,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var output = new byte[length];
 
             _impl.Decrypt(
-                nonce: _iv,
                 input,
                 cipherTextOffset: offset,
                 cipherTextLength: length,
@@ -186,9 +184,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private abstract class Impl : IDisposable
         {
-            public abstract void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset);
+            public abstract void Encrypt(byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset);
 
-            public abstract void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset);
+            public abstract void Decrypt(byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset);
 
             protected virtual void Dispose(bool disposing)
             {

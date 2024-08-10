@@ -12,32 +12,30 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     {
         private sealed class BouncyCastleImpl : Impl
         {
-            private readonly KeyParameter _keyParameter;
-            private readonly int _tagSize;
             private readonly GcmBlockCipher _cipher;
+            private readonly AeadParameters _parameters;
+            private readonly int _tagSizeInBytes;
 
-            public BouncyCastleImpl(byte[] key, int tagSize)
+            public BouncyCastleImpl(byte[] key, int tagSizeInBytes, byte[] nonce)
             {
-                _keyParameter = new KeyParameter(key);
-                _tagSize = tagSize;
                 _cipher = new GcmBlockCipher(new AesEngine());
+                _parameters = new AeadParameters(new KeyParameter(key), tagSizeInBytes * 8, nonce);
+                _tagSizeInBytes = tagSizeInBytes;
             }
 
-            public override void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
+            public override void Encrypt(byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
             {
-                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce);
-                _cipher.Init(forEncryption: true, parameters);
+                _cipher.Init(forEncryption: true, _parameters);
                 _cipher.ProcessAadBytes(input, associatedDataOffset, associatedDataLength);
                 var cipherTextLength = _cipher.ProcessBytes(input, plainTextOffset, plainTextLength, output, cipherTextOffset);
                 _ = _cipher.DoFinal(output, cipherTextOffset + cipherTextLength);
             }
 
-            public override void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
+            public override void Decrypt(byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce);
-                _cipher.Init(forEncryption: false, parameters);
+                _cipher.Init(forEncryption: false, _parameters);
                 _cipher.ProcessAadBytes(input, associatedDataOffset, associatedDataLength);
-                var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSize, output, plainTextOffset);
+                var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSizeInBytes, output, plainTextOffset);
                 try
                 {
                     _ = _cipher.DoFinal(output, plainTextLength);

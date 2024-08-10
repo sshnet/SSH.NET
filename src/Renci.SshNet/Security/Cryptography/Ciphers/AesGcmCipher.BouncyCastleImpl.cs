@@ -42,9 +42,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 {
                     _ = _cipher.DoFinal(output, plainTextLength);
                 }
-                catch (InvalidCipherTextException)
+                catch (InvalidCipherTextException ex)
                 {
-                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError, ex);
                 }
             }
         }

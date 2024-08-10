@@ -48,12 +48,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     _aesGcm.Decrypt(nonce, cipherText, tag, output, associatedData);
                 }
 #if NET8_0_OR_GREATER
-                catch (AuthenticationTagMismatchException)
+                catch (AuthenticationTagMismatchException ex)
 #else
-                catch (CryptographicException ex) when (ex.Message == "The computed authentication tag did not match the input authentication tag.")
+                catch (CryptographicException ex)
 #endif
                 {
-                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError, ex);
                 }
             }
 

@@ -12,20 +12,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     {
         private sealed class BouncyCastleImpl : Impl
         {
-            private readonly byte[] _key;
+            private readonly KeyParameter _keyParameter;
             private readonly int _tagSize;
             private readonly GcmBlockCipher _cipher;
 
             public BouncyCastleImpl(byte[] key, int tagSize)
             {
-                _key = key;
+                _keyParameter = new KeyParameter(key);
                 _tagSize = tagSize;
                 _cipher = new GcmBlockCipher(new AesEngine());
             }
 
             public override void Encrypt(byte[] nonce, byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset)
             {
-                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
+                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
                 _cipher.Init(forEncryption: true, parameters);
 
                 var cipherTextLength = _cipher.ProcessBytes(input, plainTextOffset, plainTextLength, output, cipherTextOffset);
@@ -34,7 +34,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public override void Decrypt(byte[] nonce, byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var parameters = new AeadParameters(new KeyParameter(_key), _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
+                var parameters = new AeadParameters(_keyParameter, _tagSize * 8, nonce, input.Take(associatedDataOffset, associatedDataLength));
                 _cipher.Init(forEncryption: false, parameters);
 
                 var plainTextLength = _cipher.ProcessBytes(input, cipherTextOffset, cipherTextLength + _tagSize, output, plainTextOffset);

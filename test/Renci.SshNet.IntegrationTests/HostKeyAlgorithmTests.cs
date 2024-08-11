@@ -26,7 +26,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void SshDss()
         {
-            DoTest(HostKeyAlgorithm.SshDss, HostKeyFile.Dsa, 2048);
+            DoTest(HostKeyAlgorithm.SshDss, HostKeyFile.Dsa, 1024);
         }
 
         [TestMethod]

@@ -32,6 +32,10 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public SshUser User = new SshUser("sshnet", "ssh4ever");
 
+        // To get the sshd logs (also uncomment WithOutputConsumer below)
+        private readonly Stream _fsOut = Stream.Null; // File.Create("fsout.txt");
+        private readonly Stream _fsErr = Stream.Null; // File.Create("fserr.txt");
+
         public async Task InitializeAsync()
         {
             _sshServerImage = new ImageFromDockerfileBuilder()
@@ -47,6 +51,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 .WithHostname("renci-ssh-tests-server")
                 .WithImage(_sshServerImage)
                 .WithPortBinding(22, true)
+                //.WithOutputConsumer(Consume.RedirectStdoutAndStderrToStream(_fsOut, _fsErr))
                 .Build();
 
             await _sshServer.StartAsync();
@@ -74,6 +79,9 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             {
                 await _sshServerImage.DisposeAsync();
             }
+
+            _fsOut.Dispose();
+            _fsErr.Dispose();
         }
 
         public void Dispose()

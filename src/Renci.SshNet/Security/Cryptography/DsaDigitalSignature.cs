@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -11,8 +12,6 @@ namespace Renci.SshNet.Security.Cryptography
     public class DsaDigitalSignature : DigitalSignature, IDisposable
     {
         private readonly DsaKey _key;
-        private HashAlgorithm _hash;
-        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DsaDigitalSignature" /> class.
@@ -27,71 +26,23 @@ namespace Renci.SshNet.Security.Cryptography
             }
 
             _key = key;
-
-            _hash = SHA1.Create();
         }
 
-        /// <summary>
-        /// Verifies the signature.
-        /// </summary>
-        /// <param name="input">The input.</param>
-        /// <param name="signature">The signature.</param>
-        /// <returns>
-        /// <see langword="true"/> if signature was successfully verified; otherwise <see langword="false"/>.
-        /// </returns>
-        /// <exception cref="InvalidOperationException">Invalid signature.</exception>
+        /// <inheritdoc/>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            var hashInput = _hash.ComputeHash(input);
-
-            var hm = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }));
-
-            if (signature.Length != 40)
+#if NETSTANDARD2_1_OR_GREATER || NET
+            return _key.DSA.VerifyData(input, signature, HashAlgorithmName.SHA1);
+#else
+            // VerifyData does not exist on netstandard2.0.
+            // It does exist on net462, but in order to keep the path tested,
+            // use it on netfx as well.
+            using (var sha1 = SHA1.Create())
             {
-                throw new InvalidOperationException("Invalid signature.");
+                var hash = sha1.ComputeHash(input);
+                return _key.DSA.VerifySignature(hash, signature);
             }
-
-            // Extract r and s numbers from the signature
-            var rBytes = new byte[21];
-            var sBytes = new byte[21];
-
-            for (int i = 0, j = 20; i < 20; i++, j--)
-            {
-                rBytes[i] = signature[j - 1];
-                sBytes[i] = signature[j + 20 - 1];
-            }
-
-            var r = new BigInteger(rBytes);
-            var s = new BigInteger(sBytes);
-
-            // Reject the signature if 0 < r < q or 0 < s < q is not satisfied.
-            if (r <= 0 || r >= _key.Q)
-            {
-                return false;
-            }
-
-            if (s <= 0 || s >= _key.Q)
-            {
-                return false;
-            }
-
-            // Calculate w = s−1 mod q
-            var w = BigInteger.ModInverse(s, _key.Q);
-
-            // Calculate u1 = H(m)·w mod q
-            var u1 = (hm * w) % _key.Q;
-
-            // Calculate u2 = r * w mod q
-            var u2 = (r * w) % _key.Q;
-
-            u1 = BigInteger.ModPow(_key.G, u1, _key.P);
-            u2 = BigInteger.ModPow(_key.Y, u2, _key.P);
-
-            // Calculate v = ((g pow u1 * y pow u2) mod p) mod q
-            var v = ((u1 * u2) % _key.P) % _key.Q;
-
-            // The signature is valid if v = r
-            return v == r;
+#endif
         }
 
         /// <summary>
@@ -104,60 +55,18 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="SshException">Invalid DSA key.</exception>
         public override byte[] Sign(byte[] input)
         {
-            var hashInput = _hash.ComputeHash(input);
-
-            var m = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }));
-
-            BigInteger s;
-            BigInteger r;
-
-            do
+#if NETSTANDARD2_1_OR_GREATER || NET
+            return _key.DSA.SignData(input, HashAlgorithmName.SHA1);
+#else
+            // SignData does not exist on netstandard2.0.
+            // It does exist on net462, but in order to keep the path tested,
+            // use it on netfx as well.
+            using (var sha1 = SHA1.Create())
             {
-                var k = BigInteger.Zero;
-
-                do
-                {
-                    // Generate a random per-message value k where 0 < k < q
-                    var bitLength = _key.Q.BitLength;
-
-                    if (_key.Q < BigInteger.Zero)
-                    {
-                        throw new SshException("Invalid DSA key.");
-                    }
-
-                    while (k <= 0 || k >= _key.Q)
-                    {
-                        k = BigInteger.Random(bitLength);
-                    }
-
-                    // Calculate r = ((g pow k) mod p) mod q
-                    r = BigInteger.ModPow(_key.G, k, _key.P) % _key.Q;
-
-                    // In the unlikely case that r = 0, start again with a different random k
-                }
-                while (r.IsZero);
-
-                // Calculate s = ((k pow −1)(H(m) + x*r)) mod q
-                k = BigInteger.ModInverse(k, _key.Q) * (m + (_key.X * r));
-
-                s = k % _key.Q;
-
-                // In the unlikely case that s = 0, start again with a different random k
+                var hash = sha1.ComputeHash(input);
+                return _key.DSA.CreateSignature(hash);
             }
-            while (s.IsZero);
-
-            // The signature is (r, s)
-            var signature = new byte[40];
-
-            // issue #1918: pad part with zero's on the left if length is less than 20
-            var rBytes = r.ToByteArray().Reverse().TrimLeadingZeros();
-            Array.Copy(rBytes, 0, signature, 20 - rBytes.Length, rBytes.Length);
-
-            // issue #1918: pad part with zero's on the left if length is less than 20
-            var sBytes = s.ToByteArray().Reverse().TrimLeadingZeros();
-            Array.Copy(sBytes, 0, signature, 40 - sBytes.Length, sBytes.Length);
-
-            return signature;
+#endif
         }
 
         /// <summary>
@@ -175,30 +84,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                var hash = _hash;
-                if (hash != null)
-                {
-                    hash.Dispose();
-                    _hash = null;
-                }
-
-                _isDisposed = true;
-            }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="DsaDigitalSignature"/> class.
-        /// </summary>
-        ~DsaDigitalSignature()
-        {
-            Dispose(disposing: false);
         }
     }
 }

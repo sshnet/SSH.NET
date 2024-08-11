@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
@@ -10,8 +12,9 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class DsaKey : Key, IDisposable
     {
-        private DsaDigitalSignature _digitalSignature;
-        private bool _isDisposed;
+        private DsaDigitalSignature? _digitalSignature;
+
+        internal DSA DSA { get; }
 
         /// <summary>
         /// Gets the P.
@@ -39,10 +42,10 @@ namespace Renci.SshNet.Security
         public BigInteger X { get; }
 
         /// <summary>
-        /// Gets the length of the key.
+        /// Gets the length of the key in bits.
         /// </summary>
         /// <value>
-        /// The length of the key.
+        /// The bit-length of the key.
         /// </value>
         public override int KeyLength
         {
@@ -104,6 +107,8 @@ namespace Renci.SshNet.Security
             Q = publicKeyData.Keys[1];
             G = publicKeyData.Keys[2];
             Y = publicKeyData.Keys[3];
+
+            DSA = LoadDSA();
         }
 
         /// <summary>
@@ -130,6 +135,8 @@ namespace Renci.SshNet.Security
             {
                 throw new InvalidOperationException("Invalid private key (expected EOF).");
             }
+
+            DSA = LoadDSA();
         }
 
         /// <summary>
@@ -147,6 +154,54 @@ namespace Renci.SshNet.Security
             G = g;
             Y = y;
             X = x;
+
+            DSA = LoadDSA();
+        }
+
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+#pragma warning disable CA5384 // Do Not Use Digital Signature Algorithm (DSA)
+        private DSA LoadDSA()
+        {
+#if NETFRAMEWORK
+            // On .NET Framework we use the concrete CNG type which is FIPS-186-3
+            // compatible. The CryptoServiceProvider type returned by DSA.Create()
+            // is limited to FIPS-186-1 (max 1024 bit key).
+            var dsa = new DSACng();
+#else
+            var dsa = DSA.Create();
+#endif
+            dsa.ImportParameters(GetDSAParameters());
+
+            return dsa;
+        }
+#pragma warning restore CA5384 // Do Not Use Digital Signature Algorithm (DSA)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+
+        internal DSAParameters GetDSAParameters()
+        {
+            // P, G, Y, Q are required.
+            // P, G, Y must have the same length.
+            // If X is present, it must have the same length as Q.
+
+            // See https://github.com/dotnet/runtime/blob/fadd8313653f71abd0068c8bf914be88edb2c8d3/src/libraries/Common/src/System/Security/Cryptography/DSACng.ImportExport.cs#L23
+            // and https://github.com/dotnet/runtime/blob/fadd8313653f71abd0068c8bf914be88edb2c8d3/src/libraries/Common/src/System/Security/Cryptography/DSAKeyFormatHelper.cs#L18
+            // (and similar code in RsaKey.cs)
+
+            var ret = new DSAParameters
+            {
+                P = P.ToByteArray(isUnsigned: true, isBigEndian: true),
+                Q = Q.ToByteArray(isUnsigned: true, isBigEndian: true),
+            };
+
+            ret.G = G.ExportKeyParameter(ret.P.Length);
+            ret.Y = Y.ExportKeyParameter(ret.P.Length);
+
+            if (!X.IsZero)
+            {
+                ret.X = X.ExportKeyParameter(ret.Q.Length);
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -164,21 +219,10 @@ namespace Renci.SshNet.Security
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
             if (disposing)
             {
-                var digitalSignature = _digitalSignature;
-                if (digitalSignature != null)
-                {
-                    digitalSignature.Dispose();
-                    _digitalSignature = null;
-                }
-
-                _isDisposed = true;
+                _digitalSignature?.Dispose();
+                DSA.Dispose();
             }
         }
     }

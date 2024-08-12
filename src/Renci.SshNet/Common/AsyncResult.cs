@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 namespace Renci.SshNet.Common
@@ -85,7 +86,7 @@ namespace Renci.SshNet.Common
             // Operation is done: if an exception occurred, throw it
             if (_exception != null)
             {
-                throw _exception;
+                ExceptionDispatchInfo.Capture(_exception).Throw();
             }
         }
 

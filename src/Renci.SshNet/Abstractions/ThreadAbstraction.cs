@@ -7,15 +7,6 @@ namespace Renci.SshNet.Abstractions
     internal static class ThreadAbstraction
     {
         /// <summary>
-        /// Suspends the current thread for the specified number of milliseconds.
-        /// </summary>
-        /// <param name="millisecondsTimeout">The number of milliseconds for which the thread is suspended.</param>
-        public static void Sleep(int millisecondsTimeout)
-        {
-            Thread.Sleep(millisecondsTimeout);
-        }
-
-        /// <summary>
         /// Creates and starts a long-running <see cref="Task"/> for the specified <see cref="Action"/>.
         /// </summary>
         /// <param name="action">The <see cref="Action"/> to start.</param>

@@ -292,7 +292,7 @@ namespace Renci.SshNet.Abstractions
                 {
                     if (IsErrorResumable(ex.SocketErrorCode))
                     {
-                        ThreadAbstraction.Sleep(30);
+                        Thread.Sleep(30);
                         continue;
                     }
 
@@ -346,7 +346,7 @@ namespace Renci.SshNet.Abstractions
                     if (IsErrorResumable(ex.SocketErrorCode))
                     {
                         // socket buffer is probably full, wait and try again
-                        ThreadAbstraction.Sleep(30);
+                        Thread.Sleep(30);
                     }
                     else
                     {

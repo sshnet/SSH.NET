@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Renci.SshNet.Tests
+#pragma warning disable SA1131 // Use readable conditions
+namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
     public class ForwardedPortStatusTest_Starting

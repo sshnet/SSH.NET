@@ -7,13 +7,13 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-#if NETFRAMEWORK
+#if !NET
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
-#endif // NETFRAMEWORK
+#endif // !NET
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
@@ -34,9 +34,12 @@ namespace Renci.SshNet.Security
         private EcdsaDigitalSignature _digitalSignature;
         private bool _isDisposed;
 
+#if !NET
+        private int _keySize;
+#endif // !NET
+
 #if NETFRAMEWORK
         private CngKey _key;
-        private int _keySize;
 
         internal enum KeyBlobMagicNumber
         {
@@ -64,7 +67,7 @@ namespace Renci.SshNet.Security
             internal KeyBlobMagicNumber Magic;
             internal int CbKey;
         }
-#endif
+#endif // NETFRAMEWORK
 
         /// <summary>
         /// Gets the SSH name of the ECDSA Key.
@@ -77,7 +80,7 @@ namespace Renci.SshNet.Security
             return string.Format("ecdsa-sha2-nistp{0}", KeyLength);
         }
 
-#if NETFRAMEWORK
+#if !NET
         /// <summary>
         /// Gets the Digest to use.
         /// </summary>
@@ -98,7 +101,9 @@ namespace Renci.SshNet.Security
                 }
             }
         }
+#endif // !NET
 
+#if NETFRAMEWORK
         /// <summary>
         /// Gets the HashAlgorithm to use.
         /// </summary>
@@ -140,7 +145,7 @@ namespace Renci.SshNet.Security
                 }
             }
         }
-#endif
+#endif // NETFRAMEWORK
 
         /// <summary>
         /// Gets the length of the key.
@@ -152,11 +157,11 @@ namespace Renci.SshNet.Security
         {
             get
             {
-#if NETFRAMEWORK
+#if !NET
                 return Ecdsa?.KeySize ?? _keySize;
 #else
                 return Ecdsa.KeySize;
-#endif
+#endif // !NET
             }
         }
 
@@ -188,7 +193,7 @@ namespace Renci.SshNet.Security
                 byte[] qx;
                 byte[] qy;
 
-#if NETFRAMEWORK
+#if !NET
                 if (PublicKeyParameters != null)
                 {
                     var oid = PublicKeyParameters.PublicKeyParamSet.GetID();
@@ -211,7 +216,9 @@ namespace Renci.SshNet.Security
                     qy = PublicKeyParameters.Q.YCoord.GetEncoded();
                 }
                 else
+#endif // !NET
                 {
+#if NETFRAMEWORK
                     var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
 
                     KeyBlobMagicNumber magic;
@@ -238,30 +245,30 @@ namespace Renci.SshNet.Security
                         default:
                             throw new SshException("Unexpected Curve Magic: " + magic);
                     }
-                }
 #pragma warning restore IDE0010 // Add missing cases
 #else
-                var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
-                qx = parameter.Q.X;
-                qy = parameter.Q.Y;
-                switch (parameter.Curve.Oid.FriendlyName)
-                {
-                    case "ECDSA_P256":
-                    case "nistP256":
-                        curve = Encoding.ASCII.GetBytes("nistp256");
-                        break;
-                    case "ECDSA_P384":
-                    case "nistP384":
-                        curve = Encoding.ASCII.GetBytes("nistp384");
-                        break;
-                    case "ECDSA_P521":
-                    case "nistP521":
-                        curve = Encoding.ASCII.GetBytes("nistp521");
-                        break;
-                    default:
-                        throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
+                    var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
+                    qx = parameter.Q.X;
+                    qy = parameter.Q.Y;
+                    switch (parameter.Curve.Oid.FriendlyName)
+                    {
+                        case "ECDSA_P256":
+                        case "nistP256":
+                            curve = Encoding.ASCII.GetBytes("nistp256");
+                            break;
+                        case "ECDSA_P384":
+                        case "nistP384":
+                            curve = Encoding.ASCII.GetBytes("nistp384");
+                            break;
+                        case "ECDSA_P521":
+                        case "nistP521":
+                            curve = Encoding.ASCII.GetBytes("nistp521");
+                            break;
+                        default:
+                            throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
+                    }
+#endif // NETFRAMEWORK
                 }
-#endif
 
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
@@ -280,7 +287,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         public byte[] PrivateKey { get; private set; }
 
-#if NETFRAMEWORK
+#if !NET
         internal ECPrivateKeyParameters PrivateKeyParameters
         {
             get;
@@ -292,7 +299,9 @@ namespace Renci.SshNet.Security
             get;
             private set;
         }
+#endif // !NET
 
+#if NETFRAMEWORK
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
@@ -302,7 +311,7 @@ namespace Renci.SshNet.Security
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
-#endif
+#endif // NETFRAMEWORK
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
@@ -476,46 +485,7 @@ namespace Renci.SshNet.Security
             }
             catch (NotImplementedException)
             {
-                DerObjectIdentifier oid;
-                switch (curve_oid)
-                {
-                    case ECDSA_P256_OID_VALUE:
-                        oid = SecObjectIdentifiers.SecP256r1;
-                        _keySize = 256;
-                        break;
-                    case ECDSA_P384_OID_VALUE:
-                        oid = SecObjectIdentifiers.SecP384r1;
-                        _keySize = 384;
-                        break;
-                    case ECDSA_P521_OID_VALUE:
-                        oid = SecObjectIdentifiers.SecP521r1;
-                        _keySize = 521;
-                        break;
-                    default:
-                        throw new SshException("Unexpected OID: " + curve_oid);
-                }
-
-                var x9ECParameters = SecNamedCurves.GetByOid(oid);
-                var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
-
-                if (privatekey != null)
-                {
-                    PrivateKeyParameters = new ECPrivateKeyParameters(
-                        new Org.BouncyCastle.Math.BigInteger(1, privatekey),
-                        domainParameter);
-
-                    PublicKeyParameters = new ECPublicKeyParameters(
-                        domainParameter.G.Multiply(PrivateKeyParameters.D).Normalize(),
-                        domainParameter);
-                }
-                else
-                {
-                    PublicKeyParameters = new ECPublicKeyParameters(
-                        x9ECParameters.Curve.CreatePoint(
-                            new Org.BouncyCastle.Math.BigInteger(1, qx),
-                            new Org.BouncyCastle.Math.BigInteger(1, qy)),
-                        domainParameter);
-                }
+                Import_BouncyCastle(curve_oid, qx, qy, privatekey);
             }
 #else
             var curve = ECCurve.CreateFromValue(curve_oid);
@@ -532,10 +502,66 @@ namespace Renci.SshNet.Security
                 parameter.D = privatekey.TrimLeadingZeros().Pad(cord_size);
                 PrivateKey = parameter.D;
             }
-
+#if !NET
+            try
+            {
+                Ecdsa = ECDsa.Create(parameter);
+            }
+            catch (NotImplementedException)
+            {
+                Import_BouncyCastle(curve_oid, qx, qy, privatekey);
+            }
+#else
             Ecdsa = ECDsa.Create(parameter);
-#endif
+#endif // !NET
+#endif // NETFRAMEWORK
         }
+
+#if !NET
+        private void Import_BouncyCastle(string curve_oid, byte[] qx, byte[] qy, byte[] privatekey)
+        {
+            DerObjectIdentifier oid;
+            switch (curve_oid)
+            {
+                case ECDSA_P256_OID_VALUE:
+                    oid = SecObjectIdentifiers.SecP256r1;
+                    _keySize = 256;
+                    break;
+                case ECDSA_P384_OID_VALUE:
+                    oid = SecObjectIdentifiers.SecP384r1;
+                    _keySize = 384;
+                    break;
+                case ECDSA_P521_OID_VALUE:
+                    oid = SecObjectIdentifiers.SecP521r1;
+                    _keySize = 521;
+                    break;
+                default:
+                    throw new SshException("Unexpected OID: " + curve_oid);
+            }
+
+            var x9ECParameters = SecNamedCurves.GetByOid(oid);
+            var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
+
+            if (privatekey != null)
+            {
+                PrivateKeyParameters = new ECPrivateKeyParameters(
+                    new Org.BouncyCastle.Math.BigInteger(1, privatekey),
+                    domainParameter);
+
+                PublicKeyParameters = new ECPublicKeyParameters(
+                    domainParameter.G.Multiply(PrivateKeyParameters.D).Normalize(),
+                    domainParameter);
+            }
+            else
+            {
+                PublicKeyParameters = new ECPublicKeyParameters(
+                    x9ECParameters.Curve.CreatePoint(
+                        new Org.BouncyCastle.Math.BigInteger(1, qx),
+                        new Org.BouncyCastle.Math.BigInteger(1, qy)),
+                    domainParameter);
+            }
+        }
+#endif
 
         private static string GetCurveOid(string curve_s)
         {

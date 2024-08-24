@@ -3,7 +3,7 @@ using System.Globalization;
 
 #if !NET
 using Org.BouncyCastle.Crypto.Signers;
-#endif // !NET
+#endif
 
 using Renci.SshNet.Common;
 
@@ -45,7 +45,6 @@ namespace Renci.SshNet.Security.Cryptography
             // for 521 sig_size is 132
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
-
 #if !NET
             if (_key.PublicKeyParameters != null)
             {
@@ -55,7 +54,7 @@ namespace Renci.SshNet.Security.Cryptography
 
                 return signer.VerifySignature(ssh_data.Signature);
             }
-#endif // !NET
+#endif
 
 #if NETFRAMEWORK
             var ecdsa = _key.Ecdsa;
@@ -63,7 +62,7 @@ namespace Renci.SshNet.Security.Cryptography
             return ecdsa.VerifyData(input, ssh_data.Signature);
 #else
             return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
-#endif // NETFRAMEWORK
+#endif
         }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Renci.SshNet.Security.Cryptography
                 signed = signer.GenerateSignature();
             }
             else
-#endif // !NET
+#endif
             {
 #if NETFRAMEWORK
                 var ecdsa = _key.Ecdsa;
@@ -94,7 +93,7 @@ namespace Renci.SshNet.Security.Cryptography
                 signed = ecdsa.SignData(input);
 #else
                 signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
-#endif // NETFRAMEWORK
+#endif
             }
 
             var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };

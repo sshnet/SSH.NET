@@ -36,7 +36,7 @@ namespace Renci.SshNet.Security
 
 #if !NET
         private int _keySize;
-#endif // !NET
+#endif
 
 #if NETFRAMEWORK
         private CngKey _key;
@@ -145,7 +145,7 @@ namespace Renci.SshNet.Security
                 }
             }
         }
-#endif // NETFRAMEWORK
+#endif
 
         /// <summary>
         /// Gets the length of the key.
@@ -161,7 +161,7 @@ namespace Renci.SshNet.Security
                 return Ecdsa?.KeySize ?? _keySize;
 #else
                 return Ecdsa.KeySize;
-#endif // !NET
+#endif
             }
         }
 
@@ -192,7 +192,6 @@ namespace Renci.SshNet.Security
                 byte[] curve;
                 byte[] qx;
                 byte[] qy;
-
 #if !NET
                 if (PublicKeyParameters != null)
                 {
@@ -267,7 +266,7 @@ namespace Renci.SshNet.Security
                         default:
                             throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
                     }
-#endif // NETFRAMEWORK
+#endif
                 }
 
                 // Make ECPoint from x and y
@@ -299,7 +298,7 @@ namespace Renci.SshNet.Security
             get;
             private set;
         }
-#endif // !NET
+#endif
 
 #if NETFRAMEWORK
         /// <summary>
@@ -311,7 +310,7 @@ namespace Renci.SshNet.Security
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
-#endif // NETFRAMEWORK
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
@@ -513,8 +512,9 @@ namespace Renci.SshNet.Security
             }
 #else
             Ecdsa = ECDsa.Create(parameter);
-#endif // !NET
-#endif // NETFRAMEWORK
+#endif
+
+#endif
         }
 
 #if !NET
@@ -561,7 +561,7 @@ namespace Renci.SshNet.Security
                     domainParameter);
             }
         }
-#endif
+#endif // !NET
 
         private static string GetCurveOid(string curve_s)
         {

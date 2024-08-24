@@ -56,7 +56,7 @@ namespace Renci.SshNet.Security.Cryptography
             }
 #endif
 
-#if NETFRAMEWORK
+#if NET462
             var ecdsa = _key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             return ecdsa.VerifyData(input, ssh_data.Signature);
@@ -87,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography
             else
 #endif
             {
-#if NETFRAMEWORK
+#if NET462
                 var ecdsa = _key.Ecdsa;
                 ecdsa.HashAlgorithm = _key.HashAlgorithm;
                 signed = ecdsa.SignData(input);

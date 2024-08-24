@@ -1,9 +1,9 @@
 ﻿using System;
-#if NETFRAMEWORK
+#if NET462
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
-#endif // NETFRAMEWORK
+#endif // NET462
 using System.Security.Cryptography;
 using System.Text;
 
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Security
         private int _keySize;
 #endif
 
-#if NETFRAMEWORK
+#if NET462
         private CngKey _key;
 
         internal enum KeyBlobMagicNumber
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Security
             internal KeyBlobMagicNumber Magic;
             internal int CbKey;
         }
-#endif // NETFRAMEWORK
+#endif // NET462
 
         /// <summary>
         /// Gets the SSH name of the ECDSA Key.
@@ -103,7 +103,7 @@ namespace Renci.SshNet.Security
         }
 #endif // !NET
 
-#if NETFRAMEWORK
+#if NET462
         /// <summary>
         /// Gets the HashAlgorithm to use.
         /// </summary>
@@ -217,7 +217,7 @@ namespace Renci.SshNet.Security
                 else
 #endif // !NET
                 {
-#if NETFRAMEWORK
+#if NET462
                     var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
 
                     KeyBlobMagicNumber magic;
@@ -300,7 +300,7 @@ namespace Renci.SshNet.Security
         }
 #endif
 
-#if NETFRAMEWORK
+#if NET462
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
@@ -409,7 +409,7 @@ namespace Renci.SshNet.Security
             var qy = new byte[cord_size];
             Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
 
-#if NETFRAMEWORK
+#if NET462
             KeyBlobMagicNumber curve_magic;
 
             switch (GetCurveName(curve_oid))
@@ -578,7 +578,7 @@ namespace Renci.SshNet.Security
             }
         }
 
-#if NETFRAMEWORK
+#if NET462
         private static string GetCurveName(string oid)
         {
             switch (oid)
@@ -593,7 +593,7 @@ namespace Renci.SshNet.Security
                     throw new SshException("Unexpected OID: " + oid);
             }
         }
-#endif // NETFRAMEWORK
+#endif // NET462
 
         private static string OidByteArrayToString(byte[] oid)
         {

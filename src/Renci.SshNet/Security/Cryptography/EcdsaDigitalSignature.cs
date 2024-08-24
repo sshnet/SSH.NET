@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 
+#if NETFRAMEWORK
 using Org.BouncyCastle.Crypto.Signers;
+#endif
 
 using Renci.SshNet.Common;
 
@@ -44,6 +46,7 @@ namespace Renci.SshNet.Security.Cryptography
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
 
+#if NETFRAMEWORK
             if (_key.PublicKeyParameters != null)
             {
                 var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
@@ -53,7 +56,6 @@ namespace Renci.SshNet.Security.Cryptography
                 return signer.VerifySignature(ssh_data.Signature);
             }
 
-#if NETFRAMEWORK
             var ecdsa = _key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             return ecdsa.VerifyData(input, ssh_data.Signature);
@@ -73,24 +75,23 @@ namespace Renci.SshNet.Security.Cryptography
         {
             byte[] signed = null;
 
+#if NETFRAMEWORK
             if (_key.PrivateKeyParameters != null)
             {
                 var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
                 signer.Init(forSigning: true, _key.PrivateKeyParameters);
                 signer.BlockUpdate(input, 0, input.Length);
-
                 signed = signer.GenerateSignature();
             }
             else
             {
-#if NETFRAMEWORK
                 var ecdsa = _key.Ecdsa;
                 ecdsa.HashAlgorithm = _key.HashAlgorithm;
                 signed = ecdsa.SignData(input);
-#else
-                signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
-#endif
             }
+#else
+            signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
+#endif
 
             var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };
             return ssh_data.GetBytes();

@@ -1,19 +1,5 @@
 ﻿using System;
-#if NET462
-using System.Globalization;
-using System.IO;
-using System.Runtime.InteropServices;
-#endif // NET462
-using System.Security.Cryptography;
 using System.Text;
-
-#if !NET
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Parameters;
-#endif // !NET
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
@@ -23,7 +9,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Contains ECDSA (ecdsa-sha2-nistp{256,384,521}) private and public key.
     /// </summary>
-    public class EcdsaKey : Key, IDisposable
+    public partial class EcdsaKey : Key, IDisposable
     {
 #pragma warning disable SA1310 // Field names should not contain underscore
         private const string ECDSA_P256_OID_VALUE = "1.2.840.10045.3.1.7"; // Also called nistP256 or secP256r1
@@ -33,41 +19,6 @@ namespace Renci.SshNet.Security
 
         private EcdsaDigitalSignature _digitalSignature;
         private bool _isDisposed;
-
-#if !NET
-        private int _keySize;
-#endif
-
-#if NET462
-        private CngKey _key;
-
-        internal enum KeyBlobMagicNumber
-        {
-            BCRYPT_ECDSA_PUBLIC_P256_MAGIC = 0x31534345,
-            BCRYPT_ECDSA_PRIVATE_P256_MAGIC = 0x32534345,
-            BCRYPT_ECDSA_PUBLIC_P384_MAGIC = 0x33534345,
-            BCRYPT_ECDSA_PRIVATE_P384_MAGIC = 0x34534345,
-            BCRYPT_ECDSA_PUBLIC_P521_MAGIC = 0x35534345,
-            BCRYPT_ECDSA_PRIVATE_P521_MAGIC = 0x36534345,
-
-            BCRYPT_ECDH_PUBLIC_P256_MAGIC = 0x314B4345,
-            BCRYPT_ECDH_PRIVATE_P256_MAGIC = 0x324B4345,
-            BCRYPT_ECDH_PUBLIC_P384_MAGIC = 0x334B4345,
-            BCRYPT_ECDH_PRIVATE_P384_MAGIC = 0x344B4345,
-            BCRYPT_ECDH_PUBLIC_P521_MAGIC = 0x354B4345,
-            BCRYPT_ECDH_PRIVATE_P521_MAGIC = 0x364B4345,
-
-            BCRYPT_ECDH_PUBLIC_GENERIC_MAGIC = 0x504B4345,
-            BCRYPT_ECDH_PRIVATE_GENERIC_MAGIC = 0x564B4345,
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct BCRYPT_ECCKEY_BLOB
-        {
-            internal KeyBlobMagicNumber Magic;
-            internal int CbKey;
-        }
-#endif // NET462
 
         /// <summary>
         /// Gets the SSH name of the ECDSA Key.
@@ -79,73 +30,6 @@ namespace Renci.SshNet.Security
         {
             return string.Format("ecdsa-sha2-nistp{0}", KeyLength);
         }
-
-#if !NET
-        /// <summary>
-        /// Gets the Digest to use.
-        /// </summary>
-        internal IDigest Digest
-        {
-            get
-            {
-                switch (KeyLength)
-                {
-                    case 256:
-                        return new Sha256Digest();
-                    case 384:
-                        return new Sha384Digest();
-                    case 521:
-                        return new Sha512Digest();
-                    default:
-                        throw new SshException("Unknown KeySize: " + KeyLength.ToString());
-                }
-            }
-        }
-#endif // !NET
-
-#if NET462
-        /// <summary>
-        /// Gets the HashAlgorithm to use.
-        /// </summary>
-        public CngAlgorithm HashAlgorithm
-        {
-            get
-            {
-                switch (Ecdsa.KeySize)
-                {
-                    case 256:
-                        return CngAlgorithm.Sha256;
-                    case 384:
-                        return CngAlgorithm.Sha384;
-                    case 521:
-                        return CngAlgorithm.Sha512;
-                    default:
-                        throw new SshException("Unknown KeySize: " + Ecdsa.KeySize.ToString(CultureInfo.InvariantCulture));
-                }
-            }
-        }
-#else
-        /// <summary>
-        /// Gets the HashAlgorithm to use.
-        /// </summary>
-        public HashAlgorithmName HashAlgorithm
-        {
-            get
-            {
-                switch (KeyLength)
-                {
-                    case 256:
-                        return HashAlgorithmName.SHA256;
-                    case 384:
-                        return HashAlgorithmName.SHA384;
-                    case 521:
-                        return HashAlgorithmName.SHA512;
-                    default:
-                        return HashAlgorithmName.SHA256;
-                }
-            }
-        }
-#endif
 
         /// <summary>
         /// Gets the length of the key.
@@ -189,85 +73,11 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                byte[] curve;
-                byte[] qx;
-                byte[] qy;
-#if !NET
-                if (PublicKeyParameters != null)
-                {
-                    var oid = PublicKeyParameters.PublicKeyParamSet.GetID();
-                    switch (oid)
-                    {
-                        case ECDSA_P256_OID_VALUE:
-                            curve = Encoding.ASCII.GetBytes("nistp256");
-                            break;
-                        case ECDSA_P384_OID_VALUE:
-                            curve = Encoding.ASCII.GetBytes("nistp384");
-                            break;
-                        case ECDSA_P521_OID_VALUE:
-                            curve = Encoding.ASCII.GetBytes("nistp521");
-                            break;
-                        default:
-                            throw new SshException("Unexpected OID: " + oid);
-                    }
-
-                    qx = PublicKeyParameters.Q.XCoord.GetEncoded();
-                    qy = PublicKeyParameters.Q.YCoord.GetEncoded();
-                }
-                else
-#endif // !NET
-                {
 #if NET462
-                    var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
-
-                    KeyBlobMagicNumber magic;
-                    using (var br = new BinaryReader(new MemoryStream(blob)))
-                    {
-                        magic = (KeyBlobMagicNumber)br.ReadInt32();
-                        var cbKey = br.ReadInt32();
-                        qx = br.ReadBytes(cbKey);
-                        qy = br.ReadBytes(cbKey);
-                    }
-
-#pragma warning disable IDE0010 // Add missing cases
-                    switch (magic)
-                    {
-                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC:
-                            curve = Encoding.ASCII.GetBytes("nistp256");
-                            break;
-                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P384_MAGIC:
-                            curve = Encoding.ASCII.GetBytes("nistp384");
-                            break;
-                        case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P521_MAGIC:
-                            curve = Encoding.ASCII.GetBytes("nistp521");
-                            break;
-                        default:
-                            throw new SshException("Unexpected Curve Magic: " + magic);
-                    }
-#pragma warning restore IDE0010 // Add missing cases
+                Export_Cng(out var curve, out var qx, out var qy);
 #else
-                    var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
-                    qx = parameter.Q.X;
-                    qy = parameter.Q.Y;
-                    switch (parameter.Curve.Oid.FriendlyName)
-                    {
-                        case "ECDSA_P256":
-                        case "nistP256":
-                            curve = Encoding.ASCII.GetBytes("nistp256");
-                            break;
-                        case "ECDSA_P384":
-                        case "nistP384":
-                            curve = Encoding.ASCII.GetBytes("nistp384");
-                            break;
-                        case "ECDSA_P521":
-                        case "nistP521":
-                            curve = Encoding.ASCII.GetBytes("nistp521");
-                            break;
-                        default:
-                            throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
-                    }
+                Export_Bcl(out var curve, out var qx, out var qy);
 #endif
-                }
 
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
@@ -285,32 +95,6 @@ namespace Renci.SshNet.Security
         /// Gets the PrivateKey Bytes.
         /// </summary>
         public byte[] PrivateKey { get; private set; }
-
-#if !NET
-        internal ECPrivateKeyParameters PrivateKeyParameters
-        {
-            get;
-            private set;
-        }
-
-        internal ECPublicKeyParameters PublicKeyParameters
-        {
-            get;
-            private set;
-        }
-#endif
-
-#if NET462
-        /// <summary>
-        /// Gets the <see cref="ECDsa"/> object.
-        /// </summary>
-        public ECDsaCng Ecdsa { get; private set; }
-#else
-        /// <summary>
-        /// Gets the <see cref="ECDsa"/> object.
-        /// </summary>
-        public ECDsa Ecdsa { get; private set; }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
@@ -408,160 +192,12 @@ namespace Renci.SshNet.Security
 
             var qy = new byte[cord_size];
             Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
-
 #if NET462
-            KeyBlobMagicNumber curve_magic;
-
-            switch (GetCurveName(curve_oid))
-            {
-                case "nistp256":
-                    if (privatekey != null)
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PRIVATE_P256_MAGIC;
-                    }
-                    else
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC;
-                    }
-
-                    break;
-                case "nistp384":
-                    if (privatekey != null)
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PRIVATE_P384_MAGIC;
-                    }
-                    else
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P384_MAGIC;
-                    }
-
-                    break;
-                case "nistp521":
-                    if (privatekey != null)
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PRIVATE_P521_MAGIC;
-                    }
-                    else
-                    {
-                        curve_magic = KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P521_MAGIC;
-                    }
-
-                    break;
-                default:
-                    throw new SshException("Unknown: " + curve_oid);
-            }
-
-            if (privatekey != null)
-            {
-                privatekey = privatekey.Pad(cord_size);
-                PrivateKey = privatekey;
-            }
-
-            var headerSize = Marshal.SizeOf<BCRYPT_ECCKEY_BLOB>();
-            var blobSize = headerSize + qx.Length + qy.Length;
-            if (privatekey != null)
-            {
-                blobSize += privatekey.Length;
-            }
-
-            var blob = new byte[blobSize];
-            using (var bw = new BinaryWriter(new MemoryStream(blob)))
-            {
-                bw.Write((int)curve_magic);
-                bw.Write(cord_size);
-                bw.Write(qx); // q.x
-                bw.Write(qy); // q.y
-                if (privatekey != null)
-                {
-                    bw.Write(privatekey); // d
-                }
-            }
-
-            try
-            {
-                _key = CngKey.Import(blob, privatekey is null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);
-                Ecdsa = new ECDsaCng(_key);
-            }
-            catch (NotImplementedException)
-            {
-                Import_BouncyCastle(curve_oid, qx, qy, privatekey);
-            }
+            Import_Cng(curve_oid, cord_size, qx, qy, privatekey);
 #else
-            var curve = ECCurve.CreateFromValue(curve_oid);
-            var parameter = new ECParameters
-            {
-                Curve = curve
-            };
-
-            parameter.Q.X = qx;
-            parameter.Q.Y = qy;
-
-            if (privatekey != null)
-            {
-                parameter.D = privatekey.TrimLeadingZeros().Pad(cord_size);
-                PrivateKey = parameter.D;
-            }
-#if !NET
-            try
-            {
-                Ecdsa = ECDsa.Create(parameter);
-            }
-            catch (NotImplementedException)
-            {
-                Import_BouncyCastle(curve_oid, qx, qy, privatekey);
-            }
-#else
-            Ecdsa = ECDsa.Create(parameter);
-#endif
-
+            Import_Bcl(curve_oid, cord_size, qx, qy, privatekey);
 #endif
         }
-
-#if !NET
-        private void Import_BouncyCastle(string curve_oid, byte[] qx, byte[] qy, byte[] privatekey)
-        {
-            DerObjectIdentifier oid;
-            switch (curve_oid)
-            {
-                case ECDSA_P256_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP256r1;
-                    _keySize = 256;
-                    break;
-                case ECDSA_P384_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP384r1;
-                    _keySize = 384;
-                    break;
-                case ECDSA_P521_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP521r1;
-                    _keySize = 521;
-                    break;
-                default:
-                    throw new SshException("Unexpected OID: " + curve_oid);
-            }
-
-            var x9ECParameters = SecNamedCurves.GetByOid(oid);
-            var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
-
-            if (privatekey != null)
-            {
-                PrivateKeyParameters = new ECPrivateKeyParameters(
-                    new Org.BouncyCastle.Math.BigInteger(1, privatekey),
-                    domainParameter);
-
-                PublicKeyParameters = new ECPublicKeyParameters(
-                    domainParameter.G.Multiply(PrivateKeyParameters.D).Normalize(),
-                    domainParameter);
-            }
-            else
-            {
-                PublicKeyParameters = new ECPublicKeyParameters(
-                    x9ECParameters.Curve.CreatePoint(
-                        new Org.BouncyCastle.Math.BigInteger(1, qx),
-                        new Org.BouncyCastle.Math.BigInteger(1, qy)),
-                    domainParameter);
-            }
-        }
-#endif // !NET
 
         private static string GetCurveOid(string curve_s)
         {
@@ -577,23 +213,6 @@ namespace Renci.SshNet.Security
                     throw new SshException("Unexpected Curve Name: " + curve_s);
             }
         }
-
-#if NET462
-        private static string GetCurveName(string oid)
-        {
-            switch (oid)
-            {
-                case ECDSA_P256_OID_VALUE:
-                    return "nistp256";
-                case ECDSA_P384_OID_VALUE:
-                    return "nistp384";
-                case ECDSA_P521_OID_VALUE:
-                    return "nistp521";
-                default:
-                    throw new SshException("Unexpected OID: " + oid);
-            }
-        }
-#endif // NET462
 
         private static string OidByteArrayToString(byte[] oid)
         {

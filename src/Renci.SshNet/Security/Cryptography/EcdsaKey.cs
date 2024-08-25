@@ -95,11 +95,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-#if NET462
-                Export_Cng(out var curve, out var qx, out var qy);
-#else
-                Export_Bcl(out var curve, out var qx, out var qy);
-#endif
+                Export(out var curve, out var qx, out var qy);
 
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
@@ -219,11 +215,8 @@ namespace Renci.SshNet.Security
 
             var qy = new byte[cord_size];
             Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
-#if NET462
-            Import_Cng(curve_oid, cord_size, qx, qy, privatekey);
-#else
-            Import_Bcl(curve_oid, cord_size, qx, qy, privatekey);
-#endif
+
+            Import(curve_oid, cord_size, qx, qy, privatekey);
         }
 
         private static string GetCurveOid(string curve_s)

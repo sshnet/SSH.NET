@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security
             internal int CbKey;
         }
 
-        private void Import_Cng(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
+        private void Import(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
         {
             KeyBlobMagicNumber curve_magic;
 
@@ -120,7 +120,7 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private void Export_Cng(out byte[] curve, out byte[] qx, out byte[] qy)
+        private void Export(out byte[] curve, out byte[] qx, out byte[] qy)
         {
             if (PublicKeyParameters != null)
             {

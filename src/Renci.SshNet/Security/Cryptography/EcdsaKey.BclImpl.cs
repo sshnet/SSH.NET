@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security
 {
     public partial class EcdsaKey : Key, IDisposable
     {
-        private void Import_Bcl(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
+        private void Import(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
         {
             var curve = ECCurve.CreateFromValue(curve_oid);
             var parameter = new ECParameters
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security
 #endif
         }
 
-        private void Export_Bcl(out byte[] curve, out byte[] qx, out byte[] qy)
+        private void Export(out byte[] curve, out byte[] qx, out byte[] qy)
         {
 #if !NET
             if (PublicKeyParameters != null)

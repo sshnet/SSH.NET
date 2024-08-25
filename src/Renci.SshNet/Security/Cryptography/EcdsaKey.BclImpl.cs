@@ -9,32 +9,6 @@ namespace Renci.SshNet.Security
 {
     public partial class EcdsaKey : Key, IDisposable
     {
-        /// <summary>
-        /// Gets the HashAlgorithm to use.
-        /// </summary>
-        public HashAlgorithmName HashAlgorithm
-        {
-            get
-            {
-                switch (KeyLength)
-                {
-                    case 256:
-                        return HashAlgorithmName.SHA256;
-                    case 384:
-                        return HashAlgorithmName.SHA384;
-                    case 521:
-                        return HashAlgorithmName.SHA512;
-                    default:
-                        return HashAlgorithmName.SHA256;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="ECDsa"/> object.
-        /// </summary>
-        public ECDsa Ecdsa { get; private set; }
-
         private void Import_Bcl(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
         {
             var curve = ECCurve.CreateFromValue(curve_oid);

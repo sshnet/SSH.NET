@@ -1,6 +1,5 @@
 ﻿#if NET462
 using System;
-using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -40,32 +39,6 @@ namespace Renci.SshNet.Security
             internal KeyBlobMagicNumber Magic;
             internal int CbKey;
         }
-
-        /// <summary>
-        /// Gets the HashAlgorithm to use.
-        /// </summary>
-        public CngAlgorithm HashAlgorithm
-        {
-            get
-            {
-                switch (Ecdsa.KeySize)
-                {
-                    case 256:
-                        return CngAlgorithm.Sha256;
-                    case 384:
-                        return CngAlgorithm.Sha384;
-                    case 521:
-                        return CngAlgorithm.Sha512;
-                    default:
-                        throw new SshException("Unknown KeySize: " + Ecdsa.KeySize.ToString(CultureInfo.InvariantCulture));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="ECDsaCng"/> object.
-        /// </summary>
-        public ECDsaCng Ecdsa { get; private set; }
 
         private void Import_Cng(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
         {

@@ -55,14 +55,7 @@ namespace Renci.SshNet.Security.Cryptography
                 return signer.VerifySignature(ssh_data.Signature);
             }
 #endif
-
-#if NET462
-            var ecdsa = _key.Ecdsa;
-            ecdsa.HashAlgorithm = _key.HashAlgorithm;
-            return ecdsa.VerifyData(input, ssh_data.Signature);
-#else
             return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
-#endif
         }
 
         /// <summary>
@@ -87,13 +80,7 @@ namespace Renci.SshNet.Security.Cryptography
             else
 #endif
             {
-#if NET462
-                var ecdsa = _key.Ecdsa;
-                ecdsa.HashAlgorithm = _key.HashAlgorithm;
-                signed = ecdsa.SignData(input);
-#else
                 signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
-#endif
             }
 
             var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };

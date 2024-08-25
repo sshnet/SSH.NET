@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 using Renci.SshNet.Common;
@@ -29,6 +30,27 @@ namespace Renci.SshNet.Security
         public override string ToString()
         {
             return string.Format("ecdsa-sha2-nistp{0}", KeyLength);
+        }
+
+        /// <summary>
+        /// Gets the HashAlgorithm to use.
+        /// </summary>
+        public HashAlgorithmName HashAlgorithm
+        {
+            get
+            {
+                switch (KeyLength)
+                {
+                    case 256:
+                        return HashAlgorithmName.SHA256;
+                    case 384:
+                        return HashAlgorithmName.SHA384;
+                    case 521:
+                        return HashAlgorithmName.SHA512;
+                    default:
+                        return HashAlgorithmName.SHA256;
+                }
+            }
         }
 
         /// <summary>
@@ -95,6 +117,11 @@ namespace Renci.SshNet.Security
         /// Gets the PrivateKey Bytes.
         /// </summary>
         public byte[] PrivateKey { get; private set; }
+
+        /// <summary>
+        /// Gets the <see cref="ECDsa"/> object.
+        /// </summary>
+        public ECDsa Ecdsa { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.

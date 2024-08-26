@@ -109,6 +109,8 @@ namespace Renci.SshNet.Security
                 }
             }
 
+            // Mono doesn't implement CngKey.Import(...)
+            // See https://github.com/mono/mono/blob/main/mcs/class/referencesource/System.Core/System/Security/Cryptography/CngKey.cs#L186
             try
             {
                 _key = CngKey.Import(blob, privatekey is null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);

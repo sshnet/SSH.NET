@@ -27,6 +27,8 @@ namespace Renci.SshNet.Security
             }
 
 #if !NET
+            // Mono doesn't implement ECDsa.Create()
+            // See https://github.com/mono/mono/blob/main/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs#L32
             try
             {
                 Ecdsa = ECDsa.Create(parameter);

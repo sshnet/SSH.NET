@@ -183,6 +183,9 @@ dotnet_diagnostic.S2971.severity = none
 # This is rather harmless.
 dotnet_diagnostic.S3218.severity = none
 
+# S3236: Remove this argument from the method call; it hides the caller information.
+dotnet_diagnostic.S3236.severity = none
+
 # S3267: Loops should be simplified with "LINQ" expressions
 # https://rules.sonarsource.com/csharp/RSPEC-3267
 #

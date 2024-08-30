@@ -19,15 +19,15 @@ for:
           
   build_script:
     - echo build
-    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
-    - dotnet build -f net8.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - dotnet build -f net9.0 -c Debug test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - dotnet build -f net9.0 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
     - dotnet build -f net48 -c Debug test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
   test_script:
     - sh: echo "Run unit tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - sh: dotnet test -f net9.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_unit_test_net_9_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_unit_test_net_9_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - sh: echo "Run integration tests"
-    - sh: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_8_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - sh: dotnet test -f net9.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_9_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_9_coverage.xml test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
     # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
     # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
     # Running all the tests causes problems which are not worth solving in this rare configuration.
@@ -52,8 +52,8 @@ for:
     - dotnet pack -c Release
 
   test_script:
-    - ps: echo "Run unit tests for .NET 8.0"
-    - ps: dotnet test -f net8.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_8_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_8_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+    - ps: echo "Run unit tests for .NET 9.0"
+    - ps: dotnet test -f net9.0 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_9_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_9_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
     - ps: echo "Run unit tests for .NET Framework 4.6.2"
     - ps: dotnet test -f net462 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=windows_unit_test_net_4_6_2_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/windows_unit_test_net_4_6_2_coverage.xml test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
 

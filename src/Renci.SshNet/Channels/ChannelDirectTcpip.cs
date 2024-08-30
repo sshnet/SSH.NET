@@ -14,7 +14,11 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal sealed class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
+#if NET9_0_OR_GREATER
+        private readonly Lock _socketLock = new Lock();
+#else
         private readonly object _socketLock = new object();
+#endif
 
         private EventWaitHandle _channelOpen = new AutoResetEvent(initialState: false);
         private EventWaitHandle _channelData = new AutoResetEvent(initialState: false);

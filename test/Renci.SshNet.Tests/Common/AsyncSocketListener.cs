@@ -13,7 +13,11 @@ namespace Renci.SshNet.Tests.Common
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
         private readonly List<Socket> _connectedClients;
-        private readonly object _syncLock;
+#if NET9_0_OR_GREATER
+        private readonly Lock _syncLock = new Lock();
+#else
+        private readonly object _syncLock = new object();
+#endif
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
@@ -31,7 +35,6 @@ namespace Renci.SshNet.Tests.Common
             _endPoint = endPoint;
             _acceptCallbackDone = new ManualResetEvent(false);
             _connectedClients = new List<Socket>();
-            _syncLock = new object();
             ShutdownRemoteCommunicationSocket = true;
         }
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -18,8 +20,15 @@ namespace Renci.SshNet.Security
         private const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
 #pragma warning restore SA1310 // Field names should not contain underscore
 
-        private EcdsaDigitalSignature _digitalSignature;
-        private bool _isDisposed;
+        private static readonly BigInteger Encoded256 = new BigInteger("nistp256"u8.ToArray().Reverse());
+        private static readonly BigInteger Encoded384 = new BigInteger("nistp384"u8.ToArray().Reverse());
+        private static readonly BigInteger Encoded521 = new BigInteger("nistp521"u8.ToArray().Reverse());
+
+        private EcdsaDigitalSignature? _digitalSignature;
+
+#pragma warning disable SA1401 // Fields should be private; internal readonly
+        internal readonly Impl _impl;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets the SSH name of the ECDSA Key.
@@ -53,27 +62,43 @@ namespace Renci.SshNet.Security
             }
         }
 
-        /// <summary>
-        /// Gets the length of the key.
-        /// </summary>
-        /// <value>
-        /// The length of the key.
-        /// </value>
+        internal abstract class Impl : IDisposable
+        {
+            public abstract int KeyLength { get; }
+
+            public abstract byte[]? PrivateKey { get; }
+
+#if NET
+            public abstract ECDsa Ecdsa { get; }
+#else
+            public abstract ECDsa? Ecdsa { get; }
+#endif
+
+            public abstract bool Verify(byte[] input, byte[] signature);
+
+            public abstract byte[] Sign(byte[] input);
+
+            public abstract void Export(out byte[] qx, out byte[] qy);
+
+            protected abstract void Dispose(bool disposing);
+
+            public void Dispose()
+            {
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
             {
-#if !NET
-                return Ecdsa?.KeySize ?? _keySize;
-#else
-                return Ecdsa.KeySize;
-#endif
+                return _impl.KeyLength;
             }
         }
 
-        /// <summary>
-        /// Gets the digital signature.
-        /// </summary>
+        /// <inheritdoc/>
         protected internal override DigitalSignature DigitalSignature
         {
             get
@@ -95,29 +120,60 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                Export(out var curve, out var qx, out var qy);
+                BigInteger curve;
+                switch (KeyLength)
+                {
+                    case 256:
+                        curve = Encoded256;
+                        break;
+                    case 384:
+                        curve = Encoded384;
+                        break;
+                    default:
+                        Debug.Assert(KeyLength == 521);
+                        curve = Encoded521;
+                        break;
+                }
+
+                _impl.Export(out var qx, out var qy);
 
                 // Make ECPoint from x and y
                 // Prepend 04 (uncompressed format) + qx-bytes + qy-bytes
                 var q = new byte[1 + qx.Length + qy.Length];
-                Buffer.SetByte(q, 0, 4);
+                q[0] = 0x4;
                 Buffer.BlockCopy(qx, 0, q, 1, qx.Length);
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
-                return new[] { new BigInteger(curve.Reverse()), new BigInteger(q.Reverse()) };
+                return new[] { curve, new BigInteger(q.Reverse()) };
             }
         }
 
         /// <summary>
         /// Gets the PrivateKey Bytes.
         /// </summary>
-        public byte[] PrivateKey { get; private set; }
+        public byte[]? PrivateKey
+        {
+            get
+            {
+                return _impl.PrivateKey;
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="ECDsa"/> object.
         /// </summary>
-        public ECDsa Ecdsa { get; private set; }
+#if NET
+        public ECDsa Ecdsa
+#else
+        public ECDsa? Ecdsa
+#endif
+        {
+            get
+            {
+                return _impl.Ecdsa;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
@@ -139,7 +195,7 @@ namespace Renci.SshNet.Security
             var curve_oid = GetCurveOid(curve_s);
 
             var publickey = publicKeyData.Keys[1].ToByteArray().Reverse();
-            Import(curve_oid, publickey, privatekey: null);
+            _impl = Import(curve_oid, publickey, privatekey: null);
         }
 
         /// <summary>
@@ -150,7 +206,7 @@ namespace Renci.SshNet.Security
         /// <param name="privatekey">Value of privatekey.</param>
         public EcdsaKey(string curve, byte[] publickey, byte[] privatekey)
         {
-            Import(GetCurveOid(curve), publickey, privatekey);
+            _impl = Import(GetCurveOid(curve), publickey, privatekey);
         }
 
         /// <summary>
@@ -203,10 +259,12 @@ namespace Renci.SshNet.Security
             var pubkey_der = new DerData(construct, construct: true);
             var pubkey = pubkey_der.ReadBitString().TrimLeadingZeros();
 
-            Import(OidByteArrayToString(curve), pubkey, privatekey);
+            _impl = Import(OidByteArrayToString(curve), pubkey, privatekey);
         }
 
-        private void Import(string curve_oid, byte[] publickey, byte[] privatekey)
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+        private static Impl Import(string curve_oid, byte[] publickey, byte[]? privatekey)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         {
             // ECPoint as BigInteger(2)
             var cord_size = (publickey.Length - 1) / 2;
@@ -216,22 +274,44 @@ namespace Renci.SshNet.Security
             var qy = new byte[cord_size];
             Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
 
-            Import(curve_oid, cord_size, qx, qy, privatekey);
+#if NET
+            return new BclImpl(curve_oid, cord_size, qx, qy, privatekey);
+#else
+            try
+            {
+#if NET462
+                return new CngImpl(curve_oid, cord_size, qx, qy, privatekey);
+#else
+                return new BclImpl(curve_oid, cord_size, qx, qy, privatekey);
+#endif
+            }
+            catch (NotImplementedException)
+            {
+                // Mono doesn't implement ECDsa.Create()
+                // See https://github.com/mono/mono/blob/main/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs#L32
+                return new BouncyCastleImpl(curve_oid, qx, qy, privatekey);
+            }
+#endif
         }
 
         private static string GetCurveOid(string curve_s)
         {
-            switch (curve_s.ToUpperInvariant())
+            if (string.Equals(curve_s, "nistp256", StringComparison.OrdinalIgnoreCase))
             {
-                case "NISTP256":
-                    return ECDSA_P256_OID_VALUE;
-                case "NISTP384":
-                    return ECDSA_P384_OID_VALUE;
-                case "NISTP521":
-                    return ECDSA_P521_OID_VALUE;
-                default:
-                    throw new SshException("Unexpected Curve Name: " + curve_s);
+                return ECDSA_P256_OID_VALUE;
             }
+
+            if (string.Equals(curve_s, "nistp384", StringComparison.OrdinalIgnoreCase))
+            {
+                return ECDSA_P384_OID_VALUE;
+            }
+
+            if (string.Equals(curve_s, "nistp521", StringComparison.OrdinalIgnoreCase))
+            {
+                return ECDSA_P521_OID_VALUE;
+            }
+
+            throw new SshException("Unexpected Curve Name: " + curve_s);
         }
 
         private static string OidByteArrayToString(byte[] oid)
@@ -278,23 +358,11 @@ namespace Renci.SshNet.Security
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
             if (disposing)
             {
-                _isDisposed = true;
+                _digitalSignature?.Dispose();
+                _impl.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="EcdsaKey"/> class.
-        /// </summary>
-        ~EcdsaKey()
-        {
-            Dispose(disposing: false);
         }
     }
 }

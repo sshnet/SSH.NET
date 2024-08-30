@@ -1,7 +1,7 @@
 ﻿#if !NET462
+#nullable enable
 using System;
 using System.Security.Cryptography;
-using System.Text;
 
 using Renci.SshNet.Common;
 
@@ -9,68 +9,71 @@ namespace Renci.SshNet.Security
 {
     public partial class EcdsaKey : Key, IDisposable
     {
-        private void Import(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[] privatekey)
+        private sealed class BclImpl : Impl
         {
-            var curve = ECCurve.CreateFromValue(curve_oid);
-            var parameter = new ECParameters
-            {
-                Curve = curve
-            };
+            private readonly HashAlgorithmName _hashAlgorithmName;
 
-            parameter.Q.X = qx;
-            parameter.Q.Y = qy;
-
-            if (privatekey != null)
+            public BclImpl(string curve_oid, int cord_size, byte[] qx, byte[] qy, byte[]? privatekey)
             {
-                parameter.D = privatekey.TrimLeadingZeros().Pad(cord_size);
-                PrivateKey = parameter.D;
-            }
+                var curve = ECCurve.CreateFromValue(curve_oid);
+                var parameter = new ECParameters
+                {
+                    Curve = curve
+                };
 
-#if !NET
-            // Mono doesn't implement ECDsa.Create()
-            // See https://github.com/mono/mono/blob/main/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs#L32
-            try
-            {
+                parameter.Q.X = qx;
+                parameter.Q.Y = qy;
+
+                if (privatekey != null)
+                {
+                    parameter.D = privatekey.TrimLeadingZeros().Pad(cord_size);
+                    PrivateKey = parameter.D;
+                }
+
                 Ecdsa = ECDsa.Create(parameter);
-            }
-            catch (NotImplementedException)
-            {
-                Import_BouncyCastle(curve_oid, qx, qy, privatekey);
-            }
-#else
-            Ecdsa = ECDsa.Create(parameter);
-#endif
-        }
 
-        private void Export(out byte[] curve, out byte[] qx, out byte[] qy)
-        {
-#if !NET
-            if (PublicKeyParameters != null)
-            {
-                Export_BouncyCastle(out curve, out qx, out qy);
+                _hashAlgorithmName = KeyLength switch
+                {
+                    <= 256 => HashAlgorithmName.SHA256,
+                    <= 384 => HashAlgorithmName.SHA384,
+                    _ => HashAlgorithmName.SHA512,
+                };
             }
-            else
-#endif
+
+            public override byte[]? PrivateKey { get; }
+
+            public override ECDsa Ecdsa { get; }
+
+            public override int KeyLength
+            {
+                get
+                {
+                    return Ecdsa.KeySize;
+                }
+            }
+
+            public override byte[] Sign(byte[] input)
+            {
+                return Ecdsa.SignData(input, _hashAlgorithmName);
+            }
+
+            public override bool Verify(byte[] input, byte[] signature)
+            {
+                return Ecdsa.VerifyData(input, signature, _hashAlgorithmName);
+            }
+
+            public override void Export(out byte[] qx, out byte[] qy)
             {
                 var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
-                qx = parameter.Q.X;
-                qy = parameter.Q.Y;
-                switch (parameter.Curve.Oid.FriendlyName)
+                qx = parameter.Q.X!;
+                qy = parameter.Q.Y!;
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
                 {
-                    case "ECDSA_P256":
-                    case "nistP256":
-                        curve = Encoding.ASCII.GetBytes("nistp256");
-                        break;
-                    case "ECDSA_P384":
-                    case "nistP384":
-                        curve = Encoding.ASCII.GetBytes("nistp384");
-                        break;
-                    case "ECDSA_P521":
-                    case "nistP521":
-                        curve = Encoding.ASCII.GetBytes("nistp521");
-                        break;
-                    default:
-                        throw new SshException("Unexpected Curve Name: " + parameter.Curve.Oid.FriendlyName);
+                    Ecdsa.Dispose();
                 }
             }
         }

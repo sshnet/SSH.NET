@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Globalization;
-
-#if !NET
-using Org.BouncyCastle.Crypto.Signers;
-#endif
 
 using Renci.SshNet.Common;
 
@@ -15,7 +10,6 @@ namespace Renci.SshNet.Security.Cryptography
     public class EcdsaDigitalSignature : DigitalSignature, IDisposable
     {
         private readonly EcdsaKey _key;
-        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaDigitalSignature" /> class.
@@ -45,17 +39,8 @@ namespace Renci.SshNet.Security.Cryptography
             // for 521 sig_size is 132
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
-#if !NET
-            if (_key.PublicKeyParameters != null)
-            {
-                var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
-                signer.Init(forSigning: false, _key.PublicKeyParameters);
-                signer.BlockUpdate(input, 0, input.Length);
 
-                return signer.VerifySignature(ssh_data.Signature);
-            }
-#endif
-            return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
+            return _key._impl.Verify(input, ssh_data.Signature);
         }
 
         /// <summary>
@@ -67,21 +52,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Sign(byte[] input)
         {
-            byte[] signed = null;
-
-#if !NET
-            if (_key.PrivateKeyParameters != null)
-            {
-                var signer = new DsaDigestSigner(new ECDsaSigner(), _key.Digest, PlainDsaEncoding.Instance);
-                signer.Init(forSigning: true, _key.PrivateKeyParameters);
-                signer.BlockUpdate(input, 0, input.Length);
-                signed = signer.GenerateSignature();
-            }
-            else
-#endif
-            {
-                signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
-            }
+            var signed = _key._impl.Sign(input);
 
             var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };
             return ssh_data.GetBytes();
@@ -102,23 +73,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                _isDisposed = true;
-            }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="EcdsaDigitalSignature"/> class.
-        /// </summary>
-        ~EcdsaDigitalSignature()
-        {
-            Dispose(disposing: false);
         }
 
         private sealed class SshDataSignature : SshData
@@ -170,18 +124,6 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 WriteBinaryString(_signature_r.ToBigInteger2().ToByteArray().Reverse());
                 WriteBinaryString(_signature_s.ToBigInteger2().ToByteArray().Reverse());
-            }
-
-            public new byte[] ReadBinary()
-            {
-                var length = ReadUInt32();
-
-                if (length > int.MaxValue)
-                {
-                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
-                }
-
-                return ReadBytes((int)length);
             }
 
             protected override int BufferCapacity

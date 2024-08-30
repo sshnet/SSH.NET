@@ -1,11 +1,13 @@
 ﻿#if !NET
-using System.Text;
+#nullable enable
+using System.Security.Cryptography;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
 
 using Renci.SshNet.Common;
 
@@ -13,102 +15,93 @@ namespace Renci.SshNet.Security
 {
     public partial class EcdsaKey
     {
-        private int _keySize;
-
-        internal IDigest Digest
+        private sealed class BouncyCastleImpl : Impl
         {
-            get
+            private readonly ECPublicKeyParameters _publicKeyParameters;
+            private readonly ECPrivateKeyParameters? _privateKeyParameters;
+            private readonly DsaDigestSigner _signer;
+
+            public BouncyCastleImpl(string curve_oid, byte[] qx, byte[] qy, byte[]? privatekey)
             {
-                switch (KeyLength)
+                DerObjectIdentifier oid;
+                IDigest digest;
+                switch (curve_oid)
                 {
-                    case 256:
-                        return new Sha256Digest();
-                    case 384:
-                        return new Sha384Digest();
-                    case 521:
-                        return new Sha512Digest();
+                    case ECDSA_P256_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP256r1;
+                        digest = new Sha256Digest();
+                        KeyLength = 256;
+                        break;
+                    case ECDSA_P384_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP384r1;
+                        digest = new Sha384Digest();
+                        KeyLength = 384;
+                        break;
+                    case ECDSA_P521_OID_VALUE:
+                        oid = SecObjectIdentifiers.SecP521r1;
+                        digest = new Sha512Digest();
+                        KeyLength = 521;
+                        break;
                     default:
-                        throw new SshException("Unknown KeySize: " + KeyLength.ToString());
+                        throw new SshException("Unexpected OID: " + curve_oid);
+                }
+
+                _signer = new DsaDigestSigner(new ECDsaSigner(), digest, PlainDsaEncoding.Instance);
+
+                var x9ECParameters = SecNamedCurves.GetByOid(oid);
+                var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
+
+                if (privatekey != null)
+                {
+                    _privateKeyParameters = new ECPrivateKeyParameters(
+                        new Org.BouncyCastle.Math.BigInteger(1, privatekey),
+                        domainParameter);
+
+                    _publicKeyParameters = new ECPublicKeyParameters(
+                        domainParameter.G.Multiply(_privateKeyParameters.D).Normalize(),
+                        domainParameter);
+                }
+                else
+                {
+                    _publicKeyParameters = new ECPublicKeyParameters(
+                        x9ECParameters.Curve.CreatePoint(
+                            new Org.BouncyCastle.Math.BigInteger(1, qx),
+                            new Org.BouncyCastle.Math.BigInteger(1, qy)),
+                        domainParameter);
                 }
             }
-        }
 
-        internal ECPrivateKeyParameters PrivateKeyParameters
-        {
-            get;
-            private set;
-        }
+            public override byte[]? PrivateKey { get; }
 
-        internal ECPublicKeyParameters PublicKeyParameters
-        {
-            get;
-            private set;
-        }
+            public override ECDsa? Ecdsa { get; }
 
-        private void Import_BouncyCastle(string curve_oid, byte[] qx, byte[] qy, byte[] privatekey)
-        {
-            DerObjectIdentifier oid;
-            switch (curve_oid)
+            public override int KeyLength { get; }
+
+            public override byte[] Sign(byte[] input)
             {
-                case ECDSA_P256_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP256r1;
-                    _keySize = 256;
-                    break;
-                case ECDSA_P384_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP384r1;
-                    _keySize = 384;
-                    break;
-                case ECDSA_P521_OID_VALUE:
-                    oid = SecObjectIdentifiers.SecP521r1;
-                    _keySize = 521;
-                    break;
-                default:
-                    throw new SshException("Unexpected OID: " + curve_oid);
+                _signer.Init(forSigning: true, _privateKeyParameters);
+                _signer.BlockUpdate(input, 0, input.Length);
+
+                return _signer.GenerateSignature();
             }
 
-            var x9ECParameters = SecNamedCurves.GetByOid(oid);
-            var domainParameter = new ECNamedDomainParameters(oid, x9ECParameters);
-
-            if (privatekey != null)
+            public override bool Verify(byte[] input, byte[] signature)
             {
-                PrivateKeyParameters = new ECPrivateKeyParameters(
-                    new Org.BouncyCastle.Math.BigInteger(1, privatekey),
-                    domainParameter);
+                _signer.Init(forSigning: false, _publicKeyParameters);
+                _signer.BlockUpdate(input, 0, input.Length);
 
-                PublicKeyParameters = new ECPublicKeyParameters(
-                    domainParameter.G.Multiply(PrivateKeyParameters.D).Normalize(),
-                    domainParameter);
-            }
-            else
-            {
-                PublicKeyParameters = new ECPublicKeyParameters(
-                    x9ECParameters.Curve.CreatePoint(
-                        new Org.BouncyCastle.Math.BigInteger(1, qx),
-                        new Org.BouncyCastle.Math.BigInteger(1, qy)),
-                    domainParameter);
-            }
-        }
-
-        private void Export_BouncyCastle(out byte[] curve, out byte[] qx, out byte[] qy)
-        {
-            var oid = PublicKeyParameters.PublicKeyParamSet.GetID();
-            switch (oid)
-            {
-                case ECDSA_P256_OID_VALUE:
-                    curve = Encoding.ASCII.GetBytes("nistp256");
-                    break;
-                case ECDSA_P384_OID_VALUE:
-                    curve = Encoding.ASCII.GetBytes("nistp384");
-                    break;
-                case ECDSA_P521_OID_VALUE:
-                    curve = Encoding.ASCII.GetBytes("nistp521");
-                    break;
-                default:
-                    throw new SshException("Unexpected OID: " + oid);
+                return _signer.VerifySignature(signature);
             }
 
-            qx = PublicKeyParameters.Q.XCoord.GetEncoded();
-            qy = PublicKeyParameters.Q.YCoord.GetEncoded();
+            public override void Export(out byte[] qx, out byte[] qy)
+            {
+                qx = _publicKeyParameters.Q.XCoord.GetEncoded();
+                qy = _publicKeyParameters.Q.YCoord.GetEncoded();
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+            }
         }
     }
 }

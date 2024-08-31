@@ -32,7 +32,7 @@ for:
     # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
     # Running all the tests causes problems which are not worth solving in this rare configuration.
     # See https://github.com/sshnet/SSH.NET/pull/1462 and related links
-    - sh: dotnet test -f net48 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_48_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_48_coverage.xml --filter "Name~Ecdh|Name~Zlib|Name~Gcm" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+    - sh: dotnet test -f net48 -c Debug --no-restore --no-build --results-directory artifacts --logger Appveyor --logger "console;verbosity=normal" --logger "liquid.md;LogFileName=linux_integration_test_net_48_report.md" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/linux_integration_test_net_48_coverage.xml --filter "Name~Ecdh|Name~ECDsa|Name~Zlib|Name~Gcm" test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
 
 -
   matrix:

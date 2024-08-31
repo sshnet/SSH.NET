@@ -27,7 +27,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         // This is just to line up any differences in the assertion message.
         private static void AssertEqual(byte[] actualBytes, string expectedHex)
         {
+#if NET
+            string actualHex = Convert.ToHexString(actualBytes);
+#else
             string actualHex = BitConverter.ToString(actualBytes).Replace("-", "");
+#endif
 
             Assert.AreEqual(expectedHex, actualHex,
                 $"{Environment.NewLine}Expected: {expectedHex}{Environment.NewLine}  Actual: {actualHex}");

@@ -64,7 +64,6 @@ namespace Renci.SshNet.IntegrationTests
             DoTest(Cipher.Aes256Ctr);
         }
 
-#if NET6_0_OR_GREATER
         [TestMethod]
         public void Aes128Gcm()
         {
@@ -76,7 +75,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             DoTest(Cipher.Aes256Gcm);
         }
-#endif
+
         [TestMethod]
         public void ChaCha20Poly1305()
         {

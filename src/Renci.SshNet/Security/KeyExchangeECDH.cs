@@ -46,12 +46,10 @@ namespace Renci.SshNet.Security
                 _impl = new BclImpl(Curve);
             }
             else
+#endif
             {
                 _impl = new BouncyCastleImpl(CurveParameter);
             }
-#else
-            _impl = new BouncyCastleImpl(CurveParameter);
-#endif
 
             _clientExchangeValue = _impl.GenerateClientECPoint();
 

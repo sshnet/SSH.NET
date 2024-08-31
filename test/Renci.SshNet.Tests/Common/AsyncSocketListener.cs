@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Renci.SshNet.Common;
 #pragma warning restore IDE0005
 
 namespace Renci.SshNet.Tests.Common
@@ -13,11 +15,7 @@ namespace Renci.SshNet.Tests.Common
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
         private readonly List<Socket> _connectedClients;
-#if NET9_0_OR_GREATER
         private readonly Lock _syncLock = new Lock();
-#else
-        private readonly object _syncLock = new object();
-#endif
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;

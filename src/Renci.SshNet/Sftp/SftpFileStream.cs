@@ -18,11 +18,7 @@ namespace Renci.SshNet.Sftp
 #pragma warning restore IDE0079
     public class SftpFileStream : Stream
     {
-#if NET9_0_OR_GREATER
         private readonly Lock _lock = new Lock();
-#else
-        private readonly object _lock = new object();
-#endif
 
         private readonly int _readBufferSize;
         private readonly int _writeBufferSize;

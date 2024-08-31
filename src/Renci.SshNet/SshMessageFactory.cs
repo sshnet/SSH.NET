@@ -17,12 +17,7 @@ namespace Renci.SshNet
     {
         private readonly MessageMetadata[] _enabledMessagesByNumber;
         private readonly bool[] _activatedMessagesById;
-
-#if NET9_0_OR_GREATER
         private readonly Lock _lock = new Lock();
-#else
-        private readonly object _lock = new object();
-#endif
 
         internal static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
             {

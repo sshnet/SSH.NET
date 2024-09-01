@@ -40,12 +40,7 @@ namespace Renci.SshNet.Security
             }
         }
 
-        /// <summary>
-        /// Gets the length of the key.
-        /// </summary>
-        /// <value>
-        /// The length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get

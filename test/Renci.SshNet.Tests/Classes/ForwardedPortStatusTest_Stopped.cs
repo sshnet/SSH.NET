@@ -1,43 +1,31 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Renci.SshNet.Tests
+#pragma warning disable SA1131 // Use readable conditions
+namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortStatusTest_Stopping
+    public class ForwardedPortStatusTest_Stopped
     {
         [TestMethod]
         public void ToStopping_ShouldReturnFalseAndNotChangeStatus()
         {
-            var status = ForwardedPortStatus.Stopping;
+            var status = ForwardedPortStatus.Stopped;
 
             var actual = ForwardedPortStatus.ToStopping(ref status);
 
             Assert.IsFalse(actual);
-            Assert.AreEqual(ForwardedPortStatus.Stopping, status);
+            Assert.AreEqual(ForwardedPortStatus.Stopped, status);
         }
 
         [TestMethod]
-        public void ToStarting_ShouldThrowInvalidOperationExceptionAndNotChangeStatus()
+        public void ToStarting_ShouldReturnTrueAndChangeStatusToStarting()
         {
-            var status = ForwardedPortStatus.Stopping;
+            var status = ForwardedPortStatus.Stopped;
 
-            try
-            {
-                ForwardedPortStatus.ToStarting(ref status);
-                Assert.Fail();
-            }
-            catch (InvalidOperationException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(
-                    string.Format("Forwarded port cannot transition from '{0}' to '{1}'.",
-                                  ForwardedPortStatus.Stopping,
-                                  ForwardedPortStatus.Starting),
-                    ex.Message);
-            }
+            var actual = ForwardedPortStatus.ToStarting(ref status);
 
-            Assert.AreEqual(ForwardedPortStatus.Stopping, status);
+            Assert.IsTrue(actual);
+            Assert.AreEqual(ForwardedPortStatus.Starting, status);
         }
 
         [TestMethod]
@@ -45,7 +33,7 @@ namespace Renci.SshNet.Tests
         {
             const ForwardedPortStatus other = null;
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
             Assert.IsFalse(actual);
         }
@@ -55,29 +43,29 @@ namespace Renci.SshNet.Tests
         {
             var other = new object();
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
             Assert.IsFalse(actual);
         }
 
         [TestMethod]
-        public void Equals_ShouldReturnFalseWhenOtherIsStopped()
+        public void Equals_ShouldReturTrueWhenOtherIsStopped()
         {
             var other = ForwardedPortStatus.Stopped;
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
-            Assert.IsFalse(actual);
+            Assert.IsTrue(actual);
         }
 
         [TestMethod]
-        public void Equals_ShouldReturnTrueWhenOtherIsStopping()
+        public void Equals_ShouldReturnFalseWhenOtherIsStopping()
         {
             var other = ForwardedPortStatus.Stopping;
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
-            Assert.IsTrue(actual);
+            Assert.IsFalse(actual);
         }
 
         [TestMethod]
@@ -85,7 +73,7 @@ namespace Renci.SshNet.Tests
         {
             var other = ForwardedPortStatus.Started;
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
             Assert.IsFalse(actual);
         }
@@ -95,7 +83,7 @@ namespace Renci.SshNet.Tests
         {
             var other = ForwardedPortStatus.Starting;
 
-            var actual = ForwardedPortStatus.Stopping.Equals(other);
+            var actual = ForwardedPortStatus.Stopped.Equals(other);
 
             Assert.IsFalse(actual);
         }
@@ -103,7 +91,7 @@ namespace Renci.SshNet.Tests
         [TestMethod]
         public void EqualityOperator_ShouldReturnFalseWhenRightIsNull()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
             const ForwardedPortStatus right = null;
 
             var actual = left == right;
@@ -115,17 +103,6 @@ namespace Renci.SshNet.Tests
         public void EqualityOperator_ShouldReturnFalseWhenLeftIsNull()
         {
             const ForwardedPortStatus left = null;
-            var right = ForwardedPortStatus.Stopping;
-
-            var actual = left == right;
-
-            Assert.IsFalse(actual);
-        }
-
-        [TestMethod]
-        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppingAndRightIsStopped()
-        {
-            var left = ForwardedPortStatus.Stopping;
             var right = ForwardedPortStatus.Stopped;
 
             var actual = left == right;
@@ -134,10 +111,10 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void EqualityOperator_ShouldReturnTrueWhenLeftIsStoppingAndRightIsStopping()
+        public void EqualityOperator_ShouldReturnTrueWhenLeftIsStoppedAndRightIsStopped()
         {
-            var left = ForwardedPortStatus.Stopping;
-            var right = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
+            var right = ForwardedPortStatus.Stopped;
 
             var actual = left == right;
 
@@ -145,9 +122,20 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppingAndRightIsStarted()
+        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppedAndRightIsStopping()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
+            var right = ForwardedPortStatus.Stopping;
+
+            var actual = left == right;
+
+            Assert.IsFalse(actual);
+        }
+
+        [TestMethod]
+        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppedAndRightIsStarted()
+        {
+            var left = ForwardedPortStatus.Stopped;
             var right = ForwardedPortStatus.Started;
 
             var actual = left == right;
@@ -156,9 +144,9 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppingAndRightIsStarting()
+        public void EqualityOperator_ShouldReturnFalseWhenLeftIsStoppedAndRightIsStarting()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
             var right = ForwardedPortStatus.Starting;
 
             var actual = left == right;
@@ -169,7 +157,7 @@ namespace Renci.SshNet.Tests
         [TestMethod]
         public void InEqualityOperator_ShouldReturnTrueWhenRightIsNull()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
             const ForwardedPortStatus right = null;
 
             var actual = left != right;
@@ -181,17 +169,6 @@ namespace Renci.SshNet.Tests
         public void InEqualityOperator_ShouldReturnTrueWhenLeftIsNull()
         {
             const ForwardedPortStatus left = null;
-            var right = ForwardedPortStatus.Stopping;
-
-            var actual = left != right;
-
-            Assert.IsTrue(actual);
-        }
-
-        [TestMethod]
-        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppingAndRightIsStopped()
-        {
-            var left = ForwardedPortStatus.Stopping;
             var right = ForwardedPortStatus.Stopped;
 
             var actual = left != right;
@@ -200,10 +177,10 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void InEqualityOperator_ShouldReturnFalseWhenLeftIsStoppingAndRightIsStopping()
+        public void InEqualityOperator_ShouldReturnFalseWhenLeftIsStoppedAndRightIsStopped()
         {
-            var left = ForwardedPortStatus.Stopping;
-            var right = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
+            var right = ForwardedPortStatus.Stopped;
 
             var actual = left != right;
 
@@ -211,9 +188,20 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppingAndRightIsStarted()
+        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppedAndRightIsStopping()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
+            var right = ForwardedPortStatus.Stopping;
+
+            var actual = left != right;
+
+            Assert.IsTrue(actual);
+        }
+
+        [TestMethod]
+        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppedAndRightIsStarted()
+        {
+            var left = ForwardedPortStatus.Stopped;
             var right = ForwardedPortStatus.Started;
 
             var actual = left != right;
@@ -222,9 +210,9 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppingAndRightIsStarting()
+        public void InEqualityOperator_ShouldReturnTrueWhenLeftIsStoppedAndRightIsStarting()
         {
-            var left = ForwardedPortStatus.Stopping;
+            var left = ForwardedPortStatus.Stopped;
             var right = ForwardedPortStatus.Starting;
 
             var actual = left != right;
@@ -233,19 +221,19 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
-        public void GetHashCodeShouldReturnTwo()
+        public void GetHashCodeShouldReturnOne()
         {
-            var actual = ForwardedPortStatus.Stopping.GetHashCode();
+            var actual = ForwardedPortStatus.Stopped.GetHashCode();
 
-            Assert.AreEqual(2, actual);
+            Assert.AreEqual(1, actual);
         }
 
         [TestMethod]
         public void ToStringShouldReturnStopping()
         {
-            var actual = ForwardedPortStatus.Stopping.ToString();
+            var actual = ForwardedPortStatus.Stopped.ToString();
 
-            Assert.AreEqual("Stopping", actual);
+            Assert.AreEqual("Stopped", actual);
         }
     }
 }

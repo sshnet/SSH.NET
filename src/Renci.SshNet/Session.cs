@@ -1258,11 +1258,7 @@ namespace Renci.SshNet
                 var plainFirstBlock = firstBlock;
 
                 // First block is not encrypted in AES GCM mode.
-                if (_serverCipher is not null
-#if NET6_0_OR_GREATER
-        and not Security.Cryptography.Ciphers.AesGcmCipher
-#endif
-                    )
+                if (_serverCipher is not null and not Security.Cryptography.Ciphers.AesGcmCipher)
                 {
                     _serverCipher.SetSequenceNumber(_inboundPacketSequence);
 

@@ -56,7 +56,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-#if NET462 || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
         private int Read(Span<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);

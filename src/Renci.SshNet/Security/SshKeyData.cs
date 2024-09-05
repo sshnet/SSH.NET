@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 using Org.BouncyCastle.Math.EC.Rfc8032;
@@ -38,7 +39,7 @@ namespace Renci.SshNet.Security
                 foreach (var key in Keys)
                 {
                     capacity += 4; // Key length
-                    capacity += key.BitLength / 8; // Key
+                    capacity += (int)(key.GetBitLength() / 8); // Key
                 }
 
                 return capacity;
@@ -86,7 +87,7 @@ namespace Renci.SshNet.Security
 
             foreach (var key in Keys)
             {
-                var keyData = key.ToByteArray().Reverse();
+                var keyData = key.ToByteArray(isBigEndian: true);
                 if (Name == "ssh-ed25519")
                 {
                     keyData = keyData.TrimLeadingZeros().Pad(Ed25519.PublicKeySize);

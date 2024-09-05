@@ -1,6 +1,4 @@
-﻿using System;
-
-using Org.BouncyCastle.Crypto.Agreement;
+﻿using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
@@ -104,7 +102,7 @@ namespace Renci.SshNet.Security
 
             var k1 = new byte[_keyAgreement.AgreementSize];
             _keyAgreement.CalculateAgreement(publicKey, k1, 0);
-            SharedKey = k1.ToBigInteger2().ToByteArray().Reverse();
+            SharedKey = k1.ToBigInteger2().ToByteArray(isBigEndian: true);
         }
     }
 }

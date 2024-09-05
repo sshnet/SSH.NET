@@ -350,13 +350,5 @@ namespace Renci.SshNet
                 _disposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="Shell"/> class.
-        /// </summary>
-        ~Shell()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

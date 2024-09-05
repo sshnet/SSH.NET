@@ -183,13 +183,5 @@ namespace Renci.SshNet
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="KeyboardInteractiveAuthenticationMethod"/> class.
-        /// </summary>
-        ~KeyboardInteractiveAuthenticationMethod()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

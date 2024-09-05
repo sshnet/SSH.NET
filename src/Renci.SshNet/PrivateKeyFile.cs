@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -668,14 +669,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PrivateKeyFile"/> class.
-        /// </summary>
-        ~PrivateKeyFile()
-        {
-            Dispose(disposing: false);
-        }
-
         private sealed class SshDataReader : SshData
         {
             public SshDataReader(byte[] data)
@@ -713,22 +706,17 @@ namespace Renci.SshNet
 
                 length = (length + 7) / 8;
 
-                var data = base.ReadBytes(length);
-                var bytesArray = new byte[data.Length + 1];
-                Buffer.BlockCopy(data, 0, bytesArray, 1, data.Length);
-
-                return new BigInteger(bytesArray.Reverse());
+                return base.ReadBytes(length).ToBigInteger2();
             }
 
             public BigInteger ReadBignum()
             {
-                return new BigInteger(ReadBignum2().Reverse());
+                return DataStream.ReadBigInt();
             }
 
             public byte[] ReadBignum2()
             {
-                var length = (int)base.ReadUInt32();
-                return base.ReadBytes(length);
+                return ReadBinary();
             }
 
             protected override void LoadData()

@@ -83,13 +83,5 @@ namespace Renci.SshNet.Security.Cryptography
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ED25519DigitalSignature"/> class.
-        /// </summary>
-        ~ED25519DigitalSignature()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

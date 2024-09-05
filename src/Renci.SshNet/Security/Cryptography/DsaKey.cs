@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Numerics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -41,17 +42,12 @@ namespace Renci.SshNet.Security
         /// </summary>
         public BigInteger X { get; }
 
-        /// <summary>
-        /// Gets the length of the key in bits.
-        /// </summary>
-        /// <value>
-        /// The bit-length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
             {
-                return P.BitLength;
+                return (int)P.GetBitLength();
             }
         }
 

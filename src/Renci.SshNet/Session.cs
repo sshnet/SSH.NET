@@ -2254,14 +2254,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="Session"/> class.
-        /// </summary>
-        ~Session()
-        {
-            Dispose(disposing: false);
-        }
-
-        /// <summary>
         /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>

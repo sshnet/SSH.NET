@@ -1,6 +1,7 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -145,7 +146,11 @@ namespace Renci.SshNet.Security
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                return new[] { curve, new BigInteger(q, isBigEndian: true) };
+#else
                 return new[] { curve, new BigInteger(q.Reverse()) };
+#endif
             }
         }
 
@@ -191,10 +196,10 @@ namespace Renci.SshNet.Security
                 throw new ArgumentException($"Invalid ECDSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
             }
 
-            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray().Reverse());
+            var curve_s = Encoding.ASCII.GetString(publicKeyData.Keys[0].ToByteArray(isBigEndian: true));
             var curve_oid = GetCurveOid(curve_s);
 
-            var publickey = publicKeyData.Keys[1].ToByteArray().Reverse();
+            var publickey = publicKeyData.Keys[1].ToByteArray(isBigEndian: true);
             _impl = Import(curve_oid, publickey, privatekey: null);
         }
 

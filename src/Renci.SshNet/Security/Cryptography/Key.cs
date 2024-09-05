@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Common;
+using System.Numerics;
+
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security

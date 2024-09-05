@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Numerics;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {

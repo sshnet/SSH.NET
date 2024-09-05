@@ -3,6 +3,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Abstractions;
+#if !NET6_0_OR_GREATER
+using Renci.SshNet.Common;
+#endif
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Tests.Common;
@@ -19,8 +22,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             DsaKey dsaKey = GetDsaKey("Key.DSA.txt");
 
-            Assert.AreEqual(1024, dsaKey.P.BitLength);
-            Assert.AreEqual(160, dsaKey.Q.BitLength);
+            Assert.AreEqual(1024, dsaKey.P.GetBitLength());
+            Assert.AreEqual(160, dsaKey.Q.GetBitLength());
 
             var digitalSignature = new DsaDigitalSignature(dsaKey);
 

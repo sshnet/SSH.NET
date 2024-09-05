@@ -95,11 +95,11 @@ namespace Renci.SshNet.Security.Cryptography
                 {
                     var signed_r = new byte[_signature_size / 2];
                     Buffer.BlockCopy(value, 0, signed_r, 0, signed_r.Length);
-                    _signature_r = signed_r.ToBigInteger2().ToByteArray().Reverse();
+                    _signature_r = signed_r.ToBigInteger2().ToByteArray(isBigEndian: true);
 
                     var signed_s = new byte[_signature_size / 2];
                     Buffer.BlockCopy(value, signed_r.Length, signed_s, 0, signed_s.Length);
-                    _signature_s = signed_s.ToBigInteger2().ToByteArray().Reverse();
+                    _signature_s = signed_s.ToBigInteger2().ToByteArray(isBigEndian: true);
                 }
             }
 
@@ -122,8 +122,8 @@ namespace Renci.SshNet.Security.Cryptography
 
             protected override void SaveData()
             {
-                WriteBinaryString(_signature_r.ToBigInteger2().ToByteArray().Reverse());
-                WriteBinaryString(_signature_s.ToBigInteger2().ToByteArray().Reverse());
+                WriteBinaryString(_signature_r.ToBigInteger2().ToByteArray(isBigEndian: true));
+                WriteBinaryString(_signature_s.ToBigInteger2().ToByteArray(isBigEndian: true));
             }
 
             protected override int BufferCapacity

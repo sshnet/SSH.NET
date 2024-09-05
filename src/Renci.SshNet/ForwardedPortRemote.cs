@@ -379,13 +379,5 @@ namespace Renci.SshNet
 
             _isDisposed = true;
         }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ForwardedPortRemote"/> class.
-        /// </summary>
-        ~ForwardedPortRemote()
-        {
-            Dispose(disposing: false);
-        }
     }
 }

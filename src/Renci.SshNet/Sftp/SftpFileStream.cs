@@ -440,14 +440,6 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="SftpFileStream"/> class.
-        /// </summary>
-        ~SftpFileStream()
-        {
-            Dispose(disposing: false);
-        }
-
-        /// <summary>
         /// Clears all buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
         /// <exception cref="IOException">An I/O error occurs. </exception>

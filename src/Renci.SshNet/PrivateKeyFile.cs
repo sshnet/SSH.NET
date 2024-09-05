@@ -669,14 +669,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PrivateKeyFile"/> class.
-        /// </summary>
-        ~PrivateKeyFile()
-        {
-            Dispose(disposing: false);
-        }
-
         private sealed class SshDataReader : SshData
         {
             public SshDataReader(byte[] data)

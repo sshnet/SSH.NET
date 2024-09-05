@@ -16,7 +16,6 @@ namespace Renci.SshNet.Channels
     {
         private readonly Lock _serverWindowSizeLock = new Lock();
         private readonly Lock _messagingLock = new Lock();
-
         private readonly uint _initialWindowSize;
         private readonly ISession _session;
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);

@@ -19,7 +19,6 @@ namespace Renci.SshNet.Sftp
     public class SftpFileStream : Stream
     {
         private readonly Lock _lock = new Lock();
-
         private readonly int _readBufferSize;
         private readonly int _writeBufferSize;
 

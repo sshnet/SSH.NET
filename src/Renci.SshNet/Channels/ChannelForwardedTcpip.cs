@@ -17,7 +17,6 @@ namespace Renci.SshNet.Channels
     internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly Lock _socketShutdownAndCloseLock = new Lock();
-
         private Socket _socket;
         private IForwardedPort _forwardedPort;
 

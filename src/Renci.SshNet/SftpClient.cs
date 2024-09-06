@@ -2496,15 +2496,8 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            var sftpSession = _sftpSession;
-            if (sftpSession is null)
-            {
-                _sftpSession = CreateAndConnectToSftpSession();
-            }
-            else if (!sftpSession.IsOpen)
-            {
-                sftpSession.Connect();
-            }
+            _sftpSession?.Dispose();
+            _sftpSession = CreateAndConnectToSftpSession();
         }
 
         /// <summary>

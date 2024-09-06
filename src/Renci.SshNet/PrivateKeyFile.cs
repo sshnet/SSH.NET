@@ -39,7 +39,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// <para>
-    /// The following encryption algorithms are supported:
+    /// The following encryption algorithms are supported for OpenSSL PEM and ssh.com format:
     /// <list type="bullet">
     ///     <item>
     ///         <description>DES-EDE3-CBC</description>
@@ -58,6 +58,39 @@ namespace Renci.SshNet
     ///     </item>
     ///     <item>
     ///         <description>AES-256-CBC</description>
+    ///     </item>
+    /// </list>
+    /// The following encryption algorithms are supported for OpenSSH format:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>3des-cbc</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes128-cbc</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes192-cbc</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes256-cbc</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes128-ctr</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes192-ctr</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes256-ctr</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes128-gcm@openssh.com</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>aes256-gcm@openssh.com</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>chacha20-poly1305@openssh.com</description>
     ///     </item>
     /// </list>
     /// </para>
@@ -450,7 +483,17 @@ namespace Renci.SshNet
 
             var cipher = cipherInfo.Cipher(cipherKey.ToArray(), binarySalt);
 
-            return cipher.Decrypt(cipherData);
+            try
+            {
+                return cipher.Decrypt(cipherData);
+            }
+            finally
+            {
+                if (cipher is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
         }
 
         /// <summary>
@@ -474,7 +517,7 @@ namespace Renci.SshNet
                 throw new SshException("This openssh key does not contain the 'openssh-key-v1' format magic header");
             }
 
-            // cipher will be "aes256-cbc" if using a passphrase, "none" otherwise
+            // cipher will be "aes256-cbc" or other cipher if using a passphrase, "none" otherwise
             var cipherName = keyReader.ReadString(Encoding.UTF8);
 
             // key derivation function (kdf): bcrypt or nothing
@@ -503,7 +546,7 @@ namespace Renci.SshNet
 
             // possibly encrypted private key
             var privateKeyLength = (int)keyReader.ReadUInt32();
-            var privateKeyBytes = keyReader.ReadBytes(privateKeyLength);
+            byte[] privateKeyBytes;
 
             // decrypt private key if necessary
             if (cipherName != "none")
@@ -518,37 +561,75 @@ namespace Renci.SshNet
                     throw new SshException("kdf " + kdfName + " is not supported for openssh key file");
                 }
 
-                // inspired by the SSHj library (https://github.com/hierynomus/sshj)
-                // apply the kdf to derive a key and iv from the passphrase
-                var passPhraseBytes = Encoding.UTF8.GetBytes(passPhrase);
-                var keyiv = new byte[48];
-                new BCrypt().Pbkdf(passPhraseBytes, salt, rounds, keyiv);
-                var key = new byte[32];
-                Array.Copy(keyiv, 0, key, 0, 32);
-                var iv = new byte[16];
-                Array.Copy(keyiv, 32, iv, 0, 16);
-
-                AesCipher cipher;
+                var ivLength = 16;
+                CipherInfo cipherInfo;
                 switch (cipherName)
                 {
+                    case "3des-cbc":
+                        ivLength = 8;
+                        cipherInfo = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null));
+                        break;
+                    case "aes128-cbc":
+                        cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                        break;
+                    case "aes192-cbc":
+                        cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                        break;
                     case "aes256-cbc":
-                        cipher = new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false);
+                        cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                        break;
+                    case "aes128-ctr":
+                        cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
+                        break;
+                    case "aes192-ctr":
+                        cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
                         break;
                     case "aes256-ctr":
-                        cipher = new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false);
+                        cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
+                        break;
+                    case "aes128-gcm@openssh.com":
+                        cipherInfo = new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv, aadLength: 0), isAead: true);
+                        break;
+                    case "aes256-gcm@openssh.com":
+                        cipherInfo = new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv, aadLength: 0), isAead: true);
+                        break;
+                    case "chacha20-poly1305@openssh.com":
+                        ivLength = 12;
+                        cipherInfo = new CipherInfo(256, (key, iv) => new ChaCha20Poly1305Cipher(key, aadLength: 0), isAead: true);
                         break;
                     default:
                         throw new SshException("Cipher '" + cipherName + "' is not supported for an OpenSSH key.");
                 }
 
+                var keyLength = cipherInfo.KeySize / 8;
+
+                // inspired by the SSHj library (https://github.com/hierynomus/sshj)
+                // apply the kdf to derive a key and iv from the passphrase
+                var passPhraseBytes = Encoding.UTF8.GetBytes(passPhrase);
+                var keyiv = new byte[keyLength + ivLength];
+                new BCrypt().Pbkdf(passPhraseBytes, salt, rounds, keyiv);
+
+                var key = keyiv.Take(keyLength);
+                var iv = keyiv.Take(keyLength, ivLength);
+
+                var cipher = cipherInfo.Cipher(key, iv);
+                var cipherData = keyReader.ReadBytes(privateKeyLength + cipher.TagSize);
+
                 try
                 {
-                    privateKeyBytes = cipher.Decrypt(privateKeyBytes);
+                    privateKeyBytes = cipher.Decrypt(cipherData, 0, privateKeyLength);
                 }
                 finally
                 {
-                    cipher.Dispose();
+                    if (cipher is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
                 }
+            }
+            else
+            {
+                privateKeyBytes = keyReader.ReadBytes(privateKeyLength);
             }
 
             // validate private key length

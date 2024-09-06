@@ -562,11 +562,110 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod()]
-        [Owner("bhalbright")]
+        [Owner("scott-xu")]
         [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED()
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_3DES_CBC()
         {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.txt"))
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.3Des.CBC.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_CBC()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.CBC.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_192_CBC()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.192.CBC.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_CBC()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.CBC.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_CTR()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.CTR.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_192_CTR()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.192.CTR.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_CTR()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.CTR.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_GCM()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.GCM.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_GCM()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.GCM.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_ChaCha20_Poly1305()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.ChaCha20.Poly1305.txt"))
             {
                 _ = new PrivateKeyFile(stream, "12345");
             }

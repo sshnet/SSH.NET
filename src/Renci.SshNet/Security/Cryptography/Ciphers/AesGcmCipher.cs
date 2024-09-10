@@ -12,9 +12,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
     {
-        private const int PacketLengthFieldLength = 4;
         private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;
+        private readonly int _aadLength;
 #if NET6_0_OR_GREATER
         private readonly Impl _impl;
 #else
@@ -55,11 +55,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="iv">The IV.</param>
-        public AesGcmCipher(byte[] key, byte[] iv)
+        /// <param name="aadLength">The length of additional associated data.</param>
+        public AesGcmCipher(byte[] key, byte[] iv, int aadLength)
             : base(key)
         {
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
+            _aadLength = aadLength;
 #if NET6_0_OR_GREATER
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
@@ -78,8 +80,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [outbound sequence field][packet length field][padding length field sz][payload][random paddings]
-        ///   [----4 bytes----(offset)][------4 bytes------][----------------Plain Text---------------(length)]
+        ///   [----(offset)][----AAD----][----Plain Text----(length)]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
@@ -87,23 +88,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The encrypted data with below format:
         ///   <code>
-        ///   [packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [------4 bytes------][------------------Cipher Text--------------------][-------TAG-------]
+        ///   [----AAD----][----Cipher Text----][----TAG----]
         ///   </code>
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             var output = new byte[length + TagSize];
-            Buffer.BlockCopy(input, offset, output, 0, PacketLengthFieldLength);
+            Buffer.BlockCopy(input, offset, output, 0, _aadLength);
 
             _impl.Encrypt(
                 input,
-                plainTextOffset: offset + PacketLengthFieldLength,
-                plainTextLength: length - PacketLengthFieldLength,
+                plainTextOffset: offset + _aadLength,
+                plainTextLength: length - _aadLength,
                 associatedDataOffset: offset,
-                associatedDataLength: PacketLengthFieldLength,
+                associatedDataLength: _aadLength,
                 output,
-                cipherTextOffset: PacketLengthFieldLength);
+                cipherTextOffset: _aadLength);
 
             IncrementCounter();
 
@@ -116,8 +116,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [inbound sequence field][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [--------4 bytes-------][--4 bytes--(offset)][--------------Cipher Text----------------(length)][-------TAG-------]
+        ///   [----][----AAD----(offset)][----Cipher Text----(length)][----TAG----]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
@@ -125,13 +124,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The decrypted data with below format:
         /// <code>
-        ///   [padding length field sz][payload][random paddings]
-        ///   [--------------------Plain Text-------------------]
+        ///   [----Plain Text----]
         /// </code>
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            Debug.Assert(offset == 8, "The offset must be 8");
+            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
 
             var output = new byte[length];
 
@@ -139,8 +137,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 input,
                 cipherTextOffset: offset,
                 cipherTextLength: length,
-                associatedDataOffset: offset - PacketLengthFieldLength,
-                associatedDataLength: PacketLengthFieldLength,
+                associatedDataOffset: offset - _aadLength,
+                associatedDataLength: _aadLength,
                 output,
                 plainTextOffset: 0);
 

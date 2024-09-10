@@ -42,15 +42,14 @@
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.70-alpha" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
     <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Formats.Asn1" Version="[8.0.1,)" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
-    <PackageReference Include="System.Formats.Asn1" Version="[8.0.1,)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
@@ -141,7 +143,7 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
-            _key = key;
+            _key = key ?? throw new ArgumentNullException(nameof(key));
             _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
         }
 
@@ -150,16 +152,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
+            : this(privateKey, passPhrase: null)
         {
-            Open(privateKey, passPhrase: null);
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty.</exception>
+        /// <param name="fileName">The path of the private key file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -171,25 +172,26 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty, or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
+        /// <param name="fileName">The path of the private key file.</param>
+        /// <param name="passPhrase">The pass phrase for the private key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
-        public PrivateKeyFile(string fileName, string passPhrase)
+        public PrivateKeyFile(string fileName, string? passPhrase)
         {
-            if (string.IsNullOrEmpty(fileName))
+            if (fileName is null)
             {
                 throw new ArgumentNullException(nameof(fileName));
             }
 
-            using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var keyFile = File.OpenRead(fileName))
             {
                 Open(keyFile, passPhrase);
             }
 
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
+            Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
+            Debug.Assert(HostKeyAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -197,12 +199,18 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
-        public PrivateKeyFile(Stream privateKey, string passPhrase)
+        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> is <see langword="null"/>.</exception>
+        public PrivateKeyFile(Stream privateKey, string? passPhrase)
         {
+            if (privateKey is null)
+            {
+                throw new ArgumentNullException(nameof(privateKey));
+            }
+
             Open(privateKey, passPhrase);
 
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
+            Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
+            Debug.Assert(HostKeyAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -210,12 +218,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        private void Open(Stream privateKey, string passPhrase)
+        [MemberNotNull(nameof(_key))]
+        private void Open(Stream privateKey, string? passPhrase)
         {
-            if (privateKey is null)
-            {
-                throw new ArgumentNullException(nameof(privateKey));
-            }
+            Debug.Assert(privateKey is not null, "Should have validated not-null in the constructor.");
 
             Match privateKeyMatch;
 
@@ -505,14 +511,14 @@ namespace Renci.SshNet
         /// <returns>
         /// The OpenSSH V1 key.
         /// </returns>
-        private static Key ParseOpenSshV1Key(byte[] keyFileData, string passPhrase)
+        private static Key ParseOpenSshV1Key(byte[] keyFileData, string? passPhrase)
         {
             var keyReader = new SshDataReader(keyFileData);
 
             // check magic header
-            var authMagic = Encoding.UTF8.GetBytes("openssh-key-v1\0");
+            var authMagic = "openssh-key-v1\0"u8;
             var keyHeaderBytes = keyReader.ReadBytes(authMagic.Length);
-            if (!authMagic.IsEqualTo(keyHeaderBytes))
+            if (!authMagic.SequenceEqual(keyHeaderBytes))
             {
                 throw new SshException("This openssh key does not contain the 'openssh-key-v1' format magic header");
             }
@@ -525,7 +531,7 @@ namespace Renci.SshNet
 
             // kdf options length: 24 if passphrase, 0 if no passphrase
             var kdfOptionsLen = (int)keyReader.ReadUInt32();
-            byte[] salt = null;
+            byte[]? salt = null;
             var rounds = 0;
             if (kdfOptionsLen > 0)
             {
@@ -613,6 +619,10 @@ namespace Renci.SshNet
                 var iv = keyiv.Take(keyLength, ivLength);
 
                 var cipher = cipherInfo.Cipher(key, iv);
+
+                // The authentication tag data (if any) is concatenated to the end of the encrypted private key string.
+                // See https://github.com/openssh/openssh-portable/blob/509b757c052ea969b3a41fc36818b44801caf1cf/sshkey.c#L2951
+                // and https://github.com/openssh/openssh-portable/blob/509b757c052ea969b3a41fc36818b44801caf1cf/cipher.c#L340
                 var cipherData = keyReader.ReadBytes(privateKeyLength + cipher.TagSize);
 
                 try
@@ -737,14 +747,9 @@ namespace Renci.SshNet
                 return;
             }
 
-            if (disposing)
+            if (disposing && _key is IDisposable disposableKey)
             {
-                var key = _key;
-                if (key != null)
-                {
-                    ((IDisposable)key).Dispose();
-                    _key = null;
-                }
+                disposableKey.Dispose();
 
                 _isDisposed = true;
             }

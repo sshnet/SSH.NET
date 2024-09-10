@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -35,29 +36,10 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string)"/> ctor.
         ///</summary>
-        [WorkItem(703), TestMethod]
-        public void ConstructorWithFileNameShouldThrowArgumentNullExceptionWhenFileNameIsEmpty()
-        {
-            var fileName = string.Empty;
-            try
-            {
-                _ = new PrivateKeyFile(fileName);
-                Assert.Fail();
-            }
-            catch (ArgumentNullException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("fileName", ex.ParamName);
-            }
-        }
-
-        /// <summary>
-        /// A test for <see cref="PrivateKeyFile(string)"/> ctor.
-        ///</summary>
-        [WorkItem(703), TestMethod]
+        [TestMethod]
         public void ConstructorWithFileNameShouldThrowArgumentNullExceptionWhenFileNameIsNull()
         {
-            var fileName = string.Empty;
+            string fileName = null;
             try
             {
                 _ = new PrivateKeyFile(fileName);
@@ -73,29 +55,10 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
-        [WorkItem(703), TestMethod]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowArgumentNullExceptionWhenFileNameIsEmpty()
-        {
-            var fileName = string.Empty;
-            try
-            {
-                _ = new PrivateKeyFile(fileName, "12345");
-                Assert.Fail();
-            }
-            catch (ArgumentNullException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("fileName", ex.ParamName);
-            }
-        }
-
-        /// <summary>
-        /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
-        ///</summary>
-        [WorkItem(703), TestMethod]
+        [TestMethod]
         public void ConstructorWithFileNameAndPassphraseShouldThrowArgumentNullExceptionWhenFileNameIsNull()
         {
-            var fileName = string.Empty;
+            string fileName = null;
             try
             {
                 _ = new PrivateKeyFile(fileName, "12345");
@@ -108,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [WorkItem(703), TestMethod]
+        [TestMethod]
         public void ConstructorWithPrivateKeyShouldThrowArgumentNullExceptionWhenPrivateKeyIsNull()
         {
             Stream privateKey = null;
@@ -124,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [WorkItem(703), TestMethod]
+        [TestMethod]
         public void ConstructorWithPrivateKeyAndPassphraseShouldThrowArgumentNullExceptionWhenPrivateKeyIsNull()
         {
             Stream privateKey = null;
@@ -141,63 +104,22 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA()
+        public void ConstructorWithKeyShouldThrowArgumentNullExceptionWhenKeyIsNull()
         {
-            using (var stream = GetData("Key.RSA.txt"))
+            Key key = null;
+            try
             {
-                TestRsaKeyFile(new PrivateKeyFile(stream));
+                _ = new PrivateKeyFile(key);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("key", ex.ParamName);
             }
         }
 
         [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_SSH2_DSA()
-        {
-            using (var stream = GetData("Key.SSH2.DSA.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_SSH2_RSA()
-        {
-            using (var stream = GetData("Key.SSH2.RSA.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream));
-            }
-        }
-
-        [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_SSH2_Encrypted_DSA_DES_CBC()
-        {
-            using (var stream = GetData("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_SSH2_Encrypted_RSA_DES_CBC()
-        {
-            using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshExceptionWhenPassphraseIsWrong()
         {
             using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
@@ -217,8 +139,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsNull()
         {
             using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
@@ -238,8 +158,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Owner("drieseng")]
-        [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsEmpty()
         {
             using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
@@ -258,142 +176,10 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_DES_CBC()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Des.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_DES_EDE3_CBC()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_AES_128_CBC()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_AES_192_CBC()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Aes.192.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_AES_256_CBC()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Aes.256.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("olegkap")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_RSA_DES_EDE3_CFB()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "1234567890"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA()
-        {
-            using (var stream = GetData("Key.ECDSA.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA384()
-        {
-            using (var stream = GetData("Key.ECDSA384.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA521()
-        {
-            using (var stream = GetData("Key.ECDSA521.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA_Encrypted()
-        {
-            using (var stream = GetData("Key.ECDSA.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA384_Encrypted()
-        {
-            using (var stream = GetData("Key.ECDSA384.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_ECDSA521_Encrypted()
-        {
-            using (var stream = GetData("Key.ECDSA521.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void DisposeTest()
         {
             using (var privateKeyStream = GetData("Key.RSA.txt"))
@@ -404,22 +190,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         /// <summary>
-        /// A test for <see cref="PrivateKeyFile(Stream, string)"/> ctor.
-        ///</summary>
-        [TestMethod()]
-        public void ConstructorWithStreamAndPassphrase()
-        {
-            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
-            {
-                var privateKeyFile = new PrivateKeyFile(stream, "12345");
-                TestRsaKeyFile(privateKeyFile);
-            }
-        }
-
-        /// <summary>
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorWithFileNameAndPassphrase()
         {
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
@@ -431,15 +204,13 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
                 TestRsaKeyFile(privateKeyFile);
-
-                fs.Close();
             }
         }
 
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsEmpty()
         {
             var passphrase = string.Empty;
@@ -464,7 +235,7 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsNull()
         {
             string passphrase = null;
@@ -489,7 +260,7 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         /// A test for <see cref="PrivateKeyFile(string)"/> ctor.
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ConstructorWithFileName()
         {
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
@@ -501,21 +272,7 @@ namespace Renci.SshNet.Tests.Classes
             TestRsaKeyFile(privateKeyFile);
         }
 
-        /// <summary>
-        /// A test for <see cref="PrivateKeyFile(Stream)"/> ctor.
-        ///</summary>
-        [TestMethod()]
-        public void ConstructorWithStream()
-        {
-            using (var stream = GetData("Key.RSA.txt"))
-            {
-                var privateKeyFile = new PrivateKeyFile(stream);
-                TestRsaKeyFile(privateKeyFile);
-            }
-        }
-
         [TestMethod]
-        [TestCategory("PrivateKey")]
         public void ConstructorWithFileNameShouldBeAbleToReadFileThatIsSharedForReadAccess()
         {
             using (var stream = GetData("Key.RSA.txt"))
@@ -527,13 +284,10 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile);
                 TestRsaKeyFile(privateKeyFile);
-
-                fs.Close();
             }
         }
 
         [TestMethod]
-        [TestCategory("PrivateKey")]
         public void ConstructorWithFileNameAndPassPhraseShouldBeAbleToReadFileThatIsSharedForReadAccess()
         {
             using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
@@ -545,217 +299,60 @@ namespace Renci.SshNet.Tests.Classes
             {
                 var privateKeyFile = new PrivateKeyFile(_temporaryFile, "12345");
                 TestRsaKeyFile(privateKeyFile);
-
-                fs.Close();
             }
         }
 
-        [TestMethod()]
-        [Owner("bhalbright")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519()
+        [TestMethod]
+        [DataRow("Key.DSA.txt", null, typeof(DsaKey))]
+        [DataRow("Key.ECDSA.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA384.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA384.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA521.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA521.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA.Encrypted.Aes.128.CTR.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA384.Encrypted.Aes.256.GCM.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA384.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA384.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA521.Encrypted.Aes.192.CBC.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA521.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ECDSA521.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.3Des.CBC.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.Aes.128.CBC.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.Aes.128.GCM.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.Aes.256.CBC.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.Aes.256.CTR.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.ChaCha20.Poly1305.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.Encrypted.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.txt", null, typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.RSA.Encrypted.Aes.192.CTR.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.OPENSSH.RSA.Encrypted.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.OPENSSH.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Aes.128.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Aes.192.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt", "1234567890", typeof(RsaKey))]
+        [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(DsaKey))]
+        [DataRow("Key.SSH2.DSA.txt", null, typeof(DsaKey))]
+        [DataRow("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.SSH2.RSA.txt", null, typeof(RsaKey))]
+        public void Test_PrivateKey(string name, string passPhrase, Type expectedKeyType)
         {
-            using (var stream = GetData("Key.OPENSSH.ED25519.txt"))
+            using (var stream = GetData(name))
             {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
+                var pkFile = new PrivateKeyFile(stream, passPhrase);
 
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_3DES_CBC()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.3Des.CBC.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
+                Assert.IsInstanceOfType(pkFile.Key, expectedKeyType);
 
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_CBC()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.CBC.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_192_CBC()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.192.CBC.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_CBC()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.CBC.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_CTR()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.CTR.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_192_CTR()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.192.CTR.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_CTR()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.CTR.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_128_GCM()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.128.GCM.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_AES_256_GCM()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.Aes.256.GCM.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED_ChaCha20_Poly1305()
-        {
-            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.ChaCha20.Poly1305.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_RSA()
-        {
-            using (var stream = GetData("Key.OPENSSH.RSA.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream));
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_RSA_ENCRYPTED()
-        {
-            using (var stream = GetData("Key.OPENSSH.RSA.Encrypted.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA_ENCRYPTED()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA384()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA384.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA384_ENCRYPTED()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA384.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA521()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA521.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod()]
-        [Owner("darinkes")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_OPENSSH_ECDSA521_ENCRYPTED()
-        {
-            using (var stream = GetData("Key.OPENSSH.ECDSA521.Encrypted.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
+                if (expectedKeyType == typeof(RsaKey))
+                {
+                    TestRsaKeyFile(pkFile);
+                }
             }
         }
 

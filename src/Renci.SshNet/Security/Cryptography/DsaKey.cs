@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Formats.Asn1;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -118,19 +119,16 @@ namespace Renci.SshNet.Security
                 throw new ArgumentNullException(nameof(privateKeyData));
             }
 
-            var der = new DerData(privateKeyData);
-            _ = der.ReadBigInteger(); // skip version
+            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
 
-            P = der.ReadBigInteger();
-            Q = der.ReadBigInteger();
-            G = der.ReadBigInteger();
-            Y = der.ReadBigInteger();
-            X = der.ReadBigInteger();
+            P = der.ReadInteger();
+            Q = der.ReadInteger();
+            G = der.ReadInteger();
+            Y = der.ReadInteger();
+            X = der.ReadInteger();
 
-            if (!der.IsEndOfData)
-            {
-                throw new InvalidOperationException("Invalid private key (expected EOF).");
-            }
+            der.ThrowIfNotEmpty();
 
             DSA = LoadDSA();
         }

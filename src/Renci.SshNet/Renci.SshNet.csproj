@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
+    <PackageReference Include="System.Formats.Asn1" Version="[8.0.1,)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -83,15 +83,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <see langword="null"/>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            if (session is null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
-
-            if (subsystemName is null)
-            {
-                throw new ArgumentNullException(nameof(subsystemName));
-            }
+            ThrowHelper.ThrowIfNull(session);
+            ThrowHelper.ThrowIfNull(subsystemName);
 
             _session = session;
             _subsystemName = subsystemName;

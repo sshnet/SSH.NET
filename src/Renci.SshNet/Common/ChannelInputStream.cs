@@ -101,10 +101,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             if (offset + count > buffer.Length)
             {

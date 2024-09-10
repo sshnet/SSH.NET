@@ -138,10 +138,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public RsaKey(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-rsa" || publicKeyData.Keys.Length != 2)
             {
@@ -161,10 +158,7 @@ namespace Renci.SshNet.Security
         /// <param name="privateKeyData">DER encoded private key data.</param>
         public RsaKey(byte[] privateKeyData)
         {
-            if (privateKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(privateKeyData));
-            }
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
             var der = new DerData(privateKeyData);
             _ = der.ReadBigInteger(); // skip version

@@ -143,7 +143,9 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
-            _key = key ?? throw new ArgumentNullException(nameof(key));
+            ThrowHelper.ThrowIfNull(key);
+
+            _key = key;
             _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
         }
 
@@ -180,10 +182,7 @@ namespace Renci.SshNet
         /// </remarks>
         public PrivateKeyFile(string fileName, string? passPhrase)
         {
-            if (fileName is null)
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
+            ThrowHelper.ThrowIfNull(fileName);
 
             using (var keyFile = File.OpenRead(fileName))
             {
@@ -202,10 +201,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(Stream privateKey, string? passPhrase)
         {
-            if (privateKey is null)
-            {
-                throw new ArgumentNullException(nameof(privateKey));
-            }
+            ThrowHelper.ThrowIfNull(privateKey);
 
             Open(privateKey, passPhrase);
 
@@ -450,20 +446,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <see langword="null"/>.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
-            if (cipherInfo is null)
-            {
-                throw new ArgumentNullException(nameof(cipherInfo));
-            }
-
-            if (cipherData is null)
-            {
-                throw new ArgumentNullException(nameof(cipherData));
-            }
-
-            if (binarySalt is null)
-            {
-                throw new ArgumentNullException(nameof(binarySalt));
-            }
+            Debug.Assert(cipherInfo != null);
+            Debug.Assert(cipherData != null);
+            Debug.Assert(binarySalt != null);
 
             var cipherKey = new List<byte>();
 

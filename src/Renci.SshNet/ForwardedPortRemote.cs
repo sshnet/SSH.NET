@@ -86,18 +86,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
         {
-            if (boundHostAddress is null)
-            {
-                throw new ArgumentNullException(nameof(boundHostAddress));
-            }
+            ThrowHelper.ThrowIfNull(boundHostAddress);
+            ThrowHelper.ThrowIfNull(hostAddress);
 
-            if (hostAddress is null)
-            {
-                throw new ArgumentNullException(nameof(hostAddress));
-            }
-
-            boundPort.ValidatePort("boundPort");
-            port.ValidatePort("port");
+            boundPort.ValidatePort();
+            port.ValidatePort();
 
             BoundHostAddress = boundHostAddress;
             BoundPort = boundPort;
@@ -188,7 +181,7 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for the port to stop.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            timeout.EnsureValidTimeout(nameof(timeout));
+            timeout.EnsureValidTimeout();
 
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {

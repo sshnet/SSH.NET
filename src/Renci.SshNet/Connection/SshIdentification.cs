@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Connection
 {
     /// <summary>
@@ -31,15 +33,8 @@ namespace Renci.SshNet.Connection
         /// <exception cref="ArgumentNullException"><paramref name="softwareVersion"/> is <see langword="null"/>.</exception>
         public SshIdentification(string protocolVersion, string softwareVersion, string comments)
         {
-            if (protocolVersion is null)
-            {
-                throw new ArgumentNullException(nameof(protocolVersion));
-            }
-
-            if (softwareVersion is null)
-            {
-                throw new ArgumentNullException(nameof(softwareVersion));
-            }
+            ThrowHelper.ThrowIfNull(protocolVersion);
+            ThrowHelper.ThrowIfNull(softwareVersion);
 
             ProtocolVersion = protocolVersion;
             SoftwareVersion = softwareVersion;

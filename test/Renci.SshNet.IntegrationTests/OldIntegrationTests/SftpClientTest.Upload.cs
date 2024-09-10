@@ -353,7 +353,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to BeginUploadFile")]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsNull()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -375,7 +375,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var async1 = sftp.BeginListDirectory("/", null, null);
                 var filename = Path.GetTempFileName();
                 CreateTestFile(filename, 100);
-                var async2 = sftp.BeginUploadFile(File.OpenRead(filename), "test", null, null);
+                using var fileStream = File.OpenRead(filename);
+                var async2 = sftp.BeginUploadFile(fileStream, "test", null, null);
                 sftp.EndUploadFile(async1);
             }
         }

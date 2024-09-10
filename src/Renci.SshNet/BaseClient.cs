@@ -184,15 +184,8 @@ namespace Renci.SshNet
         /// </remarks>
         private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
-            if (connectionInfo is null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
+            ThrowHelper.ThrowIfNull(connectionInfo);
+            ThrowHelper.ThrowIfNull(serviceFactory);
 
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;

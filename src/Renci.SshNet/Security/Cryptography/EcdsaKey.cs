@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Diagnostics;
+using System.Formats.Asn1;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -220,51 +221,20 @@ namespace Renci.SshNet.Security
         /// <param name="data">DER encoded private key data.</param>
         public EcdsaKey(byte[] data)
         {
-            var der = new DerData(data);
-            _ = der.ReadBigInteger(); // skip version
+            var der = new AsnReader(data, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
 
-            // PrivateKey
             var privatekey = der.ReadOctetString().TrimLeadingZeros();
 
-            // Construct
-            var s0 = der.ReadByte();
-            if ((s0 & 0xe0) != 0xa0)
-            {
-                throw new SshException(string.Format("UnexpectedDER: wanted constructed tag (0xa0-0xbf), got: {0:X}", s0));
-            }
+            var s0 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
+            var curve = s0.ReadObjectIdentifier();
 
-            var tag = s0 & 0x1f;
-            if (tag != 0)
-            {
-                throw new SshException(string.Format("expected tag 0 in DER privkey, got: {0}", tag));
-            }
+            var s1 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
+            var pubkey = s1.ReadBitString(out _);
 
-            var construct = der.ReadBytes(der.ReadLength()); // object length
+            der.ThrowIfNotEmpty();
 
-            // curve OID
-            var curve_der = new DerData(construct, construct: true);
-            var curve = curve_der.ReadObject();
-
-            // Construct
-            s0 = der.ReadByte();
-            if ((s0 & 0xe0) != 0xa0)
-            {
-                throw new SshException(string.Format("UnexpectedDER: wanted constructed tag (0xa0-0xbf), got: {0:X}", s0));
-            }
-
-            tag = s0 & 0x1f;
-            if (tag != 1)
-            {
-                throw new SshException(string.Format("expected tag 1 in DER privkey, got: {0}", tag));
-            }
-
-            construct = der.ReadBytes(der.ReadLength()); // object length
-
-            // PublicKey
-            var pubkey_der = new DerData(construct, construct: true);
-            var pubkey = pubkey_der.ReadBitString().TrimLeadingZeros();
-
-            _impl = Import(OidByteArrayToString(curve), pubkey, privatekey);
+            _impl = Import(curve, pubkey, privatekey);
         }
 
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
@@ -317,35 +287,6 @@ namespace Renci.SshNet.Security
             }
 
             throw new SshException("Unexpected Curve Name: " + curve_s);
-        }
-
-        private static string OidByteArrayToString(byte[] oid)
-        {
-            var retVal = new StringBuilder();
-
-            for (var i = 0; i < oid.Length; i++)
-            {
-                if (i == 0)
-                {
-                    var b = oid[0] % 40;
-                    var a = (oid[0] - b) / 40;
-                    _ = retVal.AppendFormat("{0}.{1}", a, b);
-                }
-                else
-                {
-                    if (oid[i] < 128)
-                    {
-                        _ = retVal.AppendFormat(".{0}", oid[i]);
-                    }
-                    else
-                    {
-                        _ = retVal.AppendFormat(".{0}", ((oid[i] - 128) * 128) + oid[i + 1]);
-                        i++;
-                    }
-                }
-            }
-
-            return retVal.ToString();
         }
 
         /// <summary>

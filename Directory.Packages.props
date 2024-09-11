@@ -20,7 +20,7 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.70-alpha" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.19.0.84025" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
-    <PackageVersion Include="System.Memory" Version="4.5.5" />
+    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageVersion Include="Testcontainers" Version="3.9.0" />
   </ItemGroup>
 </Project>

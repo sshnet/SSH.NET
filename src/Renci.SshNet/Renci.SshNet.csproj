@@ -35,14 +35,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
-    <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)"
-                      Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0'" />
-    <!-- Any version which is 3.7.57-alpha or above, in order to pick up https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029. -->
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.70-alpha" PrivateAssets="all" />
-    <PackageReference Include="System.Formats.Asn1" Version="[8.0.1,)"
-                      Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'" />
+    <PackageReference Include="BouncyCastle.Cryptography" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Formats.Asn1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
   <ItemGroup>

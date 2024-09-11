@@ -13,28 +13,17 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.1" />
-    <PackageReference Include="Testcontainers" Version="3.9.0" />
-    <!--
-        Testcontainers has a dependency on SSH.NET which causes build warnings during assembly resolution:      
-        
-            warning MSB3243: No way to resolve conflict between "Renci.SshNet, Version=2024.0.0.0, Culture=neutral
-            , PublicKeyToken=1cee9f8bde3db106" and "Renci.SshNet, Version=2023.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db
-            106". Choosing "Renci.SshNet, Version=2024.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106" arbitrarily. 
-             
-        To fix, we explicitly exclude the SSH.NET nuget package from this project's dependencies.
-    -->
-    <PackageReference Include="SSH.NET" Version="2023.0.1" ExcludeAssets="All" />
-
-    <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
-    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Appveyor.TestLogger" />
+    <PackageReference Include="LiquidTestReports.Markdown" />
+    <PackageReference Include="coverlet.msbuild">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="coverlet.collector">
       <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

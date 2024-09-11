@@ -33,27 +33,22 @@
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <!--
-    Any version which is 3.7.57-alpha or above, in order to pick up
-    https://github.com/dotnet/Nerdbank.GitVersioning/pull/1029.
-    -->
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.70-alpha" PrivateAssets="all" />
+    <PackageReference Include="BouncyCastle.Cryptography" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+    <PackageReference Include="PolySharp" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'netstandard2.0' ">
-    <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[1.0.0,)" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="[2.4.0,)" />
-    <PackageReference Include="PolySharp" Version="1.14.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
   <ItemGroup>

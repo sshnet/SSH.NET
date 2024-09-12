@@ -79,7 +79,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException">The sum of offset and count is larger than the buffer length.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null" />.</exception>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentException">The sum of offset and count is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)
@@ -133,7 +133,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (!_isDisposed)

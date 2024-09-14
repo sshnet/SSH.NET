@@ -45,7 +45,9 @@ namespace Renci.SshNet.Common
 
                 while (true)
                 {
+#pragma warning disable S127 // "for" loop stop conditions should be invariant
                     line[linePos++] = data[pos++];
+#pragma warning restore S127 // "for" loop stop conditions should be invariant
 
                     if (linePos == lineWidth || pos == data.Length)
                     {

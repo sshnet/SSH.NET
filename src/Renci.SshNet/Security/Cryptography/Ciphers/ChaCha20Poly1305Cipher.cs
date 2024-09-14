@@ -18,9 +18,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     internal sealed class ChaCha20Poly1305Cipher : SymmetricCipher
     {
-        private readonly ChaCha7539Engine _aadCipher = new ChaCha7539Engine();
-        private readonly ChaCha7539Engine _cipher = new ChaCha7539Engine();
-        private readonly Poly1305 _mac = new Poly1305();
+        private readonly byte[] _iv;
+        private readonly int _aadLength;
+        private readonly KeyParameter _aadKeyParameter;
+        private readonly KeyParameter _keyParameter;
+        private readonly ChaCha7539Engine _aadCipher;
+        private readonly ChaCha7539Engine _cipher;
+        private readonly Poly1305 _mac;
 
         /// <summary>
         /// Gets the minimun block size.
@@ -51,9 +55,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="ChaCha20Poly1305Cipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        public ChaCha20Poly1305Cipher(byte[] key)
+        /// <param name="aadLength">The length of additional associated data.</param>
+        public ChaCha20Poly1305Cipher(byte[] key, int aadLength)
             : base(key)
         {
+            _iv = new byte[12];
+            _aadLength = aadLength;
+
+            _keyParameter = new KeyParameter(key, 0, 32);
+            _cipher = new ChaCha7539Engine();
+
+            if (aadLength > 0)
+            {
+                _aadKeyParameter = new KeyParameter(key, 32, 32);
+                _aadCipher = new ChaCha7539Engine();
+            }
+
+            _mac = new Poly1305();
         }
 
         /// <summary>
@@ -62,8 +80,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [outbound sequence field][packet length field][padding length field sz][payload][random paddings]
-        ///   [----4 bytes----(offset)][------4 bytes------][----------------Plain Text---------------(length)]
+        ///   [----(offset)][----AAD----][----Plain Text----(length)]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
@@ -71,16 +88,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The encrypted data with below format:
         ///   <code>
-        ///   [packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [------4 bytes------][------------------Cipher Text--------------------][-------TAG-------]
+        ///   [----Cipher AAD----][----Cipher Text----][----TAG----]
         ///   </code>
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
+            _aadCipher?.Init(forEncryption: true, new ParametersWithIV(_aadKeyParameter, _iv));
+            _cipher.Init(forEncryption: true, new ParametersWithIV(_keyParameter, _iv));
+
+            var keyStream = new byte[64];
+            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
+            _mac.Init(new KeyParameter(keyStream, 0, 32));
+
             var output = new byte[length + TagSize];
 
-            _aadCipher.ProcessBytes(input, offset, 4, output, 0);
-            _cipher.ProcessBytes(input, offset + 4, length - 4, output, 4);
+            _aadCipher?.ProcessBytes(input, offset, _aadLength, output, 0);
+            _cipher.ProcessBytes(input, offset + _aadLength, length - _aadLength, output, _aadLength);
 
             _mac.BlockUpdate(output, 0, length);
             _ = _mac.DoFinal(output, length);
@@ -89,12 +112,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Decrypts the first block which is packet length field.
+        /// Decrypts the AAD.
         /// </summary>
-        /// <param name="input">The encrypted packet length field.</param>
-        /// <returns>The decrypted packet length field.</returns>
+        /// <param name="input">The encrypted AAD.</param>
+        /// <returns>The decrypted AAD.</returns>
         public override byte[] Decrypt(byte[] input)
         {
+            Debug.Assert(_aadCipher != null, "The aadCipher must not be null");
+
+            _aadCipher.Init(forEncryption: false, new ParametersWithIV(_aadKeyParameter, _iv));
+
             var output = new byte[input.Length];
             _aadCipher.ProcessBytes(input, 0, input.Length, output, 0);
 
@@ -107,8 +134,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [inbound sequence field][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [--------4 bytes-------][--4 bytes--(offset)][--------------Cipher Text----------------(length)][-------TAG-------]
+        ///   [----][----Cipher AAD----(offset)][----Cipher Text----(length)][----TAG----]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
@@ -116,16 +142,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The decrypted data with below format:
         /// <code>
-        ///   [padding length field sz][payload][random paddings]
-        ///   [--------------------Plain Text-------------------]
+        ///   [----Plain Text----]
         /// </code>
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            Debug.Assert(offset == 8, "The offset must be 8");
+            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
+
+            _cipher.Init(forEncryption: false, new ParametersWithIV(_keyParameter, _iv));
+
+            var keyStream = new byte[64];
+            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
+            _mac.Init(new KeyParameter(keyStream, 0, 32));
 
             var tag = new byte[TagSize];
-            _mac.BlockUpdate(input, offset - 4, length + 4);
+            _mac.BlockUpdate(input, offset - _aadLength, length + _aadLength);
             _ = _mac.DoFinal(tag, 0);
             if (!Arrays.FixedTimeEquals(TagSize, tag, 0, input, offset + length))
             {
@@ -140,18 +171,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         internal override void SetSequenceNumber(uint sequenceNumber)
         {
-            var iv = new byte[12];
-            BinaryPrimitives.WriteUInt64BigEndian(iv.AsSpan(4), sequenceNumber);
-
-            // ChaCha20 encryption and decryption is completely
-            // symmetrical, so the 'forEncryption' is
-            // irrelevant. (Like 90% of stream ciphers)
-            _aadCipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 32, 32), iv));
-            _cipher.Init(forEncryption: true, new ParametersWithIV(new KeyParameter(Key, 0, 32), iv));
-
-            var keyStream = new byte[64];
-            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
-            _mac.Init(new KeyParameter(keyStream, 0, 32));
+            BinaryPrimitives.WriteUInt64BigEndian(_iv.AsSpan(4), sequenceNumber);
         }
     }
 }

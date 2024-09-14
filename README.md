@@ -101,13 +101,25 @@ The main types provided by this library are:
 * ECDSA 256/384/521 in OpenSSL PEM format ("BEGIN EC PRIVATE KEY")
 * ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 
-Private keys can be encrypted using one of the following cipher methods:
+Private keys in OpenSSL PEM and ssh.com format can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
 * DES-EDE3-CFB
 * DES-CBC
 * AES-128-CBC
 * AES-192-CBC
 * AES-256-CBC
+
+Private keys in OpenSSH key format can be encrypted using one of the following cipher methods:
+* 3des-cbc
+* aes128-cbc
+* aes192-cbc
+* aes256-cbc
+* aes128-ctr
+* aes192-ctr
+* aes256-ctr
+* aes128-gcm<span></span>@openssh.com
+* aes256-gcm<span></span>@openssh.com
+* chacha20-poly1305<span></span>@openssh.com
 
 ## Host Key Algorithms
 

@@ -240,6 +240,11 @@ namespace Renci.SshNet
             var session = Session;
             if (session is null || !session.IsConnected)
             {
+                if (session is not null)
+                {
+                    DisposeSession(session);
+                }
+
                 Session = CreateAndConnectSession();
             }
 
@@ -304,6 +309,11 @@ namespace Renci.SshNet
             var session = Session;
             if (session is null || !session.IsConnected)
             {
+                if (session is not null)
+                {
+                    DisposeSession(session);
+                }
+
                 Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
             }
 

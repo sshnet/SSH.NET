@@ -15,6 +15,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using Renci.SshNet.Abstractions;
+
 using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -902,7 +903,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="b1"></param>
         /// <param name="others"></param>
         /// <returns></returns>
-        private byte[] AppendArrays(byte[] b1, params byte[][] others)
+        private static byte[] AppendArrays(byte[] b1, params byte[][] others)
         {
             //from https://stackoverflow.com/questions/46534429/how-to-convert-java-messagedigest-with-two-update-statements-to-c-sharp
             int n = b1.Length;

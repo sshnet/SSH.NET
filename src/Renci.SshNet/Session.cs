@@ -316,7 +316,9 @@ namespace Renci.SshNet
         /// <value>
         /// The client version.
         /// </value>
+#pragma warning disable S2325 // Methods and properties that don't access instance data should be static
         public string ClientVersion
+#pragma warning restore S2325 // Methods and properties that don't access instance data should be static
         {
             get
             {

@@ -34,6 +34,9 @@ dotnet_diagnostic.S2187.severity = silent
 # https://rules.sonarsource.com/csharp/RSPEC-2292/
 dotnet_diagnostic.S2292.severity = silent
 
+# S2325: Methods and properties that don't access instance data should be static
+dotnet_diagnostic.S2325.severity = silent
+
 # S2925: "Thread.Sleep" should not be used in tests
 # https://rules.sonarsource.com/csharp/RSPEC-2925/
 dotnet_diagnostic.S2925.severity = silent

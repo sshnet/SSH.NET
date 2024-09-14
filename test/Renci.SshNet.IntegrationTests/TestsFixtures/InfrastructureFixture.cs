@@ -2,6 +2,10 @@
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 
+#if !NET && !NETSTANDARD2_1_OR_GREATER
+using Renci.SshNet.Abstractions;
+#endif
+
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
@@ -80,8 +84,8 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 await _sshServerImage.DisposeAsync();
             }
 
-            _fsOut.Dispose();
-            _fsErr.Dispose();
+            await _fsOut.DisposeAsync();
+            await _fsErr.DisposeAsync();
         }
 
         public void Dispose()

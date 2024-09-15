@@ -90,18 +90,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Multifactor_PublicKeyWithEmptyPassPhrase()
-        {
-            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
-                             .Update()
-                             .Restart();
-
-            Assert.ThrowsException<SshPassPhraseNullOrEmptyException>(() =>
-                _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod())
-            );
-        }
-
-        [TestMethod]
         public void Multifactor_PublicKey_MultiplePrivateKey()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")

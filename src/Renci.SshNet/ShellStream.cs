@@ -605,9 +605,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The text available in the shell up to and including the expected expression.
         /// </returns>
-#pragma warning disable S2325 // Methods and properties that don't access instance data should be static
         public string? EndExpect(IAsyncResult asyncResult)
-#pragma warning restore S2325 // Methods and properties that don't access instance data should be static
         {
             return TaskToAsyncResult.End<string?>(asyncResult);
         }

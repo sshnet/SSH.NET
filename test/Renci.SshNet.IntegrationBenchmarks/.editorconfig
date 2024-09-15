@@ -14,9 +14,6 @@ dotnet_diagnostic.S1118.severity = suggestion
 # https://rules.sonarsource.com/csharp/RSPEC-1450/
 dotnet_diagnostic.S1450.severity = suggestion
 
-# S2325: Methods and properties that don't access instance data should be static
-dotnet_diagnostic.S2325.severity = silent
-
 # S4144: Methods should not have identical implementations
 # https://rules.sonarsource.com/csharp/RSPEC-4144/
 dotnet_diagnostic.S4144.severity = suggestion

@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Diagnostics;
-using System.Formats.Asn1;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -207,34 +206,12 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
         /// </summary>
-        /// <param name="curve">The curve name.</param>
+        /// <param name="curve">The curve oid.</param>
         /// <param name="publickey">Value of publickey.</param>
         /// <param name="privatekey">Value of privatekey.</param>
         public EcdsaKey(string curve, byte[] publickey, byte[] privatekey)
         {
-            _impl = Import(GetCurveOid(curve), publickey, privatekey);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EcdsaKey"/> class.
-        /// </summary>
-        /// <param name="data">DER encoded private key data.</param>
-        public EcdsaKey(byte[] data)
-        {
-            var der = new AsnReader(data, AsnEncodingRules.DER).ReadSequence();
-            _ = der.ReadInteger(); // skip version
-
-            var privatekey = der.ReadOctetString().TrimLeadingZeros();
-
-            var s0 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
-            var curve = s0.ReadObjectIdentifier();
-
-            var s1 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
-            var pubkey = s1.ReadBitString(out _);
-
-            der.ThrowIfNotEmpty();
-
-            _impl = Import(curve, pubkey, privatekey);
+            _impl = Import(curve, publickey, privatekey.TrimLeadingZeros());
         }
 
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance

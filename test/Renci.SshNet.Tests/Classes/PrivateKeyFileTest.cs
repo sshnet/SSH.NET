@@ -759,6 +759,94 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_RSA()
+        {
+            using (var stream = GetData("Key.PKCS8.RSA.txt"))
+            {
+                TestRsaKeyFile(new PrivateKeyFile(stream));
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_RSA_Encrypted()
+        {
+            using (var stream = GetData("Key.PKCS8.RSA.Encrypted.Aes.256.CBC.12345.txt"))
+            {
+                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_DSA()
+        {
+            using (var stream = GetData("Key.PKCS8.DSA.txt"))
+            {
+                _ = new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_DSA_Encrypted()
+        {
+            using (var stream = GetData("Key.PKCS8.DSA.Encrypted.Aes.256.CBC.12345.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_ECDSA()
+        {
+            using (var stream = GetData("Key.PKCS8.ECDSA.txt"))
+            {
+                _ = new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_ECDSA_Encrypted()
+        {
+            using (var stream = GetData("Key.PKCS8.ECDSA.Encrypted.Aes.256.CBC.12345.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_ED25519()
+        {
+            using (var stream = GetData("Key.PKCS8.ED25519.txt"))
+            {
+                _ = new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("scott-xu")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_PKCS8_ED25519_Encrypted()
+        {
+            using (var stream = GetData("Key.PKCS8.ED25519.Encrypted.Aes.256.CBC.12345.txt"))
+            {
+                _ = new PrivateKeyFile(stream, "12345");
+            }
+        }
+
         private void SaveStreamToFile(Stream stream, string fileName)
         {
             var buffer = new byte[4000];

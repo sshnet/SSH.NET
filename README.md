@@ -96,18 +96,34 @@ The main types provided by this library are:
 ## Public Key Authentication
 
 **SSH.NET** supports the following private key formats:
-* RSA in OpenSSL PEM ("BEGIN RSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
-* DSA in OpenSSL PEM ("BEGIN DSA PRIVATE KEY") and ssh.com ("BEGIN SSH2 ENCRYPTED PRIVATE KEY") format
-* ECDSA 256/384/521 in OpenSSL PEM format ("BEGIN EC PRIVATE KEY")
-* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+* RSA in
+  * OpenSSL traditional PEM format ("BEGIN RSA PRIVATE KEY")
+  * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
+  * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
+  * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+* DSA in
+  * OpenSSL traditional PEM format ("BEGIN DSA PRIVATE KEY")
+  * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
+  * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
+* ECDSA 256/384/521 in
+  * OpenSSL traditional PEM format ("BEGIN EC PRIVATE KEY")
+  * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
+  * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+* ED25519 in
+  * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 
-Private keys in OpenSSL PEM and ssh.com format can be encrypted using one of the following cipher methods:
+Private keys in OpenSSL traditional PEM format can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
 * DES-EDE3-CFB
 * DES-CBC
 * AES-128-CBC
 * AES-192-CBC
 * AES-256-CBC
+
+Private keys in OpenSSL PKCS#8 PEM format can be encrypted using any cipher method BouncyCastle supports.
+
+Private keys in ssh.com format can be encrypted using one of the following cipher methods:
+* 3des-cbc
 
 Private keys in OpenSSH key format can be encrypted using one of the following cipher methods:
 * 3des-cbc

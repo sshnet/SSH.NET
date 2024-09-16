@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Formats.Asn1;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -15,6 +14,17 @@ namespace Renci.SshNet.Security
     public class DsaKey : Key, IDisposable
     {
         private DsaDigitalSignature? _digitalSignature;
+
+        /// <summary>
+        /// Gets the SSH name of the DSA Key.
+        /// </summary>
+        /// <returns>
+        /// The SSH name of the DSA Key.
+        /// </returns>
+        public override string ToString()
+        {
+            return "ssh-dss";
+        }
 
         internal DSA DSA { get; }
 
@@ -104,31 +114,6 @@ namespace Renci.SshNet.Security
             Q = publicKeyData.Keys[1];
             G = publicKeyData.Keys[2];
             Y = publicKeyData.Keys[3];
-
-            DSA = LoadDSA();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DsaKey"/> class.
-        /// </summary>
-        /// <param name="privateKeyData">DER encoded private key data.</param>
-        public DsaKey(byte[] privateKeyData)
-        {
-            if (privateKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(privateKeyData));
-            }
-
-            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
-            _ = der.ReadInteger(); // skip version
-
-            P = der.ReadInteger();
-            Q = der.ReadInteger();
-            G = der.ReadInteger();
-            Y = der.ReadInteger();
-            X = der.ReadInteger();
-
-            der.ThrowIfNotEmpty();
 
             DSA = LoadDSA();
         }

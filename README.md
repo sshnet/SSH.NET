@@ -110,6 +110,7 @@ The main types provided by this library are:
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 * ED25519 in
+  * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
 
 Private keys in OpenSSL traditional PEM format can be encrypted using one of the following cipher methods:

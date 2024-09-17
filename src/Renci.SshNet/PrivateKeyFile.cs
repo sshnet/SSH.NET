@@ -41,7 +41,7 @@ namespace Renci.SshNet
     ///         <description>ECDSA 256/384/521 in OpenSSL PEM and OpenSSH key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>ED25519 in OpenSSH key format</description>
+    ///         <description>ED25519 in OpenSSL PEM and OpenSSH key format</description>
     ///     </item>
     /// </list>
     /// </para>
@@ -943,10 +943,14 @@ namespace Renci.SshNet
 
             var privatekey = sequenceReader.ReadOctetString();
 
+            // Though the ASN.1 indicates that the parameters field is OPTIONAL,
+            // implementations that conform to this document MUST always include the parameters field.
             var parametersReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
             var curve = parametersReader.ReadObjectIdentifier();
             parametersReader.ThrowIfNotEmpty();
 
+            // Though the ASN.1 indicates publicKey is OPTIONAL,
+            // implementations that conform to this document SHOULD always include the publicKey field.
             var publicKeyReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
             var publickey = publicKeyReader.ReadBitString(out _);
             publicKeyReader.ThrowIfNotEmpty();

@@ -13,7 +13,7 @@
         }
 
         public T GetReply<T>()
-            where T : ExtendedReplyInfo, new()
+            where T : IExtendedReplyInfo, new()
         {
             var result = new T();
             result.LoadData(DataStream);

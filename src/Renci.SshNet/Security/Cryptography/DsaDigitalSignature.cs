@@ -20,10 +20,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public DsaDigitalSignature(DsaKey key)
         {
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
+            ThrowHelper.ThrowIfNull(key);
 
             _key = key;
         }

@@ -100,10 +100,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public DsaKey(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-dss" || publicKeyData.Keys.Length != 4)
             {

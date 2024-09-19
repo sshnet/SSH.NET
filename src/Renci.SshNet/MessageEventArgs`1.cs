@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet
 {
     /// <summary>
@@ -20,10 +22,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
         public MessageEventArgs(T message)
         {
-            if (message is null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
+            ThrowHelper.ThrowIfNull(message);
 
             Message = message;
         }

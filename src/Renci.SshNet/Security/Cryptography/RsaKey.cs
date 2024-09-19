@@ -138,10 +138,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public RsaKey(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-rsa" || publicKeyData.Keys.Length != 2)
             {

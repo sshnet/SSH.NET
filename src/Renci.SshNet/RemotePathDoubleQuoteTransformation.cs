@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet
 {
     /// <summary>
@@ -50,10 +52,7 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
+            ThrowHelper.ThrowIfNull(path);
 
             var transformed = new StringBuilder(path.Length);
 

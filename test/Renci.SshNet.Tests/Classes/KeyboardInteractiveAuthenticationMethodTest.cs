@@ -13,19 +13,13 @@ namespace Renci.SshNet.Tests.Classes
     public partial class KeyboardInteractiveAuthenticationMethodTest : TestBase
     {
         [TestMethod]
-        [TestCategory("AuthenticationMethod")]
-        [Owner("Kenneth_aa")]
-        [Description("KeyboardInteractiveAuthenticationMethod: Pass null as username.")]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Keyboard_Test_Pass_Null()
         {
             new KeyboardInteractiveAuthenticationMethod(null);
         }
 
         [TestMethod]
-        [TestCategory("AuthenticationMethod")]
-        [Owner("Kenneth_aa")]
-        [Description("KeyboardInteractiveAuthenticationMethod: Pass String.Empty as username.")]
         [ExpectedException(typeof(ArgumentException))]
         public void Keyboard_Test_Pass_Whitespace()
         {

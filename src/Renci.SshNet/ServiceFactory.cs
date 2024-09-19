@@ -82,15 +82,8 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms)
         {
-            if (clientAlgorithms is null)
-            {
-                throw new ArgumentNullException(nameof(clientAlgorithms));
-            }
-
-            if (serverAlgorithms is null)
-            {
-                throw new ArgumentNullException(nameof(serverAlgorithms));
-            }
+            ThrowHelper.ThrowIfNull(clientAlgorithms);
+            ThrowHelper.ThrowIfNull(serverAlgorithms);
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
@@ -241,15 +234,8 @@ namespace Renci.SshNet
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            if (connectionInfo is null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (socketFactory is null)
-            {
-                throw new ArgumentNullException(nameof(socketFactory));
-            }
+            ThrowHelper.ThrowIfNull(connectionInfo);
+            ThrowHelper.ThrowIfNull(socketFactory);
 
             switch (connectionInfo.ProxyType)
             {

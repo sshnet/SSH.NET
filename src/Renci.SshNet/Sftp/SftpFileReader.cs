@@ -74,14 +74,7 @@ namespace Renci.SshNet.Sftp
 
         public byte[] Read()
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_disposingOrDisposed, this);
-#else
-            if (_disposingOrDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowHelper.ThrowObjectDisposedIf(_disposingOrDisposed, this);
 
             if (_exception is not null)
             {

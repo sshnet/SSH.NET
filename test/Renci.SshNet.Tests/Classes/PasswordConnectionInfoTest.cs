@@ -14,8 +14,7 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class PasswordConnectionInfoTest : TestBase
     {
-        [WorkItem(703), TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
+        [TestMethod]
         public void Test_ConnectionInfo_Host_Is_Null()
         {
             try
@@ -31,16 +30,14 @@ namespace Renci.SshNet.Tests.Classes
 
         }
 
-        [WorkItem(703), TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Username_Is_Null()
         {
             _ = new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD);
         }
 
-        [WorkItem(703), TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
@@ -48,24 +45,20 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [Description("Test passing whitespace to username parameter.")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Username_Is_Whitespace()
         {
             _ = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
         }
 
-        [WorkItem(703), TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_SmallPortNumber()
         {
             _ = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
         }
 
-        [WorkItem(703), TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
+        [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_BigPortNumber()
         {

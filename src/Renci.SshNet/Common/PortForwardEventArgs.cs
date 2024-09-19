@@ -17,12 +17,8 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
         internal PortForwardEventArgs(string host, uint port)
         {
-            if (host is null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
-
-            port.ValidatePort("port");
+            ThrowHelper.ThrowIfNull(host);
+            port.ValidatePort();
 
             OriginatorHost = host;
             OriginatorPort = port;

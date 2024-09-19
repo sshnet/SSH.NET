@@ -14,10 +14,7 @@ namespace Renci.SshNet.Common
 
         public static string Create(byte[] data, int indentLevel)
         {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            ThrowHelper.ThrowIfNull(data);
 
             if (indentLevel < 0)
             {

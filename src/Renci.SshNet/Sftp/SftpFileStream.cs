@@ -222,10 +222,7 @@ namespace Renci.SshNet.Sftp
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
+            ThrowHelper.ThrowIfNull(path);
 
             if (bufferSize <= 0)
             {
@@ -338,10 +335,7 @@ namespace Renci.SshNet.Sftp
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
+            ThrowHelper.ThrowIfNull(path);
 
             if (bufferSize <= 0)
             {
@@ -519,10 +513,7 @@ namespace Renci.SshNet.Sftp
         {
             var readLen = 0;
 
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -664,10 +655,7 @@ namespace Renci.SshNet.Sftp
         {
             var readLen = 0;
 
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -1017,10 +1005,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -1120,10 +1105,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -1356,14 +1338,7 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_session is null, this);
-#else
-            if (_session is null)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowHelper.ThrowObjectDisposedIf(_session is null, this);
 
             if (!_session.IsOpen)
             {

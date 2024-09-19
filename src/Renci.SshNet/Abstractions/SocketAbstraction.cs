@@ -129,7 +129,7 @@ namespace Renci.SshNet.Abstractions
 
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
-            socket.ReceiveTimeout = timeout.AsTimeout(nameof(timeout));
+            socket.ReceiveTimeout = timeout.AsTimeout();
 
             try
             {
@@ -274,7 +274,7 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = readTimeout.AsTimeout(nameof(readTimeout));
+            socket.ReceiveTimeout = readTimeout.AsTimeout();
 
             do
             {

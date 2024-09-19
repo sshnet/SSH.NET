@@ -90,18 +90,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, uint boundPort, string host, uint port)
         {
-            if (boundHost is null)
-            {
-                throw new ArgumentNullException(nameof(boundHost));
-            }
+            ThrowHelper.ThrowIfNull(boundHost);
+            ThrowHelper.ThrowIfNull(host);
 
-            if (host is null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
-
-            boundPort.ValidatePort("boundPort");
-            port.ValidatePort("port");
+            boundPort.ValidatePort();
+            port.ValidatePort();
 
             BoundHost = boundHost;
             BoundPort = boundPort;
@@ -138,7 +131,7 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            timeout.EnsureValidTimeout(nameof(timeout));
+            timeout.EnsureValidTimeout();
 
             if (!ForwardedPortStatus.ToStopping(ref _status))
             {
@@ -164,14 +157,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected override void CheckDisposed()
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-#else
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
         }
 
         /// <summary>

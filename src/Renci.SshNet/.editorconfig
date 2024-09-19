@@ -188,3 +188,6 @@ dotnet_diagnostic.MA0040.severity = none
 # MA0042: Do not use blocking calls in an async method
 # duplicate of CA1849
 dotnet_diagnostic.MA0042.severity = none
+
+# S3236: Caller information arguments should not be provided explicitly
+dotnet_diagnostic.S3236.severity = none

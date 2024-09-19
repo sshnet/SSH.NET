@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
@@ -43,10 +44,7 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpRealPathRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            if (nameAction is null)
-            {
-                throw new ArgumentNullException(nameof(nameAction));
-            }
+            ThrowHelper.ThrowIfNull(nameAction);
 
             Encoding = encoding;
             Path = path;

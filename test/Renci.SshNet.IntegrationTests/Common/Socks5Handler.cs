@@ -22,10 +22,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
         public Socket Connect(IPEndPoint endPoint)
         {
-            if (endPoint == null)
-            {
-                throw new ArgumentNullException("endPoint");
-            }
+            ThrowHelper.ThrowIfNull(endPoint);
 
             var addressBytes = GetAddressBytes(endPoint);
             return Connect(addressBytes, endPoint.Port);
@@ -33,10 +30,7 @@ namespace Renci.SshNet.IntegrationTests.Common
 
         public Socket Connect(string host, int port)
         {
-            if (host == null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
+            ThrowHelper.ThrowIfNull(host);
 
             if (host.Length > byte.MaxValue)
             {

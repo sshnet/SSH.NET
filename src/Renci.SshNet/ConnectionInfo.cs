@@ -322,37 +322,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
-            if (host is null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
-
-            port.ValidatePort("port");
-
-            if (username is null)
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
-
-            if (username.All(char.IsWhiteSpace))
-            {
-                throw new ArgumentException("Cannot be empty or contain only whitespace.", nameof(username));
-            }
+            ThrowHelper.ThrowIfNull(host);
+            port.ValidatePort();
+            ThrowHelper.ThrowIfNullOrWhiteSpace(username);
 
             if (proxyType != ProxyTypes.None)
             {
-                if (proxyHost is null)
-                {
-                    throw new ArgumentNullException(nameof(proxyHost));
-                }
-
-                proxyPort.ValidatePort("proxyPort");
+                ThrowHelper.ThrowIfNull(proxyHost);
+                proxyPort.ValidatePort();
             }
 
-            if (authenticationMethods is null)
-            {
-                throw new ArgumentNullException(nameof(authenticationMethods));
-            }
+            ThrowHelper.ThrowIfNull(authenticationMethods);
 
             if (authenticationMethods.Length == 0)
             {
@@ -467,10 +447,7 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
+            ThrowHelper.ThrowIfNull(serviceFactory);
 
             IsAuthenticated = false;
             var clientAuthentication = serviceFactory.CreateClientAuthentication();

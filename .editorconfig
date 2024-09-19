@@ -29,6 +29,12 @@ dotnet_diagnostic.S101.severity = none
 # This is a duplicate of CA2201 and MA0012.
 dotnet_diagnostic.S112.severity = none
 
+# S127: "for" loop stop conditions should be invariant
+# https://rules.sonarsource.com/csharp/RSPEC-127
+#
+# Limited use.
+dotnet_diagnostic.S127.severity = none
+
 # S907: Remove use of 'goto'
 # https://rules.sonarsource.com/csharp/RSPEC-907
 #

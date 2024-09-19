@@ -652,7 +652,6 @@ namespace Renci.SshNet.Security.Cryptography
             block ^= _P[0];
             for (round = 0; round <= BLOWFISH_NUM_ROUNDS - 2;)
             {
-#pragma warning disable S127 // "for" loop stop conditions should be invariant
                 // Feistel substitution on left word
                 n = _S[(block >> 24) & 0xff];
                 n += _S[0x100 | ((block >> 16) & 0xff)];
@@ -666,7 +665,6 @@ namespace Renci.SshNet.Security.Cryptography
                 n ^= _S[0x200 | ((r >> 8) & 0xff)];
                 n += _S[0x300 | (r & 0xff)];
                 block ^= n ^ _P[++round];
-#pragma warning restore S127 // "for" loop stop conditions should be invariant
             }
             blockArray[offset] = r ^ _P[BLOWFISH_NUM_ROUNDS + 1];
             blockArray[offset + 1] = block;
@@ -801,12 +799,10 @@ namespace Renci.SshNet.Security.Cryptography
             byte[] ret = new byte[clen * 4];
             for (int i = 0, j = 0; i < clen; i++)
             {
-#pragma warning disable S127 // "for" loop stop conditions should be invariant
                 ret[j++] = (byte)((cdata[i] >> 24) & 0xff);
                 ret[j++] = (byte)((cdata[i] >> 16) & 0xff);
                 ret[j++] = (byte)((cdata[i] >> 8) & 0xff);
                 ret[j++] = (byte)(cdata[i] & 0xff);
-#pragma warning restore S127 // "for" loop stop conditions should be invariant
             }
             return ret;
         }
@@ -837,13 +833,11 @@ namespace Renci.SshNet.Security.Cryptography
 
             for (int i = 0, j = 0; i < buf.Length; i++)
             {
-#pragma warning disable S127 // "for" loop stop conditions should be invariant
                 // Output of this is little endian
                 output[j++] = (byte)(buf[i] & 0xff);
                 output[j++] = (byte)((buf[i] >> 8) & 0xff);
                 output[j++] = (byte)((buf[i] >> 16) & 0xff);
                 output[j++] = (byte)((buf[i] >> 24) & 0xff);
-#pragma warning restore S127 // "for" loop stop conditions should be invariant
             }
         }
 

@@ -303,8 +303,12 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [DataRow("Key.DSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(DsaKey))]
+        [DataRow("Key.DSA.PKCS8.txt", null, typeof(DsaKey))]
         [DataRow("Key.DSA.txt", null, typeof(DsaKey))]
         [DataRow("Key.ECDSA.Encrypted.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.ECDSA.PKCS8.txt", null, typeof(EcdsaKey))]
         [DataRow("Key.ECDSA.txt", null, typeof(EcdsaKey))]
         [DataRow("Key.ECDSA384.Encrypted.txt", "12345", typeof(EcdsaKey))]
         [DataRow("Key.ECDSA384.txt", null, typeof(EcdsaKey))]
@@ -326,6 +330,8 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.OPENSSH.ED25519.Encrypted.Aes.256.CTR.txt", "12345", typeof(ED25519Key))]
         [DataRow("Key.OPENSSH.ED25519.Encrypted.ChaCha20.Poly1305.txt", "12345", typeof(ED25519Key))]
         [DataRow("Key.OPENSSH.ED25519.Encrypted.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(ED25519Key))]
+        [DataRow("Key.OPENSSH.ED25519.PKCS8.txt", null, typeof(ED25519Key))]
         [DataRow("Key.OPENSSH.ED25519.txt", null, typeof(ED25519Key))]
         [DataRow("Key.OPENSSH.RSA.Encrypted.Aes.192.CTR.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.OPENSSH.RSA.Encrypted.txt", "12345", typeof(RsaKey))]
@@ -336,6 +342,8 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.RSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt", "1234567890", typeof(RsaKey))]
+        [DataRow("Key.RSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]
+        [DataRow("Key.RSA.PKCS8.txt", null, typeof(RsaKey))]
         [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
         [DataRow("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(DsaKey))]
         [DataRow("Key.SSH2.DSA.txt", null, typeof(DsaKey))]
@@ -353,94 +361,6 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     TestRsaKeyFile(pkFile);
                 }
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_RSA()
-        {
-            using (var stream = GetData("Key.PKCS8.RSA.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream));
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_RSA_Encrypted()
-        {
-            using (var stream = GetData("Key.PKCS8.RSA.Encrypted.Aes.256.CBC.12345.txt"))
-            {
-                TestRsaKeyFile(new PrivateKeyFile(stream, "12345"));
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_DSA()
-        {
-            using (var stream = GetData("Key.PKCS8.DSA.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_DSA_Encrypted()
-        {
-            using (var stream = GetData("Key.PKCS8.DSA.Encrypted.Aes.256.CBC.12345.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_ECDSA()
-        {
-            using (var stream = GetData("Key.PKCS8.ECDSA.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_ECDSA_Encrypted()
-        {
-            using (var stream = GetData("Key.PKCS8.ECDSA.Encrypted.Aes.256.CBC.12345.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_ED25519()
-        {
-            using (var stream = GetData("Key.PKCS8.ED25519.txt"))
-            {
-                _ = new PrivateKeyFile(stream);
-            }
-        }
-
-        [TestMethod]
-        [Owner("scott-xu")]
-        [TestCategory("PrivateKey")]
-        public void Test_PrivateKey_PKCS8_ED25519_Encrypted()
-        {
-            using (var stream = GetData("Key.PKCS8.ED25519.Encrypted.Aes.256.CBC.12345.txt"))
-            {
-                _ = new PrivateKeyFile(stream, "12345");
             }
         }
 

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -100,15 +101,20 @@ namespace Renci.SshNet
     public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
         private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+";
+        private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
 #if NET7_0_OR_GREATER
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+        private static readonly Regex CertificateRegex = GetCertificateRegex();
 
         [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
         private static partial Regex GetPrivateKeyRegex();
+
+        [GeneratedRegex(CertificatePattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetCertificateRegex();
 #else
-        private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern,
-                                                                  RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        private static readonly Regex CertificateRegex = new Regex(CertificatePattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
@@ -138,6 +144,13 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets the public key certificate associated with this key,
+        /// or <see langword="null"/> if no certificate data
+        /// has been passed to the constructor.
+        /// </summary>
+        public Certificate? Certificate { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -154,7 +167,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
-            : this(privateKey, passPhrase: null)
+            : this(privateKey, passPhrase: null, certificate: null)
         {
         }
 
@@ -167,7 +180,7 @@ namespace Renci.SshNet
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
         public PrivateKeyFile(string fileName)
-            : this(fileName, passPhrase: null)
+            : this(fileName, passPhrase: null, certificateFileName: null)
         {
         }
 
@@ -181,12 +194,34 @@ namespace Renci.SshNet
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
         public PrivateKeyFile(string fileName, string? passPhrase)
+            : this(fileName, passPhrase, certificateFileName: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="fileName">The path of the private key file.</param>
+        /// <param name="passPhrase">The pass phrase for the private key.</param>
+        /// <param name="certificateFileName">The path of a certificate file which certifies the private key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
+        public PrivateKeyFile(string fileName, string? passPhrase, string? certificateFileName)
         {
             ThrowHelper.ThrowIfNull(fileName);
 
             using (var keyFile = File.OpenRead(fileName))
             {
                 Open(keyFile, passPhrase);
+            }
+
+            if (certificateFileName is not null)
+            {
+                using (var certificateFile = File.OpenRead(certificateFileName))
+                {
+                    OpenCertificate(certificateFile);
+                }
+
+                Debug.Assert(Certificate is not null, $"{nameof(Certificate)} is null.");
             }
 
             Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
@@ -200,10 +235,28 @@ namespace Renci.SshNet
         /// <param name="passPhrase">The pass phrase.</param>
         /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(Stream privateKey, string? passPhrase)
+            : this(privateKey, passPhrase, certificate: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="privateKey">The private key.</param>
+        /// <param name="passPhrase">The pass phrase for the private key.</param>
+        /// <param name="certificate">A certificate which certifies the private key.</param>
+        public PrivateKeyFile(Stream privateKey, string? passPhrase, Stream? certificate)
         {
             ThrowHelper.ThrowIfNull(privateKey);
 
             Open(privateKey, passPhrase);
+
+            if (certificate is not null)
+            {
+                OpenCertificate(certificate);
+
+                Debug.Assert(Certificate is not null, $"{nameof(Certificate)} is null.");
+            }
 
             Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
             Debug.Assert(HostKeyAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
@@ -710,6 +763,65 @@ namespace Renci.SshNet
             }
 
             return parsedKey;
+        }
+
+        /// <summary>
+        /// Opens the specified certificate.
+        /// </summary>
+        /// <param name="certificate">The certificate.</param>
+        private void OpenCertificate(Stream certificate)
+        {
+            Debug.Assert(certificate is not null, "Should have validated not-null in the constructor.");
+
+            Match certificateMatch;
+
+            using (var sr = new StreamReader(certificate))
+            {
+                var text = sr.ReadToEnd();
+                certificateMatch = CertificateRegex.Match(text);
+            }
+
+            if (!certificateMatch.Success)
+            {
+                throw new SshException("Invalid certificate file.");
+            }
+
+            var data = certificateMatch.Result("${data}");
+
+            Certificate = new Certificate(Convert.FromBase64String(data));
+
+            Debug.Assert(Key is not null, $"{nameof(Key)} should have been initialised already.");
+
+            if (!Certificate.Key.Public.SequenceEqual(Key.Public))
+            {
+                throw new ArgumentException("The supplied certificate does not certify the supplied key.");
+            }
+
+            if (Key is RsaKey rsaKey)
+            {
+                Debug.Assert(Certificate.Key is RsaKey,
+                    $"Expected {nameof(Certificate)}.{nameof(Certificate.Key)} to be {nameof(RsaKey)} but was {Certificate.Key?.GetType()}");
+
+                _hostAlgorithms.Insert(0, new CertificateHostAlgorithm("ssh-rsa-cert-v01@openssh.com", Key, Certificate));
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                _hostAlgorithms.Insert(0, new CertificateHostAlgorithm(
+                    "rsa-sha2-256-cert-v01@openssh.com",
+                    Key,
+                    Certificate,
+                    new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
+
+                _hostAlgorithms.Insert(0, new CertificateHostAlgorithm(
+                    "rsa-sha2-512-cert-v01@openssh.com",
+                    Key,
+                    Certificate,
+                    new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            }
+            else
+            {
+                _hostAlgorithms.Insert(0, new CertificateHostAlgorithm(Certificate.Name, Key, Certificate));
+            }
         }
 
         /// <summary>

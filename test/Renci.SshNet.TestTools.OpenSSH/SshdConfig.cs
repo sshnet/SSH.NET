@@ -53,6 +53,8 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// </value>
         public List<string> HostKeyFiles { get; }
 
+        public string? HostCertificate { get; set; }
+
         /// <summary>
         /// Gets or sets a value specifying whether challenge-response authentication is allowed.
         /// </summary>
@@ -117,6 +119,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
         /// Gets the available MAC (message authentication code) algorithms.
         /// </summary>
         public List<MessageAuthenticationCodeAlgorithm> MessageAuthenticationCodeAlgorithms { get; private set; }
+
+        /// <summary>
+        /// Gets the filepaths of the trusted user CA (certificate authority) keys.
+        /// </summary>
+        public string? TrustedUserCAKeys { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether <c>sshd</c> should print <c>/etc/motd</c> when a user logs in interactively.
@@ -291,6 +298,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
                 writer.WriteLine("HostKeyAlgorithms " + string.Join(",", HostKeyAlgorithms.Select(c => c.Name).ToArray()));
             }
 
+            if (HostCertificate is not null)
+            {
+                writer.WriteLine("HostCertificate " + HostCertificate);
+            }
+
             if (KeyExchangeAlgorithms.Count > 0)
             {
                 writer.WriteLine("KexAlgorithms " + string.Join(",", KeyExchangeAlgorithms.Select(c => c.Name).ToArray()));
@@ -304,6 +316,11 @@ namespace Renci.SshNet.TestTools.OpenSSH
             if (PublicKeyAcceptedAlgorithms.Count > 0)
             {
                 writer.WriteLine("PubkeyAcceptedAlgorithms " + string.Join(",", PublicKeyAcceptedAlgorithms.Select(c => c.Name).ToArray()));
+            }
+
+            if (TrustedUserCAKeys is not null)
+            {
+                writer.WriteLine("TrustedUserCAKeys " + TrustedUserCAKeys);
             }
 
             foreach (var match in Matches)
@@ -383,6 +400,12 @@ namespace Renci.SshNet.TestTools.OpenSSH
                     break;
                 case "AllowTcpForwarding":
                     sshdConfig.AllowTcpForwarding = ToBool(value);
+                    break;
+                case "TrustedUserCAKeys":
+                    sshdConfig.TrustedUserCAKeys = value;
+                    break;
+                case "HostCertificate":
+                    sshdConfig.HostCertificate = value;
                     break;
                 case "KeyRegenerationInterval":
                 case "HostbasedAuthentication":

@@ -314,22 +314,22 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
-                    _key = ParseRSAPrivateKey_Pkcs1(decryptedData);
+                    _key = new RsaKey(decryptedData);
                     break;
                 case "DSA PRIVATE KEY":
-                    _key = ParseDSSPrivateKey_OpenSSL(decryptedData);
+                    _key = new DsaKey(decryptedData);
                     break;
                 case "EC PRIVATE KEY":
-                    _key = ParseECPrivateKey_SEC1(decryptedData);
+                    _key = new EcdsaKey(decryptedData);
                     break;
                 case "PRIVATE KEY":
                     var privateKeyInfo = PrivateKeyInfo.GetInstance(binaryData);
-                    _key = ParsePkcs8PrivateKey(privateKeyInfo);
+                    _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
                     break;
                 case "ENCRYPTED PRIVATE KEY":
                     var encryptedPrivateKeyInfo = EncryptedPrivateKeyInfo.GetInstance(binaryData);
                     privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(passPhrase?.ToCharArray(), encryptedPrivateKeyInfo);
-                    _key = ParsePkcs8PrivateKey(privateKeyInfo);
+                    _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
                     break;
                 case "OPENSSH PRIVATE KEY":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
@@ -507,8 +507,8 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Parses an OpenSSH V1 key file (i.e. ED25519 key) according to the the key spec:
-        /// https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key.
+        /// Parses an OpenSSH V1 key file according to the key spec:
+        /// <see href="https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key"/>.
         /// </summary>
         /// <param name="keyFileData">The key file data (i.e. base64 encoded data between the header/footer).</param>
         /// <param name="passPhrase">Passphrase or <see langword="null"/> if there isn't one.</param>
@@ -733,33 +733,70 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Parses PKCS#8 PrivateKeyInfo.
+        /// Parses an OpenSSL PKCS#8 key file according to RFC5208:
+        /// <see href="https://www.rfc-editor.org/rfc/rfc5208#section-5"/>.
         /// </summary>
-        /// <param name="privateKeyInfo">The PKCS#8 PrivateKeyInfo.</param>
-        /// <remarks>
-        /// <see href="https://www.rfc-editor.org/rfc/rfc5208#section-5" />.
-        /// </remarks>
-        /// <returns>The <see cref="Key" />.</returns>
+        /// <param name="privateKeyInfo">The <see cref="PrivateKeyInfo"/>.</param>
+        /// <returns>
+        /// The <see cref="Key"/>.
+        /// </returns>
         /// <exception cref="SshException">Algorithm not supported.</exception>
-        private static Key ParsePkcs8PrivateKey(PrivateKeyInfo privateKeyInfo)
+        private static Key ParseOpenSslPkcs8PrivateKey(PrivateKeyInfo privateKeyInfo)
         {
             var algorithmOid = privateKeyInfo.PrivateKeyAlgorithm.Algorithm;
             var key = privateKeyInfo.PrivateKey.GetOctets();
             if (algorithmOid.Equals(PkcsObjectIdentifiers.RsaEncryption))
             {
-                return ParseRSAPrivateKey_Pkcs1(key);
+                return new RsaKey(key);
             }
 
             if (algorithmOid.Equals(X9ObjectIdentifiers.IdDsa))
             {
                 var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
-                return ParseDSAPrivateKey_Pkcs8_OpenSSL(parameters, key);
+                var parametersReader = new AsnReader(parameters, AsnEncodingRules.BER);
+                var sequenceReader = parametersReader.ReadSequence();
+                parametersReader.ThrowIfNotEmpty();
+
+                var p = sequenceReader.ReadInteger();
+                var q = sequenceReader.ReadInteger();
+                var g = sequenceReader.ReadInteger();
+                sequenceReader.ThrowIfNotEmpty();
+
+                var keyReader = new AsnReader(key, AsnEncodingRules.BER);
+                var x = keyReader.ReadInteger();
+                keyReader.ThrowIfNotEmpty();
+
+                var y = BigInteger.ModPow(g, x, p);
+
+                return new DsaKey(p, q, g, y, x);
             }
 
             if (algorithmOid.Equals(X9ObjectIdentifiers.IdECPublicKey))
             {
-                var parameters2 = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
-                return ParseECPrivateKey_Pkcs8_OpenSSL(parameters2, key);
+                var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
+                var parametersReader = new AsnReader(parameters, AsnEncodingRules.DER);
+                var curve = parametersReader.ReadObjectIdentifier();
+                parametersReader.ThrowIfNotEmpty();
+
+                var privateKeyReader = new AsnReader(key, AsnEncodingRules.DER);
+                var sequenceReader = privateKeyReader.ReadSequence();
+                privateKeyReader.ThrowIfNotEmpty();
+
+                var version = sequenceReader.ReadInteger();
+                if (version != BigInteger.One)
+                {
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "EC version '{0}' is not supported.", version));
+                }
+
+                var privatekey = sequenceReader.ReadOctetString();
+
+                var publicKeyReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
+                var publickey = publicKeyReader.ReadBitString(out _);
+                publicKeyReader.ThrowIfNotEmpty();
+
+                sequenceReader.ThrowIfNotEmpty();
+
+                return new EcdsaKey(curve, publickey, privatekey);
             }
 
             if (algorithmOid.Equals(EdECObjectIdentifiers.id_Ed25519))
@@ -768,227 +805,6 @@ namespace Renci.SshNet
             }
 
             throw new SshException(string.Format(CultureInfo.InvariantCulture, "Private key algorithm \"{0}\" is not supported.", algorithmOid));
-        }
-
-        /// <summary>
-        /// Parses PKCS#1 RSA private key.
-        /// </summary>
-        /// <remarks>
-        /// <see href="https://www.rfc-editor.org/rfc/rfc2437#section-11.1.2" />.
-        /// <code>
-        /// RSAPrivateKey ::= SEQUENCE {
-        ///     version INTEGER,
-        ///     modulus INTEGER, -- n
-        ///     publicExponent INTEGER, -- e
-        ///     privateExponent INTEGER, -- d
-        ///     prime1 INTEGER, -- p
-        ///     prime2 INTEGER, -- q
-        ///     exponent1 INTEGER, -- d mod (p-1)
-        ///     exponent2 INTEGER, -- d mod (q-1)
-        ///     coefficient INTEGER -- (inverse of q) mod p
-        /// }
-        /// </code>
-        /// </remarks>
-        /// <param name="keyData">The key data.</param>
-        /// <returns>The <see cref="RsaKey" />.</returns>
-        private static RsaKey ParseRSAPrivateKey_Pkcs1(byte[] keyData)
-        {
-            var keyReader = new AsnReader(keyData, AsnEncodingRules.BER);
-            var sequenceReader = keyReader.ReadSequence();
-
-            // Some key has extra byte, for example 'Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt' at the test data folder.
-            ////keyReader.ThrowIfNotEmpty();
-
-            var version = sequenceReader.ReadInteger();
-            if (version != BigInteger.Zero)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "RSA version '{0}' is not supported.", version));
-            }
-
-            var modulus = sequenceReader.ReadInteger();
-            var exponent = sequenceReader.ReadInteger();
-            var d = sequenceReader.ReadInteger();
-            var p = sequenceReader.ReadInteger();
-            var q = sequenceReader.ReadInteger();
-            var dp = sequenceReader.ReadInteger();
-            var dq = sequenceReader.ReadInteger();
-            var inverseQ = sequenceReader.ReadInteger();
-            sequenceReader.ThrowIfNotEmpty();
-
-            return new RsaKey(modulus, exponent, d, p, q, dp, dq, inverseQ);
-        }
-
-        /// <summary>
-        /// Parses OpenSSL DSA private key.
-        /// </summary>
-        /// <param name="keyData">The key data.</param>
-        /// <remarks>
-        /// OpenSSL produces ASN.1 DER encoded form of an ASN.1 SEQUENCE consisting of the values of
-        /// version (currently zero), p, q, g, the public and private key components respectively as ASN.1 INTEGERs.
-        /// <see href="https://docs.openssl.org/1.1.1/man1/dsa/#options" />.
-        /// <code>
-        /// DSSPrivatKey_OpenSSL ::= SEQUENCE {
-        ///     version INTEGER,
-        ///     p INTEGER,
-        ///     q INTEGER,
-        ///     g INTEGER,
-        ///     y INTEGER,
-        ///     x INTEGER
-        /// }
-        /// </code>
-        /// </remarks>
-        /// <returns>The <see cref="DsaKey" />.</returns>
-        private static DsaKey ParseDSSPrivateKey_OpenSSL(byte[] keyData)
-        {
-            var keyReader = new AsnReader(keyData, AsnEncodingRules.BER);
-            var sequenceReader = keyReader.ReadSequence();
-            keyReader.ThrowIfNotEmpty();
-
-            var version = sequenceReader.ReadInteger();
-            if (version != BigInteger.Zero)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "DSA version '{0}' is not supported.", version));
-            }
-
-            var p = sequenceReader.ReadInteger();
-            var q = sequenceReader.ReadInteger();
-            var g = sequenceReader.ReadInteger();
-            var y = sequenceReader.ReadInteger();
-            var x = sequenceReader.ReadInteger();
-            sequenceReader.ThrowIfNotEmpty();
-
-            return new DsaKey(p, q, g, y, x);
-        }
-
-        /// <summary>
-        /// Parses OpenSSL DSA private key in Pkcs#8 format.
-        /// </summary>
-        /// <param name="parametersData">The parameters data.</param>
-        /// <param name="keyData">The key data.</param>
-        /// <remarks>
-        /// The format of PKCS#8 DSA (and other) private keys is not well documented:
-        /// it is hidden away in PKCS#11 v2.01, section 11.9.
-        /// OpenSSL's default DSA PKCS#8 private key format complies with this standard.
-        /// <see href="https://docs.openssl.org/1.1.1/man1/pkcs8/#standards" />
-        /// <see href="https://www.cryptsoft.com/pkcs11doc/STANDARD/v201-95.pdf" />.
-        /// <code>
-        /// Dss-Parms ::= SEQUENCE {
-        ///     p INTEGER,
-        ///     q INTEGER,
-        ///     g INTEGER
-        /// }
-        /// </code>
-        /// DSAprivatekeys are represented as BER-encoded ASN.1 type INTEGER.
-        /// </remarks>
-        /// <returns>The <see cref="DsaKey" />.</returns>
-        private static DsaKey ParseDSAPrivateKey_Pkcs8_OpenSSL(byte[] parametersData, byte[] keyData)
-        {
-            var parametersReader = new AsnReader(parametersData, AsnEncodingRules.BER);
-            var sequenceReader = parametersReader.ReadSequence();
-            parametersReader.ThrowIfNotEmpty();
-
-            var p = sequenceReader.ReadInteger();
-            var q = sequenceReader.ReadInteger();
-            var g = sequenceReader.ReadInteger();
-            sequenceReader.ThrowIfNotEmpty();
-
-            var keyReader = new AsnReader(keyData, AsnEncodingRules.BER);
-            var x = keyReader.ReadInteger();
-            keyReader.ThrowIfNotEmpty();
-
-            var y = BigInteger.ModPow(g, x, p);
-
-            return new DsaKey(p, q, g, y, x);
-        }
-
-        /// <summary>
-        /// Parses OpenSSL EC private key.
-        /// </summary>
-        /// <param name="keyData">The key data.</param>
-        /// <remarks>
-        /// OpenSSL produces ASN.1 DER encoded SEC1 private key.
-        /// <see href="https://docs.openssl.org/1.1.1/man1/ec/#description" />
-        /// <see href="https://www.secg.org/sec1-v2.pdf" />.
-        /// Republished as RFC5915 <see href="https://www.rfc-editor.org/rfc/rfc5915" />,
-        /// See answer at <see href="https://crypto.stackexchange.com/a/48709" />.
-        /// <code>
-        /// ECPrivateKey ::= SEQUENCE {
-        ///     version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
-        ///     privateKey OCTET STRING,
-        ///     parameters [0] ECDomainParameters {{ SECGCurveNames }} OPTIONAL,
-        ///     publicKey [1] BIT STRING OPTIONAL
-        /// }
-        /// </code>
-        /// When generating a transfer encoding, generators SHOULD use
-        /// Distinguished Encoding Rules (DER) and receivers SHOULD be
-        /// prepared to handle Basic Encoding Rules (BER) and DER.
-        /// </remarks>
-        /// <returns>The <see cref="EcdsaKey" />.</returns>
-        private static EcdsaKey ParseECPrivateKey_SEC1(byte[] keyData)
-        {
-            var keyReader = new AsnReader(keyData, AsnEncodingRules.DER);
-            var sequenceReader = keyReader.ReadSequence();
-            keyReader.ThrowIfNotEmpty();
-
-            var version = sequenceReader.ReadInteger();
-            if (version != BigInteger.One)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "EC version '{0}' is not supported.", version));
-            }
-
-            var privatekey = sequenceReader.ReadOctetString();
-
-            // Though the ASN.1 indicates that the parameters field is OPTIONAL,
-            // implementations that conform to this document MUST always include the parameters field.
-            var parametersReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
-            var curve = parametersReader.ReadObjectIdentifier();
-            parametersReader.ThrowIfNotEmpty();
-
-            // Though the ASN.1 indicates publicKey is OPTIONAL,
-            // implementations that conform to this document SHOULD always include the publicKey field.
-            var publicKeyReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
-            var publickey = publicKeyReader.ReadBitString(out _);
-            publicKeyReader.ThrowIfNotEmpty();
-
-            sequenceReader.ThrowIfNotEmpty();
-
-            return new EcdsaKey(curve, publickey, privatekey);
-        }
-
-        /// <summary>
-        /// Parses OpenSSL EC private key in Pkcs#8 format.
-        /// </summary>
-        /// <param name="parametersData">The parameters data.</param>
-        /// <param name="keyData">The key data.</param>
-        /// <remarks>
-        /// The format of PKCS#8 EC private keys is not well documented.
-        /// </remarks>
-        /// <returns>The <see cref="EcdsaKey" />.</returns>
-        private static EcdsaKey ParseECPrivateKey_Pkcs8_OpenSSL(byte[] parametersData, byte[] keyData)
-        {
-            var parametersReader = new AsnReader(parametersData, AsnEncodingRules.DER);
-            var curve = parametersReader.ReadObjectIdentifier();
-            parametersReader.ThrowIfNotEmpty();
-
-            var privateKeyReader = new AsnReader(keyData, AsnEncodingRules.DER);
-            var sequenceReader = privateKeyReader.ReadSequence();
-            privateKeyReader.ThrowIfNotEmpty();
-
-            var version = sequenceReader.ReadInteger();
-            if (version != BigInteger.One)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "EC version '{0}' is not supported.", version));
-            }
-
-            var privatekey = sequenceReader.ReadOctetString();
-
-            var publicKeyReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
-            var publickey = publicKeyReader.ReadBitString(out _);
-            publicKeyReader.ThrowIfNotEmpty();
-
-            sequenceReader.ThrowIfNotEmpty();
-
-            return new EcdsaKey(curve, publickey, privatekey);
         }
 
         /// <summary>

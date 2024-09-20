@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Formats.Asn1;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -155,25 +156,24 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaKey"/> class.
         /// </summary>
-        /// <param name="modulus">The modulus.</param>
-        /// <param name="exponent">The exponent.</param>
-        /// <param name="d">The d.</param>
-        /// <param name="p">The p.</param>
-        /// <param name="q">The q.</param>
-        /// <param name="dp">The dp.</param>
-        /// <param name="dq">The dq.</param>
-        /// <param name="inverseQ">The inverse Q.</param>
-        public RsaKey(BigInteger modulus, BigInteger exponent, BigInteger d, BigInteger p, BigInteger q, BigInteger dp, BigInteger dq, BigInteger inverseQ)
+        /// <param name="privateKeyData">DER encoded private key data.</param>
+        public RsaKey(byte[] privateKeyData)
         {
-            Modulus = modulus;
-            Exponent = exponent;
-            D = d;
-            P = p;
-            Q = q;
-            DP = dp;
-            DQ = dq;
-            InverseQ = inverseQ;
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
+            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
+
+            Modulus = der.ReadInteger();
+            Exponent = der.ReadInteger();
+            D = der.ReadInteger();
+            P = der.ReadInteger();
+            Q = der.ReadInteger();
+            DP = der.ReadInteger();
+            DQ = der.ReadInteger();
+            InverseQ = der.ReadInteger();
+
+            der.ThrowIfNotEmpty();
             RSA = RSA.Create();
             RSA.ImportParameters(GetRSAParameters());
         }

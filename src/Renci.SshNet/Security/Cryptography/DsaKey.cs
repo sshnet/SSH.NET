@@ -16,17 +16,6 @@ namespace Renci.SshNet.Security
     {
         private DsaDigitalSignature? _digitalSignature;
 
-        /// <summary>
-        /// Gets the SSH name of the DSA Key.
-        /// </summary>
-        /// <returns>
-        /// The SSH name of the DSA Key.
-        /// </returns>
-        public override string ToString()
-        {
-            return "ssh-dss";
-        }
-
         internal DSA DSA { get; }
 
         /// <summary>
@@ -122,10 +111,7 @@ namespace Renci.SshNet.Security
         /// <param name="privateKeyData">DER encoded private key data.</param>
         public DsaKey(byte[] privateKeyData)
         {
-            if (privateKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(privateKeyData));
-            }
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
             var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
             _ = der.ReadInteger(); // skip version

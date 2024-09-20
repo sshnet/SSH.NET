@@ -174,6 +174,7 @@ namespace Renci.SshNet.Security
             InverseQ = der.ReadInteger();
 
             der.ThrowIfNotEmpty();
+
             RSA = RSA.Create();
             RSA.ImportParameters(GetRSAParameters());
         }

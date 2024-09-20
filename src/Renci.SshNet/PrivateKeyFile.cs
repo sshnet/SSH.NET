@@ -314,25 +314,80 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
-                    _key = new RsaKey(decryptedData);
+                    var rsaKey = new RsaKey(decryptedData);
+                    _key = rsaKey;
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     break;
                 case "DSA PRIVATE KEY":
                     _key = new DsaKey(decryptedData);
+                    _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
                     break;
                 case "EC PRIVATE KEY":
                     _key = new EcdsaKey(decryptedData);
+                    _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
                     break;
                 case "PRIVATE KEY":
                     var privateKeyInfo = PrivateKeyInfo.GetInstance(binaryData);
                     _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
+                    if (_key is RsaKey parsedRsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+                    else if (_key is DsaKey parsedDsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
+
                     break;
                 case "ENCRYPTED PRIVATE KEY":
                     var encryptedPrivateKeyInfo = EncryptedPrivateKeyInfo.GetInstance(binaryData);
                     privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(passPhrase?.ToCharArray(), encryptedPrivateKeyInfo);
                     _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
+                    if (_key is RsaKey parsedRsaKey2)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey2, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey2, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+                    else if (_key is DsaKey parsedDsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
+
                     break;
                 case "OPENSSH PRIVATE KEY":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
+                    if (_key is RsaKey parsedRsaKey3)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey3, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey3, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
+
                     break;
                 case "SSH2 ENCRYPTED PRIVATE KEY":
                     var reader = new SshDataReader(decryptedData);
@@ -389,7 +444,13 @@ namespace Renci.SshNet
                         var inverseQ = reader.ReadBigIntWithBits(); // u
                         var q = reader.ReadBigIntWithBits(); // p
                         var p = reader.ReadBigIntWithBits(); // q
-                        _key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        var decryptedRsaKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        _key = decryptedRsaKey;
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(decryptedRsaKey, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     }
                     else if (keyType.Contains("dsa"))
                     {
@@ -405,6 +466,7 @@ namespace Renci.SshNet
                         var y = reader.ReadBigIntWithBits();
                         var x = reader.ReadBigIntWithBits();
                         _key = new DsaKey(p, q, g, y, x);
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
                     }
                     else
                     {
@@ -414,19 +476,6 @@ namespace Renci.SshNet
                     break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
-            }
-
-            if (_key is RsaKey parsedRsaKey)
-            {
-                _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA512)));
-                _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
-#pragma warning restore CA2000 // Dispose objects before losing scope
-            }
-            else
-            {
-                _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
             }
         }
 
@@ -692,15 +741,14 @@ namespace Renci.SshNet
                 case "ecdsa-sha2-nistp521":
                     // curve
                     var len = (int)privateKeyReader.ReadUInt32();
-                    var curveName = Encoding.ASCII.GetString(privateKeyReader.ReadBytes(len));
-                    var curveOid = SshNamedCurves.GetOid(curveName).GetID();
+                    var curve = Encoding.ASCII.GetString(privateKeyReader.ReadBytes(len));
 
                     // public key
                     publicKey = privateKeyReader.ReadBignum2();
 
                     // private key
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
-                    parsedKey = new EcdsaKey(curveOid, publicKey, unencryptedPrivateKey);
+                    parsedKey = new EcdsaKey(curve, publicKey, unencryptedPrivateKey.TrimLeadingZeros());
                     break;
                 case "ssh-rsa":
                     var modulus = privateKeyReader.ReadBignum(); // n
@@ -796,7 +844,7 @@ namespace Renci.SshNet
 
                 sequenceReader.ThrowIfNotEmpty();
 
-                return new EcdsaKey(curve, publickey, privatekey);
+                return new EcdsaKey(curve, publickey, privatekey.TrimLeadingZeros());
             }
 
             if (algorithmOid.Equals(EdECObjectIdentifiers.id_Ed25519))

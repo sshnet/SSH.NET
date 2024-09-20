@@ -209,7 +209,7 @@ namespace Renci.SshNet.Security
         /// <param name="privatekey">Value of privatekey.</param>
         public EcdsaKey(string curve, byte[] publickey, byte[] privatekey)
         {
-            _impl = Import(GetCurveOid(curve), publickey, privatekey.TrimLeadingZeros());
+            _impl = Import(GetCurveOid(curve), publickey, privatekey);
         }
 
         /// <summary>

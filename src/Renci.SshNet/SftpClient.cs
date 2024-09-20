@@ -690,6 +690,38 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets reference to remote file or directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{ISftpFile}"/> that represents the get operation.
+        /// The task result contains the reference to <see cref="ISftpFile"/> file object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async Task<ISftpFile> GetAsync(string path, CancellationToken cancellationToken)
+        {
+            CheckDisposed();
+            ThrowHelper.ThrowIfNull(path);
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            var attributes = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+
+            return new SftpFile(_sftpSession, fullPath, attributes);
+        }
+
+        /// <summary>
         /// Checks whether file or directory exists.
         /// </summary>
         /// <param name="path">The path.</param>

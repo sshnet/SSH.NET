@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +14,6 @@ using System.Text.RegularExpressions;
 using Org.BouncyCastle.Asn1.EdEC;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Utilities;
 using Org.BouncyCastle.Pkcs;
 
 using Renci.SshNet.Common;

@@ -744,6 +744,64 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Checks whether file or directory exists.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{T}"/> that represents the exists operation.
+        /// The task result contains <see langword="true"/> if directory or file exists; otherwise <see langword="false"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            /*
+             * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
+             * been clear on how the server should respond when the specified path is not present on
+             * the server:
+             *
+             * SSH 1 to 4:
+             * No mention of how the server should respond if the path is not present on the server.
+             *
+             * SSH 5:
+             * The server SHOULD fail the request if the path is not present on the server.
+             *
+             * SSH 6:
+             * Draft 06: The server SHOULD fail the request if the path is not present on the server.
+             * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
+             *
+             * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
+             * currently only support up to v3.
+             */
+
+            try
+            {
+                _ = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                return true;
+            }
+            catch (SftpPathNotFoundException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Downloads remote file specified by the path into the stream.
         /// </summary>
         /// <param name="path">File to download.</param>

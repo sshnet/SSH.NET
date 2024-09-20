@@ -21,21 +21,17 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void AsTimeout_NegativeTimeSpan_ThrowsArgumentOutOfRangeException()
         {
             var timeSpan = TimeSpan.FromSeconds(-1);
-
-            timeSpan.AsTimeout();
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => timeSpan.AsTimeout());
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void AsTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
             var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-
-            timeSpan.AsTimeout();
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => timeSpan.AsTimeout());
         }
 
         [TestMethod]
@@ -64,21 +60,17 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void EnsureValidTimeout_NegativeTimeSpan_ThrowsArgumentOutOfRangeException()
         {
             var timeSpan = TimeSpan.FromSeconds(-1);
-
-            timeSpan.EnsureValidTimeout();
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => timeSpan.EnsureValidTimeout());
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void EnsureValidTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
         {
             var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-
-            timeSpan.EnsureValidTimeout();
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => timeSpan.EnsureValidTimeout());
         }
 
         [TestMethod]

@@ -22,7 +22,7 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyConnectionInfo(string host, string username, params IPrivateKeySource[] keyFiles)
             : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, keyFiles)
         {
         }

@@ -52,6 +52,11 @@ namespace Renci.SshNet
         event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs>? ServerIdentificationReceived;
+
+        /// <summary>
         /// Connects client to the server.
         /// </summary>
         /// <exception cref="InvalidOperationException">The client is already connected.</exception>

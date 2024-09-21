@@ -29,6 +29,12 @@ dotnet_diagnostic.S101.severity = none
 # This is a duplicate of CA2201 and MA0012.
 dotnet_diagnostic.S112.severity = none
 
+# S127: "for" loop stop conditions should be invariant
+# https://rules.sonarsource.com/csharp/RSPEC-127
+#
+# Limited use.
+dotnet_diagnostic.S127.severity = none
+
 # S907: Remove use of 'goto'
 # https://rules.sonarsource.com/csharp/RSPEC-907
 #
@@ -87,6 +93,10 @@ dotnet_diagnostic.S1144.severity = none
 # This is a duplicate of IDE0060.
 dotnet_diagnostic.S1172.severity = none
 
+# S1199: Nested code blocks should not be used
+# https://rules.sonarsource.com/csharp/RSPEC-1199
+dotnet_diagnostic.S1199.severity = none
+
 # S1481: Unused local variables should be removed
 # https://rules.sonarsource.com/csharp/RSPEC-1481
 #
@@ -123,6 +133,12 @@ dotnet_diagnostic.S2259.severity = none
 #
 # This is a duplicate of IDE0032.
 dotnet_diagnostic.S2292.severity = none
+
+# S2325: Methods and properties that don't access instance data should be static
+# https://rules.sonarsource.com/csharp/RSPEC-2325
+#
+# This is a duplicate of CA1822
+dotnet_diagnostic.S2325.severity = none
 
 # S2445: Blocks should be synchronized on read-only fields
 # https://rules.sonarsource.com/csharp/RSPEC-2445

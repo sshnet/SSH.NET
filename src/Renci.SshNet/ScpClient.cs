@@ -33,7 +33,6 @@ namespace Renci.SshNet
     /// </remarks>
     public partial class ScpClient : BaseClient
     {
-        private const string Message = "filename";
         private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
         private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
         private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
@@ -117,10 +116,7 @@ namespace Renci.SshNet
             }
             set
             {
-                if (value is null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
+                ThrowHelper.ThrowIfNull(value);
 
                 _remotePathTransformation = value;
             }
@@ -292,10 +288,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
-            if (fileInfo is null)
-            {
-                throw new ArgumentNullException(nameof(fileInfo));
-            }
+            ThrowHelper.ThrowIfNull(fileInfo);
 
             if (Session is null)
             {
@@ -342,20 +335,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
-            if (directoryInfo is null)
-            {
-                throw new ArgumentNullException(nameof(directoryInfo));
-            }
-
-            if (path is null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            if (path.Length == 0)
-            {
-                throw new ArgumentException("The path cannot be a zero-length string.", nameof(path));
-            }
+            ThrowHelper.ThrowIfNull(directoryInfo);
+            ThrowHelper.ThrowIfNullOrEmpty(path);
 
             if (Session is null)
             {
@@ -397,15 +378,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
-            if (string.IsNullOrEmpty(filename))
-            {
-                throw new ArgumentException("filename");
-            }
-
-            if (fileInfo is null)
-            {
-                throw new ArgumentNullException(nameof(fileInfo));
-            }
+            ThrowHelper.ThrowIfNullOrEmpty(filename);
+            ThrowHelper.ThrowIfNull(fileInfo);
 
             if (Session is null)
             {
@@ -444,15 +418,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
-            if (string.IsNullOrEmpty(directoryName))
-            {
-                throw new ArgumentException("directoryName");
-            }
-
-            if (directoryInfo is null)
-            {
-                throw new ArgumentNullException(nameof(directoryInfo));
-            }
+            ThrowHelper.ThrowIfNullOrEmpty(directoryName);
+            ThrowHelper.ThrowIfNull(directoryInfo);
 
             if (Session is null)
             {
@@ -491,15 +458,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, Stream destination)
         {
-            if (string.IsNullOrWhiteSpace(filename))
-            {
-                throw new ArgumentException(Message);
-            }
-
-            if (destination is null)
-            {
-                throw new ArgumentNullException(nameof(destination));
-            }
+            ThrowHelper.ThrowIfNullOrWhiteSpace(filename);
+            ThrowHelper.ThrowIfNull(destination);
 
             if (Session is null)
             {

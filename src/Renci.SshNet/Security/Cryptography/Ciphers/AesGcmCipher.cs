@@ -1,8 +1,6 @@
-﻿#if NET6_0_OR_GREATER
-using System;
+﻿using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
 
@@ -12,10 +10,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    internal sealed class AesGcmCipher : SymmetricCipher, IDisposable
+    internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
     {
+        private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;
-        private readonly AesGcm _aesGcm;
+        private readonly int _aadLength;
+#if NET6_0_OR_GREATER
+        private readonly Impl _impl;
+#else
+        private readonly BouncyCastleImpl _impl;
+#endif
 
         /// <summary>
         /// Gets the minimun block size.
@@ -42,7 +46,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             get
             {
-                return 16;
+                return TagSizeInBytes;
             }
         }
 
@@ -51,16 +55,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="iv">The IV.</param>
-        public AesGcmCipher(byte[] key, byte[] iv)
+        /// <param name="aadLength">The length of additional associated data.</param>
+        public AesGcmCipher(byte[] key, byte[] iv, int aadLength)
             : base(key)
         {
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
-#if NET8_0_OR_GREATER
-            _aesGcm = new AesGcm(key, TagSize);
-#else
-            _aesGcm = new AesGcm(key);
+            _aadLength = aadLength;
+#if NET6_0_OR_GREATER
+            if (System.Security.Cryptography.AesGcm.IsSupported)
+            {
+                _impl = new BclImpl(key, _iv);
+            }
+            else
 #endif
+            {
+                _impl = new BouncyCastleImpl(key, _iv);
+            }
         }
 
         /// <summary>
@@ -69,8 +80,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [outbound sequence field][packet length field][padding length field sz][payload][random paddings]
-        ///   [----4 bytes----(offset)][------4 bytes------][----------------Plain Text---------------(length)]
+        ///   [----(offset)][----AAD----][----Plain Text----(length)]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
@@ -78,21 +88,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The encrypted data with below format:
         ///   <code>
-        ///   [packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [------4 bytes------][------------------Cipher Text--------------------][-------TAG-------]
+        ///   [----AAD----][----Cipher Text----][----TAG----]
         ///   </code>
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var packetLengthField = new ReadOnlySpan<byte>(input, offset, 4);
-            var plainText = new ReadOnlySpan<byte>(input, offset + 4, length - 4);
-
             var output = new byte[length + TagSize];
-            packetLengthField.CopyTo(output);
-            var cipherText = new Span<byte>(output, 4, length - 4);
-            var tag = new Span<byte>(output, length, TagSize);
+            Buffer.BlockCopy(input, offset, output, 0, _aadLength);
 
-            _aesGcm.Encrypt(nonce: _iv, plainText, cipherText, tag, associatedData: packetLengthField);
+            _impl.Encrypt(
+                input,
+                plainTextOffset: offset + _aadLength,
+                plainTextLength: length - _aadLength,
+                associatedDataOffset: offset,
+                associatedDataLength: _aadLength,
+                output,
+                cipherTextOffset: _aadLength);
 
             IncrementCounter();
 
@@ -105,8 +116,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [inbound sequence field][packet length field][padding length field sz][payload][random paddings][Authenticated TAG]
-        ///   [--------4 bytes-------][--4 bytes--(offset)][--------------Cipher Text----------------(length)][-------TAG-------]
+        ///   [----][----AAD----(offset)][----Cipher Text----(length)][----TAG----]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
@@ -114,22 +124,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The decrypted data with below format:
         /// <code>
-        ///   [padding length field sz][payload][random paddings]
-        ///   [--------------------Plain Text-------------------]
+        ///   [----Plain Text----]
         /// </code>
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            Debug.Assert(offset == 8, "The offset must be 8");
-
-            var packetLengthField = new ReadOnlySpan<byte>(input, 4, 4);
-            var cipherText = new ReadOnlySpan<byte>(input, offset, length);
-            var tag = new ReadOnlySpan<byte>(input, offset + length, TagSize);
+            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
 
             var output = new byte[length];
-            var plainText = new Span<byte>(output);
 
-            _aesGcm.Decrypt(nonce: _iv, cipherText, tag, plainText, associatedData: packetLengthField);
+            _impl.Decrypt(
+                input,
+                cipherTextOffset: offset,
+                cipherTextLength: length,
+                associatedDataOffset: offset - _aadLength,
+                associatedDataLength: _aadLength,
+                output,
+                plainTextOffset: 0);
 
             IncrementCounter();
 
@@ -158,7 +169,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (disposing)
             {
-                _aesGcm.Dispose();
+                _impl.Dispose();
             }
         }
 
@@ -169,6 +180,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        private abstract class Impl : IDisposable
+        {
+            public abstract void Encrypt(byte[] input, int plainTextOffset, int plainTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int cipherTextOffset);
+
+            public abstract void Decrypt(byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset);
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }
-#endif

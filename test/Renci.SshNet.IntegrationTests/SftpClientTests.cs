@@ -61,12 +61,12 @@ namespace Renci.SshNet.IntegrationTests
 
             // Create new directory and check if it exists
             _sftpClient.CreateDirectory(testDirectory);
-            Assert.IsTrue(_sftpClient.Exists(testDirectory));
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory));
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
             _sftpClient.UploadFile(fileStream, testFilePath);
-            Assert.IsTrue(_sftpClient.Exists(testFilePath));
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath));
 
             // Check if ListDirectory works
             var expectedFiles = new List<(string FullName, bool IsRegularFile, bool IsDirectory)>()

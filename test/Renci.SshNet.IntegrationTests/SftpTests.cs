@@ -3771,6 +3771,138 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Sftp_ExistsAsync()
+        {
+            const string remoteHome = "/home/sshnet";
+
+            #region Setup
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                #region Clean-up
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/DoesNotExist"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.directory.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/directory.exists"}")
+                )
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -f {remoteHome + "/file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                #endregion Clean-up
+
+                #region Setup
+
+                using (var command = client.CreateCommand($"touch {remoteHome + "/file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"mkdir {remoteHome + "/directory.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"ln -s {remoteHome + "/file.exists"} {remoteHome + "/symlink.to.file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"ln -s {remoteHome + "/directory.exists"} {remoteHome + "/symlink.to.directory.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                #endregion Setup
+            }
+
+            #endregion Setup
+
+            #region Assert
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                await client.ConnectAsync(default).ConfigureAwait(false);
+
+                Assert.IsFalse(await client.ExistsAsync(remoteHome + "/DoesNotExist"));
+                Assert.IsTrue(await client.ExistsAsync(remoteHome + "/file.exists"));
+                Assert.IsTrue(await client.ExistsAsync(remoteHome + "/symlink.to.file.exists"));
+                Assert.IsTrue(await client.ExistsAsync(remoteHome + "/directory.exists"));
+                Assert.IsTrue(await client.ExistsAsync(remoteHome + "/symlink.to.directory.exists"));
+            }
+
+            #endregion Assert
+
+            #region Teardown
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/DoesNotExist"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.directory.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/directory.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -Rf {remoteHome + "/symlink.to.file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+
+                using (var command = client.CreateCommand($"rm -f {remoteHome + "/file.exists"}"))
+                {
+                    await command.ExecuteAsync();
+                    Assert.AreEqual(0, command.ExitStatus, command.Error);
+                }
+            }
+
+            #endregion Teardown
+        }
+
+        [TestMethod]
         public void Sftp_ListDirectory()
         {
             const string remoteDirectory = "/home/sshnet/test123";

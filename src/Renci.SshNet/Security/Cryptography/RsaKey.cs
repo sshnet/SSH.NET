@@ -1,5 +1,7 @@
 ﻿#nullable enable
 using System;
+using System.Formats.Asn1;
+using System.Numerics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -91,17 +93,12 @@ namespace Renci.SshNet.Security
         /// </value>
         public BigInteger InverseQ { get; }
 
-        /// <summary>
-        /// Gets the length of the key in bits.
-        /// </summary>
-        /// <value>
-        /// The bit-length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
             {
-                return Modulus.BitLength;
+                return (int)Modulus.GetBitLength();
             }
         }
 
@@ -142,10 +139,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public RsaKey(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-rsa" || publicKeyData.Keys.Length != 2)
             {
@@ -165,27 +159,21 @@ namespace Renci.SshNet.Security
         /// <param name="privateKeyData">DER encoded private key data.</param>
         public RsaKey(byte[] privateKeyData)
         {
-            if (privateKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(privateKeyData));
-            }
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
-            var der = new DerData(privateKeyData);
-            _ = der.ReadBigInteger(); // skip version
+            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
 
-            Modulus = der.ReadBigInteger();
-            Exponent = der.ReadBigInteger();
-            D = der.ReadBigInteger();
-            P = der.ReadBigInteger();
-            Q = der.ReadBigInteger();
-            DP = der.ReadBigInteger();
-            DQ = der.ReadBigInteger();
-            InverseQ = der.ReadBigInteger();
+            Modulus = der.ReadInteger();
+            Exponent = der.ReadInteger();
+            D = der.ReadInteger();
+            P = der.ReadInteger();
+            Q = der.ReadInteger();
+            DP = der.ReadInteger();
+            DQ = der.ReadInteger();
+            InverseQ = der.ReadInteger();
 
-            if (!der.IsEndOfData)
-            {
-                throw new InvalidOperationException("Invalid private key (expected EOF).");
-            }
+            der.ThrowIfNotEmpty();
 
             RSA = RSA.Create();
             RSA.ImportParameters(GetRSAParameters());

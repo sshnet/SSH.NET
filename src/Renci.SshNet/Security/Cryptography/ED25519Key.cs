@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 using Org.BouncyCastle.Math.EC.Rfc8032;
 
@@ -40,12 +41,7 @@ namespace Renci.SshNet.Security
             }
         }
 
-        /// <summary>
-        /// Gets the length of the key.
-        /// </summary>
-        /// <value>
-        /// The length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
@@ -82,17 +78,15 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public ED25519Key(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-ed25519" || publicKeyData.Keys.Length != 1)
             {
                 throw new ArgumentException($"Invalid Ed25519 public key data ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
             }
 
-            PublicKey = publicKeyData.Keys[0].ToByteArray().Reverse().TrimLeadingZeros().Pad(Ed25519.PublicKeySize);
+            PublicKey = publicKeyData.Keys[0].ToByteArray(isBigEndian: true).TrimLeadingZeros().Pad(Ed25519.PublicKeySize);
+            PrivateKey = new byte[Ed25519.SecretKeySize];
         }
 
         /// <summary>
@@ -133,14 +127,6 @@ namespace Renci.SshNet.Security
             {
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ED25519Key"/> class.
-        /// </summary>
-        ~ED25519Key()
-        {
-            Dispose(disposing: false);
         }
     }
 }

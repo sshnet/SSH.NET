@@ -21,10 +21,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public ED25519DigitalSignature(ED25519Key key)
         {
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
+            ThrowHelper.ThrowIfNull(key);
 
             _key = key;
         }
@@ -82,14 +79,6 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ED25519DigitalSignature"/> class.
-        /// </summary>
-        ~ED25519DigitalSignature()
-        {
-            Dispose(disposing: false);
         }
     }
 }

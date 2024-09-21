@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Common;
+using System.Numerics;
+
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
@@ -22,10 +23,10 @@ namespace Renci.SshNet.Security
         public abstract BigInteger[] Public { get; }
 
         /// <summary>
-        /// Gets the length of the key.
+        /// Gets the length of the key in bits.
         /// </summary>
         /// <value>
-        /// The length of the key.
+        /// The bit-length of the key.
         /// </value>
         public abstract int KeyLength { get; }
 

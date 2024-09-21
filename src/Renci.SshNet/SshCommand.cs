@@ -214,20 +214,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <see langword="null"/>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
-            if (session is null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
-
-            if (commandText is null)
-            {
-                throw new ArgumentNullException(nameof(commandText));
-            }
-
-            if (encoding is null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
+            ThrowHelper.ThrowIfNull(session);
+            ThrowHelper.ThrowIfNull(commandText);
+            ThrowHelper.ThrowIfNull(encoding);
 
             _session = session;
             CommandText = commandText;
@@ -382,10 +371,7 @@ namespace Renci.SshNet
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback? callback, object? state)
         {
-            if (commandText is null)
-            {
-                throw new ArgumentNullException(nameof(commandText));
-            }
+            ThrowHelper.ThrowIfNull(commandText);
 
             CommandText = commandText;
 

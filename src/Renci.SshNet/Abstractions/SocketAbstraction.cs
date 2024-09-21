@@ -129,7 +129,7 @@ namespace Renci.SshNet.Abstractions
 
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
-            socket.ReceiveTimeout = timeout.AsTimeout(nameof(timeout));
+            socket.ReceiveTimeout = timeout.AsTimeout();
 
             try
             {
@@ -274,7 +274,7 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = readTimeout.AsTimeout(nameof(readTimeout));
+            socket.ReceiveTimeout = readTimeout.AsTimeout();
 
             do
             {
@@ -292,7 +292,7 @@ namespace Renci.SshNet.Abstractions
                 {
                     if (IsErrorResumable(ex.SocketErrorCode))
                     {
-                        ThreadAbstraction.Sleep(30);
+                        Thread.Sleep(30);
                         continue;
                     }
 
@@ -346,7 +346,7 @@ namespace Renci.SshNet.Abstractions
                     if (IsErrorResumable(ex.SocketErrorCode))
                     {
                         // socket buffer is probably full, wait and try again
-                        ThreadAbstraction.Sleep(30);
+                        Thread.Sleep(30);
                     }
                     else
                     {

@@ -69,10 +69,7 @@ namespace Renci.SshNet
         public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
-            if (password is null)
-            {
-                throw new ArgumentNullException(nameof(password));
-            }
+            ThrowHelper.ThrowIfNull(password);
 
             _password = password;
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
@@ -88,10 +85,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <see langword="null"/>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (session is null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
+            ThrowHelper.ThrowIfNull(session);
 
             _session = session;
 
@@ -200,14 +194,6 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PasswordAuthenticationMethod"/> class.
-        /// </summary>
-        ~PasswordAuthenticationMethod()
-        {
-            Dispose(disposing: false);
         }
     }
 }

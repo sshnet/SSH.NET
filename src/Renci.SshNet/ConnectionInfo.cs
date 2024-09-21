@@ -322,37 +322,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
-            if (host is null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
-
-            port.ValidatePort("port");
-
-            if (username is null)
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
-
-            if (username.All(char.IsWhiteSpace))
-            {
-                throw new ArgumentException("Cannot be empty or contain only whitespace.", nameof(username));
-            }
+            ThrowHelper.ThrowIfNull(host);
+            port.ValidatePort();
+            ThrowHelper.ThrowIfNullOrWhiteSpace(username);
 
             if (proxyType != ProxyTypes.None)
             {
-                if (proxyHost is null)
-                {
-                    throw new ArgumentNullException(nameof(proxyHost));
-                }
-
-                proxyPort.ValidatePort("proxyPort");
+                ThrowHelper.ThrowIfNull(proxyHost);
+                proxyPort.ValidatePort();
             }
 
-            if (authenticationMethods is null)
-            {
-                throw new ArgumentNullException(nameof(authenticationMethods));
-            }
+            ThrowHelper.ThrowIfNull(authenticationMethods);
 
             if (authenticationMethods.Length == 0)
             {
@@ -381,22 +361,19 @@ namespace Renci.SshNet
                     { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>();
-            Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-            Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-            Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)));
-#if NET6_0_OR_GREATER
-            if (AesGcm.IsSupported)
-            {
-                Encryptions.Add("aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
-                Encryptions.Add("aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv), isAead: true));
-            }
-#endif
-            Encryptions.Add("chacha20-poly1305@openssh.com", new CipherInfo(512, (key, iv) => new ChaCha20Poly1305Cipher(key), isAead: true));
-            Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)));
-            Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)));
+            Encryptions = new Dictionary<string, CipherInfo>
+                {
+                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv, aadLength: 4), isAead: true) },
+                    { "aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv, aadLength: 4), isAead: true) },
+                    { "chacha20-poly1305@openssh.com", new CipherInfo(512, (key, iv) => new ChaCha20Poly1305Cipher(key, aadLength: 4), isAead: true) },
+                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
+                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
@@ -470,10 +447,7 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
+            ThrowHelper.ThrowIfNull(serviceFactory);
 
             IsAuthenticated = false;
             var clientAuthentication = serviceFactory.CreateClientAuthentication();

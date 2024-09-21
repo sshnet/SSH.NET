@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 
@@ -43,10 +44,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <see langword="null"/>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (session is null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
+            ThrowHelper.ThrowIfNull(session);
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
@@ -120,14 +118,6 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="NoneAuthenticationMethod"/> class.
-        /// </summary>
-        ~NoneAuthenticationMethod()
-        {
-            Dispose(disposing: false);
         }
     }
 }

@@ -576,10 +576,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndOpen(SftpOpenAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -700,10 +697,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public void EndClose(SftpCloseAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -778,10 +772,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndRead(SftpReadAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1041,6 +1032,38 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        ///  Asynchronously performs SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous <c>SSH_FXP_LSTAT</c> request. The value of its
+        /// <see cref="Task{SftpFileAttributes}.Result"/> contains the file attributes of the specified path.
+        /// </returns>
+        public async Task<SftpFileAttributes> RequestLStatAsync(string path, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+#if NET || NETSTANDARD2_1_OR_GREATER
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+            {
+                SendRequest(new SftpLStatRequest(ProtocolVersion,
+                                                 NextRequestId,
+                                                 path,
+                                                 _encoding,
+                                                 response => tcs.TrySetResult(response.Attributes),
+                                                 response => tcs.TrySetException(GetSftpException(response))));
+
+                return await tcs.Task.ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_LSTAT request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -1080,10 +1103,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1648,10 +1668,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndRealPath(SftpRealPathAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1748,10 +1765,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {

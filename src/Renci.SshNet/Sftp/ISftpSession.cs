@@ -117,6 +117,17 @@ namespace Renci.SshNet.Sftp
         SftpFileAttributes RequestLStat(string path);
 
         /// <summary>
+        ///  Asynchronously performs SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous <c>SSH_FXP_LSTAT</c> request. The value of its
+        /// <see cref="Task{SftpFileAttributes}.Result"/> contains the file attributes of the specified path.
+        /// </returns>
+        Task<SftpFileAttributes> RequestLStatAsync(string path, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Performs SSH_FXP_LSTAT request.
         /// </summary>
         /// <param name="path">The path.</param>

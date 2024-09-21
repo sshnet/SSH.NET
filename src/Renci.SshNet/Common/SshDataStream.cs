@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Renci.SshNet.Common
@@ -56,7 +57,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-#if NET462 || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
         private int Read(Span<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
@@ -110,7 +111,8 @@ namespace Renci.SshNet.Common
         /// <param name="data">The <see cref="BigInteger" /> to write.</param>
         public void Write(BigInteger data)
         {
-            var bytes = data.ToByteArray().Reverse();
+            var bytes = data.ToByteArray(isBigEndian: true);
+
             WriteBinary(bytes, 0, bytes.Length);
         }
 
@@ -121,10 +123,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Write(byte[] data)
         {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            ThrowHelper.ThrowIfNull(data);
 
             Write(data, 0, data.Length);
         }
@@ -138,10 +137,8 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
         public void Write(string s, Encoding encoding)
         {
-            if (encoding is null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
+            ThrowHelper.ThrowIfNull(encoding);
+
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
             ReadOnlySpan<char> value = s;
             var count = encoding.GetByteCount(value);
@@ -180,10 +177,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         public void WriteBinary(byte[] buffer)
         {
-            if (buffer is null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            ThrowHelper.ThrowIfNull(buffer);
 
             WriteBinary(buffer, 0, buffer.Length);
         }
@@ -211,9 +205,13 @@ namespace Renci.SshNet.Common
         /// </returns>
         public BigInteger ReadBigInt()
         {
-            var length = ReadUInt32();
-            var data = ReadBytes((int)length);
+            var data = ReadBinary();
+
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return new BigInteger(data, isBigEndian: true);
+#else
             return new BigInteger(data.Reverse());
+#endif
         }
 
         /// <summary>

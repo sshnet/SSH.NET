@@ -5,6 +5,9 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+#if !NET6_0_OR_GREATER
+using Renci.SshNet.Common;
+#endif
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
@@ -24,7 +27,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         // This is just to line up any differences in the assertion message.
         private static void AssertEqual(byte[] actualBytes, string expectedHex)
         {
+#if NET
+            string actualHex = Convert.ToHexString(actualBytes);
+#else
             string actualHex = BitConverter.ToString(actualBytes).Replace("-", "");
+#endif
 
             Assert.AreEqual(expectedHex, actualHex,
                 $"{Environment.NewLine}Expected: {expectedHex}{Environment.NewLine}  Actual: {actualHex}");
@@ -96,8 +103,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             DsaKey dsaKey = GetDsaKey("Key.DSA.txt");
 
-            Assert.AreEqual(1024, dsaKey.P.BitLength);
-            Assert.AreEqual(160, dsaKey.Q.BitLength);
+            Assert.AreEqual(1024, dsaKey.P.GetBitLength());
+            Assert.AreEqual(160, dsaKey.Q.GetBitLength());
 
             DSAParameters p = dsaKey.GetDSAParameters();
 
@@ -114,8 +121,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             DsaKey dsaKey = GetDsaKey("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt", "12345");
 
-            Assert.AreEqual(1024, dsaKey.P.BitLength);
-            Assert.AreEqual(160, dsaKey.Q.BitLength);
+            Assert.AreEqual(1024, dsaKey.P.GetBitLength());
+            Assert.AreEqual(160, dsaKey.Q.GetBitLength());
 
             DSAParameters p = dsaKey.GetDSAParameters();
 
@@ -131,8 +138,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             DsaKey dsaKey = GetDsaKey("Key.SSH2.DSA.txt");
 
-            Assert.AreEqual(1024, dsaKey.P.BitLength);
-            Assert.AreEqual(160, dsaKey.Q.BitLength);
+            Assert.AreEqual(1024, dsaKey.P.GetBitLength());
+            Assert.AreEqual(160, dsaKey.Q.GetBitLength());
 
             DSAParameters p = dsaKey.GetDSAParameters();
 
@@ -183,8 +190,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             DsaKey dsaKey = (DsaKey)new PrivateKeyFile(stream).Key;
 
-            Assert.AreEqual(3072, dsaKey.P.BitLength);
-            Assert.AreEqual(256, dsaKey.Q.BitLength);
+            Assert.AreEqual(3072, dsaKey.P.GetBitLength());
+            Assert.AreEqual(256, dsaKey.Q.GetBitLength());
 
             DSAParameters p = dsaKey.GetDSAParameters();
 

@@ -16,10 +16,7 @@ namespace Renci.SshNet.Common
         public ChannelDataEventArgs(uint channelNumber, byte[] data)
             : base(channelNumber)
         {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            ThrowHelper.ThrowIfNull(data);
 
             Data = data;
         }

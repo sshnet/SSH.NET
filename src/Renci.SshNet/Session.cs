@@ -528,20 +528,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
         internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
-            if (connectionInfo is null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
-
-            if (socketFactory is null)
-            {
-                throw new ArgumentNullException(nameof(socketFactory));
-            }
+            ThrowHelper.ThrowIfNull(connectionInfo);
+            ThrowHelper.ThrowIfNull(serviceFactory);
+            ThrowHelper.ThrowIfNull(socketFactory);
 
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
@@ -917,10 +906,7 @@ namespace Renci.SshNet
         /// </returns>
         private WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
         {
-            if (waitHandle is null)
-            {
-                throw new ArgumentNullException(nameof(waitHandle));
-            }
+            ThrowHelper.ThrowIfNull(waitHandle);
 
             var waitHandles = new[]
                 {
@@ -982,10 +968,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
         internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
         {
-            if (waitHandle is null)
-            {
-                throw new ArgumentNullException(nameof(waitHandle));
-            }
+            ThrowHelper.ThrowIfNull(waitHandle);
 
             var waitHandles = new[]
                 {
@@ -1258,11 +1241,7 @@ namespace Renci.SshNet
                 var plainFirstBlock = firstBlock;
 
                 // First block is not encrypted in AES GCM mode.
-                if (_serverCipher is not null
-#if NET6_0_OR_GREATER
-        and not Security.Cryptography.Ciphers.AesGcmCipher
-#endif
-                    )
+                if (_serverCipher is not null and not Security.Cryptography.Ciphers.AesGcmCipher)
                 {
                     _serverCipher.SetSequenceNumber(_inboundPacketSequence);
 
@@ -2255,14 +2234,6 @@ namespace Renci.SshNet
 
                 _disposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="Session"/> class.
-        /// </summary>
-        ~Session()
-        {
-            Dispose(disposing: false);
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace Renci.SshNet
         private readonly bool[] _activatedMessagesById;
         private readonly object _lock = new object();
 
-        private static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
+        internal static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
             {
                 new MessageMetadata<KeyExchangeInitMessage>(0, "SSH_MSG_KEXINIT", 20),
                 new MessageMetadata<NewKeysMessage>(1, "SSH_MSG_NEWKEYS", 21),
@@ -179,10 +179,7 @@ namespace Renci.SshNet
 
         public void EnableAndActivateMessage(string messageName)
         {
-            if (messageName is null)
-            {
-                throw new ArgumentNullException(nameof(messageName));
-            }
+            ThrowHelper.ThrowIfNull(messageName);
 
             lock (_lock)
             {
@@ -206,10 +203,7 @@ namespace Renci.SshNet
 
         public void DisableAndDeactivateMessage(string messageName)
         {
-            if (messageName is null)
-            {
-                throw new ArgumentNullException(nameof(messageName));
-            }
+            ThrowHelper.ThrowIfNull(messageName);
 
             lock (_lock)
             {
@@ -263,7 +257,7 @@ namespace Renci.SshNet
                                                  currentEnabledForMessageName));
         }
 
-        private abstract class MessageMetadata
+        internal abstract class MessageMetadata
         {
             protected MessageMetadata(byte id, string name, byte number)
             {

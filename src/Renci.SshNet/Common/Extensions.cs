@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Renci.SshNet.Abstractions;
@@ -14,7 +16,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Collection of different extension methods.
     /// </summary>
-    internal static partial class Extensions
+    internal static class Extensions
     {
         internal static byte[] ToArray(this ServiceName serviceName)
         {
@@ -45,9 +47,13 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this byte[] data)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return new BigInteger(data, isBigEndian: true);
+#else
             var reversed = new byte[data.Length];
             Buffer.BlockCopy(data, 0, reversed, 0, data.Length);
             return new BigInteger(reversed.Reverse());
+#endif
         }
 
         /// <summary>
@@ -55,16 +61,21 @@ namespace Renci.SshNet.Common
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+            return new BigInteger(data, isBigEndian: true, isUnsigned: true);
+#else
             if ((data[0] & (1 << 7)) != 0)
             {
                 var buf = new byte[data.Length + 1];
                 Buffer.BlockCopy(data, 0, buf, 1, data.Length);
-                data = buf;
+                return new BigInteger(buf.Reverse());
             }
 
             return data.ToBigInteger();
+#endif
         }
 
+#if NETFRAMEWORK || NETSTANDARD2_0
         public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
         {
             var data = bigInt.ToByteArray();
@@ -81,6 +92,15 @@ namespace Renci.SshNet.Common
 
             return data;
         }
+#endif
+
+#if !NET6_0_OR_GREATER
+        public static long GetBitLength(this BigInteger bigint)
+        {
+            // Taken from https://github.com/dotnet/runtime/issues/31308
+            return (long)Math.Ceiling(BigInteger.Log(bigint.Sign < 0 ? -bigint : bigint + 1, 2));
+        }
+#endif
 
         // See https://github.com/dotnet/runtime/blob/9b57a265c7efd3732b035bade005561a04767128/src/libraries/Common/src/System/Security/Cryptography/KeyBlobHelpers.cs#L51
         public static byte[] ExportKeyParameter(this BigInteger value, int length)
@@ -129,7 +149,7 @@ namespace Renci.SshNet.Common
             Debug.WriteLine(sb.ToString());
         }
 
-        internal static void ValidatePort(this uint value, string argument)
+        internal static void ValidatePort(this uint value, [CallerArgumentExpression(nameof(value))] string argument = null)
         {
             if (value > IPEndPoint.MaxPort)
             {
@@ -138,7 +158,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-        internal static void ValidatePort(this int value, string argument)
+        internal static void ValidatePort(this int value, [CallerArgumentExpression(nameof(value))] string argument = null)
         {
             if (value < IPEndPoint.MinPort)
             {
@@ -168,10 +188,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -203,10 +220,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -225,15 +239,8 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            if (left is null)
-            {
-                throw new ArgumentNullException(nameof(left));
-            }
-
-            if (right is null)
-            {
-                throw new ArgumentNullException(nameof(right));
-            }
+            ThrowHelper.ThrowIfNull(left);
+            ThrowHelper.ThrowIfNull(right);
 
             return left.AsSpan().SequenceEqual(right);
         }
@@ -247,10 +254,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             for (var i = 0; i < value.Length; i++)
             {

@@ -42,10 +42,7 @@ namespace Renci.SshNet
         public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
-            if (keyFiles is null)
-            {
-                throw new ArgumentNullException(nameof(keyFiles));
-            }
+            ThrowHelper.ThrowIfNull(keyFiles);
 
             KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }
@@ -189,14 +186,6 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
-        /// </summary>
-        ~PrivateKeyAuthenticationMethod()
-        {
-            Dispose(disposing: false);
         }
 
         private sealed class SignatureData : SshData

@@ -77,7 +77,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to BeginDownloadFile")]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginDownloadFile_FileNameIsNull()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))

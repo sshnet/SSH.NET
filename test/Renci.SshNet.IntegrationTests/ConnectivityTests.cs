@@ -327,6 +327,54 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public void SftpClient_HandleSftpSessionAbortByServer()
+        {
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                Assert.IsTrue(client.IsConnected);
+
+                _sshConnectionDisruptor.BreakConnections();
+                WaitForConnectionInterruption(client);
+                Assert.IsFalse(client.IsConnected);
+
+                client.Connect();
+                Assert.IsTrue(client.IsConnected);
+
+                foreach (var file in client.ListDirectory("."))
+                {
+                }
+
+                client.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+            }
+        }
+
+        [TestMethod]
+        public async Task SftpClient_HandleSftpSessionAbortByServerAsync()
+        {
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                await client.ConnectAsync(CancellationToken.None);
+                Assert.IsTrue(client.IsConnected);
+
+                _sshConnectionDisruptor.BreakConnections();
+                WaitForConnectionInterruption(client);
+                Assert.IsFalse(client.IsConnected);
+
+                await client.ConnectAsync(CancellationToken.None);
+                Assert.IsTrue(client.IsConnected);
+
+                await foreach (var file in client.ListDirectoryAsync(".", CancellationToken.None))
+                {
+                }
+
+                client.Disconnect();
+                Assert.IsFalse(client.IsConnected);
+            }
+        }
+
+        [TestMethod]
         public void Common_DetectSessionKilledOnServer()
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))

@@ -184,15 +184,8 @@ namespace Renci.SshNet
         /// </remarks>
         private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
-            if (connectionInfo is null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
+            ThrowHelper.ThrowIfNull(connectionInfo);
+            ThrowHelper.ThrowIfNull(serviceFactory);
 
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
@@ -240,6 +233,11 @@ namespace Renci.SshNet
             var session = Session;
             if (session is null || !session.IsConnected)
             {
+                if (session is not null)
+                {
+                    DisposeSession(session);
+                }
+
                 Session = CreateAndConnectSession();
             }
 
@@ -304,6 +302,11 @@ namespace Renci.SshNet
             var session = Session;
             if (session is null || !session.IsConnected)
             {
+                if (session is not null)
+                {
+                    DisposeSession(session);
+                }
+
                 Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
             }
 
@@ -452,14 +455,6 @@ namespace Renci.SshNet
         protected void CheckDisposed()
         {
             ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="BaseClient"/> class.
-        /// </summary>
-        ~BaseClient()
-        {
-            Dispose(disposing: false);
         }
 
         /// <summary>

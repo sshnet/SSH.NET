@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 
+#if !NET8_0_OR_GREATER
+using Renci.SshNet.Abstractions;
+#endif
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
@@ -130,7 +133,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
             Task executeTask = cmd.ExecuteAsync(cts.Token);
 
-            cts.Cancel();
+            await cts.CancelAsync();
 
             var tce = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => executeTask);
             Assert.AreSame(executeTask, tce.Task);

@@ -2,19 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Abstractions
 {
     internal static class ThreadAbstraction
     {
-        /// <summary>
-        /// Suspends the current thread for the specified number of milliseconds.
-        /// </summary>
-        /// <param name="millisecondsTimeout">The number of milliseconds for which the thread is suspended.</param>
-        public static void Sleep(int millisecondsTimeout)
-        {
-            Thread.Sleep(millisecondsTimeout);
-        }
-
         /// <summary>
         /// Creates and starts a long-running <see cref="Task"/> for the specified <see cref="Action"/>.
         /// </summary>
@@ -25,10 +18,7 @@ namespace Renci.SshNet.Abstractions
         /// </returns>
         public static Task ExecuteThreadLongRunning(Action action)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(action);
 
             return Task.Factory.StartNew(action,
                                          CancellationToken.None,
@@ -42,10 +32,7 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(action);
 
             _ = ThreadPool.QueueUserWorkItem(o => action());
         }

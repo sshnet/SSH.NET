@@ -1,5 +1,7 @@
 ﻿#nullable enable
 using System;
+using System.Formats.Asn1;
+using System.Numerics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -41,17 +43,12 @@ namespace Renci.SshNet.Security
         /// </summary>
         public BigInteger X { get; }
 
-        /// <summary>
-        /// Gets the length of the key in bits.
-        /// </summary>
-        /// <value>
-        /// The bit-length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
             {
-                return P.BitLength;
+                return (int)P.GetBitLength();
             }
         }
 
@@ -93,10 +90,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public DsaKey(SshKeyData publicKeyData)
         {
-            if (publicKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(publicKeyData));
-            }
+            ThrowHelper.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-dss" || publicKeyData.Keys.Length != 4)
             {
@@ -117,24 +111,18 @@ namespace Renci.SshNet.Security
         /// <param name="privateKeyData">DER encoded private key data.</param>
         public DsaKey(byte[] privateKeyData)
         {
-            if (privateKeyData is null)
-            {
-                throw new ArgumentNullException(nameof(privateKeyData));
-            }
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
-            var der = new DerData(privateKeyData);
-            _ = der.ReadBigInteger(); // skip version
+            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
 
-            P = der.ReadBigInteger();
-            Q = der.ReadBigInteger();
-            G = der.ReadBigInteger();
-            Y = der.ReadBigInteger();
-            X = der.ReadBigInteger();
+            P = der.ReadInteger();
+            Q = der.ReadInteger();
+            G = der.ReadInteger();
+            Y = der.ReadInteger();
+            X = der.ReadInteger();
 
-            if (!der.IsEndOfData)
-            {
-                throw new InvalidOperationException("Invalid private key (expected EOF).");
-            }
+            der.ThrowIfNotEmpty();
 
             DSA = LoadDSA();
         }

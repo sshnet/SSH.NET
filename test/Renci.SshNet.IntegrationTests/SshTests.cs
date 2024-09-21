@@ -318,7 +318,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     using (var cmd = sshClient.CreateCommand("chmod 777 " + remoteFile))
                     {
-                        cmd.Execute();
+                        await cmd.ExecuteAsync();
 
                         Assert.AreEqual(0, cmd.ExitStatus, cmd.Error);
                     }
@@ -333,7 +333,7 @@ namespace Renci.SshNet.IntegrationTests
                         {
                             var lines = new List<string>();
                             string line = null;
-                            while ((line = reader.ReadLine()) != null)
+                            while ((line = await reader.ReadLineAsync()) != null)
                             {
                                 lines.Add(line);
                             }

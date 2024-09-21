@@ -32,7 +32,7 @@
         Disable nullable warnings on old frameworks because of missing annotations.
   -->
   <PropertyGroup Condition=" !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) ">
-    <NoWarn>$(NoWarn);CS8602</NoWarn>
+    <NoWarn>$(NoWarn);CS8602;CS8604;CS8777</NoWarn>
   </PropertyGroup>
 
   <!--
@@ -46,8 +46,8 @@
         Use fixed version of analyzers.
     -->
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.141" PrivateAssets="all" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" />
   </ItemGroup>
 </Project>

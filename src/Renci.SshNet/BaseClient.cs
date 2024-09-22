@@ -307,7 +307,17 @@ namespace Renci.SshNet
                     DisposeSession(session);
                 }
 
-                Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+                using var timeoutCancellationTokenSource = new CancellationTokenSource(ConnectionInfo.Timeout);
+                using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+
+                try
+                {
+                    Session = await CreateAndConnectSessionAsync(linkedCancellationTokenSource.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex) when (timeoutCancellationTokenSource.IsCancellationRequested)
+                {
+                    throw new SshOperationTimeoutException("Connection has timed out.", ex);
+                }
             }
 
             try

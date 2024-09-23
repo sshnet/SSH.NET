@@ -155,6 +155,14 @@ namespace Renci.SshNet.Sftp
         void RequestMkDir(string path);
 
         /// <summary>
+        /// Asynchronously performs SSH_FXP_MKDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous <c>SSH_FXP_MKDIR</c> operation.</returns>
+        Task RequestMkDirAsync(string path, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Performs a <c>SSH_FXP_OPEN</c> request.
         /// </summary>
         /// <param name="path">The path.</param>

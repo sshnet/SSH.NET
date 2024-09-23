@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Renci.SshNet.Sftp
 {
@@ -226,6 +228,16 @@ namespace Renci.SshNet.Sftp
         /// Permanently deletes a file on remote machine.
         /// </summary>
         void Delete();
+
+        /// <summary>
+        /// Permanently deletes a file on remote machine.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
+        /// <returns>
+        /// A <see cref="Task"/> reprisenting the delete operation.
+        /// </returns>
+        Task DeleteAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Moves a specified file to a new location on remote machine, providing the option to specify a new file name.

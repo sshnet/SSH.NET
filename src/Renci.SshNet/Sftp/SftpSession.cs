@@ -1558,6 +1558,45 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Asynchronously performs an SSH_FXP_RMDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous <c>SSH_FXP_RMDIR</c> request.</returns>
+        public async Task RequestRmDirAsync(string path, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+#if NET || NETSTANDARD2_1_OR_GREATER
+            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
+#else
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
+#endif // NET || NETSTANDARD2_1_OR_GREATER
+            {
+                SendRequest(new SftpRmDirRequest(ProtocolVersion,
+                                                 NextRequestId,
+                                                 path,
+                                                 _encoding,
+                                                 response =>
+                                                     {
+                                                         var exception = GetSftpException(response);
+                                                         if (exception is not null)
+                                                         {
+                                                             tcs.TrySetException(exception);
+                                                         }
+                                                         else
+                                                         {
+                                                             tcs.TrySetResult(true);
+                                                         }
+                                                     }));
+
+                _ = await tcs.Task.ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_REALPATH request.
         /// </summary>
         /// <param name="path">The path.</param>

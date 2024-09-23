@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
 
@@ -466,6 +468,21 @@ namespace Renci.SshNet.Sftp
             {
                 _sftpSession.RequestRemove(FullName);
             }
+        }
+
+        /// <summary>
+        /// Asynchronosly requests to permanently delete a file on the remote machine.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
+        /// <returns>
+        /// A <see cref="Task"/> reprisenting the delete operation.
+        /// </returns>
+        public Task DeleteAsync(CancellationToken cancellationToken = default)
+        {
+            return IsDirectory
+                       ? _sftpSession.RequestRmDirAsync(FullName, cancellationToken)
+                       : _sftpSession.RequestRemoveAsync(FullName, cancellationToken);
         }
 
         /// <summary>

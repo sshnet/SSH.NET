@@ -83,8 +83,8 @@ namespace Renci.SshNet.IntegrationTests
                 actualFiles.Add((file.FullName, file.IsRegularFile, file.IsDirectory));
             }
 
-            _sftpClient.DeleteFile(testFilePath);
-            _sftpClient.DeleteDirectory(testDirectory);
+            await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None);
+            await _sftpClient.DeleteDirectoryAsync(testDirectory, CancellationToken.None);
 
             CollectionAssert.AreEquivalent(expectedFiles, actualFiles);
         }

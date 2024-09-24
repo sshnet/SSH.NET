@@ -35,6 +35,14 @@ namespace Renci.SshNet.Sftp
         void ChangeDirectory(string path);
 
         /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Resolves a given path into an absolute path on the server.
         /// </summary>
         /// <param name="path">The path to resolve.</param>

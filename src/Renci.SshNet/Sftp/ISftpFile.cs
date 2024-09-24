@@ -230,13 +230,10 @@ namespace Renci.SshNet.Sftp
         void Delete();
 
         /// <summary>
-        /// Permanently deletes a file on remote machine.
+        /// Permanently deletes a file on the remote machine.
         /// </summary>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <returns>
-        /// A <see cref="Task"/> reprisenting the delete operation.
-        /// </returns>
         Task DeleteAsync(CancellationToken cancellationToken = default);
 
         /// <summary>

@@ -995,7 +995,6 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         client.DeleteFile(remoteFile);
                     }
-
                 }
             }
         }
@@ -3994,6 +3993,36 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Sftp_ChangeDirectory_DirectoryDoesNotExistAsync()
+        {
+            const string remoteDirectory = "/home/sshnet/test123";
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                await client.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                using (var command = client.CreateCommand("rm -Rf " + _remotePathTransformation.Transform(remoteDirectory)))
+                {
+                    await command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+            }
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+
+                try
+                {
+                    await client.ChangeDirectoryAsync(remoteDirectory, CancellationToken.None).ConfigureAwait(false);
+                    Assert.Fail();
+                }
+                catch (SftpPathNotFoundException)
+                {
+                }
+            }
+        }
+
+        [TestMethod]
         public void Sftp_ChangeDirectory_DirectoryExists()
         {
             const string remoteDirectory = "/home/sshnet/test123";
@@ -4047,6 +4076,65 @@ namespace Renci.SshNet.IntegrationTests
                     using (var command = client.CreateCommand("rm -Rf " + _remotePathTransformation.Transform(remoteDirectory)))
                     {
                         command.Execute();
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task Sftp_ChangeDirectory_DirectoryExistsAsync()
+        {
+            const string remoteDirectory = "/home/sshnet/test123";
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                await client.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                using (var command = client.CreateCommand("rm -Rf " + _remotePathTransformation.Transform(remoteDirectory)))
+                {
+                    await command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+
+                using (var command = client.CreateCommand("mkdir -p " + _remotePathTransformation.Transform(remoteDirectory)))
+                {
+                    await command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+            }
+
+            try
+            {
+                using (var client = new SftpClient(_connectionInfoFactory.Create()))
+                {
+                    await client.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                    await client.ChangeDirectoryAsync(remoteDirectory, CancellationToken.None).ConfigureAwait(false);
+
+                    Assert.AreEqual(remoteDirectory, client.WorkingDirectory);
+
+                    using (var uploadStream = CreateMemoryStream(100))
+                    {
+                        uploadStream.Position = 0;
+
+                        client.UploadFile(uploadStream, "gert.txt");
+
+                        uploadStream.Position = 0;
+
+                        using (var downloadStream = client.OpenRead(remoteDirectory + "/gert.txt"))
+                        {
+                            Assert.AreEqual(CreateHash(uploadStream), CreateHash(downloadStream));
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    await client.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                    using (var command = client.CreateCommand("rm -Rf " + _remotePathTransformation.Transform(remoteDirectory)))
+                    {
+                        await command.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }

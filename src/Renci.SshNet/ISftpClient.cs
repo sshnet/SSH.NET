@@ -359,6 +359,20 @@ namespace Renci.SshNet
         void ChangeDirectory(string path);
 
         /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Changes permissions of file(s) to specified mode.
         /// </summary>
         /// <param name="path">File(s) path, may match multiple files.</param>

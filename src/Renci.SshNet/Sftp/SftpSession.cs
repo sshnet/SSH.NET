@@ -82,6 +82,24 @@ namespace Renci.SshNet.Sftp
             WorkingDirectory = fullPath;
         }
 
+        /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        public async Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            var handle = await RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+
+            await RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+
+            WorkingDirectory = fullPath;
+        }
+
         internal void SendMessage(SftpMessage sftpMessage)
         {
             var data = sftpMessage.GetBytes();

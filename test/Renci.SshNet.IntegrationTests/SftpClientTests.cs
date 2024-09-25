@@ -96,6 +96,74 @@ namespace Renci.SshNet.IntegrationTests
             _sftpClient.ListDirectory("/root");
         }
 
+        [TestMethod]
+        public async Task Create_directory_and_delete_it_async()
+        {
+            var testDirectory = "/home/sshnet/sshnet-test";
+
+            // Create new directory and check if it exists
+            _sftpClient.CreateDirectory(testDirectory);
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+
+            await _sftpClient.DeleteDirectoryAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
+
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+        }
+
+        [TestMethod]
+        public async Task Create_directory_with_contents_and_delete_contents_then_directory_async()
+        {
+            var testDirectory = "/home/sshnet/sshnet-test";
+            var testFileName = "test-file.txt";
+            var testFilePath = $"{testDirectory}/{testFileName}";
+            var testContent = "file content";
+
+            // Create new directory and check if it exists
+            _sftpClient.CreateDirectory(testDirectory);
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+
+            // Upload file and check if it exists
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            _sftpClient.UploadFile(fileStream, testFilePath);
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
+
+            await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None).ConfigureAwait(false);
+            await _sftpClient.DeleteDirectoryAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
+
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
+        }
+
+        [TestMethod]
+        public async Task Create_directory_and_delete_it_using_DeleteAsync()
+        {
+            var testDirectory = "/home/sshnet/sshnet-test";
+
+            // Create new directory and check if it exists
+            _sftpClient.CreateDirectory(testDirectory);
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+
+            await _sftpClient.DeleteAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
+
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+        }
+
+        [TestMethod]
+        public async Task Create_file_and_delete_using_DeleteAsync()
+        {
+            var testFileName = "test-file.txt";
+            var testContent = "file content";
+
+            // Upload file and check if it exists
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            _sftpClient.UploadFile(fileStream, testFileName);
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
+
+            await _sftpClient.DeleteAsync(testFileName, CancellationToken.None).ConfigureAwait(false);
+
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
+        }
+
         public void Dispose()
         {
             _sftpClient.Disconnect();

@@ -239,15 +239,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
 
-                sftp.CreateDirectory("test1");
+                await sftp.CreateDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
 
                 await sftp.ChangeDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
 
                 Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
 
-                sftp.CreateDirectory("test1_1");
-                sftp.CreateDirectory("test1_2");
-                sftp.CreateDirectory("test1_3");
+                await sftp.CreateDirectoryAsync("test1_1", CancellationToken.None).ConfigureAwait(false);
+                await sftp.CreateDirectoryAsync("test1_2", CancellationToken.None).ConfigureAwait(false);
+                await sftp.CreateDirectoryAsync("test1_3", CancellationToken.None).ConfigureAwait(false);
 
                 var files = sftp.ListDirectory(".");
 

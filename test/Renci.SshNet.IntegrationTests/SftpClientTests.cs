@@ -128,10 +128,13 @@ namespace Renci.SshNet.IntegrationTests
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
 
             await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None).ConfigureAwait(false);
+
+            Assert.IsFalse(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
+            Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
+
             await _sftpClient.DeleteDirectoryAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
 
             Assert.IsFalse(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
-            Assert.IsFalse(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
         }
 
         [TestMethod]

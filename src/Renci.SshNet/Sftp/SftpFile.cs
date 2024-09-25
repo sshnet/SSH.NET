@@ -470,14 +470,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        /// <summary>
-        /// Asynchronosly requests to permanently delete a file on the remote machine.
-        /// </summary>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <returns>
-        /// A <see cref="Task"/> reprisenting the delete operation.
-        /// </returns>
+        /// <inheritdoc/>
         public Task DeleteAsync(CancellationToken cancellationToken = default)
         {
             return IsDirectory

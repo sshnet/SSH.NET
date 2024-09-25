@@ -60,7 +60,7 @@ namespace Renci.SshNet.IntegrationTests
             var testContent = "file content";
 
             // Create new directory and check if it exists
-            _sftpClient.CreateDirectory(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory));
 
             // Upload file and check if it exists
@@ -102,7 +102,7 @@ namespace Renci.SshNet.IntegrationTests
             var testDirectory = "/home/sshnet/sshnet-test";
 
             // Create new directory and check if it exists
-            _sftpClient.CreateDirectory(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
 
             await _sftpClient.DeleteDirectoryAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
@@ -119,7 +119,7 @@ namespace Renci.SshNet.IntegrationTests
             var testContent = "file content";
 
             // Create new directory and check if it exists
-            _sftpClient.CreateDirectory(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
 
             // Upload file and check if it exists
@@ -140,7 +140,7 @@ namespace Renci.SshNet.IntegrationTests
             var testDirectory = "/home/sshnet/sshnet-test";
 
             // Create new directory and check if it exists
-            _sftpClient.CreateDirectory(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
 
             await _sftpClient.DeleteAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);

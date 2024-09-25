@@ -1575,12 +1575,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        /// <summary>
-        /// Asynchronously performs an SSH_FXP_RMDIR request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous <c>SSH_FXP_RMDIR</c> request.</returns>
+        /// <inheritdoc />
         public async Task RequestRmDirAsync(string path, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

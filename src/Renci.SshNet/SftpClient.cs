@@ -398,18 +398,7 @@ namespace Renci.SshNet
             _sftpSession.RequestRmDir(fullPath);
         }
 
-        /// <summary>
-        /// Asynchronously deletes remote directory specified by path.
-        /// </summary>
-        /// <param name="path">Directory to be deleted path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to delete the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
         public async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -452,18 +441,7 @@ namespace Renci.SshNet
             _sftpSession.RequestRemove(fullPath);
         }
 
-        /// <summary>
-        /// Asynchronously deletes remote file specified by path.
-        /// </summary>
-        /// <param name="path">File to be deleted path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
         public async Task DeleteFileAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1530,15 +1508,7 @@ namespace Renci.SshNet
             file.Delete();
         }
 
-        /// <summary>
-        /// Permanently deletes a file on remote machine.
-        /// </summary>
-        /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <returns>
-        /// A <see cref="Task"/> reprisenting the delete operation.
-        /// </returns>
+        /// <inheritdoc />
         public async Task DeleteAsync(string path, CancellationToken cancellationToken = default)
         {
             var file = await GetAsync(path, cancellationToken).ConfigureAwait(false);

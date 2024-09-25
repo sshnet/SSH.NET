@@ -287,10 +287,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 await sftp.ChangeDirectoryAsync("../../", CancellationToken.None).ConfigureAwait(false);
 
-                sftp.DeleteDirectory("test1/test1_1");
-                sftp.DeleteDirectory("test1/test1_2");
-                sftp.DeleteDirectory("test1/test1_3");
-                sftp.DeleteDirectory("test1");
+                await sftp.DeleteDirectoryAsync("test1/test1_1", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1/test1_2", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1/test1_3", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
 
                 sftp.Disconnect();
             }

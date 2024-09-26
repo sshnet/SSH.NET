@@ -40,7 +40,7 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <returns><see cref="SshCommand"/> object.</returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public SshCommand CreateCommand(string commandText);
+        public ISshCommand CreateCommand(string commandText);
 
         /// <summary>
         /// Creates the command to be executed with specified encoding.
@@ -51,7 +51,7 @@ namespace Renci.SshNet
         /// <remarks>This method will change current default encoding.</remarks>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is <see langword="null"/>.</exception>
-        public SshCommand CreateCommand(string commandText, Encoding encoding);
+        public ISshCommand CreateCommand(string commandText, Encoding encoding);
 
         /// <summary>
         /// Creates and executes the command.
@@ -64,7 +64,7 @@ namespace Renci.SshNet
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is <see langword="null"/>.</exception>
-        public SshCommand RunCommand(string commandText);
+        public ISshCommand RunCommand(string commandText);
 
         /// <summary>
         /// Creates the shell.

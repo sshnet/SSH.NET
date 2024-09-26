@@ -191,13 +191,13 @@ namespace Renci.SshNet
         }
 
         /// <inheritdoc />
-        public SshCommand CreateCommand(string commandText)
+        public ISshCommand CreateCommand(string commandText)
         {
             return CreateCommand(commandText, ConnectionInfo.Encoding);
         }
 
         /// <inheritdoc />
-        public SshCommand CreateCommand(string commandText, Encoding encoding)
+        public ISshCommand CreateCommand(string commandText, Encoding encoding)
         {
             EnsureSessionIsOpen();
 
@@ -206,7 +206,7 @@ namespace Renci.SshNet
         }
 
         /// <inheritdoc />
-        public SshCommand RunCommand(string commandText)
+        public ISshCommand RunCommand(string commandText)
         {
             var cmd = CreateCommand(commandText);
             _ = cmd.Execute();

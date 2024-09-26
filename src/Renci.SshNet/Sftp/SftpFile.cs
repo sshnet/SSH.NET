@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
 
@@ -466,6 +468,14 @@ namespace Renci.SshNet.Sftp
             {
                 _sftpSession.RequestRemove(FullName);
             }
+        }
+
+        /// <inheritdoc/>
+        public Task DeleteAsync(CancellationToken cancellationToken = default)
+        {
+            return IsDirectory
+                       ? _sftpSession.RequestRmDirAsync(FullName, cancellationToken)
+                       : _sftpSession.RequestRemoveAsync(FullName, cancellationToken);
         }
 
         /// <summary>

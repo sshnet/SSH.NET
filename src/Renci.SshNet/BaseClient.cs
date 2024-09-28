@@ -4,7 +4,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Renci.SshNet.Abstractions;
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -20,6 +21,7 @@ namespace Renci.SshNet
         /// </summary>
         private readonly bool _ownsConnectionInfo;
 
+        private readonly ILogger _logger;
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
@@ -190,6 +192,7 @@ namespace Renci.SshNet
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
             _keepAliveInterval = Timeout.InfiniteTimeSpan;
         }
 
@@ -343,7 +346,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log("Disconnecting client.");
+            _logger.LogInformation("Disconnecting client.");
 
             CheckDisposed();
 
@@ -442,7 +445,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                DiagnosticAbstraction.Log("Disposing client.");
+                _logger.LogInformation("Disposing client.");
 
                 Disconnect();
 

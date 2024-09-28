@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -19,6 +21,7 @@ namespace Renci.SshNet
     /// </summary>
     public class ForwardedPortDynamic : ForwardedPort
     {
+        private readonly ILogger _logger;
         private ForwardedPortStatus _status;
 
         /// <summary>
@@ -72,6 +75,7 @@ namespace Renci.SshNet
             BoundHost = host;
             BoundPort = port;
             _status = ForwardedPortStatus.Stopped;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortDynamic>();
         }
 
         /// <summary>
@@ -409,8 +413,7 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                // TODO: log as warning
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in dynamic forwarded port to close.");
+                _logger.LogWarning("Timeout waiting for pending channels in dynamic forwarded port to close.");
             }
         }
 

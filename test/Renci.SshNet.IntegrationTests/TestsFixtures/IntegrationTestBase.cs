@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using Renci.SshNet.Abstractions;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
@@ -61,6 +59,17 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             ShowInfrastructureInformation();
         }
 
+        static IntegrationTestBase()
+        {
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddConsole();
+            });
+
+            SshNetLoggingConfiguration.InitializeLogging(loggerFactory);
+        }
+
         private void ShowInfrastructureInformation()
         {
             Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
@@ -84,19 +93,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                     testFile.Write(buffer, 0, buffer.Length);
                 }
             }
-        }
-
-        protected void EnableTracing()
-        {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
-        }
-
-        protected void DisableTracing()
-        {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
-            DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

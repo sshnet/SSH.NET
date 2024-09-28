@@ -3,7 +3,8 @@ using System.Globalization;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -21,6 +22,7 @@ namespace Renci.SshNet
         private const int SystemWaitHandleCount = 3;
 
         private readonly string _subsystemName;
+        private readonly ILogger _logger;
         private ISession _session;
         private IChannelSession _channel;
         private Exception _exception;
@@ -88,6 +90,7 @@ namespace Renci.SshNet
 
             _session = session;
             _subsystemName = subsystemName;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
             OperationTimeout = operationTimeout;
         }
 
@@ -184,7 +187,7 @@ namespace Renci.SshNet
         {
             _exception = error;
 
-            DiagnosticAbstraction.Log("Raised exception: " + error);
+            _logger.LogInformation(error, "Raised exception");
 
             _ = _errorOccuredWaitHandle?.Set();
 

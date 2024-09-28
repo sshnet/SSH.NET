@@ -3,7 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -13,6 +14,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort
     {
+        private readonly ILogger _logger;
         private ForwardedPortStatus _status;
         private bool _isDisposed;
         private Socket _listener;
@@ -101,6 +103,7 @@ namespace Renci.SshNet
             Host = host;
             Port = port;
             _status = ForwardedPortStatus.Stopped;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortLocal>();
         }
 
         /// <summary>
@@ -387,8 +390,7 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                // TODO: log as warning
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in local forwarded port to close.");
+                _logger.LogWarning("Timeout waiting for pending channels in local forwarded port to close.");
             }
         }
 

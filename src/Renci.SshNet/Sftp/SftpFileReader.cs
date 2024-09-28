@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
@@ -22,6 +24,7 @@ namespace Renci.SshNet.Sftp
         private readonly ManualResetEvent _readAheadCompleted;
         private readonly Dictionary<int, BufferedRead> _queue;
         private readonly WaitHandle[] _waitHandles;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Holds the size of the file, when available.
@@ -68,6 +71,7 @@ namespace Renci.SshNet.Sftp
             _readAheadCompleted = new ManualResetEvent(initialState: false);
             _disposingWaitHandle = new ManualResetEvent(initialState: false);
             _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<SftpFileReader>();
 
             StartReadAhead();
         }
@@ -266,7 +270,7 @@ namespace Renci.SshNet.Sftp
                     }
                     catch (Exception ex)
                     {
-                        DiagnosticAbstraction.Log("Failure closing handle: " + ex);
+                        _logger.LogInformation(ex, "Failure closing handle");
                     }
                 }
             }

@@ -2,7 +2,8 @@
 using System.Net.Sockets;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
@@ -18,6 +19,7 @@ namespace Renci.SshNet.Channels
         private readonly object _messagingLock = new object();
         private readonly uint _initialWindowSize;
         private readonly ISession _session;
+        private readonly ILogger _logger;
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(initialState: false);
         private uint? _remoteWindowSize;
@@ -81,6 +83,7 @@ namespace Renci.SshNet.Channels
             LocalChannelNumber = localChannelNumber;
             LocalPacketSize = localPacketSize;
             LocalWindowSize = localWindowSize;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
 
             session.ChannelWindowAdjustReceived += OnChannelWindowAdjust;
             session.ChannelDataReceived += OnChannelData;
@@ -555,7 +558,7 @@ namespace Renci.SshNet.Channels
                         var closeWaitResult = _session.TryWait(_channelClosedWaitHandle, ConnectionInfo.ChannelCloseTimeout);
                         if (closeWaitResult != WaitResult.Success)
                         {
-                            DiagnosticAbstraction.Log(string.Format("Wait for channel close not successful: {0:G}.", closeWaitResult));
+                            _logger.LogInformation("Wait for channel close not successful: {CloseWaitResult}", closeWaitResult);
                         }
                     }
                 }

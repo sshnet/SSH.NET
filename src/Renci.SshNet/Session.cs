@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -75,6 +77,7 @@ namespace Renci.SshNet
         /// </summary>
         private readonly IServiceFactory _serviceFactory;
         private readonly ISocketFactory _socketFactory;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can read from
@@ -535,6 +538,7 @@ namespace Renci.SshNet
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<Session>();
             _messageListenerCompleted = new ManualResetEvent(initialState: true);
         }
 
@@ -577,7 +581,7 @@ namespace Renci.SshNet
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
                 ConnectionInfo.ClientVersion = ClientVersion;
 
-                DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
+                _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 
                 if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
                 {
@@ -703,7 +707,7 @@ namespace Renci.SshNet
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
                 ConnectionInfo.ClientVersion = ClientVersion;
 
-                DiagnosticAbstraction.Log(string.Format("Server version '{0}'.", serverIdentification));
+                _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 
                 if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
                 {
@@ -796,7 +800,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting session.", ToHex(SessionId)));
+            _logger.LogInformation("[{SessionId}] Disconnecting session.", ToHex(SessionId));
 
             // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
@@ -1026,7 +1030,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+            _logger.LogInformation("[{SessionId}] Sending message '{MessageType}' to server: '{Message}'.", ToHex(SessionId), message.GetType().Name, message);
 
             var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead);
@@ -1165,12 +1169,12 @@ namespace Renci.SshNet
             }
             catch (SshException ex)
             {
-                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
+                _logger.LogInformation(ex, "Failure sending message '{MessageType}' to server: '{Message}'", message.GetType().Name, message);
                 return false;
             }
             catch (SocketException ex)
             {
-                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
+                _logger.LogInformation(ex, "Failure sending message '{MessageType}' to server: '{Message}'", message.GetType().Name, message);
                 return false;
             }
         }
@@ -1380,7 +1384,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         internal void OnDisconnectReceived(DisconnectMessage message)
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnect received: {1} {2}.", ToHex(SessionId), message.ReasonCode, message.Description));
+            _logger.LogInformation("[{SessionId}] Disconnect received: {ReasonCode} {MessageDescription}.", ToHex(SessionId), message.ReasonCode, message.Description);
 
             // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
             // ensure any exceptions that are raised do not overwrite the SshConnectionException that we
@@ -1475,7 +1479,7 @@ namespace Renci.SshNet
             {
                 _isStrictKex = true;
 
-                DiagnosticAbstraction.Log(string.Format("[{0}] Enabling strict key exchange extension.", ToHex(SessionId)));
+                _logger.LogInformation("[{SessionId}] Enabling strict key exchange extension.", ToHex(SessionId));
 
                 if (_inboundPacketSequence != 1)
                 {
@@ -1491,7 +1495,7 @@ namespace Renci.SshNet
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Performing {1} key exchange.", ToHex(SessionId), ConnectionInfo.CurrentKeyExchangeAlgorithm));
+            _logger.LogInformation("[{SessionId}] Performing {KeyExchangeAlgorithm} key exchange.", ToHex(SessionId), ConnectionInfo.CurrentKeyExchangeAlgorithm);
 
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
@@ -1807,7 +1811,7 @@ namespace Renci.SshNet
             var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset + 1, count - 1);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Received message '{1}' from server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+            _logger.LogInformation("[{SessionId}] Received message '{MessageType}' from server: '{Message}'.", ToHex(SessionId), message.GetType().Name, message);
 
             return message;
         }
@@ -1951,7 +1955,7 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                DiagnosticAbstraction.Log(string.Format("[{0}] Shutting down socket.", ToHex(SessionId)));
+                                _logger.LogInformation("[{SessionId}] Shutting down socket.", ToHex(SessionId));
 
                                 // Interrupt any pending reads; should be done outside of socket read lock as we
                                 // actually want shutdown the socket to make sure blocking reads are interrupted.
@@ -1963,14 +1967,13 @@ namespace Renci.SshNet
                             }
                             catch (SocketException ex)
                             {
-                                // TODO: log as warning
-                                DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                                _logger.LogWarning(ex, "Failure shutting down socket");
                             }
                         }
 
-                        DiagnosticAbstraction.Log(string.Format("[{0}] Disposing socket.", ToHex(SessionId)));
+                        _logger.LogInformation("[{SessionId}] Disposing socket.", ToHex(SessionId));
                         _socket.Dispose();
-                        DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
+                        _logger.LogInformation("[{SessionId}] Disposed socket.", ToHex(SessionId));
                         _socket = null;
                     }
                 }
@@ -2054,7 +2057,7 @@ namespace Renci.SshNet
         {
             var connectionException = exp as SshConnectionException;
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Raised exception: {1}", ToHex(SessionId), exp));
+            _logger.LogInformation(exp, "[{SessionId}] Raised exception", ToHex(SessionId));
 
             if (_isDisconnecting)
             {
@@ -2081,7 +2084,7 @@ namespace Renci.SshNet
 
             if (connectionException != null)
             {
-                DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting after exception: {1}", ToHex(SessionId), exp));
+                _logger.LogInformation(exp, "[{SessionId}] Disconnecting after exception", ToHex(SessionId));
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
@@ -2154,7 +2157,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                DiagnosticAbstraction.Log(string.Format("[{0}] Disposing session.", ToHex(SessionId)));
+                _logger.LogInformation("[{SessionId}] Disposing session.", ToHex(SessionId));
 
                 Disconnect();
 

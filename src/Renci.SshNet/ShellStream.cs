@@ -28,6 +28,13 @@ namespace Renci.SshNet
         private readonly byte[] _carriageReturnBytes;
         private readonly byte[] _lineFeedBytes;
 
+        private readonly string? _terminalName;
+        private readonly uint _columns;
+        private readonly uint _rows;
+        private readonly uint _width;
+        private readonly uint _height;
+        private readonly IDictionary<TerminalModes, uint>? _terminalModeValues;
+
         private readonly object _sync = new object();
 
         private readonly byte[] _writeBuffer;
@@ -100,25 +107,12 @@ namespace Renci.SshNet
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
                : this(session, bufferSize, noTerminal: false)
         {
-            try
-            {
-                _channel.Open();
-
-                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
-                {
-                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
-                }
-
-                if (!_channel.SendShellRequest())
-                {
-                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
-                }
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
+            _terminalName = terminalName;
+            _columns = columns;
+            _rows = rows;
+            _width = width;
+            _height = height;
+            _terminalModeValues = terminalModeValues;
         }
 
         /// <summary>
@@ -294,6 +288,31 @@ namespace Renci.SshNet
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Open the stream.
+        /// </summary>
+        public void Open()
+        {
+            try
+            {
+                _channel.Open();
+                if (!_channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModeValues))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -870,6 +889,21 @@ namespace Renci.SshNet
             // By default, the terminal driver translates carriage return to line feed on input.
             // See option ICRLF at https://www.man7.org/linux/man-pages/man3/termios.3.html.
             Write(line + (_noTerminal ? "\n" : "\r"));
+        }
+
+        /// <summary>
+        /// Modify the terminal size.
+        /// </summary>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="width">The terminal width in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <returns>
+        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
+        /// </returns>
+        public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
+        {
+            return _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
 
         /// <inheritdoc/>

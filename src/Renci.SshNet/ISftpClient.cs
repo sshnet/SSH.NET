@@ -574,6 +574,30 @@ namespace Renci.SshNet
         void DownloadFile(string path, Stream output, Action<ulong>? downloadCallback = null);
 
         /// <summary>
+        /// Asynchronously downloads remote file specified by the path into the stream.
+        /// </summary>
+        /// <param name="path">File to download.</param>
+        /// <param name="output">Stream to write the file into.</param>
+        /// <param name="downloadCallback">The download callback.</param>
+        /// <param name="factory">The <see cref="TaskFactory">TaskFactory</see> used to create the Task.</param>
+        /// <param name="creationOptions">The TaskCreationOptions value that controls the behavior of the
+        /// created <see cref="Task">Task</see>.</param>
+        /// <param name="scheduler">The <see cref="TaskScheduler">TaskScheduler</see>
+        /// that is used to schedule the task that executes the end method.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>///
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task DownloadFileAsync(string path, Stream output, Action<ulong>? downloadCallback = null, TaskFactory? factory = null, TaskCreationOptions creationOptions = default, TaskScheduler? scheduler = null);
+
+        /// <summary>
         /// Ends an asynchronous file downloading into the stream.
         /// </summary>
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
@@ -1039,6 +1063,22 @@ namespace Renci.SshNet
         IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern);
 
         /// <summary>
+        /// Asynchronously synchronizes the directories.
+        /// </summary>
+        /// <param name="sourcePath">The source path.</param>
+        /// <param name="destinationPath">The destination path.</param>
+        /// <param name="searchPattern">The search pattern.</param>
+        /// <param name="factory">The <see cref="TaskFactory">TaskFactory</see> used to create the Task.</param>
+        /// <param name="creationOptions">The TaskCreationOptions value that controls the behavior of the
+        /// created <see cref="Task">Task</see>.</param>
+        /// <param name="scheduler">The <see cref="TaskScheduler">TaskScheduler</see>
+        /// that is used to schedule the task that executes the end method.</param>
+        /// <returns>
+        /// A list of uploaded files.
+        /// </returns>
+        Task<IEnumerable<FileInfo>> SynchronizeDirectoriesAsync(string sourcePath, string destinationPath, string searchPattern, TaskFactory<IEnumerable<FileInfo>>? factory = null, TaskCreationOptions creationOptions = default, TaskScheduler? scheduler = null);
+
+        /// <summary>
         /// Uploads stream into remote file.
         /// </summary>
         /// <param name="input">Data input stream.</param>
@@ -1072,6 +1112,21 @@ namespace Renci.SshNet
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
         void UploadFile(Stream input, string path, bool canOverride, Action<ulong>? uploadCallback = null);
+
+        /// <summary>
+        /// Asynchronously upload the stream into the remote file.
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="canOverride">if set to <see langword="true"/> then existing file will be overwritten.</param>
+        /// <param name="uploadCallback">The upload callback.</param>
+        /// <param name="factory">The <see cref="TaskFactory">TaskFactory</see> used to create the Task.</param>
+        /// <param name="creationOptions">The TaskCreationOptions value that controls the behavior of the
+        /// created <see cref="Task">Task</see>.</param>
+        /// <param name="scheduler">The <see cref="TaskScheduler">TaskScheduler</see>
+        /// that is used to schedule the task that executes the end method.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task UploadFileAsync(Stream input, string path, bool canOverride = false, Action<ulong>? uploadCallback = null, TaskFactory? factory = null, TaskCreationOptions creationOptions = default, TaskScheduler? scheduler = null);
 
         /// <summary>
         /// Writes the specified byte array to the specified file, and closes the file.

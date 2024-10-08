@@ -123,7 +123,27 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
+#pragma warning disable S6966 // Tests sync version
                 sftp.UploadFile(new MemoryStream(), "abc.txt");
+#pragma warning restore S6966 // Test sync version
+
+                var file = await sftp.GetAsync("abc.txt", default).ConfigureAwait(false);
+
+                Assert.AreEqual("/home/sshnet/abc.txt", file.FullName);
+                Assert.IsTrue(file.IsRegularFile);
+                Assert.IsFalse(file.IsDirectory);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public async Task Test_GetAsync_UploadFileAsync()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                sftp.Connect();
+
+                await sftp.UploadFileAsync(new MemoryStream(), "abc.txt");
 
                 var file = await sftp.GetAsync("abc.txt", default).ConfigureAwait(false);
 
@@ -157,7 +177,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                sftp.UploadFile(new MemoryStream(), "test-üöä-");
+                await sftp.UploadFileAsync(new MemoryStream(), "test-üöä-");
 
                 var file = await sftp.GetAsync("test-üöä-", default).ConfigureAwait(false);
 

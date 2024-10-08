@@ -65,7 +65,7 @@ namespace Renci.SshNet.IntegrationTests
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            _sftpClient.UploadFile(fileStream, testFilePath);
+            await _sftpClient.UploadFileAsync(fileStream, testFilePath);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath));
 
             // Check if ListDirectory works
@@ -124,7 +124,7 @@ namespace Renci.SshNet.IntegrationTests
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            _sftpClient.UploadFile(fileStream, testFilePath);
+            await _sftpClient.UploadFileAsync(fileStream, testFilePath);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
 
             await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None).ConfigureAwait(false);
@@ -159,7 +159,7 @@ namespace Renci.SshNet.IntegrationTests
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            _sftpClient.UploadFile(fileStream, testFileName);
+            await _sftpClient.UploadFileAsync(fileStream, testFileName);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
 
             await _sftpClient.DeleteAsync(testFileName, CancellationToken.None).ConfigureAwait(false);

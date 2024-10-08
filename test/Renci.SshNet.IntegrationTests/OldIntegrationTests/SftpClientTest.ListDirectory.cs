@@ -231,6 +231,75 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        public async Task Test_Sftp_Change_DirectoryAsync()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+
+                await sftp.CreateDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
+
+                await sftp.ChangeDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+
+                await sftp.CreateDirectoryAsync("test1_1", CancellationToken.None).ConfigureAwait(false);
+                await sftp.CreateDirectoryAsync("test1_2", CancellationToken.None).ConfigureAwait(false);
+                await sftp.CreateDirectoryAsync("test1_3", CancellationToken.None).ConfigureAwait(false);
+
+                var files = sftp.ListDirectory(".");
+
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}", sftp.WorkingDirectory)));
+
+                await sftp.ChangeDirectoryAsync("test1_1", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+
+                await sftp.ChangeDirectoryAsync("../test1_2", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+
+                await sftp.ChangeDirectoryAsync("..", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+
+                await sftp.ChangeDirectoryAsync("..", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+
+                files = sftp.ListDirectory("test1/test1_1");
+
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}/test1/test1_1", sftp.WorkingDirectory)));
+
+                await sftp.ChangeDirectoryAsync("test1/test1_1", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+
+                await sftp.ChangeDirectoryAsync("/home/sshnet/test1/test1_1", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+
+                await sftp.ChangeDirectoryAsync("/home/sshnet/test1/test1_1/../test1_2", CancellationToken.None).ConfigureAwait(false);
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+
+                await sftp.ChangeDirectoryAsync("../../", CancellationToken.None).ConfigureAwait(false);
+
+                await sftp.DeleteDirectoryAsync("test1/test1_1", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1/test1_2", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1/test1_3", CancellationToken.None).ConfigureAwait(false);
+                await sftp.DeleteDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
+
+                sftp.Disconnect();
+            }
+
+            RemoveAllFiles();
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
         [Description("Test passing null to ChangeDirectory.")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_ChangeDirectory_Null()
@@ -240,6 +309,22 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 sftp.Connect();
 
                 sftp.ChangeDirectory(null);
+
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to ChangeDirectory.")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task Test_Sftp_ChangeDirectory_NullAsync()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                await sftp.ChangeDirectoryAsync(null, CancellationToken.None).ConfigureAwait(false);
 
                 sftp.Disconnect();
             }

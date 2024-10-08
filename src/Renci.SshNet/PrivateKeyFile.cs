@@ -1,12 +1,20 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Formats.Asn1;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using Org.BouncyCastle.Asn1.EdEC;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Pkcs;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
@@ -34,12 +42,12 @@ namespace Renci.SshNet
     ///         <description>ECDSA 256/384/521 in OpenSSL PEM and OpenSSH key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>ED25519 in OpenSSH key format</description>
+    ///         <description>ED25519 in OpenSSL PEM and OpenSSH key format</description>
     ///     </item>
     /// </list>
     /// </para>
     /// <para>
-    /// The following encryption algorithms are supported for OpenSSL PEM and ssh.com format:
+    /// The following encryption algorithms are supported for OpenSSL traditional PEM:
     /// <list type="bullet">
     ///     <item>
     ///         <description>DES-EDE3-CBC</description>
@@ -60,6 +68,19 @@ namespace Renci.SshNet
     ///         <description>AES-256-CBC</description>
     ///     </item>
     /// </list>
+    /// </para>
+    /// <para>
+    /// Private keys in OpenSSL PKCS#8 PEM format can be encrypted using any cipher method BouncyCastle supports.
+    /// </para>
+    /// <para>
+    /// The following encryption algorithms are supported for ssh.com format:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>3des-cbc</description>
+    ///     </item>
+    /// </list>
+    /// </para>
+    /// <para>
     /// The following encryption algorithms are supported for OpenSSH format:
     /// <list type="bullet">
     ///     <item>
@@ -97,7 +118,7 @@ namespace Renci.SshNet
     /// </remarks>
     public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> PRIVATE KEY *-+";
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> *-+";
 
 #if NET7_0_OR_GREATER
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
@@ -141,6 +162,8 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
+            ThrowHelper.ThrowIfNull(key);
+
             _key = key;
             _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
         }
@@ -150,16 +173,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
+            : this(privateKey, passPhrase: null)
         {
-            Open(privateKey, passPhrase: null);
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty.</exception>
+        /// <param name="fileName">The path of the private key file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
@@ -171,25 +193,23 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/> or empty, or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
+        /// <param name="fileName">The path of the private key file.</param>
+        /// <param name="passPhrase">The pass phrase for the private key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// This method calls <see cref="File.Open(string, FileMode)"/> internally, this method does not catch exceptions from <see cref="File.Open(string, FileMode)"/>.
         /// </remarks>
-        public PrivateKeyFile(string fileName, string passPhrase)
+        public PrivateKeyFile(string fileName, string? passPhrase)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
+            ThrowHelper.ThrowIfNull(fileName);
 
-            using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var keyFile = File.OpenRead(fileName))
             {
                 Open(keyFile, passPhrase);
             }
 
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
+            Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
+            Debug.Assert(HostKeyAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -197,12 +217,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is <see langword="null"/>.</exception>
-        public PrivateKeyFile(Stream privateKey, string passPhrase)
+        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> is <see langword="null"/>.</exception>
+        public PrivateKeyFile(Stream privateKey, string? passPhrase)
         {
+            ThrowHelper.ThrowIfNull(privateKey);
+
             Open(privateKey, passPhrase);
 
-            Debug.Assert(_hostAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
+            Debug.Assert(Key is not null, $"{nameof(Key)} is null.");
+            Debug.Assert(HostKeyAlgorithms.Count > 0, $"{nameof(HostKeyAlgorithms)} is not set.");
         }
 
         /// <summary>
@@ -210,12 +233,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
-        private void Open(Stream privateKey, string passPhrase)
+        [MemberNotNull(nameof(_key))]
+        private void Open(Stream privateKey, string? passPhrase)
         {
-            if (privateKey is null)
-            {
-                throw new ArgumentNullException(nameof(privateKey));
-            }
+            Debug.Assert(privateKey is not null, "Should have validated not-null in the constructor.");
 
             Match privateKeyMatch;
 
@@ -231,6 +252,11 @@ namespace Renci.SshNet
             }
 
             var keyName = privateKeyMatch.Result("${keyName}");
+            if (!keyName.EndsWith("PRIVATE KEY", StringComparison.Ordinal))
+            {
+                throw new SshException("Invalid private key file.");
+            }
+
             var cipherName = privateKeyMatch.Result("${cipherName}");
             var salt = privateKeyMatch.Result("${salt}");
             var data = privateKeyMatch.Result("${data}");
@@ -286,7 +312,7 @@ namespace Renci.SshNet
 
             switch (keyName)
             {
-                case "RSA":
+                case "RSA PRIVATE KEY":
                     var rsaKey = new RsaKey(decryptedData);
                     _key = rsaKey;
                     _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
@@ -295,16 +321,17 @@ namespace Renci.SshNet
                     _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     break;
-                case "DSA":
+                case "DSA PRIVATE KEY":
                     _key = new DsaKey(decryptedData);
                     _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
                     break;
-                case "EC":
+                case "EC PRIVATE KEY":
                     _key = new EcdsaKey(decryptedData);
                     _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
                     break;
-                case "OPENSSH":
-                    _key = ParseOpenSshV1Key(decryptedData, passPhrase);
+                case "PRIVATE KEY":
+                    var privateKeyInfo = PrivateKeyInfo.GetInstance(binaryData);
+                    _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
                     if (_key is RsaKey parsedRsaKey)
                     {
                         _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
@@ -313,13 +340,55 @@ namespace Renci.SshNet
                         _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     }
+                    else if (_key is DsaKey parsedDsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
+                    }
                     else
                     {
                         _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
                     }
 
                     break;
-                case "SSH2 ENCRYPTED":
+                case "ENCRYPTED PRIVATE KEY":
+                    var encryptedPrivateKeyInfo = EncryptedPrivateKeyInfo.GetInstance(binaryData);
+                    privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(passPhrase?.ToCharArray(), encryptedPrivateKeyInfo);
+                    _key = ParseOpenSslPkcs8PrivateKey(privateKeyInfo);
+                    if (_key is RsaKey parsedRsaKey2)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey2, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey2, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+                    else if (_key is DsaKey parsedDsaKey)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
+
+                    break;
+                case "OPENSSH PRIVATE KEY":
+                    _key = ParseOpenSshV1Key(decryptedData, passPhrase);
+                    if (_key is RsaKey parsedRsaKey3)
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(parsedRsaKey3, HashAlgorithmName.SHA512)));
+                        _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(parsedRsaKey3, HashAlgorithmName.SHA256)));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                    }
+                    else
+                    {
+                        _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
+                    }
+
+                    break;
+                case "SSH2 ENCRYPTED PRIVATE KEY":
                     var reader = new SshDataReader(decryptedData);
                     var magicNumber = reader.ReadUInt32();
                     if (magicNumber != 0x3f6ff9eb)
@@ -444,20 +513,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <see langword="null"/>.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
-            if (cipherInfo is null)
-            {
-                throw new ArgumentNullException(nameof(cipherInfo));
-            }
-
-            if (cipherData is null)
-            {
-                throw new ArgumentNullException(nameof(cipherData));
-            }
-
-            if (binarySalt is null)
-            {
-                throw new ArgumentNullException(nameof(binarySalt));
-            }
+            Debug.Assert(cipherInfo != null);
+            Debug.Assert(cipherData != null);
+            Debug.Assert(binarySalt != null);
 
             var cipherKey = new List<byte>();
 
@@ -497,22 +555,22 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Parses an OpenSSH V1 key file (i.e. ED25519 key) according to the the key spec:
-        /// https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key.
+        /// Parses an OpenSSH V1 key file according to the key spec:
+        /// <see href="https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key"/>.
         /// </summary>
         /// <param name="keyFileData">The key file data (i.e. base64 encoded data between the header/footer).</param>
         /// <param name="passPhrase">Passphrase or <see langword="null"/> if there isn't one.</param>
         /// <returns>
         /// The OpenSSH V1 key.
         /// </returns>
-        private static Key ParseOpenSshV1Key(byte[] keyFileData, string passPhrase)
+        private static Key ParseOpenSshV1Key(byte[] keyFileData, string? passPhrase)
         {
             var keyReader = new SshDataReader(keyFileData);
 
             // check magic header
-            var authMagic = Encoding.UTF8.GetBytes("openssh-key-v1\0");
+            var authMagic = "openssh-key-v1\0"u8;
             var keyHeaderBytes = keyReader.ReadBytes(authMagic.Length);
-            if (!authMagic.IsEqualTo(keyHeaderBytes))
+            if (!authMagic.SequenceEqual(keyHeaderBytes))
             {
                 throw new SshException("This openssh key does not contain the 'openssh-key-v1' format magic header");
             }
@@ -525,7 +583,7 @@ namespace Renci.SshNet
 
             // kdf options length: 24 if passphrase, 0 if no passphrase
             var kdfOptionsLen = (int)keyReader.ReadUInt32();
-            byte[] salt = null;
+            byte[]? salt = null;
             var rounds = 0;
             if (kdfOptionsLen > 0)
             {
@@ -613,6 +671,10 @@ namespace Renci.SshNet
                 var iv = keyiv.Take(keyLength, ivLength);
 
                 var cipher = cipherInfo.Cipher(key, iv);
+
+                // The authentication tag data (if any) is concatenated to the end of the encrypted private key string.
+                // See https://github.com/openssh/openssh-portable/blob/509b757c052ea969b3a41fc36818b44801caf1cf/sshkey.c#L2951
+                // and https://github.com/openssh/openssh-portable/blob/509b757c052ea969b3a41fc36818b44801caf1cf/cipher.c#L340
                 var cipherData = keyReader.ReadBytes(privateKeyLength + cipher.TagSize);
 
                 try
@@ -718,6 +780,81 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Parses an OpenSSL PKCS#8 key file according to RFC5208:
+        /// <see href="https://www.rfc-editor.org/rfc/rfc5208#section-5"/>.
+        /// </summary>
+        /// <param name="privateKeyInfo">The <see cref="PrivateKeyInfo"/>.</param>
+        /// <returns>
+        /// The <see cref="Key"/>.
+        /// </returns>
+        /// <exception cref="SshException">Algorithm not supported.</exception>
+        private static Key ParseOpenSslPkcs8PrivateKey(PrivateKeyInfo privateKeyInfo)
+        {
+            var algorithmOid = privateKeyInfo.PrivateKeyAlgorithm.Algorithm;
+            var key = privateKeyInfo.PrivateKey.GetOctets();
+            if (algorithmOid.Equals(PkcsObjectIdentifiers.RsaEncryption))
+            {
+                return new RsaKey(key);
+            }
+
+            if (algorithmOid.Equals(X9ObjectIdentifiers.IdDsa))
+            {
+                var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
+                var parametersReader = new AsnReader(parameters, AsnEncodingRules.BER);
+                var sequenceReader = parametersReader.ReadSequence();
+                parametersReader.ThrowIfNotEmpty();
+
+                var p = sequenceReader.ReadInteger();
+                var q = sequenceReader.ReadInteger();
+                var g = sequenceReader.ReadInteger();
+                sequenceReader.ThrowIfNotEmpty();
+
+                var keyReader = new AsnReader(key, AsnEncodingRules.BER);
+                var x = keyReader.ReadInteger();
+                keyReader.ThrowIfNotEmpty();
+
+                var y = BigInteger.ModPow(g, x, p);
+
+                return new DsaKey(p, q, g, y, x);
+            }
+
+            if (algorithmOid.Equals(X9ObjectIdentifiers.IdECPublicKey))
+            {
+                var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
+                var parametersReader = new AsnReader(parameters, AsnEncodingRules.DER);
+                var curve = parametersReader.ReadObjectIdentifier();
+                parametersReader.ThrowIfNotEmpty();
+
+                var privateKeyReader = new AsnReader(key, AsnEncodingRules.DER);
+                var sequenceReader = privateKeyReader.ReadSequence();
+                privateKeyReader.ThrowIfNotEmpty();
+
+                var version = sequenceReader.ReadInteger();
+                if (version != BigInteger.One)
+                {
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "EC version '{0}' is not supported.", version));
+                }
+
+                var privatekey = sequenceReader.ReadOctetString();
+
+                var publicKeyReader = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
+                var publickey = publicKeyReader.ReadBitString(out _);
+                publicKeyReader.ThrowIfNotEmpty();
+
+                sequenceReader.ThrowIfNotEmpty();
+
+                return new EcdsaKey(curve, publickey, privatekey.TrimLeadingZeros());
+            }
+
+            if (algorithmOid.Equals(EdECObjectIdentifiers.id_Ed25519))
+            {
+                return new ED25519Key(key);
+            }
+
+            throw new SshException(string.Format(CultureInfo.InvariantCulture, "Private key algorithm \"{0}\" is not supported.", algorithmOid));
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
@@ -737,14 +874,9 @@ namespace Renci.SshNet
                 return;
             }
 
-            if (disposing)
+            if (disposing && _key is IDisposable disposableKey)
             {
-                var key = _key;
-                if (key != null)
-                {
-                    ((IDisposable)key).Dispose();
-                    _key = null;
-                }
+                disposableKey.Dispose();
 
                 _isDisposed = true;
             }

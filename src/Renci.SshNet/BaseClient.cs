@@ -184,15 +184,8 @@ namespace Renci.SshNet
         /// </remarks>
         private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
-            if (connectionInfo is null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (serviceFactory is null)
-            {
-                throw new ArgumentNullException(nameof(serviceFactory));
-            }
+            ThrowHelper.ThrowIfNull(connectionInfo);
+            ThrowHelper.ThrowIfNull(serviceFactory);
 
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
@@ -314,7 +307,17 @@ namespace Renci.SshNet
                     DisposeSession(session);
                 }
 
-                Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+                using var timeoutCancellationTokenSource = new CancellationTokenSource(ConnectionInfo.Timeout);
+                using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+
+                try
+                {
+                    Session = await CreateAndConnectSessionAsync(linkedCancellationTokenSource.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex) when (timeoutCancellationTokenSource.IsCancellationRequested)
+                {
+                    throw new SshOperationTimeoutException("Connection has timed out.", ex);
+                }
             }
 
             try
@@ -458,17 +461,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Check if the current instance is disposed.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">THe current instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected void CheckDisposed()
         {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-#else
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
         }
 
         /// <summary>

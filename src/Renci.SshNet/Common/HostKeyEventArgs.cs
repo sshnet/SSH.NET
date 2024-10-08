@@ -90,10 +90,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
-            if (host is null)
-            {
-                throw new ArgumentNullException(nameof(host));
-            }
+            ThrowHelper.ThrowIfNull(host);
 
             CanTrust = true;
             HostKey = host.Data;
@@ -102,15 +99,7 @@ namespace Renci.SshNet.Common
 
             _lazyFingerPrint = new Lazy<byte[]>(() => CryptoAbstraction.HashMD5(HostKey));
 
-            _lazyFingerPrintSHA256 = new Lazy<string>(() =>
-                {
-                    return Convert.ToBase64String(CryptoAbstraction.HashSHA256(HostKey))
-#if NET || NETSTANDARD2_1_OR_GREATER
-                                  .Replace("=", string.Empty, StringComparison.Ordinal);
-#else
-                                  .Replace("=", string.Empty);
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-                });
+            _lazyFingerPrintSHA256 = new Lazy<string>(() => Convert.ToBase64String(CryptoAbstraction.HashSHA256(HostKey)).TrimEnd('='));
 
             _lazyFingerPrintMD5 = new Lazy<string>(() =>
                 {

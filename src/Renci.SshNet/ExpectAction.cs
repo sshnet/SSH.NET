@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet
 {
     /// <summary>
@@ -26,15 +28,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
         public ExpectAction(Regex expect, Action<string> action)
         {
-            if (expect is null)
-            {
-                throw new ArgumentNullException(nameof(expect));
-            }
-
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(expect);
+            ThrowHelper.ThrowIfNull(action);
 
             Expect = expect;
             Action = action;
@@ -48,15 +43,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
         public ExpectAction(string expect, Action<string> action)
         {
-            if (expect is null)
-            {
-                throw new ArgumentNullException(nameof(expect));
-            }
-
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(expect);
+            ThrowHelper.ThrowIfNull(action);
 
             Expect = new Regex(Regex.Escape(expect));
             Action = action;

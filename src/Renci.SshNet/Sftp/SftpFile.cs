@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
 
@@ -31,15 +33,8 @@ namespace Renci.SshNet.Sftp
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (attributes is null)
-            {
-                throw new ArgumentNullException(nameof(attributes));
-            }
-
-            if (fullName is null)
-            {
-                throw new ArgumentNullException(nameof(fullName));
-            }
+            ThrowHelper.ThrowIfNull(attributes);
+            ThrowHelper.ThrowIfNull(fullName);
 
             _sftpSession = sftpSession;
             Attributes = attributes;
@@ -475,6 +470,14 @@ namespace Renci.SshNet.Sftp
             }
         }
 
+        /// <inheritdoc/>
+        public Task DeleteAsync(CancellationToken cancellationToken = default)
+        {
+            return IsDirectory
+                       ? _sftpSession.RequestRmDirAsync(FullName, cancellationToken)
+                       : _sftpSession.RequestRemoveAsync(FullName, cancellationToken);
+        }
+
         /// <summary>
         /// Moves a specified file to a new location on remote machine, providing the option to specify a new file name.
         /// </summary>
@@ -482,10 +485,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is <see langword="null"/>.</exception>
         public void MoveTo(string destFileName)
         {
-            if (destFileName is null)
-            {
-                throw new ArgumentNullException(nameof(destFileName));
-            }
+            ThrowHelper.ThrowIfNull(destFileName);
 
             _sftpSession.RequestRename(FullName, destFileName);
 

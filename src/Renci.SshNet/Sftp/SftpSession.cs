@@ -82,6 +82,24 @@ namespace Renci.SshNet.Sftp
             WorkingDirectory = fullPath;
         }
 
+        /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        public async Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            var handle = await RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+
+            await RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+
+            WorkingDirectory = fullPath;
+        }
+
         internal void SendMessage(SftpMessage sftpMessage)
         {
             var data = sftpMessage.GetBytes();
@@ -505,28 +523,24 @@ namespace Renci.SshNet.Sftp
         /// A task that represents the asynchronous <c>SSH_FXP_OPEN</c> request. The value of its
         /// <see cref="Task{Task}.Result"/> contains the file handle of the specified path.
         /// </returns>
-        public async Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken)
+        public Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<byte[]>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpOpenRequest(ProtocolVersion,
-                                                    NextRequestId,
-                                                    path,
-                                                    _encoding,
-                                                    flags,
-                                                    response => tcs.TrySetResult(response.Handle),
-                                                    response => tcs.TrySetException(GetSftpException(response))));
+            SendRequest(new SftpOpenRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                path,
+                                                _encoding,
+                                                flags,
+                                                response => tcs.TrySetResult(response.Handle),
+                                                response => tcs.TrySetException(GetSftpException(response))));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -576,10 +590,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndOpen(SftpOpenAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -636,8 +647,13 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// A task that represents the asynchronous <c>SSH_FXP_CLOSE</c> request.
         /// </returns>
-        public async Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken)
+        public Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
+
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             SendRequest(new SftpCloseRequest(ProtocolVersion,
@@ -655,17 +671,7 @@ namespace Renci.SshNet.Sftp
                                                  }
                                              }));
 
-            // Only check for cancellation after the SftpCloseRequest was sent
-            cancellationToken.ThrowIfCancellationRequested();
-
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                _ = await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -700,10 +706,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public void EndClose(SftpCloseAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -778,10 +781,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public byte[] EndRead(SftpReadAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -866,38 +866,34 @@ namespace Renci.SshNet.Sftp
         /// its <see cref="Task{Task}.Result"/> contains the data read from the file, or an empty
         /// array when the end of the file is reached.
         /// </returns>
-        public async Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
+        public Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<byte[]>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpReadRequest(ProtocolVersion,
-                                                NextRequestId,
-                                                handle,
-                                                offset,
-                                                length,
-                                                response => tcs.TrySetResult(response.Data),
-                                                response =>
+            SendRequest(new SftpReadRequest(ProtocolVersion,
+                                            NextRequestId,
+                                            handle,
+                                            offset,
+                                            length,
+                                            response => tcs.TrySetResult(response.Data),
+                                            response =>
+                                            {
+                                                if (response.StatusCode == StatusCodes.Eof)
                                                 {
-                                                    if (response.StatusCode == StatusCodes.Eof)
-                                                    {
-                                                        _ = tcs.TrySetResult(Array.Empty<byte>());
-                                                    }
-                                                    else
-                                                    {
-                                                        _ = tcs.TrySetException(GetSftpException(response));
-                                                    }
-                                                }));
+                                                    _ = tcs.TrySetResult(Array.Empty<byte>());
+                                                }
+                                                else
+                                                {
+                                                    _ = tcs.TrySetException(GetSftpException(response));
+                                                }
+                                            }));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -963,39 +959,35 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// A task that represents the asynchronous <c>SSH_FXP_WRITE</c> request.
         /// </returns>
-        public async Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken)
+        public Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpWriteRequest(ProtocolVersion,
-                                                 NextRequestId,
-                                                 handle,
-                                                 serverOffset,
-                                                 data,
-                                                 offset,
-                                                 length,
-                                                 response =>
-                                                 {
-                                                     if (response.StatusCode == StatusCodes.Ok)
-                                                     {
-                                                         _ = tcs.TrySetResult(true);
-                                                     }
-                                                     else
-                                                     {
-                                                         _ = tcs.TrySetException(GetSftpException(response));
-                                                     }
-                                                 }));
+            SendRequest(new SftpWriteRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                handle,
+                                                serverOffset,
+                                                data,
+                                                offset,
+                                                length,
+                                                response =>
+                                                {
+                                                    if (response.StatusCode == StatusCodes.Ok)
+                                                    {
+                                                        _ = tcs.TrySetResult(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        _ = tcs.TrySetException(GetSftpException(response));
+                                                    }
+                                                }));
 
-                _ = await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1041,6 +1033,34 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        ///  Asynchronously performs SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task the represents the asynchronous <c>SSH_FXP_LSTAT</c> request. The value of its
+        /// <see cref="Task{SftpFileAttributes}.Result"/> contains the file attributes of the specified path.
+        /// </returns>
+        public Task<SftpFileAttributes> RequestLStatAsync(string path, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<SftpFileAttributes>(cancellationToken);
+            }
+
+            var tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            SendRequest(new SftpLStatRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                path,
+                                                _encoding,
+                                                response => tcs.TrySetResult(response.Attributes),
+                                                response => tcs.TrySetException(GetSftpException(response))));
+
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_LSTAT request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -1080,10 +1100,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1153,26 +1170,22 @@ namespace Renci.SshNet.Sftp
         /// A task that represents the asynchronous <c>SSH_FXP_FSTAT</c> request. The value of its
         /// <see cref="Task{Task}.Result"/> contains the file attributes of the specified handle.
         /// </returns>
-        public async Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken)
+        public Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<SftpFileAttributes>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpFStatRequest(ProtocolVersion,
-                                                 NextRequestId,
-                                                 handle,
-                                                 response => tcs.TrySetResult(response.Attributes),
-                                                 response => tcs.TrySetException(GetSftpException(response))));
+            SendRequest(new SftpFStatRequest(ProtocolVersion,
+                                             NextRequestId,
+                                             handle,
+                                             response => tcs.TrySetResult(response.Attributes),
+                                             response => tcs.TrySetException(GetSftpException(response))));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1291,27 +1304,23 @@ namespace Renci.SshNet.Sftp
         /// A task that represents the asynchronous <c>SSH_FXP_OPENDIR</c> request. The value of its
         /// <see cref="Task{Task}.Result"/> contains the handle of the specified path.
         /// </returns>
-        public async Task<byte[]> RequestOpenDirAsync(string path, CancellationToken cancellationToken)
+        public Task<byte[]> RequestOpenDirAsync(string path, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<byte[]>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<byte[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpOpenDirRequest(ProtocolVersion,
-                                                   NextRequestId,
-                                                   path,
-                                                   _encoding,
-                                                   response => tcs.TrySetResult(response.Handle),
-                                                   response => tcs.TrySetException(GetSftpException(response))));
+            SendRequest(new SftpOpenDirRequest(ProtocolVersion,
+                                               NextRequestId,
+                                               path,
+                                               _encoding,
+                                               response => tcs.TrySetResult(response.Handle),
+                                               response => tcs.TrySetException(GetSftpException(response))));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1372,36 +1381,32 @@ namespace Renci.SshNet.Sftp
         /// <c>key</c> is the name of a file in the directory and the <c>value</c> is the <see cref="SftpFileAttributes"/>
         /// of the file.
         /// </returns>
-        public async Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken)
+        public Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<KeyValuePair<string, SftpFileAttributes>[]>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpReadDirRequest(ProtocolVersion,
-                                                   NextRequestId,
-                                                   handle,
-                                                   response => tcs.TrySetResult(response.Files),
-                                                   response =>
+            SendRequest(new SftpReadDirRequest(ProtocolVersion,
+                                               NextRequestId,
+                                               handle,
+                                               response => tcs.TrySetResult(response.Files),
+                                               response =>
+                                               {
+                                                   if (response.StatusCode == StatusCodes.Eof)
                                                    {
-                                                       if (response.StatusCode == StatusCodes.Eof)
-                                                       {
-                                                           _ = tcs.TrySetResult(null);
-                                                       }
-                                                       else
-                                                       {
-                                                           _ = tcs.TrySetException(GetSftpException(response));
-                                                       }
-                                                   }));
+                                                       _ = tcs.TrySetResult(null);
+                                                   }
+                                                   else
+                                                   {
+                                                       _ = tcs.TrySetException(GetSftpException(response));
+                                                   }
+                                               }));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1443,36 +1448,32 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// A task that represents the asynchronous <c>SSH_FXP_REMOVE</c> request.
         /// </returns>
-        public async Task RequestRemoveAsync(string path, CancellationToken cancellationToken)
+        public Task RequestRemoveAsync(string path, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpRemoveRequest(ProtocolVersion,
-                                                  NextRequestId,
-                                                  path,
-                                                  _encoding,
-                                                  response =>
-                                                  {
-                                                      if (response.StatusCode == StatusCodes.Ok)
-                                                      {
-                                                          _ = tcs.TrySetResult(true);
-                                                      }
-                                                      else
-                                                      {
-                                                          _ = tcs.TrySetException(GetSftpException(response));
-                                                      }
-                                                  }));
+            SendRequest(new SftpRemoveRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                path,
+                                                _encoding,
+                                                response =>
+                                                {
+                                                    if (response.StatusCode == StatusCodes.Ok)
+                                                    {
+                                                        _ = tcs.TrySetResult(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        _ = tcs.TrySetException(GetSftpException(response));
+                                                    }
+                                                }));
 
-                _ = await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1507,6 +1508,40 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Asynchronously performs SSH_FXP_MKDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous <c>SSH_FXP_MKDIR</c> operation.</returns>
+        public Task RequestMkDirAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
+
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            SendRequest(new SftpMkDirRequest(ProtocolVersion,
+                                             NextRequestId,
+                                             path,
+                                             _encoding,
+                                             response =>
+                                                 {
+                                                     if (response.StatusCode == StatusCodes.Ok)
+                                                     {
+                                                         _ = tcs.TrySetResult(true);
+                                                     }
+                                                     else
+                                                     {
+                                                         _ = tcs.TrySetException(GetSftpException(response));
+                                                     }
+                                                 }));
+
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_RMDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -1535,6 +1570,36 @@ namespace Renci.SshNet.Sftp
             {
                 throw exception;
             }
+        }
+
+        /// <inheritdoc />
+        public Task RequestRmDirAsync(string path, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
+
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            SendRequest(new SftpRmDirRequest(ProtocolVersion,
+                                             NextRequestId,
+                                             path,
+                                             _encoding,
+                                             response =>
+                                                 {
+                                                     var exception = GetSftpException(response);
+                                                     if (exception is not null)
+                                                     {
+                                                         _ = tcs.TrySetException(exception);
+                                                     }
+                                                     else
+                                                     {
+                                                         _ = tcs.TrySetResult(true);
+                                                     }
+                                                 }));
+
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1581,37 +1646,33 @@ namespace Renci.SshNet.Sftp
             return result;
         }
 
-        internal async Task<KeyValuePair<string, SftpFileAttributes>[]> RequestRealPathAsync(string path, bool nullOnError, CancellationToken cancellationToken)
+        internal Task<KeyValuePair<string, SftpFileAttributes>[]> RequestRealPathAsync(string path, bool nullOnError, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<KeyValuePair<string, SftpFileAttributes>[]>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<KeyValuePair<string, SftpFileAttributes>[]>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpRealPathRequest(ProtocolVersion,
-                                                    NextRequestId,
-                                                    path,
-                                                    _encoding,
-                                                    response => tcs.TrySetResult(response.Files),
-                                                    response =>
+            SendRequest(new SftpRealPathRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                path,
+                                                _encoding,
+                                                response => tcs.TrySetResult(response.Files),
+                                                response =>
+                                                {
+                                                    if (nullOnError)
                                                     {
-                                                        if (nullOnError)
-                                                        {
-                                                            _ = tcs.TrySetResult(null);
-                                                        }
-                                                        else
-                                                        {
-                                                            _ = tcs.TrySetException(GetSftpException(response));
-                                                        }
-                                                    }));
+                                                        _ = tcs.TrySetResult(null);
+                                                    }
+                                                    else
+                                                    {
+                                                        _ = tcs.TrySetException(GetSftpException(response));
+                                                    }
+                                                }));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -1648,10 +1709,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndRealPath(SftpRealPathAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1748,10 +1806,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
+            ThrowHelper.ThrowIfNull(asyncResult);
 
             if (asyncResult.EndInvokeCalled)
             {
@@ -1817,37 +1872,33 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// A task that represents the asynchronous <c>SSH_FXP_RENAME</c> request.
         /// </returns>
-        public async Task RequestRenameAsync(string oldPath, string newPath, CancellationToken cancellationToken)
+        public Task RequestRenameAsync(string oldPath, string newPath, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new SftpRenameRequest(ProtocolVersion,
-                                                  NextRequestId,
-                                                  oldPath,
-                                                  newPath,
-                                                  _encoding,
-                                                  response =>
-                                                  {
-                                                      if (response.StatusCode == StatusCodes.Ok)
-                                                      {
-                                                          _ = tcs.TrySetResult(true);
-                                                      }
-                                                      else
-                                                      {
-                                                          _ = tcs.TrySetException(GetSftpException(response));
-                                                      }
-                                                  }));
+            SendRequest(new SftpRenameRequest(ProtocolVersion,
+                                                NextRequestId,
+                                                oldPath,
+                                                newPath,
+                                                _encoding,
+                                                response =>
+                                                {
+                                                    if (response.StatusCode == StatusCodes.Ok)
+                                                    {
+                                                        _ = tcs.TrySetResult(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        _ = tcs.TrySetException(GetSftpException(response));
+                                                    }
+                                                }));
 
-                _ = await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>
@@ -2045,32 +2096,28 @@ namespace Renci.SshNet.Sftp
         /// <see cref="Task{Task}.Result"/> contains the file system information for the specified
         /// path.
         /// </returns>
-        public async Task<SftpFileSystemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
+        public Task<SftpFileSystemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
         {
             if (ProtocolVersion < 3)
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "SSH_FXP_EXTENDED operation is not supported in {0} version that server operates in.", ProtocolVersion));
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<SftpFileSystemInformation>(cancellationToken);
+            }
 
             var tcs = new TaskCompletionSource<SftpFileSystemInformation>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-#if NET || NETSTANDARD2_1_OR_GREATER
-            await using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
-#else
-            using (cancellationToken.Register(s => ((TaskCompletionSource<SftpFileSystemInformation>)s).TrySetCanceled(cancellationToken), tcs, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
-            {
-                SendRequest(new StatVfsRequest(ProtocolVersion,
-                                               NextRequestId,
-                                               path,
-                                               _encoding,
-                                               response => tcs.TrySetResult(response.GetReply<StatVfsReplyInfo>().Information),
-                                               response => tcs.TrySetException(GetSftpException(response))));
+            SendRequest(new StatVfsRequest(ProtocolVersion,
+                                            NextRequestId,
+                                            path,
+                                            _encoding,
+                                            response => tcs.TrySetResult(response.GetReply<StatVfsReplyInfo>().Information),
+                                            response => tcs.TrySetException(GetSftpException(response))));
 
-                return await tcs.Task.ConfigureAwait(false);
-            }
+            return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }
 
         /// <summary>

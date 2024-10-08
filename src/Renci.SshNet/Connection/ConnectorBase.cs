@@ -14,10 +14,7 @@ namespace Renci.SshNet.Connection
     {
         protected ConnectorBase(ISocketFactory socketFactory)
         {
-            if (socketFactory is null)
-            {
-                throw new ArgumentNullException(nameof(socketFactory));
-            }
+            ThrowHelper.ThrowIfNull(socketFactory);
 
             SocketFactory = socketFactory;
         }

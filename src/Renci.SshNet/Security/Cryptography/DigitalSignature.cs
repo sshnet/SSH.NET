@@ -3,7 +3,9 @@
     /// <summary>
     /// Base class for signature implementations.
     /// </summary>
+#pragma warning disable S1694 // An abstract class should have both abstract and concrete methods
     public abstract class DigitalSignature
+#pragma warning restore S1694 // An abstract class should have both abstract and concrete methods
     {
         /// <summary>
         /// Verifies the signature.

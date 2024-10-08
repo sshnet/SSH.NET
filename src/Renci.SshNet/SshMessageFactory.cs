@@ -182,10 +182,7 @@ namespace Renci.SshNet
 
         public void EnableAndActivateMessage(string messageName)
         {
-            if (messageName is null)
-            {
-                throw new ArgumentNullException(nameof(messageName));
-            }
+            ThrowHelper.ThrowIfNull(messageName);
 
             lock (_lock)
             {
@@ -209,10 +206,7 @@ namespace Renci.SshNet
 
         public void DisableAndDeactivateMessage(string messageName)
         {
-            if (messageName is null)
-            {
-                throw new ArgumentNullException(nameof(messageName));
-            }
+            ThrowHelper.ThrowIfNull(messageName);
 
             lock (_lock)
             {

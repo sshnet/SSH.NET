@@ -90,21 +90,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
-        public void Multifactor_PublicKeyWithEmptyPassPhrase()
-        {
-            _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")
-                             .Update()
-                             .Restart();
-
-            var connectionInfo = _connectionInfoFactory.Create(_authenticationMethodFactory.CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod());
-            using (var client = new SftpClient(connectionInfo))
-            {
-                client.Connect();
-            }
-        }
-
-        [TestMethod]
         public void Multifactor_PublicKey_MultiplePrivateKey()
         {
             _remoteSshdConfig.WithAuthenticationMethods(Users.Regular.UserName, "publickey")

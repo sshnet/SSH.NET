@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -29,13 +30,8 @@ namespace Renci.SshNet
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
         private bool _isDisposed;
 
-        /// <summary>
-        /// Gets or set the number of seconds to wait for an operation to complete.
-        /// </summary>
-        /// <value>
-        /// The number of seconds to wait for an operation to complete, or -1 to wait indefinitely.
-        /// </value>
-        public int OperationTimeout { get; private set; }
+        /// <inheritdoc/>
+        public int OperationTimeout { get; set; }
 
         /// <summary>
         /// Occurs when an error occurred.
@@ -57,7 +53,7 @@ namespace Renci.SshNet
         {
             get
             {
-                EnsureNotDisposed();
+                ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
                 return _channel;
             }
@@ -83,15 +79,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <see langword="null"/>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            if (session is null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
-
-            if (subsystemName is null)
-            {
-                throw new ArgumentNullException(nameof(subsystemName));
-            }
+            ThrowHelper.ThrowIfNull(session);
+            ThrowHelper.ThrowIfNull(subsystemName);
 
             _session = session;
             _subsystemName = subsystemName;
@@ -106,7 +95,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The channel session could not be opened, or the subsystem could not be executed.</exception>
         public void Connect()
         {
-            EnsureNotDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
 
             if (IsOpen)
             {
@@ -166,7 +155,7 @@ namespace Renci.SshNet
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
-            EnsureNotDisposed();
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
             EnsureSessionIsOpen();
 
             _channel.SendData(data);
@@ -254,6 +243,59 @@ namespace Renci.SshNet
                     throw new SshOperationTimeoutException("Operation has timed out.");
                 default:
                     throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", result));
+            }
+        }
+
+        protected async Task<T> WaitOnHandleAsync<T>(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var errorOccuredReg = ThreadPool.RegisterWaitForSingleObject(
+                _errorOccuredWaitHandle,
+                (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(_exception),
+                state: tcs,
+                millisecondsTimeOutInterval: -1,
+                executeOnlyOnce: true);
+
+            var sessionDisconnectedReg = ThreadPool.RegisterWaitForSingleObject(
+                _sessionDisconnectedWaitHandle,
+                static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Connection was closed by the server.")),
+                state: tcs,
+                millisecondsTimeOutInterval: -1,
+                executeOnlyOnce: true);
+
+            var channelClosedReg = ThreadPool.RegisterWaitForSingleObject(
+                _channelClosedWaitHandle,
+                static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Channel was closed.")),
+                state: tcs,
+                millisecondsTimeOutInterval: -1,
+                executeOnlyOnce: true);
+
+            using var timeoutCts = new CancellationTokenSource(millisecondsTimeout);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+            using var tokenReg = linkedCts.Token.Register(
+                static s =>
+                {
+                    (var tcs, var cancellationToken) = ((TaskCompletionSource<T>, CancellationToken))s;
+                    _ = tcs.TrySetCanceled(cancellationToken);
+                },
+                state: (tcs, cancellationToken),
+                useSynchronizationContext: false);
+
+            try
+            {
+                return await tcs.Task.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException oce) when (timeoutCts.IsCancellationRequested)
+            {
+                throw new SshOperationTimeoutException("Operation has timed out.", oce);
+            }
+            finally
+            {
+                _ = errorOccuredReg.Unregister(waitObject: null);
+                _ = sessionDisconnectedReg.Unregister(waitObject: null);
+                _ = channelClosedReg.Unregister(waitObject: null);
             }
         }
 
@@ -535,18 +577,6 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
-        }
-
-        private void EnsureNotDisposed()
-        {
-#if NET7_0_OR_GREATER
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
-#else
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-#endif // NET7_0_OR_GREATER
         }
     }
 }

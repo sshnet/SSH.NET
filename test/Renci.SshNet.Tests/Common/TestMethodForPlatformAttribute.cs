@@ -1,9 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public sealed class TestMethodForPlatformAttribute : TestMethodAttribute
     {
         public TestMethodForPlatformAttribute(string platform)

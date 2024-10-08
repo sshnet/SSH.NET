@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+#if !NET && !NETSTANDARD2_1_OR_GREATER
+using Renci.SshNet.Abstractions;
+#endif
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -93,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.IsFalse(readTask.IsCompleted);
 
-            pipeStream.Dispose();
+            await pipeStream.DisposeAsync();
 
             Assert.AreEqual(0, await readTask);
         }
@@ -111,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.IsFalse(readTask.IsCompleted);
 
-            pipeStream.Dispose();
+            await pipeStream.DisposeAsync();
 
             Assert.AreEqual(0, await readTask);
         }
@@ -130,7 +133,10 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.IsFalse(readTask.IsCompleted);
 
+            // not using WriteAsync here because it deadlocks the test
+#pragma warning disable S6966 // Awaitable method should be used
             pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+#pragma warning restore S6966 // Awaitable method should be used
 
             Assert.AreEqual(0, await readTask);
         }

@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Abstractions
 {
     internal static class ThreadAbstraction
@@ -16,10 +18,7 @@ namespace Renci.SshNet.Abstractions
         /// </returns>
         public static Task ExecuteThreadLongRunning(Action action)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(action);
 
             return Task.Factory.StartNew(action,
                                          CancellationToken.None,
@@ -33,10 +32,7 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
+            ThrowHelper.ThrowIfNull(action);
 
             _ = ThreadPool.QueueUserWorkItem(o => action());
         }

@@ -27,12 +27,6 @@
             return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
         }
 
-        public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyWithEmptyPassPhraseAuthenticationMethod()
-        {
-            var privateKeyFile = GetPrivateKey("Data.Key.RSA.Encrypted.Aes.256.CBC.12345.txt", null);
-            return new PrivateKeyAuthenticationMethod(Users.Regular.UserName, privateKeyFile);
-        }
-
         public PrivateKeyAuthenticationMethod CreateRegularUserPrivateKeyAuthenticationMethodWithBadKey()
         {
             string unauthorizedKey = """

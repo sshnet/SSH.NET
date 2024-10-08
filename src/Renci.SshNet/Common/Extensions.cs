@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Renci.SshNet.Abstractions;
@@ -148,7 +149,7 @@ namespace Renci.SshNet.Common
             Debug.WriteLine(sb.ToString());
         }
 
-        internal static void ValidatePort(this uint value, string argument)
+        internal static void ValidatePort(this uint value, [CallerArgumentExpression(nameof(value))] string argument = null)
         {
             if (value > IPEndPoint.MaxPort)
             {
@@ -157,7 +158,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-        internal static void ValidatePort(this int value, string argument)
+        internal static void ValidatePort(this int value, [CallerArgumentExpression(nameof(value))] string argument = null)
         {
             if (value < IPEndPoint.MinPort)
             {
@@ -187,10 +188,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -222,10 +220,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -244,15 +239,8 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            if (left is null)
-            {
-                throw new ArgumentNullException(nameof(left));
-            }
-
-            if (right is null)
-            {
-                throw new ArgumentNullException(nameof(right));
-            }
+            ThrowHelper.ThrowIfNull(left);
+            ThrowHelper.ThrowIfNull(right);
 
             return left.AsSpan().SequenceEqual(right);
         }
@@ -266,10 +254,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowHelper.ThrowIfNull(value);
 
             for (var i = 0; i < value.Length; i++)
             {

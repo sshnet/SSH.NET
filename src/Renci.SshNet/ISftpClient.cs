@@ -56,7 +56,6 @@ namespace Renci.SshNet
         /// The timeout to wait until an operation completes. The default value is negative
         /// one (-1) milliseconds, which indicates an infinite timeout period.
         /// </value>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="int.MaxValue"/> milliseconds.</exception>
         TimeSpan OperationTimeout { get; set; }
 

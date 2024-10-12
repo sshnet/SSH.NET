@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+#if !NET
 using System.Text;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -291,13 +293,28 @@ namespace Renci.SshNet
             }
         }
 
+        private byte[] _sessionId;
+
         /// <summary>
         /// Gets the session id.
         /// </summary>
         /// <value>
         /// The session id, or <see langword="null"/> if the client has not been authenticated.
         /// </value>
-        public byte[] SessionId { get; private set; }
+        public byte[] SessionId
+        {
+            get
+            {
+                return _sessionId;
+            }
+            private set
+            {
+                _sessionId = value;
+                SessionIdHex = ToHex(value);
+            }
+        }
+
+        internal string SessionIdHex { get; private set; }
 
         /// <summary>
         /// Gets the client init message.
@@ -800,7 +817,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
-            _logger.LogInformation("[{SessionId}] Disconnecting session.", ToHex(SessionId));
+            _logger.LogInformation("[{SessionId}] Disconnecting session.", SessionIdHex);
 
             // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
@@ -1030,7 +1047,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
             }
 
-            _logger.LogInformation("[{SessionId}] Sending message '{MessageType}' to server: '{Message}'.", ToHex(SessionId), message.GetType().Name, message);
+            _logger.LogInformation("[{SessionId}] Sending message '{MessageType}' to server: '{Message}'.", SessionIdHex, message.GetType().Name, message);
 
             var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead);
@@ -1384,7 +1401,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         internal void OnDisconnectReceived(DisconnectMessage message)
         {
-            _logger.LogInformation("[{SessionId}] Disconnect received: {ReasonCode} {MessageDescription}.", ToHex(SessionId), message.ReasonCode, message.Description);
+            _logger.LogInformation("[{SessionId}] Disconnect received: {ReasonCode} {MessageDescription}.", SessionIdHex, message.ReasonCode, message.Description);
 
             // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
             // ensure any exceptions that are raised do not overwrite the SshConnectionException that we
@@ -1479,7 +1496,7 @@ namespace Renci.SshNet
             {
                 _isStrictKex = true;
 
-                _logger.LogInformation("[{SessionId}] Enabling strict key exchange extension.", ToHex(SessionId));
+                _logger.LogInformation("[{SessionId}] Enabling strict key exchange extension.", SessionIdHex);
 
                 if (_inboundPacketSequence != 1)
                 {
@@ -1495,7 +1512,7 @@ namespace Renci.SshNet
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 
-            _logger.LogInformation("[{SessionId}] Performing {KeyExchangeAlgorithm} key exchange.", ToHex(SessionId), ConnectionInfo.CurrentKeyExchangeAlgorithm);
+            _logger.LogInformation("[{SessionId}] Performing {KeyExchangeAlgorithm} key exchange.", SessionIdHex, ConnectionInfo.CurrentKeyExchangeAlgorithm);
 
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
@@ -1811,34 +1828,30 @@ namespace Renci.SshNet
             var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset + 1, count - 1);
 
-            _logger.LogInformation("[{SessionId}] Received message '{MessageType}' from server: '{Message}'.", ToHex(SessionId), message.GetType().Name, message);
+            _logger.LogInformation("[{SessionId}] Received message '{MessageType}' from server: '{Message}'.", SessionIdHex, message.GetType().Name, message);
 
             return message;
         }
 
-        private static string ToHex(byte[] bytes, int offset)
-        {
-            var byteCount = bytes.Length - offset;
-
-            var builder = new StringBuilder(bytes.Length * 2);
-
-            for (var i = offset; i < byteCount; i++)
-            {
-                var b = bytes[i];
-                _ = builder.Append(b.ToString("X2"));
-            }
-
-            return builder.ToString();
-        }
-
-        internal static string ToHex(byte[] bytes)
+        private static string ToHex(byte[] bytes)
         {
             if (bytes is null)
             {
                 return null;
             }
 
-            return ToHex(bytes, 0);
+#if NET
+            return Convert.ToHexString(bytes);
+#else
+            var builder = new StringBuilder(bytes.Length * 2);
+
+            foreach (var b in bytes)
+            {
+                builder.Append(b.ToString("X2"));
+            }
+
+            return builder.ToString();
+#endif
         }
 
         /// <summary>
@@ -1955,7 +1968,7 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                _logger.LogInformation("[{SessionId}] Shutting down socket.", ToHex(SessionId));
+                                _logger.LogInformation("[{SessionId}] Shutting down socket.", SessionIdHex);
 
                                 // Interrupt any pending reads; should be done outside of socket read lock as we
                                 // actually want shutdown the socket to make sure blocking reads are interrupted.
@@ -1971,9 +1984,9 @@ namespace Renci.SshNet
                             }
                         }
 
-                        _logger.LogInformation("[{SessionId}] Disposing socket.", ToHex(SessionId));
+                        _logger.LogInformation("[{SessionId}] Disposing socket.", SessionIdHex);
                         _socket.Dispose();
-                        _logger.LogInformation("[{SessionId}] Disposed socket.", ToHex(SessionId));
+                        _logger.LogInformation("[{SessionId}] Disposed socket.", SessionIdHex);
                         _socket = null;
                     }
                 }
@@ -2057,7 +2070,7 @@ namespace Renci.SshNet
         {
             var connectionException = exp as SshConnectionException;
 
-            _logger.LogInformation(exp, "[{SessionId}] Raised exception", ToHex(SessionId));
+            _logger.LogInformation(exp, "[{SessionId}] Raised exception", SessionIdHex);
 
             if (_isDisconnecting)
             {
@@ -2084,7 +2097,7 @@ namespace Renci.SshNet
 
             if (connectionException != null)
             {
-                _logger.LogInformation(exp, "[{SessionId}] Disconnecting after exception", ToHex(SessionId));
+                _logger.LogInformation(exp, "[{SessionId}] Disconnecting after exception", SessionIdHex);
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
@@ -2157,7 +2170,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                _logger.LogInformation("[{SessionId}] Disposing session.", ToHex(SessionId));
+                _logger.LogInformation("[{SessionId}] Disposing session.", SessionIdHex);
 
                 Disconnect();
 

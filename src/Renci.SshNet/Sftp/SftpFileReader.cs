@@ -56,7 +56,8 @@ namespace Renci.SshNet.Sftp
         /// <param name="chunkSize">The size of a individual read-ahead chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
         /// <param name="fileSize">The size of the file, if known; otherwise, <see langword="null"/>.</param>
-        public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
+        /// <param name="offset">The offset to resume from.</param>
+        public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize, ulong offset = 0)
         {
             _handle = handle;
             _sftpSession = sftpSession;
@@ -68,6 +69,11 @@ namespace Renci.SshNet.Sftp
             _readAheadCompleted = new ManualResetEvent(initialState: false);
             _disposingWaitHandle = new ManualResetEvent(initialState: false);
             _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
+
+            // When resuming a download (offset > 0), set the initial offset of the remote file to
+            // the same offset as the local output file. Read-ahead also starts at the same offset.
+            _offset = offset;
+            _readAheadOffset = offset;
 
             StartReadAhead();
         }

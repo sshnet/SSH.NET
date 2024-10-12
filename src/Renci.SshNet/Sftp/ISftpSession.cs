@@ -531,10 +531,11 @@ namespace Renci.SshNet.Sftp
         /// <param name="chunkSize">The maximum number of bytes to read with each chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
         /// <param name="fileSize">The size of the file or <see langword="null"/> when the size could not be determined.</param>
+        /// <param name="offset">The offset to resume from.</param>
         /// <returns>
         /// An <see cref="ISftpFileReader"/> for reading the content of the file represented by the
         /// specified <paramref name="handle"/>.
         /// </returns>
-        ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize);
+        ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize, ulong offset = 0);
     }
 }

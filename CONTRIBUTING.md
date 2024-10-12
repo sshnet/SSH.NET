@@ -34,9 +34,9 @@ The repository makes use of continuous integration (CI) on [AppVeyor](https://ci
 
 ## Good to know
 
-### TraceSource logging
+### Logging
 
-The Debug build of SSH.NET contains rudimentary logging functionality via `System.Diagnostics.TraceSource`. See `Renci.SshNet.Abstractions.DiagnosticAbstraction` for usage examples.
+The tests always log to the console. See the [Logging documentation](https://sshnet.github.io/SSH.NET/logging.html) on how to set a custom `ILoggerFactory`.
 
 ### Wireshark
 

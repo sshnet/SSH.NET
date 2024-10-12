@@ -4,7 +4,8 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-using Renci.SshNet.Abstractions;
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
@@ -24,6 +25,13 @@ namespace Renci.SshNet
         /// can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
         /// </summary>
         private const int PartialSuccessLimit = 5;
+
+        private readonly ILogger _logger;
+
+        internal ServiceFactory()
+        {
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ServiceFactory>();
+        }
 
         /// <summary>
         /// Creates an <see cref="IClientAuthentication"/>.
@@ -152,7 +160,7 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
+                _logger.LogInformation(ex, "Failed to obtain size of file. Allowing maximum {MaxPendingReads} pending reads", maxPendingReads);
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);

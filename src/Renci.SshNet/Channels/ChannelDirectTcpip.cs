@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -15,6 +17,7 @@ namespace Renci.SshNet.Channels
     internal sealed class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
         private readonly object _socketLock = new object();
+        private readonly ILogger _logger;
 
         private EventWaitHandle _channelOpen = new AutoResetEvent(initialState: false);
         private EventWaitHandle _channelData = new AutoResetEvent(initialState: false);
@@ -31,6 +34,7 @@ namespace Renci.SshNet.Channels
         public ChannelDirectTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
             : base(session, localChannelNumber, localWindowSize, localPacketSize)
         {
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ChannelDirectTcpip>();
         }
 
         /// <summary>
@@ -157,8 +161,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    // TODO: log as warning
-                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                    _logger.LogWarning(ex, "Failure shutting down socket");
                 }
             }
         }

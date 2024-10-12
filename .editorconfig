@@ -701,6 +701,9 @@ dotnet_code_quality.CA1828.api_surface = all
 # Similar to MA0053, but does not support public types and types that define (new) virtual members.
 dotnet_diagnostic.CA1852.severity = none
 
+# CA1848: don't enforce LoggerMessage pattern
+dotnet_diagnostic.CA1848.severity = suggestion
+
 # CA1859: Change return type for improved performance
 #
 # By default, this diagnostic is only reported for private members.

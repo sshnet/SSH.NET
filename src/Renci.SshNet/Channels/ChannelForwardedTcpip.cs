@@ -2,6 +2,8 @@
 using System.Net;
 using System.Net.Sockets;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -14,6 +16,7 @@ namespace Renci.SshNet.Channels
     internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly object _socketShutdownAndCloseLock = new object();
+        private readonly ILogger _logger;
         private Socket _socket;
         private IForwardedPort _forwardedPort;
 
@@ -42,6 +45,7 @@ namespace Renci.SshNet.Channels
                    remoteWindowSize,
                    remotePacketSize)
         {
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ChannelForwardedTcpip>();
         }
 
         /// <summary>
@@ -139,8 +143,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    // TODO: log as warning
-                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                    _logger.LogWarning(ex, "Failure shutting down socket");
                 }
             }
         }

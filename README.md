@@ -62,6 +62,7 @@ The main types provided by this library are:
 ## Additional Documentation
 
 * [Further examples](https://sshnet.github.io/SSH.NET/examples.html)
+* [Logging](https://sshnet.github.io/SSH.NET/logging.html)
 * [API browser](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.html)
 
 ## Encryption Methods

@@ -138,44 +138,6 @@ namespace Renci.SshNet
                                       int bufferSize);
 
         /// <summary>
-        /// Creates a shell stream.
-        /// </summary>
-        /// <param name="session">The SSH session.</param>
-        /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
-        /// <param name="columns">The terminal width in columns.</param>
-        /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal width in pixels.</param>
-        /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="terminalModeValues">The terminal mode values.</param>
-        /// <param name="bufferSize">The size of the buffer.</param>
-        /// <param name="dataReceived">The DataReceived Handler.</param>
-        /// <param name="errorOccurred">The ErrorOccurred Handler.</param>
-        /// <returns>
-        /// The created <see cref="ShellStream"/> instance.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <remarks>
-        /// <para>
-        /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
-        /// You can get a detailed list of these capabilities by using the ‘infocmp’ command.
-        /// </para>
-        /// <para>
-        /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
-        /// to the drawable area of the window.
-        /// </para>
-        /// </remarks>
-        ShellStream CreateShellStream(ISession session,
-                                      string terminalName,
-                                      uint columns,
-                                      uint rows,
-                                      uint width,
-                                      uint height,
-                                      IDictionary<TerminalModes, uint> terminalModeValues,
-                                      int bufferSize,
-                                      EventHandler<ShellDataEventArgs> dataReceived,
-                                      EventHandler<ExceptionEventArgs> errorOccurred);
-
-        /// <summary>
         /// Creates a shell stream without allocating a pseudo terminal.
         /// </summary>
         /// <param name="session">The SSH session.</param>

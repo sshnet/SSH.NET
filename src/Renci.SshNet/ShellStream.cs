@@ -94,29 +94,6 @@ namespace Renci.SshNet
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
-        /// <param name="dataReceived">The DataReceived Handler.Please note that this event needs to be manually unsubscribed.</param>
-        /// <param name="errorOccurred">The ErrorOccurred Handler.Please note that this event needs to be manually unsubscribed.</param>
-        /// <exception cref="SshException">The channel could not be opened.</exception>
-        /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
-        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
-        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize, EventHandler<ShellDataEventArgs> dataReceived, EventHandler<ExceptionEventArgs> errorOccurred)
-               : this(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize)
-        {
-            DataReceived += dataReceived;
-            ErrorOccurred += errorOccurred;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ShellStream"/> class.
-        /// </summary>
-        /// <param name="session">The SSH session.</param>
-        /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
-        /// <param name="columns">The terminal width in columns.</param>
-        /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal width in pixels.</param>
-        /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="terminalModeValues">The terminal mode values.</param>
-        /// <param name="bufferSize">The size of the buffer.</param>
         /// <exception cref="SshException">The channel could not be opened.</exception>
         /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
@@ -907,6 +884,8 @@ namespace Renci.SshNet
         /// </returns>
         public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
         {
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
             return _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
 

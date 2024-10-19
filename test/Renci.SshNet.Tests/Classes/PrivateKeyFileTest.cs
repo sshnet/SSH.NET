@@ -17,6 +17,12 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class PrivateKeyFileTest : TestBase
     {
+#if NETFRAMEWORK
+        private static readonly DateTimeOffset UnixEpoch = new(1970, 01, 01, 00, 00, 00, TimeSpan.Zero);
+#else
+        private static readonly DateTimeOffset UnixEpoch = DateTimeOffset.UnixEpoch;
+#endif
+
         private string _temporaryFile;
 
         [TestInitialize]
@@ -370,10 +376,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             PrivateKeyFile pkFile;
 
-            using (var privateKey = GetData("Key.OPENSSH.RSA.txt"))
-            using (var certificate = GetData("Key.OPENSSH.RSA-cert.pub"))
+            using (var privateKeyStream = GetData("Key.OPENSSH.RSA.txt"))
+            using (var certificateStream = GetData("Key.OPENSSH.RSA-cert.pub"))
             {
-                pkFile = new PrivateKeyFile(privateKey, passPhrase: null, certificate);
+                pkFile = new PrivateKeyFile(privateKeyStream, passPhrase: null, certificateStream);
             }
 
             Certificate cert = pkFile.Certificate;
@@ -381,13 +387,16 @@ namespace Renci.SshNet.Tests.Classes
             // ssh-keygen -L -f Key.OPENSSH.RSA-cert.pub
 
             Assert.AreEqual("ssh-rsa-cert-v01@openssh.com", cert.Name);
+
+            Assert.IsInstanceOfType<RsaKey>(cert.Key);
+            CollectionAssert.AreEqual(((RsaKey)pkFile.Key).Public, ((RsaKey)cert.Key).Public);
+            Assert.AreEqual(0UL, cert.Serial);
             Assert.AreEqual(Certificate.CertificateType.User, cert.Type);
             Assert.AreEqual("rsa-cert-rsa", cert.KeyId);
-            Assert.AreEqual("NqLEgdYti0XjUkYjGyQv2Ddy1O5v2NZDZFRtlfESLIA", cert.CertificateAuthorityKeyFingerPrint);
-            Assert.IsInstanceOfType<RsaKey>(cert.Key);
             CollectionAssert.AreEqual(new string[] { "sshnet" }, cert.ValidPrincipals.ToList());
             Assert.AreEqual(0, cert.CriticalOptions.Count);
-            Assert.IsTrue(cert.ValidAfter.EqualsExact(new DateTimeOffset(2024, 07, 17, 20, 50, 34, TimeSpan.Zero)), cert.ValidAfter.ToString("O"));
+            Assert.IsTrue(cert.ValidAfter.EqualsExact(new DateTimeOffset(2024, 07, 17, 20, 50, 34, TimeSpan.Zero)));
+            Assert.AreEqual(ulong.MaxValue, cert.ValidBeforeUnixSeconds);
             Assert.AreEqual(DateTimeOffset.MaxValue, cert.ValidBefore);
             CollectionAssert.AreEqual(new Dictionary<string, string>
             {
@@ -397,6 +406,7 @@ namespace Renci.SshNet.Tests.Classes
                 ["permit-pty"] = "",
                 ["permit-user-rc"] = "",
             }, new Dictionary<string, string>(cert.Extensions));
+            Assert.AreEqual("NqLEgdYti0XjUkYjGyQv2Ddy1O5v2NZDZFRtlfESLIA", cert.CertificateAuthorityKeyFingerPrint);
 
             Assert.AreEqual(6, pkFile.HostKeyAlgorithms.Count);
 
@@ -425,10 +435,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             PrivateKeyFile pkFile;
 
-            using (var privateKey = GetData("Key.OPENSSH.ECDSA521.txt"))
-            using (var certificate = GetData("Key.OPENSSH.ECDSA521-cert.pub"))
+            using (var privateKeyStream = GetData("Key.OPENSSH.ECDSA521.txt"))
+            using (var certificateStream = GetData("Key.OPENSSH.ECDSA521-cert.pub"))
             {
-                pkFile = new PrivateKeyFile(privateKey, passPhrase: null, certificate);
+                pkFile = new PrivateKeyFile(privateKeyStream, passPhrase: null, certificateStream);
             }
 
             Certificate cert = pkFile.Certificate;
@@ -436,11 +446,27 @@ namespace Renci.SshNet.Tests.Classes
             // ssh-keygen -L -f Key.OPENSSH.ECDSA521-cert.pub
 
             Assert.AreEqual("ecdsa-sha2-nistp521-cert-v01@openssh.com", cert.Name);
-            Assert.AreEqual(Certificate.CertificateType.User, cert.Type);
+
             Assert.IsInstanceOfType<EcdsaKey>(cert.Key);
-            Assert.AreEqual("r/t6I+bZQzN5BhSuntFSHDHlrnNHVM2lAo6gbvynG/4", cert.CertificateAuthorityKeyFingerPrint);
+            CollectionAssert.AreEqual(((EcdsaKey)pkFile.Key).Public, ((EcdsaKey)cert.Key).Public);
+            Assert.AreEqual(0UL, cert.Serial);
+            Assert.AreEqual(Certificate.CertificateType.User, cert.Type);
+            Assert.AreEqual("ecdsa521certEcdsa", cert.KeyId);
             CollectionAssert.AreEqual(new string[] { "sshnet" }, cert.ValidPrincipals.ToList());
             Assert.AreEqual(0, cert.CriticalOptions.Count);
+            Assert.AreEqual(0UL, cert.ValidAfterUnixSeconds);
+            Assert.IsTrue(cert.ValidAfter.EqualsExact(UnixEpoch));
+            Assert.AreEqual(ulong.MaxValue, cert.ValidBeforeUnixSeconds);
+            Assert.AreEqual(DateTimeOffset.MaxValue, cert.ValidBefore);
+            CollectionAssert.AreEqual(new Dictionary<string, string>
+            {
+                ["permit-X11-forwarding"] = "",
+                ["permit-agent-forwarding"] = "",
+                ["permit-port-forwarding"] = "",
+                ["permit-pty"] = "",
+                ["permit-user-rc"] = "",
+            }, new Dictionary<string, string>(cert.Extensions));
+            Assert.AreEqual("r/t6I+bZQzN5BhSuntFSHDHlrnNHVM2lAo6gbvynG/4", cert.CertificateAuthorityKeyFingerPrint);
 
             Assert.AreEqual(2, pkFile.HostKeyAlgorithms.Count);
 

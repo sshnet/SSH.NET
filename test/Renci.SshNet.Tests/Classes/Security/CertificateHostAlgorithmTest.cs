@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -15,12 +16,66 @@ namespace Renci.SshNet.Tests.Classes.Security
     [TestClass]
     public class CertificateHostAlgorithmTest : TestBase
     {
-        private static IReadOnlyDictionary<string, Func<byte[], KeyHostAlgorithm>> DefaultKeyAlgs
+        [TestMethod]
+        public void NoSuppliedDigitalSignature_PropertyIsKeyDigitalSignature()
         {
-            get
+            (RsaKey key, Certificate certificate) = GetRsaKey();
+
+            CertificateHostAlgorithm algorithm = new("ssh-rsa-cert-v01@openssh.com", key, certificate);
+
+            Assert.AreEqual("ssh-rsa-cert-v01@openssh.com", algorithm.Name);
+            Assert.AreSame(key, algorithm.Key);
+            Assert.AreSame(certificate, algorithm.Certificate);
+            Assert.AreSame(key.DigitalSignature, algorithm.DigitalSignature);
+        }
+
+        [TestMethod]
+        public void SuppliedDigitalSignature_PropertyIsSuppliedDigitalSignature()
+        {
+            (RsaKey key, Certificate certificate) = GetRsaKey();
+
+            RsaDigitalSignature rsaDigitalSignature = new(key, HashAlgorithmName.SHA256);
+
+            CertificateHostAlgorithm algorithm = new(
+                "rsa-sha2-256-cert-v01@openssh.com",
+                key,
+                certificate,
+                rsaDigitalSignature);
+
+            Assert.AreEqual("rsa-sha2-256-cert-v01@openssh.com", algorithm.Name);
+            Assert.AreSame(key, algorithm.Key);
+            Assert.AreSame(certificate, algorithm.Certificate);
+            Assert.AreSame(rsaDigitalSignature, algorithm.DigitalSignature);
+        }
+
+        [TestMethod]
+        public void HostAlgorithmData_IsRawCertificateBytes()
+        {
+            PrivateKeyFile pkFile;
+            byte[] certificateData;
+
+            using (Stream keyStream = GetData("Key.OPENSSH.RSA.txt"))
+            using (Stream certStream = GetData("Key.OPENSSH.RSA-cert.pub"))
             {
-                return new Dictionary<string, Func<byte[], KeyHostAlgorithm>>(
-                    new PasswordConnectionInfo("x", "y", "z").HostKeyAlgorithms);
+                using MemoryStream ms = new();
+                certStream.CopyTo(ms);
+
+                certificateData = Convert.FromBase64String(Encoding.UTF8.GetString(ms.ToArray()).Split(' ')[1]);
+
+                ms.Position = 0;
+
+                pkFile = new PrivateKeyFile(keyStream, null, ms);
+            }
+
+            List<CertificateHostAlgorithm> certAlgs = pkFile.HostKeyAlgorithms.OfType<CertificateHostAlgorithm>().ToList();
+
+            Assert.AreEqual(3, certAlgs.Count);
+
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.IsNotNull(certAlgs[i].Certificate);
+                Assert.AreSame(pkFile.Certificate, certAlgs[i].Certificate);
+                CollectionAssert.AreEqual(certificateData, certAlgs[i].Data);
             }
         }
 
@@ -172,6 +227,49 @@ namespace Renci.SshNet.Tests.Classes.Security
         }
 
         [TestMethod]
+        public void VerifySignature_NoCorrespondingAlgorithm_ReturnsFalse()
+        {
+            byte[] data = Encoding.UTF8.GetBytes("hello world");
+
+            (RsaKey key, Certificate certificate) = GetRsaKey();
+
+            CertificateHostAlgorithm algorithm = new(
+                "rsa-sha2-512-cert-v01@openssh.com",
+                key,
+                certificate,
+                new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
+
+            byte[] signature = algorithm.Sign(data);
+
+            algorithm = new CertificateHostAlgorithm(
+                "rsa-sha2-512-cert-v01@openssh.com",
+                certificate,
+                new RsaDigitalSignature((RsaKey)certificate.Key, HashAlgorithmName.SHA512),
+                new Dictionary<string, Func<byte[], KeyHostAlgorithm>>());
+
+            Assert.IsFalse(algorithm.VerifySignature(data, signature));
+        }
+
+        [TestMethod]
+        public void VerifySignature_NoSuppliedAlgorithms_Throws()
+        {
+            byte[] data = Encoding.UTF8.GetBytes("hello world");
+
+            (RsaKey key, Certificate certificate) = GetRsaKey();
+
+            CertificateHostAlgorithm algorithm = new(
+                "rsa-sha2-512-cert-v01@openssh.com",
+                key,
+                certificate,
+                new RsaDigitalSignature(key, HashAlgorithmName.SHA512));
+
+            byte[] signature = algorithm.Sign(data);
+
+            var ex = Assert.ThrowsException<InvalidOperationException>(() => algorithm.VerifySignature(data, signature));
+            Assert.IsTrue(ex.Message.StartsWith("Invalid usage", StringComparison.Ordinal));
+        }
+
+        [TestMethod]
         public void CertificateBadCASignature_VerifySignatureReturnsFalse()
         {
             // ssh-keygen -s Key.OPENSSH.ED25519.txt -I test Key.OPENSSH.ECDSA.txt
@@ -276,6 +374,15 @@ namespace Renci.SshNet.Tests.Classes.Security
             {
                 var pkFile = new PrivateKeyFile(keyStream, null, certStream);
                 return (Key: (RsaKey)pkFile.Key, pkFile.Certificate);
+            }
+        }
+
+        private static IReadOnlyDictionary<string, Func<byte[], KeyHostAlgorithm>> DefaultKeyAlgs
+        {
+            get
+            {
+                return new Dictionary<string, Func<byte[], KeyHostAlgorithm>>(
+                    new PasswordConnectionInfo("x", "y", "z").HostKeyAlgorithms);
             }
         }
     }

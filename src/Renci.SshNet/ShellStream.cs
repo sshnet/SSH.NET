@@ -872,6 +872,23 @@ namespace Renci.SshNet
             Write(line + (_noTerminal ? "\n" : "\r"));
         }
 
+        /// <summary>
+        /// Change the terminal size.
+        /// </summary>
+        /// <param name="columns">new columns of the terminal.</param>
+        /// <param name="rows">new rows of the terminal.</param>
+        /// <param name="width">new width of the terminal.</param>
+        /// <param name="height">new height of the terminal.</param>
+        /// <returns>
+        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
+        /// </returns>
+        public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
+        {
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
+            return _channel.SendWindowChangeRequest(columns, rows, width, height);
+        }
+
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {

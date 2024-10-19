@@ -14,8 +14,8 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal abstract class Channel : IChannel
     {
-        private readonly object _serverWindowSizeLock = new object();
-        private readonly object _messagingLock = new object();
+        private readonly Lock _serverWindowSizeLock = new Lock();
+        private readonly Lock _messagingLock = new Lock();
         private readonly uint _initialWindowSize;
         private readonly ISession _session;
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);

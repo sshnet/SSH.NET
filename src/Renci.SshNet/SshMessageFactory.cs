@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+#if NET9_0_OR_GREATER
+using System.Threading;
+#endif
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -14,7 +17,7 @@ namespace Renci.SshNet
     {
         private readonly MessageMetadata[] _enabledMessagesByNumber;
         private readonly bool[] _activatedMessagesById;
-        private readonly object _lock = new object();
+        private readonly Lock _lock = new Lock();
 
         internal static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
             {

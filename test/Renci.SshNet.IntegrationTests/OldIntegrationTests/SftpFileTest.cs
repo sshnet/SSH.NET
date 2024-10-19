@@ -123,7 +123,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
+#pragma warning disable S6966
                 sftp.UploadFile(new MemoryStream(), "abc.txt");
+#pragma warning restore S6966
 
                 var file = await sftp.GetAsync("abc.txt", default).ConfigureAwait(false);
 
@@ -157,7 +159,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
+#pragma warning disable S6966
                 sftp.UploadFile(new MemoryStream(), "test-üöä-");
+#pragma warning restore S6966
 
                 var file = await sftp.GetAsync("test-üöä-", default).ConfigureAwait(false);
 

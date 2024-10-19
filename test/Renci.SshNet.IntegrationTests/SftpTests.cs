@@ -4114,9 +4114,9 @@ namespace Renci.SshNet.IntegrationTests
                     using (var uploadStream = CreateMemoryStream(100))
                     {
                         uploadStream.Position = 0;
-
+#pragma warning disable S6966
                         client.UploadFile(uploadStream, "gert.txt");
-
+#pragma warning restore S6966
                         uploadStream.Position = 0;
 
                         using (var downloadStream = client.OpenRead(remoteDirectory + "/gert.txt"))

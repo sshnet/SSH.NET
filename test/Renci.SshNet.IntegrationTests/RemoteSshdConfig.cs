@@ -205,6 +205,12 @@ namespace Renci.SshNet.IntegrationTests
             return this;
         }
 
+        public RemoteSshdConfig WithHostKeyCertificate(string hostKeyCertificate)
+        {
+            _config.HostCertificate = hostKeyCertificate;
+            return this;
+        }
+
         public RemoteSshd Update()
         {
             using (var client = new ScpClient(_connectionInfoFactory.Create()))

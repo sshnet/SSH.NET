@@ -387,19 +387,26 @@ namespace Renci.SshNet
                     { "hmac-sha1-etm@openssh.com", new HashInfo(20*8, key => new HMACSHA1(key), isEncryptThenMAC: true) },
                 };
 
-            HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
-                {
-                    { "ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(new SshKeyData(data))) },
-                    { "ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(new SshKeyData(data))) },
-                    { "ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(new SshKeyData(data))) },
-                    { "ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(new SshKeyData(data))) },
 #pragma warning disable SA1107 // Code should not contain multiple statements on one line
-                    { "rsa-sha2-512", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); } },
-                    { "rsa-sha2-256", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); } },
+            var hostAlgs = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>();
+            hostAlgs.Add("ssh-ed25519-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-ed25519-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("ecdsa-sha2-nistp256-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ecdsa-sha2-nistp256-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("ecdsa-sha2-nistp384-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ecdsa-sha2-nistp384-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("ecdsa-sha2-nistp521-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ecdsa-sha2-nistp521-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("rsa-sha2-512-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("rsa-sha2-512-cert-v01@openssh.com", cert, new RsaDigitalSignature((RsaKey)cert.Key, HashAlgorithmName.SHA512), hostAlgs); });
+            hostAlgs.Add("rsa-sha2-256-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("rsa-sha2-256-cert-v01@openssh.com", cert, new RsaDigitalSignature((RsaKey)cert.Key, HashAlgorithmName.SHA256), hostAlgs); });
+            hostAlgs.Add("ssh-rsa-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-rsa-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("ssh-dss-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-dss-cert-v01@openssh.com", cert, hostAlgs); });
+            hostAlgs.Add("ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(new SshKeyData(data))));
+            hostAlgs.Add("ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(new SshKeyData(data))));
+            hostAlgs.Add("ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(new SshKeyData(data))));
+            hostAlgs.Add("ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(new SshKeyData(data))));
+            hostAlgs.Add("rsa-sha2-512", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); });
+            hostAlgs.Add("rsa-sha2-256", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); });
+            hostAlgs.Add("ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(data))));
+            hostAlgs.Add("ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))));
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
-                    { "ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(data))) },
-                    { "ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))) },
-                };
+            HostKeyAlgorithms = hostAlgs;
 
             CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
                 {

@@ -2,10 +2,6 @@
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 
-#if !NET && !NETSTANDARD2_1_OR_GREATER
-using Renci.SshNet.Abstractions;
-#endif
-
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
@@ -36,10 +32,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public SshUser User = new SshUser("sshnet", "ssh4ever");
 
-        // To get the sshd logs (also uncomment WithOutputConsumer below)
-        private readonly Stream _fsOut = Stream.Null; // File.Create("fsout.txt");
-        private readonly Stream _fsErr = Stream.Null; // File.Create("fserr.txt");
-
         public async Task InitializeAsync()
         {
             _sshServerImage = new ImageFromDockerfileBuilder()
@@ -55,7 +47,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 .WithHostname("renci-ssh-tests-server")
                 .WithImage(_sshServerImage)
                 .WithPortBinding(22, true)
-                //.WithOutputConsumer(Consume.RedirectStdoutAndStderrToStream(_fsOut, _fsErr))
                 .Build();
 
             await _sshServer.StartAsync();
@@ -76,6 +67,15 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
         {
             if (_sshServer != null)
             {
+                //try
+                //{
+                //    File.WriteAllBytes(@"C:\tmp\auth.log", await _sshServer.ReadFileAsync("/var/log/auth.log"));
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.Error.WriteLine(ex.ToString());
+                //}
+
                 await _sshServer.DisposeAsync();
             }
 
@@ -83,9 +83,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             {
                 await _sshServerImage.DisposeAsync();
             }
-
-            await _fsOut.DisposeAsync();
-            await _fsErr.DisposeAsync();
         }
 
         public void Dispose()

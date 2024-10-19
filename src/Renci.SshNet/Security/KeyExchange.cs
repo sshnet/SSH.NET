@@ -368,22 +368,40 @@ namespace Renci.SshNet.Security
         {
             var exchangeHash = CalculateHash();
 
+            // We need to inspect both the key and signature format identifers to find the correct
+            // HostAlgorithm instance. Example cases:
+
+            // Key identifier                Signature identifier  | Algorithm name
+            // ssh-rsa                       ssh-rsa               | ssh-rsa
+            // ssh-rsa                       rsa-sha2-256          | rsa-sha2-256
+            // ssh-rsa-cert-v01@openssh.com  ssh-rsa               | ssh-rsa-cert-v01@openssh.com
+            // ssh-rsa-cert-v01@openssh.com  rsa-sha2-256          | rsa-sha2-256-cert-v01@openssh.com
+
             var signatureData = new KeyHostAlgorithm.SignatureKeyData();
             signatureData.Load(encodedSignature);
 
-            var keyAlgorithm = Session.ConnectionInfo.HostKeyAlgorithms[signatureData.AlgorithmName](encodedKey);
-
-            Session.ConnectionInfo.CurrentHostKeyAlgorithm = signatureData.AlgorithmName;
-
-            if (CanTrustHostKey(keyAlgorithm))
+            string keyName;
+            using (var keyReader = new SshDataStream(encodedKey))
             {
-                // keyAlgorithm.VerifySignature decodes the signature data before verifying.
-                // But as we have already decoded the data to find the signature algorithm,
-                // we just verify the decoded data directly through the DigitalSignature.
-                return keyAlgorithm.DigitalSignature.Verify(exchangeHash, signatureData.Signature);
+                keyName = keyReader.ReadString();
             }
 
-            return false;
+            string algorithmName;
+
+            if (signatureData.AlgorithmName.StartsWith("rsa-sha2", StringComparison.Ordinal))
+            {
+                algorithmName = keyName.Replace("ssh-rsa", signatureData.AlgorithmName);
+            }
+            else
+            {
+                algorithmName = keyName;
+            }
+
+            var keyAlgorithm = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](encodedKey);
+
+            Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
+
+            return keyAlgorithm.VerifySignatureBlob(exchangeHash, signatureData.Signature) && CanTrustHostKey(keyAlgorithm);
         }
 
         /// <summary>

@@ -59,8 +59,35 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 {
     client.HostKeyReceived += (sender, e) =>
     {
-        e.CanTrust = expectedFingerPrint.Equals(e.FingerPrintSHA256);
+        e.CanTrust = e.FingerPrintSHA256 == expectedFingerPrint;
     };
+    client.Connect();
+}
+```
+
+When expecting the server to present a certificate signed by a trusted certificate authority:
+
+```cs
+string expectedCAFingerPrint = "tF3DRTUXtYFZ5Yz0SBOrEbixHaCifHmNVK6FtptXZVM";
+
+using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
+{
+    client.HostKeyReceived += (sender, e) =>
+    {
+        e.CanTrust = e.Certificate?.CertificateAuthorityKeyFingerPrint == expectedCAFingerPrint;
+    };
+    client.Connect();
+}
+```
+
+### Authenticating with a user certificate
+
+When you have a certificate for your key which is signed by a certificate authority that the server trusts:
+
+```cs
+using (var privateKeyFile = new PrivateKeyFile("path/to/my/key", passPhrase: null, "path/to/my/certificate.pub"))
+using (var client = new SshClient("sftp.foo.com", "guest", privateKeyFile))
+{
     client.Connect();
 }
 ```

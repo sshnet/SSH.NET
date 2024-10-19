@@ -1,5 +1,6 @@
 ﻿using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
+using Renci.SshNet.Security;
 using Renci.SshNet.TestTools.OpenSSH;
 
 namespace Renci.SshNet.IntegrationTests
@@ -71,12 +72,49 @@ namespace Renci.SshNet.IntegrationTests
             DoTest(HostKeyAlgorithm.EcdsaSha2Nistp521, HostKeyFile.Ecdsa521);
         }
 
-        private void DoTest(HostKeyAlgorithm hostKeyAlgorithm, HostKeyFile hostKeyFile)
+        [TestMethod]
+        public void SshRsaCertificate()
+        {
+            DoTest(HostKeyAlgorithm.SshRsaCertV01OpenSSH, HostCertificateFile.RsaCertRsa);
+        }
+
+        [TestMethod]
+        public void SshRsaSha256Certificate()
+        {
+            DoTest(HostKeyAlgorithm.RsaSha2256CertV01OpenSSH, HostCertificateFile.RsaCertRsa);
+        }
+
+        [TestMethod]
+        public void Ecdsa256Certificate()
+        {
+            DoTest(HostKeyAlgorithm.EcdsaSha2Nistp256CertV01OpenSSH, HostCertificateFile.Ecdsa256CertRsa);
+        }
+
+        [TestMethod]
+        public void Ecdsa384Certificate()
+        {
+            DoTest(HostKeyAlgorithm.EcdsaSha2Nistp384CertV01OpenSSH, HostCertificateFile.Ecdsa384CertEcdsa);
+        }
+
+        [TestMethod]
+        public void Ecdsa521Certificate()
+        {
+            DoTest(HostKeyAlgorithm.EcdsaSha2Nistp521CertV01OpenSSH, HostCertificateFile.Ecdsa521CertEd25519);
+        }
+
+        [TestMethod]
+        public void Ed25519Certificate()
+        {
+            DoTest(HostKeyAlgorithm.SshEd25519CertV01OpenSSH, HostCertificateFile.Ed25519CertEcdsa);
+        }
+
+        private void DoTest(HostKeyAlgorithm hostKeyAlgorithm, HostKeyFile hostKeyFile, HostCertificateFile hostCertificateFile = null)
         {
             _remoteSshdConfig.ClearHostKeyAlgorithms()
                              .AddHostKeyAlgorithm(hostKeyAlgorithm)
                              .ClearHostKeyFiles()
                              .AddHostKeyFile(hostKeyFile.FilePath)
+                             .WithHostKeyCertificate(hostCertificateFile?.FilePath)
                              .Update()
                              .Restart();
 
@@ -93,6 +131,22 @@ namespace Renci.SshNet.IntegrationTests
             Assert.AreEqual(hostKeyAlgorithm.Name, hostKeyEventsArgs.HostKeyName);
             Assert.AreEqual(hostKeyFile.KeyLength, hostKeyEventsArgs.KeyLength);
             CollectionAssert.AreEqual(hostKeyFile.FingerPrint, hostKeyEventsArgs.FingerPrint);
+
+            if (hostCertificateFile is not null)
+            {
+                Assert.IsNotNull(hostKeyEventsArgs.Certificate);
+                Assert.AreEqual(Certificate.CertificateType.Host, hostKeyEventsArgs.Certificate.Type);
+                Assert.AreEqual(hostCertificateFile.CAFingerPrint, hostKeyEventsArgs.Certificate.CertificateAuthorityKeyFingerPrint);
+            }
+            else
+            {
+                Assert.IsNull(hostKeyEventsArgs.Certificate);
+            }
+        }
+
+        private void DoTest(HostKeyAlgorithm hostKeyAlgorithm, HostCertificateFile hostCertificateFile)
+        {
+            DoTest(hostKeyAlgorithm, hostCertificateFile.HostKeyFile, hostCertificateFile);
         }
     }
 }

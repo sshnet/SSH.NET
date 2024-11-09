@@ -1,14 +1,17 @@
 {
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "2024.2.0-prerelease.{height}",
-  "publicReleaseRefSpec": [
-      "^refs/heads/develop$",
-      "^refs/tags/\\d{4}\\.\\d+\\.\\d+"
-  ],
+  "version": "2024.2.0",
   "assemblyVersion": {
     "precision": "revision"
   },
-  "nugetPackageVersion": {
-    "semVer": 2
+  "nuGetPackageVersion": {
+    "semVer": 2.0
+  },
+  "publicReleaseRefSpec": [
+    "^refs/heads/develop$",
+    "^refs/tags/\\d{4}\\.\\d+\\.\\d+"
+  ],
+  "release": {
+    "firstUnstableTag": "prerelease"
   }
 }

@@ -23,6 +23,18 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Gets the encoded public key data.
         /// </summary>
+        internal virtual SshKeyData KeyData
+        {
+            get
+            {
+                var keyFormatIdentifier = Key is RsaKey ? "ssh-rsa" : Name;
+                return new SshKeyData(keyFormatIdentifier, Key.Public);
+            }
+        }
+
+        /// <summary>
+        /// Gets the encoded public key data.
+        /// </summary>
         /// <value>
         /// The encoded public key data.
         /// </value>
@@ -30,8 +42,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                var keyFormatIdentifier = Key is RsaKey ? "ssh-rsa" : Name;
-                return new SshKeyData(keyFormatIdentifier, Key.Public).GetBytes();
+                return KeyData.GetBytes();
             }
         }
 
@@ -77,20 +88,37 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Verifies the signature.
+        /// Verifies the encoded signature.
         /// </summary>
         /// <param name="data">The data to verify the signature against.</param>
-        /// <param name="signature">The encoded signature data.</param>
+        /// <param name="signature">
+        /// The encoded signature data, as the signature format identifier followed by the signature blob.
+        /// </param>
         /// <returns>
-        /// <see langword="true"/> if <paramref name="signature"/> is the result of signing <paramref name="data"/>
-        /// with the corresponding private key to <see cref="Key"/>.
+        /// <see langword="true"/> if <paramref name="signature"/> is the result of signing and encoding
+        /// <paramref name="data"/> with the corresponding private key to <see cref="Key"/>.
         /// </returns>
+        /// <remarks>See <see href="https://datatracker.ietf.org/doc/html/rfc4253#section-6.6"/>.</remarks>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {
             var signatureData = new SignatureKeyData();
             signatureData.Load(signature);
 
-            return DigitalSignature.Verify(data, signatureData.Signature);
+            return VerifySignatureBlob(data, signatureData.Signature);
+        }
+
+        /// <summary>
+        /// Verifies the signature.
+        /// </summary>
+        /// <param name="data">The data to verify the signature against.</param>
+        /// <param name="signatureBlob">The signature blob in format specific encoding.</param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="signatureBlob"/> is the result of signing <paramref name="data"/>
+        /// with the corresponding private key to <see cref="Key"/>.
+        /// </returns>
+        internal virtual bool VerifySignatureBlob(byte[] data, byte[] signatureBlob)
+        {
+            return DigitalSignature.Verify(data, signatureBlob);
         }
 
         internal sealed class SignatureKeyData : SshData

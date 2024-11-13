@@ -492,12 +492,12 @@ namespace Renci.SshNet.Sftp
                                                   response =>
                                                   {
                                                       handle = response.Handle;
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   },
                                                   response =>
                                                   {
                                                       exception = GetSftpException(response);
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   });
 
                 SendRequest(request);
@@ -625,7 +625,7 @@ namespace Renci.SshNet.Sftp
                                                    response =>
                                                    {
                                                        exception = GetSftpException(response);
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    });
 
                 SendRequest(request);
@@ -825,7 +825,7 @@ namespace Renci.SshNet.Sftp
                                                   response =>
                                                   {
                                                       data = response.Data;
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   },
                                                   response =>
                                                   {
@@ -838,7 +838,7 @@ namespace Renci.SshNet.Sftp
                                                           data = Array.Empty<byte>();
                                                       }
 
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   });
 
                 SendRequest(request);
@@ -928,10 +928,7 @@ namespace Renci.SshNet.Sftp
                                                    writeCompleted?.Invoke(response);
 
                                                    exception = GetSftpException(response);
-                                                   if (wait != null)
-                                                   {
-                                                       _ = wait.Set();
-                                                   }
+                                                   wait?.SetIgnoringObjectDisposed();
                                                });
 
             SendRequest(request);
@@ -1011,12 +1008,12 @@ namespace Renci.SshNet.Sftp
                                                    response =>
                                                    {
                                                        attributes = response.Attributes;
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    },
                                                    response =>
                                                    {
                                                        exception = GetSftpException(response);
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    });
 
                 SendRequest(request);
@@ -1140,12 +1137,12 @@ namespace Renci.SshNet.Sftp
                                                    response =>
                                                    {
                                                        attributes = response.Attributes;
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    },
                                                    response =>
                                                    {
                                                        exception = GetSftpException(response);
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    });
 
                 SendRequest(request);
@@ -1207,7 +1204,7 @@ namespace Renci.SshNet.Sftp
                                                      response =>
                                                      {
                                                          exception = GetSftpException(response);
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      });
 
                 SendRequest(request);
@@ -1239,7 +1236,7 @@ namespace Renci.SshNet.Sftp
                                                       response =>
                                                       {
                                                           exception = GetSftpException(response);
-                                                          _ = wait.Set();
+                                                          wait.SetIgnoringObjectDisposed();
                                                       });
 
                 SendRequest(request);
@@ -1274,12 +1271,12 @@ namespace Renci.SshNet.Sftp
                                                      response =>
                                                      {
                                                          handle = response.Handle;
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      },
                                                      response =>
                                                      {
                                                          exception = GetSftpException(response);
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      });
 
                 SendRequest(request);
@@ -1345,7 +1342,7 @@ namespace Renci.SshNet.Sftp
                                                      response =>
                                                      {
                                                          result = response.Files;
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      },
                                                      response =>
                                                      {
@@ -1354,7 +1351,7 @@ namespace Renci.SshNet.Sftp
                                                              exception = GetSftpException(response);
                                                          }
 
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      });
 
                 SendRequest(request);
@@ -1426,7 +1423,7 @@ namespace Renci.SshNet.Sftp
                                                     response =>
                                                     {
                                                         exception = GetSftpException(response);
-                                                        _ = wait.Set();
+                                                        wait.SetIgnoringObjectDisposed();
                                                     });
 
                 SendRequest(request);
@@ -1493,7 +1490,7 @@ namespace Renci.SshNet.Sftp
                                                    response =>
                                                    {
                                                        exception = GetSftpException(response);
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    });
 
                 SendRequest(request);
@@ -1558,7 +1555,7 @@ namespace Renci.SshNet.Sftp
                                                    response =>
                                                    {
                                                        exception = GetSftpException(response);
-                                                       _ = wait.Set();
+                                                       wait.SetIgnoringObjectDisposed();
                                                    });
 
                 SendRequest(request);
@@ -1625,12 +1622,12 @@ namespace Renci.SshNet.Sftp
                                                       response =>
                                                       {
                                                           result = response.Files;
-                                                          _ = wait.Set();
+                                                          wait.SetIgnoringObjectDisposed();
                                                       },
                                                       response =>
                                                       {
                                                           exception = GetSftpException(response);
-                                                          _ = wait.Set();
+                                                          wait.SetIgnoringObjectDisposed();
                                                       });
 
                 SendRequest(request);
@@ -1751,12 +1748,12 @@ namespace Renci.SshNet.Sftp
                                                   response =>
                                                   {
                                                       attributes = response.Attributes;
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   },
                                                   response =>
                                                   {
                                                       exception = GetSftpException(response);
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   });
 
                 SendRequest(request);
@@ -1849,7 +1846,7 @@ namespace Renci.SshNet.Sftp
                                                     response =>
                                                     {
                                                         exception = GetSftpException(response);
-                                                        _ = wait.Set();
+                                                        wait.SetIgnoringObjectDisposed();
                                                     });
 
                 SendRequest(request);
@@ -1930,12 +1927,12 @@ namespace Renci.SshNet.Sftp
                                                       response =>
                                                       {
                                                           result = response.Files;
-                                                          _ = wait.Set();
+                                                          wait.SetIgnoringObjectDisposed();
                                                       },
                                                       response =>
                                                       {
                                                           exception = GetSftpException(response);
-                                                          _ = wait.Set();
+                                                          wait.SetIgnoringObjectDisposed();
                                                       });
 
                 SendRequest(request);
@@ -1975,7 +1972,7 @@ namespace Renci.SshNet.Sftp
                                                      response =>
                                                      {
                                                          exception = GetSftpException(response);
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      });
 
                 SendRequest(request);
@@ -2013,7 +2010,7 @@ namespace Renci.SshNet.Sftp
                                                      response =>
                                                      {
                                                          exception = GetSftpException(response);
-                                                         _ = wait.Set();
+                                                         wait.SetIgnoringObjectDisposed();
                                                      });
 
                 if (!_supportedExtensions.ContainsKey(request.Name))
@@ -2060,12 +2057,12 @@ namespace Renci.SshNet.Sftp
                                                  response =>
                                                  {
                                                      information = response.GetReply<StatVfsReplyInfo>().Information;
-                                                     _ = wait.Set();
+                                                     wait.SetIgnoringObjectDisposed();
                                                  },
                                                  response =>
                                                  {
                                                      exception = GetSftpException(response);
-                                                     _ = wait.Set();
+                                                     wait.SetIgnoringObjectDisposed();
                                                  });
 
                 if (!_supportedExtensions.ContainsKey(request.Name))
@@ -2148,12 +2145,12 @@ namespace Renci.SshNet.Sftp
                                                   response =>
                                                   {
                                                       information = response.GetReply<StatVfsReplyInfo>().Information;
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   },
                                                   response =>
                                                   {
                                                       exception = GetSftpException(response);
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   });
 
                 if (!_supportedExtensions.ContainsKey(request.Name))
@@ -2197,7 +2194,7 @@ namespace Renci.SshNet.Sftp
                                                   response =>
                                                   {
                                                       exception = GetSftpException(response);
-                                                      _ = wait.Set();
+                                                      wait.SetIgnoringObjectDisposed();
                                                   });
 
                 if (!_supportedExtensions.ContainsKey(request.Name))

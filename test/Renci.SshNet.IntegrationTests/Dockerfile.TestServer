@@ -17,6 +17,7 @@ RUN apk update && apk upgrade --no-cache && \
     sed -i 's/#LogLevel\s*INFO/LogLevel DEBUG3/' /etc/ssh/sshd_config && \
     # Set the default RSA key
     echo 'HostKey /etc/ssh/ssh_host_rsa_key' >> /etc/ssh/sshd_config && \
+    echo 'TrustedUserCAKeys /etc/ssh/user-ca.pub' >> /etc/ssh/sshd_config && \
     chmod 646 /etc/ssh/sshd_config && \
     # install and configure sudo
     apk add --no-cache sudo && \

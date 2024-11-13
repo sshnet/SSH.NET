@@ -15,6 +15,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                             .WithLogLevel(LogLevel.Debug3)
                             .ClearHostKeyFiles()
                             .AddHostKeyFile(HostKeyFile.Rsa.FilePath)
+                            .WithHostKeyCertificate(null)
                             .ClearSubsystems()
                             .AddSubsystem(new Subsystem("sftp", "/usr/lib/ssh/sftp-server"))
                             .ClearCiphers()

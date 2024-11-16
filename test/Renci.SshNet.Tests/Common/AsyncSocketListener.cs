@@ -324,7 +324,7 @@ namespace Renci.SshNet.Tests.Common
                 }
                 catch (ObjectDisposedException)
                 {
-                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
+                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only in CI, locally it works
                     ConnectionDisconnected();
                 }
                 catch (SocketException ex)

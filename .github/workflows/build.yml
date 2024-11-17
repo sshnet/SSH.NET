@@ -19,13 +19,13 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net8.0 test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+      run: dotnet build -f net8.0 test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net8.0 test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+      run: dotnet build -f net8.0 test/Renci.SshNet.IntegrationTests/
 
     - name: Build IntegrationTests .NET Framework
-      run:  dotnet build -f net48 test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+      run:  dotnet build -f net48 test/Renci.SshNet.IntegrationTests/
 
     - name: Run Unit Tests .NET
       run: |
@@ -37,7 +37,7 @@ jobs:
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
           -p:CoverletOutput=../../coverlet/linux_unit_test_net_8_coverage.xml \
-          test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+          test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
       run: |
@@ -49,7 +49,7 @@ jobs:
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
           -p:CoverletOutput=../../coverlet/linux_integration_test_net_8_coverage.xml \
-          test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+          test/Renci.SshNet.IntegrationTests/
 
     # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
     # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
@@ -71,7 +71,7 @@ jobs:
           -p:CoverletOutputFormat=cobertura \
           -p:CoverletOutput=../../coverlet/linux_integration_test_net_48_coverage.xml \
           --filter "Name~Ecdh|Name~ECDsa|Name~Zlib|Name~Gcm" \
-          test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj
+          test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4
@@ -96,7 +96,7 @@ jobs:
       run: dotnet build Renci.SshNet.sln
 
     - name: Publish AOT Compatibility Test App
-      run: dotnet publish -r win-x64 /warnaserror .\test\Renci.SshNet.AotCompatibilityTestApp\
+      run: dotnet publish -r win-x64 /warnaserror test/Renci.SshNet.AotCompatibilityTestApp/
 
     - name: Create NuGet Package
       run: dotnet pack
@@ -105,8 +105,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: NuGet Package
-        path: |
-          src/Renci.SshNet/bin/Release/*.*nupkg
+        path: src/Renci.SshNet/bin/Release/*.*nupkg
 
     - name: Run Unit Tests .NET
       run: |
@@ -118,7 +117,7 @@ jobs:
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_8_coverage.xml `
-          test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+          test/Renci.SshNet.Tests/
 
     - name: Run Unit Tests .NET Framework
       run: |
@@ -130,7 +129,7 @@ jobs:
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
-          test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj
+          test/Renci.SshNet.Tests/
 
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4

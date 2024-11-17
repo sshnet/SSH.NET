@@ -472,7 +472,7 @@ namespace Renci.SshNet
                     }
                     else
                     {
-                        throw new SshException(string.Format("Cipher method '{0}' is not supported.", cipherName));
+                        throw new SshException(string.Format("Cipher method '{0}' is not supported.", ssh2CipherName));
                     }
 
                     /*

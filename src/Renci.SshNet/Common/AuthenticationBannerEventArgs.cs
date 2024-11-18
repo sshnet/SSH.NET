@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.ConnectionInfo.AuthenticationBanner"/> event.
+    /// Provides data for <see cref="ConnectionInfo.AuthenticationBanner"/> event.
     /// </summary>
     public class AuthenticationBannerEventArgs : AuthenticationEventArgs
     {

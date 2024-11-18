@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpStatusResponse : SftpResponse
+    internal sealed class SftpStatusResponse : SftpResponse
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -22,7 +22,7 @@
         {
             base.LoadData();
 
-            StatusCode = (StatusCodes) ReadUInt32();
+            StatusCode = (StatusCodes)ReadUInt32();
 
             if (ProtocolVersion < 3)
             {

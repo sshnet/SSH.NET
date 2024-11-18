@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Renci.SshNet
+﻿namespace Renci.SshNet
 {
     /// <summary>
     /// Base interface for authentication of a session using a given method.
@@ -22,7 +20,7 @@ namespace Renci.SshNet
         /// <value>
         /// The list of allowed authentications.
         /// </value>
-        IList<string> AllowedAuthentications { get; }
+        string[] AllowedAuthentications { get; }
 
         /// <summary>
         /// Gets the name of the authentication method.

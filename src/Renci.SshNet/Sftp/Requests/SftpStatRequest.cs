@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Text;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpStatRequest : SftpRequest
+    internal sealed class SftpStatRequest : SftpRequest
     {
-        private byte[] _path;
         private readonly Action<SftpAttrsResponse> _attrsAction;
+        private byte[] _path;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -20,7 +21,7 @@ namespace Renci.SshNet.Sftp.Requests
             private set { _path = Encoding.GetBytes(value); }
         }
 
-        public Encoding Encoding { get; private set; }
+        public Encoding Encoding { get; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -50,19 +51,20 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             _path = ReadBinary();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(_path);
         }
 
         public override void Complete(SftpResponse response)
         {
-            var attrsResponse = response as SftpAttrsResponse;
-            if (attrsResponse != null)
+            if (response is SftpAttrsResponse attrsResponse)
             {
                 _attrsAction(attrsResponse);
             }

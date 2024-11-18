@@ -1,4 +1,4 @@
-﻿namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// Base class for cipher implementation.
@@ -12,6 +12,23 @@
         /// The minimum data size.
         /// </value>
         public abstract byte MinimumSize { get; }
+
+        /// <summary>
+        /// Gets the size of the authentication tag for ciphers which implement Authenticated Encryption (AE).
+        /// </summary>
+        /// <value>
+        /// When this <see cref="Cipher"/> implements Authenticated Encryption, the size, in bytes,
+        /// of the authentication tag included in the encrypted message.
+        /// </value>
+        public virtual int TagSize { get; }
+
+        /// <summary>
+        /// Sets the sequence number.
+        /// </summary>
+        /// <param name="sequenceNumber">The sequence number.</param>
+        internal virtual void SetSequenceNumber(uint sequenceNumber)
+        {
+        }
 
         /// <summary>
         /// Encrypts the specified input.
@@ -41,7 +58,10 @@
         /// <returns>
         /// The decrypted data.
         /// </returns>
-        public abstract byte[] Decrypt(byte[] input);
+        public virtual byte[] Decrypt(byte[] input)
+        {
+            return Decrypt(input, 0, input.Length);
+        }
 
         /// <summary>
         /// Decrypts the specified input.

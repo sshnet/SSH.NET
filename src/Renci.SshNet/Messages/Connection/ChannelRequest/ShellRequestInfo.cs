@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "shell" type channel request information
+    /// Represents "shell" type channel request information.
     /// </summary>
-    internal class ShellRequestInfo : RequestInfo
+    internal sealed class ShellRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "shell";
 

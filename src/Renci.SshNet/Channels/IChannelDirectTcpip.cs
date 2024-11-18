@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Channels
@@ -18,7 +19,7 @@ namespace Renci.SshNet.Channels
         /// Gets a value indicating whether this channel is open.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this channel is open; otherwise, <c>false</c>.
+        /// <see langword="true"/> if this channel is open; otherwise, <see langword="false"/>.
         /// </value>
         bool IsOpen { get; }
 

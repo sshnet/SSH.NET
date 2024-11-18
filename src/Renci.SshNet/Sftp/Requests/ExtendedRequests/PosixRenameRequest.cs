@@ -1,10 +1,11 @@
 ﻿using System;
-using Renci.SshNet.Sftp.Responses;
 using System.Text;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class PosixRenameRequest : SftpExtendedRequest
+    internal sealed class PosixRenameRequest : SftpExtendedRequest
     {
         private byte[] _oldPath;
         private byte[] _newPath;
@@ -21,7 +22,7 @@ namespace Renci.SshNet.Sftp.Requests
             private set { _newPath = Encoding.GetBytes(value); }
         }
 
-        public Encoding Encoding { get; private set; }
+        public Encoding Encoding { get; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -53,6 +54,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(_oldPath);
             WriteBinaryString(_newPath);
         }

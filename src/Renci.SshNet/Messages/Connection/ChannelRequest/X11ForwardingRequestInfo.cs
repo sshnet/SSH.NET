@@ -1,14 +1,14 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "x11-req" type channel request information
+    /// Represents "x11-req" type channel request information.
     /// </summary>
-    internal class X11ForwardingRequestInfo : RequestInfo
+    internal sealed class X11ForwardingRequestInfo : RequestInfo
     {
         private byte[] _authenticationProtocol;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "x11-req";
 
@@ -27,12 +27,12 @@
         /// Gets or sets a value indicating whether it is a single connection.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if it is a single connection; otherwise, <c>false</c>.
+        /// <see langword="true"/> if it is a single connection; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSingleConnection { get; set; }
 
         /// <summary>
-        /// Gets or sets the authentication protocol.
+        /// Gets the authentication protocol.
         /// </summary>
         /// <value>
         /// The authentication protocol.
@@ -91,7 +91,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="X11ForwardingRequestInfo"/> class.
         /// </summary>
-        /// <param name="isSingleConnection">if set to <c>true</c> it is a single connection.</param>
+        /// <param name="isSingleConnection">if set to <see langword="true"/> it is a single connection.</param>
         /// <param name="protocol">The protocol.</param>
         /// <param name="cookie">The cookie.</param>
         /// <param name="screenNumber">The screen number.</param>

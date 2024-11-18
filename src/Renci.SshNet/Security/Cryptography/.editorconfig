@@ -1,0 +1,12 @@
+﻿[Bcrypt.cs]
+
+generated_code = true
+
+# IDE0005: Remove unnecessary using directives
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005
+dotnet_diagnostic.IDE0005.severity = none
+
+# IDE0007: Use var instead of explicit type
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008
+#
+dotnet_diagnostic.IDE0007.severity = none

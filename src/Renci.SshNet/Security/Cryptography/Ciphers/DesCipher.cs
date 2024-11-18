@@ -1,5 +1,5 @@
 ﻿using System;
-using Renci.SshNet.Common;
+using System.Buffers.Binary;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -12,9 +12,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private int[] _decryptionKey;
 
-        #region Static tables
-
-        private static readonly short[] Bytebit = {128, 64, 32, 16, 8, 4, 2, 1};
+        private static readonly short[] Bytebit = { 128, 64, 32, 16, 8, 4, 2, 1 };
 
         private static readonly int[] Bigbyte =
         {
@@ -212,15 +210,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             0x00001040, 0x00040040, 0x10000000, 0x10041000
         };
 
-        #endregion
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DesCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public DesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, 8, mode, padding)
         {
@@ -240,15 +236,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
-                throw new IndexOutOfRangeException("input buffer too short");
+            {
+                throw new ArgumentException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
-                throw new IndexOutOfRangeException("output buffer too short");
-
-            if (_encryptionKey == null)
             {
-                _encryptionKey = GenerateWorkingKey(true, Key);
+                throw new ArgumentException("output buffer too short");
             }
+
+            _encryptionKey ??= GenerateWorkingKey(encrypting: true, Key);
 
             DesFunc(_encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -269,15 +266,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
-                throw new IndexOutOfRangeException("input buffer too short");
+            {
+                throw new ArgumentException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
-                throw new IndexOutOfRangeException("output buffer too short");
-
-            if (_decryptionKey == null)
             {
-                _decryptionKey = GenerateWorkingKey(false, Key);
+                throw new ArgumentException("output buffer too short");
             }
+
+            _decryptionKey ??= GenerateWorkingKey(encrypting: false, Key);
 
             DesFunc(_decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -287,25 +285,25 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// Generates the working key.
         /// </summary>
-        /// <param name="encrypting">if set to <c>true</c> [encrypting].</param>
+        /// <param name="encrypting">if set to <see langword="true"/> [encrypting].</param>
         /// <param name="key">The key.</param>
         /// <returns>Generated working key.</returns>
         protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
         {
             ValidateKey();
 
-            int[] newKey = new int[32];
-            bool[] pc1m = new bool[56];
-            bool[] pcr = new bool[56];
+            var newKey = new int[32];
+            var pc1m = new bool[56];
+            var pcr = new bool[56];
 
-            for (int j = 0; j < 56; j++)
+            for (var j = 0; j < 56; j++)
             {
                 int l = Pc1[j];
 
-                pc1m[j] = ((key[(uint)l >> 3] & Bytebit[l & 07]) != 0);
+                pc1m[j] = (key[(uint)l >> 3] & Bytebit[l & 07]) != 0;
             }
 
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
                 int l, m;
 
@@ -321,7 +319,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var n = m + 1;
                 newKey[m] = newKey[n] = 0;
 
-                for (int j = 0; j < 28; j++)
+                for (var j = 0; j < 28; j++)
                 {
                     l = j + Totrot[i];
                     if (l < 28)
@@ -334,7 +332,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     }
                 }
 
-                for (int j = 28; j < 56; j++)
+                for (var j = 28; j < 56; j++)
                 {
                     l = j + Totrot[i];
                     if (l < 56)
@@ -347,7 +345,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     }
                 }
 
-                for (int j = 0; j < 24; j++)
+                for (var j = 0; j < 24; j++)
                 {
                     if (pcr[Pc2[j]])
                     {
@@ -361,23 +359,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            //
-            // store the processed key
-            //
-            for (int i = 0; i != 32; i += 2)
+            /*
+             * store the processed key
+             */
+
+            for (var i = 0; i != 32; i += 2)
             {
                 var i1 = newKey[i];
                 var i2 = newKey[i + 1];
 
-                newKey[i] = (int) ((uint) ((i1 & 0x00fc0000) << 6) |
-                                   (uint) ((i1 & 0x00000fc0) << 10) |
-                                   ((uint) (i2 & 0x00fc0000) >> 10) |
-                                   ((uint) (i2 & 0x00000fc0) >> 6));
+                newKey[i] = (int)((uint)((i1 & 0x00fc0000) << 6) |
+                                   (uint)((i1 & 0x00000fc0) << 10) |
+                                   ((uint)(i2 & 0x00fc0000) >> 10) |
+                                   ((uint)(i2 & 0x00000fc0) >> 6));
 
-                newKey[i + 1] = (int) ((uint) ((i1 & 0x0003f000) << 12) |
-                                       (uint) ((i1 & 0x0000003f) << 16) |
-                                       ((uint) (i2 & 0x0003f000) >> 4) |
-                                       (uint) (i2 & 0x0000003f));
+                newKey[i + 1] = (int)((uint)((i1 & 0x0003f000) << 12) |
+                                       (uint)((i1 & 0x0000003f) << 16) |
+                                       ((uint)(i2 & 0x0003f000) >> 4) |
+                                       (uint)(i2 & 0x0000003f));
             }
 
             return newKey;
@@ -391,7 +390,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var keySize = Key.Length * 8;
 
             if (keySize != 64)
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
         }
 
         /// <summary>
@@ -404,21 +405,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="outOff">The out off.</param>
         protected static void DesFunc(int[] wKey, byte[] input, int inOff, byte[] outBytes, int outOff)
         {
-            var left = Pack.BigEndianToUInt32(input, inOff);
-            var right = Pack.BigEndianToUInt32(input, inOff + 4);
+            var left = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff));
+            var right = BinaryPrimitives.ReadUInt32BigEndian(input.AsSpan(inOff + 4));
 
             var work = ((left >> 4) ^ right) & 0x0f0f0f0f;
             right ^= work;
-            left ^= (work << 4);
+            left ^= work << 4;
             work = ((left >> 16) ^ right) & 0x0000ffff;
             right ^= work;
-            left ^= (work << 16);
+            left ^= work << 16;
             work = ((right >> 2) ^ left) & 0x33333333;
             left ^= work;
-            right ^= (work << 2);
+            right ^= work << 2;
             work = ((right >> 8) ^ left) & 0x00ff00ff;
             left ^= work;
-            right ^= (work << 8);
+            right ^= work << 8;
             right = (right << 1) | (right >> 31);
             work = (left ^ right) & 0xaaaaaaaa;
             left ^= work;
@@ -428,24 +429,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             for (var round = 0; round < 8; round++)
             {
                 work = (right << 28) | (right >> 4);
-                work ^= (uint)wKey[round * 4 + 0];
+                work ^= (uint)wKey[(round * 4) + 0];
                 var fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = right ^ (uint) wKey[round * 4 + 1];
+                work = right ^ (uint)wKey[(round * 4) + 1];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];
                 fval |= Sp2[(work >> 24) & 0x3f];
                 left ^= fval;
                 work = (left << 28) | (left >> 4);
-                work ^= (uint)wKey[round * 4 + 2];
+                work ^= (uint)wKey[(round * 4) + 2];
                 fval = Sp7[work & 0x3f];
                 fval |= Sp5[(work >> 8) & 0x3f];
                 fval |= Sp3[(work >> 16) & 0x3f];
                 fval |= Sp1[(work >> 24) & 0x3f];
-                work = left ^ (uint)wKey[round * 4 + 3];
+                work = left ^ (uint)wKey[(round * 4) + 3];
                 fval |= Sp8[work & 0x3f];
                 fval |= Sp6[(work >> 8) & 0x3f];
                 fval |= Sp4[(work >> 16) & 0x3f];
@@ -460,19 +461,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             left = (left << 31) | (left >> 1);
             work = ((left >> 8) ^ right) & 0x00ff00ff;
             right ^= work;
-            left ^= (work << 8);
+            left ^= work << 8;
             work = ((left >> 2) ^ right) & 0x33333333;
             right ^= work;
-            left ^= (work << 2);
+            left ^= work << 2;
             work = ((right >> 16) ^ left) & 0x0000ffff;
             left ^= work;
-            right ^= (work << 16);
+            right ^= work << 16;
             work = ((right >> 4) ^ left) & 0x0f0f0f0f;
             left ^= work;
-            right ^= (work << 4);
+            right ^= work << 4;
 
-            Pack.UInt32ToBigEndian(right, outBytes, outOff);
-            Pack.UInt32ToBigEndian(left, outBytes, outOff + 4);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff), right);
+            BinaryPrimitives.WriteUInt32BigEndian(outBytes.AsSpan(outOff + 4), left);
         }
     }
 }

@@ -3,14 +3,14 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "x11" channel type
+    /// Used to open "x11" channel type.
     /// </summary>
-    internal class X11ChannelOpenInfo : ChannelOpenInfo
+    internal sealed class X11ChannelOpenInfo : ChannelOpenInfo
     {
         private byte[] _originatorAddress;
 
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string Name = "x11";
 
@@ -61,7 +61,7 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="X11ChannelOpenInfo"/> class from the
         /// specified data.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public X11ChannelOpenInfo(byte[] data)
         {
             Load(data);

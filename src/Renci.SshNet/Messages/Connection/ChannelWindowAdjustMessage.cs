@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_SUCCESS message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_WINDOW_ADJUST", 93)]
     public class ChannelWindowAdjustMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_WINDOW_ADJUST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 93;
+            }
+        }
+
         /// <summary>
         /// Gets number of bytes to add to the window.
         /// </summary>
@@ -32,7 +49,6 @@
         /// </summary>
         public ChannelWindowAdjustMessage()
         {
-
         }
 
         /// <summary>
@@ -52,6 +68,7 @@
         protected override void LoadData()
         {
             base.LoadData();
+
             BytesToAdd = ReadUInt32();
         }
 
@@ -61,6 +78,7 @@
         protected override void SaveData()
         {
             base.SaveData();
+
             Write(BytesToAdd);
         }
 

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Text;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpOpenDirRequest : SftpRequest
+    internal sealed class SftpOpenDirRequest : SftpRequest
     {
-        private byte[] _path;
         private readonly Action<SftpHandleResponse> _handleAction;
+        private byte[] _path;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -64,8 +65,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public override void Complete(SftpResponse response)
         {
-            var handleResponse = response as SftpHandleResponse;
-            if (handleResponse != null)
+            if (response is SftpHandleResponse handleResponse)
             {
                 _handleAction(handleResponse);
             }

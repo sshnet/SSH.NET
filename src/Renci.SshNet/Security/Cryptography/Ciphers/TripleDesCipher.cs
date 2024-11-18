@@ -20,7 +20,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public TripleDesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, mode, padding)
         {
@@ -40,12 +40,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
-                throw new IndexOutOfRangeException("input buffer too short");
+            {
+                throw new ArgumentException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
-                throw new IndexOutOfRangeException("output buffer too short");
+            {
+                throw new ArgumentException("output buffer too short");
+            }
 
-            if (_encryptionKey1 == null || _encryptionKey2 == null || _encryptionKey3 == null)
+            if (_encryptionKey1 is null || _encryptionKey2 is null || _encryptionKey3 is null)
             {
                 var part1 = new byte[8];
                 var part2 = new byte[8];
@@ -53,16 +57,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 Buffer.BlockCopy(Key, 0, part1, 0, 8);
                 Buffer.BlockCopy(Key, 8, part2, 0, 8);
 
-                _encryptionKey1 = GenerateWorkingKey(true, part1);
-
-                _encryptionKey2 = GenerateWorkingKey(false, part2);
+                _encryptionKey1 = GenerateWorkingKey(encrypting: true, part1);
+                _encryptionKey2 = GenerateWorkingKey(encrypting: false, part2);
 
                 if (Key.Length == 24)
                 {
                     var part3 = new byte[8];
                     Buffer.BlockCopy(Key, 16, part3, 0, 8);
 
-                    _encryptionKey3 = GenerateWorkingKey(true, part3);
+                    _encryptionKey3 = GenerateWorkingKey(encrypting: true, part3);
                 }
                 else
                 {
@@ -70,7 +73,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            byte[] temp = new byte[BlockSize];
+            var temp = new byte[BlockSize];
 
             DesFunc(_encryptionKey1, inputBuffer, inputOffset, temp, 0);
             DesFunc(_encryptionKey2, temp, 0, temp, 0);
@@ -93,12 +96,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
-                throw new IndexOutOfRangeException("input buffer too short");
+            {
+                throw new ArgumentException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
-                throw new IndexOutOfRangeException("output buffer too short");
+            {
+                throw new ArgumentException("output buffer too short");
+            }
 
-            if (_decryptionKey1 == null || _decryptionKey2 == null || _decryptionKey3 == null)
+            if (_decryptionKey1 is null || _decryptionKey2 is null || _decryptionKey3 is null)
             {
                 var part1 = new byte[8];
                 var part2 = new byte[8];
@@ -106,15 +113,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 Buffer.BlockCopy(Key, 0, part1, 0, 8);
                 Buffer.BlockCopy(Key, 8, part2, 0, 8);
 
-                _decryptionKey1 = GenerateWorkingKey(false, part1);
-                _decryptionKey2 = GenerateWorkingKey(true, part2);
+                _decryptionKey1 = GenerateWorkingKey(encrypting: false, part1);
+                _decryptionKey2 = GenerateWorkingKey(encrypting: true, part2);
 
                 if (Key.Length == 24)
                 {
                     var part3 = new byte[8];
                     Buffer.BlockCopy(Key, 16, part3, 0, 8);
 
-                    _decryptionKey3 = GenerateWorkingKey(false, part3);
+                    _decryptionKey3 = GenerateWorkingKey(encrypting: false, part3);
                 }
                 else
                 {
@@ -122,7 +129,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            byte[] temp = new byte[BlockSize];
+            var temp = new byte[BlockSize];
 
             DesFunc(_decryptionKey3, inputBuffer, inputOffset, temp, 0);
             DesFunc(_decryptionKey2, temp, 0, temp, 0);
@@ -138,8 +145,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = Key.Length * 8;
 
-            if (!(keySize == 128 || keySize == 128 + 64))
+            if (keySize is not (128 or 128 + 64))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
         }
     }
 }

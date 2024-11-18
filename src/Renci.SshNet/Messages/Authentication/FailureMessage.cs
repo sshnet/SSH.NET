@@ -5,9 +5,26 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_FAILURE message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_FAILURE", 51)]
     public class FailureMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_FAILURE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 51;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the allowed authentications if available.
         /// </summary>
@@ -25,7 +42,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// Gets a value indicating whether authentication is partially successful.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if partially successful; otherwise, <c>false</c>.
+        /// <see langword="true"/> if partially successful; otherwise, <see langword="false"/>.
         /// </value>
         public bool PartialSuccess { get; private set; }
 
@@ -38,7 +55,11 @@ namespace Renci.SshNet.Messages.Authentication
             PartialSuccess = ReadBoolean();
             if (PartialSuccess)
             {
+#if NET || NETSTANDARD2_1_OR_GREATER
+                Message = string.Join(',', AllowedAuthentications);
+#else
                 Message = string.Join(",", AllowedAuthentications);
+#endif // NET || NETSTANDARD2_1_OR_GREATER
             }
         }
 
@@ -53,6 +74,12 @@ namespace Renci.SshNet.Messages.Authentication
         internal override void Process(Session session)
         {
             session.OnUserAuthenticationFailureReceived(this);
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_FAILURE {string.Join(",", AllowedAuthentications)} ({nameof(PartialSuccess)}:{PartialSuccess})";
         }
     }
 }

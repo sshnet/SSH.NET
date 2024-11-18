@@ -3,17 +3,34 @@
     /// <summary>
     /// Represents SSH_MSG_DEBUG message.
     /// </summary>
-    [Message("SSH_MSG_DEBUG", 4)]
     public class DebugMessage : Message
     {
         private byte[] _message;
         private byte[] _language;
 
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_DEBUG";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 4;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether the message to be always displayed.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if the message always to be displayed; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message always to be displayed; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsAlwaysDisplay { get; private set; }
 

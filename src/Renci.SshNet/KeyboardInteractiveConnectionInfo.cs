@@ -1,26 +1,20 @@
 ﻿using System;
-using System.Linq;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides connection information when keyboard interactive authentication method is used
+    /// Provides connection information when keyboard interactive authentication method is used.
     /// </summary>
-    /// <example>
-    ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
-    /// </example>
     public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
+        private bool _isDisposed;
+
         /// <summary>
         /// Occurs when server prompts for more authentication information.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
-        /// </example>
         public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
-
-        //  TODO: DOCS Add exception documentation for this class.
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
@@ -30,7 +24,6 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, string username)
             : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
-
         }
 
         /// <summary>
@@ -42,7 +35,6 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, int port, string username)
             : this(host, port, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
-
         }
 
         /// <summary>
@@ -130,67 +122,57 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new KeyboardInteractiveAuthenticationMethod(username))
         {
-            foreach (var authenticationMethod in AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())
+            foreach (var authenticationMethod in AuthenticationMethods)
             {
-                authenticationMethod.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
+                if (authenticationMethod is KeyboardInteractiveAuthenticationMethod kbdInteractive)
+                {
+                    kbdInteractive.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
+                }
             }
-
         }
 
         private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
-            if (AuthenticationPrompt != null)
-            {
-                AuthenticationPrompt(sender, e);
-            }
+#pragma warning disable MA0091 // Sender should be 'this' for instance events
+            AuthenticationPrompt?.Invoke(sender, e);
+#pragma warning restore MA0091 // Sender should be 'this' for instance events
         }
-
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
                 if (AuthenticationMethods != null)
                 {
-                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
+                    foreach (var authenticationMethods in AuthenticationMethods)
                     {
-                        authenticationMethods.Dispose();
+                        if (authenticationMethods is IDisposable disposable)
+                        {
+                            disposable.Dispose();
+                        }
                     }
                 }
 
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~KeyboardInteractiveConnectionInfo()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

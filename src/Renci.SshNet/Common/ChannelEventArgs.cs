@@ -8,11 +8,6 @@ namespace Renci.SshNet.Common
     internal class ChannelEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the channel number.
-        /// </summary>
-        public uint ChannelNumber { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ChannelEventArgs"/> class.
         /// </summary>
         /// <param name="channelNumber">The channel number.</param>
@@ -20,5 +15,13 @@ namespace Renci.SshNet.Common
         {
             ChannelNumber = channelNumber;
         }
+
+        /// <summary>
+        /// Gets the channel number.
+        /// </summary>
+        /// <value>
+        /// The channel number.
+        /// </value>
+        public uint ChannelNumber { get; }
     }
 }

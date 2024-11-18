@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "password" SSH_MSG_USERAUTH_REQUEST message.
     /// </summary>
-    internal class RequestMessagePassword : RequestMessage
+    internal sealed class RequestMessagePassword : RequestMessage
     {
         /// <summary>
         /// Gets authentication password.

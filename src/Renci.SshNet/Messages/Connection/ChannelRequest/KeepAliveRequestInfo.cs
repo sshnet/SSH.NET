@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "keepalive@openssh.com" type channel request information
+    /// Represents "keepalive@openssh.com" type channel request information.
     /// </summary>
     public class KeepAliveRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "keepalive@openssh.com";
 
@@ -22,7 +22,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EndOfWriteRequestInfo"/> class.
+        /// Initializes a new instance of the <see cref="KeepAliveRequestInfo"/> class.
         /// </summary>
         public KeepAliveRequestInfo()
         {

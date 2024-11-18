@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Base class for cipher padding implementations
+    /// Base class for cipher padding implementations.
     /// </summary>
     public abstract class CipherPadding
     {

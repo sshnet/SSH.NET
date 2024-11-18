@@ -1,30 +1,50 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
-using System.Globalization;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents SSH command that can be executed.
+    /// Represents an SSH command that can be executed.
     /// </summary>
     public class SshCommand : IDisposable
     {
-        private ISession _session;
+        private readonly ISession _session;
         private readonly Encoding _encoding;
-        private IChannelSession _channel;
-        private CommandAsyncResult _asyncResult;
-        private AsyncCallback _callback;
-        private EventWaitHandle _sessionErrorOccuredWaitHandle;
-        private Exception _exception;
+
+        private IChannelSession? _channel;
+        private TaskCompletionSource<object>? _tcs;
+        private CancellationTokenSource? _cts;
+        private CancellationTokenRegistration _tokenRegistration;
+        private string? _stdOut;
+        private string? _stdErr;
         private bool _hasError;
-        private readonly object _endExecuteLock = new object();
+        private bool _isDisposed;
+        private ChannelInputStream? _inputStream;
+        private TimeSpan _commandTimeout;
+
+        /// <summary>
+        /// The token supplied as an argument to <see cref="ExecuteAsync(CancellationToken)"/>.
+        /// </summary>
+        private CancellationToken _userToken;
+
+        /// <summary>
+        /// Whether <see cref="CancelAsync(bool, int)"/> has been called
+        /// (either by a token or manually).
+        /// </summary>
+        private bool _cancellationRequested;
+
+        private int _exitStatus;
+        private volatile bool _haveExitStatus; // volatile to prevent re-ordering of reads/writes of _exitStatus.
 
         /// <summary>
         /// Gets the command text.
@@ -37,90 +57,151 @@ namespace Renci.SshNet
         /// <value>
         /// The command timeout.
         /// </value>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute CommandTimeout" language="C#" title="Specify command execution timeout" />
-        /// </example>
-        public TimeSpan CommandTimeout { get; set; }
+        public TimeSpan CommandTimeout
+        {
+            get
+            {
+                return _commandTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(CommandTimeout));
+
+                _commandTimeout = value;
+            }
+        }
 
         /// <summary>
-        /// Gets the command exit status.
+        /// Gets the number representing the exit status of the command, if applicable,
+        /// otherwise <see langword="null"/>.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand ExitStatus" language="C#" title="Get command execution exit status" />
-        /// </example>
-        public int ExitStatus { get; private set; }
+        /// <remarks>
+        /// The value is not <see langword="null"/> when an exit status code has been returned
+        /// from the server. If the command terminated due to a signal, <see cref="ExitSignal"/>
+        /// may be not <see langword="null"/> instead.
+        /// </remarks>
+        /// <seealso cref="ExitSignal"/>
+        public int? ExitStatus
+        {
+            get
+            {
+                return _haveExitStatus ? _exitStatus : null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the name of the signal due to which the command
+        /// terminated violently, if applicable, otherwise <see langword="null"/>.
+        /// </summary>
+        /// <remarks>
+        /// The value (if it exists) is supplied by the server and is usually one of the
+        /// following, as described in https://datatracker.ietf.org/doc/html/rfc4254#section-6.10:
+        /// ABRT, ALRM, FPE, HUP, ILL, INT, KILL, PIPE, QUIT, SEGV, TER, USR1, USR2.
+        /// </remarks>
+        public string? ExitSignal { get; private set; }
 
         /// <summary>
         /// Gets the output stream.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute OutputStream" language="C#" title="Use OutputStream to get command execution output" />
-        /// </example>
         public Stream OutputStream { get; private set; }
 
         /// <summary>
         /// Gets the extended output stream.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute ExtendedOutputStream" language="C#" title="Use ExtendedOutputStream to get command debug execution output" />
-        /// </example>
         public Stream ExtendedOutputStream { get; private set; }
 
-        private StringBuilder _result;
         /// <summary>
-        /// Gets the command execution result.
+        /// Creates and returns the input stream for the command.
         /// </summary>
+        /// <returns>
+        /// The stream that can be used to transfer data to the command's input stream.
+        /// </returns>
+        /// <remarks>
+        /// Callers should ensure that <see cref="Stream.Dispose()"/> is called on the
+        /// returned instance in order to notify the command that no more data will be sent.
+        /// Failure to do so may result in the command executing indefinitely.
+        /// </remarks>
         /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Result" language="C#" title="Running simple command" />
+        /// This example shows how to stream some data to 'cat' and have the server echo it back.
+        /// <code>
+        /// using (SshCommand command = mySshClient.CreateCommand("cat"))
+        /// {
+        ///     Task executeTask = command.ExecuteAsync(CancellationToken.None);
+        ///
+        ///     using (Stream inputStream = command.CreateInputStream())
+        ///     {
+        ///         inputStream.Write("Hello World!"u8);
+        ///     }
+        ///
+        ///     await executeTask;
+        ///
+        ///     Console.WriteLine(command.ExitStatus); // 0
+        ///     Console.WriteLine(command.Result); // "Hello World!"
+        /// }
+        /// </code>
         /// </example>
+        public Stream CreateInputStream()
+        {
+            if (_channel == null)
+            {
+                throw new InvalidOperationException($"The input stream can be used only after calling BeginExecute and before calling EndExecute.");
+            }
+
+            if (_inputStream != null)
+            {
+                throw new InvalidOperationException($"The input stream already exists.");
+            }
+
+            _inputStream = new ChannelInputStream(_channel);
+            return _inputStream;
+        }
+
+        /// <summary>
+        /// Gets the standard output of the command by reading <see cref="OutputStream"/>.
+        /// </summary>
         public string Result
         {
             get
             {
-                if (_result == null)
+                if (_stdOut is not null)
                 {
-                    _result = new StringBuilder();
+                    return _stdOut;
                 }
 
-                if (OutputStream != null && OutputStream.Length > 0)
+                if (_tcs is null)
                 {
-                    // do not dispose the StreamReader, as it would also dispose the stream
-                    var sr = new StreamReader(OutputStream, _encoding);
-                    _result.Append(sr.ReadToEnd());
+                    return string.Empty;
                 }
 
-                return _result.ToString();
+                using (var sr = new StreamReader(OutputStream, _encoding))
+                {
+                    return _stdOut = sr.ReadToEnd();
+                }
             }
         }
 
-        private StringBuilder _error;
         /// <summary>
-        /// Gets the command execution error.
+        /// Gets the standard error of the command by reading <see cref="ExtendedOutputStream"/>,
+        /// when extended data has been sent which has been marked as stderr.
         /// </summary>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
-        /// </example>
         public string Error
         {
             get
             {
-                if (_hasError)
+                if (_stdErr is not null)
                 {
-                    if (_error == null)
-                    {
-                        _error = new StringBuilder();
-                    }
-
-                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
-                    {
-                        // do not dispose the StreamReader, as it would also dispose the stream
-                        var sr = new StreamReader(ExtendedOutputStream, _encoding);
-                        _error.Append(sr.ReadToEnd());
-                    }
-
-                    return _error.ToString();
+                    return _stdErr;
                 }
-                return string.Empty;
+
+                if (_tcs is null || !_hasError)
+                {
+                    return string.Empty;
+                }
+
+                using (var sr = new StreamReader(ExtendedOutputStream, _encoding))
+                {
+                    return _stdErr = sr.ReadToEnd();
+                }
             }
         }
 
@@ -130,45 +211,116 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding to use for the results.</param>
-        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <see langword="null"/>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
-            if (session == null)
-                throw new ArgumentNullException("session");
-            if (commandText == null)
-                throw new ArgumentNullException("commandText");
-            if (encoding == null)
-                throw new ArgumentNullException("encoding");
+            ThrowHelper.ThrowIfNull(session);
+            ThrowHelper.ThrowIfNull(commandText);
+            ThrowHelper.ThrowIfNull(encoding);
 
             _session = session;
             CommandText = commandText;
             _encoding = encoding;
-            CommandTimeout = Session.InfiniteTimeSpan;
-            _sessionErrorOccuredWaitHandle = new AutoResetEvent(false);
-
+            CommandTimeout = Timeout.InfiniteTimeSpan;
+            OutputStream = new PipeStream();
+            ExtendedOutputStream = new PipeStream();
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
         }
 
         /// <summary>
+        /// Executes the command asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">
+        /// The <see cref="CancellationToken"/>. When triggered, attempts to terminate the
+        /// remote command by sending a signal.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing the lifetime of the command.</returns>
+        /// <exception cref="InvalidOperationException">Command is already executing. Thrown synchronously.</exception>
+        /// <exception cref="ObjectDisposedException">Instance has been disposed. Thrown synchronously.</exception>
+        /// <exception cref="OperationCanceledException">The <see cref="Task"/> has been cancelled.</exception>
+        /// <exception cref="SshOperationTimeoutException">The command timed out according to <see cref="CommandTimeout"/>.</exception>
+#pragma warning disable CA1849 // Call async methods when in an async method; PipeStream.DisposeAsync would complete synchronously anyway.
+        public Task ExecuteAsync(CancellationToken cancellationToken = default)
+        {
+            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled(cancellationToken);
+            }
+
+            if (_tcs is not null)
+            {
+                if (!_tcs.Task.IsCompleted)
+                {
+                    throw new InvalidOperationException("Asynchronous operation is already in progress.");
+                }
+
+                OutputStream.Dispose();
+                ExtendedOutputStream.Dispose();
+
+                // Initialize output streams. We already initialised them for the first
+                // execution in the constructor (to allow passing them around before execution)
+                // so we just need to reinitialise them for subsequent executions.
+                OutputStream = new PipeStream();
+                ExtendedOutputStream = new PipeStream();
+            }
+
+            _exitStatus = default;
+            _haveExitStatus = false;
+            ExitSignal = null;
+            _stdOut = null;
+            _stdErr = null;
+            _hasError = false;
+            _tokenRegistration.Dispose();
+            _tokenRegistration = default;
+            _cts?.Dispose();
+            _cts = null;
+            _cancellationRequested = false;
+
+            _tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _userToken = cancellationToken;
+
+            _channel = _session.CreateChannelSession();
+            _channel.DataReceived += Channel_DataReceived;
+            _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
+            _channel.RequestReceived += Channel_RequestReceived;
+            _channel.Closed += Channel_Closed;
+            _channel.Open();
+
+            _ = _channel.SendExecRequest(CommandText);
+
+            if (CommandTimeout != Timeout.InfiniteTimeSpan)
+            {
+                _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _cts.CancelAfter(CommandTimeout);
+                cancellationToken = _cts.Token;
+            }
+
+            if (cancellationToken.CanBeCanceled)
+            {
+                _tokenRegistration = cancellationToken.Register(static cmd => ((SshCommand)cmd!).CancelAsync(), this);
+            }
+
+            return _tcs.Task;
+        }
+#pragma warning restore CA1849
+
+        /// <summary>
         /// Begins an asynchronous command execution.
         /// </summary>
         /// <returns>
-        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// An <see cref="IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
-        /// </example>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
-        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
-        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute()
         {
-            return BeginExecute(null, null);
+            return BeginExecute(callback: null, state: null);
         }
 
         /// <summary>
@@ -176,18 +328,16 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <returns>
-        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// An <see cref="IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
-        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
-        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
-        public IAsyncResult BeginExecute(AsyncCallback callback)
+        public IAsyncResult BeginExecute(AsyncCallback? callback)
         {
-            return BeginExecute(callback, null);
+            return BeginExecute(callback, state: null);
         }
 
         /// <summary>
@@ -203,60 +353,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
-        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
-        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
-        public IAsyncResult BeginExecute(AsyncCallback callback, object state)
+        public IAsyncResult BeginExecute(AsyncCallback? callback, object? state)
         {
-            //  Prevent from executing BeginExecute before calling EndExecute
-            if (_asyncResult != null && !_asyncResult.EndCalled)
-            {
-                throw new InvalidOperationException("Asynchronous operation is already in progress.");
-            }
-
-            //  Create new AsyncResult object
-            _asyncResult = new CommandAsyncResult
-                {
-                    AsyncWaitHandle = new ManualResetEvent(false),
-                    IsCompleted = false,
-                    AsyncState = state,
-                };
-
-            //  When command re-executed again, create a new channel
-            if (_channel != null)
-            {
-                throw new SshException("Invalid operation.");
-            }
-
-            if (string.IsNullOrEmpty(CommandText))
-                throw new ArgumentException("CommandText property is empty.");
-
-            var outputStream = OutputStream;
-            if (outputStream != null)
-            {
-                outputStream.Dispose();
-                OutputStream = null;
-            }
-
-            var extendedOutputStream = ExtendedOutputStream;
-            if (extendedOutputStream != null)
-            {
-                extendedOutputStream.Dispose();
-                ExtendedOutputStream = null;
-            }
-
-            //  Initialize output streams
-            OutputStream = new PipeStream();
-            ExtendedOutputStream = new PipeStream();
-
-            _result = null;
-            _error = null;
-            _callback = callback;
-
-            _channel = CreateChannel();
-            _channel.Open();
-            _channel.SendExecRequest(CommandText);
-
-            return _asyncResult;
+            return TaskToAsyncResult.Begin(ExecuteAsync(), callback, state);
         }
 
         /// <summary>
@@ -266,12 +365,14 @@ namespace Renci.SshNet
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
         /// <returns>
-        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// An <see cref="IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
-        public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
+        public IAsyncResult BeginExecute(string commandText, AsyncCallback? callback, object? state)
         {
+            ThrowHelper.ThrowIfNull(commandText);
+
             CommandText = commandText;
 
             return BeginExecute(callback, state);
@@ -281,79 +382,110 @@ namespace Renci.SshNet
         /// Waits for the pending asynchronous command execution to complete.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns>Command execution result.</returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
-        /// </example>
-        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        /// <returns><see cref="Result"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="asyncResult"/> does not correspond to the currently executing command.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            var executeTask = TaskToAsyncResult.Unwrap(asyncResult);
+
+            if (executeTask != _tcs?.Task)
             {
-                throw new ArgumentNullException("asyncResult");
+                throw new ArgumentException("Argument does not correspond to the currently executing command.", nameof(asyncResult));
             }
 
-            var commandAsyncResult = asyncResult as CommandAsyncResult;
-            if (commandAsyncResult == null || _asyncResult != commandAsyncResult)
-            {
-                throw new ArgumentException(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", typeof(IAsyncResult).Name));
-            }
+            executeTask.GetAwaiter().GetResult();
 
-            lock (_endExecuteLock)
-            {
-                if (commandAsyncResult.EndCalled)
-                {
-                    throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
-                }
-
-                //  wait for operation to complete (or time out)
-                WaitOnHandle(_asyncResult.AsyncWaitHandle);
-
-                UnsubscribeFromEventsAndDisposeChannel(_channel);
-                _channel = null;
-
-                commandAsyncResult.EndCalled = true;
-
-                return Result;
-            }
+            return Result;
         }
 
         /// <summary>
-        /// Executes command specified by <see cref="CommandText"/> property.
+        /// Cancels a running command by sending a signal to the remote process.
         /// </summary>
-        /// <returns>Command execution result</returns>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute" language="C#" title="Simple command execution" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute CommandTimeout" language="C#" title="Specify command execution timeout" />
-        /// </example>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <param name="forceKill">if true send SIGKILL instead of SIGTERM.</param>
+        /// <param name="millisecondsTimeout">Time to wait for the server to reply.</param>
+        /// <remarks>
+        /// <para>
+        /// This method stops the command running on the server by sending a SIGTERM
+        /// (or SIGKILL, depending on <paramref name="forceKill"/>) signal to the remote
+        /// process. When the server implements signals, it will send a response which
+        /// populates <see cref="ExitSignal"/> with the signal with which the command terminated.
+        /// </para>
+        /// <para>
+        /// When the server does not implement signals, it may send no response. As a fallback,
+        /// this method waits up to <paramref name="millisecondsTimeout"/> for a response
+        /// and then completes the <see cref="SshCommand"/> object anyway if there was none.
+        /// </para>
+        /// <para>
+        /// If the command has already finished (with or without cancellation), this method does
+        /// nothing.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">Command has not been started.</exception>
+        public void CancelAsync(bool forceKill = false, int millisecondsTimeout = 500)
+        {
+            if (_tcs is null)
+            {
+                throw new InvalidOperationException("Command has not been started.");
+            }
+
+            if (_tcs.Task.IsCompleted)
+            {
+                return;
+            }
+
+            _cancellationRequested = true;
+            Interlocked.MemoryBarrier(); // ensure fresh read in SetAsyncComplete (possibly unnecessary)
+
+            // Try to send the cancellation signal.
+            if (_channel?.SendSignalRequest(forceKill ? "KILL" : "TERM") is null)
+            {
+                // Command has completed (in the meantime since the last check).
+                return;
+            }
+
+            // Having sent the "signal" message, we expect to receive "exit-signal"
+            // and then a close message. But since a server may not implement signals,
+            // we can't guarantee that, so we wait a short time for that to happen and
+            // if it doesn't, just complete the task ourselves to unblock waiters.
+
+            try
+            {
+                if (_tcs.Task.Wait(millisecondsTimeout))
+                {
+                    return;
+                }
+            }
+            catch (AggregateException)
+            {
+                // We expect to be here if the server implements signals.
+                // But we don't want to propagate the exception on the task from here.
+                return;
+            }
+
+            SetAsyncComplete();
+        }
+
+        /// <summary>
+        /// Executes the command specified by <see cref="CommandText"/>.
+        /// </summary>
+        /// <returns><see cref="Result"/>.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute()
         {
-            return EndExecute(BeginExecute(null, null));
+            ExecuteAsync().GetAwaiter().GetResult();
+
+            return Result;
         }
 
         /// <summary>
-        /// Cancels command execution in asynchronous scenarios. 
-        /// </summary>
-        public void CancelAsync()
-        {
-            if (_channel != null && _channel.IsOpen && _asyncResult != null)
-            {
-                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Executes the specified command text.
+        /// Executes the specified command.
         /// </summary>
         /// <param name="commandText">The command text.</param>
-        /// <returns>Command execution result</returns>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <returns><see cref="Result"/>.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute(string commandText)
         {
             CommandText = commandText;
@@ -361,92 +493,82 @@ namespace Renci.SshNet
             return Execute();
         }
 
-        private IChannelSession CreateChannel()
+        private void Session_Disconnected(object? sender, EventArgs e)
         {
-            var channel = _session.CreateChannelSession();
-            channel.DataReceived += Channel_DataReceived;
-            channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
-            channel.RequestReceived += Channel_RequestReceived;
-            channel.Closed += Channel_Closed;
-            return channel;
+            _ = _tcs?.TrySetException(new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost));
+
+            SetAsyncComplete(setResult: false);
         }
 
-        private void Session_Disconnected(object sender, EventArgs e)
+        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
         {
-            //  If objected is disposed or being disposed don't handle this event
-            if (_isDisposed)
-                return;
+            _ = _tcs?.TrySetException(e.Exception);
 
-            _exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-
-            _sessionErrorOccuredWaitHandle.Set();
+            SetAsyncComplete(setResult: false);
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void SetAsyncComplete(bool setResult = true)
         {
-            //  If objected is disposed or being disposed don't handle this event
-            if (_isDisposed)
-                return;
+            Interlocked.MemoryBarrier(); // ensure fresh read of _cancellationRequested (possibly unnecessary)
 
-            _exception = e.Exception;
-
-            _sessionErrorOccuredWaitHandle.Set();
-        }
-
-        private void Channel_Closed(object sender, ChannelEventArgs e)
-        {
-            var outputStream = OutputStream;
-            if (outputStream != null)
+            if (setResult)
             {
-                outputStream.Flush();
-            }
+                Debug.Assert(_tcs is not null, "Should only be completing the task if we've started one.");
 
-            var extendedOutputStream = ExtendedOutputStream;
-            if (extendedOutputStream != null)
-            {
-                extendedOutputStream.Flush();
-            }
-
-            _asyncResult.IsCompleted = true;
-
-            if (_callback != null)
-            {
-                //  Execute callback on different thread
-                ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
-            }
-            ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
-        }
-
-        private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
-        {
-            var exitStatusInfo = e.Info as ExitStatusRequestInfo;
-            if (exitStatusInfo != null)
-            {
-                ExitStatus = (int) exitStatusInfo.ExitStatus;
-
-                if (exitStatusInfo.WantReply)
+                if (_userToken.IsCancellationRequested)
                 {
-                    var replyMessage = new ChannelSuccessMessage(_channel.LocalChannelNumber);
-                    _session.SendMessage(replyMessage);
+                    _ = _tcs.TrySetCanceled(_userToken);
+                }
+                else if (_cts?.Token.IsCancellationRequested == true)
+                {
+                    _ = _tcs.TrySetException(new SshOperationTimeoutException($"Command '{CommandText}' timed out. ({nameof(CommandTimeout)}: {CommandTimeout})."));
+                }
+                else if (_cancellationRequested)
+                {
+                    _ = _tcs.TrySetCanceled();
+                }
+                else
+                {
+                    _ = _tcs.TrySetResult(null!);
                 }
             }
-            else
+
+            UnsubscribeFromEventsAndDisposeChannel();
+
+            OutputStream.Dispose();
+            ExtendedOutputStream.Dispose();
+        }
+
+        private void Channel_Closed(object? sender, ChannelEventArgs e)
+        {
+            SetAsyncComplete();
+        }
+
+        private void Channel_RequestReceived(object? sender, ChannelRequestEventArgs e)
+        {
+            if (e.Info is ExitStatusRequestInfo exitStatusInfo)
             {
-                if (e.Info.WantReply)
-                {
-                    var replyMessage = new ChannelFailureMessage(_channel.LocalChannelNumber);
-                    _session.SendMessage(replyMessage);
-                }
+                _exitStatus = (int)exitStatusInfo.ExitStatus;
+                _haveExitStatus = true;
+
+                Debug.Assert(!exitStatusInfo.WantReply, "exit-status is want_reply := false by definition.");
+            }
+            else if (e.Info is ExitSignalRequestInfo exitSignalInfo)
+            {
+                ExitSignal = exitSignalInfo.SignalName;
+
+                Debug.Assert(!exitSignalInfo.WantReply, "exit-signal is want_reply := false by definition.");
+            }
+            else if (e.Info.WantReply && _channel?.RemoteChannelNumber is uint remoteChannelNumber)
+            {
+                var replyMessage = new ChannelFailureMessage(remoteChannelNumber);
+                _session.SendMessage(replyMessage);
             }
         }
 
-        private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
+        private void Channel_ExtendedDataReceived(object? sender, ChannelExtendedDataEventArgs e)
         {
-            if (ExtendedOutputStream != null)
-            {
-                ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
-                ExtendedOutputStream.Flush();
-            }
+            ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
 
             if (e.DataTypeCode == 1)
             {
@@ -454,54 +576,25 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
+        private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)
         {
-            if (OutputStream != null)
-            {
-                OutputStream.Write(e.Data, 0, e.Data.Length);
-                OutputStream.Flush();
-            }
-
-            if (_asyncResult != null)
-            {
-                lock (_asyncResult)
-                {
-                    _asyncResult.BytesReceived += e.Data.Length;
-                }
-            }
-        }
-
-        /// <exception cref="SshOperationTimeoutException">Command '{0}' has timed out.</exception>
-        /// <remarks>The actual command will be included in the exception message.</remarks>
-        private void WaitOnHandle(WaitHandle waitHandle)
-        {
-            var waitHandles = new[]
-                {
-                    _sessionErrorOccuredWaitHandle,
-                    waitHandle
-                };
-
-            switch (WaitHandle.WaitAny(waitHandles, CommandTimeout))
-            {
-                case 0:
-                    throw _exception;
-                case WaitHandle.WaitTimeout:
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
-            }
+            OutputStream.Write(e.Data, 0, e.Data.Length);
         }
 
         /// <summary>
         /// Unsubscribes the current <see cref="SshCommand"/> from channel events, and disposes
-        /// the <see cref="IChannel"/>.
+        /// the <see cref="_channel"/>.
         /// </summary>
-        /// <param name="channel">The channel.</param>
-        /// <remarks>
-        /// Does nothing when <paramref name="channel"/> is <c>null</c>.
-        /// </remarks>
-        private void UnsubscribeFromEventsAndDisposeChannel(IChannel channel)
+        private void UnsubscribeFromEventsAndDisposeChannel()
         {
-            if (channel == null)
+            var channel = _channel;
+
+            if (channel is null)
+            {
                 return;
+            }
+
+            _channel = null;
 
             // unsubscribe from events as we do not want to be signaled should these get fired
             // during the dispose of the channel
@@ -514,83 +607,56 @@ namespace Renci.SshNet
             channel.Dispose();
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                var session = _session;
-                if (session != null)
-                {
-                    session.Disconnected -= Session_Disconnected;
-                    session.ErrorOccured -= Session_ErrorOccured;
-                    _session = null;
-                }
+                _session.Disconnected -= Session_Disconnected;
+                _session.ErrorOccured -= Session_ErrorOccured;
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                var channel = _channel;
-                if (channel != null)
-                {
-                    UnsubscribeFromEventsAndDisposeChannel(channel);
-                    _channel = null;
-                }
+                UnsubscribeFromEventsAndDisposeChannel();
 
-                var outputStream = OutputStream;
-                if (outputStream != null)
-                {
-                    outputStream.Dispose();
-                    OutputStream = null;
-                }
+                _inputStream?.Dispose();
+                _inputStream = null;
 
-                var extendedOutputStream = ExtendedOutputStream;
-                if (extendedOutputStream != null)
-                {
-                    extendedOutputStream.Dispose();
-                    ExtendedOutputStream = null;
-                }
+                OutputStream.Dispose();
+                ExtendedOutputStream.Dispose();
 
-                var sessionErrorOccuredWaitHandle = _sessionErrorOccuredWaitHandle;
-                if (sessionErrorOccuredWaitHandle != null)
+                _tokenRegistration.Dispose();
+                _tokenRegistration = default;
+                _cts?.Dispose();
+                _cts = null;
+
+                if (_tcs is { Task.IsCompleted: false } tcs)
                 {
-                    sessionErrorOccuredWaitHandle.Dispose();
-                    _sessionErrorOccuredWaitHandle = null;
+                    // In case an operation is still running, try to complete it with an ObjectDisposedException.
+                    _ = tcs.TrySetException(new ObjectDisposedException(GetType().FullName));
                 }
 
                 _isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~SshCommand()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

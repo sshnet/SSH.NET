@@ -1,104 +1,80 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Formats.Asn1;
+using System.Numerics;
+using System.Security.Cryptography;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Contains DSA private and public key
+    /// Contains DSA private and public key.
     /// </summary>
     public class DsaKey : Key, IDisposable
     {
+        private DsaDigitalSignature? _digitalSignature;
+
+        internal DSA DSA { get; }
+
         /// <summary>
         /// Gets the P.
         /// </summary>
-        public BigInteger P
-        {
-            get
-            {
-                return _privateKey[0];
-            }
-        }
+        public BigInteger P { get; }
 
         /// <summary>
         /// Gets the Q.
         /// </summary>
-        public BigInteger Q
-        {
-            get
-            {
-                return _privateKey[1];
-            }
-        }
+        public BigInteger Q { get; }
 
         /// <summary>
         /// Gets the G.
         /// </summary>
-        public BigInteger G
-        {
-            get
-            {
-                return _privateKey[2];
-            }
-        }
+        public BigInteger G { get; }
 
         /// <summary>
         /// Gets public key Y.
         /// </summary>
-        public BigInteger Y
-        {
-            get
-            {
-                return _privateKey[3];
-            }
-        }
+        public BigInteger Y { get; }
 
         /// <summary>
         /// Gets private key X.
         /// </summary>
-        public BigInteger X
-        {
-            get
-            {
-                return _privateKey[4];
-            }
-        }
+        public BigInteger X { get; }
 
-        /// <summary>
-        /// Gets the length of the key.
-        /// </summary>
-        /// <value>
-        /// The length of the key.
-        /// </value>
+        /// <inheritdoc/>
         public override int KeyLength
         {
             get
             {
-                return P.BitLength;
+                return (int)P.GetBitLength();
             }
         }
 
-        private DsaDigitalSignature _digitalSignature;
         /// <summary>
         /// Gets the digital signature.
         /// </summary>
-        protected override DigitalSignature DigitalSignature
+        protected internal override DigitalSignature DigitalSignature
         {
             get
             {
-                if (_digitalSignature == null)
-                {
-                    _digitalSignature = new DsaDigitalSignature(this);
-                }
+                _digitalSignature ??= new DsaDigitalSignature(this);
                 return _digitalSignature;
             }
         }
 
         /// <summary>
-        /// Gets or sets the public.
+        /// Gets the DSA public key.
         /// </summary>
         /// <value>
-        /// The public.
+        /// An array whose values are:
+        /// <list>
+        /// <item><term>0</term><description><see cref="P"/></description></item>
+        /// <item><term>1</term><description><see cref="Q"/></description></item>
+        /// <item><term>2</term><description><see cref="G"/></description></item>
+        /// <item><term>3</term><description><see cref="Y"/></description></item>
+        /// </list>
         /// </value>
         public override BigInteger[] Public
         {
@@ -106,32 +82,49 @@ namespace Renci.SshNet.Security
             {
                 return new[] { P, Q, G, Y };
             }
-            set
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DsaKey"/> class.
+        /// </summary>
+        /// <param name="publicKeyData">The encoded public key data.</param>
+        public DsaKey(SshKeyData publicKeyData)
+        {
+            ThrowHelper.ThrowIfNull(publicKeyData);
+
+            if (publicKeyData.Name != "ssh-dss" || publicKeyData.Keys.Length != 4)
             {
-                if (value.Length != 4)
-                    throw new InvalidOperationException("Invalid public key.");
-
-                _privateKey = value;
+                throw new ArgumentException($"Invalid DSA public key data. ({publicKeyData.Name}, {publicKeyData.Keys.Length}).", nameof(publicKeyData));
             }
+
+            P = publicKeyData.Keys[0];
+            Q = publicKeyData.Keys[1];
+            G = publicKeyData.Keys[2];
+            Y = publicKeyData.Keys[3];
+
+            DSA = LoadDSA();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DsaKey"/> class.
         /// </summary>
-        public DsaKey()
+        /// <param name="privateKeyData">DER encoded private key data.</param>
+        public DsaKey(byte[] privateKeyData)
         {
-            _privateKey = new BigInteger[5];
-        }
+            ThrowHelper.ThrowIfNull(privateKeyData);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DsaKey"/> class.
-        /// </summary>
-        /// <param name="data">DER encoded private key data.</param>
-        public DsaKey(byte[] data)
-            : base(data)
-        {
-            if (_privateKey.Length != 5)
-                throw new InvalidOperationException("Invalid private key.");
+            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
+            _ = der.ReadInteger(); // skip version
+
+            P = der.ReadInteger();
+            Q = der.ReadInteger();
+            G = der.ReadInteger();
+            Y = der.ReadInteger();
+            X = der.ReadInteger();
+
+            der.ThrowIfNotEmpty();
+
+            DSA = LoadDSA();
         }
 
         /// <summary>
@@ -144,58 +137,81 @@ namespace Renci.SshNet.Security
         /// <param name="x">The x.</param>
         public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
         {
-            _privateKey = new BigInteger[5];
-            _privateKey[0] = p;
-            _privateKey[1] = q;
-            _privateKey[2] = g;
-            _privateKey[3] = y;
-            _privateKey[4] = x;
+            P = p;
+            Q = q;
+            G = g;
+            Y = y;
+            X = x;
+
+            DSA = LoadDSA();
         }
 
-        #region IDisposable Members
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
+#pragma warning disable CA5384 // Do Not Use Digital Signature Algorithm (DSA)
+        private DSA LoadDSA()
+        {
+#if NETFRAMEWORK
+            // On .NET Framework we use the concrete CNG type which is FIPS-186-3
+            // compatible. The CryptoServiceProvider type returned by DSA.Create()
+            // is limited to FIPS-186-1 (max 1024 bit key).
+            var dsa = new DSACng();
+#else
+            var dsa = DSA.Create();
+#endif
+            dsa.ImportParameters(GetDSAParameters());
 
-        private bool _isDisposed;
+            return dsa;
+        }
+#pragma warning restore CA5384 // Do Not Use Digital Signature Algorithm (DSA)
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+
+        internal DSAParameters GetDSAParameters()
+        {
+            // P, G, Y, Q are required.
+            // P, G, Y must have the same length.
+            // If X is present, it must have the same length as Q.
+
+            // See https://github.com/dotnet/runtime/blob/fadd8313653f71abd0068c8bf914be88edb2c8d3/src/libraries/Common/src/System/Security/Cryptography/DSACng.ImportExport.cs#L23
+            // and https://github.com/dotnet/runtime/blob/fadd8313653f71abd0068c8bf914be88edb2c8d3/src/libraries/Common/src/System/Security/Cryptography/DSAKeyFormatHelper.cs#L18
+            // (and similar code in RsaKey.cs)
+
+            var ret = new DSAParameters
+            {
+                P = P.ToByteArray(isUnsigned: true, isBigEndian: true),
+                Q = Q.ToByteArray(isUnsigned: true, isBigEndian: true),
+            };
+
+            ret.G = G.ExportKeyParameter(ret.P.Length);
+            ret.Y = Y.ExportKeyParameter(ret.P.Length);
+
+            if (!X.IsZero)
+            {
+                ret.X = X.ExportKeyParameter(ret.Q.Length);
+            }
+
+            return ret;
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
-                return;
-
             if (disposing)
             {
-                var digitalSignature = _digitalSignature;
-                if (digitalSignature != null)
-                {
-                    digitalSignature.Dispose();
-                    _digitalSignature = null;
-                }
-
-                _isDisposed = true;
+                _digitalSignature?.Dispose();
+                DSA.Dispose();
             }
         }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="DsaKey"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~DsaKey()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

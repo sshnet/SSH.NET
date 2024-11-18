@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -15,7 +17,7 @@ namespace Renci.SshNet
     internal interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets or sets the connection info.
+        /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
@@ -24,7 +26,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether the session is connected.
         /// </summary>
         /// <value>
-        /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the session is connected; otherwise, <see langword="false"/>.
         /// </value>
         bool IsConnected { get; }
 
@@ -34,14 +36,14 @@ namespace Renci.SshNet
         /// <value>
         /// The session semaphore.
         /// </value>
-        SemaphoreLight SessionSemaphore { get; }
+        SemaphoreSlim SessionSemaphore { get; }
 
         /// <summary>
         /// Gets a <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete.
         /// </summary>
         /// <value>
         /// A <see cref="WaitHandle"/> that can be used to wait for the message listener loop to complete, or
-        /// <c>null</c> when the session has not been connected.
+        /// <see langword="null"/> when the session has not been connected.
         /// </value>
         WaitHandle MessageListenerCompleted { get; }
 
@@ -53,6 +55,17 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         void Connect();
+
+        /// <summary>
+        /// Asynchronously connects to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        Task ConnectAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Create a new SSH session channel.
@@ -73,6 +86,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
+        /// <param name="remoteChannelNumber">The number of the remote channel.</param>
+        /// <param name="remoteWindowSize">The window size of the remote channel.</param>
+        /// <param name="remoteChannelDataPacketSize">The data packet size of the remote channel.</param>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>
@@ -112,11 +128,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>
-        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// <see langword="true"/> if the message was sent to the server; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <remarks>
-        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// This methods returns <see langword="false"/> when the attempt to send the message results in a
         /// <see cref="SocketException"/> or a <see cref="SshException"/>.
         /// </remarks>
         bool TrySendMessage(Message message);
@@ -155,6 +171,29 @@ namespace Renci.SshNet
         /// session is disconnected.
         /// </remarks>
         void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout);
+
+        /// <summary>
+        /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
+        /// to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandle">The <see cref="WaitHandle"/> that should be signaled.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents <c>-1</c> milliseconds to wait indefinitely.</param>
+        /// <param name="exception">When this method returns <see cref="WaitResult.Failed"/>, contains the <see cref="Exception"/>.</param>
+        /// <returns>
+        /// A <see cref="WaitResult"/>.
+        /// </returns>
+        WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception);
+
+        /// <summary>
+        /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
+        /// to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandle">The <see cref="WaitHandle"/> that should be signaled.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents <c>-1</c> milliseconds to wait indefinitely.</param>
+        /// <returns>
+        /// A <see cref="WaitResult"/>.
+        /// </returns>
+        WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout);
 
         /// <summary>
         /// Occurs when <see cref="ChannelCloseMessage"/> message received
@@ -220,6 +259,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         event EventHandler<ExceptionEventArgs> ErrorOccured;
+
+        /// <summary>
+        /// Occurs when server identification received.
+        /// </summary>
+        event EventHandler<SshIdentificationEventArgs> ServerIdentificationReceived;
 
         /// <summary>
         /// Occurs when host key received.

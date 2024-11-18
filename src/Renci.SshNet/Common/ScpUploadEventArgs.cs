@@ -8,21 +8,6 @@ namespace Renci.SshNet.Common
     public class ScpUploadEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the uploaded filename.
-        /// </summary>
-        public string Filename { get; private set; }
-
-        /// <summary>
-        /// Gets the uploaded file size.
-        /// </summary>
-        public long Size { get; private set; }
-
-        /// <summary>
-        /// Gets number of uploaded bytes so far.
-        /// </summary>
-        public long Uploaded { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ScpUploadEventArgs"/> class.
         /// </summary>
         /// <param name="filename">The uploaded filename.</param>
@@ -34,5 +19,20 @@ namespace Renci.SshNet.Common
             Size = size;
             Uploaded = uploaded;
         }
+
+        /// <summary>
+        /// Gets the uploaded filename.
+        /// </summary>
+        public string Filename { get; }
+
+        /// <summary>
+        /// Gets the uploaded file size.
+        /// </summary>
+        public long Size { get; }
+
+        /// <summary>
+        /// Gets number of uploaded bytes so far.
+        /// </summary>
+        public long Uploaded { get; }
     }
 }

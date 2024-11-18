@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -10,14 +11,14 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
+    internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;
         private IForwardedPort _forwardedPort;
 
         /// <summary>
-        /// Initializes a new <see cref="ChannelForwardedTcpip"/> instance.
+        /// Initializes a new instance of the <see cref="ChannelForwardedTcpip"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -69,17 +70,17 @@ namespace Renci.SshNet.Channels
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            //  Try to connect to the socket 
+            // Try to connect to the socket
             try
             {
                 _socket = SocketAbstraction.Connect(remoteEndpoint, ConnectionInfo.Timeout);
 
-                // send channel open confirmation message
+                // Send channel open confirmation message
                 SendMessage(new ChannelOpenConfirmationMessage(RemoteChannelNumber, LocalWindowSize, LocalPacketSize, LocalChannelNumber));
             }
             catch (Exception exp)
             {
-                // send channel open failure message
+                // Send channel open failure message
                 SendMessage(new ChannelOpenFailureMessage(RemoteChannelNumber, exp.ToString(), ChannelOpenFailureMessage.ConnectFailed, "en"));
 
                 throw;
@@ -119,14 +120,18 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null)
+            if (_socket is null)
+            {
                 return;
+            }
 
             lock (_socketShutdownAndCloseLock)
             {
                 var socket = _socket;
                 if (!socket.IsConnected())
+                {
                     return;
+                }
 
                 try
                 {
@@ -145,8 +150,10 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void CloseSocket()
         {
-            if (_socket == null)
+            if (_socket is null)
+            {
                 return;
+            }
 
             lock (_socketShutdownAndCloseLock)
             {

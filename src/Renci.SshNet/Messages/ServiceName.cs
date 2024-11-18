@@ -1,17 +1,17 @@
 ﻿namespace Renci.SshNet.Messages
 {
     /// <summary>
-    /// Specifies list of supported services
+    /// Specifies list of supported services.
     /// </summary>
     public enum ServiceName
     {
         /// <summary>
-        /// ssh-userauth
+        /// ssh-userauth.
         /// </summary>
         UserAuthentication,
 
         /// <summary>
-        /// ssh-connection
+        /// ssh-connection.
         /// </summary>
         Connection
     }

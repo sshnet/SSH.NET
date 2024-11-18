@@ -3,11 +3,28 @@
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_BANNER message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_BANNER", 53)]
     public class BannerMessage : Message
     {
         private byte[] _message;
         private byte[] _language;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_BANNER";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 53;
+            }
+        }
 
         /// <summary>
         /// Gets banner message.

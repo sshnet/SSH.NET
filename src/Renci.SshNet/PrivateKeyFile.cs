@@ -296,24 +296,17 @@ namespace Renci.SshNet
             }
 
             var keyName = privateKeyMatch.Result("${keyName}");
-            if (!keyName.EndsWith("PRIVATE KEY", StringComparison.Ordinal))
-            {
-                throw new SshException("Invalid private key file.");
-            }
-
-            var cipherName = privateKeyMatch.Result("${cipherName}");
-            var salt = privateKeyMatch.Result("${salt}");
             var data = privateKeyMatch.Result("${data}");
-
             var binaryData = Convert.FromBase64String(data);
 
             IPrivateKeyParser parser;
-
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
                 case "DSA PRIVATE KEY":
                 case "EC PRIVATE KEY":
+                    var cipherName = privateKeyMatch.Result("${cipherName}");
+                    var salt = privateKeyMatch.Result("${salt}");
                     parser = new PKCS1(cipherName, salt, keyName, binaryData, passPhrase);
                     break;
                 case "PRIVATE KEY":

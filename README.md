@@ -188,7 +188,7 @@ Note: you may have to add `--store-password-in-clear-text` on non-Windows platfo
 dotnet nuget add source --name SSH.NET --username <username> --password <personalaccesstoken> https://nuget.pkg.github.com/sshnet/index.json
 ```
 
-Then you can add the the package as desribed [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+Then you can add the the package as described [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
 
 ## Supporting SSH.NET
 

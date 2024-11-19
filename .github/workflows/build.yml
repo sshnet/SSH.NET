@@ -137,3 +137,29 @@ jobs:
       with:
         name: Coverlet Results Windows
         path: coverlet
+
+  Publish:
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/develop'
+    permissions:
+      packages: write
+    needs:
+      - Windows
+      - Linux
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v4
+        with:
+          name: NuGet Package
+
+      - name: Publish to GitHub NuGet Registry
+        run: |
+          dotnet nuget add source \
+            --username $GITHUB_ACTOR \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text \
+            --name github \
+            "https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json"
+          dotnet nuget push "*.nupkg" \
+            --source github \
+            --api-key ${{ secrets.GITHUB_TOKEN }}

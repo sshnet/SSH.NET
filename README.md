@@ -177,6 +177,19 @@ Private keys in OpenSSH key format can be encrypted using one of the following c
 
 The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
 
+## Using Pre-Release NuGet Package
+
+If you need an unreleased bugfix or feature, you can use the Pre-Release NuGet packages from the `develop` branch which are published to the [GitHub NuGet Registry](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+In order to pull packages from the registry you first have to create a Personal Access Token with the `read:packages` permissions. Then add a NuGet Source for SSH.NET:
+
+Note: you may have to add `--store-password-in-clear-text` on non-Windows platforms.
+
+```
+dotnet nuget add source --name SSH.NET --username <username> --password <personalaccesstoken> https://nuget.pkg.github.com/sshnet/index.json
+```
+
+Then you can add the the package as desribed [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+
 ## Supporting SSH.NET
 
 Do you or your company rely on **SSH.NET** in your projects? If you want to encourage us to keep on going and show us that you appreciate our work, please consider becoming a [sponsor](https://github.com/sponsors/sshnet) through GitHub Sponsors.

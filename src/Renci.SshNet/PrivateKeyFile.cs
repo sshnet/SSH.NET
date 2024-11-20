@@ -110,7 +110,7 @@ namespace Renci.SshNet
     /// </remarks>
     public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> *-+";
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[a-fA-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> *-+";
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
 #if NET7_0_OR_GREATER

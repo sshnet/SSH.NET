@@ -101,17 +101,21 @@ The main types provided by this library are:
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * DSA in
   * OpenSSL traditional PEM format ("BEGIN DSA PRIVATE KEY")
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * ECDSA 256/384/521 in
   * OpenSSL traditional PEM format ("BEGIN EC PRIVATE KEY")
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * ED25519 in
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 
 Private keys in OpenSSL traditional PEM format can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
@@ -123,7 +127,7 @@ Private keys in OpenSSL traditional PEM format can be encrypted using one of the
 
 Private keys in OpenSSL PKCS#8 PEM format can be encrypted using any cipher method BouncyCastle supports.
 
-Private keys in ssh.com format can be encrypted using one of the following cipher methods:
+Private keys in ssh.com format can be encrypted using the following cipher method:
 * 3des-cbc
 
 Private keys in OpenSSH key format can be encrypted using one of the following cipher methods:
@@ -137,6 +141,9 @@ Private keys in OpenSSH key format can be encrypted using one of the following c
 * aes128-gcm<span></span>@openssh.com
 * aes256-gcm<span></span>@openssh.com
 * chacha20-poly1305<span></span>@openssh.com
+
+Private keys in PuTTY private key format can be encrypted using the following cipher method:
+* aes256-cbc
 
 ## Host Key Algorithms
 

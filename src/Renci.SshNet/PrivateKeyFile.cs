@@ -25,16 +25,16 @@ namespace Renci.SshNet
     /// The following private keys are supported:
     /// <list type="bullet">
     ///     <item>
-    ///         <description>RSA in OpenSSL PEM, ssh.com and OpenSSH key format</description>
+    ///         <description>RSA in OpenSSL PEM, ssh.com, OpenSSH and PuTTY key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>DSA in OpenSSL PEM and ssh.com format</description>
+    ///         <description>DSA in OpenSSL PEM, ssh.com and PuTTY key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>ECDSA 256/384/521 in OpenSSL PEM and OpenSSH key format</description>
+    ///         <description>ECDSA 256/384/521 in OpenSSL PEM, OpenSSH and PuTTY key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>ED25519 in OpenSSL PEM and OpenSSH key format</description>
+    ///         <description>ED25519 in OpenSSL PEM, OpenSSH and PuTTY key format</description>
     ///     </item>
     /// </list>
     /// </para>
@@ -73,7 +73,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// <para>
-    /// The following encryption algorithms are supported for OpenSSH format:
+    /// The following encryption algorithms are supported for OpenSSH key format:
     /// <list type="bullet">
     ///     <item>
     ///         <description>3des-cbc</description>
@@ -107,23 +107,37 @@ namespace Renci.SshNet
     ///     </item>
     /// </list>
     /// </para>
+    /// <para>
+    /// The following encryption algorithms are supported for PuTTY key format:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>aes256-cbc</description>
+    ///     </item>
+    /// </list>
+    /// </para>
     /// </remarks>
     public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
         private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[a-fA-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)(\r?\n)?-+ *END \k<keyName> *-+";
+        private const string PuTTYPrivateKeyPattern = @"^(?<keyName>PuTTY-User-Key-File)-(?<version>\d+): (?<algorithmName>[\w-]+)\r?\nEncryption: (?<encryptionType>[\w-]+)\r?\nComment: (?<comment>.*)\r?\nPublic-Lines: \d+\r?\n(?<publicKey>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)(Key-Derivation: (?<argon2Type>\w+)\r?\nArgon2-Memory: (?<argon2Memory>\d+)\r?\nArgon2-Passes: (?<argon2Passes>\d+)\r?\nArgon2-Parallelism: (?<argon2Parallelism>\d+)\r?\nArgon2-Salt: (?<argon2Salt>[a-fA-F0-9]+)\r?\n)?Private-Lines: \d+\r?\n(?<data>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)+Private-MAC: (?<mac>[a-fA-F0-9]+)";
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
 #if NET7_0_OR_GREATER
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+        private static readonly Regex PuTTYPrivateKeyRegex = GetPrivateKeyPuTTYRegex();
         private static readonly Regex CertificateRegex = GetCertificateRegex();
 
         [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
         private static partial Regex GetPrivateKeyRegex();
 
+        [GeneratedRegex(PuTTYPrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
+        private static partial Regex GetPrivateKeyPuTTYRegex();
+
         [GeneratedRegex(CertificatePattern, RegexOptions.ExplicitCapture)]
         private static partial Regex GetCertificateRegex();
 #else
         private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        private static readonly Regex PuTTYPrivateKeyRegex = new Regex(PuTTYPrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         private static readonly Regex CertificateRegex = new Regex(CertificatePattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif
 
@@ -287,7 +301,14 @@ namespace Renci.SshNet
             using (var sr = new StreamReader(privateKey))
             {
                 var text = sr.ReadToEnd();
-                privateKeyMatch = PrivateKeyRegex.Match(text);
+                if (text.StartsWith("PuTTY-User-Key-File", StringComparison.Ordinal))
+                {
+                    privateKeyMatch = PuTTYPrivateKeyRegex.Match(text);
+                }
+                else
+                {
+                    privateKeyMatch = PrivateKeyRegex.Match(text);
+                }
             }
 
             if (!privateKeyMatch.Success)
@@ -320,6 +341,34 @@ namespace Renci.SshNet
                     break;
                 case "SSH2 ENCRYPTED PRIVATE KEY":
                     parser = new SSHCOM(binaryData, passPhrase);
+                    break;
+                case "PuTTY-User-Key-File":
+                    var version = privateKeyMatch.Result("${version}");
+                    var algorithmName = privateKeyMatch.Result("${algorithmName}");
+                    var encryptionType = privateKeyMatch.Result("${encryptionType}");
+                    var comment = privateKeyMatch.Result("${comment}");
+                    var publicKey = privateKeyMatch.Result("${publicKey}");
+                    var argon2Type = privateKeyMatch.Result("${argon2Type}");
+                    var argon2Memory = privateKeyMatch.Result("${argon2Memory}");
+                    var argon2Passes = privateKeyMatch.Result("${argon2Passes}");
+                    var argon2Parallelism = privateKeyMatch.Result("${argon2Parallelism}");
+                    var argon2Salt = privateKeyMatch.Result("${argon2Salt}");
+                    var mac = privateKeyMatch.Result("${mac}");
+
+                    parser = new PuTTY(
+                        version,
+                        algorithmName,
+                        encryptionType,
+                        comment,
+                        Convert.FromBase64String(publicKey),
+                        argon2Type,
+                        argon2Salt,
+                        argon2Passes,
+                        argon2Memory,
+                        argon2Parallelism,
+                        binaryData,
+                        mac,
+                        passPhrase);
                     break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));

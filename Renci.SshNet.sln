@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
 		CODEOWNERS = CODEOWNERS
 		CONTRIBUTING.md = CONTRIBUTING.md
 		Directory.Build.props = Directory.Build.props
@@ -82,6 +81,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.IntegrationBenchmarks", "test\Renci.SshNet.IntegrationBenchmarks\Renci.SshNet.IntegrationBenchmarks.csproj", "{6DFC1807-3F44-4302-A302-43F7D887C4E0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.AotCompatibilityTestApp", "test\Renci.SshNet.AotCompatibilityTestApp\Renci.SshNet.AotCompatibilityTestApp.csproj", "{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{05229079-6738-42CE-8F73-F4E182929B03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{95F25B1A-2B14-4745-9087-43C00CD90EE0}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\docs.yml = .github\workflows\docs.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -244,6 +251,8 @@ Global
 		{19895BAF-F946-470D-8497-7034F9F2A8A7} = {1E46D4B6-EE87-4D29-8641-0AE8CD8ED0F0}
 		{3572019A-3A57-4578-B5A2-6280576EB508} = {1E46D4B6-EE87-4D29-8641-0AE8CD8ED0F0}
 		{92E7B1B8-4C70-4138-9970-433B2FC2E3EB} = {1E46D4B6-EE87-4D29-8641-0AE8CD8ED0F0}
+		{05229079-6738-42CE-8F73-F4E182929B03} = {04E8CC26-116E-4116-9558-7ED542548E70}
+		{95F25B1A-2B14-4745-9087-43C00CD90EE0} = {05229079-6738-42CE-8F73-F4E182929B03}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAD6019D-4AF7-4E15-99A0-8036E16FC0E5}

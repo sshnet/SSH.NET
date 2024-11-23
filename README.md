@@ -4,7 +4,7 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
 [![Version](https://img.shields.io/nuget/vpre/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
 [![NuGet download count](https://img.shields.io/nuget/dt/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
-[![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
+![Build status](https://github.com/sshnet/SSH.NET/actions/workflows/build.yml/badge.svg)
 
 ## Key Features
 
@@ -176,6 +176,19 @@ Private keys in OpenSSH key format can be encrypted using one of the following c
 ## Building the library
 
 The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
+
+## Using Pre-Release NuGet Package
+
+If you need an unreleased bugfix or feature, you can use the Pre-Release NuGet packages from the `develop` branch which are published to the [GitHub NuGet Registry](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+In order to pull packages from the registry you first have to create a Personal Access Token with the `read:packages` permissions. Then add a NuGet Source for SSH.NET:
+
+Note: you may have to add `--store-password-in-clear-text` on non-Windows platforms.
+
+```
+dotnet nuget add source --name SSH.NET --username <username> --password <personalaccesstoken> https://nuget.pkg.github.com/sshnet/index.json
+```
+
+Then you can add the the package as described [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
 
 ## Supporting SSH.NET
 

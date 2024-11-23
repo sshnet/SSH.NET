@@ -85,7 +85,7 @@ namespace Renci.SshNet
         /// Holds an object that is used to ensure only a single thread can read from
         /// <see cref="_socket"/> at any given time.
         /// </summary>
-        private readonly object _socketReadLock = new object();
+        private readonly Lock _socketReadLock = new Lock();
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can write to
@@ -95,7 +95,7 @@ namespace Renci.SshNet
         /// This is also used to ensure that <see cref="_outboundPacketSequence"/> is
         /// incremented atomatically.
         /// </remarks>
-        private readonly object _socketWriteLock = new object();
+        private readonly Lock _socketWriteLock = new Lock();
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can dispose
@@ -1911,7 +1911,7 @@ namespace Renci.SshNet
                     return false;
                 }
 
-                if (!Monitor.TryEnter(_socketReadLock))
+                if (!_socketReadLock.TryEnter())
                 {
                     return true;
                 }
@@ -1923,7 +1923,7 @@ namespace Renci.SshNet
                 }
                 finally
                 {
-                    Monitor.Exit(_socketReadLock);
+                    _socketReadLock.Exit();
                 }
             }
             finally

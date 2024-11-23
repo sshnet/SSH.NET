@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+#if NET9_0_OR_GREATER
+using System.Threading;
+#endif
 
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +18,7 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
-        private readonly object _socketShutdownAndCloseLock = new object();
+        private readonly Lock _socketShutdownAndCloseLock = new Lock();
         private readonly ILogger _logger;
         private Socket _socket;
         private IForwardedPort _forwardedPort;

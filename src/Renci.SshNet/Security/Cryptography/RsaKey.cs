@@ -161,19 +161,22 @@ namespace Renci.SshNet.Security
         {
             ThrowHelper.ThrowIfNull(privateKeyData);
 
-            var der = new AsnReader(privateKeyData, AsnEncodingRules.DER).ReadSequence();
-            _ = der.ReadInteger(); // skip version
+            var keyReader = new AsnReader(privateKeyData, AsnEncodingRules.DER);
+            var sequenceReader = keyReader.ReadSequence();
+            keyReader.ThrowIfNotEmpty();
 
-            Modulus = der.ReadInteger();
-            Exponent = der.ReadInteger();
-            D = der.ReadInteger();
-            P = der.ReadInteger();
-            Q = der.ReadInteger();
-            DP = der.ReadInteger();
-            DQ = der.ReadInteger();
-            InverseQ = der.ReadInteger();
+            _ = sequenceReader.ReadInteger(); // skip version
 
-            der.ThrowIfNotEmpty();
+            Modulus = sequenceReader.ReadInteger();
+            Exponent = sequenceReader.ReadInteger();
+            D = sequenceReader.ReadInteger();
+            P = sequenceReader.ReadInteger();
+            Q = sequenceReader.ReadInteger();
+            DP = sequenceReader.ReadInteger();
+            DQ = sequenceReader.ReadInteger();
+            InverseQ = sequenceReader.ReadInteger();
+
+            sequenceReader.ThrowIfNotEmpty();
 
             RSA = RSA.Create();
             RSA.ImportParameters(GetRSAParameters());

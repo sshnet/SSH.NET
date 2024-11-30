@@ -87,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography
             }
             else if (length % _blockSize > 0)
             {
-                if (_mode is CfbCipherMode or OfbCipherMode)
+                if (_mode is CfbCipherMode or OfbCipherMode or CtrCipherMode)
                 {
                     paddingLength = _blockSize - (length % _blockSize);
                     input = input.Take(offset, length);
@@ -143,7 +143,7 @@ namespace Renci.SshNet.Security.Cryptography
             var paddingLength = 0;
             if (length % _blockSize > 0)
             {
-                if (_padding is null && _mode is CfbCipherMode or OfbCipherMode)
+                if (_padding is null && _mode is CfbCipherMode or OfbCipherMode or CtrCipherMode)
                 {
                     paddingLength = _blockSize - (length % _blockSize);
                     input = input.Take(offset, length);

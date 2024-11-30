@@ -57,6 +57,27 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        public void EncryptShouldTakeIntoAccountManualPaddingForLengthOfInputBufferPassedToDecryptBlockAndUnPaddingForTheFinalOutput_CFB()
+        {
+            var input = new byte[] { 0x0a, 0x00, 0x03, 0x02, 0x06 };
+            var output = new byte[] { 0x2c, 0x1a, 0x05, 0x00, 0x68 };
+            var key = new byte[] { 0x17, 0x78, 0x56, 0xe1, 0x3e, 0xbd, 0x3e, 0x50, 0x1d, 0x79, 0x3f, 0x0f, 0x55, 0x37, 0x45, 0x54 };
+            var blockCipher = new BlockCipherStub(key, 8, new CfbCipherModeStub(new byte[8]), null)
+            {
+                EncryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
+                {
+                    Assert.AreEqual(8, inputBuffer.Length);
+                    Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
+                    return inputBuffer.Length;
+                }
+            };
+
+            var actual = blockCipher.Encrypt(input);
+
+            Assert.IsTrue(output.SequenceEqual(actual));
+        }
+
+        [TestMethod]
         public void DecryptShouldTakeIntoAccountUnPaddingForTheFinalOutput()
         {
             var input = new byte[] { 0x0a, 0x00, 0x03, 0x02, 0x06, 0x08, 0x07, 0x05 };
@@ -126,6 +147,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             public CfbCipherModeStub(byte[] iv)
                 : base(iv)
             {
+            }
+
+            public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+            {
+                return Cipher.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
             }
 
             public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)

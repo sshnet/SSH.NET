@@ -80,9 +80,10 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
+            var paddingLength = 0;
             if (_padding is not null)
             {
-                var paddingLength = _blockSize - (length % _blockSize);
+                paddingLength = _blockSize - (length % _blockSize);
                 input = _padding.Pad(input, offset, length, paddingLength);
                 length += paddingLength;
                 offset = 0;
@@ -91,10 +92,10 @@ namespace Renci.SshNet.Security.Cryptography
             {
                 if (_mode is CfbCipherMode or OfbCipherMode)
                 {
-                    var paddingLength = _blockSize - (length % _blockSize);
+                    paddingLength = _blockSize - (length % _blockSize);
                     input = input.Take(offset, length);
-                    Array.Resize(ref input, length + paddingLength);
                     length += paddingLength;
+                    Array.Resize(ref input, length);
                     offset = 0;
                 }
                 else
@@ -121,6 +122,11 @@ namespace Renci.SshNet.Security.Cryptography
             if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
+            }
+
+            if (_padding is null && paddingLength > 0)
+            {
+                Array.Resize(ref output, output.Length - paddingLength);
             }
 
             return output;

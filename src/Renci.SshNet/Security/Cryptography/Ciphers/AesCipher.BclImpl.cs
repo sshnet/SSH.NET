@@ -47,12 +47,31 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     return _encryptor.TransformFinalBlock(input, offset, length);
                 }
 
+                var paddingLength = 0;
+                if (length % BlockSize > 0)
+                {
+                    if (_aes.Mode is System.Security.Cryptography.CipherMode.CFB or System.Security.Cryptography.CipherMode.OFB)
+                    {
+                        paddingLength = BlockSize - (length % BlockSize);
+                        input = input.Take(offset, length);
+                        length += paddingLength;
+                        Array.Resize(ref input, length);
+                        offset = 0;
+                    }
+                }
+
                 // Otherwise, (the most important case) assume this instance is
                 // used for one direction of an SSH connection, whereby the
                 // encrypted data in all packets are considered a single data
                 // stream i.e. we do not want to reset the state between calls to Encrypt.
                 var output = new byte[length];
                 _ = _encryptor.TransformBlock(input, offset, length, output, 0);
+
+                if (paddingLength > 0)
+                {
+                    Array.Resize(ref output, output.Length - paddingLength);
+                }
+
                 return output;
             }
 
@@ -65,12 +84,32 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     return _decryptor.TransformFinalBlock(input, offset, length);
                 }
 
+                var paddingLength = 0;
+                if (length % BlockSize > 0)
+                {
+                    if (_aes.Mode is System.Security.Cryptography.CipherMode.CFB or System.Security.Cryptography.CipherMode.OFB)
+                    {
+                        paddingLength = BlockSize - (length % BlockSize);
+                        var newInput = new byte[input.Length + paddingLength];
+                        Buffer.BlockCopy(input, offset, newInput, 0, length);
+                        input = newInput;
+                        length = input.Length;
+                        offset = 0;
+                    }
+                }
+
                 // Otherwise, (the most important case) assume this instance is
                 // used for one direction of an SSH connection, whereby the
                 // encrypted data in all packets are considered a single data
                 // stream i.e. we do not want to reset the state between calls to Decrypt.
                 var output = new byte[length];
                 _ = _decryptor.TransformBlock(input, offset, length, output, 0);
+
+                if (paddingLength > 0)
+                {
+                    Array.Resize(ref output, output.Length - paddingLength);
+                }
+
                 return output;
             }
 

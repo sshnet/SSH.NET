@@ -5,7 +5,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
@@ -30,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var key = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
             var iv = new byte[] { 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00 };
 
-            var des = new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
+            var des = new DesCipher(key, new CbcCipherMode(iv), padding: null);
             var actualCypher = des.Encrypt(input);
 
             Assert.IsTrue((expectedCypher.IsEqualTo(actualCypher)));
@@ -50,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                     0xe3, 0xbd
                 };
 
-            var des = new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding());
+            var des = new DesCipher(key, new CbcCipherMode(iv), padding: null);
             var plain = des.Decrypt(cypher);
 
             Assert.IsTrue(expectedPlain.IsEqualTo(plain));

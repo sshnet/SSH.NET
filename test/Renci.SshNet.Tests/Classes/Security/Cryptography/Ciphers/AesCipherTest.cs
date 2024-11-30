@@ -42,7 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xec, 0x47, 0x81, 0x82, 0x89, 0x24, 0x76, 0xe2, 0x20, 0x6a, 0x99, 0xe2, 0xa7, 0x5a, 0xb0, 0x40,
             };
 
-            var cipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false);
+            var cipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false);
             var actual1 = cipher.Encrypt(input.Take(32));
             var actual2 = cipher.Encrypt(input.Take(32, 32));
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xbc, 0x89, 0x7a, 0x22, 0x42, 0x2c, 0xba, 0x8e, 0xd7, 0x15, 0x22, 0x41, 0xe4, 0xb5, 0x0b, 0xad,
             };
 
-            var cipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false);
+            var cipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false);
             var actual1 = cipher.Decrypt(input.Take(32));
             var actual2 = cipher.Decrypt(input.Take(32, 32));
 
@@ -115,11 +115,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xfd, 0x34, 0xc5, 0x81, 0xfa, 0xb9, 0xe3, 0xc4, 0x10, 0xed, 0x06, 0x6e, 0x91, 0x5e, 0xfc, 0x47,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -133,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var key = new byte[] { 0xe4, 0x94, 0xf9, 0xb1, 0x00, 0x4f, 0x16, 0x2a, 0x80, 0x11, 0xea, 0x73, 0x0d, 0xb9, 0xbf, 0x64 };
             var iv = new byte[] { 0x74, 0x8b, 0x4f, 0xe6, 0xc1, 0x29, 0xb3, 0x54, 0xec, 0x77, 0x92, 0xf3, 0x15, 0xa0, 0x41, 0xa8 };
             var expected = new byte[] { 0x19, 0x7f, 0x80, 0xd8, 0xc9, 0x89, 0xc4, 0xa7, 0xc6, 0xc6, 0x3f, 0x9f, 0x1e, 0x00, 0x1f, 0x72, 0xa7, 0x5e, 0xde, 0x40, 0x88, 0xa2, 0x72, 0xf2, 0xed, 0x3f, 0x81, 0x45, 0xb6, 0xbd, 0x45, 0x87, 0x15, 0xa5, 0x10, 0x92, 0x4a, 0x37, 0x9e, 0xa9, 0x80, 0x1c, 0x14, 0x83, 0xa3, 0x39, 0x45, 0x28 };
-            var testCipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false);
+            var testCipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false);
 
             var actual = testCipher.Encrypt(input, 2, input.Length - 5);
 
@@ -147,7 +147,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var key = new byte[] { 0x17, 0x78, 0x56, 0xe1, 0x3e, 0xbd, 0x3e, 0x50, 0x1d, 0x79, 0x3f, 0x0f, 0x55, 0x37, 0x45, 0x54 };
             var iv = new byte[] { 0xe6, 0x65, 0x36, 0x0d, 0xdd, 0xd7, 0x50, 0xc3, 0x48, 0xdb, 0x48, 0x07, 0xa1, 0x30, 0xd2, 0x38 };
             var expected = new byte[] { 0xca, 0xfb, 0x1c, 0x49, 0xbf, 0x82, 0x2a, 0xbb, 0x1c, 0x52, 0xc7, 0x86, 0x22, 0x8a, 0xe5, 0xa4, 0xf3, 0xda, 0x4e, 0x1c, 0x3a, 0x87, 0x41, 0x1c, 0xd2, 0x6e, 0x76, 0xdc, 0xc2, 0xe9, 0xc2, 0x0e, 0xf5, 0xc7, 0xbd, 0x12, 0x85, 0xfa, 0x0e, 0xda, 0xee, 0x50, 0xd7, 0xfd, 0x81, 0x34, 0x25, 0x6d };
-            var testCipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false);
+            var testCipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false);
 
             var actual = testCipher.Encrypt(input);
 
@@ -161,7 +161,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var iv = new byte[] { 0xe6, 0x65, 0x36, 0x0d, 0xdd, 0xd7, 0x50, 0xc3, 0x48, 0xdb, 0x48, 0x07, 0xa1, 0x30, 0xd2, 0x38 };
             var input = new byte[] { 0xca, 0xfb, 0x1c, 0x49, 0xbf, 0x82, 0x2a, 0xbb, 0x1c, 0x52, 0xc7, 0x86, 0x22, 0x8a, 0xe5, 0xa4, 0xf3, 0xda, 0x4e, 0x1c, 0x3a, 0x87, 0x41, 0x1c, 0xd2, 0x6e, 0x76, 0xdc, 0xc2, 0xe9, 0xc2, 0x0e, 0xf5, 0xc7, 0xbd, 0x12, 0x85, 0xfa, 0x0e, 0xda, 0xee, 0x50, 0xd7, 0xfd, 0x81, 0x34, 0x25, 0x6d };
             var expected = new byte[] { 0x00, 0x00, 0x00, 0x2c, 0x1a, 0x05, 0x00, 0x00, 0x00, 0x0c, 0x73, 0x73, 0x68, 0x2d, 0x75, 0x73, 0x65, 0x72, 0x61, 0x75, 0x74, 0x68, 0xb0, 0x74, 0x21, 0x87, 0x16, 0xb9, 0x69, 0x48, 0x33, 0xce, 0xb3, 0xe7, 0xdc, 0x3f, 0x50, 0xdc, 0xcc, 0xd5, 0x27, 0xb7, 0xfe, 0x7a, 0x78, 0x22, 0xae, 0xc8 };
-            var testCipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false);
+            var testCipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false);
 
             var actual = testCipher.Decrypt(input);
 
@@ -175,7 +175,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var iv = new byte[] { 0xe6, 0x65, 0x36, 0x0d, 0xdd, 0xd7, 0x50, 0xc3, 0x48, 0xdb, 0x48, 0x07, 0xa1, 0x30, 0xd2, 0x38 };
             var input = new byte[] { 0x0a, 0xca, 0xfb, 0x1c, 0x49, 0xbf, 0x82, 0x2a, 0xbb, 0x1c, 0x52, 0xc7, 0x86, 0x22, 0x8a, 0xe5, 0xa4, 0xf3, 0xda, 0x4e, 0x1c, 0x3a, 0x87, 0x41, 0x1c, 0xd2, 0x6e, 0x76, 0xdc, 0xc2, 0xe9, 0xc2, 0x0e, 0xf5, 0xc7, 0xbd, 0x12, 0x85, 0xfa, 0x0e, 0xda, 0xee, 0x50, 0xd7, 0xfd, 0x81, 0x34, 0x25, 0x6d, 0x0a, 0x05 };
             var expected = new byte[] { 0x00, 0x00, 0x00, 0x2c, 0x1a, 0x05, 0x00, 0x00, 0x00, 0x0c, 0x73, 0x73, 0x68, 0x2d, 0x75, 0x73, 0x65, 0x72, 0x61, 0x75, 0x74, 0x68, 0xb0, 0x74, 0x21, 0x87, 0x16, 0xb9, 0x69, 0x48, 0x33, 0xce, 0xb3, 0xe7, 0xdc, 0x3f, 0x50, 0xdc, 0xcc, 0xd5, 0x27, 0xb7, 0xfe, 0x7a, 0x78, 0x22, 0xae, 0xc8 };
-            var testCipher = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false);
+            var testCipher = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false);
 
             var actual = testCipher.Decrypt(input, 1, input.Length - 3);
 
@@ -201,11 +201,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x9d, 0x55, 0x05, 0x4e, 0xe9, 0x50, 0xb5, 0x93, 0x50, 0x93, 0x69, 0x96, 0xa6, 0xdd, 0x1e, 0x15,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -229,11 +229,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x5b, 0x27, 0x39, 0x52, 0x46, 0x1d, 0x16, 0x28, 0xc7, 0xec, 0x1f, 0x65, 0x7f, 0x67, 0x76, 0x70,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -260,11 +260,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xb1, 0xe2, 0x80, 0xcc, 0x21, 0x98, 0xa1, 0x26, 0x28, 0xac, 0x0b, 0x61, 0x19, 0x9d, 0xda, 0xaa,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -293,11 +293,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x5a, 0xf4, 0xf8, 0x16, 0xc6, 0xf2, 0xdd, 0x6d, 0x51, 0x4d, 0x42, 0xa9, 0x59, 0xdc, 0xb2, 0x01,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -327,11 +327,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x3d, 0xc3, 0x0b, 0x2e, 0x7b, 0xd4, 0x20, 0x23, 0xb4, 0xb9, 0x2e, 0x07, 0x73, 0x37, 0x92, 0x80,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -355,11 +355,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x6b, 0x19, 0xbc, 0x1a, 0xe8, 0xf5, 0x3c, 0x9a, 0xbb, 0xaf, 0xb2, 0x28, 0xe1, 0x99, 0xd4, 0x81,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -384,11 +384,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x95, 0x9a, 0x5d, 0x23, 0x23, 0x58, 0x25, 0x2d, 0x5f, 0x33, 0xc1, 0x9e, 0x6b, 0x68, 0xa2, 0x1e,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -416,11 +416,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x40, 0xae, 0x13, 0xd6, 0xc1, 0xfc, 0x2b, 0xc0, 0xa0, 0x90, 0x9a, 0xfb, 0x96, 0xc7, 0xa0, 0x16,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -450,11 +450,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xa5, 0xd7, 0x6e, 0x76, 0x4f, 0x45, 0xef, 0xfe, 0xb2, 0x9f, 0xbc, 0x96, 0xd5, 0x49, 0x55, 0x31,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -485,11 +485,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xa0, 0xec, 0xa8, 0x7e, 0x68, 0xb7, 0x63, 0x7b, 0xc2, 0x5e, 0xc4, 0x33, 0xfa, 0xf2, 0x76, 0x83,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -513,11 +513,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xf5, 0x94, 0x26, 0x13, 0x73, 0x7c, 0x20, 0xc4, 0xc4, 0xd3, 0x46, 0xb6, 0x0c, 0xd4, 0x29, 0xf2,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -542,11 +542,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xbb, 0x89, 0x9c, 0xcb, 0x62, 0x32, 0x82, 0xb2, 0x58, 0xe2, 0x69, 0xd5, 0xce, 0x1d, 0xd0, 0xa9,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -574,11 +574,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xe4, 0xd5, 0x5d, 0x03, 0x40, 0x5a, 0xd8, 0x91, 0x30, 0x89, 0xdf, 0xcf, 0x74, 0x54, 0x43, 0x31,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -608,11 +608,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x4e, 0xd4, 0xc2, 0x5d, 0x32, 0x33, 0x1a, 0xb0, 0x12, 0xa7, 0x60, 0x31, 0x6a, 0xed, 0xa2, 0x2b,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -643,11 +643,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x62, 0xa7, 0x55, 0xf1, 0xc7, 0x6a, 0x0d, 0xb6, 0x67, 0xee, 0x09, 0xcc, 0xae, 0xe8, 0x13, 0x0f,
             };
 
-            var actual = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, iv: null, AesCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, iv: null, BlockCipherMode.ECB, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -674,11 +674,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xbd, 0x17, 0x7d, 0x43, 0xf9, 0x66, 0x21, 0xf3, 0x3f, 0xc1, 0x89, 0xd7, 0x8d, 0x11, 0xf0, 0x52,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -706,11 +706,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x97, 0xb2, 0xf2, 0xbf, 0xde, 0x3e, 0x6b, 0xee, 0x78, 0xf5, 0x77, 0xc9, 0x1a, 0x56, 0x01, 0x56,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -741,11 +741,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xc8, 0x60, 0x05, 0xde, 0x81, 0xe4, 0xc6, 0xcd, 0x31, 0x7f, 0x9e, 0x5d, 0x4b, 0x03, 0x5f, 0x71,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -778,11 +778,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xe9, 0x40, 0x33, 0xc1, 0x3f, 0xb8, 0xf6, 0x69, 0x6b, 0x78, 0xaf, 0x4f, 0x58, 0x4c, 0xe6, 0x74,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -816,11 +816,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xb4, 0x20, 0xcb, 0xb8, 0xb1, 0x7f, 0x0c, 0xf6, 0x17, 0x00, 0x0d, 0xde, 0x41, 0x46, 0x14, 0xae,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -848,11 +848,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x1f, 0x5a, 0xe4, 0x2d, 0x8b, 0x65, 0x70, 0x71, 0x26, 0x25, 0x3e, 0x46, 0x54, 0x3a, 0x99, 0x93,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -881,11 +881,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x26, 0xac, 0x95, 0x24, 0xb5, 0x20, 0x37, 0x0b, 0x38, 0x72, 0x02, 0x19, 0x46, 0xfc, 0x63, 0xc7,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -917,11 +917,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x10, 0x33, 0xf9, 0xe5, 0x3c, 0x5e, 0x35, 0x63, 0x5f, 0xbd, 0x35, 0x30, 0xbf, 0x9d, 0x1f, 0x9f,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -955,11 +955,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x8a, 0x64, 0x2a, 0x96, 0x82, 0xaa, 0xac, 0x8e, 0x88, 0x63, 0x28, 0x52, 0x5a, 0xfa, 0x8a, 0x5d,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -994,11 +994,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xe5, 0xa1, 0x39, 0x09, 0x9c, 0xdd, 0xea, 0x04, 0xb9, 0x60, 0x34, 0xbe, 0x65, 0x9c, 0x15, 0x98,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1026,11 +1026,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x3e, 0x7c, 0xdd, 0x13, 0x85, 0x57, 0x34, 0x61, 0xe6, 0x6e, 0xcd, 0x87, 0xd9, 0xaa, 0xf8, 0xe3,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1059,11 +1059,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x3e, 0x08, 0x87, 0x8c, 0xae, 0x30, 0xbc, 0x4f, 0x89, 0x16, 0x30, 0x42, 0x2a, 0xd9, 0xe6, 0xac,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1095,11 +1095,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x88, 0x46, 0x53, 0x42, 0x98, 0x69, 0x4b, 0x91, 0x9e, 0x5f, 0x69, 0x22, 0x58, 0xff, 0x48, 0xca,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1133,11 +1133,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xfe, 0xa4, 0x71, 0xef, 0x33, 0x6b, 0x4f, 0x86, 0xe1, 0xa9, 0xf8, 0xc3, 0x40, 0xa4, 0x56, 0xc4,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1172,11 +1172,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xbc, 0xcc, 0x5a, 0x91, 0x8a, 0xbb, 0xe9, 0x70, 0x39, 0x42, 0x8d, 0xb1, 0x02, 0x53, 0xa7, 0x88,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1203,11 +1203,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x8c, 0x75, 0xf1, 0xba, 0xf9, 0xe6, 0x66, 0x7d, 0x14, 0x4a, 0x9f, 0xfc, 0x31, 0xf7, 0x98, 0xcb,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1238,11 +1238,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xfc, 0x42, 0x49,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1275,11 +1275,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xd7, 0x15, 0xa4, 0x00, 0x33, 0xe6, 0x07, 0x1a, 0x6c, 0xc7, 0x95, 0x95, 0xb2, 0x52, 0x51, 0xc8,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1307,11 +1307,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x57, 0x7a, 0x4f, 0x03, 0x6e, 0x76, 0x43, 0x2d, 0xc0, 0x23, 0x26, 0x19, 0x58, 0x2e, 0x77, 0x83,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1343,11 +1343,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x05, 0xcb, 0xad,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1381,11 +1381,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x08, 0x4e, 0x2b, 0xbd, 0xbb, 0x0a, 0xdc, 0x25, 0xe5, 0x10, 0x6c, 0x3c, 0x89, 0x03, 0xa7, 0x63,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1413,11 +1413,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xd4, 0x21, 0xc2, 0xf2, 0x06, 0xcf, 0xa6, 0x65, 0x5d, 0xb0, 0x13, 0x3c, 0x87, 0x04, 0x5c, 0x59,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1449,11 +1449,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xb5, 0xcb, 0x97,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1487,11 +1487,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xbe, 0x24, 0x47, 0xeb, 0xe5, 0x0a, 0x24, 0x6d, 0xc2, 0x1e, 0xca, 0x52, 0x8d, 0x9a, 0xe7, 0x49,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1518,11 +1518,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xee, 0x28, 0x3f, 0x2e, 0xd9, 0xac, 0x08, 0x36, 0x8a, 0xc0, 0x44, 0x90, 0x4d, 0x1f, 0x35, 0x06,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1590,11 +1590,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x0d, 0x1a, 0x30, 0x6d, 0xa7, 0xbd, 0x2b, 0x9b, 0x05, 0x05, 0xad, 0x92, 0x9a, 0xd6, 0x8e, 0x28,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1658,11 +1658,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xf4, 0xfc, 0x58,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1696,11 +1696,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xe3, 0x39, 0xd5, 0xb8, 0x18, 0xe7, 0x1b, 0x0a, 0xdc, 0x63, 0xee, 0x3f, 0x59, 0xad, 0x76, 0xc1,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1764,11 +1764,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x46, 0xd7, 0x46,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1802,11 +1802,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x8e, 0x53, 0xc7, 0x0a, 0xf9, 0x9f, 0x3c, 0xbe, 0x37, 0x6f, 0xd7, 0xd6, 0x5e, 0x94, 0x6a, 0x22,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CTR, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1868,11 +1868,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x33, 0xf5, 0xcd,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1905,11 +1905,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x43, 0xe2, 0x0c, 0x6f, 0x22, 0x31, 0xcb, 0x7d, 0x4d, 0xd7, 0xa1, 0xa4, 0xd9, 0x7e, 0x55, 0xd2,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -1973,11 +1973,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x09, 0x88, 0x44,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -2011,11 +2011,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xb8, 0xa8, 0x9d, 0x3b, 0x4d, 0x82, 0x9b, 0x8c, 0x96, 0xeb, 0x4e, 0x9d, 0x91, 0xda, 0x6e, 0x9e,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -2079,11 +2079,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x15, 0x7a, 0xce,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -2117,11 +2117,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xf0, 0x1e, 0x04, 0x78, 0x6a, 0x90, 0x95, 0x80, 0x16, 0x8c, 0x7c, 0x86, 0xca, 0x26, 0x78, 0xab,
             };
 
-            var actual = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new AesCipher(key, (byte[])iv.Clone(), AesCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new AesCipher(key, (byte[])iv.Clone(), BlockCipherMode.OFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }

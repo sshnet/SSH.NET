@@ -26,49 +26,49 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
         [Benchmark]
         public byte[] Encrypt_CBC()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CBC, false).Encrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CBC, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CBC()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CBC, false).Decrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CBC, false).Decrypt(_data);
         }
 
         [Benchmark]
         public byte[] Encrypt_CFB()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CFB, false).Encrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CFB, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CFB()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CFB, false).Decrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CFB, false).Decrypt(_data);
         }
 
         [Benchmark]
         public byte[] Encrypt_CTR()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CTR, false).Encrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CTR, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CTR()
         {
-            return new AesCipher(_key, _iv, AesCipherMode.CTR, false).Decrypt(_data);
+            return new AesCipher(_key, _iv, BlockCipherMode.CTR, false).Decrypt(_data);
         }
 
         [Benchmark]
         public byte[] Encrypt_ECB()
         {
-            return new AesCipher(_key, null, AesCipherMode.ECB, false).Encrypt(_data);
+            return new AesCipher(_key, null, BlockCipherMode.ECB, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_ECB()
         {
-            return new AesCipher(_key, null, AesCipherMode.ECB, false).Decrypt(_data);
+            return new AesCipher(_key, null, BlockCipherMode.ECB, false).Decrypt(_data);
         }
     }
 }

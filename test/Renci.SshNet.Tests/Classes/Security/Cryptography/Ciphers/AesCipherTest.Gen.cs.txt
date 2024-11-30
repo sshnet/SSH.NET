@@ -6,11 +6,11 @@
 
 Dictionary<string, (string, CipherMode?)> modes = new()
 {
-    ["ecb"] = ("iv: null, AesCipherMode.ECB", CipherMode.ECB),
-    ["cbc"] = ("(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
-    ["cfb"] = ("(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
-    ["ctr"] = ("(byte[])iv.Clone(), AesCipherMode.CTR", null),
-    ["ofb"] = ("(byte[])iv.Clone(), AesCipherMode.OFB", CipherMode.OFB),
+    ["ecb"] = ("iv: null, BlockCipherMode.ECB", CipherMode.ECB),
+    ["cbc"] = ("(byte[])iv.Clone(), BlockCipherMode.CBC", CipherMode.CBC),
+    ["cfb"] = ("(byte[])iv.Clone(), BlockCipherMode.CFB", CipherMode.CFB),
+    ["ctr"] = ("(byte[])iv.Clone(), BlockCipherMode.CTR", null),
+    ["ofb"] = ("(byte[])iv.Clone(), BlockCipherMode.OFB", CipherMode.OFB),
 };
 
 Random random = new(123);

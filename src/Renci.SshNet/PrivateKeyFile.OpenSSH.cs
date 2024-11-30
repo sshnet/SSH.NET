@@ -8,7 +8,6 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 
 namespace Renci.SshNet
 {
@@ -91,25 +90,25 @@ namespace Renci.SshNet
                     {
                         case "3des-cbc":
                             ivLength = 8;
-                            cipherInfo = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null));
+                            cipherInfo = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: false));
                             break;
                         case "aes128-cbc":
-                            cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: false));
                             break;
                         case "aes192-cbc":
-                            cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: false));
                             break;
                         case "aes256-cbc":
-                            cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: false));
                             break;
                         case "aes128-ctr":
-                            cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CTR, pkcs7Padding: false));
                             break;
                         case "aes192-ctr":
-                            cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(192, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CTR, pkcs7Padding: false));
                             break;
                         case "aes256-ctr":
-                            cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false));
+                            cipherInfo = new CipherInfo(256, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CTR, pkcs7Padding: false));
                             break;
                         case "aes128-gcm@openssh.com":
                             cipherInfo = new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv, aadLength: 0), isAead: true);

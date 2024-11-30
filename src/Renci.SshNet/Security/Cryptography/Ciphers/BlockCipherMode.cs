@@ -1,9 +1,9 @@
 ﻿namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Custom AES Cipher Mode, follows System.Security.Cryptography.CipherMode.
+    /// Custom Cipher Mode, follows System.Security.Cryptography.CipherMode.
     /// </summary>
-    public enum AesCipherMode
+    public enum BlockCipherMode
     {
         /// <summary>Cipher Block Chain Mode.</summary>
         CBC = 1,

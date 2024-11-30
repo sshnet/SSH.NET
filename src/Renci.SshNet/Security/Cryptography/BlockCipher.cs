@@ -1,6 +1,9 @@
 ﻿using System;
 
+using Org.BouncyCastle.Crypto.Paddings;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -151,6 +154,12 @@ namespace Renci.SshNet.Security.Cryptography
             if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
+            }
+
+            if (_padding is PKCS7Padding)
+            {
+                var paddingLength = new Pkcs7Padding().PadCount(output);
+                Array.Resize(ref output, output.Length - paddingLength);
             }
 
             return output;

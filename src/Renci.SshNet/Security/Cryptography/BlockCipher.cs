@@ -2,7 +2,9 @@
 
 using Org.BouncyCastle.Crypto.Paddings;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -87,7 +89,18 @@ namespace Renci.SshNet.Security.Cryptography
             }
             else if (length % _blockSize > 0)
             {
-                throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
+                if (_mode is CfbCipherMode or OfbCipherMode)
+                {
+                    var paddingLength = _blockSize - (length % _blockSize);
+                    input = input.Take(offset, length);
+                    Array.Resize(ref input, length + paddingLength);
+                    length += paddingLength;
+                    offset = 0;
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
+                }
             }
 
             var output = new byte[length];
@@ -124,16 +137,21 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
+            var paddingLength = 0;
             if (length % _blockSize > 0)
             {
-                if (_padding is null)
+                if (_padding is null && _mode is CfbCipherMode or OfbCipherMode)
+                {
+                    paddingLength = _blockSize - (length % _blockSize);
+                    input = input.Take(offset, length);
+                    length += paddingLength;
+                    Array.Resize(ref input, length);
+                    offset = 0;
+                }
+                else
                 {
                     throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
-
-                input = _padding.Pad(_blockSize, input, offset, length);
-                offset = 0;
-                length = input.Length;
             }
 
             var output = new byte[length];
@@ -158,7 +176,11 @@ namespace Renci.SshNet.Security.Cryptography
 
             if (_padding is PKCS7Padding)
             {
-                var paddingLength = new Pkcs7Padding().PadCount(output);
+                paddingLength = new Pkcs7Padding().PadCount(output);
+            }
+
+            if (paddingLength > 0)
+            {
                 Array.Resize(ref output, output.Length - paddingLength);
             }
 

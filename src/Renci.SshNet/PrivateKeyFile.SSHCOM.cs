@@ -8,7 +8,6 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet
 {
@@ -52,7 +51,7 @@ namespace Renci.SshNet
                     }
 
                     var key = GetCipherKey(_passPhrase, 192 / 8);
-                    var ssh2Сipher = new TripleDesCipher(key, new CbcCipherMode(new byte[8]), new PKCS7Padding());
+                    var ssh2Сipher = new TripleDesCipher(key, new CbcCipherMode(new byte[8]), padding: null);
                     keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
                 }
                 else

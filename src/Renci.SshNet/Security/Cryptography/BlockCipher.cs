@@ -75,17 +75,16 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            if (length % _blockSize > 0)
+            if (_padding is not null)
             {
-                if (_padding is null)
-                {
-                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
-                }
-
                 var paddingLength = _blockSize - (length % _blockSize);
                 input = _padding.Pad(input, offset, length, paddingLength);
                 length += paddingLength;
                 offset = 0;
+            }
+            else if (length % _blockSize > 0)
+            {
+                throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
             }
 
             var output = new byte[length];

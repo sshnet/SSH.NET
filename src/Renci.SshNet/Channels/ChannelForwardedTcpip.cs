@@ -146,7 +146,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    _logger.LogWarning(ex, "Failure shutting down socket");
+                    _logger.LogInformation(ex, "Failure shutting down socket");
                 }
             }
         }

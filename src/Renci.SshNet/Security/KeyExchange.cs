@@ -197,7 +197,7 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            _logger.LogInformation("[{SessionId}] Creating {ServerEncryption} server cipher.",
+            _logger.LogDebug("[{SessionId}] Creating {ServerEncryption} server cipher.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentServerEncryption);
 
@@ -225,7 +225,7 @@ namespace Renci.SshNet.Security
 
             clientKey = GenerateSessionKey(SharedKey, ExchangeHash, clientKey, _clientCipherInfo.KeySize / 8);
 
-            _logger.LogInformation("[{SessionId}] Creating {ClientEncryption} client cipher.",
+            _logger.LogDebug("[{SessionId}] Creating {ClientEncryption} client cipher.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentClientEncryption);
 
@@ -258,7 +258,7 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'F', sessionId)),
                                                _serverHashInfo.KeySize / 8);
 
-            _logger.LogInformation("[{SessionId}] Creating {ServerHmacAlgorithm} server hmac algorithm.",
+            _logger.LogDebug("[{SessionId}] Creating {ServerHmacAlgorithm} server hmac algorithm.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentServerHmacAlgorithm);
 
@@ -290,7 +290,7 @@ namespace Renci.SshNet.Security
                                                Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'E', sessionId)),
                                                _clientHashInfo.KeySize / 8);
 
-            _logger.LogInformation("[{SessionId}] Creating {ClientHmacAlgorithm} client hmac algorithm.",
+            _logger.LogDebug("[{SessionId}] Creating {ClientHmacAlgorithm} client hmac algorithm.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentClientHmacAlgorithm);
 
@@ -310,7 +310,7 @@ namespace Renci.SshNet.Security
                 return null;
             }
 
-            _logger.LogInformation("[{SessionId}] Creating {CompressionAlgorithm} client compressor.",
+            _logger.LogDebug("[{SessionId}] Creating {CompressionAlgorithm} client compressor.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentClientCompressionAlgorithm);
 
@@ -334,7 +334,7 @@ namespace Renci.SshNet.Security
                 return null;
             }
 
-            _logger.LogInformation("[{SessionId}] Creating {ServerCompressionAlgorithm} server decompressor.",
+            _logger.LogDebug("[{SessionId}] Creating {ServerCompressionAlgorithm} server decompressor.",
                                                     Session.SessionIdHex,
                                                     Session.ConnectionInfo.CurrentServerCompressionAlgorithm);
 

@@ -445,7 +445,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                _logger.LogInformation("Disposing client.");
+                _logger.LogDebug("Disposing client.");
 
                 Disconnect();
 

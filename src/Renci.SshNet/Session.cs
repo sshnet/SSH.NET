@@ -1047,9 +1047,9 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
             }
 
-            if (_logger.IsEnabled(LogLevel.Debug))
+            if (_logger.IsEnabled(LogLevel.Trace))
             {
-                _logger.LogDebug("[{SessionId}] Sending message '{MessageType}' to server: '{Message}'.", SessionIdHex, message.GetType().Name, message);
+                _logger.LogTrace("[{SessionId}] Sending message {MessageName}({MessageNumber}) to server: '{Message}'.", SessionIdHex, message.MessageName, message.MessageNumber, message.ToString());
             }
 
             var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
@@ -1189,12 +1189,12 @@ namespace Renci.SshNet
             }
             catch (SshException ex)
             {
-                _logger.LogInformation(ex, "Failure sending message '{MessageType}' to server: '{Message}'", message.GetType().Name, message);
+                _logger.LogInformation(ex, "Failure sending message {MessageName}({MessageNumber}) to server: '{Message}'", message.MessageName, message.MessageNumber, message.ToString());
                 return false;
             }
             catch (SocketException ex)
             {
-                _logger.LogInformation(ex, "Failure sending message '{MessageType}' to server: '{Message}'", message.GetType().Name, message);
+                _logger.LogInformation(ex, "Failure sending message {MessageName}({MessageNumber}) to server: '{Message}'", message.MessageName, message.MessageNumber, message.ToString());
                 return false;
             }
         }
@@ -1831,9 +1831,9 @@ namespace Renci.SshNet
             var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset + 1, count - 1);
 
-            if (_logger.IsEnabled(LogLevel.Debug))
+            if (_logger.IsEnabled(LogLevel.Trace))
             {
-                _logger.LogDebug("[{SessionId}] Received message '{MessageType}' from server: '{Message}'.", SessionIdHex, message.GetType().Name, message);
+                _logger.LogTrace("[{SessionId}] Received message {MessageName}({MessageNumber}) from server: '{Message}'.", SessionIdHex, message.MessageName, message.MessageNumber, message.ToString());
             }
 
             return message;

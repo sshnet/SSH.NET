@@ -2,23 +2,27 @@
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 
+using Microsoft.Extensions.Logging;
+
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
     {
         private InfrastructureFixture()
         {
-        }
-
-        private static readonly Lazy<InfrastructureFixture> InstanceLazy = new Lazy<InfrastructureFixture>(() => new InfrastructureFixture());
-
-        public static InfrastructureFixture Instance
-        {
-            get
+            _loggerFactory = LoggerFactory.Create(builder =>
             {
-                return InstanceLazy.Value;
-            }
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddFilter("testcontainers", LogLevel.Information);
+                builder.AddConsole();
+            });
+
+            SshNetLoggingConfiguration.InitializeLogging(_loggerFactory);
         }
+
+        public static InfrastructureFixture Instance { get; } = new InfrastructureFixture();
+
+        private readonly ILoggerFactory _loggerFactory;
 
         private IContainer _sshServer;
 
@@ -34,11 +38,14 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
+            var containerLogger = _loggerFactory.CreateLogger("testcontainers");
+
             _sshServerImage = new ImageFromDockerfileBuilder()
                 .WithName("renci-ssh-tests-server-image")
                 .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), Path.Combine("test", "Renci.SshNet.IntegrationTests"))
                 .WithDockerfile("Dockerfile.TestServer")
                 .WithDeleteIfExists(true)
+                .WithLogger(containerLogger)
                 .Build();
 
             await _sshServerImage.CreateAsync();
@@ -47,6 +54,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 .WithHostname("renci-ssh-tests-server")
                 .WithImage(_sshServerImage)
                 .WithPortBinding(22, true)
+                .WithLogger(containerLogger)
                 .Build();
 
             await _sshServer.StartAsync();

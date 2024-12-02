@@ -8,6 +8,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
     public abstract class IntegrationTestBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// The SSH Server host name.
@@ -56,24 +57,10 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
         protected IntegrationTestBase()
         {
             _infrastructureFixture = InfrastructureFixture.Instance;
-            ShowInfrastructureInformation();
-        }
-
-        static IntegrationTestBase()
-        {
-            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Information);
-                builder.AddConsole();
-            });
-
-            SshNetLoggingConfiguration.InitializeLogging(loggerFactory);
-        }
-
-        private void ShowInfrastructureInformation()
-        {
-            Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
-            Console.WriteLine($"SSH Server port: {_infrastructureFixture.SshServerPort}");
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger.LogDebug("SSH Server: {Host}:{Port}",
+                _infrastructureFixture.SshServerHostName,
+                _infrastructureFixture.SshServerPort);
         }
 
         /// <summary>

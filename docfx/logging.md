@@ -1,7 +1,7 @@
 Logging
 =================
 
-SSH.NET uses the `Microsoft.Extensions.Logging` API to log diagnostic messages. In order to access the log messages of SSH.NET in your own application for diagnosis, register your own `ILoggerFactory` before using the SSH.NET APIs, for example:
+SSH.NET uses the [Microsoft.Extensions.Logging](https://learn.microsoft.com/dotnet/core/extensions/logging) API to log diagnostic messages. In order to access the log messages of SSH.NET in your own application for diagnosis, register your own `ILoggerFactory` before using the SSH.NET APIs, for example:
 
 ```cs
 ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>

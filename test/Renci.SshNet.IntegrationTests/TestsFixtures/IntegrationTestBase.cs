@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using Renci.SshNet.Abstractions;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
@@ -10,6 +8,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
     public abstract class IntegrationTestBase
     {
         private readonly InfrastructureFixture _infrastructureFixture;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// The SSH Server host name.
@@ -58,13 +57,10 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
         protected IntegrationTestBase()
         {
             _infrastructureFixture = InfrastructureFixture.Instance;
-            ShowInfrastructureInformation();
-        }
-
-        private void ShowInfrastructureInformation()
-        {
-            Console.WriteLine($"SSH Server host name: {_infrastructureFixture.SshServerHostName}");
-            Console.WriteLine($"SSH Server port: {_infrastructureFixture.SshServerPort}");
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger.LogDebug("SSH Server: {Host}:{Port}",
+                _infrastructureFixture.SshServerHostName,
+                _infrastructureFixture.SshServerPort);
         }
 
         /// <summary>
@@ -84,19 +80,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                     testFile.Write(buffer, 0, buffer.Length);
                 }
             }
-        }
-
-        protected void EnableTracing()
-        {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Verbose));
-            DiagnosticAbstraction.Source.Listeners.Remove("Default");
-            DiagnosticAbstraction.Source.Listeners.Add(new ConsoleTraceListener() { Name = "TestConsoleLogger" });
-        }
-
-        protected void DisableTracing()
-        {
-            DiagnosticAbstraction.Source.Switch = new SourceSwitch("sourceSwitch", nameof(SourceLevels.Off));
-            DiagnosticAbstraction.Source.Listeners.Remove("TestConsoleLogger");
         }
     }
 }

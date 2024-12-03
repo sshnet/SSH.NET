@@ -344,6 +344,20 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.OPENSSH.RSA.Encrypted.Aes.192.CTR.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.OPENSSH.RSA.Encrypted.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.OPENSSH.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.PuTTY2.Ed25519.Encrypted.12345.ppk", "12345", typeof(ED25519Key))]
+        [DataRow("Key.PuTTY2.Ed25519.ppk", null, typeof(ED25519Key))]
+        [DataRow("Key.PuTTY2.RSA.Encrypted.12345.ppk", "12345", typeof(RsaKey))]
+        [DataRow("Key.PuTTY2.RSA.ppk", null, typeof(RsaKey))]
+        [DataRow("Key.PuTTY3.DSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(DsaKey))]
+        [DataRow("Key.PuTTY3.DSA.ppk", null, typeof(DsaKey))]
+        [DataRow("Key.PuTTY3.ECDSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.PuTTY3.ECDSA.ppk", null, typeof(EcdsaKey))]
+        [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2i.12345.ppk", "12345", typeof(ED25519Key))]
+        [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2d.12345.ppk", "12345", typeof(ED25519Key))]
+        [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2id.12345.ppk", "12345", typeof(ED25519Key))]
+        [DataRow("Key.PuTTY3.Ed25519.ppk", null, typeof(ED25519Key))]
+        [DataRow("Key.PuTTY3.RSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(RsaKey))]
+        [DataRow("Key.PuTTY3.RSA.ppk", null, typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Aes.128.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Aes.192.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]
@@ -520,6 +534,86 @@ namespace Renci.SshNet.Tests.Classes
                 var pkFile = new PrivateKeyFile(stream, "12345");
 
                 TestRsaKeyFile(pkFile);
+            }
+        }
+
+        [TestMethod]
+        public void PuTTYv2_InvalidMac_ThrowsSshException()
+        {
+            string pk = """
+            PuTTY-User-Key-File-2: ssh-rsa
+            Encryption: none
+            Comment: Key.OPENSSH.RSA
+            Public-Lines: 6
+            AAAAB3NzaC1yc2EAAAADAQABAAABAQDtbs6KCLsePWaxraXweKYs/NqBWYT8Kx4w
+            oJHE8xO1ZO+hl0y3uF+S2FYDuHbRruhJJ4fa3sWp46lU0YVi9FXcFVawpkkxFx0m
+            JMJkCMffytiT3Re9neYqso3/d9xCyHg6I+dapPodKqDXiiJXxQ+1TCcTrmyRZLG/
+            G34QuVWkKobm8TY78Y0MpATsXNi3q9CKEwVIAEGqO9q7SaNfTTYpiIIyvq+CXxdi
+            QMDifn4nJBJDHOed+sv3dmhqq6NE/ZtPlSFeBvOvwcXC6pAa9REQJlNMjwGK//q0
+            4if3HaERo3q/EMu1dz30TZ3o1bpx2uLBoYUniOBVYMTmZTTTpd09
+            Private-Lines: 14
+            AAABAQDpeCr6CmnM632eu2zPkCN/W0eVJ6yftdpi4JFWA9veY5lK4RbcFR1NrRKv
+            Z+TWfNIGlSt+qc3eJ3IraDdsPWxsFEOBQpH4Bo1wI3dOnF/GDJV4mFAu8SQR2i/N
+            BFR/CtdF/GYTeOREZ9Vu/HKWsbynfnFyZfJ16XjqvaLx2PyAhje0qnREy9nhmU1u
+            FYc93k7HIdYv17eBs5LIjKNCBMpl7OHMStL9f8on9dirPIECo2pnZGDWQqIdGUdL
+            ooQja3IXBh+H5Fvov3FyHVKo61CFNaKubFLbl2kYPaOBqVd7KLDw+a6pOJYKpSZQ
+            zHox0Xe0WyKuvngrhAD2Sox5pEu1AAAAgQD+dPDqesFjwMJ9SXwWbqkLY3H5yXje
+            DZGEAXcm59L1buVHcqkkC2vIZQM0ToQPqib65bGYDPYfAsi08ropvJYpGR6HMDtd
+            8wU3VWkPHNpSb39rl0yFzWR7HkuyE5HwYjtYUgeM/EQ5Dq9+Zhn3W8iSBQMBWReF
+            7PFp0BfrxxGnawAAAIEA7t9vXgsFRX/YNMzR32bt9adFrRK3LEb+e36vlKD7aL/J
+            8VBe9aDlnuSkhpxrTCAiN9ZAbT4VG73zprqja4CQY4I2z0JotMUgBOS90LhCkTY5
+            WhN/1mnSgcM4SQ7WrrmJNYn5K3QFaeu18kOabsrhoFWkATT268QPYNSG8ni+P/cA
+            AACBALFEE9FIau5dLoE3eGPfPWx+nltH6Jdtf5uwec5CUHqTWnVD07NfPLr7+Ip1
+            vJ9jt0Qmp11h2XwidQLEfzBBFtgukA7b6ilx2831kJQmElcQdewo1ESmvHzWiAJP
+            fM4JjTcDudzQZXsq1IT4L5t8bewAoKc12OUcDSS/P2tFjpoM
+            Private-MAC: 7f487d19cb5d03257c9b9a2aaaaaaaaaaaaaaaaa
+            """;
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(pk)))
+            {
+                var ex = Assert.ThrowsException<SshException>(() => new PrivateKeyFile(stream));
+
+                Assert.AreEqual("MAC verification failed for PuTTY key file", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void PuTTYv3_InvalidMac_ThrowsSshException()
+        {
+            string pk = """
+            PuTTY-User-Key-File-3: ssh-rsa
+            Encryption: none
+            Comment: Key.OPENSSH.RSA
+            Public-Lines: 6
+            AAAAB3NzaC1yc2EAAAADAQABAAABAQDtbs6KCLsePWaxraXweKYs/NqBWYT8Kx4w
+            oJHE8xO1ZO+hl0y3uF+S2FYDuHbRruhJJ4fa3sWp46lU0YVi9FXcFVawpkkxFx0m
+            JMJkCMffytiT3Re9neYqso3/d9xCyHg6I+dapPodKqDXiiJXxQ+1TCcTrmyRZLG/
+            G34QuVWkKobm8TY78Y0MpATsXNi3q9CKEwVIAEGqO9q7SaNfTTYpiIIyvq+CXxdi
+            QMDifn4nJBJDHOed+sv3dmhqq6NE/ZtPlSFeBvOvwcXC6pAa9REQJlNMjwGK//q0
+            4if3HaERo3q/EMu1dz30TZ3o1bpx2uLBoYUniOBVYMTmZTTTpd09
+            Private-Lines: 14
+            AAABAQDpeCr6CmnM632eu2zPkCN/W0eVJ6yftdpi4JFWA9veY5lK4RbcFR1NrRKv
+            Z+TWfNIGlSt+qc3eJ3IraDdsPWxsFEOBQpH4Bo1wI3dOnF/GDJV4mFAu8SQR2i/N
+            BFR/CtdF/GYTeOREZ9Vu/HKWsbynfnFyZfJ16XjqvaLx2PyAhje0qnREy9nhmU1u
+            FYc93k7HIdYv17eBs5LIjKNCBMpl7OHMStL9f8on9dirPIECo2pnZGDWQqIdGUdL
+            ooQja3IXBh+H5Fvov3FyHVKo61CFNaKubFLbl2kYPaOBqVd7KLDw+a6pOJYKpSZQ
+            zHox0Xe0WyKuvngrhAD2Sox5pEu1AAAAgQD+dPDqesFjwMJ9SXwWbqkLY3H5yXje
+            DZGEAXcm59L1buVHcqkkC2vIZQM0ToQPqib65bGYDPYfAsi08ropvJYpGR6HMDtd
+            8wU3VWkPHNpSb39rl0yFzWR7HkuyE5HwYjtYUgeM/EQ5Dq9+Zhn3W8iSBQMBWReF
+            7PFp0BfrxxGnawAAAIEA7t9vXgsFRX/YNMzR32bt9adFrRK3LEb+e36vlKD7aL/J
+            8VBe9aDlnuSkhpxrTCAiN9ZAbT4VG73zprqja4CQY4I2z0JotMUgBOS90LhCkTY5
+            WhN/1mnSgcM4SQ7WrrmJNYn5K3QFaeu18kOabsrhoFWkATT268QPYNSG8ni+P/cA
+            AACBALFEE9FIau5dLoE3eGPfPWx+nltH6Jdtf5uwec5CUHqTWnVD07NfPLr7+Ip1
+            vJ9jt0Qmp11h2XwidQLEfzBBFtgukA7b6ilx2831kJQmElcQdewo1ESmvHzWiAJP
+            fM4JjTcDudzQZXsq1IT4L5t8bewAoKc12OUcDSS/P2tFjpoM
+            Private-MAC: ef76b1cf66a4a28d6fe08c70012c4bfa61771502e496d227dddddddddddddddd
+            """;
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(pk)))
+            {
+                var ex = Assert.ThrowsException<SshException>(() => new PrivateKeyFile(stream));
+
+                Assert.AreEqual("MAC verification failed for PuTTY key file", ex.Message);
             }
         }
 

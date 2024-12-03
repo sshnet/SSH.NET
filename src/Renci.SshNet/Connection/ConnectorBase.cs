@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -12,11 +14,14 @@ namespace Renci.SshNet.Connection
 {
     internal abstract class ConnectorBase : IConnector
     {
+        private readonly ILogger _logger;
+
         protected ConnectorBase(ISocketFactory socketFactory)
         {
             ThrowHelper.ThrowIfNull(socketFactory);
 
             SocketFactory = socketFactory;
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
         }
 
         internal ISocketFactory SocketFactory { get; private set; }
@@ -34,7 +39,7 @@ namespace Renci.SshNet.Connection
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
         protected Socket SocketConnect(EndPoint endPoint, TimeSpan timeout)
         {
-            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}'.", endPoint));
+            _logger.LogInformation("Initiating connection to '{EndPoint}'.", endPoint);
 
             var socket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
 
@@ -65,7 +70,7 @@ namespace Renci.SshNet.Connection
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}'.", endPoint));
+            _logger.LogInformation("Initiating connection to '{EndPoint}'.", endPoint);
 
             var socket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
             try

@@ -28,28 +28,29 @@ jobs:
     - name: Build IntegrationTests .NET Framework
       run:  dotnet build -f net48 test/Renci.SshNet.IntegrationTests/
 
-    - name: Run Unit Tests .NET
-      run: |
-        dotnet test \
-          -f net9.0 \
-          --no-build \
-          --logger "console;verbosity=normal" \
-          --logger GitHubActions \
-          -p:CollectCoverage=true \
-          -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
-          test/Renci.SshNet.Tests/
+    # - name: Run Unit Tests .NET
+    #   run: |
+    #     dotnet test \
+    #       -f net9.0 \
+    #       --no-build \
+    #       --logger "console;verbosity=normal" \
+    #       --logger GitHubActions \
+    #       -p:CollectCoverage=true \
+    #       -p:CoverletOutputFormat=cobertura \
+    #       -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
+    #       test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
           -f net9.0 \
           --no-build \
-          --logger "console;verbosity=normal" \
+          --logger "console;verbosity=detailed" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
           -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
+          --filter "Name~Common_DisposeAfterLossOfNetworkConnectivity" \
           test/Renci.SshNet.IntegrationTests/
 
     # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get

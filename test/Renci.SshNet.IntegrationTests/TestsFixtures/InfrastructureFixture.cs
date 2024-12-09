@@ -13,7 +13,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             _loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.SetMinimumLevel(LogLevel.Debug);
-                builder.AddFilter("testcontainers", LogLevel.Information);
+                builder.AddFilter("testcontainers", LogLevel.Debug);
                 builder.AddConsole();
             });
 

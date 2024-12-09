@@ -4,7 +4,7 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
 [![Version](https://img.shields.io/nuget/vpre/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
 [![NuGet download count](https://img.shields.io/nuget/dt/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
-[![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
+![Build status](https://github.com/sshnet/SSH.NET/actions/workflows/build.yml/badge.svg)
 
 ## Key Features
 
@@ -62,6 +62,7 @@ The main types provided by this library are:
 ## Additional Documentation
 
 * [Further examples](https://sshnet.github.io/SSH.NET/examples.html)
+* [Logging](https://sshnet.github.io/SSH.NET/logging.html)
 * [API browser](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.html)
 
 ## Encryption Methods
@@ -101,17 +102,21 @@ The main types provided by this library are:
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * DSA in
   * OpenSSL traditional PEM format ("BEGIN DSA PRIVATE KEY")
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * ECDSA 256/384/521 in
   * OpenSSL traditional PEM format ("BEGIN EC PRIVATE KEY")
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * ED25519 in
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
+  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 
 Private keys in OpenSSL traditional PEM format can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
@@ -123,7 +128,7 @@ Private keys in OpenSSL traditional PEM format can be encrypted using one of the
 
 Private keys in OpenSSL PKCS#8 PEM format can be encrypted using any cipher method BouncyCastle supports.
 
-Private keys in ssh.com format can be encrypted using one of the following cipher methods:
+Private keys in ssh.com format can be encrypted using the following cipher method:
 * 3des-cbc
 
 Private keys in OpenSSH key format can be encrypted using one of the following cipher methods:
@@ -137,6 +142,9 @@ Private keys in OpenSSH key format can be encrypted using one of the following c
 * aes128-gcm<span></span>@openssh.com
 * aes256-gcm<span></span>@openssh.com
 * chacha20-poly1305<span></span>@openssh.com
+
+Private keys in PuTTY private key format can be encrypted using the following cipher method:
+* aes256-cbc
 
 ## Host Key Algorithms
 
@@ -176,6 +184,19 @@ Private keys in OpenSSH key format can be encrypted using one of the following c
 ## Building the library
 
 The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
+
+## Using Pre-Release NuGet Package
+
+If you need an unreleased bugfix or feature, you can use the Pre-Release NuGet packages from the `develop` branch which are published to the [GitHub NuGet Registry](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+In order to pull packages from the registry you first have to create a Personal Access Token with the `read:packages` permissions. Then add a NuGet Source for SSH.NET:
+
+Note: you may have to add `--store-password-in-clear-text` on non-Windows platforms.
+
+```
+dotnet nuget add source --name SSH.NET --username <username> --password <personalaccesstoken> https://nuget.pkg.github.com/sshnet/index.json
+```
+
+Then you can add the the package as described [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
 
 ## Supporting SSH.NET
 

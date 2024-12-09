@@ -35,6 +35,14 @@ namespace Renci.SshNet.Sftp
         void ChangeDirectory(string path);
 
         /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Resolves a given path into an absolute path on the server.
         /// </summary>
         /// <param name="path">The path to resolve.</param>
@@ -153,6 +161,14 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         void RequestMkDir(string path);
+
+        /// <summary>
+        /// Asynchronously performs SSH_FXP_MKDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous <c>SSH_FXP_MKDIR</c> operation.</returns>
+        Task RequestMkDirAsync(string path, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Performs a <c>SSH_FXP_OPEN</c> request.
@@ -364,6 +380,16 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         void RequestRmDir(string path);
+
+        /// <summary>
+        /// Asynchronously performs an SSH_FXP_RMDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous <c>SSH_FXP_RMDIR</c> request.
+        /// </returns>
+        Task RequestRmDirAsync(string path, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Performs SSH_FXP_SETSTAT request.

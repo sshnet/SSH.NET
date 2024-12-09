@@ -30,13 +30,13 @@ Before subsequent coverage collections, delete the previous collections with `gi
 
 ## CI
 
-The repository makes use of continuous integration (CI) on [AppVeyor](https://ci.appveyor.com/project/drieseng/ssh-net/history) to validate builds and tests on PR branches and non-PR branches. At the time of writing, some tests can occasionally fail in CI due to a dependency on timing or a dependency on networking/socket code. If you see an existing test which is unrelated to your changes occasionally failing in CI but passing locally, you probably don't need to worry about it. If you see one of your newly-added tests failing, it is probably worth investigating why and whether it can be made more stable.
+The repository makes use of continuous integration (CI) with GitHub Actions to validate builds and tests on PR branches and non-PR branches. At the time of writing, some tests can occasionally fail in CI due to a dependency on timing or a dependency on networking/socket code. If you see an existing test which is unrelated to your changes occasionally failing in CI but passing locally, you probably don't need to worry about it. If you see one of your newly-added tests failing, it is probably worth investigating why and whether it can be made more stable.
 
 ## Good to know
 
-### TraceSource logging
+### Logging
 
-The Debug build of SSH.NET contains rudimentary logging functionality via `System.Diagnostics.TraceSource`. See `Renci.SshNet.Abstractions.DiagnosticAbstraction` for usage examples.
+The tests always log to the console. See the [Logging documentation](https://sshnet.github.io/SSH.NET/logging.html) on how to set a custom `ILoggerFactory`.
 
 ### Wireshark
 

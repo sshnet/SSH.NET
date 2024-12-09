@@ -46,21 +46,21 @@ namespace Renci.SshNet
         /// The timeout to wait until an operation completes. The default value is negative
         /// one (-1) milliseconds, which indicates an infinite timeout period.
         /// </value>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="int.MaxValue"/> milliseconds.</exception>
         public TimeSpan OperationTimeout
         {
             get
             {
-                CheckDisposed();
-
                 return TimeSpan.FromMilliseconds(_operationTimeout);
             }
             set
             {
-                CheckDisposed();
-
                 _operationTimeout = value.AsTimeout(nameof(OperationTimeout));
+
+                if (_sftpSession is { } sftpSession)
+                {
+                    sftpSession.OperationTimeout = _operationTimeout;
+                }
             }
         }
 
@@ -306,6 +306,33 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Asynchronously requests to change the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+            ThrowHelper.ThrowIfNull(path);
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return _sftpSession.ChangeDirectoryAsync(path, cancellationToken);
+        }
+
+        /// <summary>
         /// Changes permissions of file(s) to specified mode.
         /// </summary>
         /// <param name="path">File(s) path, may match multiple files.</param>
@@ -347,6 +374,32 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Asynchronously requests to create a remote directory specified by path.
+        /// </summary>
+        /// <param name="path">Directory path to create.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous create directory operation.</returns>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to create the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            await _sftpSession.RequestMkDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Deletes remote directory specified by path.
         /// </summary>
         /// <param name="path">Directory to be deleted path.</param>
@@ -369,6 +422,24 @@ namespace Renci.SshNet
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
             _sftpSession.RequestRmDir(fullPath);
+        }
+
+        /// <inheritdoc />
+        public async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            await _sftpSession.RequestRmDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -396,18 +467,7 @@ namespace Renci.SshNet
             _sftpSession.RequestRemove(fullPath);
         }
 
-        /// <summary>
-        /// Asynchronously deletes remote file specified by path.
-        /// </summary>
-        /// <param name="path">File to be deleted path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
         public async Task DeleteFileAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1472,6 +1532,13 @@ namespace Renci.SshNet
         {
             var file = Get(path);
             file.Delete();
+        }
+
+        /// <inheritdoc />
+        public async Task DeleteAsync(string path, CancellationToken cancellationToken = default)
+        {
+            var file = await GetAsync(path, cancellationToken).ConfigureAwait(false);
+            await file.DeleteAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

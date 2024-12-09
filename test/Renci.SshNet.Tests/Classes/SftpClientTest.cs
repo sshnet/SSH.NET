@@ -115,37 +115,5 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("OperationTimeout", ex.ParamName);
             }
         }
-
-        [TestMethod]
-        public void OperationTimeout_Disposed()
-        {
-            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
-            var target = new SftpClient(connectionInfo);
-            target.Dispose();
-
-            // getter
-            try
-            {
-                var actual = target.OperationTimeout;
-                Assert.Fail("Should have failed, but returned: " + actual);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(typeof(SftpClient).FullName, ex.ObjectName);
-            }
-
-            // setter
-            try
-            {
-                target.OperationTimeout = TimeSpan.FromMilliseconds(5);
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(typeof(SftpClient).FullName, ex.ObjectName);
-            }
-        }
     }
 }

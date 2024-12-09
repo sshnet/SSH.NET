@@ -11,12 +11,12 @@ namespace Renci.SshNet
     internal interface ISubsystemSession : IDisposable
     {
         /// <summary>
-        /// Gets or set the number of seconds to wait for an operation to complete.
+        /// Gets or sets the number of milliseconds to wait for an operation to complete.
         /// </summary>
         /// <value>
-        /// The number of seconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.
+        /// The number of milliseconds to wait for an operation to complete, or <c>-1</c> to wait indefinitely.
         /// </value>
-        int OperationTimeout { get; }
+        int OperationTimeout { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this session is open.

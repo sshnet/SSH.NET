@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
@@ -118,6 +119,23 @@ namespace Renci.SshNet.Common
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Sets a wait handle, swallowing any resulting <see cref="ObjectDisposedException"/>.
+        /// Used in cases where set and dispose may race.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle to set.</param>
+        public static void SetIgnoringObjectDisposed(this EventWaitHandle waitHandle)
+        {
+            try
+            {
+                _ = waitHandle.Set();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ODE intentionally ignored.
+            }
         }
 
         /// <summary>
@@ -332,6 +350,13 @@ namespace Renci.SshNet.Common
             }
 
             return socket.Connected;
+        }
+
+        internal static string Join(this IEnumerable<string> values, string separator)
+        {
+            // Used to avoid analyzers asking to "use an overload with a char parameter"
+            // which is not available on all targets.
+            return string.Join(separator, values);
         }
     }
 }

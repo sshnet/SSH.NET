@@ -1,5 +1,0 @@
-# empty to avoid AppVeyor errors until it's disabled
-image: Ubuntu2204
-
-build_script:
- - echo done

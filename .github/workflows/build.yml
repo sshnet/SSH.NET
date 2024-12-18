@@ -17,13 +17,13 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net8.0 test/Renci.SshNet.Tests/
+      run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net8.0 test/Renci.SshNet.IntegrationTests/
+      run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
 
     - name: Build IntegrationTests .NET Framework
       run:  dotnet build -f net48 test/Renci.SshNet.IntegrationTests/
@@ -31,25 +31,25 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
-          -f net8.0 \
+          -f net9.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_unit_test_net_8_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
           test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
-          -f net8.0 \
+          -f net9.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_8_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
     # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
@@ -111,13 +111,13 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test `
-          -f net8.0 `
+          -f net9.0 `
           --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=../../coverlet/windows_unit_test_net_8_coverage.xml `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_net_9_coverage.xml `
           test/Renci.SshNet.Tests/
 
     - name: Run Unit Tests .NET Framework

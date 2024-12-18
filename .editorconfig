@@ -195,6 +195,9 @@ dotnet_diagnostic.S2971.severity = none
 # This is rather harmless.
 dotnet_diagnostic.S3218.severity = none
 
+# S3236: Remove this argument from the method call; it hides the caller information.
+dotnet_diagnostic.S3236.severity = none
+
 # S3267: Loops should be simplified with "LINQ" expressions
 # https://rules.sonarsource.com/csharp/RSPEC-3267
 #
@@ -700,6 +703,9 @@ dotnet_code_quality.CA1828.api_surface = all
 #
 # Similar to MA0053, but does not support public types and types that define (new) virtual members.
 dotnet_diagnostic.CA1852.severity = none
+
+# CA1848: don't enforce LoggerMessage pattern
+dotnet_diagnostic.CA1848.severity = suggestion
 
 # CA1859: Change return type for improved performance
 #

@@ -27,7 +27,7 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
             {
                 // It is not allowed to use no padding on non-block lengths
                 // It makes sense in cfb, ctr and ofb modes
-                if (!pad && inputLength % 16 != 0 && mode is not "cfb" or "ctr" or "ofb")
+                if (!pad && inputLength % 16 != 0 && mode is not ("cfb" or "ctr" or "ofb"))
                 {
                     continue;
                 }

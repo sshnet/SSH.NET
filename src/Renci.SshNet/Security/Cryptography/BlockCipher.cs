@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Org.BouncyCastle.Crypto.Paddings;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
@@ -13,7 +15,7 @@ namespace Renci.SshNet.Security.Cryptography
     {
         private readonly CipherMode _mode;
 
-        private readonly CipherPadding _padding;
+        private readonly IBlockCipherPadding _padding;
 
         /// <summary>
         /// Gets the size of the block in bytes.
@@ -56,7 +58,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
-        protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
+        protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, IBlockCipherPadding padding)
             : base(key)
         {
             _blockSize = blockSize;
@@ -81,7 +83,9 @@ namespace Renci.SshNet.Security.Cryptography
             if (_padding is not null)
             {
                 paddingLength = _blockSize - (length % _blockSize);
-                input = _padding.Pad(input, offset, length, paddingLength);
+                input = input.Take(offset, length);
+                Array.Resize(ref input, length + paddingLength);
+                _ = _padding.AddPadding(input, length);
                 length += paddingLength;
                 offset = 0;
             }

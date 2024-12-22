@@ -1,8 +1,9 @@
 using System;
 using System.Security.Cryptography;
 
+using Org.BouncyCastle.Crypto.Paddings;
+
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -28,13 +29,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             if (mode == BlockCipherMode.OFB)
             {
                 // OFB is not supported on modern .NET
-                _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new PKCS7Padding() : null);
+                _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
 #if !NET6_0_OR_GREATER
             else if (mode == BlockCipherMode.CFB)
             {
                 // CFB not supported on NetStandard 2.1
-                _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new PKCS7Padding() : null);
+                _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
 #endif
             else if (mode == BlockCipherMode.CTR)

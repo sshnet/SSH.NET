@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Security.Cryptography;
 
+using Org.BouncyCastle.Crypto.Paddings;
+
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     public partial class AesCipher
@@ -11,7 +13,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             private readonly ICryptoTransform _encryptor;
             private readonly ICryptoTransform _decryptor;
 
-            public BlockImpl(byte[] key, CipherMode mode, CipherPadding padding)
+            public BlockImpl(byte[] key, CipherMode mode, IBlockCipherPadding padding)
                 : base(key, 16, mode, padding)
             {
                 var aes = Aes.Create();

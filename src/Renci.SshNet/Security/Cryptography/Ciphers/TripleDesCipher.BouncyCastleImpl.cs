@@ -1,5 +1,6 @@
 ﻿#if !NET6_0_OR_GREATER
 using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -12,7 +13,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             private DesEdeEngine _encryptor;
             private DesEdeEngine _decryptor;
 
-            public BouncyCastleImpl(byte[] key, CipherMode mode, CipherPadding padding)
+            public BouncyCastleImpl(byte[] key, CipherMode mode, IBlockCipherPadding padding)
                 : base(key, 8, mode, padding)
             {
             }

@@ -48,9 +48,6 @@ namespace Renci.SshNet
     ///         <description>DES-EDE3-CFB</description>
     ///     </item>
     ///     <item>
-    ///         <description>DES-CBC</description>
-    ///     </item>
-    ///     <item>
     ///         <description>AES-128-CBC</description>
     ///     </item>
     ///     <item>

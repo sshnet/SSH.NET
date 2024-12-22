@@ -54,9 +54,6 @@ namespace Renci.SshNet
                         case "DES-EDE3-CFB":
                             cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, BlockCipherMode.CFB, pkcs7Padding: false));
                             break;
-                        case "DES-CBC":
-                            cipher = new CipherInfo(64, (key, iv) => new DesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: true));
-                            break;
                         case "AES-128-CBC":
                             cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, BlockCipherMode.CBC, pkcs7Padding: true));
                             break;

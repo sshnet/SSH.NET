@@ -2,8 +2,9 @@
 using System.Security.Cryptography;
 
 #if !NET
+using Org.BouncyCastle.Crypto.Paddings;
+
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 #endif
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -36,7 +37,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 // CFB8 not supported on .NET Framework, but supported on .NET
                 // see https://github.com/microsoft/referencesource/blob/51cf7850defa8a17d815b4700b67116e3fa283c2/mscorlib/system/security/cryptography/tripledescryptoserviceprovider.cs#L76-L78
                 // see https://github.com/dotnet/runtime/blob/e7d837da5b1aacd9325a8b8f2214cfaf4d3f0ff6/src/libraries/System.Security.Cryptography/src/System/Security/Cryptography/TripleDesImplementation.cs#L229-L236
-                _impl = new BouncyCastleImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new PKCS7Padding() : null);
+                _impl = new BouncyCastleImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
             else
 #endif

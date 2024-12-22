@@ -121,7 +121,7 @@ namespace Renci.SshNet.Tests.Classes
             var host = _random.Next().ToString();
             var port = _random.Next(1, 100);
             var userName = _random.Next().ToString();
-            var privateKeys = new[] { GetRsaKey(), GetDsaKey() };
+            var privateKeys = new[] { GetRsaKey(), GetEcdsaKey() };
 
             var client = new ScpClient(host, port, userName, privateKeys);
             Assert.AreEqual(16 * 1024U, client.BufferSize);
@@ -154,7 +154,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var host = _random.Next().ToString();
             var userName = _random.Next().ToString();
-            var privateKeys = new[] { GetRsaKey(), GetDsaKey() };
+            var privateKeys = new[] { GetRsaKey(), GetEcdsaKey() };
 
             var client = new ScpClient(host, userName, privateKeys);
             Assert.AreEqual(16 * 1024U, client.BufferSize);
@@ -222,9 +222,9 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private PrivateKeyFile GetDsaKey()
+        private PrivateKeyFile GetEcdsaKey()
         {
-            using (var stream = GetData("Key.SSH2.DSA.txt"))
+            using (var stream = GetData("Key.ECDSA.txt"))
             {
                 return new PrivateKeyFile(stream);
             }

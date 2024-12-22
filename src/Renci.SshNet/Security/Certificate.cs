@@ -348,9 +348,6 @@ namespace Renci.SshNet.Security
                     case "ssh-rsa-cert-v01@openssh.com":
                         keyData = new SshKeyData("ssh-rsa", LoadPublicKeys(2));
                         return new RsaKey(keyData);
-                    case "ssh-dss-cert-v01@openssh.com":
-                        keyData = new SshKeyData("ssh-dss", LoadPublicKeys(4));
-                        return new DsaKey(keyData);
                     case "ecdsa-sha2-nistp256-cert-v01@openssh.com":
                     case "ecdsa-sha2-nistp384-cert-v01@openssh.com":
                     case "ecdsa-sha2-nistp521-cert-v01@openssh.com":

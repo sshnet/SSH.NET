@@ -54,27 +54,6 @@ namespace Renci.SshNet
                     return new RsaKey(key);
                 }
 
-                if (algorithmOid.Equals(X9ObjectIdentifiers.IdDsa))
-                {
-                    var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();
-                    var parametersReader = new AsnReader(parameters, AsnEncodingRules.BER);
-                    var sequenceReader = parametersReader.ReadSequence();
-                    parametersReader.ThrowIfNotEmpty();
-
-                    var p = sequenceReader.ReadInteger();
-                    var q = sequenceReader.ReadInteger();
-                    var g = sequenceReader.ReadInteger();
-                    sequenceReader.ThrowIfNotEmpty();
-
-                    var keyReader = new AsnReader(key, AsnEncodingRules.BER);
-                    var x = keyReader.ReadInteger();
-                    keyReader.ThrowIfNotEmpty();
-
-                    var y = BigInteger.ModPow(g, x, p);
-
-                    return new DsaKey(p, q, g, y, x);
-                }
-
                 if (algorithmOid.Equals(X9ObjectIdentifiers.IdECPublicKey))
                 {
                     var parameters = privateKeyInfo.PrivateKeyAlgorithm.Parameters.GetDerEncoded();

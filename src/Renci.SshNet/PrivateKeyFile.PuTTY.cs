@@ -184,20 +184,12 @@ namespace Renci.SshNet
                         var prv = privateKeyReader.ReadBignum2();
                         parsedKey = new EcdsaKey(curve, pub, prv);
                         break;
-                    case "ssh-dss":
-                        var p = publicKeyReader.ReadBignum();
-                        var q = publicKeyReader.ReadBignum();
-                        var g = publicKeyReader.ReadBignum();
-                        var y = publicKeyReader.ReadBignum();
-                        var x = privateKeyReader.ReadBignum();
-                        parsedKey = new DsaKey(p, q, g, y, x);
-                        break;
                     case "ssh-rsa":
                         var exponent = publicKeyReader.ReadBignum(); // e
                         var modulus = publicKeyReader.ReadBignum(); // n
                         var d = privateKeyReader.ReadBignum(); // d
-                        p = privateKeyReader.ReadBignum(); // p
-                        q = privateKeyReader.ReadBignum(); // q
+                        var p = privateKeyReader.ReadBignum(); // p
+                        var q = privateKeyReader.ReadBignum(); // q
                         var inverseQ = privateKeyReader.ReadBignum(); // iqmp
                         parsedKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         break;

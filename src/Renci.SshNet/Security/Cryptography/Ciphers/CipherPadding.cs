@@ -54,5 +54,12 @@
         /// The padded data array.
         /// </returns>
         public abstract byte[] Pad(byte[] input, int offset, int length, int paddinglength);
+
+        /// <summary>
+        /// Gets the padd count from the specified input.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The padd count.</returns>
+        public abstract int PadCount(byte[] input);
     }
 }

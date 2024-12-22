@@ -218,18 +218,21 @@ namespace Renci.SshNet.Security
         /// <param name="data">DER encoded private key data.</param>
         public EcdsaKey(byte[] data)
         {
-            var der = new AsnReader(data, AsnEncodingRules.DER).ReadSequence();
-            _ = der.ReadInteger(); // skip version
+            var keyReader = new AsnReader(data, AsnEncodingRules.DER);
+            var sequenceReader = keyReader.ReadSequence();
+            keyReader.ThrowIfNotEmpty();
 
-            var privatekey = der.ReadOctetString().TrimLeadingZeros();
+            _ = sequenceReader.ReadInteger(); // skip version
 
-            var s0 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
+            var privatekey = sequenceReader.ReadOctetString().TrimLeadingZeros();
+
+            var s0 = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
             var curve = s0.ReadObjectIdentifier();
 
-            var s1 = der.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
+            var s1 = sequenceReader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 1, isConstructed: true));
             var pubkey = s1.ReadBitString(out _);
 
-            der.ThrowIfNotEmpty();
+            sequenceReader.ThrowIfNotEmpty();
 
             _impl = Import(curve, pubkey, privatekey);
         }

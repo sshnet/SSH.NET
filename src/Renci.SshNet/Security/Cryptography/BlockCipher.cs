@@ -1,6 +1,8 @@
 ﻿using System;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -75,17 +77,28 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            if (length % _blockSize > 0)
+            var paddingLength = 0;
+            if (_padding is not null)
             {
-                if (_padding is null)
-                {
-                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
-                }
-
-                var paddingLength = _blockSize - (length % _blockSize);
+                paddingLength = _blockSize - (length % _blockSize);
                 input = _padding.Pad(input, offset, length, paddingLength);
                 length += paddingLength;
                 offset = 0;
+            }
+            else if (length % _blockSize > 0)
+            {
+                if (_mode is CfbCipherMode or OfbCipherMode or CtrCipherMode)
+                {
+                    paddingLength = _blockSize - (length % _blockSize);
+                    input = input.Take(offset, length);
+                    length += paddingLength;
+                    Array.Resize(ref input, length);
+                    offset = 0;
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
+                }
             }
 
             var output = new byte[length];
@@ -108,6 +121,11 @@ namespace Renci.SshNet.Security.Cryptography
                 throw new InvalidOperationException("Encryption error.");
             }
 
+            if (_padding is null && paddingLength > 0)
+            {
+                Array.Resize(ref output, output.Length - paddingLength);
+            }
+
             return output;
         }
 
@@ -122,16 +140,21 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
+            var paddingLength = 0;
             if (length % _blockSize > 0)
             {
-                if (_padding is null)
+                if (_padding is null && _mode is CfbCipherMode or OfbCipherMode or CtrCipherMode)
+                {
+                    paddingLength = _blockSize - (length % _blockSize);
+                    input = input.Take(offset, length);
+                    length += paddingLength;
+                    Array.Resize(ref input, length);
+                    offset = 0;
+                }
+                else
                 {
                     throw new ArgumentException(string.Format("The data block size is incorrect for {0}.", GetType().Name), "data");
                 }
-
-                input = _padding.Pad(_blockSize, input, offset, length);
-                offset = 0;
-                length = input.Length;
             }
 
             var output = new byte[length];
@@ -152,6 +175,16 @@ namespace Renci.SshNet.Security.Cryptography
             if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
+            }
+
+            if (_padding is not null)
+            {
+                paddingLength = _padding.PadCount(output);
+            }
+
+            if (paddingLength > 0)
+            {
+                Array.Resize(ref output, output.Length - paddingLength);
             }
 
             return output;

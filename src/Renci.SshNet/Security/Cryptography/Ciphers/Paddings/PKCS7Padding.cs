@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
 {
     /// <summary>
@@ -44,6 +46,27 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
             }
 
             return output;
+        }
+
+        /// <inheritdoc/>
+        public override int PadCount(byte[] input)
+        {
+            var padValue = input[input.Length - 1];
+            int count = padValue;
+            var position = input.Length - count;
+
+            var failed = (position | (count - 1)) >> 31;
+            for (var i = 0; i < input.Length; ++i)
+            {
+                failed |= (input[i] ^ padValue) & ~((i - position) >> 31);
+            }
+
+            if (failed != 0)
+            {
+                throw new SshException("pad block corrupted");
+            }
+
+            return count;
         }
     }
 }

@@ -22,19 +22,24 @@
 
         private static void PauseSshd(SshClient client)
         {
-            var command = client.CreateCommand("sudo echo 'DenyUsers sshnet' >> /etc/ssh/sshd_config");
-            var output = command.Execute();
-            if (command.ExitStatus != 0)
+            using (var command = client.CreateCommand("sudo echo 'DenyUsers sshnet' >> /etc/ssh/sshd_config"))
             {
-                throw new ApplicationException(
-                    $"Blocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                var output = command.Execute();
+                if (command.ExitStatus != 0)
+                {
+                    throw new ApplicationException(
+                        $"Blocking user sshnet failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                }
             }
-            command = client.CreateCommand("sudo pkill -9 -U sshnet -f sshd.pam");
-            output = command.Execute();
-            if (command.ExitStatus != 0)
+
+            using (var command = client.CreateCommand("sudo pkill -9 -U sshnet -f sshd-session.pam"))
             {
-                throw new ApplicationException(
-                    $"Killing sshd.pam service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                var output = command.Execute();
+                if (command.ExitStatus != 0)
+                {
+                    throw new ApplicationException(
+                        $"Killing sshd-session.pam service failed with exit code {command.ExitStatus}.\r\n{output}\r\n{command.Error}");
+                }
             }
         }
     }

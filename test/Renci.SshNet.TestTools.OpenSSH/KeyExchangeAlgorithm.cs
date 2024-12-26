@@ -14,7 +14,8 @@
         public static readonly KeyExchangeAlgorithm EcdhSha2Nistp521 = new KeyExchangeAlgorithm("ecdh-sha2-nistp521");
         public static readonly KeyExchangeAlgorithm Curve25519Sha256 = new KeyExchangeAlgorithm("curve25519-sha256");
         public static readonly KeyExchangeAlgorithm Curve25519Sha256Libssh = new KeyExchangeAlgorithm("curve25519-sha256@libssh.org");
-        public static readonly KeyExchangeAlgorithm Sntrup4591761x25519Sha512 = new KeyExchangeAlgorithm("sntrup4591761x25519-sha512@tinyssh.org");
+        public static readonly KeyExchangeAlgorithm SNtruP761X25519Sha512 = new KeyExchangeAlgorithm("sntrup761x25519-sha512");
+        public static readonly KeyExchangeAlgorithm SNtruP761X25519Sha512OpenSsh = new KeyExchangeAlgorithm("sntrup761x25519-sha512@openssh.com");
 
         public KeyExchangeAlgorithm(string name)
         {

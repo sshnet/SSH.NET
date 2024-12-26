@@ -349,6 +349,8 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Func<IKeyExchange>>
                 {
+                    { "sntrup761x25519-sha512", () => new KeyExchangeSNtruP761X25519Sha512() },
+                    { "sntrup761x25519-sha512@openssh.com", () => new KeyExchangeSNtruP761X25519Sha512() },
                     { "curve25519-sha256", () => new KeyExchangeECCurve25519() },
                     { "curve25519-sha256@libssh.org", () => new KeyExchangeECCurve25519() },
                     { "ecdh-sha2-nistp256", () => new KeyExchangeECDH256() },

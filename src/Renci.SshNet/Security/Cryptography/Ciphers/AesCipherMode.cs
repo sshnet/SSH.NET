@@ -3,7 +3,7 @@
     /// <summary>
     /// Custom Cipher Mode, follows System.Security.Cryptography.CipherMode.
     /// </summary>
-    public enum BlockCipherMode
+    public enum AesCipherMode
     {
         /// <summary>Cipher Block Chain Mode.</summary>
         CBC = 1,

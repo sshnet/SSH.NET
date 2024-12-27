@@ -23,22 +23,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="pkcs7Padding">Enable PKCS7 padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
-        public AesCipher(byte[] key, byte[] iv, BlockCipherMode mode, bool pkcs7Padding = false)
+        public AesCipher(byte[] key, byte[] iv, AesCipherMode mode, bool pkcs7Padding = false)
             : base(key, 16, mode: null, padding: null)
         {
-            if (mode == BlockCipherMode.OFB)
+            if (mode == AesCipherMode.OFB)
             {
                 // OFB is not supported on modern .NET
                 _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
 #if !NET6_0_OR_GREATER
-            else if (mode == BlockCipherMode.CFB)
+            else if (mode == AesCipherMode.CFB)
             {
                 // CFB not supported on NetStandard 2.1
                 _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
 #endif
-            else if (mode == BlockCipherMode.CTR)
+            else if (mode == AesCipherMode.CTR)
             {
                 // CTR not supported by the BCL, use an optimized implementation
                 _impl = new CtrImpl(key, iv);

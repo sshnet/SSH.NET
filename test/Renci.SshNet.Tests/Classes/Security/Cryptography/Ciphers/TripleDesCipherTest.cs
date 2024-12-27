@@ -3,6 +3,8 @@
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Tests.Common;
 
+using CipherMode = System.Security.Cryptography.CipherMode;
+
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
     /// <summary>
@@ -35,11 +37,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x0c, 0xd8, 0x26, 0xd1, 0xed, 0x41, 0x73, 0x25,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -67,11 +69,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x91, 0xcb, 0x5c, 0xdf, 0x6d, 0xf2, 0x85, 0xbf, 0x5c, 0xf8, 0xf9, 0xbd, 0xe1, 0xc4, 0xb9, 0xab,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -101,11 +103,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x58, 0xa7, 0x5a, 0xfc, 0xc7, 0x20, 0x40, 0x1f,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -135,11 +137,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xd1, 0x1c, 0x44, 0xd2, 0x1f, 0x74, 0x1b, 0xc7, 0x93, 0x17, 0x5e, 0x31, 0x31, 0x0b, 0x95, 0x50,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -170,11 +172,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x74, 0x04, 0x8c, 0x1f, 0xa4, 0xca, 0x1b, 0xf7,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -202,11 +204,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x28, 0x48, 0x3f, 0xb4, 0x48, 0xce, 0x96, 0xaf,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -236,11 +238,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0xc3,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }
@@ -270,11 +272,11 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 0x30, 0x3e, 0xf7, 0xa2, 0xf6, 0xb4, 0xa5, 0xc4, 0x4d, 0x89, 0x06, 0xed, 0x55, 0xd3, 0x28, 0xd0,
             };
 
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Encrypt(input);
+            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
 
             CollectionAssert.AreEqual(expected, actual);
 
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), BlockCipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
+            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }

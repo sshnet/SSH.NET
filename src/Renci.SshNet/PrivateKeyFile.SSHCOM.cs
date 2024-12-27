@@ -8,6 +8,8 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
+using CipherMode = System.Security.Cryptography.CipherMode;
+
 namespace Renci.SshNet
 {
     public partial class PrivateKeyFile
@@ -50,7 +52,7 @@ namespace Renci.SshNet
                     }
 
                     var key = GetCipherKey(_passPhrase, 192 / 8);
-                    var ssh2Сipher = new TripleDesCipher(key, new byte[8], BlockCipherMode.CBC, pkcs7Padding: false);
+                    var ssh2Сipher = new TripleDesCipher(key, new byte[8], CipherMode.CBC, pkcs7Padding: false);
                     keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
                 }
                 else

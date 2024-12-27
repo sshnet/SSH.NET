@@ -2,6 +2,8 @@
 
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
+using CipherMode = System.Security.Cryptography.CipherMode;
+
 namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
 {
     [MemoryDiagnoser]
@@ -26,25 +28,25 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
         [Benchmark]
         public byte[] Encrypt_CBC()
         {
-            return new TripleDesCipher(_key, _iv, BlockCipherMode.CBC, false).Encrypt(_data);
+            return new TripleDesCipher(_key, _iv, CipherMode.CBC, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CBC()
         {
-            return new TripleDesCipher(_key, _iv, BlockCipherMode.CBC, false).Decrypt(_data);
+            return new TripleDesCipher(_key, _iv, CipherMode.CBC, false).Decrypt(_data);
         }
 
         [Benchmark]
         public byte[] Encrypt_CFB()
         {
-            return new TripleDesCipher(_key, _iv, BlockCipherMode.CFB, false).Encrypt(_data);
+            return new TripleDesCipher(_key, _iv, CipherMode.CFB, false).Encrypt(_data);
         }
 
         [Benchmark]
         public byte[] Decrypt_CFB()
         {
-            return new TripleDesCipher(_key, _iv, BlockCipherMode.CFB, false).Decrypt(_data);
+            return new TripleDesCipher(_key, _iv, CipherMode.CFB, false).Decrypt(_data);
         }
     }
 }

@@ -300,7 +300,18 @@ namespace Renci.SshNet
 
             if (cancellationToken.CanBeCanceled)
             {
-                _tokenRegistration = cancellationToken.Register(static cmd => ((SshCommand)cmd!).CancelAsync(), this);
+                _tokenRegistration = cancellationToken.Register(static cmd =>
+                {
+                    try
+                    {
+                        ((SshCommand)cmd!).CancelAsync();
+                    }
+                    catch
+                    {
+                        // Swallow exceptions which would otherwise be unhandled.
+                    }
+                },
+                this);
             }
 
             return _tcs.Task;
@@ -437,33 +448,31 @@ namespace Renci.SshNet
             _cancellationRequested = true;
             Interlocked.MemoryBarrier(); // ensure fresh read in SetAsyncComplete (possibly unnecessary)
 
-            // Try to send the cancellation signal.
-            if (_channel?.SendSignalRequest(forceKill ? "KILL" : "TERM") is null)
-            {
-                // Command has completed (in the meantime since the last check).
-                return;
-            }
-
-            // Having sent the "signal" message, we expect to receive "exit-signal"
-            // and then a close message. But since a server may not implement signals,
-            // we can't guarantee that, so we wait a short time for that to happen and
-            // if it doesn't, just complete the task ourselves to unblock waiters.
-
             try
             {
-                if (_tcs.Task.Wait(millisecondsTimeout))
+                // Try to send the cancellation signal.
+                if (_channel?.SendSignalRequest(forceKill ? "KILL" : "TERM") is null)
                 {
+                    // Command has completed (in the meantime since the last check).
                     return;
                 }
+
+                // Having sent the "signal" message, we expect to receive "exit-signal"
+                // and then a close message. But since a server may not implement signals,
+                // we can't guarantee that, so we wait a short time for that to happen and
+                // if it doesn't, just complete the task ourselves to unblock waiters.
+
+                _ = _tcs.Task.Wait(millisecondsTimeout);
             }
             catch (AggregateException)
             {
-                // We expect to be here if the server implements signals.
+                // We expect to be here from the call to Wait if the server implements signals.
                 // But we don't want to propagate the exception on the task from here.
-                return;
             }
-
-            SetAsyncComplete();
+            finally
+            {
+                SetAsyncComplete();
+            }
         }
 
         /// <summary>

@@ -195,6 +195,25 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
+        [Timeout(15000)]
+        public async Task Test_ExecuteAsync_Disconnect()
+        {
+            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                client.Connect();
+                using var cmd = client.CreateCommand("sleep 10s");
+                cmd.CommandTimeout = TimeSpan.FromSeconds(2);
+
+                Task executeTask = cmd.ExecuteAsync();
+
+                client.Disconnect();
+
+                // Waiting for timeout is not optimal here, but better than hanging indefinitely.
+                await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => executeTask);
+            }
+        }
+
+        [TestMethod]
         public void Test_Execute_InvalidCommand()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))

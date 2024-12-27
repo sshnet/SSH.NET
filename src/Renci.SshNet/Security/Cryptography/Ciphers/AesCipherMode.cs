@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Custom Cipher Mode, follows System.Security.Cryptography.CipherMode.
+    /// Custom AES Cipher Mode, follows System.Security.Cryptography.CipherMode.
     /// </summary>
     public enum AesCipherMode
     {

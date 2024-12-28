@@ -17,6 +17,17 @@ namespace Renci.SshNet.Security.Cryptography
         public abstract byte MinimumSize { get; }
 
         /// <summary>
+        /// Gets the block size.
+        /// </summary>
+        public int BlockSize
+        {
+            get
+            {
+                return MinimumSize;
+            }
+        }
+
+        /// <summary>
         /// Gets the size of the authentication tag for ciphers which implement Authenticated Encryption (AE).
         /// </summary>
         /// <value>
@@ -24,6 +35,23 @@ namespace Renci.SshNet.Security.Cryptography
         /// of the authentication tag included in the encrypted message.
         /// </value>
         public virtual int TagSize { get; }
+
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        protected byte[] Key { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Cipher"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+        protected Cipher(byte[] key)
+        {
+            ArgumentNullException.ThrowIfNull(key);
+
+            Key = key;
+        }
 
         /// <summary>
         /// Sets the sequence number.

@@ -16,7 +16,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// ChaCha20Poly1305 cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/draft-josefsson-ssh-chacha20-poly1305-openssh-00"/>.
     /// </summary>
-    internal sealed class ChaCha20Poly1305Cipher : SymmetricCipher
+    internal sealed class ChaCha20Poly1305Cipher : Cipher
     {
         private readonly byte[] _iv;
         private readonly int _aadLength;

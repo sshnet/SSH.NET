@@ -118,7 +118,6 @@ The main types provided by this library are:
 
 Private keys in OpenSSL traditional PEM format can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC
-* DES-EDE3-CFB
 * AES-128-CBC
 * AES-192-CBC
 * AES-256-CBC

@@ -4,20 +4,17 @@
 // expected encrypted values, and also verifies those values against the .NET
 // BCL implementation as an extra validation before generating the tests.
 
-Dictionary<string, (string, CipherMode?)> modes = new()
+Dictionary<string, (string, string, CipherMode?)> modes = new()
 {
-    ["ecb"] = ("iv: null, AesCipherMode.ECB", CipherMode.ECB),
-    ["cbc"] = ("(byte[])iv.Clone(), AesCipherMode.CBC", CipherMode.CBC),
-    ["cfb"] = ("(byte[])iv.Clone(), AesCipherMode.CFB", CipherMode.CFB),
-    ["ctr"] = ("(byte[])iv.Clone(), AesCipherMode.CTR", null),
-    ["ofb"] = ("(byte[])iv.Clone(), AesCipherMode.OFB", CipherMode.OFB),
+    ["cbc"] = ("(byte[])iv.Clone()", "CipherMode.CBC", CipherMode.CBC),
+    ["ctr"] = ("(byte[])iv.Clone()", string.Empty, null),
 };
 
 Random random = new(123);
 
 using IndentedTextWriter tw = new(Console.Out);
 
-foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
+foreach ((string mode, (string ivCode, string modeCode, CipherMode? bclMode)) in modes)
 {
     foreach (int keySize in new int[] { 128, 192, 256 })
     {
@@ -110,7 +107,15 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
                 tw.WriteLine($"// {openSslCmd} | hd"); // pipe to hexdump
                 WriteBytes(expected);
                 tw.WriteLine();
-                tw.WriteLine($"var actual = new AesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Encrypt(input);");
+                if (mode == "ctr")
+                {
+                    tw.WriteLine($"var actual = new AesCtrCipher(key, {ivCode}).Encrypt(input);");
+                }
+                else
+                {
+                    tw.WriteLine($"var actual = new AesCipher(key, {ivCode}, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Encrypt(input);");
+                }
+
                 tw.WriteLine();
                 tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
 
@@ -137,7 +142,15 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
                 }
 
                 tw.WriteLine();
-                tw.WriteLine($"var decrypted = new AesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Decrypt(actual);");
+                if (mode == "ctr")
+                {
+                    tw.WriteLine($"var decrypted = new AesCtrCipher(key, {ivCode}).Decrypt(actual);");
+                }
+                else
+                {
+                    tw.WriteLine($"var decrypted = new AesCipher(key, {ivCode}, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Decrypt(actual);");
+                }
+
                 tw.WriteLine();
                 tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
 

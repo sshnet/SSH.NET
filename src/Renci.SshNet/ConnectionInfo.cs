@@ -18,8 +18,6 @@ using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
-using CipherMode = System.Security.Cryptography.CipherMode;
-
 namespace Renci.SshNet
 {
     /// <summary>
@@ -377,16 +375,16 @@ namespace Renci.SshNet
 
             Encryptions = new OrderedDictionary<string, CipherInfo>
                 {
-                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
-                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
-                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
+                    { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCtrCipher(key, iv)) },
+                    { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCtrCipher(key, iv)) },
+                    { "aes256-ctr", new CipherInfo(256, (key, iv) => new AesCtrCipher(key, iv)) },
                     { "aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesGcmCipher(key, iv, aadLength: 4), isAead: true) },
                     { "aes256-gcm@openssh.com", new CipherInfo(256, (key, iv) => new AesGcmCipher(key, iv, aadLength: 4), isAead: true) },
                     { "chacha20-poly1305@openssh.com", new CipherInfo(512, (key, iv) => new ChaCha20Poly1305Cipher(key, aadLength: 4), isAead: true) },
-                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC, pkcs7Padding: false)) },
+                    { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, CipherMode.CBC)) },
+                    { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, CipherMode.CBC)) },
+                    { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, CipherMode.CBC)) },
+                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC)) },
                 };
 
             HmacAlgorithms = new OrderedDictionary<string, HashInfo>

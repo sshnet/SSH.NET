@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Security.Cryptography;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Tests.Common;
-
-using CipherMode = System.Security.Cryptography.CipherMode;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
@@ -177,106 +177,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             CollectionAssert.AreEqual(expected, actual);
 
             var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CBC, pkcs7Padding: true).Decrypt(actual);
-
-            CollectionAssert.AreEqual(input, decrypted);
-        }
-
-        [TestMethod]
-        public void TripleDes_CFB_Length8_NoPad()
-        {
-            var input = new byte[]
-            {
-                0x4f, 0xa6, 0x62, 0x4f, 0x3b, 0xfb, 0xa3, 0x63,
-            };
-            var key = new byte[]
-            {
-                0x38, 0xec, 0x32, 0xfd, 0x7d, 0xdb, 0x38, 0x99, 0x93, 0x53, 0xfc, 0x86, 0x5d, 0x35, 0xe9, 0x68,
-                0x02, 0xda, 0x1a, 0x43, 0x0b, 0x02, 0x55, 0x57,
-            };
-            var iv = new byte[]
-            {
-                0x74, 0xed, 0x7d, 0x5a, 0xbf, 0x82, 0x3b, 0x05,
-            };
-
-            // echo -n -e '\x4f\xa6\x62\x4f\x3b\xfb\xa3\x63' | openssl enc -e -des-ede3-cfb -K 38EC32FD7DDB38999353FC865D35E96802DA1A430B025557 -iv 74ED7D5ABF823B05 -nopad | hd
-            var expected = new byte[]
-            {
-                0x28, 0x48, 0x3f, 0xb4, 0x48, 0xce, 0x96, 0xaf,
-            };
-
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
-
-            CollectionAssert.AreEqual(expected, actual);
-
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
-
-            CollectionAssert.AreEqual(input, decrypted);
-        }
-
-        [TestMethod]
-        public void TripleDes_CFB_Length17_NoPad()
-        {
-            var input = new byte[]
-            {
-                0x6a, 0xc2, 0x70, 0x62, 0xff, 0x28, 0x34, 0xce, 0x08, 0x58, 0x9c, 0xe3, 0x76, 0x1b, 0xbb, 0x1a,
-                0xbc,
-            };
-            var key = new byte[]
-            {
-                0xf9, 0x4c, 0x60, 0xe1, 0x5f, 0x57, 0x35, 0x96, 0xda, 0x89, 0x8f, 0x5e, 0xde, 0xd9, 0x10, 0x17,
-                0xf6, 0x1b, 0x9a, 0xc4, 0x87, 0x69, 0xda, 0xa5,
-            };
-            var iv = new byte[]
-            {
-                0x4b, 0x3b, 0xb3, 0x66, 0x71, 0xe0, 0x58, 0x31,
-            };
-
-            // echo -n -e '\x6a\xc2\x70\x62\xff\x28\x34\xce\x08\x58\x9c\xe3\x76\x1b\xbb\x1a\xbc' | openssl enc -e -des-ede3-cfb -K F94C60E15F573596DA898F5EDED91017F61B9AC48769DAA5 -iv 4B3BB36671E05831 -nopad | hd
-            var expected = new byte[]
-            {
-                0x5a, 0x7e, 0x55, 0x4d, 0x63, 0xc1, 0x80, 0x32, 0x84, 0xdc, 0xd0, 0xa7, 0x6c, 0xea, 0x65, 0x42,
-                0xc3,
-            };
-
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
-
-            CollectionAssert.AreEqual(expected, actual);
-
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
-
-            CollectionAssert.AreEqual(input, decrypted);
-        }
-
-        [TestMethod]
-        public void TripleDes_CFB_Length32_NoPad()
-        {
-            var input = new byte[]
-            {
-                0x62, 0x9d, 0xc6, 0x36, 0xda, 0x23, 0x0b, 0x6b, 0x3b, 0xcb, 0x24, 0x9f, 0xa4, 0x6f, 0x29, 0x7e,
-                0x8b, 0xcb, 0x7f, 0xff, 0x21, 0x56, 0x34, 0x90, 0x72, 0xba, 0x95, 0x23, 0xa3, 0xcf, 0x25, 0xfa,
-            };
-            var key = new byte[]
-            {
-                0x30, 0x5e, 0xfc, 0x40, 0x13, 0xda, 0x3d, 0xd3, 0x10, 0x2f, 0x89, 0xbc, 0x44, 0x3a, 0x01, 0xdb,
-                0x11, 0x34, 0xda, 0xa5, 0x60, 0x58, 0x10, 0x0c,
-            };
-            var iv = new byte[]
-            {
-                0x69, 0x35, 0xc3, 0x1f, 0x8d, 0xe7, 0xc7, 0x6b,
-            };
-
-            // echo -n -e '\x62\x9d\xc6\x36\xda\x23\x0b\x6b\x3b\xcb\x24\x9f\xa4\x6f\x29\x7e\x8b\xcb\x7f\xff\x21\x56\x34\x90\x72\xba\x95\x23\xa3\xcf\x25\xfa' | openssl enc -e -des-ede3-cfb -K 305EFC4013DA3DD3102F89BC443A01DB1134DAA56058100C -iv 6935C31F8DE7C76B -nopad | hd
-            var expected = new byte[]
-            {
-                0xb8, 0xcf, 0xf4, 0xf9, 0x88, 0xfd, 0x02, 0xf1, 0xb9, 0xe9, 0xf0, 0xb3, 0x1d, 0x0a, 0x9b, 0x91,
-                0x30, 0x3e, 0xf7, 0xa2, 0xf6, 0xb4, 0xa5, 0xc4, 0x4d, 0x89, 0x06, 0xed, 0x55, 0xd3, 0x28, 0xd0,
-            };
-
-            var actual = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Encrypt(input);
-
-            CollectionAssert.AreEqual(expected, actual);
-
-            var decrypted = new TripleDesCipher(key, (byte[])iv.Clone(), CipherMode.CFB, pkcs7Padding: false).Decrypt(actual);
 
             CollectionAssert.AreEqual(input, decrypted);
         }

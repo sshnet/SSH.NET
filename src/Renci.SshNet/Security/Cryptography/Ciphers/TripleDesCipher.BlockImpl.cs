@@ -1,28 +1,29 @@
-﻿using System;
+﻿#if !NET6_0_OR_GREATER
+using System;
 using System.Security.Cryptography;
 
 using Org.BouncyCastle.Crypto.Paddings;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    public partial class AesCipher
+    public partial class TripleDesCipher
     {
         private sealed class BlockImpl : BlockCipher, IDisposable
         {
-            private readonly Aes _aes;
+            private readonly TripleDES _tripleDES;
             private readonly ICryptoTransform _encryptor;
             private readonly ICryptoTransform _decryptor;
 
             public BlockImpl(byte[] key, CipherMode mode, IBlockCipherPadding padding)
-                : base(key, 16, mode, padding)
+                : base(key, 8, mode, padding)
             {
-                var aes = Aes.Create();
-                aes.Key = key;
-                aes.Mode = System.Security.Cryptography.CipherMode.ECB;
-                aes.Padding = PaddingMode.None;
-                _aes = aes;
-                _encryptor = aes.CreateEncryptor();
-                _decryptor = aes.CreateDecryptor();
+                var tripleDES = TripleDES.Create();
+                tripleDES.Key = key;
+                tripleDES.Mode = System.Security.Cryptography.CipherMode.ECB;
+                tripleDES.Padding = PaddingMode.None;
+                _tripleDES = tripleDES;
+                _encryptor = tripleDES.CreateEncryptor();
+                _decryptor = tripleDES.CreateDecryptor();
             }
 
             public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
@@ -37,10 +38,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public void Dispose()
             {
-                _aes.Dispose();
+                _tripleDES.Dispose();
                 _encryptor.Dispose();
                 _decryptor.Dispose();
             }
         }
     }
 }
+#endif

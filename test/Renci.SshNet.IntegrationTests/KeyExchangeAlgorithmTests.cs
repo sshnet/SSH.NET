@@ -23,6 +23,37 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
+        [Ignore]
+        public void SNtruP761X25519Sha512()
+        {
+            _remoteSshdConfig.ClearKeyExchangeAlgorithms()
+                             .AddKeyExchangeAlgorithm(KeyExchangeAlgorithm.SNtruP761X25519Sha512)
+                             .Update()
+                             .Restart();
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void SNtruP761X25519Sha512OpenSsh()
+        {
+            _remoteSshdConfig.ClearKeyExchangeAlgorithms()
+                             .AddKeyExchangeAlgorithm(KeyExchangeAlgorithm.SNtruP761X25519Sha512OpenSsh)
+                             .Update()
+                             .Restart();
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
         public void Curve25519Sha256()
         {
             _remoteSshdConfig.ClearKeyExchangeAlgorithms()

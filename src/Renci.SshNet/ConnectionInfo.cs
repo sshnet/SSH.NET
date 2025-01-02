@@ -12,7 +12,8 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+
+using CipherMode = System.Security.Cryptography.CipherMode;
 
 namespace Renci.SshNet
 {
@@ -348,6 +349,8 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Func<IKeyExchange>>
                 {
+                    { "sntrup761x25519-sha512", () => new KeyExchangeSNtruP761X25519Sha512() },
+                    { "sntrup761x25519-sha512@openssh.com", () => new KeyExchangeSNtruP761X25519Sha512() },
                     { "curve25519-sha256", () => new KeyExchangeECCurve25519() },
                     { "curve25519-sha256@libssh.org", () => new KeyExchangeECCurve25519() },
                     { "ecdh-sha2-nistp256", () => new KeyExchangeECDH256() },
@@ -372,7 +375,7 @@ namespace Renci.SshNet
                     { "aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
                     { "aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
                     { "aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false)) },
-                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null)) },
+                    { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC, pkcs7Padding: false)) },
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>

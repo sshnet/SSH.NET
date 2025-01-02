@@ -9,8 +9,8 @@ using System.Text;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography.Ciphers;
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
+
+using CipherMode = System.Security.Cryptography.CipherMode;
 
 namespace Renci.SshNet
 {
@@ -51,13 +51,10 @@ namespace Renci.SshNet
                     switch (_cipherName)
                     {
                         case "DES-EDE3-CBC":
-                            cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                            cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC, pkcs7Padding: true));
                             break;
                         case "DES-EDE3-CFB":
-                            cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CfbCipherMode(iv), padding: null));
-                            break;
-                        case "DES-CBC":
-                            cipher = new CipherInfo(64, (key, iv) => new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                            cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CFB, pkcs7Padding: false));
                             break;
                         case "AES-128-CBC":
                             cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: true));

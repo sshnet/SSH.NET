@@ -1,154 +1,86 @@
 ﻿using System;
+using System.Security.Cryptography;
+
+#if !NET6_0_OR_GREATER
+using Org.BouncyCastle.Crypto.Paddings;
+
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+#endif
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// Implements 3DES cipher algorithm.
     /// </summary>
-    public sealed class TripleDesCipher : DesCipher
+    public sealed partial class TripleDesCipher : BlockCipher, IDisposable
     {
-        private int[] _encryptionKey1;
-        private int[] _encryptionKey2;
-        private int[] _encryptionKey3;
-        private int[] _decryptionKey1;
-        private int[] _decryptionKey2;
-        private int[] _decryptionKey3;
+#if NET
+        private readonly BclImpl _impl;
+#else
+        private readonly BlockCipher _impl;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TripleDesCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="iv">The IV.</param>
         /// <param name="mode">The mode.</param>
-        /// <param name="padding">The padding.</param>
+        /// <param name="pkcs7Padding">Enable PKCS7 padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
-        public TripleDesCipher(byte[] key, CipherMode mode, CipherPadding padding)
-            : base(key, mode, padding)
+        public TripleDesCipher(byte[] key, byte[] iv, System.Security.Cryptography.CipherMode mode, bool pkcs7Padding)
+            : base(key, 8, mode: null, padding: null)
         {
+#if !NET6_0_OR_GREATER
+            if (mode == System.Security.Cryptography.CipherMode.CFB)
+            {
+                // CFB8 not supported on .NET Framework, but supported on .NET
+                // see https://github.com/microsoft/referencesource/blob/51cf7850defa8a17d815b4700b67116e3fa283c2/mscorlib/system/security/cryptography/tripledescryptoserviceprovider.cs#L76-L78
+                // see https://github.com/dotnet/runtime/blob/e7d837da5b1aacd9325a8b8f2214cfaf4d3f0ff6/src/libraries/System.Security.Cryptography/src/System/Security/Cryptography/TripleDesImplementation.cs#L229-L236
+                _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
+            }
+            else
+#endif
+            {
+                _impl = new BclImpl(key, iv, mode, pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None);
+            }
         }
 
-        /// <summary>
-        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
-        /// </summary>
-        /// <param name="inputBuffer">The input data to encrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes encrypted.
-        /// </returns>
+        /// <inheritdoc/>
+        public override byte[] Encrypt(byte[] input, int offset, int length)
+        {
+            return _impl.Encrypt(input, offset, length);
+        }
+
+        /// <inheritdoc/>
+        public override byte[] Decrypt(byte[] input, int offset, int length)
+        {
+            return _impl.Decrypt(input, offset, length);
+        }
+
+        /// <inheritdoc/>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if ((inputOffset + BlockSize) > inputBuffer.Length)
-            {
-                throw new ArgumentException("input buffer too short");
-            }
-
-            if ((outputOffset + BlockSize) > outputBuffer.Length)
-            {
-                throw new ArgumentException("output buffer too short");
-            }
-
-            if (_encryptionKey1 is null || _encryptionKey2 is null || _encryptionKey3 is null)
-            {
-                var part1 = new byte[8];
-                var part2 = new byte[8];
-
-                Buffer.BlockCopy(Key, 0, part1, 0, 8);
-                Buffer.BlockCopy(Key, 8, part2, 0, 8);
-
-                _encryptionKey1 = GenerateWorkingKey(encrypting: true, part1);
-                _encryptionKey2 = GenerateWorkingKey(encrypting: false, part2);
-
-                if (Key.Length == 24)
-                {
-                    var part3 = new byte[8];
-                    Buffer.BlockCopy(Key, 16, part3, 0, 8);
-
-                    _encryptionKey3 = GenerateWorkingKey(encrypting: true, part3);
-                }
-                else
-                {
-                    _encryptionKey3 = _encryptionKey1;
-                }
-            }
-
-            var temp = new byte[BlockSize];
-
-            DesFunc(_encryptionKey1, inputBuffer, inputOffset, temp, 0);
-            DesFunc(_encryptionKey2, temp, 0, temp, 0);
-            DesFunc(_encryptionKey3, temp, 0, outputBuffer, outputOffset);
-
-            return BlockSize;
+            return _impl.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
 
-        /// <summary>
-        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
-        /// </summary>
-        /// <param name="inputBuffer">The input data to decrypt.</param>
-        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
-        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
-        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
-        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
-        /// <returns>
-        /// The number of bytes decrypted.
-        /// </returns>
+        /// <inheritdoc/>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if ((inputOffset + BlockSize) > inputBuffer.Length)
-            {
-                throw new ArgumentException("input buffer too short");
-            }
-
-            if ((outputOffset + BlockSize) > outputBuffer.Length)
-            {
-                throw new ArgumentException("output buffer too short");
-            }
-
-            if (_decryptionKey1 is null || _decryptionKey2 is null || _decryptionKey3 is null)
-            {
-                var part1 = new byte[8];
-                var part2 = new byte[8];
-
-                Buffer.BlockCopy(Key, 0, part1, 0, 8);
-                Buffer.BlockCopy(Key, 8, part2, 0, 8);
-
-                _decryptionKey1 = GenerateWorkingKey(encrypting: false, part1);
-                _decryptionKey2 = GenerateWorkingKey(encrypting: true, part2);
-
-                if (Key.Length == 24)
-                {
-                    var part3 = new byte[8];
-                    Buffer.BlockCopy(Key, 16, part3, 0, 8);
-
-                    _decryptionKey3 = GenerateWorkingKey(encrypting: false, part3);
-                }
-                else
-                {
-                    _decryptionKey3 = _decryptionKey1;
-                }
-            }
-
-            var temp = new byte[BlockSize];
-
-            DesFunc(_decryptionKey3, inputBuffer, inputOffset, temp, 0);
-            DesFunc(_decryptionKey2, temp, 0, temp, 0);
-            DesFunc(_decryptionKey1, temp, 0, outputBuffer, outputOffset);
-
-            return BlockSize;
+            return _impl.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
 
-        /// <summary>
-        /// Validates the key.
-        /// </summary>
-        protected override void ValidateKey()
+        /// <inheritdoc/>
+        public void Dispose()
         {
-            var keySize = Key.Length * 8;
-
-            if (keySize is not (128 or 128 + 64))
+#if NET
+            _impl.Dispose();
+#else
+            if (_impl is IDisposable disposableImpl)
             {
-                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+                disposableImpl.Dispose();
             }
+#endif
         }
     }
 }

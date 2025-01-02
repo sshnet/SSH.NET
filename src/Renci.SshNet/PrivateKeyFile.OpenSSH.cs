@@ -8,7 +8,8 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+
+using CipherMode = System.Security.Cryptography.CipherMode;
 
 namespace Renci.SshNet
 {
@@ -91,7 +92,7 @@ namespace Renci.SshNet
                     {
                         case "3des-cbc":
                             ivLength = 8;
-                            cipherInfo = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), padding: null));
+                            cipherInfo = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC, pkcs7Padding: false));
                             break;
                         case "aes128-cbc":
                             cipherInfo = new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CBC, pkcs7Padding: false));

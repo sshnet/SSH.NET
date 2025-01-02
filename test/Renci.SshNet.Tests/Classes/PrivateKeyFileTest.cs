@@ -361,7 +361,6 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.RSA.Encrypted.Aes.128.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Aes.192.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]
-        [DataRow("Key.RSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt", "1234567890", typeof(RsaKey))]
         [DataRow("Key.RSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]

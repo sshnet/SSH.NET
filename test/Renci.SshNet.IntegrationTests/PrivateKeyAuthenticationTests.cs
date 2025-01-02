@@ -23,12 +23,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void SshDss()
-        {
-            DoTest(PublicKeyAlgorithm.SshDss, "Data.Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt", "12345");
-        }
-
-        [TestMethod]
         public void SshRsa()
         {
             DoTest(PublicKeyAlgorithm.SshRsa, "Data.Key.RSA.txt");

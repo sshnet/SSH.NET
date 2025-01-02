@@ -83,21 +83,6 @@ namespace Renci.SshNet
                     var p = reader.ReadBigIntWithBits(); // q
                     return new RsaKey(modulus, exponent, d, p, q, inverseQ);
                 }
-                else if (keyType.Contains("dsa"))
-                {
-                    var zero = reader.ReadUInt32();
-                    if (zero != 0)
-                    {
-                        throw new SshException("Invalid private key");
-                    }
-
-                    var p = reader.ReadBigIntWithBits();
-                    var g = reader.ReadBigIntWithBits();
-                    var q = reader.ReadBigIntWithBits();
-                    var y = reader.ReadBigIntWithBits();
-                    var x = reader.ReadBigIntWithBits();
-                    return new DsaKey(p, q, g, y, x);
-                }
 
                 throw new NotSupportedException(string.Format("Key type '{0}' is not supported.", keyType));
             }

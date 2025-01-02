@@ -80,8 +80,6 @@ namespace Renci.SshNet
                 {
                     case "RSA PRIVATE KEY":
                         return new RsaKey(decryptedData);
-                    case "DSA PRIVATE KEY":
-                        return new DsaKey(decryptedData);
                     case "EC PRIVATE KEY":
                         return new EcdsaKey(decryptedData);
                     default:

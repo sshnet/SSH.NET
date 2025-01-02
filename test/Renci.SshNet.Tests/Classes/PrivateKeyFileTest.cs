@@ -311,9 +311,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [DataRow("Key.DSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(DsaKey))]
-        [DataRow("Key.DSA.PKCS8.txt", null, typeof(DsaKey))]
-        [DataRow("Key.DSA.txt", null, typeof(DsaKey))]
         [DataRow("Key.ECDSA.Encrypted.txt", "12345", typeof(EcdsaKey))]
         [DataRow("Key.ECDSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(EcdsaKey))]
         [DataRow("Key.ECDSA.PKCS8.txt", null, typeof(EcdsaKey))]
@@ -348,8 +345,6 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.PuTTY2.Ed25519.ppk", null, typeof(ED25519Key))]
         [DataRow("Key.PuTTY2.RSA.Encrypted.12345.ppk", "12345", typeof(RsaKey))]
         [DataRow("Key.PuTTY2.RSA.ppk", null, typeof(RsaKey))]
-        [DataRow("Key.PuTTY3.DSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(DsaKey))]
-        [DataRow("Key.PuTTY3.DSA.ppk", null, typeof(DsaKey))]
         [DataRow("Key.PuTTY3.ECDSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(EcdsaKey))]
         [DataRow("Key.PuTTY3.ECDSA.ppk", null, typeof(EcdsaKey))]
         [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2i.12345.ppk", "12345", typeof(ED25519Key))]
@@ -366,8 +361,6 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.RSA.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.RSA.PKCS8.txt", null, typeof(RsaKey))]
         [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
-        [DataRow("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(DsaKey))]
-        [DataRow("Key.SSH2.DSA.txt", null, typeof(DsaKey))]
         [DataRow("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt", "12345", typeof(RsaKey))]
         [DataRow("Key.SSH2.RSA.txt", null, typeof(RsaKey))]
         public void Test_PrivateKey(string name, string passPhrase, Type expectedKeyType)

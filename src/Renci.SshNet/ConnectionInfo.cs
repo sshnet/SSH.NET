@@ -407,7 +407,6 @@ namespace Renci.SshNet
             hostAlgs.Add("rsa-sha2-512", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-512", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA512)); });
             hostAlgs.Add("rsa-sha2-256", data => { var key = new RsaKey(new SshKeyData(data)); return new KeyHostAlgorithm("rsa-sha2-256", key, new RsaDigitalSignature(key, HashAlgorithmName.SHA256)); });
             hostAlgs.Add("ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(new SshKeyData(data))));
-            hostAlgs.Add("ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(new SshKeyData(data))));
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
             HostKeyAlgorithms = hostAlgs;
 

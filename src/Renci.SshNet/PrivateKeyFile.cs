@@ -381,10 +381,6 @@ namespace Renci.SshNet
                 _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
 #pragma warning restore CA2000 // Dispose objects before losing scope
             }
-            else if (_key is DsaKey)
-            {
-                _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-dss", _key));
-            }
             else
             {
                 _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));

@@ -23,7 +23,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [Ignore]
         public void SNtruP761X25519Sha512()
         {
             _remoteSshdConfig.ClearKeyExchangeAlgorithms()

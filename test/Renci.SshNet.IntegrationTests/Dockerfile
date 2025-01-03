@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.21
 
 COPY --chown=root:root server/ssh /etc/ssh/
 COPY --chown=root:root server/script /opt/sshnet

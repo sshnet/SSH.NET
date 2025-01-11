@@ -15,14 +15,10 @@ namespace Renci.SshNet
     /// </summary>
     public class PrivateKeyAuthenticationMethod : AuthenticationMethod
     {
-<<<<<<< HEAD
-	    private bool _isSignatureRequired;
-=======
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(initialState: false);
         private bool _isSignatureRequired;
         private bool _isDisposed;
->>>>>>> develop
 
         /// <summary>
         /// Gets the name of the authentication method.
@@ -48,12 +44,7 @@ namespace Renci.SshNet
         {
             ThrowHelper.ThrowIfNull(keyFiles);
 
-<<<<<<< HEAD
-            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
-            _authenticationCompleted = new ManualResetEvent(false);
-=======
             KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
->>>>>>> develop
         }
 
         /// <summary>
@@ -164,23 +155,8 @@ namespace Renci.SshNet
             _ = _authenticationCompleted.Set();
         }
 
-<<<<<<< HEAD
-        private class SignatureData : SshData
-=======
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
             {
@@ -198,10 +174,11 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
+
+            base.Dispose(disposing);
         }
 
         private sealed class SignatureData : SshData
->>>>>>> develop
         {
             private readonly RequestMessagePublicKey _message;
 

@@ -12,17 +12,12 @@ namespace Renci.SshNet
     /// </summary>
     public class NoneAuthenticationMethod : AuthenticationMethod
     {
-<<<<<<< HEAD
-	    /// <summary>
-        /// Gets connection name
-=======
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
         private bool _isDisposed;
 
         /// <summary>
         /// Gets the name of the authentication method.
->>>>>>> develop
         /// </summary>
         public override string Name
         {
@@ -37,7 +32,6 @@ namespace Renci.SshNet
         public NoneAuthenticationMethod(string username)
             : base(username)
         {
-	        _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -92,23 +86,9 @@ namespace Renci.SshNet
 
             _ = _authenticationCompleted.Set();
         }
-<<<<<<< HEAD
-=======
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
             {
@@ -126,7 +106,8 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
+
+            base.Dispose(disposing);
         }
->>>>>>> develop
     }
 }

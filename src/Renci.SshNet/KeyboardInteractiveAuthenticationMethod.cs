@@ -15,14 +15,10 @@ namespace Renci.SshNet
     /// </summary>
     public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod
     {
-<<<<<<< HEAD
-	    private Session _session;
-=======
         private readonly RequestMessageKeyboardInteractive _requestMessage;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
->>>>>>> develop
         private Exception _exception;
         private bool _isDisposed;
 
@@ -51,7 +47,6 @@ namespace Renci.SshNet
             : base(username)
         {
             _requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
-            _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -155,23 +150,9 @@ namespace Renci.SshNet
                     }
                 });
         }
-<<<<<<< HEAD
-=======
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
             {
@@ -189,7 +170,8 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
+
+            base.Dispose(disposing);
         }
->>>>>>> develop
     }
 }

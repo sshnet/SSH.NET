@@ -15,15 +15,11 @@ namespace Renci.SshNet
     /// </summary>
     public class PasswordAuthenticationMethod : AuthenticationMethod
     {
-<<<<<<< HEAD
-	    private Session _session;
-=======
         private readonly RequestMessagePassword _requestMessage;
         private readonly byte[] _password;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
->>>>>>> develop
         private Exception _exception;
         private bool _isDisposed;
 
@@ -61,7 +57,6 @@ namespace Renci.SshNet
         public PasswordAuthenticationMethod(string username, string password)
             : this(username, Encoding.UTF8.GetBytes(password))
         {
-	        _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -78,7 +73,6 @@ namespace Renci.SshNet
 
             _password = password;
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
-            _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -168,23 +162,9 @@ namespace Renci.SshNet
                 }
             });
         }
-<<<<<<< HEAD
-=======
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
             {
@@ -202,7 +182,8 @@ namespace Renci.SshNet
 
                 _isDisposed = true;
             }
+
+            base.Dispose(disposing);
         }
->>>>>>> develop
     }
 }

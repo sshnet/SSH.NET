@@ -162,12 +162,9 @@ namespace Renci.SshNet
             {
                 if (AuthenticationMethods != null)
                 {
-                    foreach (var authenticationMethods in AuthenticationMethods)
+                    foreach (var authenticationMethod in AuthenticationMethods)
                     {
-                        if (authenticationMethods is IDisposable disposable)
-                        {
-                            disposable.Dispose();
-                        }
+                        authenticationMethod.Dispose();
                     }
                 }
 

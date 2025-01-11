@@ -3,13 +3,28 @@
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REQUEST", MessageNumber)]
-    internal class KeyExchangeDhGroupExchangeRequest : Message, IKeyExchangedAllowed
+    internal sealed class KeyExchangeDhGroupExchangeRequest : Message, IKeyExchangedAllowed
     {
-        internal const byte MessageNumber = 34;
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 34;
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the minimal size in bits of an acceptable group.
+        /// Gets the minimum size, in bits, of an acceptable group.
         /// </summary>
         /// <value>
         /// The minimum.
@@ -17,7 +32,7 @@
         public uint Minimum { get; private set; }
 
         /// <summary>
-        /// Gets or sets the preferred size in bits of the group the server will send.
+        /// Gets the preferred size, in bits, of the group the server will send.
         /// </summary>
         /// <value>
         /// The preferred.
@@ -25,7 +40,7 @@
         public uint Preferred { get; private set; }
 
         /// <summary>
-        /// Gets or sets the maximal size in bits of an acceptable group.
+        /// Gets the maximum size, in bits, of an acceptable group.
         /// </summary>
         /// <value>
         /// The maximum.

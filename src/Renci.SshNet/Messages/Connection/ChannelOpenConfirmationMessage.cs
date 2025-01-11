@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_OPEN_CONFIRMATION message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_OPEN_CONFIRMATION", 91)]
     public class ChannelOpenConfirmationMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_OPEN_CONFIRMATION";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 91;
+            }
+        }
+
         /// <summary>
         /// Gets the remote channel number.
         /// </summary>

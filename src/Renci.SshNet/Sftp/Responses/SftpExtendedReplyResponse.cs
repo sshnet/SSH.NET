@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpExtendedReplyResponse : SftpResponse
+    internal sealed class SftpExtendedReplyResponse : SftpResponse
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -12,7 +12,8 @@
         {
         }
 
-        public T GetReply<T>() where T : ExtendedReplyInfo, new()
+        public T GetReply<T>()
+            where T : IExtendedReplyInfo, new()
         {
             var result = new T();
             result.LoadData(DataStream);

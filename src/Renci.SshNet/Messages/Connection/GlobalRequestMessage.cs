@@ -3,10 +3,27 @@
     /// <summary>
     /// Represents SSH_MSG_GLOBAL_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_GLOBAL_REQUEST", 80)]
     public class GlobalRequestMessage : Message
     {
         private byte[] _requestName;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_GLOBAL_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 80;
+            }
+        }
 
         /// <summary>
         /// Gets the name of the request.
@@ -23,7 +40,7 @@
         /// Gets a value indicating whether message reply should be sent..
         /// </summary>
         /// <value>
-        ///   <c>true</c> if message reply should be sent; otherwise, <c>false</c>.
+        /// <see langword="true"/> if message reply should be sent; otherwise, <see langword="false"/>.
         /// </value>
         public bool WantReply { get; private set; }
 
@@ -56,7 +73,7 @@
         /// Initializes a new instance of the <see cref="GlobalRequestMessage"/> class.
         /// </summary>
         /// <param name="requestName">Name of the request.</param>
-        /// <param name="wantReply">if set to <c>true</c> [want reply].</param>
+        /// <param name="wantReply">if set to <see langword="true"/> [want reply].</param>
         internal GlobalRequestMessage(byte[] requestName, bool wantReply)
         {
             _requestName = requestName;

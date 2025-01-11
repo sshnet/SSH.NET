@@ -1,13 +1,14 @@
 ﻿using System;
-using Renci.SshNet.Sftp.Responses;
 using System.Text;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class StatVfsRequest : SftpExtendedRequest
+    internal sealed class StatVfsRequest : SftpExtendedRequest
     {
-        private byte[] _path;
         private readonly Action<SftpExtendedReplyResponse> _extendedReplyAction;
+        private byte[] _path;
 
         public string Path
         {
@@ -51,8 +52,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public override void Complete(SftpResponse response)
         {
-            var extendedReplyResponse = response as SftpExtendedReplyResponse;
-            if (extendedReplyResponse != null)
+            if (response is SftpExtendedReplyResponse extendedReplyResponse)
             {
                 _extendedReplyAction(extendedReplyResponse);
             }

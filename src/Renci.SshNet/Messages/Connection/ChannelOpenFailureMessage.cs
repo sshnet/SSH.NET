@@ -3,7 +3,6 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_OPEN_FAILURE message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_OPEN_FAILURE", 92)]
     public class ChannelOpenFailureMessage : ChannelMessage
     {
         internal const uint AdministrativelyProhibited = 1;
@@ -13,6 +12,24 @@
 
         private byte[] _description;
         private byte[] _language;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_OPEN_FAILURE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 92;
+            }
+        }
 
         /// <summary>
         /// Gets failure reason code.
@@ -62,7 +79,6 @@
         /// </summary>
         public ChannelOpenFailureMessage()
         {
-
         }
 
         /// <summary>

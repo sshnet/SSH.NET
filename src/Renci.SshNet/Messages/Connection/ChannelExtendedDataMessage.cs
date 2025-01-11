@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_EXTENDED_DATA message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_EXTENDED_DATA", 95)]
     public class ChannelExtendedDataMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_EXTENDED_DATA";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 95;
+            }
+        }
+
         /// <summary>
         /// Gets message data type code.
         /// </summary>

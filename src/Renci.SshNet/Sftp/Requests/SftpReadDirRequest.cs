@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpReadDirRequest : SftpRequest
+    internal sealed class SftpReadDirRequest : SftpRequest
     {
         private readonly Action<SftpNameResponse> _nameAction;
 
@@ -53,8 +54,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public override void Complete(SftpResponse response)
         {
-            var nameResponse = response as SftpNameResponse;
-            if (nameResponse != null)
+            if (response is SftpNameResponse nameResponse)
             {
                 _nameAction(nameResponse);
             }

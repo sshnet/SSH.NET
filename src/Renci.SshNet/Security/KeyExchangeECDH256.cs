@@ -1,10 +1,11 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.Sec;
-using Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9;
+﻿using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECDH256 : KeyExchangeECDH
+    internal sealed class KeyExchangeECDH256 : KeyExchangeECDH
     {
         /// <summary>
         /// Gets algorithm name.
@@ -14,6 +15,19 @@ namespace Renci.SshNet.Security
             get { return "ecdh-sha2-nistp256"; }
         }
 
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Gets the curve.
+        /// </summary>
+        protected override System.Security.Cryptography.ECCurve Curve
+        {
+            get
+            {
+                return System.Security.Cryptography.ECCurve.NamedCurves.nistP256;
+            }
+        }
+#endif
+
         /// <summary>
         /// Gets Curve Parameter.
         /// </summary>
@@ -21,7 +35,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return SecNamedCurves.GetByName("P-256");
+                return SecNamedCurves.GetByOid(SecObjectIdentifiers.SecP256r1);
             }
         }
 
@@ -41,14 +55,11 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
-            {
-                return sha256.ComputeHash(hashData, 0, hashData.Length);
-            }
+            return CryptoAbstraction.HashSHA256(hashData);
         }
     }
 }

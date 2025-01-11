@@ -3,15 +3,31 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_CLOSE message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_CLOSE", 97)]
     public class ChannelCloseMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_CLOSE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 97;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelCloseMessage"/> class.
         /// </summary>
         public ChannelCloseMessage()
         {
-
         }
 
         /// <summary>

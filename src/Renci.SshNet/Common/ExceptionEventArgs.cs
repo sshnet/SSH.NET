@@ -8,11 +8,6 @@ namespace Renci.SshNet.Common
     public class ExceptionEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the System.Exception that represents the error that occurred.
-        /// </summary>
-        public Exception Exception { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionEventArgs"/> class.
         /// </summary>
         /// <param name="exception">An System.Exception that represents the error that occurred.</param>
@@ -20,5 +15,13 @@ namespace Renci.SshNet.Common
         {
             Exception = exception;
         }
+
+        /// <summary>
+        /// Gets the <see cref="Exception"/> that represents the error that occurred.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Exception"/> that represents the error that occurred.
+        /// </value>
+        public Exception Exception { get; }
     }
 }

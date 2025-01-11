@@ -1,17 +1,34 @@
 ﻿using System;
 using System.Globalization;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_OPEN message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_OPEN", MessageNumber)]
     public class ChannelOpenMessage : Message
     {
-        internal const byte MessageNumber = 90;
-
         private byte[] _infoBytes;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_OPEN";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 90;
+            }
+        }
 
         /// <summary>
         /// Gets the type of the channel as ASCII encoded byte array.
@@ -76,7 +93,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public ChannelOpenMessage()
         {
-            //  Required for dynamicly loading request type when it comes from the server
+            // Required for dynamicly loading request type when it comes from the server
         }
 
         /// <summary>
@@ -86,11 +103,10 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="initialWindowSize">Initial size of the window.</param>
         /// <param name="maximumPacketSize">Maximum size of the packet.</param>
         /// <param name="info">Information specific to the type of the channel to open.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/>.</exception>
         public ChannelOpenMessage(uint channelNumber, uint initialWindowSize, uint maximumPacketSize, ChannelOpenInfo info)
         {
-            if (info == null)
-                throw new ArgumentNullException("info");
+            ThrowHelper.ThrowIfNull(info);
 
             ChannelType = Ascii.GetBytes(info.ChannelType);
             LocalChannelNumber = channelNumber;

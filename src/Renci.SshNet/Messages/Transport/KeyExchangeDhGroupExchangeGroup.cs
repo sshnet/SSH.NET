@@ -1,20 +1,37 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Numerics;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_GROUP message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_GROUP", MessageNumber)]
     public class KeyExchangeDhGroupExchangeGroup : Message
     {
-        internal const byte MessageNumber = 31;
-
         private byte[] _safePrime;
         private byte[] _subGroup;
 
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_GROUP";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 31;
+            }
+        }
+
         /// <summary>
-        /// Gets or sets the safe prime.
+        /// Gets the safe prime.
         /// </summary>
         /// <value>
         /// The safe prime.
@@ -25,7 +42,7 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         /// <summary>
-        /// Gets or sets the generator for subgroup in GF(p).
+        /// Gets the generator for subgroup in GF(p).
         /// </summary>
         /// <value>
         /// The sub group.

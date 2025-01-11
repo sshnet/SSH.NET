@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Text;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet
 {
     /// <summary>
     /// Encloses a path in double quotes, and escapes any embedded double quote with a backslash.
     /// </summary>
-    internal class RemotePathDoubleQuoteTransformation : IRemotePathTransformation
+    internal sealed class RemotePathDoubleQuoteTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Encloses a path in double quotes, and escapes any embedded double quote with a backslash.
@@ -15,7 +17,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The transformed path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <example>
         /// <list type="table">
         ///   <listheader>
@@ -50,21 +52,23 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            if (path == null)
-            {
-                throw new ArgumentNullException("path");
-            }
+            ThrowHelper.ThrowIfNull(path);
 
             var transformed = new StringBuilder(path.Length);
 
-            transformed.Append('"');
+            _ = transformed.Append('"');
+
             foreach (var c in path)
             {
                 if (c == '"')
-                    transformed.Append('\\');
-                transformed.Append(c);
+                {
+                    _ = transformed.Append('\\');
+                }
+
+                _ = transformed.Append(c);
             }
-            transformed.Append('"');
+
+            _ = transformed.Append('"');
 
             return transformed.ToString();
         }

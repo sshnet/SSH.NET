@@ -1,0 +1,151 @@
+// Used to generate tests in TripleDesCipherTest.cs
+
+// The script works by running "openssl enc [...]" (via WSL) to generate the
+// expected encrypted values, and also verifies those values against the .NET
+// BCL implementation as an extra validation before generating the tests.
+
+Dictionary<string, (string, CipherMode)> modes = new()
+{
+    ["cbc"] = ("(byte[])iv.Clone(), CipherMode.CBC", CipherMode.CBC),
+    ["cfb"] = ("(byte[])iv.Clone(), CipherMode.CFB", CipherMode.CFB),
+};
+
+Random random = new(123);
+
+using IndentedTextWriter tw = new(Console.Out);
+
+foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
+{
+    foreach (int inputLength in new int[] { 8, 17, 32 })
+    {
+        foreach (bool pad in new bool[] { false, true })
+        {
+            // It is not allowed to use no padding on non-block lengths
+            // It makes sense in cfb, ctr and ofb modes
+            if (!pad && inputLength % 8 != 0 && mode is not "cfb")
+            {
+                continue;
+            }
+
+            // It does not make sense to test padding for stream cipher modes
+            // (and the OpenSSL, BCL implementations differ)
+            if (pad && mode is "cfb")
+            {
+                continue;
+            }
+
+            byte[] input = new byte[inputLength];
+            random.NextBytes(input);
+
+            byte[] key = new byte[64 * 3 / 8];
+            random.NextBytes(key);
+
+            byte[] iv = new byte[8];
+            random.NextBytes(iv);
+
+            StringBuilder openSslCmd = new();
+
+            openSslCmd.Append($"echo -n -e '{string.Join("", input.Select(b => $"\\x{b:x2}"))}' |");
+            openSslCmd.Append($" openssl enc -e -des-ede3-{mode}");
+            openSslCmd.Append($" -K {Convert.ToHexString(key)}");
+            openSslCmd.Append($" -iv {Convert.ToHexString(iv)}");
+
+            if (!pad)
+            {
+                openSslCmd.Append(" -nopad");
+            }
+
+            ProcessStartInfo pi = new("wsl", openSslCmd.ToString())
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+
+            byte[] expected;
+            string error;
+
+            using (MemoryStream ms = new())
+            {
+                var p = Process.Start(pi);
+                p.StandardOutput.BaseStream.CopyTo(ms);
+                error = p.StandardError.ReadToEnd();
+
+                p.WaitForExit();
+
+                expected = ms.ToArray();
+            }
+
+            tw.WriteLine("[TestMethod]");
+            tw.WriteLine($"public void TripleDes_{mode.ToUpper()}_Length{inputLength}_{(pad ? "Pad" : "NoPad")}()");
+            tw.WriteLine("{");
+            tw.Indent++;
+
+            WriteBytes(input);
+            WriteBytes(key);
+            WriteBytes(iv);
+            tw.WriteLine();
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                tw.WriteLine($"// {openSslCmd}");
+                tw.WriteLine($"Assert.Fail(@\"{error}\");");
+
+                tw.Indent--;
+                tw.WriteLine("}");
+                tw.WriteLine();
+                continue;
+            }
+
+            tw.WriteLine($"// {openSslCmd} | hd"); // pipe to hexdump
+            WriteBytes(expected);
+            tw.WriteLine();
+            tw.WriteLine($"var actual = new TripleDesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Encrypt(input);");
+            tw.WriteLine();
+            tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
+
+            if (bclMode is not CipherMode.CFB)
+            {
+                // Verify the OpenSSL result is the same as the .NET BCL, just to be sure
+                TripleDES bcl = TripleDES.Create();
+                bcl.Key = key;
+                bcl.IV = iv;
+                bcl.FeedbackSize = 8 * 8; // .NET is CFB1 by default, OpenSSL is CFB8
+                bcl.Mode = bclMode.Value;
+                bcl.Padding = pad ? PaddingMode.PKCS7 : PaddingMode.None;
+                byte[] bclBytes = bcl.CreateEncryptor().TransformFinalBlock(input, 0, input.Length);
+
+                if (!bclBytes.AsSpan().SequenceEqual(expected))
+                {
+                    tw.WriteLine();
+                    tw.WriteLine(@"Assert.Inconclusive(@""OpenSSL does not match the .NET BCL");
+                    tw.Indent++;
+                    tw.WriteLine($@"OpenSSL: {Convert.ToHexString(expected)}");
+                    tw.WriteLine($@"BCL:     {Convert.ToHexString(bclBytes)}"");");
+                    tw.Indent--;
+                }
+            }
+
+            tw.WriteLine();
+            tw.WriteLine($"var decrypted = new TripleDesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Decrypt(actual);");
+            tw.WriteLine();
+            tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
+
+            tw.Indent--;
+            tw.WriteLine("}");
+            tw.WriteLine();
+        }
+    }
+}
+
+void WriteBytes(byte[] bytes, [CallerArgumentExpression(nameof(bytes))] string name = null)
+{
+    tw.WriteLine($"var {name} = new byte[]");
+    tw.WriteLine("{");
+    tw.Indent++;
+    foreach (byte[] chunk in bytes.Chunk(16))
+    {
+        tw.WriteLine(string.Join(", ", chunk.Select(b => $"0x{b:x2}")) + ',');
+    }
+    tw.Indent--;
+    tw.WriteLine("};");
+}

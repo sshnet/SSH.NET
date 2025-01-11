@@ -3,11 +3,28 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_REQUEST", 98)]
     public class ChannelRequestMessage : ChannelMessage
     {
         private string _requestName;
         private byte[] _requestNameBytes;
+
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_REQUEST";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 98;
+            }
+        }
 
         /// <summary>
         /// Gets the name of the request.
@@ -17,7 +34,10 @@
         /// </value>
         public string RequestName
         {
-            get { return _requestName; }
+            get
+            {
+                return _requestName;
+            }
             private set
             {
                 _requestName = value;
@@ -53,7 +73,7 @@
         /// </summary>
         public ChannelRequestMessage()
         {
-            //  Required for dynamically loading request type when it comes from the server
+            // Required for dynamically loading request type when it comes from the server
         }
 
         /// <summary>

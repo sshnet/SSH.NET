@@ -3,15 +3,31 @@
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_FAILURE message.
     /// </summary>
-    [Message("SSH_MSG_CHANNEL_FAILURE", 100)]
     public class ChannelFailureMessage : ChannelMessage
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_CHANNEL_FAILURE";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 100;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelFailureMessage"/> class.
         /// </summary>
         public ChannelFailureMessage()
         {
-
         }
 
         /// <summary>

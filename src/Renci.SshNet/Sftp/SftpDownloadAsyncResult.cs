@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
@@ -6,13 +7,13 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Encapsulates the results of an asynchronous download operation.
     /// </summary>
-    public class SftpDownloadAsyncResult :  AsyncResult
+    public class SftpDownloadAsyncResult : AsyncResult
     {
         /// <summary>
         /// Gets or sets a value indicating whether to cancel asynchronous download operation.
         /// </summary>
         /// <value>
-        /// <c>true</c> if download operation to be canceled; otherwise, <c>false</c>.
+        /// <see langword="true"/> if download operation to be canceled; otherwise, <see langword="false"/>.
         /// </value>
         /// <remarks>
         /// Download operation will be canceled after finishing uploading current buffer.

@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpWriteRequest : SftpRequest
+    internal sealed class SftpWriteRequest : SftpRequest
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -81,6 +82,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             Handle = ReadBinary();
             ServerFileOffset = ReadUInt64();
             Data = ReadBinary();
@@ -91,6 +93,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(Handle);
             Write(ServerFileOffset);
             WriteBinary(Data, Offset, Length);

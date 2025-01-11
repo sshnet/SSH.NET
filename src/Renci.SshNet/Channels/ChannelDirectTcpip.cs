@@ -2,6 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -11,17 +14,17 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
+    internal sealed class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
-        private readonly object _socketLock = new object();
-
-        private EventWaitHandle _channelOpen = new AutoResetEvent(false);
-        private EventWaitHandle _channelData = new AutoResetEvent(false);
+        private readonly Lock _socketLock = new Lock();
+        private readonly ILogger _logger;
+        private EventWaitHandle _channelOpen = new AutoResetEvent(initialState: false);
+        private EventWaitHandle _channelData = new AutoResetEvent(initialState: false);
         private IForwardedPort _forwardedPort;
         private Socket _socket;
 
         /// <summary>
-        /// Initializes a new <see cref="ChannelDirectTcpip"/> instance.
+        /// Initializes a new instance of the <see cref="ChannelDirectTcpip"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -30,6 +33,7 @@ namespace Renci.SshNet.Channels
         public ChannelDirectTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
             : base(session, localChannelNumber, localWindowSize, localPacketSize)
         {
+            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ChannelDirectTcpip>();
         }
 
         /// <summary>
@@ -46,20 +50,28 @@ namespace Renci.SshNet.Channels
         public void Open(string remoteHost, uint port, IForwardedPort forwardedPort, Socket socket)
         {
             if (IsOpen)
+            {
                 throw new SshException("Channel is already open.");
+            }
+
             if (!IsConnected)
+            {
                 throw new SshException("Session is not connected.");
+            }
 
             _socket = socket;
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            var ep = (IPEndPoint) socket.RemoteEndPoint;
+            var ep = (IPEndPoint)socket.RemoteEndPoint;
 
-            // open channel
-            SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
-                new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
-            //  Wait for channel to open
+            // Open channel
+            SendMessage(new ChannelOpenMessage(LocalChannelNumber,
+                                               LocalWindowSize,
+                                               LocalPacketSize,
+                                               new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint)ep.Port)));
+
+            // Wait for channel to open
             WaitOnHandle(_channelOpen);
         }
 
@@ -82,9 +94,11 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Bind()
         {
-            //  Cannot bind if channel is not open
+            // Cannot bind if channel is not open
             if (!IsOpen)
+            {
                 return;
+            }
 
             var buffer = new byte[RemotePacketSize];
 
@@ -103,13 +117,17 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void CloseSocket()
         {
-            if (_socket == null)
+            if (_socket is null)
+            {
                 return;
+            }
 
             lock (_socketLock)
             {
-                if (_socket == null)
+                if (_socket is null)
+                {
                     return;
+                }
 
                 // closing a socket actually disposes the socket, so we can safely dereference
                 // the field to avoid entering the lock again later
@@ -124,13 +142,17 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null)
+            if (_socket is null)
+            {
                 return;
+            }
 
             lock (_socketLock)
             {
                 if (!_socket.IsConnected())
+                {
                     return;
+                }
 
                 try
                 {
@@ -138,8 +160,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    // TODO: log as warning
-                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                    _logger.LogInformation(ex, "Failure shutting down socket");
                 }
             }
         }
@@ -199,14 +220,14 @@ namespace Renci.SshNet.Channels
         {
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
-            _channelOpen.Set();
+            _ = _channelOpen.Set();
         }
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
         {
             base.OnOpenFailure(reasonCode, description, language);
 
-            _channelOpen.Set();
+            _ = _channelOpen.Set();
         }
 
         /// <summary>

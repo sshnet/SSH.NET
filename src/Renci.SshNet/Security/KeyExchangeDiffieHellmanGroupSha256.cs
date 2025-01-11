@@ -23,14 +23,11 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
-            {
-                return sha256.ComputeHash(hashData);
-            }
+            return CryptoAbstraction.HashSHA256(hashData);
         }
     }
 }

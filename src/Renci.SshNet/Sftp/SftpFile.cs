@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
     /// <summary>
-    /// Represents SFTP file information
+    /// Represents SFTP file information.
     /// </summary>
-    public class SftpFile
+    public sealed class SftpFile : ISftpFile
     {
         private readonly ISftpSession _sftpSession;
 
@@ -22,35 +25,41 @@ namespace Renci.SshNet.Sftp
         /// <param name="sftpSession">The SFTP session.</param>
         /// <param name="fullName">Full path of the directory or file.</param>
         /// <param name="attributes">Attributes of the directory or file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is <see langword="null"/>.</exception>
         internal SftpFile(ISftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
-            if (sftpSession == null)
+            if (sftpSession is null)
+            {
                 throw new SshConnectionException("Client not connected.");
+            }
 
-            if (attributes == null)
-                throw new ArgumentNullException("attributes");
-
-            if (fullName == null)
-                throw new ArgumentNullException("fullName");
+            ThrowHelper.ThrowIfNull(attributes);
+            ThrowHelper.ThrowIfNull(fullName);
 
             _sftpSession = sftpSession;
             Attributes = attributes;
-
             Name = fullName.Substring(fullName.LastIndexOf('/') + 1);
-
             FullName = fullName;
         }
 
         /// <summary>
-        /// Gets the full path of the directory or file.
+        /// Gets the full path of the file or directory.
         /// </summary>
+        /// <value>
+        /// The full path of the file or directory.
+        /// </value>
         public string FullName { get; private set; }
 
         /// <summary>
-        /// For files, gets the name of the file. For directories, gets the name of the last directory in the hierarchy if a hierarchy exists. 
-        /// Otherwise, the Name property gets the name of the directory.
+        /// Gets the name of the file or directory.
         /// </summary>
+        /// <value>
+        /// The name of the file or directory.
+        /// </value>
+        /// <remarks>
+        /// For directories, this is the name of the last directory in the hierarchy if a hierarchy exists;
+        /// otherwise, the name of the directory.
+        /// </remarks>
         public string Name { get; private set; }
 
         /// <summary>
@@ -126,7 +135,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Gets or sets the size, in bytes, of the current file.
+        /// Gets the size, in bytes, of the current file.
         /// </summary>
         /// <value>
         /// The size of the current file in bytes.
@@ -179,7 +188,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a socket.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if file represents a socket; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a socket; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSocket
         {
@@ -193,7 +202,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a symbolic link.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a symbolic link; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsSymbolicLink
         {
@@ -207,7 +216,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a regular file.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a regular file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a regular file; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsRegularFile
         {
@@ -221,7 +230,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a block device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a block device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsBlockDevice
         {
@@ -235,7 +244,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a directory.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a directory; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsDirectory
         {
@@ -249,7 +258,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a character device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a character device; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsCharacterDevice
         {
@@ -263,7 +272,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a named pipe.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// <see langword="true"/> if file represents a named pipe; otherwise, <see langword="false"/>.
         /// </value>
         public bool IsNamedPipe
         {
@@ -277,7 +286,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanRead
         {
@@ -295,7 +304,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanWrite
         {
@@ -313,7 +322,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if owner can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OwnerCanExecute
         {
@@ -331,7 +340,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanRead
         {
@@ -349,7 +358,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanWrite
         {
@@ -367,7 +376,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the group members can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if group members can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool GroupCanExecute
         {
@@ -385,7 +394,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can read from this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can read from this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanRead
         {
@@ -403,7 +412,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can write into this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can write into this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can write into this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanWrite
         {
@@ -421,7 +430,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the others can execute this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if others can execute this file; otherwise, <c>false</c>.
+        /// <see langword="true"/> if others can execute this file; otherwise, <see langword="false"/>.
         /// </value>
         public bool OthersCanExecute
         {
@@ -436,7 +445,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Sets file  permissions.
+        /// Sets file permissions.
         /// </summary>
         /// <param name="mode">The mode.</param>
         public void SetPermissions(short mode)
@@ -461,15 +470,23 @@ namespace Renci.SshNet.Sftp
             }
         }
 
+        /// <inheritdoc/>
+        public Task DeleteAsync(CancellationToken cancellationToken = default)
+        {
+            return IsDirectory
+                       ? _sftpSession.RequestRmDirAsync(FullName, cancellationToken)
+                       : _sftpSession.RequestRemoveAsync(FullName, cancellationToken);
+        }
+
         /// <summary>
         /// Moves a specified file to a new location on remote machine, providing the option to specify a new file name.
         /// </summary>
         /// <param name="destFileName">The path to move the file to, which can specify a different file name.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is <see langword="null"/>.</exception>
         public void MoveTo(string destFileName)
         {
-            if (destFileName == null)
-                throw new ArgumentNullException("destFileName");
+            ThrowHelper.ThrowIfNull(destFileName);
+
             _sftpSession.RequestRename(FullName, destFileName);
 
             var fullPath = _sftpSession.GetCanonicalPath(destFileName);
@@ -488,14 +505,21 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// Returns a <see cref="string"/> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/> that represents this instance.
+        /// A <see cref="string"/> that represents this instance.
         /// </returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "Name {0}, Length {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}", Name, Length, UserId, GroupId, LastAccessTime, LastWriteTime);
+            return string.Format(CultureInfo.CurrentCulture,
+                                 "Name {0}, Length {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}",
+                                 Name,
+                                 Length,
+                                 UserId,
+                                 GroupId,
+                                 LastAccessTime,
+                                 LastWriteTime);
         }
     }
 }

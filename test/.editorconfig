@@ -1,0 +1,152 @@
+﻿[*.cs]
+
+#### Sonar rules ####
+
+# S1215: ""GC.Collect" should not be called
+# https://rules.sonarsource.com/csharp/RSPEC-1215
+dotnet_diagnostic.S1215.severity = none
+
+# S1854: Unused assignments should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1854
+#
+# We sometimes increment the value of a variable on each use to make the code future-proof.
+#
+# For example:
+# int idSequence = 0;
+# var train1 = new Train { Id = ++idSequence };
+# var train2 = new Train { Id = ++idSequence };
+#
+# The increment of 'idSequence' in the last line will cause this diagnostic to be reported. We prefer to keep the increment to make
+# sure the value of the variable will remain correct when we introduce a 'train3'.
+#
+# For unit tests, we do not care about this diagnostic.
+dotnet_diagnostic.S1854.severity = none
+
+# S3966: Objects should not be disposed more than once
+dotnet_diagnostic.S3966.severity = suggestion
+
+#### Meziantou.Analyzer rules ####
+
+# MA0089: Optimize string method usage
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0089.md
+dotnet_diagnostic.MA0089.severity = suggestion
+
+#MA0136 - Raw String contains an implicit end of line character
+dotnet_diagnostic.MA0136.severity = none
+
+#### StyleCop rules ####
+
+# SA1202: Elements must be ordered by access
+dotnet_diagnostic.SA1202.severity = none
+
+# SA1600: Elements must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1601: Partial elements should be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1601.severity = none
+
+# SA1602: Enumeration items must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1604: Element documentation should have summary
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1604.severity = none
+
+# SA1606: Element documentation should have summary text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1606.severity = none
+
+# SA1607: Partial element documentation should have summary text
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1607.severity = none
+
+# SA1611: Element parameters must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1611.severity = none
+
+# SA1614: Element parameter documentation must have text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1614.severity = none
+
+# SA1615: Element return value must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1616: Element return value documentation should have text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1616.severity = none
+
+# SA1623: Property summary documentation must match accessors
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1623.severity = none
+
+# SA1629: Documentation text must end with a period
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1629.severity = none
+
+#### .NET Compiler Platform analysers rules ####
+
+# CA1001: Types that own disposable fields should be disposable
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1001.severity = none
+
+# CA1707: Identifiers should not contain underscores
+#
+# We frequently use underscores in test classes and test methods.
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1824: Mark assemblies with NeutralResourcesLanguageAttribute
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1824
+#
+# We do not care (much) about performance for tests.
+dotnet_diagnostic.CA1824.severity = none
+
+# CA1835: Prefer the memory-based overloads of ReadAsync/WriteAsync methods in stream-based classes
+# https://learn.microsoft.com/en-US/dotnet/fundamentals/code-analysis/quality-rules/ca1835
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1835.severity = none
+
+# CA1711: Identifiers should not have incorrect suffix
+#
+# We frequently define test classes and test method with a suffix that refers to a type.
+dotnet_diagnostic.CA1711.severity = none
+
+# CA1720: Identifiers should not contain type names
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1720.severity = none
+
+# CA1861: Avoid constant arrays as arguments
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1861.severity = none
+
+# CA5351: Do not use broken cryptographic algorithms
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA5351.severity = none
+
+# CA5394: Do not use insecure randomness
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA5394.severity = none
+
+# IDE0078: Use pattern matching (may change code meaning)
+dotnet_diagnostic.IDE0078.severity = none

@@ -1,11 +1,13 @@
-﻿using Renci.SshNet.Common;
-using System;
+﻿using System;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
-    internal class SftpCloseAsyncResult : AsyncResult
+    internal sealed class SftpCloseAsyncResult : AsyncResult
     {
-        public SftpCloseAsyncResult(AsyncCallback asyncCallback, object state) : base(asyncCallback, state)
+        public SftpCloseAsyncResult(AsyncCallback asyncCallback, object state)
+            : base(asyncCallback, state)
         {
         }
     }

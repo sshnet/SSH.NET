@@ -1,9 +1,10 @@
 ﻿using System;
+
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpBlockRequest : SftpRequest
+    internal sealed class SftpBlockRequest : SftpRequest
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -38,7 +39,7 @@ namespace Renci.SshNet.Sftp.Requests
             }
         }
 
-        public SftpBlockRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt64 length, UInt32 lockMask, Action<SftpStatusResponse> statusAction)
+        public SftpBlockRequest(uint protocolVersion, uint requestId, byte[] handle, ulong offset, ulong length, uint lockMask, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Handle = handle;
@@ -50,6 +51,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
+
             Handle = ReadBinary();
             Offset = ReadUInt64();
             Length = ReadUInt64();
@@ -59,6 +61,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             WriteBinaryString(Handle);
             Write(Offset);
             Write(Length);

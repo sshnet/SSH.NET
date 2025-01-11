@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Transport;
@@ -37,8 +38,9 @@ namespace Renci.SshNet.Security
         /// Starts the key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        void Start(Session session, KeyExchangeInitMessage message);
+        /// <param name="message">The key exchange init message received from the server.</param>
+        /// <param name="sendClientInitMessage">Whether to send a key exchange init message in response.</param>
+        void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage);
 
         /// <summary>
         /// Finishes the key exchange algorithm.
@@ -48,34 +50,38 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the client-side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to indicate the cipher is not AEAD.</param>
         /// <returns>
         /// The client cipher.
         /// </returns>
-        Cipher CreateClientCipher();
+        Cipher CreateClientCipher(out bool isAead);
 
         /// <summary>
         /// Creates the server-side cipher to use.
         /// </summary>
+        /// <param name="isAead"><see langword="true"/> to indicate the cipher is AEAD, <see langword="false"/> to indicate the cipher is not AEAD.</param>
         /// <returns>
         /// The server cipher.
         /// </returns>
-        Cipher CreateServerCipher();
+        Cipher CreateServerCipher(out bool isAead);
 
         /// <summary>
         /// Creates the server-side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The server hash algorithm.
         /// </returns>
-        HashAlgorithm CreateServerHash();
+        HashAlgorithm CreateServerHash(out bool isEncryptThenMAC);
 
         /// <summary>
         /// Creates the client-side hash algorithm to use.
         /// </summary>
+        /// <param name="isEncryptThenMAC"><see langword="true"/> to enable encrypt-then-MAC, <see langword="false"/> to use encrypt-and-MAC.</param>
         /// <returns>
         /// The client hash algorithm.
         /// </returns>
-        HashAlgorithm CreateClientHash();
+        HashAlgorithm CreateClientHash(out bool isEncryptThenMAC);
 
         /// <summary>
         /// Creates the compression algorithm to use to deflate data.

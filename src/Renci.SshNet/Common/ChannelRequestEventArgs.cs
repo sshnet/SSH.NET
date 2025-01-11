@@ -1,25 +1,32 @@
 ﻿using System;
+
 using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.RequestReceived"/> event.
+    /// Provides data for <see cref="Channels.Channel.RequestReceived"/> event.
     /// </summary>
-    internal class ChannelRequestEventArgs : EventArgs
+    internal sealed class ChannelRequestEventArgs : EventArgs
     {
-        /// <summary>
-        /// Gets request information.
-        /// </summary>
-        public RequestInfo Info { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelRequestEventArgs"/> class.
         /// </summary>
         /// <param name="info">Request information.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/>.</exception>
         public ChannelRequestEventArgs(RequestInfo info)
         {
+            ThrowHelper.ThrowIfNull(info);
+
             Info = info;
         }
+
+        /// <summary>
+        /// Gets the request information.
+        /// </summary>
+        /// <value>
+        /// The request information.
+        /// </value>
+        public RequestInfo Info { get; }
     }
 }

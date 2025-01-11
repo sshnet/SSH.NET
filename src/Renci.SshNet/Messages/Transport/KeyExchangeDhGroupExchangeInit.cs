@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_INIT message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_INIT", 32)]
-    internal class KeyExchangeDhGroupExchangeInit : Message, IKeyExchangedAllowed
+    internal sealed class KeyExchangeDhGroupExchangeInit : Message, IKeyExchangedAllowed
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_KEX_DH_GEX_INIT";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 32;
+            }
+        }
+
         /// <summary>
         /// Gets the E value.
         /// </summary>

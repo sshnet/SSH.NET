@@ -3,12 +3,12 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "session" channel type
+    /// Used to open "session" channel type.
     /// </summary>
-    internal class SessionChannelOpenInfo : ChannelOpenInfo
+    internal sealed class SessionChannelOpenInfo : ChannelOpenInfo
     {
         /// <summary>
-        /// Specifies channel open type
+        /// Specifies channel open type.
         /// </summary>
         public const string Name = "session";
 
@@ -34,7 +34,7 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="SessionChannelOpenInfo"/> class from the
         /// specified data.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public SessionChannelOpenInfo(byte[] data)
         {
             Load(data);

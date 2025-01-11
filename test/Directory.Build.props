@@ -1,0 +1,16 @@
+<Project>
+    <Import Project="$(MSBuildThisFileDirectory)..\Directory.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)..\Directory.Build.props')" />
+
+    <PropertyGroup>
+        <!--
+            Even though we're not interested in producing XML docs for test projects, we have to enable this in order to have the .NET Compiler
+            Platform analyzers produce the IDE0005 (Remove unnecessary import) diagnostic.
+            
+            To avoid warnings for missing XML docs, we add CS1591 (Missing XML comment for publicly visible type or member) to the NoWarn property.
+
+            We can stop producing XML docs for test projects (and remove the NoWarn for CS1591) once the following issue is fixed:
+            https://github.com/dotnet/roslyn/issues/41640.
+        -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+    </PropertyGroup>
+</Project>

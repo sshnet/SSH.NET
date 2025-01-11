@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Numerics;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
 {
-    internal class GroupExchangeHashData : SshData
+    internal sealed class GroupExchangeHashData : SshData
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;
@@ -15,7 +17,6 @@ namespace Renci.SshNet.Security
             private get { return Utf8.GetString(_serverVersion, 0, _serverVersion.Length); }
             set { _serverVersion = Utf8.GetBytes(value); }
         }
-
 
         public string ClientVersion
         {
@@ -38,13 +39,13 @@ namespace Renci.SshNet.Security
         public BigInteger Prime
         {
             private get { return _prime.ToBigInteger(); }
-            set { _prime = value.ToByteArray().Reverse(); }
+            set { _prime = value.ToByteArray(isBigEndian: true); }
         }
 
         public BigInteger SubGroup
         {
             private get { return _subGroup.ToBigInteger(); }
-            set { _subGroup = value.ToByteArray().Reverse(); }
+            set { _subGroup = value.ToByteArray(isBigEndian: true); }
         }
 
         public byte[] ClientExchangeValue { get; set; }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Text;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet
 {
     /// <summary>
     /// Quotes a path in a way to be suitable to be used with a shell-based server.
     /// </summary>
-    internal class RemotePathShellQuoteTransformation : IRemotePathTransformation
+    internal sealed class RemotePathShellQuoteTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Quotes a path in a way to be suitable to be used with a shell-based server.
@@ -15,7 +17,7 @@ namespace Renci.SshNet
         /// <returns>
         /// A quoted path.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>
         /// If <paramref name="path"/> contains a single-quote, that character is embedded
@@ -80,10 +82,7 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            if (path == null)
-            {
-                throw new ArgumentNullException("path");
-            }
+            ThrowHelper.ThrowIfNull(path);
 
             // result is at least value and (likely) leading/trailing single-quotes
             var sb = new StringBuilder(path.Length + 2);
@@ -99,42 +98,52 @@ namespace Renci.SshNet
                         {
                             case ShellQuoteState.Unquoted:
                                 // Start quoted string
-                                sb.Append('"');
+                                _ = sb.Append('"');
                                 break;
                             case ShellQuoteState.Quoted:
                                 // Continue quoted string
                                 break;
                             case ShellQuoteState.SingleQuoted:
                                 // Close single-quoted string
-                                sb.Append('\'');
+                                _ = sb.Append('\'');
+
                                 // Start quoted string
-                                sb.Append('"');
+                                _ = sb.Append('"');
+                                break;
+                            default:
                                 break;
                         }
+
                         state = ShellQuoteState.Quoted;
                         break;
                     case '!':
-                        // In C-Shell, an exclamatation point can only be protected from shell interpretation
-                        // when escaped by a backslash
-                        // Source:
-                        // https://earthsci.stanford.edu/computing/unix/shell/specialchars.php
+                        /*
+                         * In C-Shell, an exclamatation point can only be protected from shell interpretation
+                         * when escaped by a backslash.
+                         *
+                         * Source:
+                         * https://earthsci.stanford.edu/computing/unix/shell/specialchars.php
+                         */
 
                         switch (state)
                         {
                             case ShellQuoteState.Unquoted:
-                                sb.Append('\\');
+                                _ = sb.Append('\\');
                                 break;
                             case ShellQuoteState.Quoted:
                                 // Close quoted string
-                                sb.Append('"');
-                                sb.Append('\\');
+                                _ = sb.Append('"');
+                                _ = sb.Append('\\');
                                 break;
                             case ShellQuoteState.SingleQuoted:
                                 // Close single quoted string
-                                sb.Append('\'');
-                                sb.Append('\\');
+                                _ = sb.Append('\'');
+                                _ = sb.Append('\\');
+                                break;
+                            default:
                                 break;
                         }
+
                         state = ShellQuoteState.Unquoted;
                         break;
                     default:
@@ -142,23 +151,27 @@ namespace Renci.SshNet
                         {
                             case ShellQuoteState.Unquoted:
                                 // Start single-quoted string
-                                sb.Append('\'');
+                                _ = sb.Append('\'');
                                 break;
                             case ShellQuoteState.Quoted:
                                 // Close quoted string
-                                sb.Append('"');
+                                _ = sb.Append('"');
+
                                 // Start single-quoted string
-                                sb.Append('\'');
+                                _ = sb.Append('\'');
                                 break;
                             case ShellQuoteState.SingleQuoted:
                                 // Continue single-quoted string
                                 break;
+                            default:
+                                break;
                         }
+
                         state = ShellQuoteState.SingleQuoted;
                         break;
                 }
 
-                sb.Append(c);
+                _ = sb.Append(c);
             }
 
             switch (state)
@@ -167,17 +180,19 @@ namespace Renci.SshNet
                     break;
                 case ShellQuoteState.Quoted:
                     // Close quoted string
-                    sb.Append('"');
+                    _ = sb.Append('"');
                     break;
                 case ShellQuoteState.SingleQuoted:
                     // Close single-quoted string
-                    sb.Append('\'');
+                    _ = sb.Append('\'');
+                    break;
+                default:
                     break;
             }
 
             if (sb.Length == 0)
             {
-                sb.Append("''");
+                _ = sb.Append("''");
             }
 
             return sb.ToString();

@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_SUCCESS message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_SUCCESS", 52)]
     public class SuccessMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_SUCCESS";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 52;
+            }
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

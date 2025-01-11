@@ -2,12 +2,12 @@
 
 namespace Renci.SshNet.Messages.Connection
 {
-    internal class CancelTcpIpForwardGlobalRequestMessage : GlobalRequestMessage
+    internal sealed class CancelTcpIpForwardGlobalRequestMessage : GlobalRequestMessage
     {
         private byte[] _addressToBind;
 
         public CancelTcpIpForwardGlobalRequestMessage(string addressToBind, uint portToBind)
-            : base(Ascii.GetBytes("cancel-tcpip-forward"), true)
+            : base(Ascii.GetBytes("cancel-tcpip-forward"), wantReply: true)
         {
             AddressToBind = addressToBind;
             PortToBind = portToBind;

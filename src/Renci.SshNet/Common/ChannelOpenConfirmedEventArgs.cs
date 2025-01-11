@@ -1,9 +1,9 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.Channels.ClientChannel.OpenConfirmed"/> event.
+    /// Provides data for <see cref="Channels.ClientChannel.OpenConfirmed"/> event.
     /// </summary>
-    internal class ChannelOpenConfirmedEventArgs : ChannelEventArgs
+    internal sealed class ChannelOpenConfirmedEventArgs : ChannelEventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenConfirmedEventArgs"/> class.
@@ -24,7 +24,7 @@
         /// <value>
         /// The initial size of the window.
         /// </value>
-        public uint InitialWindowSize { get; private set; }
+        public uint InitialWindowSize { get; }
 
         /// <summary>
         /// Gets the maximum size of the packet.
@@ -32,6 +32,6 @@
         /// <value>
         /// The maximum size of the packet.
         /// </value>
-        public uint MaximumPacketSize { get; private set; }
+        public uint MaximumPacketSize { get; }
     }
 }

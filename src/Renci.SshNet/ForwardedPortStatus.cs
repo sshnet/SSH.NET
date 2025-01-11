@@ -3,15 +3,15 @@ using System.Threading;
 
 namespace Renci.SshNet
 {
-    internal class ForwardedPortStatus
+    internal sealed class ForwardedPortStatus
     {
-        private readonly int _value;
-        private readonly string _name;
-
         public static readonly ForwardedPortStatus Stopped = new ForwardedPortStatus(1, "Stopped");
         public static readonly ForwardedPortStatus Stopping = new ForwardedPortStatus(2, "Stopping");
         public static readonly ForwardedPortStatus Started = new ForwardedPortStatus(3, "Started");
         public static readonly ForwardedPortStatus Starting = new ForwardedPortStatus(4, "Starting");
+
+        private readonly int _value;
+        private readonly string _name;
 
         private ForwardedPortStatus(int value, string name)
         {
@@ -19,28 +19,30 @@ namespace Renci.SshNet
             _name = name;
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            if (ReferenceEquals(other, null))
-                return false;
-
-            if (ReferenceEquals(this, other))
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
 
-            var forwardedPortStatus = other as ForwardedPortStatus;
-            if (forwardedPortStatus == null)
+            if (obj is not ForwardedPortStatus forwardedPortStatus)
+            {
                 return false;
+            }
 
             return forwardedPortStatus._value == _value;
         }
 
+#pragma warning disable S3875 // "operator==" should not be overloaded on reference types
         public static bool operator ==(ForwardedPortStatus left, ForwardedPortStatus right)
+#pragma warning restore S3875 // "operator==" should not be overloaded on reference types
         {
             // check if lhs is null
-            if (ReferenceEquals(left, null))
+            if (left is null)
             {
                 // check if both lhs and rhs are null
-                return (ReferenceEquals(right, null));
+                return right is null;
             }
 
             return left.Equals(right);
@@ -48,7 +50,7 @@ namespace Renci.SshNet
 
         public static bool operator !=(ForwardedPortStatus left, ForwardedPortStatus right)
         {
-            return !(left==right);
+            return !(left == right);
         }
 
         public override int GetHashCode()
@@ -66,12 +68,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="status">The status to transition from.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="status"/> has been changed to <see cref="Stopping"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="status"/> has been changed to <see cref="Stopping"/>; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Cannot transition <paramref name="status"/> to <see cref="Stopping"/>.</exception>
         /// <remarks>
         /// While a transition from <see cref="Stopped"/> to <see cref="Stopping"/> is not possible, this method will
-        /// return <c>false</c> for any such attempts.  This is related to concurrency.
+        /// return <see langword="false"/> for any such attempts.  This is related to concurrency.
         /// </remarks>
         public static bool ToStopping(ref ForwardedPortStatus status)
         {
@@ -85,7 +87,9 @@ namespace Renci.SshNet
 
             // we've successfully transitioned from Started to Stopping
             if (status == Stopping)
+            {
                 return true;
+            }
 
             // attempt to transition from Starting to Stopping
             previousStatus = Interlocked.CompareExchange(ref status, Stopping, Starting);
@@ -97,7 +101,9 @@ namespace Renci.SshNet
 
             // we've successfully transitioned from Starting to Stopping
             if (status == Stopping)
+            {
                 return true;
+            }
 
             // there's no valid transition from status to Stopping
             throw new InvalidOperationException(string.Format("Forwarded port cannot transition from '{0}' to '{1}'.",
@@ -110,12 +116,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="status">The status to transition from.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="status"/> has been changed to <see cref="Starting"/>; otherwise, <c>false</c>.
+        /// <see langword="true"/> if <paramref name="status"/> has been changed to <see cref="Starting"/>; otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">Cannot transition <paramref name="status"/> to <see cref="Starting"/>.</exception>
         /// <remarks>
         /// While a transition from <see cref="Started"/> to <see cref="Starting"/> is not possible, this method will
-        /// return <c>false</c> for any such attempts.  This is related to concurrency.
+        /// return <see langword="false"/> for any such attempts.  This is related to concurrency.
         /// </remarks>
         public static bool ToStarting(ref ForwardedPortStatus status)
         {
@@ -129,7 +135,9 @@ namespace Renci.SshNet
 
             // we've successfully transitioned from Stopped to Starting
             if (status == Starting)
+            {
                 return true;
+            }
 
             // there's no valid transition from status to Starting
             throw new InvalidOperationException(string.Format("Forwarded port cannot transition from '{0}' to '{1}'.",

@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
-using Renci.SshNet.Security.Chaos.NaCl;
-using Renci.SshNet.Security.Chaos.NaCl.Internal.Ed25519Ref10;
 
 namespace Renci.SshNet.Security
 {
-    internal class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal sealed class KeyExchangeECCurve25519 : KeyExchangeEC
     {
-        private byte[] _privateKey;
+        private X25519Agreement _keyAgreement;
 
         /// <summary>
         /// Gets algorithm name.
@@ -30,28 +31,22 @@ namespace Renci.SshNet.Security
             get { return 256; }
         }
 
-        /// <summary>
-        /// Starts key exchange algorithm
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="message">Key exchange init message.</param>
-        public override void Start(Session session, KeyExchangeInitMessage message)
+        /// <inheritdoc/>
+        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
-            base.Start(session, message);
+            base.Start(session, message, sendClientInitMessage);
 
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-            var basepoint = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
-            basepoint[0] = 9;
+            var g = new X25519KeyPairGenerator();
+            g.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
 
-            var rnd = new Random();
-            _privateKey = new byte[MontgomeryCurve25519.PrivateKeySizeInBytes];
-            rnd.NextBytes(_privateKey);
-
-            _clientExchangeValue = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
-            MontgomeryOperations.scalarmult(_clientExchangeValue, 0, _privateKey, 0, basepoint, 0);
+            var aKeyPair = g.GenerateKeyPair();
+            _keyAgreement = new X25519Agreement();
+            _keyAgreement.Init(aKeyPair.Private);
+            _clientExchangeValue = ((X25519PublicKeyParameters)aKeyPair.Public).GetEncoded();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
@@ -71,26 +66,23 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
-            {
-                return sha256.ComputeHash(hashData, 0, hashData.Length);
-            }
+            return CryptoAbstraction.HashSHA256(hashData);
         }
 
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)
         {
             var message = e.Message;
 
-            //  Unregister message once received
+            // Unregister message once received
             Session.UnRegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             HandleServerEcdhReply(message.KS, message.QS, message.Signature);
 
-            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            // When SSH_MSG_KEX_ECDH_REPLY received key exchange is completed
             Finish();
         }
 
@@ -106,9 +98,11 @@ namespace Renci.SshNet.Security
             _hostKey = hostKey;
             _signature = signature;
 
-            var sharedKey = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
-            MontgomeryOperations.scalarmult(sharedKey, 0, _privateKey, 0, serverExchangeValue, 0);
-            SharedKey = sharedKey.ToBigInteger2().ToByteArray().Reverse();
+            var publicKey = new X25519PublicKeyParameters(serverExchangeValue);
+
+            var k1 = new byte[_keyAgreement.AgreementSize];
+            _keyAgreement.CalculateAgreement(publicKey, k1, 0);
+            SharedKey = k1.ToBigInteger2().ToByteArray(isBigEndian: true);
         }
     }
 }

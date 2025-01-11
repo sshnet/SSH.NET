@@ -3,9 +3,26 @@
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_PK_OK message.
     /// </summary>
-    [Message("SSH_MSG_USERAUTH_PK_OK", 60)]
-    internal class PublicKeyMessage : Message
+    internal sealed class PublicKeyMessage : Message
     {
+        /// <inheritdoc />
+        public override string MessageName
+        {
+            get
+            {
+                return "SSH_MSG_USERAUTH_PK_OK";
+            }
+        }
+
+        /// <inheritdoc />
+        public override byte MessageNumber
+        {
+            get
+            {
+                return 60;
+            }
+        }
+
         /// <summary>
         /// Gets the name of the public key algorithm as ASCII encoded byte array.
         /// </summary>
@@ -59,6 +76,12 @@
         {
             WriteBinaryString(PublicKeyAlgorithmName);
             WriteBinaryString(PublicKeyData);
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"SSH_MSG_USERAUTH_PK_OK ({Ascii.GetString(PublicKeyAlgorithmName)})";
         }
     }
 }

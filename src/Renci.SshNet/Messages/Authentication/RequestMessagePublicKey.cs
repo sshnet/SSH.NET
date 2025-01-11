@@ -92,7 +92,15 @@
             WriteBinaryString(PublicKeyAlgorithmName);
             WriteBinaryString(PublicKeyData);
             if (Signature != null)
+            {
                 WriteBinaryString(Signature);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{base.ToString()} {Ascii.GetString(PublicKeyAlgorithmName)} {(Signature != null ? "with" : "without")} signature.";
         }
     }
 }

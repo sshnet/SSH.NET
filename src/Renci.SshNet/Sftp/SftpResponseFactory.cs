@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Text;
-using Renci.SshNet.Sftp.Responses;
 using System.Globalization;
+using System.Text;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {
@@ -9,10 +10,11 @@ namespace Renci.SshNet.Sftp
     {
         public SftpMessage Create(uint protocolVersion, byte messageType, Encoding encoding)
         {
-            var sftpMessageType = (SftpMessageTypes) messageType;
+            var sftpMessageType = (SftpMessageTypes)messageType;
 
             SftpMessage message;
 
+#pragma warning disable IDE0010 // Add missing cases
             switch (sftpMessageType)
             {
                 case SftpMessageTypes.Version:
@@ -39,6 +41,7 @@ namespace Renci.SshNet.Sftp
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", sftpMessageType));
             }
+#pragma warning restore IDE0010 // Add missing cases
 
             return message;
         }

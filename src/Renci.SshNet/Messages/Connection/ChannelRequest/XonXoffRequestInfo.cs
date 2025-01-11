@@ -1,12 +1,12 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "xon-xoff" type channel request information
+    /// Represents "xon-xoff" type channel request information.
     /// </summary>
-    internal class XonXoffRequestInfo : RequestInfo
+    internal sealed class XonXoffRequestInfo : RequestInfo
     {
         /// <summary>
-        /// Channel request type
+        /// Channel request type.
         /// </summary>
         public const string Name = "xon-xoff";
 
@@ -25,7 +25,7 @@
         /// Gets or sets a value indicating whether client can do.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if client can do; otherwise, <c>false</c>.
+        /// <see langword="true"/> if client can do; otherwise, <see langword="false"/>.
         /// </value>
         public bool ClientCanDo { get; set; }
 
@@ -56,7 +56,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="XonXoffRequestInfo"/> class.
         /// </summary>
-        /// <param name="clientCanDo">if set to <c>true</c> [client can do].</param>
+        /// <param name="clientCanDo">if set to <see langword="true"/> [client can do].</param>
         public XonXoffRequestInfo(bool clientCanDo)
             : this()
         {

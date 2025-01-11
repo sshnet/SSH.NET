@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Text;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "exec" type channel request information
+    /// Represents "exec" type channel request information.
     /// </summary>
-    internal class ExecRequestInfo : RequestInfo
+    internal sealed class ExecRequestInfo : RequestInfo
     {
         private byte[] _command;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "exec";
 
@@ -75,14 +77,12 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         /// <param name="command">The command.</param>
         /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="command"/> or <paramref name="encoding"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="command"/> or <paramref name="encoding"/> is <see langword="null"/>.</exception>
         public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
-            if (command == null)
-                throw new ArgumentNullException("command");
-            if (encoding == null)
-                throw new ArgumentNullException("encoding");
+            ThrowHelper.ThrowIfNull(command);
+            ThrowHelper.ThrowIfNull(encoding);
 
             _command = encoding.GetBytes(command);
             Encoding = encoding;

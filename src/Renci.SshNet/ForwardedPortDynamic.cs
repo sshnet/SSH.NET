@@ -40,7 +40,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the bound port.
         /// </summary>
-        public uint BoundPort { get; }
+        public uint BoundPort { get; private set; }
 
         private Socket _listener;
         private CountdownEvent _pendingChannelCountdown;

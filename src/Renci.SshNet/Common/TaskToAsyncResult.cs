@@ -1,6 +1,6 @@
 ﻿#pragma warning disable
 #if !NET
-// Copied verbatim from https://github.com/dotnet/runtime/blob/78bd7debe6d8b454294c673c9cb969c6b8a14692/src/libraries/Common/src/System/Threading/Tasks/TaskToAsyncResult.cs
+// Copied verbatim from https://github.com/dotnet/runtime/blob/261611930d6b436d7c4395450356b624d903d9bf/src/libraries/Common/src/System/Threading/Tasks/TaskToAsyncResult.cs
 
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.

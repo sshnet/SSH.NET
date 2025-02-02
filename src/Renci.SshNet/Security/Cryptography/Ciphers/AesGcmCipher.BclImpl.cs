@@ -16,11 +16,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public BclImpl(byte[] key, byte[] nonce)
             {
-#if NET
                 _aesGcm = new AesGcm(key, TagSizeInBytes);
-#else
-                _aesGcm = new AesGcm(key);
-#endif
                 _nonce = nonce;
             }
 
@@ -37,21 +33,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public override void Decrypt(byte[] input, int cipherTextOffset, int cipherTextLength, int associatedDataOffset, int associatedDataLength, byte[] output, int plainTextOffset)
             {
-                var plainTextLength = cipherTextLength;
                 var cipherText = new ReadOnlySpan<byte>(input, cipherTextOffset, cipherTextLength);
                 var tag = new ReadOnlySpan<byte>(input, cipherTextOffset + cipherTextLength, TagSizeInBytes);
-                var plainText = new Span<byte>(output, plainTextOffset, plainTextLength);
                 var associatedData = new ReadOnlySpan<byte>(input, associatedDataOffset, associatedDataLength);
 
                 try
                 {
                     _aesGcm.Decrypt(_nonce, cipherText, tag, output, associatedData);
                 }
-#if NET
                 catch (AuthenticationTagMismatchException ex)
-#else
-                catch (CryptographicException ex)
-#endif
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError, ex);
                 }

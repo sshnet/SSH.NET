@@ -9,3 +9,21 @@ updates:
     directory: "/test/Renci.SshNet.IntegrationTests/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # AsyncInterface must stay at 1.0.0 because of https://github.com/sshnet/SSH.NET/pull/1288
+      - dependency-name: "Microsoft.Bcl.AsyncInterfaces"
+      # These should stay on LTS .NET Releases
+      - dependency-name: "System.Formats.Asn1"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.Logging.*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

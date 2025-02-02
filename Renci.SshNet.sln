@@ -83,6 +83,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.AotCompatibilityTestApp", "test\Renci.SshNet.AotCompatibilityTestApp\Renci.SshNet.AotCompatibilityTestApp.csproj", "{F2E3FC50-4EF4-488C-B3D2-C45E99898D8B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{05229079-6738-42CE-8F73-F4E182929B03}"
+	ProjectSection(SolutionItems) = preProject
+		.github\dependabot.yml = .github\dependabot.yml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{95F25B1A-2B14-4745-9087-43C00CD90EE0}"
 	ProjectSection(SolutionItems) = preProject

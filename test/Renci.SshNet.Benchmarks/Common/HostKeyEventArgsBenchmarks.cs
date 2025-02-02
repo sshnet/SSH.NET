@@ -19,7 +19,7 @@ namespace Renci.SshNet.Benchmarks.Common
         {
             using (var s = typeof(HostKeyEventArgsBenchmarks).Assembly.GetManifestResourceStream("Renci.SshNet.Benchmarks.Data.Key.RSA.txt"))
             {
-                var privateKey = new PrivateKeyFile(s);
+                var privateKey = new PrivateKeyFile(s!);
                 return (KeyHostAlgorithm)privateKey.HostKeyAlgorithms.First();
             }
         }

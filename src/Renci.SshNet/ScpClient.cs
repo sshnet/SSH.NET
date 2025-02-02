@@ -37,7 +37,7 @@ namespace Renci.SshNet
         private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
         private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
 
-#if NET7_0_OR_GREATER
+#if NET
         private static readonly Regex FileInfoRegex = GetFileInfoRegex();
         private static readonly Regex DirectoryInfoRegex = GetDirectoryInfoRegex();
         private static readonly Regex TimestampRegex = GetTimestampRegex();

@@ -15,7 +15,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;
         private readonly int _aadLength;
-#if NET6_0_OR_GREATER
+#if NET
         private readonly Impl _impl;
 #else
         private readonly BouncyCastleImpl _impl;
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
             _aadLength = aadLength;
-#if NET6_0_OR_GREATER
+#if NET
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
                 _impl = new BclImpl(key, _iv);

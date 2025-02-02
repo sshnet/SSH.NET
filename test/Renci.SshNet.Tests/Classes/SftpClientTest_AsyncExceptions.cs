@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-#if !NET8_0_OR_GREATER
+#if !NET
 using Renci.SshNet.Abstractions;
 #endif
 using Renci.SshNet.Channels;

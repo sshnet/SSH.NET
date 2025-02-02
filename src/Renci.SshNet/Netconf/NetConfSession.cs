@@ -21,7 +21,7 @@ namespace Renci.SshNet.NetConf
         private StringBuilder _rpcReply = new StringBuilder();
         private int _messageId;
 
-#if NET7_0_OR_GREATER
+#if NET
         private static readonly Regex LengthRegex = GetLengthRegex();
         private static readonly Regex ReplyRegex = GetReplyRegex();
 
@@ -181,11 +181,11 @@ namespace Renci.SshNet.NetConf
                     position += match.Index + match.Length + fractionLength;
                 }
 
-#if NET7_0_OR_GREATER
+#if NET
                 if (ReplyRegex.IsMatch(chunk.AsSpan(position)))
 #else
                 if (ReplyRegex.IsMatch(chunk.Substring(position)))
-#endif // NET7_0_OR_GREATER
+#endif // NET
                 {
                     _ = _rpcReplyReceived.Set();
                 }

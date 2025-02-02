@@ -24,7 +24,7 @@ namespace Renci.SshNet.Connection
         private const byte Null = 0x00;
         private const string ServerVersionPattern = "^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.*?)([ ](?<comments>.+))?$";
 
-#if NET7_0_OR_GREATER
+#if NET
         private static readonly Regex ServerVersionRegex = GetServerVersionRegex();
 
         [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
@@ -89,11 +89,11 @@ namespace Renci.SshNet.Connection
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
             // when the connection has been established
-#if NET6_0_OR_GREATER
+#if NET
             await SocketAbstraction.SendAsync(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"), cancellationToken).ConfigureAwait(false);
 #else
             SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
-#endif // NET6_0_OR_GREATER
+#endif // NET
 
             var bytesReceived = new List<byte>();
 

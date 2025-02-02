@@ -515,7 +515,7 @@ namespace Renci.SshNet.Sftp
 
             ThrowHelper.ThrowIfNull(buffer);
 
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
             ArgumentOutOfRangeException.ThrowIfNegative(count);
 #else
@@ -657,7 +657,7 @@ namespace Renci.SshNet.Sftp
 
             ThrowHelper.ThrowIfNull(buffer);
 
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
             ArgumentOutOfRangeException.ThrowIfNegative(count);
 #else
@@ -952,7 +952,7 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegative(value);
 #else
             if (value < 0)
@@ -1007,7 +1007,7 @@ namespace Renci.SshNet.Sftp
         {
             ThrowHelper.ThrowIfNull(buffer);
 
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
             ArgumentOutOfRangeException.ThrowIfNegative(count);
 #else
@@ -1107,7 +1107,7 @@ namespace Renci.SshNet.Sftp
         {
             ThrowHelper.ThrowIfNull(buffer);
 
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
             ArgumentOutOfRangeException.ThrowIfNegative(count);
 #else

@@ -311,7 +311,7 @@ namespace Renci.SshNet.Abstractions
             return totalBytesRead;
         }
 
-#if NET6_0_OR_GREATER == false
+#if !NET
         public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
             return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);

@@ -34,7 +34,7 @@ namespace Renci.SshNet.Connection
         private const string HttpResponsePattern = @"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$";
         private const string HttpHeaderPattern = @"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?";
 
-#if NET7_0_OR_GREATER
+#if NET
         private static readonly Regex HttpResponseRegex = GetHttpResponseRegex();
         private static readonly Regex HttpHeaderRegex = GetHttpHeaderRegex();
 

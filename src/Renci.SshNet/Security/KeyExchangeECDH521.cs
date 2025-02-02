@@ -15,7 +15,7 @@ namespace Renci.SshNet.Security
             get { return "ecdh-sha2-nistp521"; }
         }
 
-#if NET8_0_OR_GREATER
+#if NET
         /// <summary>
         /// Gets the curve.
         /// </summary>

@@ -31,7 +31,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 // OFB is not supported on modern .NET
                 _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
             }
-#if !NET6_0_OR_GREATER
+#if !NET
             else if (mode == AesCipherMode.CFB)
             {
                 // CFB not supported on NetStandard 2.1

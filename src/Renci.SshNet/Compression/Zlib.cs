@@ -1,5 +1,5 @@
 ﻿using System.IO;
-#if NET6_0_OR_GREATER
+#if NET
 using System.IO.Compression;
 #else
 using Org.BouncyCastle.Utilities.Zlib;
@@ -14,7 +14,7 @@ namespace Renci.SshNet.Compression
     public class Zlib : Compressor
 #pragma warning restore CA1724 // Type names should not match namespaces
     {
-#if NET6_0_OR_GREATER
+#if NET
         private readonly ZLibStream _compressor;
         private readonly ZLibStream _decompressor;
 #else
@@ -45,7 +45,7 @@ namespace Renci.SshNet.Compression
             _compressorStream = new MemoryStream();
             _decompressorStream = new MemoryStream();
 
-#if NET6_0_OR_GREATER
+#if NET
             _compressor = new ZLibStream(_compressorStream, CompressionMode.Compress);
             _decompressor = new ZLibStream(_decompressorStream, CompressionMode.Decompress);
 #else
@@ -74,7 +74,7 @@ namespace Renci.SshNet.Compression
         /// <inheritdoc/>
         protected override byte[] DecompressCore(byte[] data, int offset, int length)
         {
-#if NET6_0_OR_GREATER
+#if NET
             _decompressorStream.Write(data, offset, length);
             _decompressorStream.Position = 0;
 

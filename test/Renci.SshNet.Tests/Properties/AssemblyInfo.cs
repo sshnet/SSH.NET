@@ -1,5 +1,5 @@
-﻿#if NET6_0_OR_GREATER
+﻿#if NET
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: ExcludeFromCodeCoverage]
-#endif // NET6_0_OR_GREATER
+#endif // NET

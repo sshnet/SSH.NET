@@ -118,7 +118,7 @@ namespace Renci.SshNet
             {
                 bufferSize = DefaultBufferSize;
             }
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
 #else
             if (bufferSize <= 0)

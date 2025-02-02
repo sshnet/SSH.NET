@@ -160,7 +160,7 @@ namespace Renci.SshNet
             {
                 bufferSize = DefaultBufferSize;
             }
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
 #else
             if (bufferSize <= 0)
@@ -481,7 +481,7 @@ namespace Renci.SshNet
 
                     foreach (var expectAction in expectActions)
                     {
-#if NET7_0_OR_GREATER
+#if NET
                         var matchEnumerator = expectAction.Expect.EnumerateMatches(bufferText.AsSpan(searchStart));
 
                         if (matchEnumerator.MoveNext())

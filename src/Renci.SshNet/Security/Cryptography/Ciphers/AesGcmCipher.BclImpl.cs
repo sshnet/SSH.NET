@@ -1,4 +1,4 @@
-#if NET6_0_OR_GREATER
+#if NET
 using System;
 using System.Security.Cryptography;
 
@@ -16,7 +16,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public BclImpl(byte[] key, byte[] nonce)
             {
-#if NET8_0_OR_GREATER
+#if NET
                 _aesGcm = new AesGcm(key, TagSizeInBytes);
 #else
                 _aesGcm = new AesGcm(key);
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 {
                     _aesGcm.Decrypt(_nonce, cipherText, tag, output, associatedData);
                 }
-#if NET8_0_OR_GREATER
+#if NET
                 catch (AuthenticationTagMismatchException ex)
 #else
                 catch (CryptographicException ex)

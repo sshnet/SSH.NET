@@ -299,17 +299,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var file = new FileStream(fileName, FileMode.Open))
             {
-#if NET7_0_OR_GREATER
+#if NET
                 var hash = MD5.HashData(file);
 #else
-#if NET6_0
-                var md5 = MD5.Create();
-#else
-                MD5 md5 = new MD5CryptoServiceProvider();
-#endif // NET6_0
+                MD5 md5 = MD5.Create();
                 var hash = md5.ComputeHash(file);
-#endif // NET7_0_OR_GREATER
-
+#endif // #NET
                 file.Close();
 
                 var sb = new StringBuilder();

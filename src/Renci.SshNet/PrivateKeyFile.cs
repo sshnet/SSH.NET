@@ -119,7 +119,7 @@ namespace Renci.SshNet
         private const string PuTTYPrivateKeyPattern = @"^(?<keyName>PuTTY-User-Key-File)-(?<version>\d+): (?<algorithmName>[\w-]+)\r?\nEncryption: (?<encryptionType>[\w-]+)\r?\nComment: (?<comment>.*?)\r?\nPublic-Lines: \d+\r?\n(?<publicKey>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)(Key-Derivation: (?<argon2Type>\w+)\r?\nArgon2-Memory: (?<argon2Memory>\d+)\r?\nArgon2-Passes: (?<argon2Passes>\d+)\r?\nArgon2-Parallelism: (?<argon2Parallelism>\d+)\r?\nArgon2-Salt: (?<argon2Salt>[a-fA-F0-9]+)\r?\n)?Private-Lines: \d+\r?\n(?<data>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)+Private-MAC: (?<mac>[a-fA-F0-9]+)";
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
-#if NET7_0_OR_GREATER
+#if NET
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
         private static readonly Regex PuTTYPrivateKeyRegex = GetPrivateKeyPuTTYRegex();
         private static readonly Regex CertificateRegex = GetCertificateRegex();

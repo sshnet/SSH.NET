@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-#if !NET6_0_OR_GREATER
+#if !NET
 using System.Net;
 #endif
 
@@ -42,7 +42,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                         var url = "http://www.google.com/";
                         Debug.WriteLine("Starting web request to \"" + url + "\"");
 
-#if NET6_0_OR_GREATER
+#if NET
                         var httpClient = new HttpClient();
                         var response = httpClient.GetAsync(url)
                                                  .ConfigureAwait(false)
@@ -51,7 +51,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 #else
                         var request = (HttpWebRequest)WebRequest.Create(url);
                         var response = (HttpWebResponse)request.GetResponse();
-#endif // NET6_0_OR_GREATER
+#endif // NET
 
                         Assert.IsNotNull(response);
 
@@ -119,7 +119,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                  {
                                      var start = DateTime.Now;
 
-#if NET6_0_OR_GREATER
+#if NET
                                      var httpClient = new HttpClient();
                                      using (var response = httpClient.GetAsync("http://localhost:8084").GetAwaiter().GetResult())
                                      {
@@ -129,7 +129,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                                      using (var response = (HttpWebResponse)request.GetResponse())
                                      {
                                          var data = ReadStream(response.GetResponseStream());
-#endif // NET6_0_OR_GREATER
+#endif // NET
                                          var end = DateTime.Now;
 
                                          Debug.WriteLine(string.Format("Request# {2}: Lenght: {0} Time: {1}", data.Length, end - start, counter));

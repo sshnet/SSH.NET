@@ -48,7 +48,7 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this byte[] data)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET
             return new BigInteger(data, isBigEndian: true);
 #else
             var reversed = new byte[data.Length];
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET
             return new BigInteger(data, isBigEndian: true, isUnsigned: true);
 #else
             if ((data[0] & (1 << 7)) != 0)
@@ -95,7 +95,7 @@ namespace Renci.SshNet.Common
         }
 #endif
 
-#if !NET6_0_OR_GREATER
+#if !NET
         public static long GetBitLength(this BigInteger bigint)
         {
             // Taken from https://github.com/dotnet/runtime/issues/31308

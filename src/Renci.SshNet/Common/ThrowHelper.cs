@@ -9,7 +9,7 @@ namespace Renci.SshNet.Common
     {
         public static void ThrowObjectDisposedIf(bool condition, object instance)
         {
-#if NET7_0_OR_GREATER
+#if NET
             ObjectDisposedException.ThrowIf(condition, instance);
 #else
             if (condition)
@@ -26,7 +26,7 @@ namespace Renci.SshNet.Common
 
         public static void ThrowIfNull([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
-#if NET6_0_OR_GREATER
+#if NET
             ArgumentNullException.ThrowIfNull(argument, paramName);
 #else
             if (argument is null)
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Common
 
         public static void ThrowIfNullOrWhiteSpace([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
-#if NET8_0_OR_GREATER
+#if NET
             ArgumentException.ThrowIfNullOrWhiteSpace(argument, paramName);
 #else
             if (string.IsNullOrWhiteSpace(argument))
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Common
 
         public static void ThrowIfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
-#if NET7_0_OR_GREATER
+#if NET
             ArgumentException.ThrowIfNullOrEmpty(argument, paramName);
 #else
             if (string.IsNullOrEmpty(argument))

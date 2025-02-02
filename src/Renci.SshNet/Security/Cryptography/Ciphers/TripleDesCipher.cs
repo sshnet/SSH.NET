@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-#if !NET6_0_OR_GREATER
+#if !NET
 using Org.BouncyCastle.Crypto.Paddings;
 
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public TripleDesCipher(byte[] key, byte[] iv, System.Security.Cryptography.CipherMode mode, bool pkcs7Padding)
             : base(key, 8, mode: null, padding: null)
         {
-#if !NET6_0_OR_GREATER
+#if !NET
             if (mode == System.Security.Cryptography.CipherMode.CFB)
             {
                 // CFB8 not supported on .NET Framework, but supported on .NET

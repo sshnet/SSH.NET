@@ -1,4 +1,4 @@
-﻿#if NET6_0_OR_GREATER
+﻿#if NET
 
 using System;
 using System.Diagnostics;
@@ -47,4 +47,4 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
-#endif // NET6_0_OR_GREATER
+#endif // NET

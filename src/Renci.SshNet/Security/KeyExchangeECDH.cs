@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security
 {
     internal abstract partial class KeyExchangeECDH : KeyExchangeEC
     {
-#if NET8_0_OR_GREATER
+#if NET
         private Impl _impl;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-#if NET8_0_OR_GREATER
+#if NET
             if (!OperatingSystem.IsWindows() || OperatingSystem.IsWindowsVersionAtLeast(10))
             {
                 _impl = new BclImpl(Curve);

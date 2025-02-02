@@ -168,13 +168,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 sftp.CreateDirectory("test1");
 
                 sftp.ChangeDirectory("test1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 sftp.CreateDirectory("test1_1");
                 sftp.CreateDirectory("test1_2");
@@ -186,19 +186,19 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 sftp.ChangeDirectory("test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("../test1_2");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("..");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("..");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 files = sftp.ListDirectory("test1/test1_1");
 
@@ -206,15 +206,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 sftp.ChangeDirectory("test1/test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("/home/sshnet/test1/test1_1");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("/home/sshnet/test1/test1_1/../test1_2");
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 sftp.ChangeDirectory("../../");
 
@@ -237,13 +237,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 await sftp.CreateDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
 
                 await sftp.ChangeDirectoryAsync("test1", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 await sftp.CreateDirectoryAsync("test1_1", CancellationToken.None).ConfigureAwait(false);
                 await sftp.CreateDirectoryAsync("test1_2", CancellationToken.None).ConfigureAwait(false);
@@ -255,19 +255,19 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 await sftp.ChangeDirectoryAsync("test1_1", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("../test1_2", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("..", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1");
+                Assert.AreEqual("/home/sshnet/test1", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("..", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet");
+                Assert.AreEqual("/home/sshnet", sftp.WorkingDirectory);
 
                 files = sftp.ListDirectory("test1/test1_1");
 
@@ -275,15 +275,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 await sftp.ChangeDirectoryAsync("test1/test1_1", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("/home/sshnet/test1/test1_1", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_1");
+                Assert.AreEqual("/home/sshnet/test1/test1_1", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("/home/sshnet/test1/test1_1/../test1_2", CancellationToken.None).ConfigureAwait(false);
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/sshnet/test1/test1_2");
+                Assert.AreEqual("/home/sshnet/test1/test1_2", sftp.WorkingDirectory);
 
                 await sftp.ChangeDirectoryAsync("../../", CancellationToken.None).ConfigureAwait(false);
 

@@ -6,7 +6,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Common
 {
-    [TestClass]
     public abstract class TestBase
     {
         private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();

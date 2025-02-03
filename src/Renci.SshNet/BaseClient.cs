@@ -502,6 +502,10 @@ namespace Renci.SshNet
                 {
                     _ = session.TrySendMessage(new IgnoreMessage());
                 }
+                catch
+                {
+                    // ignore
+                }
                 finally
                 {
                     Monitor.Exit(_keepAliveLock);

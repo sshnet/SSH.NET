@@ -19,7 +19,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.6.2" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.7.3" />
     <PackageVersion Include="MSTest.TestFramework" Version="3.6.2" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.77-alpha" /> <!-- can use stable once 3.7 is released -->

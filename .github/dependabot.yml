@@ -14,26 +14,18 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    ignore:
-      # AsyncInterfaces must stay at 1.0.0 because of https://github.com/sshnet/SSH.NET/pull/1288
+    ignore: # See justifications in Directory.Packages.props
       - dependency-name: "Microsoft.Bcl.AsyncInterfaces"
-      # These should stay on LTS .NET Releases
+  
       - dependency-name: "System.Formats.Asn1"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "Microsoft.Extensions.Logging.*"
+      
+      - dependency-name: "Microsoft.Extensions.Logging.Abstractions"
         update-types: ["version-update:semver-major"]
     groups:
-      test-dependencies:
+      dependencies:
         patterns:
-          - "*Test*"
-          - "BenchmarkDotNet"
-          - "coverlet*"
-          - "Meziantou.Analyzer"
-          - "Moq"
-          - "Nerdbank.GitVersioning"
-          - "PolySharp"
-          - "Sonar*"
-          - "StyleCop*"
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"

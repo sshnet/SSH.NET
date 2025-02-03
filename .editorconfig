@@ -616,12 +616,10 @@ dotnet_diagnostic.MA0165.severity = none
 #### MSTest rules ####
 
 # MSTEST0015: Test method should not be ignored
-dotnet_diagnostic.MSTEST0015.severity = silent
+dotnet_diagnostic.MSTEST0015.severity = suggestion
 
 # MSTEST0032: Assertion condition is always true
-#
-# Helpful in some places, not so much in others (too many to suppress)
-dotnet_diagnostic.MSTEST0032.severity = silent
+dotnet_diagnostic.MSTEST0032.severity = suggestion
 
 #### .NET Compiler Platform code quality rules ####
 

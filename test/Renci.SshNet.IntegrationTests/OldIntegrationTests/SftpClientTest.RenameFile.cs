@@ -37,16 +37,13 @@
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to RenameFile.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_RenameFile_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.RenameFile(null, null);
-
-                sftp.Disconnect();
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.RenameFile(null, null));
             }
         }
     }

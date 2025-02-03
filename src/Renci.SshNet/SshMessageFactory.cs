@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+
 #if NET9_0_OR_GREATER
 using System.Threading;
 #endif
@@ -19,7 +22,7 @@ namespace Renci.SshNet
         private readonly bool[] _activatedMessagesById;
         private readonly Lock _lock = new Lock();
 
-        internal static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
+        private static readonly MessageMetadata[] AllMessages = new MessageMetadata[]
             {
                 new MessageMetadata<KeyExchangeInitMessage>(0, "SSH_MSG_KEXINIT", 20),
                 new MessageMetadata<NewKeysMessage>(1, "SSH_MSG_NEWKEYS", 21),
@@ -55,24 +58,20 @@ namespace Renci.SshNet
                 new MessageMetadata<KeyExchangeEcdhReplyMessage>(31, "SSH_MSG_KEX_ECDH_REPLY", 31),
                 new MessageMetadata<KeyExchangeHybridReplyMessage>(32, "SSH_MSG_KEX_HYBRID_REPLY", 31)
             };
+
         private static readonly Dictionary<string, MessageMetadata> MessagesByName = CreateMessagesByNameMapping();
 
         /// <summary>
         /// Defines the highest message number that is currently supported.
         /// </summary>
-        internal const byte HighestMessageNumber = 100;
-
-        /// <summary>
-        /// Defines the total number of supported messages.
-        /// </summary>
-        internal const int TotalMessageCount = 33;
+        private static readonly byte HighestMessageNumber = AllMessages.Max(m => m.Number);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SshMessageFactory"/> class.
         /// </summary>
         public SshMessageFactory()
         {
-            _activatedMessagesById = new bool[TotalMessageCount];
+            _activatedMessagesById = new bool[AllMessages.Length];
             _enabledMessagesByNumber = new MessageMetadata[HighestMessageNumber + 1];
         }
 
@@ -289,7 +288,9 @@ namespace Renci.SshNet
 
             public override Message Create()
             {
-                return new T();
+                var message = new T();
+                Debug.Assert(message.MessageNumber == Number);
+                return message;
             }
         }
     }

@@ -13,24 +13,21 @@ namespace Renci.SshNet.Tests.Classes
     public class PrivateKeyAuthenticationMethodTest : TestBase
     {
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void PrivateKey_Test_Pass_Null()
         {
-            new PrivateKeyAuthenticationMethod(null, null);
+            Assert.ThrowsException<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod(null, null));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void PrivateKey_Test_Pass_PrivateKey_Null()
         {
-            new PrivateKeyAuthenticationMethod("username", null);
+            Assert.ThrowsException<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod("username", null));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void PrivateKey_Test_Pass_Whitespace()
         {
-            new PrivateKeyAuthenticationMethod(string.Empty, null);
+            Assert.ThrowsException<ArgumentException>(() => new PrivateKeyAuthenticationMethod(string.Empty, null));
         }
     }
 }

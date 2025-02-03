@@ -13,12 +13,11 @@ namespace Renci.SshNet.Tests.Classes
     public partial class SftpClientTest
     {
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Test_Sftp_DeleteFileAsync_Null()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                await sftp.DeleteFileAsync(null, default);
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.DeleteFileAsync(null, default));
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,15 +15,16 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshConnectionException))]
         public async Task Test_Sftp_ListDirectoryAsync_Without_ConnectingAsync()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                await foreach (var file in sftp.ListDirectoryAsync(".", CancellationToken.None))
+                await Assert.ThrowsExceptionAsync<SshConnectionException>(async () =>
                 {
-                    Debug.WriteLine(file.FullName);
-                }
+                    await foreach (var x in sftp.ListDirectoryAsync(".", CancellationToken.None))
+                    {
+                    }
+                });
             }
         }
     }

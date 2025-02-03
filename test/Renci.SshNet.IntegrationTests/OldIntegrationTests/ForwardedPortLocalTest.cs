@@ -100,61 +100,12 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(SshConnectionException))]
         public void Test_PortForwarding_Local_Without_Connecting()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 using var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
-                client.AddForwardedPort(port1);
-                port1.Exception += delegate (object sender, ExceptionEventArgs e)
-                {
-                    Assert.Fail(e.Exception.ToString());
-                };
-                port1.Start();
-
-                var test = Parallel.For(0,
-                                 100,
-                                 counter =>
-                                 {
-                                     var start = DateTime.Now;
-
-#if NET6_0_OR_GREATER
-                                     var httpClient = new HttpClient();
-                                     using (var response = httpClient.GetAsync("http://localhost:8084").GetAwaiter().GetResult())
-                                     {
-                                         var data = ReadStream(response.Content.ReadAsStream());
-#else
-                                     var request = (HttpWebRequest)WebRequest.Create("http://localhost:8084");
-                                     using (var response = (HttpWebResponse)request.GetResponse())
-                                     {
-                                         var data = ReadStream(response.GetResponseStream());
-#endif // NET6_0_OR_GREATER
-                                         var end = DateTime.Now;
-
-                                         Debug.WriteLine(string.Format("Request# {2}: Lenght: {0} Time: {1}", data.Length, end - start, counter));
-                                     }
-                                 });
-            }
-        }
-
-        private static byte[] ReadStream(Stream stream)
-        {
-            var buffer = new byte[1024];
-            using (var ms = new MemoryStream())
-            {
-                while (true)
-                {
-                    var read = stream.Read(buffer, 0, buffer.Length);
-                    if (read > 0)
-                    {
-                        ms.Write(buffer, 0, read);
-                    }
-                    else
-                    {
-                        return ms.ToArray();
-                    }
-                }
+                Assert.ThrowsException<SshConnectionException>(() => client.AddForwardedPort(port1));
             }
         }
     }

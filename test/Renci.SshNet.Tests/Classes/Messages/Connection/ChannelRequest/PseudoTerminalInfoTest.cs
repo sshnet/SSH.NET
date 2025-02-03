@@ -175,11 +175,5 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             Assert.AreEqual(_rows, ptyReq.Rows);
             Assert.AreSame(_terminalModeValues, ptyReq.TerminalModeValues);
         }
-
-        [TestMethod]
-        public void NameShouldReturnPtyReq()
-        {
-            Assert.AreEqual("pty-req", PseudoTerminalRequestInfo.Name);
-        }
     }
 }

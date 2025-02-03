@@ -9,31 +9,25 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_DeleteDirectory_Which_Doesnt_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.DeleteDirectory("abcdef");
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.DeleteDirectory("abcdef"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_DeleteDirectory_Which_No_Permissions()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, AdminUser.UserName, AdminUser.Password))
             {
                 sftp.Connect();
 
-                sftp.DeleteDirectory("/usr");
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.DeleteDirectory("/usr"));
             }
         }
 
@@ -55,16 +49,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to DeleteDirectory.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_DeleteDirectory_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.DeleteDirectory(null);
-
-                sftp.Disconnect();
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.DeleteDirectory(null));
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -393,31 +392,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void EnableActivatedMessagesShouldLeaveMessagesEnabledThatWereEnabledAfterInvokingDisableNonKeyExchangeMessages()
         {
-            const byte messageNumber = 60;
-
             _sshMessageFactory.DisableNonKeyExchangeMessages(strict: false);
             _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
             _sshMessageFactory.EnableActivatedMessages();
 
-            var actual = _sshMessageFactory.Create(messageNumber);
-            Assert.IsNotNull(actual);
-            Assert.AreEqual(typeof(PasswordChangeRequiredMessage), actual.GetType());
-        }
-
-        [TestMethod]
-        public void HighestMessageNumberShouldCorrespondWithHighestSupportedMessageNumber()
-        {
-            var highestSupportMessageNumber = SshMessageFactory.AllMessages.Max(m => m.Number);
-
-            Assert.AreEqual(highestSupportMessageNumber, SshMessageFactory.HighestMessageNumber);
-        }
-
-        [TestMethod]
-        public void TotalMessageCountShouldBeTotalNumberOfSupportedMessages()
-        {
-            var totalNumberOfSupportedMessages = SshMessageFactory.AllMessages.Length;
-
-            Assert.AreEqual(totalNumberOfSupportedMessages, SshMessageFactory.TotalMessageCount);
+            Assert.IsInstanceOfType<PasswordChangeRequiredMessage>(_sshMessageFactory.Create(60));
         }
     }
 }

@@ -613,6 +613,16 @@ dotnet_diagnostic.MA0112.severity = error
 # MA0165: Make interpolated string
 dotnet_diagnostic.MA0165.severity = none
 
+#### MSTest rules ####
+
+# MSTEST0015: Test method should not be ignored
+dotnet_diagnostic.MSTEST0015.severity = silent
+
+# MSTEST0032: Assertion condition is always true
+#
+# Helpful in some places, not so much in others (too many to suppress)
+dotnet_diagnostic.MSTEST0032.severity = silent
+
 #### .NET Compiler Platform code quality rules ####
 
 # CA1002: Do not expose generic lists

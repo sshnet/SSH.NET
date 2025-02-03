@@ -53,7 +53,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Upload_Forbidden()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -67,7 +66,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 using (var file = File.OpenRead(uploadedFileName))
                 {
-                    sftp.UploadFile(file, remoteFileName);
+                    Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.UploadFile(file, remoteFileName));
                 }
 
                 sftp.Disconnect();
@@ -325,48 +324,44 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to BeginUploadFile")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginUploadFile_StreamIsNull()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                _ = sftp.BeginUploadFile(null, "aaaaa", null, null);
-                sftp.Disconnect();
+
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginUploadFile(null, "aaaaa", null, null));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to BeginUploadFile")]
-        [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsWhiteSpace()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                _ = sftp.BeginUploadFile(new MemoryStream(), "   ", null, null);
-                sftp.Disconnect();
+
+                Assert.ThrowsException<ArgumentException>(() => sftp.BeginUploadFile(new MemoryStream(), "   ", null, null));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to BeginUploadFile")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsNull()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                _ = sftp.BeginUploadFile(new MemoryStream(), null, null, null);
-                sftp.Disconnect();
+
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginUploadFile(new MemoryStream(), null, null, null));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_EndUploadFile_Invalid_Async_Handle()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -377,7 +372,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 CreateTestFile(filename, 100);
                 using var fileStream = File.OpenRead(filename);
                 var async2 = sftp.BeginUploadFile(fileStream, "test", null, null);
-                sftp.EndUploadFile(async1);
+
+                Assert.ThrowsException<ArgumentException>(() => sftp.EndUploadFile(async1));
             }
         }
     }

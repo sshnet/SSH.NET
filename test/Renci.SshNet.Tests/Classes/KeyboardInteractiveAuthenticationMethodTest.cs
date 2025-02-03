@@ -13,17 +13,15 @@ namespace Renci.SshNet.Tests.Classes
     public partial class KeyboardInteractiveAuthenticationMethodTest : TestBase
     {
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Keyboard_Test_Pass_Null()
         {
-            new KeyboardInteractiveAuthenticationMethod(null);
+            Assert.ThrowsException<ArgumentNullException>(() => new KeyboardInteractiveAuthenticationMethod(null));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void Keyboard_Test_Pass_Whitespace()
         {
-            new KeyboardInteractiveAuthenticationMethod(string.Empty);
+            Assert.ThrowsException<ArgumentException>(() => new KeyboardInteractiveAuthenticationMethod(string.Empty));
         }
     }
 }

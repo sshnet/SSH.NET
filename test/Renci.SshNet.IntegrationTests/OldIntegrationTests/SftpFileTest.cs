@@ -25,14 +25,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Get_Invalid_Directory()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.Get("/xyz");
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.Get("/xyz"));
             }
         }
 
@@ -56,17 +55,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [Description("Test passing null to Get.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Get_File_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                var file = sftp.Get(null);
-
-                sftp.Disconnect();
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.Get(null));
             }
         }
 
@@ -104,14 +99,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public async Task Test_Get_Invalid_DirectoryAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                await sftp.GetAsync("/xyz", default).ConfigureAwait(false);
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(() => sftp.GetAsync("/xyz", default));
             }
         }
 
@@ -135,17 +129,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [Description("Test passing null to Get.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Test_Get_File_NullAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                var file = await sftp.GetAsync(null, default).ConfigureAwait(false);
-
-                sftp.Disconnect();
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.GetAsync(null, default));
             }
         }
 

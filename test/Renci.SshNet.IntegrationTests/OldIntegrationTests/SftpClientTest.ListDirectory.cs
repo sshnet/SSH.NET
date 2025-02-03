@@ -11,39 +11,25 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_ListDirectory_Permission_Denied()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory("/root");
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.ListDirectory("/root"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ListDirectory_Not_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory("/asdfgh");
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ListDirectory("/asdfgh"));
             }
         }
 
@@ -115,23 +101,13 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to ListDirectory.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_ListDirectory_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory(null);
-
-                Assert.IsTrue(files.Count() > 0);
-
-                foreach (var file in files)
-                {
-                    Debug.WriteLine(file.FullName);
-                }
-
-                sftp.Disconnect();
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.ListDirectory(null));
             }
         }
 
@@ -301,39 +277,32 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to ChangeDirectory.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_ChangeDirectory_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.ChangeDirectory(null);
-
-                sftp.Disconnect();
+                Assert.ThrowsException<ArgumentNullException>(() => sftp.ChangeDirectory(null));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to ChangeDirectory.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Test_Sftp_ChangeDirectory_NullAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await sftp.ChangeDirectoryAsync(null, CancellationToken.None).ConfigureAwait(false);
-
-                sftp.Disconnect();
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.ChangeDirectoryAsync(null));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [Description("Test calling EndListDirectory method more then once.")]
-        [ExpectedException(typeof(ArgumentException))]
+        [Description("Test calling EndListDirectory method more than once.")]
         public void Test_Sftp_Call_EndListDirectory_Twice()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -341,7 +310,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 sftp.Connect();
                 var ar = sftp.BeginListDirectory("/", null, null);
                 var result = sftp.EndListDirectory(ar);
-                var result1 = sftp.EndListDirectory(ar);
+
+                // TODO there is no reason that this should throw
+                Assert.ThrowsException<ArgumentException>(() => sftp.EndListDirectory(ar));
             }
         }
     }

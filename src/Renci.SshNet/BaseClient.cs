@@ -502,9 +502,13 @@ namespace Renci.SshNet
                 {
                     _ = session.TrySendMessage(new IgnoreMessage());
                 }
-                catch
+                catch (ObjectDisposedException)
                 {
                     // ignore
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in TrySendMessage");
                 }
                 finally
                 {

@@ -30,7 +30,7 @@ namespace Renci.SshNet.IntegrationTests
 
         protected static string CreateHash(Stream stream)
         {
-            MD5 md5 = new MD5CryptoServiceProvider();
+            using MD5 md5 = MD5.Create();
             var hash = md5.ComputeHash(stream);
             return Encoding.ASCII.GetString(hash);
         }

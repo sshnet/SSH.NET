@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Net;
+#if NETFRAMEWORK
+using System.Net.Http;
+#endif
 using System.Net.Sockets;
 
 using Renci.SshNet.Common;
@@ -537,29 +540,16 @@ namespace Renci.SshNet.IntegrationTests
 
                         try
                         {
-                            var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
-                            httpRequest.Host = hostName;
-                            httpRequest.Method = "GET";
-                            httpRequest.AllowAutoRedirect = false;
-
-                            try
+                            using HttpClientHandler handler = new()
                             {
-                                using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
-                                {
-                                    Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
-                                }
-                            }
-                            catch (WebException ex)
-                            {
-                                Assert.AreEqual(WebExceptionStatus.ProtocolError, ex.Status);
-                                Assert.IsNotNull(ex.Response);
+                                AllowAutoRedirect = false
+                            };
 
-                                using (var httpResponse = ex.Response as HttpWebResponse)
-                                {
-                                    Assert.IsNotNull(httpResponse);
-                                    Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
-                                }
-                            }
+                            using HttpClient httpClient = new(handler);
+
+                            using HttpResponseMessage httpResponse = httpClient.GetAsync("http://" + localEndPoint).Result;
+
+                            Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                         }
                         finally
                         {
@@ -606,30 +596,16 @@ namespace Renci.SshNet.IntegrationTests
 
                     try
                     {
-                        var httpRequest = (HttpWebRequest)WebRequest.Create("http://" + localEndPoint);
-                        httpRequest.Host = hostName;
-                        httpRequest.Method = "GET";
-                        httpRequest.Accept = "text/html";
-                        httpRequest.AllowAutoRedirect = false;
-
-                        try
+                        using HttpClientHandler handler = new()
                         {
-                            using (var httpResponse = (HttpWebResponse)httpRequest.GetResponse())
-                            {
-                                Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
-                            }
-                        }
-                        catch (WebException ex)
-                        {
-                            Assert.AreEqual(WebExceptionStatus.ProtocolError, ex.Status);
-                            Assert.IsNotNull(ex.Response);
+                            AllowAutoRedirect = false
+                        };
 
-                            using (var httpResponse = ex.Response as HttpWebResponse)
-                            {
-                                Assert.IsNotNull(httpResponse);
-                                Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
-                            }
-                        }
+                        using HttpClient httpClient = new(handler);
+
+                        using HttpResponseMessage httpResponse = httpClient.GetAsync("http://" + localEndPoint).Result;
+
+                        Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                     }
                     finally
                     {

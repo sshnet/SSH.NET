@@ -352,6 +352,8 @@ namespace Renci.SshNet.IntegrationTests
                             // Password expired, retype new password
                             authenticationPrompt.Response = Users.Regular.Password;
                             break;
+                        default:
+                            break;
                     }
 
                     authenticationPromptCount++;

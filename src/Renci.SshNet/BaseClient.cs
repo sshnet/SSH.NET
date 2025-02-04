@@ -508,7 +508,7 @@ namespace Renci.SshNet
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error in TrySendMessage");
+                    _logger.LogError(ex, "Error sending keepalive message");
                 }
                 finally
                 {

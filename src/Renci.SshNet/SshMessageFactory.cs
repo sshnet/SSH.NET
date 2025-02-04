@@ -64,13 +64,15 @@ namespace Renci.SshNet
         /// <summary>
         /// Defines the highest message number that is currently supported.
         /// </summary>
-        private static readonly byte HighestMessageNumber = AllMessages.Max(m => m.Number);
+        internal const byte HighestMessageNumber = 100;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SshMessageFactory"/> class.
         /// </summary>
         public SshMessageFactory()
         {
+            Debug.Assert(AllMessages.Max(m => m.Number) == HighestMessageNumber);
+
             _activatedMessagesById = new bool[AllMessages.Length];
             _enabledMessagesByNumber = new MessageMetadata[HighestMessageNumber + 1];
         }

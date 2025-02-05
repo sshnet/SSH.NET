@@ -6,27 +6,31 @@
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.5.0" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
-    <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.163" />
-    <!-- Must be kept at version 1.0.0 or higher, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.186" />
+    
+    <!-- Must be kept at version 1.0.0, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    
+    <!-- No reason to require later than 6.0.0 at this time. -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.6.2" />
-    <PackageVersion Include="MSTest.TestFramework" Version="3.6.2" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.7.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="3.7.3" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.77-alpha" /> <!-- can use stable once 3.7 is released -->
-    <PackageVersion Include="PolySharp" Version="1.14.1" />
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.32.0.97167" />
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
+    <PackageVersion Include="PolySharp" Version="1.15.0" />
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.6.0.109712" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    
+    <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
-    <PackageVersion Include="Testcontainers" Version="4.0.0" />
+    <PackageVersion Include="Testcontainers" Version="4.1.0" />
   </ItemGroup>
 </Project>

@@ -31,38 +31,36 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Username_Is_Null()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD);
+            Assert.ThrowsException<ArgumentNullException>(() => new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
+            Assert.ThrowsException<ArgumentNullException>(
+                () => new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Username_Is_Whitespace()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
+            Assert.ThrowsException<ArgumentException>(() => new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_SmallPortNumber()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(
+                () => new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_BigPortNumber()
         {
-            _ = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(
+                () => new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD));
         }
     }
 }

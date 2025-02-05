@@ -1731,7 +1731,7 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     var actualText = client.ReadAllText(remoteFile);
-                    Assert.AreEqual(actualText, expectedText);
+                    Assert.AreEqual(expectedText, actualText);
 
                     using (var fs = client.OpenRead(remoteFile))
                     {

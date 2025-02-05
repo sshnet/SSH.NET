@@ -90,10 +90,9 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(SftpPermissionDeniedException), "Permission denied")]
         public void Test_Sftp_ListDirectory_Permission_Denied()
         {
-            _sftpClient.ListDirectory("/root");
+            Assert.ThrowsException<SftpPermissionDeniedException>(() => _sftpClient.ListDirectory("/root"));
         }
 
         [TestMethod]

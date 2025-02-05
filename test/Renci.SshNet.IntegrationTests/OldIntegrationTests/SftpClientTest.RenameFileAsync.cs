@@ -40,16 +40,13 @@
         [TestMethod]
         [TestCategory("Sftp")]
         [Description("Test passing null to RenameFile.")]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Test_Sftp_RenameFileAsync_Null()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(default);
 
-                await sftp.RenameFileAsync(null, null, default);
-
-                sftp.Disconnect();
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.RenameFileAsync(null, null, default));
             }
         }
     }

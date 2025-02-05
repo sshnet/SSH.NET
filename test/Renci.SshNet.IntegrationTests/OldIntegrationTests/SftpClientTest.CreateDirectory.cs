@@ -24,37 +24,30 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_CreateDirectory_In_Forbidden_Directory()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, AdminUser.UserName, AdminUser.Password))
             {
                 sftp.Connect();
 
-                sftp.CreateDirectory("/sbin/test");
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.CreateDirectory("/sbin/test"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_CreateDirectory_Invalid_Path()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
 
-                sftp.CreateDirectory("/abcdefg/abcefg");
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.CreateDirectory("/abcdefg/abcefg"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshException))]
         public void Test_Sftp_CreateDirectory_Already_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
@@ -63,9 +56,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 sftp.CreateDirectory("test");
 
-                sftp.CreateDirectory("test");
-
-                sftp.Disconnect();
+                Assert.ThrowsException<SshException>(() => sftp.CreateDirectory("test"));
             }
         }
     }

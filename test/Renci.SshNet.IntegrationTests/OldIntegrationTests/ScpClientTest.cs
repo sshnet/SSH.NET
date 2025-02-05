@@ -240,7 +240,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 scp.Disconnect();
 
-                Assert.IsTrue(result.Count() == uploadFilenames.Length);
+                Assert.AreEqual(uploadFilenames.Length, result.Count());
             }
         }
 

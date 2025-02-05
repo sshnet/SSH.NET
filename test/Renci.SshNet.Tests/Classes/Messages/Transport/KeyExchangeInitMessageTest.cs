@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             m.Load(input);
 
             Assert.IsFalse(m.FirstKexPacketFollows);
-            Assert.IsTrue(m.Reserved == 0);
+            Assert.AreEqual(0u, m.Reserved);
             Assert.IsTrue(m.CompressionAlgorithmsClientToServer.SequenceEqual(new[] { "none", "zlib@openssh.com" }));
             Assert.IsTrue(m.CompressionAlgorithmsServerToClient.SequenceEqual(new[] { "none", "zlib@openssh.com" }));
             Assert.IsTrue(m.EncryptionAlgorithmsClientToServer.SequenceEqual(new[] { "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "blowfish-cbc", "cast128-cbc", "aes192-cbc", "aes256-cbc", "arcfour", "rijndael-cbc@lysator.liu.se" }));

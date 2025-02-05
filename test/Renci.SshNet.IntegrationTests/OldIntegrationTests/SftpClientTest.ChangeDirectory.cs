@@ -9,97 +9,97 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     {
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_Dont_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.ChangeDirectory("/asdasd");
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public async Task Test_Sftp_ChangeDirectory_Root_Dont_ExistsAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
-                await sftp.ChangeDirectoryAsync("/asdasd", CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                    () => sftp.ChangeDirectoryAsync("/asdasd", CancellationToken.None));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_With_Slash_Dont_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.ChangeDirectory("/asdasd/");
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public async Task Test_Sftp_ChangeDirectory_Root_With_Slash_Dont_ExistsAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
-                await sftp.ChangeDirectoryAsync("/asdasd/", CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                    () => sftp.ChangeDirectoryAsync("/asdasd/", CancellationToken.None));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_Dont_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.ChangeDirectory("/asdasd/sssddds");
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public async Task Test_Sftp_ChangeDirectory_Subfolder_Dont_ExistsAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
-                await sftp.ChangeDirectoryAsync("/asdasd/sssddds", CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                    () => sftp.ChangeDirectoryAsync("/asdasd/sssddds", CancellationToken.None));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_With_Slash_Dont_Exists()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                sftp.ChangeDirectory("/asdasd/sssddds/");
+                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds/"));
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SftpPathNotFoundException))]
         public async Task Test_Sftp_ChangeDirectory_Subfolder_With_Slash_Dont_ExistsAsync()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
-                await sftp.ChangeDirectoryAsync("/asdasd/sssddds/", CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                    () => sftp.ChangeDirectoryAsync("/asdasd/sssddds/", CancellationToken.None));
             }
         }
 

@@ -65,9 +65,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             const string comments = "Beware, dangerous!";
 
             var sshIdentification = new SshIdentification(protocolVersion, softwareVersion, comments);
-            Assert.AreSame(protocolVersion, sshIdentification.ProtocolVersion);
-            Assert.AreSame(softwareVersion, sshIdentification.SoftwareVersion);
-            Assert.AreSame(comments, sshIdentification.Comments);
+            Assert.AreEqual(protocolVersion, sshIdentification.ProtocolVersion);
+            Assert.AreEqual(softwareVersion, sshIdentification.SoftwareVersion);
+            Assert.AreEqual(comments, sshIdentification.Comments);
         }
 
         [TestMethod]
@@ -78,9 +78,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             const string comments = null;
 
             var sshIdentification = new SshIdentification(protocolVersion, softwareVersion, comments);
-            Assert.AreSame(protocolVersion, sshIdentification.ProtocolVersion);
-            Assert.AreSame(softwareVersion, sshIdentification.SoftwareVersion);
-            Assert.IsNull(comments, sshIdentification.Comments);
+            Assert.AreEqual(protocolVersion, sshIdentification.ProtocolVersion);
+            Assert.AreEqual(softwareVersion, sshIdentification.SoftwareVersion);
+            Assert.IsNull(sshIdentification.Comments);
         }
 
         [TestMethod]

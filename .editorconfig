@@ -610,6 +610,17 @@ MA0053.class_with_virtual_member_shoud_be_sealed = true
 # This rule is disabled by default, hence we need to explicitly enable it.
 dotnet_diagnostic.MA0112.severity = error
 
+# MA0165: Make interpolated string
+dotnet_diagnostic.MA0165.severity = none
+
+#### MSTest rules ####
+
+# MSTEST0015: Test method should not be ignored
+dotnet_diagnostic.MSTEST0015.severity = suggestion
+
+# MSTEST0032: Assertion condition is always true
+dotnet_diagnostic.MSTEST0032.severity = suggestion
+
 #### .NET Compiler Platform code quality rules ####
 
 # CA1002: Do not expose generic lists

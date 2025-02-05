@@ -21,7 +21,6 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    [TestClass]
     public abstract class SessionTest_ConnectedBase
     {
         internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }

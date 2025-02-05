@@ -30,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private void Arrange()
         {
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock = new Mock<ISession>();
             _commandText = new Random().Next().ToString(CultureInfo.InvariantCulture);
             _encoding = Encoding.UTF8;
             _asyncResult = null;

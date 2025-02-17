@@ -135,22 +135,22 @@ namespace Renci.SshNet.Sftp
             if (fullPath.EndsWith("/.", StringComparison.OrdinalIgnoreCase) ||
                 fullPath.EndsWith("/..", StringComparison.OrdinalIgnoreCase) ||
                 fullPath.Equals("/", StringComparison.OrdinalIgnoreCase) ||
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
                 fullPath.IndexOf('/', StringComparison.OrdinalIgnoreCase) < 0)
 #else
                 fullPath.IndexOf('/') < 0)
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
 
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
             var partialFullPath = string.Join('/', pathParts, 0, pathParts.Length - 1);
 #else
             var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
 
             if (string.IsNullOrEmpty(partialFullPath))
             {
@@ -206,22 +206,22 @@ namespace Renci.SshNet.Sftp
             if (fullPath.EndsWith("/.", StringComparison.Ordinal) ||
                 fullPath.EndsWith("/..", StringComparison.Ordinal) ||
                 fullPath.Equals("/", StringComparison.Ordinal) ||
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
                 fullPath.IndexOf('/', StringComparison.Ordinal) < 0)
 #else
                 fullPath.IndexOf('/') < 0)
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
 
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
             var partialFullPath = string.Join('/', pathParts);
 #else
             var partialFullPath = string.Join("/", pathParts);
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
 
             if (string.IsNullOrEmpty(partialFullPath))
             {

@@ -372,11 +372,11 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
             Write(string.Join(',', data), Ascii);
 #else
             Write(string.Join(",", data), Ascii);
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
         }
 
         /// <summary>

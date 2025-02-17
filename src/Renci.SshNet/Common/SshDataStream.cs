@@ -139,7 +139,7 @@ namespace Renci.SshNet.Common
         {
             ThrowHelper.ThrowIfNull(encoding);
 
-#if NETSTANDARD2_1_OR_GREATER || NET
+#if NETSTANDARD2_1 || NET
             ReadOnlySpan<char> value = s;
             var count = encoding.GetByteCount(value);
             var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
@@ -207,7 +207,7 @@ namespace Renci.SshNet.Common
         {
             var data = ReadBinary();
 
-#if NETSTANDARD2_1_OR_GREATER || NET
+#if NETSTANDARD2_1 || NET
             return new BigInteger(data, isBigEndian: true);
 #else
             return new BigInteger(data.Reverse());

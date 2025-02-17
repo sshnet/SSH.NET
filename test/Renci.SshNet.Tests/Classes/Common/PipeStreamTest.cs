@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#if !NET && !NETSTANDARD2_1_OR_GREATER
+#if NETFRAMEWORK
 using Renci.SshNet.Abstractions;
 #endif
 using Renci.SshNet.Common;

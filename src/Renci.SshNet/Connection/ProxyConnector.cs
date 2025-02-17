@@ -21,27 +21,27 @@ namespace Renci.SshNet.Connection
 
         // ToDo: Performs async/sync fallback, true async version should be implemented in derived classes
         protected virtual
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
         async
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
         Task HandleProxyConnectAsync(IConnectionInfo connectionInfo, Socket socket, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
             await using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
             using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
             {
 #pragma warning disable MA0042 // Do not use blocking calls in an async method; false positive caused by https://github.com/meziantou/Meziantou.Analyzer/issues/613
                 HandleProxyConnect(connectionInfo, socket);
 #pragma warning restore MA0042 // Do not use blocking calls in an async method
             }
 
-#if !NET && !NETSTANDARD2_1_OR_GREATER
+#if !NET && !NETSTANDARD2_1
             return Task.CompletedTask;
-#endif // !NET && !NETSTANDARD2_1_OR_GREATER
+#endif
         }
 
         /// <summary>

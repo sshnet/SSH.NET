@@ -302,11 +302,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 #if NET
                 var hash = MD5.HashData(file);
 #else
-                MD5 md5 = MD5.Create();
+                using MD5 md5 = MD5.Create();
                 var hash = md5.ComputeHash(file);
-#endif // #NET
-                file.Close();
-
+#endif
                 var sb = new StringBuilder();
 
                 for (var i = 0; i < hash.Length; i++)

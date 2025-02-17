@@ -55,11 +55,11 @@ namespace Renci.SshNet.Messages.Authentication
             PartialSuccess = ReadBoolean();
             if (PartialSuccess)
             {
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
                 Message = string.Join(',', AllowedAuthentications);
 #else
                 Message = string.Join(",", AllowedAuthentications);
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
             }
         }
 

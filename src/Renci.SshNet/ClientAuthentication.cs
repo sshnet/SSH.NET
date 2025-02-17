@@ -105,11 +105,11 @@ namespace Renci.SshNet
             {
                 authenticationException = new SshAuthenticationException(string.Format(CultureInfo.InvariantCulture,
                                                                                        "No suitable authentication method found to complete authentication ({0}).",
-#if NET || NETSTANDARD2_1_OR_GREATER
+#if NET || NETSTANDARD2_1
                                                                                        string.Join(',', allowedAuthenticationMethods)))
 #else
                                                                                        string.Join(",", allowedAuthenticationMethods)))
-#endif // NET || NETSTANDARD2_1_OR_GREATER
+#endif
                 ;
                 return false;
             }

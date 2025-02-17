@@ -48,7 +48,7 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this byte[] data)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET
+#if NETSTANDARD2_1 || NET
             return new BigInteger(data, isBigEndian: true);
 #else
             var reversed = new byte[data.Length];
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET
+#if NETSTANDARD2_1 || NET
             return new BigInteger(data, isBigEndian: true, isUnsigned: true);
 #else
             if ((data[0] & (1 << 7)) != 0)

@@ -93,7 +93,7 @@ namespace Renci.SshNet.Abstractions
             {
                 args.RemoteEndPoint = remoteEndpoint;
 
-#if NET || NETSTANDARD2_1
+#if NETSTANDARD2_1
                 await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
                 using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))
@@ -112,7 +112,7 @@ namespace Renci.SshNet.Abstractions
             {
                 args.SetBuffer(buffer, offset, length);
 
-#if NET || NETSTANDARD2_1
+#if NETSTANDARD2_1
                 await using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false).ConfigureAwait(continueOnCapturedContext: false))
 #else
                 using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))

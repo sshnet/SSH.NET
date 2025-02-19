@@ -473,11 +473,6 @@ namespace Renci.SshNet
         internal event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
 
         /// <summary>
-        /// Occurs when <see cref="GlobalRequestMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
-
-        /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received
         /// </summary>
         public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
@@ -1681,7 +1676,10 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="GlobalRequestMessage"/> message.</param>
         internal void OnGlobalRequestReceived(GlobalRequestMessage message)
         {
-            GlobalRequestReceived?.Invoke(this, new MessageEventArgs<GlobalRequestMessage>(message));
+            if (message.WantReply)
+            {
+                SendMessage(new RequestFailureMessage());
+            }
         }
 
         /// <summary>

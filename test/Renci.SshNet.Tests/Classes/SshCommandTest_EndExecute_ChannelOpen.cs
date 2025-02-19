@@ -82,12 +82,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ChannelSessionShouldBeDisposedOnce()
-        {
-            _channelSessionMock.Verify(p => p.Dispose(), Times.Once);
-        }
-
-        [TestMethod]
         public void EndExecuteShouldReturnAllDataReceivedInSpecifiedEncoding()
         {
             Assert.AreEqual(string.Concat(_dataA, _dataB), _actual);

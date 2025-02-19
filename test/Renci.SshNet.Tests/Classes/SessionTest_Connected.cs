@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -7,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -59,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes
 
             ServerListener.BytesReceived += ServerListener_BytesReceived;
 
-            void ServerListener_BytesReceived(byte[] bytesReceived, System.Net.Sockets.Socket socket)
+            void ServerListener_BytesReceived(byte[] bytesReceived, Socket socket)
             {
                 if (bytesReceived.Length > 5 && bytesReceived[5] == 20)
                 {
@@ -104,6 +107,37 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(100);
 
             Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+        }
+
+        [TestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public void UnknownGlobalRequestWithWantReply(bool wantReply)
+        {
+            Thread.Sleep(100);
+
+            ServerBytesReceivedRegister.Clear();
+
+            var globalRequest =
+                new GlobalRequestMessage(Encoding.ASCII.GetBytes("unknown-request"), wantReply).GetPacket(8, null);
+
+            ServerSocket.Send(globalRequest, 4, globalRequest.Length - 4, SocketFlags.None);
+
+            Thread.Sleep(100);
+
+            if (wantReply)
+            {
+                // Should have sent a failure reply.
+                Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+                Assert.AreEqual(82, ServerBytesReceivedRegister[0][5], "Expected to have sent SSH_MSG_REQUEST_FAILURE(82)");
+            }
+            else
+            {
+                // Should not have sent any reply.
+                Assert.AreEqual(0, ServerBytesReceivedRegister.Count);
+            }
+
+            Assert.AreEqual(0, ErrorOccurredRegister.Count);
         }
 
         [TestMethod]

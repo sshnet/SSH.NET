@@ -1,8 +1,0 @@
-<Project>
-  <!--
-    Disable nullable warnings on old frameworks because of missing annotations.
-  -->
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
-    <NoWarn>$(NoWarn);nullable</NoWarn>
-  </PropertyGroup>
-</Project>

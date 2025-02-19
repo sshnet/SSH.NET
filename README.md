@@ -181,7 +181,7 @@ Private keys in PuTTY private key format can be encrypted using the following ci
 **SSH.NET** supports the following target frameworks:
 * .NETFramework 4.6.2 (and higher)
 * .NET Standard 2.0 and 2.1
-* .NET 6 (and higher)
+* .NET 8 (and higher)
 
 ## Building the library
 

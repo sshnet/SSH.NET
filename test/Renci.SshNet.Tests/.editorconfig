@@ -309,6 +309,10 @@ dotnet_diagnostic.MA0026.severity = silent
 # https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0042.md
 dotnet_diagnostic.MA0042.severity = silent
 
+# MA0160: Use ContainsKey instead of TryGetValue
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0160.md
+dotnet_diagnostic.MA0160.severity = silent
+
 #### .NET Compiler Platform analysers rules ####
 
 # CA1031: Do not catch general exception types
@@ -342,6 +346,10 @@ dotnet_diagnostic.CA1822.severity = silent
 # CA1825: Avoid zero-length array allocations
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
 dotnet_diagnostic.CA1825.severity = silent
+
+# CA1841: Prefer Dictionary Contains methods
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1841
+dotnet_diagnostic.CA1841.severity = silent
 
 # CA1859: Use concrete types when possible for improved performance
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1859

@@ -50,34 +50,32 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Func<IKeyExchange>> KeyExchangeAlgorithms { get; private set; }
+        public IOrderedDictionary<string, Func<IKeyExchange>> KeyExchangeAlgorithms { get; }
 
         /// <summary>
         /// Gets supported encryptions for this connection.
         /// </summary>
-#pragma warning disable CA1859 // Use concrete types when possible for improved performance
-        public IDictionary<string, CipherInfo> Encryptions { get; private set; }
-#pragma warning restore CA1859 // Use concrete types when possible for improved performance
+        public IOrderedDictionary<string, CipherInfo> Encryptions { get; }
 
         /// <summary>
         /// Gets supported hash algorithms for this connection.
         /// </summary>
-        public IDictionary<string, HashInfo> HmacAlgorithms { get; private set; }
+        public IOrderedDictionary<string, HashInfo> HmacAlgorithms { get; }
 
         /// <summary>
         /// Gets supported host key algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Func<byte[], KeyHostAlgorithm>> HostKeyAlgorithms { get; private set; }
+        public IOrderedDictionary<string, Func<byte[], KeyHostAlgorithm>> HostKeyAlgorithms { get; }
 
         /// <summary>
         /// Gets supported authentication methods for this connection.
         /// </summary>
-        public IList<AuthenticationMethod> AuthenticationMethods { get; private set; }
+        public IList<AuthenticationMethod> AuthenticationMethods { get; }
 
         /// <summary>
         /// Gets supported compression algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Func<Compressor>> CompressionAlgorithms { get; private set; }
+        public IOrderedDictionary<string, Func<Compressor>> CompressionAlgorithms { get; }
 
         /// <summary>
         /// Gets the supported channel requests for this connection.
@@ -85,7 +83,7 @@ namespace Renci.SshNet
         /// <value>
         /// The supported channel requests for this connection.
         /// </value>
-        public IDictionary<string, RequestInfo> ChannelRequests { get; private set; }
+        public IDictionary<string, RequestInfo> ChannelRequests { get; }
 
         /// <summary>
         /// Gets a value indicating whether connection is authenticated.
@@ -101,7 +99,7 @@ namespace Renci.SshNet
         /// <value>
         /// The connection host.
         /// </value>
-        public string Host { get; private set; }
+        public string Host { get; }
 
         /// <summary>
         /// Gets connection port.
@@ -109,12 +107,12 @@ namespace Renci.SshNet
         /// <value>
         /// The connection port. The default value is 22.
         /// </value>
-        public int Port { get; private set; }
+        public int Port { get; }
 
         /// <summary>
         /// Gets connection username.
         /// </summary>
-        public string Username { get; private set; }
+        public string Username { get; }
 
         /// <summary>
         /// Gets proxy type.
@@ -122,27 +120,27 @@ namespace Renci.SshNet
         /// <value>
         /// The type of the proxy.
         /// </value>
-        public ProxyTypes ProxyType { get; private set; }
+        public ProxyTypes ProxyType { get; }
 
         /// <summary>
         /// Gets proxy connection host.
         /// </summary>
-        public string ProxyHost { get; private set; }
+        public string ProxyHost { get; }
 
         /// <summary>
         /// Gets proxy connection port.
         /// </summary>
-        public int ProxyPort { get; private set; }
+        public int ProxyPort { get; }
 
         /// <summary>
         /// Gets proxy connection username.
         /// </summary>
-        public string ProxyUsername { get; private set; }
+        public string ProxyUsername { get; }
 
         /// <summary>
         /// Gets proxy connection password.
         /// </summary>
-        public string ProxyPassword { get; private set; }
+        public string ProxyPassword { get; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -347,7 +345,7 @@ namespace Renci.SshNet
             MaxSessions = 10;
             Encoding = Encoding.UTF8;
 
-            KeyExchangeAlgorithms = new Dictionary<string, Func<IKeyExchange>>
+            KeyExchangeAlgorithms = new OrderedDictionary<string, Func<IKeyExchange>>
                 {
                     { "mlkem768x25519-sha256", () => new KeyExchangeMLKem768X25519Sha256() },
                     { "sntrup761x25519-sha512", () => new KeyExchangeSNtruP761X25519Sha512() },
@@ -365,7 +363,7 @@ namespace Renci.SshNet
                     { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>
+            Encryptions = new OrderedDictionary<string, CipherInfo>
                 {
                     { "aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
                     { "aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, iv, AesCipherMode.CTR, pkcs7Padding: false)) },
@@ -379,7 +377,7 @@ namespace Renci.SshNet
                     { "3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, iv, CipherMode.CBC, pkcs7Padding: false)) },
                 };
 
-            HmacAlgorithms = new Dictionary<string, HashInfo>
+            HmacAlgorithms = new OrderedDictionary<string, HashInfo>
                 {
                     /* Encrypt-and-MAC (encrypt-and-authenticate) variants */
                     { "hmac-sha2-256", new HashInfo(32*8, key => new HMACSHA256(key)) },
@@ -392,7 +390,7 @@ namespace Renci.SshNet
                 };
 
 #pragma warning disable SA1107 // Code should not contain multiple statements on one line
-            var hostAlgs = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>();
+            var hostAlgs = new OrderedDictionary<string, Func<byte[], KeyHostAlgorithm>>();
             hostAlgs.Add("ssh-ed25519-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-ed25519-cert-v01@openssh.com", cert, hostAlgs); });
             hostAlgs.Add("ecdsa-sha2-nistp256-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ecdsa-sha2-nistp256-cert-v01@openssh.com", cert, hostAlgs); });
             hostAlgs.Add("ecdsa-sha2-nistp384-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ecdsa-sha2-nistp384-cert-v01@openssh.com", cert, hostAlgs); });
@@ -411,7 +409,7 @@ namespace Renci.SshNet
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
             HostKeyAlgorithms = hostAlgs;
 
-            CompressionAlgorithms = new Dictionary<string, Func<Compressor>>
+            CompressionAlgorithms = new OrderedDictionary<string, Func<Compressor>>
                 {
                     { "none", null },
                     { "zlib@openssh.com", () => new ZlibOpenSsh() },

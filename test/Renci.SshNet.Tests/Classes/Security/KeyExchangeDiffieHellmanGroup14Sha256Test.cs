@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         [TestMethod]
         public void GroupPrimeShouldBeSecondOakleyGroup()
         {
-            var bytes = _group14.GroupPrime.ToByteArray().Reverse();
+            var bytes = _group14.GroupPrime.ToByteArray(isBigEndian: true);
             Assert.IsTrue(SecondOkleyGroup.IsEqualTo(bytes));
         }
 

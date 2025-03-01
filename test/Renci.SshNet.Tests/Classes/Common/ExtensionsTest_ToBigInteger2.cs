@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             byte[] value = { 0x0a, 0x0d };
 
-            var actual = value.ToBigInteger2().ToByteArray().Reverse();
+            var actual = value.ToBigInteger2().ToByteArray(isBigEndian: true);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(2, actual.Length);
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             byte[] value = { 0xff, 0x0a, 0x0d };
 
-            var actual = value.ToBigInteger2().ToByteArray().Reverse();
+            var actual = value.ToBigInteger2().ToByteArray(isBigEndian: true);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(4, actual.Length);

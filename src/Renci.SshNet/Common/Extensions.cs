@@ -46,6 +46,17 @@ namespace Renci.SshNet.Common
             }
         }
 
+        internal static BigInteger ToBigInteger(this ReadOnlySpan<byte> data)
+        {
+#if NETSTANDARD2_1 || NET
+            return new BigInteger(data, isBigEndian: true);
+#else
+            var reversed = data.ToArray();
+            Array.Reverse(reversed);
+            return new BigInteger(reversed);
+#endif
+        }
+
         internal static BigInteger ToBigInteger(this byte[] data)
         {
 #if NETSTANDARD2_1 || NET
@@ -53,7 +64,8 @@ namespace Renci.SshNet.Common
 #else
             var reversed = new byte[data.Length];
             Buffer.BlockCopy(data, 0, reversed, 0, data.Length);
-            return new BigInteger(reversed.Reverse());
+            Array.Reverse(reversed);
+            return new BigInteger(reversed);
 #endif
         }
 
@@ -69,7 +81,8 @@ namespace Renci.SshNet.Common
             {
                 var buf = new byte[data.Length + 1];
                 Buffer.BlockCopy(data, 0, buf, 1, data.Length);
-                return new BigInteger(buf.Reverse());
+                Array.Reverse(buf);
+                return new BigInteger(buf);
             }
 
             return data.ToBigInteger();
@@ -88,7 +101,7 @@ namespace Renci.SshNet.Common
 
             if (isBigEndian)
             {
-                _ = data.Reverse();
+                Array.Reverse(data);
             }
 
             return data;
@@ -136,19 +149,6 @@ namespace Renci.SshNet.Common
             {
                 // ODE intentionally ignored.
             }
-        }
-
-        /// <summary>
-        /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
-        /// </summary>
-        /// <param name="array">The one-dimensional <see cref="Array"/> to reverse.</param>
-        /// <returns>
-        /// The <see cref="Array"/> with its elements reversed.
-        /// </returns>
-        internal static T[] Reverse<T>(this T[] array)
-        {
-            Array.Reverse(array);
-            return array;
         }
 
         /// <summary>

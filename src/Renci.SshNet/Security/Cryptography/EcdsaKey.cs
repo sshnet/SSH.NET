@@ -22,9 +22,9 @@ namespace Renci.SshNet.Security
         private const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
 #pragma warning restore SA1310 // Field names should not contain underscore
 
-        private static readonly BigInteger Encoded256 = new BigInteger("nistp256"u8.ToArray().Reverse());
-        private static readonly BigInteger Encoded384 = new BigInteger("nistp384"u8.ToArray().Reverse());
-        private static readonly BigInteger Encoded521 = new BigInteger("nistp521"u8.ToArray().Reverse());
+        private static readonly BigInteger Encoded256 = "nistp256"u8.ToBigInteger();
+        private static readonly BigInteger Encoded384 = "nistp384"u8.ToBigInteger();
+        private static readonly BigInteger Encoded521 = "nistp521"u8.ToBigInteger();
 
         private EcdsaDigitalSignature? _digitalSignature;
 
@@ -147,11 +147,7 @@ namespace Renci.SshNet.Security
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
-#if NETSTANDARD2_1 || NET
-                return new[] { curve, new BigInteger(q, isBigEndian: true) };
-#else
-                return new[] { curve, new BigInteger(q.Reverse()) };
-#endif
+                return new[] { curve, q.ToBigInteger() };
             }
         }
 

@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         [TestMethod]
         public void GroupPrimeShouldBeMoreModularExponentialGroup16()
         {
-            var bytes = _group16.GroupPrime.ToByteArray().Reverse();
+            var bytes = _group16.GroupPrime.ToByteArray(isBigEndian: true);
             Assert.IsTrue(MoreModularExponentialGroup16.IsEqualTo(bytes));
         }
 

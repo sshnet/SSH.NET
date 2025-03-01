@@ -206,7 +206,13 @@ namespace Renci.SshNet.Common
         public BigInteger ReadBigInt()
         {
             var data = ReadBinary();
-            return data.ToBigInteger();
+
+#if NETSTANDARD2_1 || NET
+            return new BigInteger(data, isBigEndian: true);
+#else
+            Array.Reverse(data);
+            return new BigInteger(data);
+#endif
         }
 
         /// <summary>

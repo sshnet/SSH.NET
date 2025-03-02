@@ -87,17 +87,7 @@ namespace Renci.SshNet.Common
         public static void ValidateBufferArguments(byte[] buffer, int offset, int count)
         {
             ThrowIfNull(buffer);
-
-            if (offset < 0)
-            {
-                Throw();
-
-                [DoesNotReturn]
-                static void Throw()
-                {
-                    throw new ArgumentOutOfRangeException(nameof(offset), "Non-negative number required.");
-                }
-            }
+            ThrowIfNegative(offset);
 
             if ((uint)count > buffer.Length - offset)
             {
@@ -113,5 +103,23 @@ namespace Renci.SshNet.Common
             }
         }
 #endif
+
+        public static void ThrowIfNegative(long value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+        {
+#if NET
+            ArgumentOutOfRangeException.ThrowIfNegative(value, paramName);
+#else
+            if (value < 0)
+            {
+                Throw(value, paramName);
+
+                [DoesNotReturn]
+                static void Throw(long value, string? paramName)
+                {
+                    throw new ArgumentOutOfRangeException(paramName, value, "Value must be non-negative.");
+                }
+            }
+#endif
+        }
     }
 }

@@ -922,14 +922,7 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(value);
-#else
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
-#endif
+            ThrowHelper.ThrowIfNegative(value);
 
             // Lock down the file stream while we do this.
             lock (_lock)

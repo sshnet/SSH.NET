@@ -3,7 +3,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -40,8 +39,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-
-                ArgumentExceptionAssert.MessageEquals("Cannot be less than zero.", ex);
 
                 Assert.AreEqual("indentLevel", ex.ParamName);
             }

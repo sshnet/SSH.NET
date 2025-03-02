@@ -63,7 +63,10 @@ namespace Renci.SshNet.Security
         /// </summary>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
-        private protected KeyExchange()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyExchange"/> class.
+        /// </summary>
+        protected KeyExchange()
         {
             _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
         }

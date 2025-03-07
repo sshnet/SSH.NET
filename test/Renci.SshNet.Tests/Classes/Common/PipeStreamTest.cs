@@ -16,7 +16,6 @@ namespace Renci.SshNet.Tests.Classes.Common
     public class PipeStreamTest : TestBase
     {
         [TestMethod]
-        [TestCategory("PipeStream")]
         public void Test_PipeStream_Write_Read_Buffer()
         {
             var testBuffer = new byte[1024];
@@ -39,7 +38,6 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        [TestCategory("PipeStream")]
         public void Test_PipeStream_Write_Read_Byte()
         {
             var testBuffer = new byte[1024];
@@ -133,13 +131,31 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.IsFalse(readTask.IsCompleted);
 
-            // not using WriteAsync here because it deadlocks the test
-#pragma warning disable S6966 // Awaitable method should be used
-            pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
-#pragma warning restore S6966 // Awaitable method should be used
+            await pipeStream.WriteAsync(new byte[] { 1, 2, 3, 4 }, 0, 4);
 
             Assert.AreEqual(0, await readTask);
         }
+
+#if NET
+        [TestMethod]
+        public async Task Read_EmptySpan_OnlyReturnsZeroWhenDataAvailable()
+        {
+            // And zero byte reads should block but then return 0 once data
+            // is available (the span version).
+
+            var pipeStream = new PipeStream();
+
+            ValueTask<int> readTask = pipeStream.ReadAsync(Memory<byte>.Empty);
+
+            await Task.Delay(50);
+
+            Assert.IsFalse(readTask.IsCompleted);
+
+            await pipeStream.WriteAsync(new byte[] { 1, 2, 3, 4 });
+
+            Assert.AreEqual(0, await readTask);
+        }
+#endif
 
         [TestMethod]
         public void Read_AfterDispose_StillWorks()
@@ -153,6 +169,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             pipeStream.Dispose(); // Check that multiple Dispose is OK.
 #pragma warning restore S3966 // Objects should not be disposed more than once
 
+            Assert.IsTrue(pipeStream.CanRead);
+
             Assert.AreEqual(4, pipeStream.Read(new byte[5], 0, 5));
             Assert.AreEqual(0, pipeStream.Read(new byte[5], 0, 5));
         }
@@ -160,34 +178,15 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void SeekShouldThrowNotSupportedException()
         {
-            const long offset = 0;
-            const SeekOrigin origin = new SeekOrigin();
             var target = new PipeStream();
-
-            try
-            {
-                _ = target.Seek(offset, origin);
-                Assert.Fail();
-            }
-            catch (NotSupportedException)
-            {
-            }
-
+            Assert.Throws<NotSupportedException>(() => target.Seek(offset: 0, SeekOrigin.Begin));
         }
 
         [TestMethod]
         public void SetLengthShouldThrowNotSupportedException()
         {
             var target = new PipeStream();
-
-            try
-            {
-                target.SetLength(1);
-                Assert.Fail();
-            }
-            catch (NotSupportedException)
-            {
-            }
+            Assert.Throws<NotSupportedException>(() => target.SetLength(1));
         }
 
         [TestMethod]
@@ -213,6 +212,31 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0x00, readBuffer[5]);
         }
 
+#if NET
+        [TestMethod]
+        public void WriteTest_Span()
+        {
+            var target = new PipeStream();
+
+            var writeBuffer = new byte[] { 0x0a, 0x05, 0x0d };
+            target.Write(writeBuffer.AsSpan(0, 2));
+
+            writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };
+            target.Write(writeBuffer.AsSpan(1, 2));
+
+            var readBuffer = new byte[6];
+            var bytesRead = target.Read(readBuffer.AsSpan(0, 4));
+
+            Assert.AreEqual(4, bytesRead);
+            Assert.AreEqual(0x0a, readBuffer[0]);
+            Assert.AreEqual(0x05, readBuffer[1]);
+            Assert.AreEqual(0x04, readBuffer[2]);
+            Assert.AreEqual(0x03, readBuffer[3]);
+            Assert.AreEqual(0x00, readBuffer[4]);
+            Assert.AreEqual(0x00, readBuffer[5]);
+        }
+#endif
+
         [TestMethod]
         public void CanReadTest()
         {
@@ -232,6 +256,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var target = new PipeStream();
             Assert.IsTrue(target.CanWrite);
+            target.Dispose();
+            Assert.IsFalse(target.CanWrite);
         }
 
         [TestMethod]
@@ -265,15 +291,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void Position_SetterAlwaysThrowsNotSupportedException()
         {
             var target = new PipeStream();
-
-            try
-            {
-                target.Position = 0;
-                Assert.Fail();
-            }
-            catch (NotSupportedException)
-            {
-            }
+            Assert.Throws<NotSupportedException>(() => target.Position = 0);
         }
     }
 }

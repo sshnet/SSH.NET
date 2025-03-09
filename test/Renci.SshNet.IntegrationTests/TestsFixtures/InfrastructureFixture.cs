@@ -38,6 +38,17 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
+            // for the .NET Framework Tests in CI, the Container is set up in WSL2 with Podman
+#if NETFRAMEWORK
+            if (Environment.GetEnvironmentVariable("CI") == "true")
+            {
+                SshServerPort = 2222;
+                SshServerHostName = "localhost";
+                await Task.Delay(1_000);
+                return;
+            }
+#endif
+
             var containerLogger = _loggerFactory.CreateLogger("testcontainers");
 
             _sshServerImage = new ImageFromDockerfileBuilder()

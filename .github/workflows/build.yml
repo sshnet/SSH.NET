@@ -113,7 +113,7 @@ jobs:
     - name: Setup SSH Server
       shell: wsl-run {0}
       run: |
-        apt update && apt upgrade -y
+        apt-get update && apt-get upgrade -y
         apt-get install -y podman
         podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
         podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image

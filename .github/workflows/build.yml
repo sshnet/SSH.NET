@@ -108,10 +108,12 @@ jobs:
           test/Renci.SshNet.Tests/
 
     - name: Setup WSL2
-      uses: vedantmgoyal9/setup-wsl2@main
+      uses: Vampire/setup-wsl@v5
+      with:
+        distribution: Ubuntu-24.04
 
     - name: Setup SSH Server
-      shell: wsl-run {0}
+      shell: wsl-bash {0}
       run: |
         apt-get update && apt-get upgrade -y
         apt-get install -y podman

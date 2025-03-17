@@ -107,6 +107,20 @@ jobs:
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
           test/Renci.SshNet.Tests/
 
+  Windows-Integration-Tests:
+    name: Windows Integration Tests
+    runs-on: windows-2025
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
     - name: Setup WSL2
       uses: Vampire/setup-wsl@v5
       with:
@@ -124,7 +138,6 @@ jobs:
       run:
         dotnet test `
           -f net48 `
-          --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `

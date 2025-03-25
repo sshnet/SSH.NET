@@ -487,14 +487,8 @@ namespace Renci.SshNet
             public virtual void CopyTo(T[] array, int arrayIndex)
             {
                 ThrowHelper.ThrowIfNull(array);
-#if NET
-                ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-#else
-                if (arrayIndex < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-                }
-#endif
+                ThrowHelper.ThrowIfNegative(arrayIndex);
+
                 if (array.Length - arrayIndex < Count)
                 {
                     throw new ArgumentException(

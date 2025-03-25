@@ -511,28 +511,12 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var readLen = 0;
-
-            ThrowHelper.ThrowIfNull(buffer);
-
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(offset);
-            ArgumentOutOfRangeException.ThrowIfNegative(count);
-#else
-            if (offset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+#if !NET
+            ThrowHelper.
 #endif
-            if ((buffer.Length - offset) < count)
-            {
-                throw new ArgumentException("Invalid array range.");
-            }
+            ValidateBufferArguments(buffer, offset, count);
+
+            var readLen = 0;
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -653,28 +637,14 @@ namespace Renci.SshNet.Sftp
         /// <returns>A <see cref="Task" /> that represents the asynchronous read operation.</returns>
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var readLen = 0;
-
-            ThrowHelper.ThrowIfNull(buffer);
-
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(offset);
-            ArgumentOutOfRangeException.ThrowIfNegative(count);
-#else
-            if (offset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+#if !NET
+            ThrowHelper.
 #endif
-            if ((buffer.Length - offset) < count)
-            {
-                throw new ArgumentException("Invalid array range.");
-            }
+            ValidateBufferArguments(buffer, offset, count);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var readLen = 0;
 
             CheckSessionIsOpen();
 
@@ -952,14 +922,7 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(value);
-#else
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
-#endif
+            ThrowHelper.ThrowIfNegative(value);
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -1005,26 +968,10 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(buffer);
-
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(offset);
-            ArgumentOutOfRangeException.ThrowIfNegative(count);
-#else
-            if (offset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+#if !NET
+            ThrowHelper.
 #endif
-            if ((buffer.Length - offset) < count)
-            {
-                throw new ArgumentException("Invalid array range.");
-            }
+            ValidateBufferArguments(buffer, offset, count);
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -1105,26 +1052,12 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            ThrowHelper.ThrowIfNull(buffer);
-
-#if NET
-            ArgumentOutOfRangeException.ThrowIfNegative(offset);
-            ArgumentOutOfRangeException.ThrowIfNegative(count);
-#else
-            if (offset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
+#if !NET
+            ThrowHelper.
 #endif
-            if ((buffer.Length - offset) < count)
-            {
-                throw new ArgumentException("Invalid array range.");
-            }
+            ValidateBufferArguments(buffer, offset, count);
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             CheckSessionIsOpen();
 

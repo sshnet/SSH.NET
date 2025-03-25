@@ -789,6 +789,11 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count)
         {
+#if !NET
+            ThrowHelper.
+#endif
+            ValidateBufferArguments(buffer, offset, count);
+
             lock (_sync)
             {
                 while (_readHead == _readTail && !_disposed)
@@ -835,6 +840,11 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
         {
+#if !NET
+            ThrowHelper.
+#endif
+            ValidateBufferArguments(buffer, offset, count);
+
             ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
 
             while (count > 0)

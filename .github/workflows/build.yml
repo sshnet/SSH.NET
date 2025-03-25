@@ -25,9 +25,6 @@ jobs:
     - name: Build IntegrationTests .NET
       run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
 
-    - name: Build IntegrationTests .NET Framework
-      run:  dotnet build -f net48 test/Renci.SshNet.IntegrationTests/
-
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
@@ -52,28 +49,6 @@ jobs:
           -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
-    # Also run a subset of the integration tests targeting netfx using mono. This is a temporary measure to get
-    # some coverage until a proper solution for running the .NET Framework integration tests in CI is found.
-    # Running all the tests causes problems which are not worth solving in this rare configuration.
-    # See https://github.com/sshnet/SSH.NET/pull/1462 and related links
-    - name: Run Integration Tests Mono
-      run: |
-        sudo apt-get install ca-certificates gnupg
-        sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-        echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-        sudo apt-get update
-        sudo apt-get install mono-devel
-        dotnet test \
-          -f net48 \
-          --no-build \
-          --logger "console;verbosity=normal" \
-          --logger GitHubActions \
-          -p:CollectCoverage=true \
-          -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_48_coverage.xml \
-          --filter "Name~Ecdh|Name~ECDsa|Name~Zlib|Name~Gcm" \
-          test/Renci.SshNet.IntegrationTests/
-
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4
       with:
@@ -81,7 +56,7 @@ jobs:
           path: coverlet
 
   Windows:
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -131,6 +106,44 @@ jobs:
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
           test/Renci.SshNet.Tests/
+
+  Windows-Integration-Tests:
+    name: Windows Integration Tests
+    runs-on: windows-2025
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Setup WSL2
+      uses: Vampire/setup-wsl@v5
+      with:
+        distribution: Ubuntu-24.04
+
+    - name: Setup SSH Server
+      shell: wsl-bash {0}
+      run: |
+        apt-get update && apt-get upgrade -y
+        apt-get install -y podman
+        podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
+        podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
+
+    - name: Run Integration Tests .NET Framework
+      run:
+        dotnet test `
+          -f net48 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
+          test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4

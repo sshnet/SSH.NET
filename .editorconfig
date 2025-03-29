@@ -456,22 +456,22 @@ dotnet_diagnostic.SA1601.severity = none
 # SA1648: <inheritdoc> must be used with inheriting class
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
-dotnet_diagnostic.SA1648.severity = error
+dotnet_diagnostic.SA1648.severity = warning
 
 # SX1101: Do not prefix local members with 'this.'
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
-dotnet_diagnostic.SX1101.severity = error
+dotnet_diagnostic.SX1101.severity = warning
 
 # SX1309: Field names must begin with underscore
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
-dotnet_diagnostic.SX1309.severity = error
+dotnet_diagnostic.SX1309.severity = warning
 
 # SX1309S: Static field names must begin with underscore
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
-dotnet_diagnostic.SX1309S.severity = error
+dotnet_diagnostic.SX1309S.severity = warning
 
 #### Meziantou.Analyzer rules ####
 
@@ -608,7 +608,7 @@ MA0053.class_with_virtual_member_shoud_be_sealed = true
 # MA0112: Use 'Count > 0' instead of 'Any()'
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
-dotnet_diagnostic.MA0112.severity = error
+dotnet_diagnostic.MA0112.severity = warning
 
 # MA0165: Make interpolated string
 dotnet_diagnostic.MA0165.severity = none
@@ -646,7 +646,7 @@ dotnet_diagnostic.CA1008.severity = none
 #
 # Even when enabled, this diagnostic does not appear to be reported for assemblies without CLSCompliantAttribute.
 # We reported this issue as https://github.com/dotnet/roslyn-analyzers/issues/6563.
-dotnet_diagnostic.CA1014.severity = error
+dotnet_diagnostic.CA1014.severity = warning
 
 # CA1051: Do not declare visible instance fields
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1051
@@ -1003,19 +1003,19 @@ dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
 dotnet_naming_rule.private_fields_camel_case_begins_with_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_camel_case_begins_with_underscore.style = camel_case_begins_with_underscore
-dotnet_naming_rule.private_fields_camel_case_begins_with_underscore.severity = error
+dotnet_naming_rule.private_fields_camel_case_begins_with_underscore.severity = warning
 
 dotnet_naming_rule.private_static_fields_camel_case_begins_with_underscore.symbols = private_static_fields
 dotnet_naming_rule.private_static_fields_camel_case_begins_with_underscore.style = camel_case_begins_with_underscore
-dotnet_naming_rule.private_static_fields_camel_case_begins_with_underscore.severity = error
+dotnet_naming_rule.private_static_fields_camel_case_begins_with_underscore.severity = warning
 
 dotnet_naming_rule.private_static_readonly_fields_pascal_case.symbols = private_static_readonly_fields
 dotnet_naming_rule.private_static_readonly_fields_pascal_case.style = pascal_case
-dotnet_naming_rule.private_static_readonly_fields_pascal_case.severity = error
+dotnet_naming_rule.private_static_readonly_fields_pascal_case.severity = warning
 
 dotnet_naming_rule.private_const_fields_pascal_case.symbols = private_const_fields
 dotnet_naming_rule.private_const_fields_pascal_case.style = pascal_case
-dotnet_naming_rule.private_const_fields_pascal_case.severity = error
+dotnet_naming_rule.private_const_fields_pascal_case.severity = warning
 
 # Symbol specifications
 
@@ -1067,7 +1067,7 @@ dotnet_naming_style.camel_case_begins_with_underscore.capitalization = camel_cas
 #### .NET Compiler Platform general options ####
 
 # Change the default rule severity for all analyzer rules that are enabled by default
-dotnet_analyzer_diagnostic.severity = error
+dotnet_analyzer_diagnostic.severity = warning
 
 #### .NET Compiler Platform code refactoring rules ####
 

@@ -17,6 +17,7 @@ namespace Renci.SshNet.Channels
     {
         private readonly Lock _serverWindowSizeLock = new Lock();
         private readonly Lock _messagingLock = new Lock();
+        private readonly Lock _sendDataLock = new Lock();
         private readonly uint _initialWindowSize;
         private readonly ISession _session;
         private readonly ILogger _logger;
@@ -340,19 +341,22 @@ namespace Renci.SshNet.Channels
                 return;
             }
 
-            var totalBytesToSend = size;
-            while (totalBytesToSend > 0)
+            lock (_sendDataLock)
             {
-                var sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
+                var totalBytesToSend = size;
+                while (totalBytesToSend > 0)
+                {
+                    var sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
 
-                var channelDataMessage = new ChannelDataMessage(RemoteChannelNumber,
-                                                                data,
-                                                                offset,
-                                                                sizeOfCurrentMessage);
-                _session.SendMessage(channelDataMessage);
+                    var channelDataMessage = new ChannelDataMessage(RemoteChannelNumber,
+                                                                    data,
+                                                                    offset,
+                                                                    sizeOfCurrentMessage);
+                    _session.SendMessage(channelDataMessage);
 
-                totalBytesToSend -= sizeOfCurrentMessage;
-                offset += sizeOfCurrentMessage;
+                    totalBytesToSend -= sizeOfCurrentMessage;
+                    offset += sizeOfCurrentMessage;
+                }
             }
         }
 

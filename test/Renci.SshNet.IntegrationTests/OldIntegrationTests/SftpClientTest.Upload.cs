@@ -77,11 +77,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestCategory("Sftp")]
         public void Test_Sftp_Multiple_Async_Upload_And_Download_10Files_5MB_Each()
         {
-            if (Environment.GetEnvironmentVariable("CI") == "true")
-            {
-                Assert.Inconclusive("Skipping because of failures in CI, see #1253");
-            }
-
             var maxFiles = 10;
             var maxSize = 5;
 

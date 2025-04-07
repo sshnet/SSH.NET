@@ -631,6 +631,22 @@ namespace Renci.SshNet
         bool Exists(string path);
 
         /// <summary>
+        /// Checks whether file or directory exists.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{T}"/> that represents the exists operation.
+        /// The task result contains <see langword="true"/> if directory or file exists; otherwise <see langword="false"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Gets reference to remote file or directory.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -642,6 +658,21 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         ISftpFile Get(string path);
+
+        /// <summary>
+        /// Gets reference to remote file or directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{ISftpFile}"/> that represents the get operation.
+        /// The task result contains the reference to <see cref="ISftpFile"/> file object.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<ISftpFile> GetAsync(string path, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.

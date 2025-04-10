@@ -27,10 +27,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Setup .NET 8.0
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.x
 
       - name: Setup docfx
         run: dotnet tool update -g docfx

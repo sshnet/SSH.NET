@@ -8,21 +8,13 @@
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.5.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
-    <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageVersion>
+    <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Meziantou.Analyzer" Version="2.0.188" />
     
-    <!-- Must be kept at version 1.0.0, see https://github.com/sshnet/SSH.NET/pull/1288 for details. -->
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
-    
-    <!-- No reason to require later than 6.0.0 at this time. -->
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.8.2" />
-    <PackageVersion Include="MSTest.TestFramework" Version="3.8.2" />
+    <!-- Should stay on LTS .NET releases. -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
+    <PackageVersion Include="MSTest" Version="3.8.3" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />

@@ -16,8 +16,6 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
 
     - name: Build Unit Tests .NET
       run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
@@ -65,8 +63,6 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
 
     - name: Build Solution
       run: dotnet build Renci.SshNet.sln
@@ -118,11 +114,9 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
 
     - name: Setup WSL2
-      uses: Vampire/setup-wsl@v5
+      uses: Vampire/setup-wsl@f40fb59d850112c9a292b0218bca8271305b9127 # v5.0.0
       with:
         distribution: Ubuntu-24.04
 

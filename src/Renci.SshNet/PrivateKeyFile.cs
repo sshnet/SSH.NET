@@ -172,7 +172,7 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
-            ThrowHelper.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(key);
 
             _key = key;
             _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
@@ -223,7 +223,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(string fileName, string? passPhrase, string? certificateFileName)
         {
-            ThrowHelper.ThrowIfNull(fileName);
+            ArgumentNullException.ThrowIfNull(fileName);
 
             using (var keyFile = File.OpenRead(fileName))
             {
@@ -263,7 +263,7 @@ namespace Renci.SshNet
         /// <param name="certificate">A certificate which certifies the private key.</param>
         public PrivateKeyFile(Stream privateKey, string? passPhrase, Stream? certificate)
         {
-            ThrowHelper.ThrowIfNull(privateKey);
+            ArgumentNullException.ThrowIfNull(privateKey);
 
             Open(privateKey, passPhrase);
 

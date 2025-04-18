@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected override void CheckDisposed()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
         }
 
         /// <summary>

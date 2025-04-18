@@ -139,7 +139,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public RsaKey(SshKeyData publicKeyData)
         {
-            ThrowHelper.ThrowIfNull(publicKeyData);
+            ArgumentNullException.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-rsa" || publicKeyData.Keys.Length != 2)
             {
@@ -159,7 +159,7 @@ namespace Renci.SshNet.Security
         /// <param name="privateKeyData">DER encoded private key data.</param>
         public RsaKey(byte[] privateKeyData)
         {
-            ThrowHelper.ThrowIfNull(privateKeyData);
+            ArgumentNullException.ThrowIfNull(privateKeyData);
 
             var keyReader = new AsnReader(privateKeyData, AsnEncodingRules.DER);
             var sequenceReader = keyReader.ReadSequence();

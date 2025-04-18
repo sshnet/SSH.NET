@@ -193,7 +193,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -225,7 +225,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -244,8 +244,8 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            ThrowHelper.ThrowIfNull(left);
-            ThrowHelper.ThrowIfNull(right);
+            ArgumentNullException.ThrowIfNull(left);
+            ArgumentNullException.ThrowIfNull(right);
 
             return left.AsSpan().SequenceEqual(right);
         }
@@ -259,7 +259,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             for (var i = 0; i < value.Length; i++)
             {

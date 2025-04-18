@@ -155,7 +155,7 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public void AddForwardedPort(ForwardedPort port)
         {
-            ThrowHelper.ThrowIfNull(port);
+            ArgumentNullException.ThrowIfNull(port);
 
             EnsureSessionIsOpen();
 
@@ -166,7 +166,7 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public void RemoveForwardedPort(ForwardedPort port)
         {
-            ThrowHelper.ThrowIfNull(port);
+            ArgumentNullException.ThrowIfNull(port);
 
             // Stop port forwarding before removing it
             port.Stop();

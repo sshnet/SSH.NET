@@ -214,9 +214,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <see langword="null"/>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
-            ThrowHelper.ThrowIfNull(session);
-            ThrowHelper.ThrowIfNull(commandText);
-            ThrowHelper.ThrowIfNull(encoding);
+            ArgumentNullException.ThrowIfNull(session);
+            ArgumentNullException.ThrowIfNull(commandText);
+            ArgumentNullException.ThrowIfNull(encoding);
 
             _session = session;
             CommandText = commandText;
@@ -244,7 +244,7 @@ namespace Renci.SshNet
 #pragma warning disable CA1849 // Call async methods when in an async method; PipeStream.DisposeAsync would complete synchronously anyway.
         public Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -385,7 +385,7 @@ namespace Renci.SshNet
         /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback? callback, object? state)
         {
-            ThrowHelper.ThrowIfNull(commandText);
+            ArgumentNullException.ThrowIfNull(commandText);
 
             CommandText = commandText;
 

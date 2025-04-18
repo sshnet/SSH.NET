@@ -52,8 +52,8 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Failed to authenticate the client.</exception>
         public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {
-            ThrowHelper.ThrowIfNull(connectionInfo);
-            ThrowHelper.ThrowIfNull(session);
+            ArgumentNullException.ThrowIfNull(connectionInfo);
+            ArgumentNullException.ThrowIfNull(session);
 
             session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
             session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");

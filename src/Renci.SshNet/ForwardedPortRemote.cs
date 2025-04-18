@@ -88,8 +88,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
         {
-            ThrowHelper.ThrowIfNull(boundHostAddress);
-            ThrowHelper.ThrowIfNull(hostAddress);
+            ArgumentNullException.ThrowIfNull(boundHostAddress);
+            ArgumentNullException.ThrowIfNull(hostAddress);
 
             boundPort.ValidatePort();
             port.ValidatePort();
@@ -227,7 +227,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected override void CheckDisposed()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
         }
 
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)

@@ -69,7 +69,7 @@ namespace Renci.SshNet
         public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
-            ThrowHelper.ThrowIfNull(password);
+            ArgumentNullException.ThrowIfNull(password);
 
             _password = password;
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
@@ -85,7 +85,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <see langword="null"/>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            ThrowHelper.ThrowIfNull(session);
+            ArgumentNullException.ThrowIfNull(session);
 
             _session = session;
 

@@ -91,7 +91,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Load(byte[] data)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             LoadInternal(data, 0, data.Length);
         }
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Load(byte[] data, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             LoadInternal(data, offset, count);
         }

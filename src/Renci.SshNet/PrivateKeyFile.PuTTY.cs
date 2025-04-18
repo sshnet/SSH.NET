@@ -72,11 +72,11 @@ namespace Renci.SshNet
                         switch (_version)
                         {
                             case "3":
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Type);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Iterations);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Memory);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Parallelism);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Salt);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Type);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Iterations);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Memory);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Parallelism);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Salt);
 
                                 var keyData = Argon2(
                                     _argon2Type,

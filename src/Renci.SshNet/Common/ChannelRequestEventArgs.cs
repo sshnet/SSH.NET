@@ -16,7 +16,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/>.</exception>
         public ChannelRequestEventArgs(RequestInfo info)
         {
-            ThrowHelper.ThrowIfNull(info);
+            ArgumentNullException.ThrowIfNull(info);
 
             Info = info;
         }

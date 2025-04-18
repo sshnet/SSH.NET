@@ -557,9 +557,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
         internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
-            ThrowHelper.ThrowIfNull(connectionInfo);
-            ThrowHelper.ThrowIfNull(serviceFactory);
-            ThrowHelper.ThrowIfNull(socketFactory);
+            ArgumentNullException.ThrowIfNull(connectionInfo);
+            ArgumentNullException.ThrowIfNull(serviceFactory);
+            ArgumentNullException.ThrowIfNull(socketFactory);
 
             ConnectionInfo = connectionInfo;
             SessionLoggerFactory = connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory;
@@ -937,7 +937,7 @@ namespace Renci.SshNet
         /// </returns>
         private WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
         {
-            ThrowHelper.ThrowIfNull(waitHandle);
+            ArgumentNullException.ThrowIfNull(waitHandle);
 
             var waitHandles = new[]
                 {
@@ -999,7 +999,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
         internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
         {
-            ThrowHelper.ThrowIfNull(waitHandle);
+            ArgumentNullException.ThrowIfNull(waitHandle);
 
             var waitHandles = new[]
                 {

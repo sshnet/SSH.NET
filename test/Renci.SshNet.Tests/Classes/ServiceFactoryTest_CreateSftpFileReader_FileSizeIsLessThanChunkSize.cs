@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _bufferSize = (uint)random.Next(1, int.MaxValue);
             _openAsyncResult = new SftpOpenAsyncResult(null, null);
-            _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
+            _handle = RandomNumberGenerator.GetBytes(random.Next(1, 10));
             _statAsyncResult = new SFtpStatAsyncResult(null, null);
             _fileName = random.Next().ToString();
             _chunkSize = (uint)random.Next(1000, int.MaxValue);

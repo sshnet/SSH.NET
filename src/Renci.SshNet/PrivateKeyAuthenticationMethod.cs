@@ -42,7 +42,7 @@ namespace Renci.SshNet
         public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
-            ThrowHelper.ThrowIfNull(keyFiles);
+            ArgumentNullException.ThrowIfNull(keyFiles);
 
             KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }

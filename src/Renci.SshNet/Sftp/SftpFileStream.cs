@@ -224,7 +224,7 @@ namespace Renci.SshNet.Sftp
         {
             Debug.Assert(isAsync || cancellationToken == default);
 
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (bufferSize <= 0)
             {
@@ -828,7 +828,7 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         public override void SetLength(long value)
         {
-            ThrowHelper.ThrowIfNegative(value);
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
 
             // Lock down the file stream while we do this.
             lock (_lock)
@@ -1179,7 +1179,7 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_session is null, this);
+            ObjectDisposedException.ThrowIf(_session is null, this);
 
             if (!_session.IsOpen)
             {

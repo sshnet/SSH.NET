@@ -38,7 +38,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException"><paramref name="path"/> is empty ("").</exception>
         public static PosixPath CreateAbsoluteOrRelativeFilePath(string path)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             var posixPath = new PosixPath();
 
@@ -92,7 +92,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static string GetFileName(string path)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             var pathEnd = path.LastIndexOf('/');
             if (pathEnd == -1)
@@ -119,7 +119,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         public static string GetDirectoryName(string path)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             var pathEnd = path.LastIndexOf('/');
             if (pathEnd == -1)

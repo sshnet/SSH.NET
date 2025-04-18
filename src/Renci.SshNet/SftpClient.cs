@@ -298,7 +298,7 @@ namespace Renci.SshNet
         public void ChangeDirectory(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -323,7 +323,7 @@ namespace Renci.SshNet
         public Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -364,7 +364,7 @@ namespace Renci.SshNet
         public void CreateDirectory(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -390,7 +390,7 @@ namespace Renci.SshNet
         public async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -415,7 +415,7 @@ namespace Renci.SshNet
         public void DeleteDirectory(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -431,7 +431,7 @@ namespace Renci.SshNet
         public async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -458,7 +458,7 @@ namespace Renci.SshNet
         public void DeleteFile(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -474,7 +474,7 @@ namespace Renci.SshNet
         public async Task DeleteFileAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -516,8 +516,8 @@ namespace Renci.SshNet
         public void RenameFile(string oldPath, string newPath, bool isPosix)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(oldPath);
-            ThrowHelper.ThrowIfNull(newPath);
+            ArgumentNullException.ThrowIfNull(oldPath);
+            ArgumentNullException.ThrowIfNull(newPath);
 
             if (_sftpSession is null)
             {
@@ -553,8 +553,8 @@ namespace Renci.SshNet
         public async Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(oldPath);
-            ThrowHelper.ThrowIfNull(newPath);
+            ArgumentNullException.ThrowIfNull(oldPath);
+            ArgumentNullException.ThrowIfNull(newPath);
 
             if (_sftpSession is null)
             {
@@ -581,8 +581,8 @@ namespace Renci.SshNet
         public void SymbolicLink(string path, string linkPath)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(linkPath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(linkPath);
 
             if (_sftpSession is null)
             {
@@ -633,7 +633,7 @@ namespace Renci.SshNet
         public async IAsyncEnumerable<ISftpFile> ListDirectoryAsync(string path, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -738,7 +738,7 @@ namespace Renci.SshNet
         public ISftpFile Get(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -768,7 +768,7 @@ namespace Renci.SshNet
         public async Task<ISftpFile> GetAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -799,7 +799,7 @@ namespace Renci.SshNet
         public bool Exists(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -855,7 +855,7 @@ namespace Renci.SshNet
         public async Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -977,8 +977,8 @@ namespace Renci.SshNet
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback? asyncCallback, object? state, Action<ulong>? downloadCallback = null)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
-            ThrowHelper.ThrowIfNull(output);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(output);
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
@@ -1028,8 +1028,8 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public void UploadFile(Stream input, string path, bool canOverride, Action<ulong>? uploadCallback = null)
         {
-            ThrowHelper.ThrowIfNull(input);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(input);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
             CheckDisposed();
 
             var flags = Flags.Write | Flags.Truncate;
@@ -1056,8 +1056,8 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default)
         {
-            ThrowHelper.ThrowIfNull(input);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(input);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
             CheckDisposed();
 
             return InternalUploadFile(
@@ -1182,8 +1182,8 @@ namespace Renci.SshNet
         /// </remarks>
         public IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback? asyncCallback, object? state, Action<ulong>? uploadCallback = null)
         {
-            ThrowHelper.ThrowIfNull(input);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(input);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
             CheckDisposed();
 
             var flags = Flags.Write | Flags.Truncate;
@@ -1258,7 +1258,7 @@ namespace Renci.SshNet
         public SftpFileSystemInformation GetStatus(string path)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -1285,7 +1285,7 @@ namespace Renci.SshNet
         public async Task<SftpFileSystemInformation> GetStatusAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -1315,7 +1315,7 @@ namespace Renci.SshNet
         public void AppendAllLines(string path, IEnumerable<string> contents)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(contents);
+            ArgumentNullException.ThrowIfNull(contents);
 
             using (var stream = AppendText(path))
             {
@@ -1339,7 +1339,7 @@ namespace Renci.SshNet
         public void AppendAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(contents);
+            ArgumentNullException.ThrowIfNull(contents);
 
             using (var stream = AppendText(path, encoding))
             {
@@ -1422,7 +1422,7 @@ namespace Renci.SshNet
         public StreamWriter AppendText(string path, Encoding encoding)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(encoding);
+            ArgumentNullException.ThrowIfNull(encoding);
 
             return new StreamWriter(Open(path, FileMode.Append, FileAccess.Write), encoding);
         }
@@ -1795,7 +1795,7 @@ namespace Renci.SshNet
         public IEnumerable<string> ReadLines(string path, Encoding encoding)
         {
             // We allow this usage exception to throw eagerly...
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             // ... but other exceptions will throw lazily i.e. inside the state machine created
             // by yield. We could choose to open the file eagerly as well in order to throw
@@ -1868,7 +1868,7 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public void WriteAllBytes(string path, byte[] bytes)
         {
-            ThrowHelper.ThrowIfNull(bytes);
+            ArgumentNullException.ThrowIfNull(bytes);
 
             UploadFile(new MemoryStream(bytes), path);
         }
@@ -2014,8 +2014,8 @@ namespace Renci.SshNet
         /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
-            ThrowHelper.ThrowIfNull(sourcePath);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(destinationPath);
+            ArgumentNullException.ThrowIfNull(sourcePath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destinationPath);
 
             return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult: null);
         }
@@ -2036,9 +2036,9 @@ namespace Renci.SshNet
         /// <exception cref="SshException">If a problem occurs while copying the file.</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback? asyncCallback, object? state)
         {
-            ThrowHelper.ThrowIfNull(sourcePath);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(destinationPath);
-            ThrowHelper.ThrowIfNull(searchPattern);
+            ArgumentNullException.ThrowIfNull(sourcePath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destinationPath);
+            ArgumentNullException.ThrowIfNull(searchPattern);
 
             var asyncResult = new SftpSynchronizeDirectoriesAsyncResult(asyncCallback, state);
 
@@ -2185,7 +2185,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client not connected.</exception>
         private List<ISftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult? asyncResult, Action<int>? listCallback)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
             {
@@ -2249,8 +2249,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client not connected.</exception>
         private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult? asyncResult, Action<ulong>? downloadCallback)
         {
-            ThrowHelper.ThrowIfNull(output);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(output);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {
@@ -2297,8 +2297,8 @@ namespace Renci.SshNet
 
         private async Task InternalDownloadFileAsync(string path, Stream output, CancellationToken cancellationToken)
         {
-            ThrowHelper.ThrowIfNull(output);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ArgumentNullException.ThrowIfNull(output);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             if (_sftpSession is null)
             {

@@ -97,7 +97,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
-            ThrowHelper.ThrowIfNull(host);
+            ArgumentNullException.ThrowIfNull(host);
 
             CanTrust = true;
             HostKey = host.KeyData.GetBytes();

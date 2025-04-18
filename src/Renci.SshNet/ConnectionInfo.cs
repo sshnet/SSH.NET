@@ -325,17 +325,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
-            ThrowHelper.ThrowIfNull(host);
+            ArgumentNullException.ThrowIfNull(host);
             port.ValidatePort();
-            ThrowHelper.ThrowIfNullOrWhiteSpace(username);
+            ArgumentException.ThrowIfNullOrWhiteSpace(username);
 
             if (proxyType != ProxyTypes.None)
             {
-                ThrowHelper.ThrowIfNull(proxyHost);
+                ArgumentNullException.ThrowIfNull(proxyHost);
                 proxyPort.ValidatePort();
             }
 
-            ThrowHelper.ThrowIfNull(authenticationMethods);
+            ArgumentNullException.ThrowIfNull(authenticationMethods);
 
             if (authenticationMethods.Length == 0)
             {
@@ -459,7 +459,7 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {
-            ThrowHelper.ThrowIfNull(serviceFactory);
+            ArgumentNullException.ThrowIfNull(serviceFactory);
 
             IsAuthenticated = false;
             var clientAuthentication = serviceFactory.CreateClientAuthentication();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Channel_DataReceived_MoreThanBufferSize()
         {
             // Test buffer resizing
-            byte[] expectedData = CryptoAbstraction.GenerateRandom(BufferSize * 3);
+            byte[] expectedData = RandomNumberGenerator.GetBytes(BufferSize * 3);
             _channelSessionStub.Receive(expectedData);
 
             byte[] actualData = new byte[expectedData.Length + 1];

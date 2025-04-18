@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Security.Cryptography;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
@@ -228,7 +228,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return Convert.ToBase64String(CryptoAbstraction.HashSHA256(CertificateAuthorityKey)).TrimEnd('=');
+                return Convert.ToBase64String(SHA256.HashData(CertificateAuthorityKey)).TrimEnd('=');
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
@@ -86,7 +87,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            return CryptoAbstraction.HashSHA256(hashData);
+            return SHA256.HashData(hashData);
         }
 
         private void Session_KeyExchangeHybridReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeHybridReplyMessage> e)
@@ -128,7 +129,7 @@ namespace Renci.SshNet.Security
             var x25519PublicKey = new X25519PublicKeyParameters(serverExchangeValue, _mlkemDecapsulator.EncapsulationLength);
             _x25519Agreement.CalculateAgreement(x25519PublicKey, secret, _mlkemDecapsulator.SecretLength);
 
-            SharedKey = CryptoAbstraction.HashSHA256(secret);
+            SharedKey = SHA256.HashData(secret);
         }
     }
 }

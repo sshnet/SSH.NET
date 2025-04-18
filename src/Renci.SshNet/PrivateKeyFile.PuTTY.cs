@@ -9,7 +9,6 @@ using System.Text;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography.Ciphers;
@@ -103,7 +102,7 @@ namespace Renci.SshNet
                                 cipherKey = keyData.Take(32);
                                 cipherIV = new byte[16];
 
-                                macKey = CryptoAbstraction.HashSHA1(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key" + _passPhrase)).Take(20);
+                                macKey = SHA1.HashData(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key" + _passPhrase)).Take(20);
                                 hmac = new HMACSHA1(macKey);
 
                                 break;
@@ -124,7 +123,7 @@ namespace Renci.SshNet
                                 hmac = new HMACSHA256(Array.Empty<byte>());
                                 break;
                             case "2":
-                                var macKey = CryptoAbstraction.HashSHA1(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key"));
+                                var macKey = SHA1.HashData(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key"));
                                 hmac = new HMACSHA1(macKey);
                                 break;
                             default:

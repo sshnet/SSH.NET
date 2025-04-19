@@ -321,7 +321,6 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
-                case "DSA PRIVATE KEY":
                 case "EC PRIVATE KEY":
                     var cipherName = privateKeyMatch.Result("${cipherName}");
                     var salt = privateKeyMatch.Result("${salt}");

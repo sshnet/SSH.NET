@@ -121,9 +121,9 @@ namespace Renci.SshNet.NetConf
             WaitOnHandle(_serverCapabilitiesConfirmed, OperationTimeout);
         }
 
-        protected override void OnDataReceived(byte[] data)
+        protected override void OnDataReceived(ArraySegment<byte> data)
         {
-            var chunk = Encoding.UTF8.GetString(data);
+            var chunk = Encoding.UTF8.GetString(data.Array, data.Offset, data.Count);
 
             if (ServerCapabilities is null)
             {

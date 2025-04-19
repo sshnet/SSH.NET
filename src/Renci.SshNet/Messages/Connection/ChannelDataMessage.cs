@@ -120,9 +120,11 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-            Data = ReadBinary();
-            Offset = 0;
-            Size = Data.Length;
+            var data = ReadBinarySegment();
+
+            Data = data.Array;
+            Offset = data.Offset;
+            Size = data.Count;
         }
 
         /// <summary>

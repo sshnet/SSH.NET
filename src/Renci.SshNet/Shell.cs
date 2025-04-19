@@ -241,12 +241,12 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
-            _extendedOutputStream?.Write(e.Data, 0, e.Data.Length);
+            _extendedOutputStream?.Write(e.Data.Array, e.Data.Offset, e.Data.Count);
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            _outputStream?.Write(e.Data, 0, e.Data.Length);
+            _outputStream?.Write(e.Data.Array, e.Data.Offset, e.Data.Count);
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)

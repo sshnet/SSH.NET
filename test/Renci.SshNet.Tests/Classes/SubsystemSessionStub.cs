@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected override void OnDataReceived(byte[] data)
+        protected override void OnDataReceived(ArraySegment<byte> data)
         {
             OnDataReceivedInvocations.Add(new ChannelDataEventArgs(0, data));
 

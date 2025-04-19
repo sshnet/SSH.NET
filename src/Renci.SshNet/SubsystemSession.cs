@@ -173,7 +173,7 @@ namespace Renci.SshNet
         /// Called when data is received.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected abstract void OnDataReceived(byte[] data);
+        protected abstract void OnDataReceived(ArraySegment<byte> data);
 
         /// <summary>
         /// Raises the error.

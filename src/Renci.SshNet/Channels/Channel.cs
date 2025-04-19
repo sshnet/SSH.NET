@@ -378,9 +378,9 @@ namespace Renci.SshNet.Channels
         /// Called when channel data is received.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected virtual void OnData(byte[] data)
+        protected virtual void OnData(ArraySegment<byte> data)
         {
-            AdjustDataWindow(data);
+            AdjustDataWindow(data.Count);
 
             DataReceived?.Invoke(this, new ChannelDataEventArgs(LocalChannelNumber, data));
         }
@@ -392,7 +392,7 @@ namespace Renci.SshNet.Channels
         /// <param name="dataTypeCode">The data type code.</param>
         protected virtual void OnExtendedData(byte[] data, uint dataTypeCode)
         {
-            AdjustDataWindow(data);
+            AdjustDataWindow(data.Length);
 
             ExtendedDataReceived?.Invoke(this, new ChannelExtendedDataEventArgs(LocalChannelNumber, data, dataTypeCode));
         }
@@ -651,7 +651,7 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    OnData(e.Message.Data);
+                    OnData(new ArraySegment<byte>(e.Message.Data, e.Message.Offset, e.Message.Size));
                 }
                 catch (Exception ex)
                 {
@@ -768,9 +768,9 @@ namespace Renci.SshNet.Channels
             }
         }
 
-        private void AdjustDataWindow(byte[] messageData)
+        private void AdjustDataWindow(int count)
         {
-            LocalWindowSize -= (uint)messageData.Length;
+            LocalWindowSize -= (uint)count;
 
             // Adjust window if window size is too low
             if (LocalWindowSize < LocalPacketSize)

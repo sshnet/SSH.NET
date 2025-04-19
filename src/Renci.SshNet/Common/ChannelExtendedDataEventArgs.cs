@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Common
+﻿using System;
+
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Provides data for <see cref="Channels.Channel.ExtendedDataReceived"/> events.
@@ -12,7 +14,7 @@
         /// <param name="data">Channel data.</param>
         /// <param name="dataTypeCode">Channel data type code.</param>
         public ChannelExtendedDataEventArgs(uint channelNumber, byte[] data, uint dataTypeCode)
-            : base(channelNumber, data)
+            : base(channelNumber, new ArraySegment<byte>(data))
         {
             DataTypeCode = dataTypeCode;
         }

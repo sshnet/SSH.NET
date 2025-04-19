@@ -302,38 +302,36 @@ namespace Renci.SshNet.Sftp
             WorkingDirectory = RequestRealPath(".")[0].Key;
         }
 
-        protected override void OnDataReceived(byte[] data)
+        protected override void OnDataReceived(ArraySegment<byte> data)
         {
-            ArraySegment<byte> d = new(data);
-
             // If the buffer is empty then skip a copy and read packets
             // directly out of the given data.
             if (_buffer.ActiveLength == 0)
             {
-                while (d.Count >= 4)
+                while (data.Count >= 4)
                 {
-                    var packetLength = BinaryPrimitives.ReadInt32BigEndian(d);
+                    var packetLength = BinaryPrimitives.ReadInt32BigEndian(data);
 
-                    if (d.Count - 4 < packetLength)
+                    if (data.Count - 4 < packetLength)
                     {
                         break;
                     }
 
-                    if (!TryLoadSftpMessage(d.Slice(4, packetLength)))
+                    if (!TryLoadSftpMessage(data.Slice(4, packetLength)))
                     {
                         // An error occured.
                         return;
                     }
 
-                    d = d.Slice(4 + packetLength);
+                    data = data.Slice(4 + packetLength);
                 }
 
-                if (d.Count > 0)
+                if (data.Count > 0)
                 {
                     // Now buffer the remainder.
-                    _buffer.EnsureAvailableSpace(d.Count);
-                    d.AsSpan().CopyTo(_buffer.AvailableSpan);
-                    _buffer.Commit(d.Count);
+                    _buffer.EnsureAvailableSpace(data.Count);
+                    data.AsSpan().CopyTo(_buffer.AvailableSpan);
+                    _buffer.Commit(data.Count);
                 }
 
                 return;
@@ -341,20 +339,20 @@ namespace Renci.SshNet.Sftp
 
             // The buffer already had some data. Append the new data and
             // proceed with reading out packets.
-            _buffer.EnsureAvailableSpace(d.Count);
-            d.AsSpan().CopyTo(_buffer.AvailableSpan);
-            _buffer.Commit(d.Count);
+            _buffer.EnsureAvailableSpace(data.Count);
+            data.AsSpan().CopyTo(_buffer.AvailableSpan);
+            _buffer.Commit(data.Count);
 
             while (_buffer.ActiveLength >= 4)
             {
-                d = new ArraySegment<byte>(
+                data = new ArraySegment<byte>(
                     _buffer.DangerousGetUnderlyingBuffer(),
                     _buffer.ActiveStartOffset,
                     _buffer.ActiveLength);
 
-                var packetLength = BinaryPrimitives.ReadInt32BigEndian(d);
+                var packetLength = BinaryPrimitives.ReadInt32BigEndian(data);
 
-                if (d.Count - 4 < packetLength)
+                if (data.Count - 4 < packetLength)
                 {
                     break;
                 }
@@ -362,7 +360,7 @@ namespace Renci.SshNet.Sftp
                 // Note: the packet data in the buffer is safe to read from
                 // only for the duration of this load. If it needs to be stored,
                 // callees should make their own copy.
-                _ = TryLoadSftpMessage(d.Slice(4, packetLength));
+                _ = TryLoadSftpMessage(data.Slice(4, packetLength));
 
                 _buffer.Discard(4 + packetLength);
             }

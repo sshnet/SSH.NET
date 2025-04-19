@@ -145,9 +145,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
-            Assert.IsTrue(target.Data.SequenceEqual(data.Take(offset, size)));
-            Assert.AreEqual(0, target.Offset);
-            Assert.AreEqual(size, target.Size);
+            CollectionAssert.AreEqual(data.Take(offset, size), target.Data.Take(target.Offset, target.Size));
         }
     }
 }

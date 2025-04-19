@@ -194,7 +194,7 @@ namespace Renci.SshNet.Channels
         /// Called when channel data is received.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected override void OnData(byte[] data)
+        protected override void OnData(ArraySegment<byte> data)
         {
             base.OnData(data);
 
@@ -204,7 +204,7 @@ namespace Renci.SshNet.Channels
                 {
                     if (_socket.IsConnected())
                     {
-                        SocketAbstraction.Send(_socket, data, 0, data.Length);
+                        SocketAbstraction.Send(_socket, data.Array, data.Offset, data.Count);
                     }
                 }
             }

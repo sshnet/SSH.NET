@@ -232,7 +232,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Reads next data type as byte array from internal buffer.
+        /// Reads a length-prefixed byte array from the internal buffer.
         /// </summary>
         /// <returns>
         /// The bytes read.
@@ -240,6 +240,20 @@ namespace Renci.SshNet.Common
         protected byte[] ReadBinary()
         {
             return _stream.ReadBinary();
+        }
+
+        /// <summary>
+        /// Reads a length-prefixed byte array from the internal buffer,
+        /// returned as a view over the buffer.
+        /// </summary>
+        /// <remarks>
+        /// When using this method, consider whether the underlying buffer is shared
+        /// or reused, and whether the returned <see cref="ArraySegment{T}"/> may
+        /// exist beyond the lifetime for which it is valid to be used.
+        /// </remarks>
+        private protected ArraySegment<byte> ReadBinarySegment()
+        {
+            return _stream.ReadBinarySegment();
         }
 
         /// <summary>

@@ -72,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             }
         }
 
-        protected override void OnData(byte[] data)
+        protected override void OnData(ArraySegment<byte> data)
         {
             base.OnData(data);
 

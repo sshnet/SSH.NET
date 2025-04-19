@@ -257,7 +257,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -300,7 +300,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -346,7 +346,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -389,7 +389,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -429,7 +429,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -469,7 +469,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
+                channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 

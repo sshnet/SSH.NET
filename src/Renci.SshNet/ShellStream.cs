@@ -965,16 +965,16 @@ namespace Renci.SshNet
         {
             lock (_sync)
             {
-                _readBuffer.EnsureAvailableSpace(e.Data.Length);
+                _readBuffer.EnsureAvailableSpace(e.Data.Count);
 
                 e.Data.AsSpan().CopyTo(_readBuffer.AvailableSpan);
 
-                _readBuffer.Commit(e.Data.Length);
+                _readBuffer.Commit(e.Data.Count);
 
                 Monitor.PulseAll(_sync);
             }
 
-            DataReceived?.Invoke(this, new ShellDataEventArgs(e.Data));
+            DataReceived?.Invoke(this, new ShellDataEventArgs(e.Data.ToArray()));
         }
     }
 }

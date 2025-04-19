@@ -583,7 +583,7 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object? sender, ChannelExtendedDataEventArgs e)
         {
-            ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
+            ExtendedOutputStream.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
 
             if (e.DataTypeCode == 1)
             {
@@ -593,7 +593,7 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)
         {
-            OutputStream.Write(e.Data, 0, e.Data.Length);
+            OutputStream.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
         }
 
         /// <summary>

@@ -9,7 +9,6 @@
         public static readonly PublicKeyAlgorithm SshRsa = new PublicKeyAlgorithm("ssh-rsa");
         public static readonly PublicKeyAlgorithm RsaSha2256 = new PublicKeyAlgorithm("rsa-sha2-256");
         public static readonly PublicKeyAlgorithm RsaSha2512 = new PublicKeyAlgorithm("rsa-sha2-512");
-        public static readonly PublicKeyAlgorithm SshDss = new PublicKeyAlgorithm("ssh-dss");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp256 = new PublicKeyAlgorithm("ecdsa-sha2-nistp256");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp384 = new PublicKeyAlgorithm("ecdsa-sha2-nistp384");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp521 = new PublicKeyAlgorithm("ecdsa-sha2-nistp521");
@@ -18,7 +17,6 @@
         public static readonly PublicKeyAlgorithm SshRsaCertV01OpenSSH = new PublicKeyAlgorithm("ssh-rsa-cert-v01@openssh.com");
         public static readonly PublicKeyAlgorithm RsaSha2256CertV01OpenSSH = new PublicKeyAlgorithm("rsa-sha2-256-cert-v01@openssh.com");
         public static readonly PublicKeyAlgorithm RsaSha2512CertV01OpenSSH = new PublicKeyAlgorithm("rsa-sha2-512-cert-v01@openssh.com");
-        public static readonly PublicKeyAlgorithm SshDssCertV01OpenSSH = new PublicKeyAlgorithm("ssh-dss-cert-v01@openssh.com");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp256CertV01OpenSSH = new PublicKeyAlgorithm("ecdsa-sha2-nistp256-cert-v01@openssh.com");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp384CertV01OpenSSH = new PublicKeyAlgorithm("ecdsa-sha2-nistp384-cert-v01@openssh.com");
         public static readonly PublicKeyAlgorithm EcdsaSha2Nistp521CertV01OpenSSH = new PublicKeyAlgorithm("ecdsa-sha2-nistp521-cert-v01@openssh.com");

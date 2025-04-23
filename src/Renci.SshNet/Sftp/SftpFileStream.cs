@@ -191,7 +191,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
+        internal SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
         {
             Timeout = TimeSpan.FromSeconds(30);
             Name = path;

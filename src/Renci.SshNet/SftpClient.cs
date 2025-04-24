@@ -2522,10 +2522,10 @@ namespace Renci.SshNet
             var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Read, cancellationToken).ConfigureAwait(false);
             try
             {
-                var bufferSize = (int)_sftpSession.CalculateOptimalReadLength(_bufferSize);
-
-                using (var input = new SftpFileStream(_sftpSession, fullPath, FileAccess.Read, bufferSize, handle, 0L))
+                using (var input = new SftpFileStream(_sftpSession, fullPath, FileAccess.Read, (int)_bufferSize, handle, 0L))
                 {
+                    var bufferSize = (int)_sftpSession.CalculateOptimalReadLength(_bufferSize);
+
                     await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -2632,10 +2632,10 @@ namespace Renci.SshNet
             var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Write | flags, cancellationToken).ConfigureAwait(false);
             try
             {
-                var bufferSize = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
-
-                using (var output = new SftpFileStream(_sftpSession, fullPath, FileAccess.Write, bufferSize, handle, 0L))
+                using (var output = new SftpFileStream(_sftpSession, fullPath, FileAccess.Write, (int)_bufferSize, handle, 0L))
                 {
+                    var bufferSize = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+
                     await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
                 }
             }

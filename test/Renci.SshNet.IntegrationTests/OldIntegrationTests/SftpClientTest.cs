@@ -40,6 +40,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
 #if NET48
                     hash = md5.ComputeHash(file);
+                    await Task.CompletedTask.ConfigureAwait(false);
 #else
                     hash = await md5.ComputeHashAsync(file, cancellationToken).ConfigureAwait(false);
 #endif

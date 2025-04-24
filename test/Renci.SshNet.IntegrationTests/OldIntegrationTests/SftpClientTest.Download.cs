@@ -33,6 +33,30 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        public async Task Test_Sftp_DownloadAsync_Forbidden()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, AdminUser.UserName, AdminUser.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPermissionDeniedException>(() => sftp.DownloadFileAsync("/root/.profile", Stream.Null));
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public async Task Test_Sftp_DownloadAsync_File_Not_Exists()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null));
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
         [Description("Test passing null to BeginDownloadFile")]
         public void Test_Sftp_BeginDownloadFile_StreamIsNull()
         {

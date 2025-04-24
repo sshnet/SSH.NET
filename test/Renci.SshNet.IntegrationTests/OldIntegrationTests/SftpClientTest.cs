@@ -38,7 +38,11 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 byte[] hash;
                 using (var md5 = MD5.Create())
                 {
+#if NET48
+                    hash = md5.ComputeHash(file);
+#else
                     hash = await md5.ComputeHashAsync(file, cancellationToken).ConfigureAwait(false);
+#endif
                 }
 
                 file.Close();

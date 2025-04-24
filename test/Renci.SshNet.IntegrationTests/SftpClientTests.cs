@@ -6,14 +6,26 @@ namespace Renci.SshNet.IntegrationTests
     /// The SFTP client integration tests
     /// </summary>
     [TestClass]
-    public class SftpClientTests : IntegrationTestBase, IDisposable
+    public class SftpClientTests : IntegrationTestBase
     {
         private readonly SftpClient _sftpClient;
 
         public SftpClientTests()
         {
             _sftpClient = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
-            _sftpClient.Connect();
+        }
+
+        [TestInitialize]
+        public async Task InitializeAsync()
+        {
+            await _sftpClient.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _sftpClient.Disconnect();
+            _sftpClient.Dispose();
         }
 
         [TestMethod]
@@ -164,12 +176,6 @@ namespace Renci.SshNet.IntegrationTests
             await _sftpClient.DeleteAsync(testFileName, CancellationToken.None).ConfigureAwait(false);
 
             Assert.IsFalse(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
-        }
-
-        public void Dispose()
-        {
-            _sftpClient.Disconnect();
-            _sftpClient.Dispose();
         }
     }
 }

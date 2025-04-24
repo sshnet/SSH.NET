@@ -88,7 +88,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
                 var directory = await sftp.GetAsync("/", default).ConfigureAwait(false);
 
                 Assert.AreEqual("/", directory.FullName);
@@ -103,7 +103,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
                 await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(() => sftp.GetAsync("/xyz", default));
             }
@@ -115,9 +115,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                sftp.UploadFile(new MemoryStream(), "abc.txt");
+                await sftp.UploadFileAsync(new MemoryStream(), "abc.txt").ConfigureAwait(false);
 
                 var file = await sftp.GetAsync("abc.txt", default).ConfigureAwait(false);
 
@@ -133,7 +133,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
                 await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.GetAsync(null, default));
             }
@@ -145,9 +145,9 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
-                sftp.Connect();
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                sftp.UploadFile(new MemoryStream(), "test-üöä-");
+                await sftp.UploadFileAsync(new MemoryStream(), "test-üöä-").ConfigureAwait(false);
 
                 var file = await sftp.GetAsync("test-üöä-", default).ConfigureAwait(false);
 

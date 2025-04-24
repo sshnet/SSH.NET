@@ -4115,7 +4115,7 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         uploadStream.Position = 0;
 
-                        client.UploadFile(uploadStream, "gert.txt");
+                        await client.UploadFileAsync(uploadStream, "gert.txt");
 
                         uploadStream.Position = 0;
 

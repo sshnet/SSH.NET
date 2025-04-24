@@ -2630,18 +2630,12 @@ namespace Renci.SshNet
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
             var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Write | flags, cancellationToken).ConfigureAwait(false);
-            try
-            {
-                using (var output = new SftpFileStream(_sftpSession, fullPath, FileAccess.Write, (int)_bufferSize, handle, 0L))
-                {
-                    var bufferSize = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
 
-                    await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
-                }
-            }
-            finally
+            using (var output = new SftpFileStream(_sftpSession, fullPath, FileAccess.Write, (int)_bufferSize, handle, 0L))
             {
-                await _sftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+                var bufferSize = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+
+                await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
             }
         }
 

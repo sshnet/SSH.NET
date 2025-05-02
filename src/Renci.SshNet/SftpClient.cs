@@ -1116,37 +1116,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default)
         {
-            return UploadFileAsync(input, path, canOverride: true, cancellationToken: cancellationToken);
-        }
-
-        /// <summary>
-        /// Asynchronously uploads stream into remote file.
-        /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
-        /// <param name="canOverride">if set to <see langword="true"/> then existing file will be overwritten.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public Task UploadFileAsync(Stream input, string path, bool canOverride, CancellationToken cancellationToken = default)
-        {
             CheckDisposed();
 
-            var flags = Flags.Write | Flags.Truncate;
-
-            if (canOverride)
-            {
-                flags |= Flags.CreateNewOrOpen;
-            }
-            else
-            {
-                flags |= Flags.CreateNew;
-            }
+            var flags = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
 
             return InternalUploadFileAsync(input, path, flags, cancellationToken);
         }

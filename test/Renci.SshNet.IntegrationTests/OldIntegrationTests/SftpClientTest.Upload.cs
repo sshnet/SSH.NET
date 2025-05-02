@@ -118,6 +118,28 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        public async Task Test_Sftp_UploadAsync_Cancellation_Requested()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None);
+
+                var uploadedFileName = Path.GetTempFileName();
+                var remoteFileName = "/root/1";
+
+                CreateTestFile(uploadedFileName, 1);
+
+                var cancelledToken = new CancellationToken(true);
+
+                using (var file = File.OpenRead(uploadedFileName))
+                {
+                    await Assert.ThrowsAsync<OperationCanceledException>(() => sftp.UploadFileAsync(file, remoteFileName, cancelledToken));
+                }
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
         public void Test_Sftp_Multiple_Async_Upload_And_Download_10Files_5MB_Each()
         {
             var maxFiles = 10;

@@ -57,6 +57,20 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        public async Task Test_Sftp_DownloadAsync_Cancellation_Requested()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+
+                var cancelledToken = new CancellationToken(true);
+
+                await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null, cancelledToken));
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
         [Description("Test passing null to BeginDownloadFile")]
         public void Test_Sftp_BeginDownloadFile_StreamIsNull()
         {

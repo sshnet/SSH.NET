@@ -2461,6 +2461,8 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
             var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Read, cancellationToken).ConfigureAwait(false);
 
@@ -2562,6 +2564,8 @@ namespace Renci.SshNet
             {
                 throw new SshConnectionException("Client not connected.");
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
             var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Write | flags, cancellationToken).ConfigureAwait(false);

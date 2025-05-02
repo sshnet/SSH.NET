@@ -81,25 +81,5 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 }
             }
         }
-
-        /// <summary>
-        /// Creates the test file.
-        /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="size">Size in megabytes.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        protected async Task CreateTestFileAsync(string fileName, int size, CancellationToken cancellationToken)
-        {
-            using (var testFile = File.Create(fileName))
-            {
-                var random = new Random();
-                for (int i = 0; i < 1024 * size; i++)
-                {
-                    var buffer = new byte[1024];
-                    random.NextBytes(buffer);
-                    await testFile.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
-                }
-            }
-        }
     }
 }

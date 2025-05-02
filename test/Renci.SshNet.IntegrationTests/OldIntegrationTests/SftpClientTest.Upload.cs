@@ -64,10 +64,10 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var uploadedFileName = Path.GetTempFileName();
                 var remoteFileName = Path.GetRandomFileName();
 
-                await CreateTestFileAsync(uploadedFileName, 1, CancellationToken.None).ConfigureAwait(false);
+                CreateTestFile(uploadedFileName, 1);
 
                 //  Calculate has value
-                var uploadedHash = await CalculateMD5Async(uploadedFileName, CancellationToken.None).ConfigureAwait(false);
+                var uploadedHash = CalculateMD5(uploadedFileName);
 
                 using (var file = File.OpenRead(uploadedFileName))
                 {
@@ -81,7 +81,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     await sftp.DownloadFileAsync(remoteFileName, file).ConfigureAwait(false);
                 }
 
-                var downloadedHash = await CalculateMD5Async(downloadedFileName, CancellationToken.None).ConfigureAwait(false);
+                var downloadedHash = CalculateMD5(downloadedFileName);
 
                 await sftp.DeleteFileAsync(remoteFileName, CancellationToken.None).ConfigureAwait(false);
 

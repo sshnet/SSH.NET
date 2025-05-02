@@ -31,32 +31,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             }
         }
 
-        protected static async Task<string> CalculateMD5Async(string fileName, CancellationToken cancellationToken)
-        {
-            using (FileStream file = new FileStream(fileName, FileMode.Open))
-            {
-                byte[] hash;
-                using (var md5 = MD5.Create())
-                {
-#if NET48
-                    hash = md5.ComputeHash(file);
-                    await Task.CompletedTask.ConfigureAwait(false);
-#else
-                    hash = await md5.ComputeHashAsync(file, cancellationToken).ConfigureAwait(false);
-#endif
-                }
-
-                file.Close();
-
-                StringBuilder sb = new StringBuilder();
-                for (var i = 0; i < hash.Length; i++)
-                {
-                    sb.Append(hash[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
-
         private void RemoveAllFiles()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))

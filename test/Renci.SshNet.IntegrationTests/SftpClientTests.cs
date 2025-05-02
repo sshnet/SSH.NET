@@ -77,7 +77,7 @@ namespace Renci.SshNet.IntegrationTests
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            await _sftpClient.UploadFileAsync(fileStream, testFilePath);
+            await _sftpClient.UploadFileAsync(fileStream, testFilePath).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath));
 
             // Check if ListDirectory works
@@ -130,12 +130,12 @@ namespace Renci.SshNet.IntegrationTests
             var testContent = "file content";
 
             // Create new directory and check if it exists
-            await _sftpClient.CreateDirectoryAsync(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            await _sftpClient.UploadFileAsync(fileStream, testFilePath);
+            await _sftpClient.UploadFileAsync(fileStream, testFilePath).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFilePath).ConfigureAwait(false));
 
             await _sftpClient.DeleteFileAsync(testFilePath, CancellationToken.None).ConfigureAwait(false);
@@ -154,7 +154,7 @@ namespace Renci.SshNet.IntegrationTests
             var testDirectory = "/home/sshnet/sshnet-test";
 
             // Create new directory and check if it exists
-            await _sftpClient.CreateDirectoryAsync(testDirectory);
+            await _sftpClient.CreateDirectoryAsync(testDirectory).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testDirectory).ConfigureAwait(false));
 
             await _sftpClient.DeleteAsync(testDirectory, CancellationToken.None).ConfigureAwait(false);
@@ -170,7 +170,7 @@ namespace Renci.SshNet.IntegrationTests
 
             // Upload file and check if it exists
             using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
-            await _sftpClient.UploadFileAsync(fileStream, testFileName);
+            await _sftpClient.UploadFileAsync(fileStream, testFileName).ConfigureAwait(false);
             Assert.IsTrue(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
 
             await _sftpClient.DeleteAsync(testFileName, CancellationToken.None).ConfigureAwait(false);

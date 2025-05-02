@@ -916,23 +916,7 @@ namespace Renci.SshNet
             InternalDownloadFile(path, output, asyncResult: null, downloadCallback);
         }
 
-        /// <summary>
-        /// Asynchronously downloads remote file specified by the path into the stream.
-        /// </summary>
-        /// <param name="path">File to download.</param>
-        /// <param name="output">Stream to write the file into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous download operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>///
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
+        /// <inheritdoc />
         public Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1101,19 +1085,7 @@ namespace Renci.SshNet
             InternalUploadFile(input, path, flags, asyncResult: null, uploadCallback);
         }
 
-        /// <summary>
-        /// Asynchronously uploads stream into remote file.
-        /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
         public Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();

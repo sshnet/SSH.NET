@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -27,7 +28,7 @@ namespace Renci.SshNet
 
             public Key Parse()
             {
-                var reader = new SshDataReader(_data);
+                var reader = new SshDataStream(_data);
                 var magicNumber = reader.ReadUInt32();
                 if (magicNumber != 0x3f6ff9eb)
                 {
@@ -60,11 +61,7 @@ namespace Renci.SshNet
                     throw new SshException(string.Format("Cipher method '{0}' is not supported.", ssh2CipherName));
                 }
 
-                /*
-                 * TODO: Create two specific data types to avoid using SshDataReader class.
-                 */
-
-                reader = new SshDataReader(keyData);
+                reader = new SshDataStream(keyData);
 
                 var decryptedLength = reader.ReadUInt32();
 
@@ -75,16 +72,26 @@ namespace Renci.SshNet
 
                 if (keyType.Contains("rsa"))
                 {
-                    var exponent = reader.ReadBigIntWithBits(); // e
-                    var d = reader.ReadBigIntWithBits(); // d
-                    var modulus = reader.ReadBigIntWithBits(); // n
-                    var inverseQ = reader.ReadBigIntWithBits(); // u
-                    var q = reader.ReadBigIntWithBits(); // p
-                    var p = reader.ReadBigIntWithBits(); // q
+                    var exponent = ReadBigIntWithBits(reader);
+                    var d = ReadBigIntWithBits(reader);
+                    var modulus = ReadBigIntWithBits(reader);
+                    var inverseQ = ReadBigIntWithBits(reader);
+                    var q = ReadBigIntWithBits(reader);
+                    var p = ReadBigIntWithBits(reader);
                     return new RsaKey(modulus, exponent, d, p, q, inverseQ);
                 }
 
                 throw new NotSupportedException(string.Format("Key type '{0}' is not supported.", keyType));
+
+                // Reads next mpint where length is specified in bits.
+                static BigInteger ReadBigIntWithBits(SshDataStream reader)
+                {
+                    var numBits = (int)reader.ReadUInt32();
+
+                    var numBytes = (numBits + 7) / 8;
+
+                    return reader.ReadBytes(numBytes).ToBigInteger2();
+                }
             }
 
             private static byte[] GetCipherKey(string passphrase, int length)

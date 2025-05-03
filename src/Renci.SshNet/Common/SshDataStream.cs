@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
@@ -27,7 +29,7 @@ namespace Renci.SshNet.Common
         /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         public SshDataStream(byte[] buffer)
-            : base(buffer)
+            : base(buffer ?? throw new ArgumentNullException(nameof(buffer)), 0, buffer.Length, writable: true, publiclyVisible: true)
         {
         }
 
@@ -39,7 +41,7 @@ namespace Renci.SshNet.Common
         /// <param name="count">The number of bytes to load.</param>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         public SshDataStream(byte[] buffer, int offset, int count)
-            : base(buffer, offset, count)
+            : base(buffer, offset, count, writable: true, publiclyVisible: true)
         {
         }
 
@@ -58,19 +60,6 @@ namespace Renci.SshNet.Common
         }
 
 #if NETFRAMEWORK || NETSTANDARD2_0
-        private int Read(Span<byte> buffer)
-        {
-            var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
-
-            var numRead = Read(sharedBuffer, 0, buffer.Length);
-
-            sharedBuffer.AsSpan(0, numRead).CopyTo(buffer);
-
-            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
-
-            return numRead;
-        }
-
         private void Write(ReadOnlySpan<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
@@ -90,7 +79,7 @@ namespace Renci.SshNet.Common
         public void Write(uint value)
         {
             Span<byte> bytes = stackalloc byte[4];
-            System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
+            BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
             Write(bytes);
         }
 
@@ -101,7 +90,7 @@ namespace Renci.SshNet.Common
         public void Write(ulong value)
         {
             Span<byte> bytes = stackalloc byte[8];
-            System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(bytes, value);
+            BinaryPrimitives.WriteUInt64BigEndian(bytes, value);
             Write(bytes);
         }
 
@@ -137,6 +126,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
         public void Write(string s, Encoding encoding)
         {
+            ThrowHelper.ThrowIfNull(s);
             ThrowHelper.ThrowIfNull(encoding);
 
 #if NETSTANDARD2_1 || NET
@@ -153,12 +143,21 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Reads a byte array from the SSH data stream.
+        /// Reads a length-prefixed byte array from the SSH data stream.
         /// </summary>
         /// <returns>
         /// The byte array read from the SSH data stream.
         /// </returns>
         public byte[] ReadBinary()
+        {
+            return ReadBinarySegment().ToArray();
+        }
+
+        /// <summary>
+        /// Reads a length-prefixed byte array from the SSH data stream,
+        /// returned as a view over the underlying buffer.
+        /// </summary>
+        internal ArraySegment<byte> ReadBinarySegment()
         {
             var length = ReadUInt32();
 
@@ -167,7 +166,23 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
             }
 
-            return ReadBytes((int)length);
+            var buffer = GetRemainingBuffer().Slice(0, (int)length);
+
+            Position += length;
+
+            return buffer;
+        }
+
+        /// <summary>
+        /// Gets a view over the remaining data in the underlying buffer.
+        /// </summary>
+        private ArraySegment<byte> GetRemainingBuffer()
+        {
+            var success = TryGetBuffer(out var buffer);
+
+            Debug.Assert(success, "Expected buffer to be publicly visible");
+
+            return buffer.Slice((int)Position);
         }
 
         /// <summary>
@@ -205,11 +220,11 @@ namespace Renci.SshNet.Common
         /// </returns>
         public BigInteger ReadBigInt()
         {
-            var data = ReadBinary();
-
 #if NETSTANDARD2_1 || NET
+            var data = ReadBinarySegment();
             return new BigInteger(data, isBigEndian: true);
 #else
+            var data = ReadBinary();
             Array.Reverse(data);
             return new BigInteger(data);
 #endif
@@ -223,9 +238,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public ushort ReadUInt16()
         {
-            Span<byte> bytes = stackalloc byte[2];
-            ReadBytes(bytes);
-            return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(bytes);
+            var ret = BinaryPrimitives.ReadUInt16BigEndian(GetRemainingBuffer());
+            Position += sizeof(ushort);
+            return ret;
         }
 
         /// <summary>
@@ -236,9 +251,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public uint ReadUInt32()
         {
-            Span<byte> span = stackalloc byte[4];
-            ReadBytes(span);
-            return System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(span);
+            var ret = BinaryPrimitives.ReadUInt32BigEndian(GetRemainingBuffer());
+            Position += sizeof(uint);
+            return ret;
         }
 
         /// <summary>
@@ -249,9 +264,9 @@ namespace Renci.SshNet.Common
         /// </returns>
         public ulong ReadUInt64()
         {
-            Span<byte> span = stackalloc byte[8];
-            ReadBytes(span);
-            return System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(span);
+            var ret = BinaryPrimitives.ReadUInt64BigEndian(GetRemainingBuffer());
+            Position += sizeof(ulong);
+            return ret;
         }
 
         /// <summary>
@@ -265,19 +280,13 @@ namespace Renci.SshNet.Common
         {
             encoding ??= Encoding.UTF8;
 
-            var length = ReadUInt32();
+            var bytes = ReadBinarySegment();
 
-            if (length > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
-            }
-
-            var bytes = ReadBytes((int)length);
-            return encoding.GetString(bytes, 0, bytes.Length);
+            return encoding.GetString(bytes.Array, bytes.Offset, bytes.Count);
         }
 
         /// <summary>
-        /// Writes the stream contents to a byte array, regardless of the <see cref="MemoryStream.Position"/>.
+        /// Retrieves the stream contents as a byte array, regardless of the <see cref="MemoryStream.Position"/>.
         /// </summary>
         /// <returns>
         /// This method returns the contents of the <see cref="SshDataStream"/> as a byte array.
@@ -288,9 +297,15 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public override byte[] ToArray()
         {
-            if (Capacity == Length)
+            var success = TryGetBuffer(out var buffer);
+
+            Debug.Assert(success, "Expected buffer to be publicly visible");
+
+            if (buffer.Offset == 0 &&
+                buffer.Count == buffer.Array.Length &&
+                buffer.Count == Length)
             {
-                return GetBuffer();
+                return buffer.Array;
             }
 
             return base.ToArray();
@@ -314,20 +329,6 @@ namespace Renci.SshNet.Common
             }
 
             return data;
-        }
-
-        /// <summary>
-        /// Reads data into the specified <paramref name="buffer" />.
-        /// </summary>
-        /// <param name="buffer">The buffer to read into.</param>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="buffer"/> is larger than the total of bytes available.</exception>
-        private void ReadBytes(Span<byte> buffer)
-        {
-            var bytesRead = Read(buffer);
-            if (bytesRead < buffer.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(buffer), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", buffer.Length, bytesRead));
-            }
         }
     }
 }

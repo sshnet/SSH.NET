@@ -163,34 +163,34 @@ namespace Renci.SshNet
                     throw new SshException("MAC verification failed for PuTTY key file");
                 }
 
-                var publicKeyReader = new SshDataReader(_publicKey);
+                var publicKeyReader = new SshDataStream(_publicKey);
                 var keyType = publicKeyReader.ReadString(Encoding.UTF8);
                 Debug.Assert(keyType == _algorithmName, $"{nameof(keyType)} is not the same as {nameof(_algorithmName)}");
 
-                var privateKeyReader = new SshDataReader(privateKey);
+                var privateKeyReader = new SshDataStream(privateKey);
 
                 Key parsedKey;
 
                 switch (keyType)
                 {
                     case "ssh-ed25519":
-                        parsedKey = new ED25519Key(privateKeyReader.ReadBignum2());
+                        parsedKey = new ED25519Key(privateKeyReader.ReadBinary());
                         break;
                     case "ecdsa-sha2-nistp256":
                     case "ecdsa-sha2-nistp384":
                     case "ecdsa-sha2-nistp521":
                         var curve = publicKeyReader.ReadString(Encoding.ASCII);
-                        var pub = publicKeyReader.ReadBignum2();
-                        var prv = privateKeyReader.ReadBignum2();
+                        var pub = publicKeyReader.ReadBinary();
+                        var prv = privateKeyReader.ReadBinary();
                         parsedKey = new EcdsaKey(curve, pub, prv);
                         break;
                     case "ssh-rsa":
-                        var exponent = publicKeyReader.ReadBignum(); // e
-                        var modulus = publicKeyReader.ReadBignum(); // n
-                        var d = privateKeyReader.ReadBignum(); // d
-                        var p = privateKeyReader.ReadBignum(); // p
-                        var q = privateKeyReader.ReadBignum(); // q
-                        var inverseQ = privateKeyReader.ReadBignum(); // iqmp
+                        var exponent = publicKeyReader.ReadBigInt();
+                        var modulus = publicKeyReader.ReadBigInt();
+                        var d = privateKeyReader.ReadBigInt();
+                        var p = privateKeyReader.ReadBigInt();
+                        var q = privateKeyReader.ReadBigInt();
+                        var inverseQ = privateKeyReader.ReadBigInt();
                         parsedKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         break;
                     default:

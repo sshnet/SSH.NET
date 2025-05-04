@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Renci.SshNet.Common
 {
@@ -14,30 +15,8 @@ namespace Renci.SshNet.Common
     {
         private readonly object _sync = new object();
 
-        private byte[] _buffer = new byte[1024];
-        private int _head; // The index from which the data starts in _buffer.
-        private int _tail; // The index at which to add new data into _buffer.
+        private System.Net.ArrayBuffer _buffer = new(1024);
         private bool _disposed;
-
-#pragma warning disable MA0076 // Do not use implicit culture-sensitive ToString in interpolated strings
-        [Conditional("DEBUG")]
-        private void AssertValid()
-        {
-            Debug.Assert(Monitor.IsEntered(_sync), $"Should be in lock on {nameof(_sync)}");
-            Debug.Assert(_head >= 0, $"{nameof(_head)} should be non-negative but is {_head}");
-            Debug.Assert(_tail >= 0, $"{nameof(_tail)} should be non-negative but is {_tail}");
-            Debug.Assert(_head <= _buffer.Length, $"{nameof(_head)} should be <= {nameof(_buffer)}.Length but is {_head}");
-            Debug.Assert(_tail <= _buffer.Length, $"{nameof(_tail)} should be <= {nameof(_buffer)}.Length but is {_tail}");
-            Debug.Assert(_head <= _tail, $"Should have {nameof(_head)} <= {nameof(_tail)} but have {_head} <= {_tail}");
-        }
-#pragma warning restore MA0076 // Do not use implicit culture-sensitive ToString in interpolated strings
-
-        /// <summary>
-        /// This method does nothing.
-        /// </summary>
-        public override void Flush()
-        {
-        }
 
         /// <summary>
         /// This method always throws <see cref="NotSupportedException"/>.
@@ -69,26 +48,42 @@ namespace Renci.SshNet.Common
 #endif
             ValidateBufferArguments(buffer, offset, count);
 
+            return Read(buffer.AsSpan(offset, count));
+        }
+
+#if NETSTANDARD2_1 || NET
+        /// <inheritdoc/>
+        public override int Read(Span<byte> buffer)
+#else
+        private int Read(Span<byte> buffer)
+#endif
+        {
             lock (_sync)
             {
-                while (_head == _tail && !_disposed)
+                while (_buffer.ActiveLength == 0 && !_disposed)
                 {
                     _ = Monitor.Wait(_sync);
                 }
 
-                AssertValid();
+                var bytesRead = Math.Min(buffer.Length, _buffer.ActiveLength);
 
-                var bytesRead = Math.Min(count, _tail - _head);
+                _buffer.ActiveReadOnlySpan.Slice(0, bytesRead).CopyTo(buffer);
 
-                Buffer.BlockCopy(_buffer, _head, buffer, offset, bytesRead);
-
-                _head += bytesRead;
-
-                AssertValid();
+                _buffer.Discard(bytesRead);
 
                 return bytesRead;
             }
         }
+
+#if NET
+        /// <inheritdoc/>
+        public override int ReadByte()
+        {
+            byte b = default;
+            var read = Read(new Span<byte>(ref b));
+            return read == 0 ? -1 : b;
+        }
+#endif
 
         /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
@@ -100,50 +95,127 @@ namespace Renci.SshNet.Common
 
             lock (_sync)
             {
-                ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
-
-                AssertValid();
-
-                // Ensure sufficient buffer space and copy the new data in.
-
-                if (_buffer.Length - _tail >= count)
-                {
-                    // If there is enough space after _tail for the new data,
-                    // then copy the data there.
-                    Buffer.BlockCopy(buffer, offset, _buffer, _tail, count);
-                    _tail += count;
-                }
-                else
-                {
-                    // We can't fit the new data after _tail.
-
-                    var newLength = _tail - _head + count;
-
-                    if (newLength <= _buffer.Length)
-                    {
-                        // If there is sufficient space at the start of the buffer,
-                        // then move the current data to the start of the buffer.
-                        Buffer.BlockCopy(_buffer, _head, _buffer, 0, _tail - _head);
-                    }
-                    else
-                    {
-                        // Otherwise, we're gonna need a bigger buffer.
-                        var newBuffer = new byte[Math.Max(newLength, _buffer.Length * 2)];
-                        Buffer.BlockCopy(_buffer, _head, newBuffer, 0, _tail - _head);
-                        _buffer = newBuffer;
-                    }
-
-                    // Copy the new data into the freed-up space.
-                    Buffer.BlockCopy(buffer, offset, _buffer, _tail - _head, count);
-
-                    _head = 0;
-                    _tail = newLength;
-                }
-
-                AssertValid();
-
-                Monitor.PulseAll(_sync);
+                WriteCore(buffer.AsSpan(offset, count));
             }
+        }
+
+#if NETSTANDARD2_1 || NET
+        /// <inheritdoc/>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            lock (_sync)
+            {
+                WriteCore(buffer);
+            }
+        }
+#endif
+
+        /// <inheritdoc/>
+        public override void WriteByte(byte value)
+        {
+            lock (_sync)
+            {
+                WriteCore([value]);
+            }
+        }
+
+        private void WriteCore(ReadOnlySpan<byte> buffer)
+        {
+            Debug.Assert(Monitor.IsEntered(_sync));
+
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
+            _buffer.EnsureAvailableSpace(buffer.Length);
+
+            buffer.CopyTo(_buffer.AvailableSpan);
+
+            _buffer.Commit(buffer.Length);
+
+            Monitor.PulseAll(_sync);
+        }
+
+        // We provide overrides for async Write methods but not async Read.
+        // The default implementations from the base class effectively call the
+        // sync methods on a threadpool thread, but only allowing one async
+        // operation at a time (for protecting thread-unsafe implementations).
+        // This constraint is desirable for reads because if there were multiple
+        // readers and no data coming in, our current Monitor.Wait implementation
+        // would just block as many threadpool threads as there are readers.
+        // But since a write is just short-lived buffer copying and can unblock
+        // readers, it is beneficial to circumvent the one-at-a-time constraint,
+        // as otherwise a waiting async read will block the async write that could
+        // unblock it.
+
+        /// <inheritdoc/>
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+#if !NET
+            ThrowHelper.
+#endif
+            ValidateBufferArguments(buffer, offset, count);
+
+            return WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+        }
+
+#if NETSTANDARD2_1 || NET
+        /// <inheritdoc/>
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+#else
+        private async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+#endif
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!Monitor.TryEnter(_sync))
+            {
+                // If we cannot immediately enter the lock and complete the write
+                // synchronously, then go async and wait for it there.
+                // This is not great! But since there is very little work being
+                // done under the lock, this should be a rare case and we should
+                // not be blocking threads for long.
+
+                await Task.Yield();
+
+                Monitor.Enter(_sync);
+            }
+
+            try
+            {
+                WriteCore(buffer.Span);
+            }
+            finally
+            {
+                Monitor.Exit(_sync);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            return TaskToAsyncResult.Begin(WriteAsync(buffer, offset, count), callback, state);
+        }
+
+        /// <inheritdoc/>
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            TaskToAsyncResult.End(asyncResult);
+        }
+
+        /// <summary>
+        /// This method does nothing.
+        /// </summary>
+        public override void Flush()
+        {
+        }
+
+        /// <summary>
+        /// This method does nothing.
+        /// </summary>
+        /// <param name="cancellationToken">Unobserved cancellation token.</param>
+        /// <returns><see cref="Task.CompletedTask"/>.</returns>
+        public override Task FlushAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -221,8 +293,7 @@ namespace Renci.SshNet.Common
             {
                 lock (_sync)
                 {
-                    AssertValid();
-                    return _tail - _head;
+                    return _buffer.ActiveLength;
                 }
             }
         }

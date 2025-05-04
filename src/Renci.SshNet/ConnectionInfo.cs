@@ -398,7 +398,6 @@ namespace Renci.SshNet
             hostAlgs.Add("rsa-sha2-512-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("rsa-sha2-512-cert-v01@openssh.com", cert, new RsaDigitalSignature((RsaKey)cert.Key, HashAlgorithmName.SHA512), hostAlgs); });
             hostAlgs.Add("rsa-sha2-256-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("rsa-sha2-256-cert-v01@openssh.com", cert, new RsaDigitalSignature((RsaKey)cert.Key, HashAlgorithmName.SHA256), hostAlgs); });
             hostAlgs.Add("ssh-rsa-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-rsa-cert-v01@openssh.com", cert, hostAlgs); });
-            hostAlgs.Add("ssh-dss-cert-v01@openssh.com", data => { var cert = new Certificate(data); return new CertificateHostAlgorithm("ssh-dss-cert-v01@openssh.com", cert, hostAlgs); });
             hostAlgs.Add("ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(new SshKeyData(data))));
             hostAlgs.Add("ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(new SshKeyData(data))));
             hostAlgs.Add("ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(new SshKeyData(data))));

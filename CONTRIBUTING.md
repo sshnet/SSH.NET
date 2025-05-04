@@ -41,3 +41,11 @@ The tests always log to the console. See the [Logging documentation](https://ssh
 ### Wireshark
 
 Wireshark is able to dissect initial connection packets, such as key exchange, before encryption happens. Enter "ssh" as the display filter. See https://wiki.wireshark.org/SSH.md for more information.
+
+The Debug build of SSH.NET has helpers to also allow dissection of the encrypted traffic by dumping the session keys in a format that Wireshark understands. Set a value for `SshNetLoggingConfiguration.WiresharkKeyLogFilePath` before connecting, and supply the same value to Wireshark in Edit -> Preferences -> Protocols -> SSH -> "Key log filename".
+
+```c#
+using Renci.SshNet;
+
+SshNetLoggingConfiguration.WiresharkKeyLogFilePath = @"C:\tmp\sshkeylogfile.txt";
+```

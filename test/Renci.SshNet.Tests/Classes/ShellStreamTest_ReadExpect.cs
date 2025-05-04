@@ -71,6 +71,23 @@ namespace Renci.SshNet.Tests.Classes
             CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("orld!llo W\0\0"), buffer);
         }
 
+#if NET
+        [TestMethod]
+        public void Read_Bytes_Span()
+        {
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello "));
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("World!"));
+
+            byte[] buffer = new byte[12];
+
+            Assert.AreEqual(7, _shellStream.Read(buffer.AsSpan(3, 7)));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("\0\0\0Hello W\0\0"), buffer);
+
+            Assert.AreEqual(5, _shellStream.Read(buffer));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("orld!llo W\0\0"), buffer);
+        }
+#endif
+
         [TestMethod]
         public void Channel_DataReceived_MoreThanBufferSize()
         {
@@ -172,6 +189,22 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(0, await readTask);
         }
 
+#if NET
+        [TestMethod]
+        public async Task Read_EmptySpan_OnlyReturnsZeroWhenDataAvailable()
+        {
+            ValueTask<int> readTask = _shellStream.ReadAsync(Memory<byte>.Empty);
+
+            await Task.Delay(50);
+
+            Assert.IsFalse(readTask.IsCompleted);
+
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("Hello World!"));
+
+            Assert.AreEqual(0, await readTask);
+        }
+#endif
+
         [TestMethod]
         public void Expect()
         {
@@ -196,6 +229,7 @@ namespace Renci.SshNet.Tests.Classes
             _shellStream.Dispose(); // Check that multiple Dispose is OK.
 #pragma warning restore S3966 // Objects should not be disposed more than once
 
+            Assert.IsTrue(_shellStream.CanRead);
             Assert.AreEqual("Hello World!", _shellStream.ReadLine());
             Assert.IsNull(_shellStream.ReadLine());
         }

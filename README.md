@@ -8,12 +8,12 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
 ## Key Features
 
-* Execution of SSH command using both synchronous and asynchronous methods
+* Execution of SSH commands using both synchronous and asynchronous methods
 * SFTP functionality for both synchronous and asynchronous operations
 * SCP functionality
-* Remote, dynamic and local port forwarding 
+* Remote, dynamic and local port forwarding
 * Interactive shell/terminal implementation
-* Authentication via publickey, password and keyboard-interactive methods, including multi-factor
+* Authentication via public key, password and keyboard-interactive methods, including multi-factor
 * Connection via SOCKS4, SOCKS5 or HTTP proxy
 
 ## How to Use
@@ -52,12 +52,12 @@ using (var client = new SftpClient("sftp.foo.com", "guest", "pwd"))
 
 The main types provided by this library are:
 
-* Renci.SshNet.SshClient
-* Renci.SshNet.SftpClient
-* Renci.SshNet.ScpClient
-* Renci.SshNet.PrivateKeyFile
-* Renci.SshNet.SshCommand
-* Renci.SshNet.ShellStream
+* [Renci.SshNet.SshClient](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.SshClient.html)
+* [Renci.SshNet.SftpClient](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.SftpClient.html)
+* [Renci.SshNet.PrivateKeyFile](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.PrivateKeyFile.html)
+* [Renci.SshNet.SshCommand](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.SshCommand.html)
+* [Renci.SshNet.ForwardedPort](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.ForwardedPort.html)
+* [Renci.SshNet.ShellStream](https://sshnet.github.io/SSH.NET/api/Renci.SshNet.ShellStream.html)
 
 ## Additional Documentation
 
@@ -106,11 +106,6 @@ The main types provided by this library are:
   * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
   * OpenSSH key format ("BEGIN OPENSSH PRIVATE KEY")
   * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
-* DSA in
-  * OpenSSL traditional PEM format ("BEGIN DSA PRIVATE KEY")
-  * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
-  * ssh.com format ("BEGIN SSH2 ENCRYPTED PRIVATE KEY")
-  * PuTTY private key format ("PuTTY-User-Key-File-2", "PuTTY-User-Key-File-3")
 * ECDSA 256/384/521 in
   * OpenSSL traditional PEM format ("BEGIN EC PRIVATE KEY")
   * OpenSSL PKCS#8 PEM format ("BEGIN PRIVATE KEY", "BEGIN ENCRYPTED PRIVATE KEY")
@@ -158,7 +153,8 @@ Private keys in PuTTY private key format can be encrypted using the following ci
 * rsa-sha2-512
 * rsa-sha2-256
 * ssh-rsa
-* ssh-dss
+
+OpenSSH certificate authentication is supported for all of the above, e.g. ssh-ed25519-cert-v01<span></span>@openssh.com.
 
 ## Message Authentication Code
 
@@ -187,16 +183,16 @@ Private keys in PuTTY private key format can be encrypted using the following ci
 
 The library has no special requirements to build, other than an up-to-date .NET SDK. See also [CONTRIBUTING.md](https://github.com/sshnet/SSH.NET/blob/develop/CONTRIBUTING.md).
 
-## Using Pre-Release NuGet Package
+## Using Pre-Release NuGet Packages
 
-If you need an unreleased bugfix or feature, you can use the Pre-Release NuGet packages from the `develop` branch which are published to the [GitHub NuGet Registry](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
-In order to pull packages from the registry you first have to create a Personal Access Token with the `read:packages` permissions. Then add a NuGet Source for SSH.NET:
-
-Note: you may have to add `--store-password-in-clear-text` on non-Windows platforms.
+Pre-release NuGet packages are published from the `develop` branch to the [GitHub NuGet Registry](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
+In order to pull packages from the registry, create a Personal Access Token with the `read:packages` permissions. Then add a package source for SSH.NET:
 
 ```
 dotnet nuget add source --name SSH.NET --username <username> --password <personalaccesstoken> https://nuget.pkg.github.com/sshnet/index.json
 ```
+
+Note: you may have to add `--store-password-in-clear-text` on non-Windows platforms.
 
 Then you can add the the package as described [here](https://github.com/sshnet/SSH.NET/pkgs/nuget/SSH.NET).
 

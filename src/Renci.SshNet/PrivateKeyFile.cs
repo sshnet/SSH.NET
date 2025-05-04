@@ -26,9 +26,6 @@ namespace Renci.SshNet
     ///         <description>RSA in OpenSSL PEM, ssh.com, OpenSSH and PuTTY key format</description>
     ///     </item>
     ///     <item>
-    ///         <description>DSA in OpenSSL PEM, ssh.com and PuTTY key format</description>
-    ///     </item>
-    ///     <item>
     ///         <description>ECDSA 256/384/521 in OpenSSL PEM, OpenSSH and PuTTY key format</description>
     ///     </item>
     ///     <item>
@@ -319,7 +316,6 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
-                case "DSA PRIVATE KEY":
                 case "EC PRIVATE KEY":
                     var cipherName = privateKeyMatch.Result("${cipherName}");
                     var salt = privateKeyMatch.Result("${salt}");

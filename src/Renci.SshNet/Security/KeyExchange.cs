@@ -19,6 +19,7 @@ namespace Renci.SshNet.Security
     public abstract class KeyExchange : Algorithm, IKeyExchange
     {
         private readonly ILogger _logger;
+        private Func<byte[], KeyHostAlgorithm> _hostKeyAlgorithmFactory;
         private CipherInfo _clientCipherInfo;
         private CipherInfo _serverCipherInfo;
         private HashInfo _clientHashInfo;
@@ -81,6 +82,33 @@ namespace Renci.SshNet.Security
                 SendMessage(session.ClientInitMessage);
             }
 
+            // Determine host key algorithm
+            var hostKeyAlgorithmName = (from b in session.ConnectionInfo.HostKeyAlgorithms.Keys
+                                        from a in message.ServerHostKeyAlgorithms
+                                        where a == b
+                                        select a).FirstOrDefault();
+
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("[{SessionId}] Host key algorithm: we offer {WeOffer}",
+                    Session.SessionIdHex,
+                    session.ConnectionInfo.HostKeyAlgorithms.Keys.Join(","));
+
+                _logger.LogTrace("[{SessionId}] Host key algorithm: they offer {TheyOffer}",
+                    Session.SessionIdHex,
+                    message.ServerHostKeyAlgorithms.Join(","));
+            }
+
+            if (hostKeyAlgorithmName is null)
+            {
+                throw new SshConnectionException(
+                    $"No matching host key algorithm (server offers {message.ServerHostKeyAlgorithms.Join(",")})",
+                    DisconnectReason.KeyExchangeFailed);
+            }
+
+            session.ConnectionInfo.CurrentHostKeyAlgorithm = hostKeyAlgorithmName;
+            _hostKeyAlgorithmFactory = session.ConnectionInfo.HostKeyAlgorithms[hostKeyAlgorithmName];
+
             // Determine client encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer
@@ -98,9 +126,11 @@ namespace Renci.SshNet.Security
                     message.EncryptionAlgorithmsClientToServer.Join(","));
             }
 
-            if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
+            if (clientEncryptionAlgorithmName is null)
             {
-                throw new SshConnectionException("Client encryption algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException(
+                    $"No matching client encryption algorithm (server offers {message.EncryptionAlgorithmsClientToServer.Join(",")})",
+                    DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;
@@ -123,9 +153,11 @@ namespace Renci.SshNet.Security
                     message.EncryptionAlgorithmsServerToClient.Join(","));
             }
 
-            if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
+            if (serverDecryptionAlgorithmName is null)
             {
-                throw new SshConnectionException("Server decryption algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException(
+                    $"No matching server encryption algorithm (server offers {message.EncryptionAlgorithmsServerToClient.Join(",")})",
+                    DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentServerEncryption = serverDecryptionAlgorithmName;
@@ -150,9 +182,11 @@ namespace Renci.SshNet.Security
                         message.MacAlgorithmsClientToServer.Join(","));
                 }
 
-                if (string.IsNullOrEmpty(clientHmacAlgorithmName))
+                if (clientHmacAlgorithmName is null)
                 {
-                    throw new SshConnectionException("Client HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                    throw new SshConnectionException(
+                        $"No matching client MAC algorithm (server offers {message.MacAlgorithmsClientToServer.Join(",")})",
+                        DisconnectReason.KeyExchangeFailed);
                 }
 
                 session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
@@ -178,9 +212,11 @@ namespace Renci.SshNet.Security
                         message.MacAlgorithmsServerToClient.Join(","));
                 }
 
-                if (string.IsNullOrEmpty(serverHmacAlgorithmName))
+                if (serverHmacAlgorithmName is null)
                 {
-                    throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                    throw new SshConnectionException(
+                        $"No matching server MAC algorithm (server offers {message.MacAlgorithmsServerToClient.Join(",")})",
+                        DisconnectReason.KeyExchangeFailed);
                 }
 
                 session.ConnectionInfo.CurrentServerHmacAlgorithm = serverHmacAlgorithmName;
@@ -204,9 +240,11 @@ namespace Renci.SshNet.Security
                     message.CompressionAlgorithmsClientToServer.Join(","));
             }
 
-            if (string.IsNullOrEmpty(compressionAlgorithmName))
+            if (compressionAlgorithmName is null)
             {
-                throw new SshConnectionException("Compression algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException(
+                    $"No matching client compression algorithm (server offers {message.CompressionAlgorithmsClientToServer.Join(",")})",
+                    DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentClientCompressionAlgorithm = compressionAlgorithmName;
@@ -229,9 +267,11 @@ namespace Renci.SshNet.Security
                     message.CompressionAlgorithmsServerToClient.Join(","));
             }
 
-            if (string.IsNullOrEmpty(decompressionAlgorithmName))
+            if (decompressionAlgorithmName is null)
             {
-                throw new SshConnectionException("Decompression algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException(
+                    $"No matching server compression algorithm (server offers {message.CompressionAlgorithmsServerToClient.Join(",")})",
+                    DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
@@ -245,7 +285,7 @@ namespace Renci.SshNet.Security
         {
             if (!ValidateExchangeHash())
             {
-                throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException("Host key could not be verified.", DisconnectReason.KeyExchangeFailed);
             }
 
             SendMessage(new NewKeysMessage());
@@ -449,40 +489,9 @@ namespace Renci.SshNet.Security
         {
             var exchangeHash = CalculateHash();
 
-            // We need to inspect both the key and signature format identifers to find the correct
-            // HostAlgorithm instance. Example cases:
+            var keyAlgorithm = _hostKeyAlgorithmFactory(encodedKey);
 
-            // Key identifier                Signature identifier  | Algorithm name
-            // ssh-rsa                       ssh-rsa               | ssh-rsa
-            // ssh-rsa                       rsa-sha2-256          | rsa-sha2-256
-            // ssh-rsa-cert-v01@openssh.com  ssh-rsa               | ssh-rsa-cert-v01@openssh.com
-            // ssh-rsa-cert-v01@openssh.com  rsa-sha2-256          | rsa-sha2-256-cert-v01@openssh.com
-
-            var signatureData = new KeyHostAlgorithm.SignatureKeyData();
-            signatureData.Load(encodedSignature);
-
-            string keyName;
-            using (var keyReader = new SshDataStream(encodedKey))
-            {
-                keyName = keyReader.ReadString();
-            }
-
-            string algorithmName;
-
-            if (signatureData.AlgorithmName.StartsWith("rsa-sha2", StringComparison.Ordinal))
-            {
-                algorithmName = keyName.Replace("ssh-rsa", signatureData.AlgorithmName);
-            }
-            else
-            {
-                algorithmName = keyName;
-            }
-
-            var keyAlgorithm = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](encodedKey);
-
-            Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
-
-            return keyAlgorithm.VerifySignatureBlob(exchangeHash, signatureData.Signature) && CanTrustHostKey(keyAlgorithm);
+            return keyAlgorithm.VerifySignature(exchangeHash, encodedSignature) && CanTrustHostKey(keyAlgorithm);
         }
 
         /// <summary>

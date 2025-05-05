@@ -415,16 +415,24 @@ namespace Renci.SshNet.IntegrationTests
             {
                 client.HostKeyReceived += (sender, e) => { e.CanTrust = false; };
 
-                try
-                {
-                    client.Connect();
-                    Assert.Fail();
-                }
-                catch (SshConnectionException ex)
-                {
-                    Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("Key exchange negotiation failed.", ex.Message);
-                }
+                var ex = Assert.Throws<SshConnectionException>(client.Connect);
+
+                Assert.AreEqual(DisconnectReason.KeyExchangeFailed, ex.DisconnectReason);
+                Assert.AreEqual("Host key could not be verified.", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void Common_HostKeyAlgorithms_NoMatch()
+        {
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.ConnectionInfo.HostKeyAlgorithms.Clear();
+
+                var ex = Assert.Throws<SshConnectionException>(client.Connect);
+
+                Assert.AreEqual(DisconnectReason.KeyExchangeFailed, ex.DisconnectReason);
+                Assert.IsTrue(ex.Message.StartsWith("No matching host key algorithm"), ex.Message);
             }
         }
 

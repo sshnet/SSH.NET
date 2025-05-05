@@ -101,7 +101,7 @@ namespace Renci.SshNet
 
             if (keyExchangeAlgorithmFactory is null)
             {
-                throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException($"No matching key exchange algorithm (server offers {serverAlgorithms.Join(",")})", DisconnectReason.KeyExchangeFailed);
             }
 
             return keyExchangeAlgorithmFactory();

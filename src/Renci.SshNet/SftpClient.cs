@@ -1090,9 +1090,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            var flags = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
-
-            return InternalUploadFileAsync(input, path, flags, cancellationToken);
+            return InternalUploadFileAsync(input, path, FileMode.Create, cancellationToken);
         }
 
         /// <summary>
@@ -2464,12 +2462,11 @@ namespace Renci.SshNet
             cancellationToken.ThrowIfCancellationRequested();
 
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Read, cancellationToken).ConfigureAwait(false);
+            var openStreamTask = SftpFileStream.OpenAsync(_sftpSession, fullPath, FileMode.Open, FileAccess.Read, (int)_bufferSize, cancellationToken);
 
-            using (var input = new SftpFileStream(_sftpSession, fullPath, FileAccess.Read, (int)_bufferSize, handle, 0L))
+            using (var input = await openStreamTask.ConfigureAwait(false))
             {
-                var bufferSize = (int)_sftpSession.CalculateOptimalReadLength(_bufferSize);
-                await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
+                await input.CopyToAsync(output, 81920, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -2555,7 +2552,7 @@ namespace Renci.SshNet
             responseReceivedWaitHandle.Dispose();
         }
 
-        private async Task InternalUploadFileAsync(Stream input, string path, Flags flags, CancellationToken cancellationToken)
+        private async Task InternalUploadFileAsync(Stream input, string path, FileMode fileMode, CancellationToken cancellationToken)
         {
             ThrowHelper.ThrowIfNull(input);
             ThrowHelper.ThrowIfNullOrWhiteSpace(path);
@@ -2568,12 +2565,11 @@ namespace Renci.SshNet
             cancellationToken.ThrowIfCancellationRequested();
 
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            var handle = await _sftpSession.RequestOpenAsync(fullPath, Flags.Write | flags, cancellationToken).ConfigureAwait(false);
+            var openStreamTask = SftpFileStream.OpenAsync(_sftpSession, fullPath, fileMode, FileAccess.Write, (int)_bufferSize, cancellationToken);
 
-            using (var output = new SftpFileStream(_sftpSession, fullPath, FileAccess.Write, (int)_bufferSize, handle, 0L))
+            using (var output = await openStreamTask.ConfigureAwait(false))
             {
-                var bufferSize = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
-                await input.CopyToAsync(output, bufferSize, cancellationToken).ConfigureAwait(false);
+                await input.CopyToAsync(output, 81920, cancellationToken).ConfigureAwait(false);
             }
         }
 

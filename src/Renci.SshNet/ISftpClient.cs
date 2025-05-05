@@ -556,40 +556,34 @@ namespace Renci.SshNet
         Task DeleteFileAsync(string path, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Downloads remote file specified by the path into the stream.
+        /// Downloads a remote file into a <see cref="Stream"/>.
         /// </summary>
-        /// <param name="path">File to download.</param>
-        /// <param name="output">Stream to write the file into.</param>
+        /// <param name="path">The path to the remote file.</param>
+        /// <param name="output">The <see cref="Stream"/> to write the file into.</param>
         /// <param name="downloadCallback">The download callback.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is empty or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>///
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
         void DownloadFile(string path, Stream output, Action<ulong>? downloadCallback = null);
 
         /// <summary>
-        /// Asynchronously downloads remote file specified by the path into the stream.
+        /// Asynchronously downloads a remote file into a <see cref="Stream"/>.
         /// </summary>
-        /// <param name="path">File to download.</param>
-        /// <param name="output">Stream to write the file into.</param>
+        /// <param name="path">The path to the remote file.</param>
+        /// <param name="output">The <see cref="Stream"/> to write the file into.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous download operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is empty or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>///
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
         Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -1089,52 +1083,46 @@ namespace Renci.SshNet
         IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern);
 
         /// <summary>
-        /// Uploads stream into remote file.
+        /// Uploads a <see cref="Stream"/> to a remote file path.
         /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
+        /// <param name="input">The <see cref="Stream"/> to write to the remote path.</param>
+        /// <param name="path">The remote file path to write to.</param>
         /// <param name="uploadCallback">The upload callback.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> or <paramref name="path" /> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is empty or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
         void UploadFile(Stream input, string path, Action<ulong>? uploadCallback = null);
 
         /// <summary>
-        /// Uploads stream into remote file.
+        /// Uploads a <see cref="Stream"/> to a remote file path.
         /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
-        /// <param name="canOverride">if set to <see langword="true"/> then existing file will be overwritten.</param>
+        /// <param name="input">The <see cref="Stream"/> to write to the remote path.</param>
+        /// <param name="path">The remote file path to write to.</param>
+        /// <param name="canOverride">Whether the remote file can be overwritten if it already exists.</param>
         /// <param name="uploadCallback">The upload callback.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> or <paramref name="path" /> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is empty or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
         void UploadFile(Stream input, string path, bool canOverride, Action<ulong>? uploadCallback = null);
 
         /// <summary>
-        /// Asynchronously uploads stream into remote file.
+        /// Asynchronously uploads a <see cref="Stream"/> to a remote file path.
         /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
+        /// <param name="input">The <see cref="Stream"/> to write to the remote path.</param>
+        /// <param name="path">The remote file path to write to.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="input"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is empty or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default);
 

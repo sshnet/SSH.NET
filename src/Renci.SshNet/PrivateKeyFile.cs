@@ -6,9 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using Renci.SshNet.Common;
@@ -26,9 +24,6 @@ namespace Renci.SshNet
     /// <list type="bullet">
     ///     <item>
     ///         <description>RSA in OpenSSL PEM, ssh.com, OpenSSH and PuTTY key format</description>
-    ///     </item>
-    ///     <item>
-    ///         <description>DSA in OpenSSL PEM, ssh.com and PuTTY key format</description>
     ///     </item>
     ///     <item>
     ///         <description>ECDSA 256/384/521 in OpenSSL PEM, OpenSSH and PuTTY key format</description>
@@ -321,7 +316,6 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA PRIVATE KEY":
-                case "DSA PRIVATE KEY":
                 case "EC PRIVATE KEY":
                     var cipherName = privateKeyMatch.Result("${cipherName}");
                     var salt = privateKeyMatch.Result("${salt}");
@@ -471,65 +465,6 @@ namespace Renci.SshNet
                 disposableKey.Dispose();
 
                 _isDisposed = true;
-            }
-        }
-
-        private sealed class SshDataReader : SshData
-        {
-            public SshDataReader(byte[] data)
-            {
-                Load(data);
-            }
-
-            public new uint ReadUInt32()
-            {
-                return base.ReadUInt32();
-            }
-
-            public new string ReadString(Encoding encoding)
-            {
-                return base.ReadString(encoding);
-            }
-
-            public new byte[] ReadBytes(int length)
-            {
-                return base.ReadBytes(length);
-            }
-
-            public new byte[] ReadBytes()
-            {
-                return base.ReadBytes();
-            }
-
-            /// <summary>
-            /// Reads next mpint data type from internal buffer where length specified in bits.
-            /// </summary>
-            /// <returns>mpint read.</returns>
-            public BigInteger ReadBigIntWithBits()
-            {
-                var length = (int)base.ReadUInt32();
-
-                length = (length + 7) / 8;
-
-                return base.ReadBytes(length).ToBigInteger2();
-            }
-
-            public BigInteger ReadBignum()
-            {
-                return DataStream.ReadBigInt();
-            }
-
-            public byte[] ReadBignum2()
-            {
-                return ReadBinary();
-            }
-
-            protected override void LoadData()
-            {
-            }
-
-            protected override void SaveData()
-            {
             }
         }
 

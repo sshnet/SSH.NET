@@ -1,4 +1,5 @@
 #if NETFRAMEWORK || NETSTANDARD2_0
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,8 +9,15 @@ namespace Renci.SshNet.Abstractions
     {
         public static ValueTask DisposeAsync(this Stream stream)
         {
-            stream.Dispose();
-            return default;
+            try
+            {
+                stream.Dispose();
+                return default;
+            }
+            catch (Exception exc)
+            {
+                return new ValueTask(Task.FromException(exc));
+            }
         }
     }
 }

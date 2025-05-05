@@ -22,7 +22,6 @@ namespace Renci.SshNet.Security
         /// The value is one of the following:
         /// <list type="bullet">
         ///     <item>ssh-rsa-cert-v01@openssh.com</item>
-        ///     <item>ssh-dss-cert-v01@openssh.com</item>
         ///     <item>ecdsa-sha2-nistp256-cert-v01@openssh.com</item>
         ///     <item>ecdsa-sha2-nistp384-cert-v01@openssh.com</item>
         ///     <item>ecdsa-sha2-nistp521-cert-v01@openssh.com</item>
@@ -203,7 +202,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// The CA key used to sign the certificate.
         /// The valid key types for CA keys are ssh-rsa,
-        /// ssh-dss, ssh-ed25519 and the ECDSA types ecdsa-sha2-nistp256,
+        /// ssh-ed25519 and the ECDSA types ecdsa-sha2-nistp256,
         /// ecdsa-sha2-nistp384, ecdsa-sha2-nistp521. "Chained" certificates, where
         /// the signature key type is a certificate type itself are NOT supported.
         /// Note that it is possible for a RSA certificate key to be signed by a

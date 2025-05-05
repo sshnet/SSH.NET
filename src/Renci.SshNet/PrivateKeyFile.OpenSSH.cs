@@ -32,7 +32,7 @@ namespace Renci.SshNet
             /// </summary>
             public Key Parse()
             {
-                var keyReader = new SshDataReader(_data);
+                var keyReader = new SshDataStream(_data);
 
                 // check magic header
                 var authMagic = "openssh-key-v1\0"u8;
@@ -171,7 +171,7 @@ namespace Renci.SshNet
                 // now parse the data we called the private key, it actually contains the public key again
                 // so we need to parse through it to get the private key bytes, plus there's some
                 // validation we need to do.
-                var privateKeyReader = new SshDataReader(privateKeyBytes);
+                var privateKeyReader = new SshDataStream(privateKeyBytes);
 
                 // check ints should match, they wouldn't match for example if the wrong passphrase was supplied
                 var checkInt1 = (int)privateKeyReader.ReadUInt32();
@@ -196,33 +196,29 @@ namespace Renci.SshNet
                         // https://datatracker.ietf.org/doc/html/draft-miller-ssh-agent-11#section-3.2.3
 
                         // ENC(A)
-                        _ = privateKeyReader.ReadBignum2();
+                        _ = privateKeyReader.ReadBinarySegment();
 
                         // k || ENC(A)
-                        unencryptedPrivateKey = privateKeyReader.ReadBignum2();
+                        unencryptedPrivateKey = privateKeyReader.ReadBinary();
                         parsedKey = new ED25519Key(unencryptedPrivateKey);
                         break;
                     case "ecdsa-sha2-nistp256":
                     case "ecdsa-sha2-nistp384":
                     case "ecdsa-sha2-nistp521":
-                        // curve
-                        var len = (int)privateKeyReader.ReadUInt32();
-                        var curve = Encoding.ASCII.GetString(privateKeyReader.ReadBytes(len));
+                        var curve = privateKeyReader.ReadString(Encoding.ASCII);
 
-                        // public key
-                        publicKey = privateKeyReader.ReadBignum2();
+                        publicKey = privateKeyReader.ReadBinary();
 
-                        // private key
-                        unencryptedPrivateKey = privateKeyReader.ReadBignum2();
+                        unencryptedPrivateKey = privateKeyReader.ReadBinary();
                         parsedKey = new EcdsaKey(curve, publicKey, unencryptedPrivateKey.TrimLeadingZeros());
                         break;
                     case "ssh-rsa":
-                        var modulus = privateKeyReader.ReadBignum(); // n
-                        var exponent = privateKeyReader.ReadBignum(); // e
-                        var d = privateKeyReader.ReadBignum(); // d
-                        var inverseQ = privateKeyReader.ReadBignum(); // iqmp
-                        var p = privateKeyReader.ReadBignum(); // p
-                        var q = privateKeyReader.ReadBignum(); // q
+                        var modulus = privateKeyReader.ReadBigInt();
+                        var exponent = privateKeyReader.ReadBigInt();
+                        var d = privateKeyReader.ReadBigInt();
+                        var inverseQ = privateKeyReader.ReadBigInt();
+                        var p = privateKeyReader.ReadBigInt();
+                        var q = privateKeyReader.ReadBigInt();
                         parsedKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
                         break;
                     default:
@@ -233,14 +229,17 @@ namespace Renci.SshNet
 
                 // The list of privatekey/comment pairs is padded with the bytes 1, 2, 3, ...
                 // until the total length is a multiple of the cipher block size.
-                var padding = privateKeyReader.ReadBytes();
-                for (var i = 0; i < padding.Length; i++)
+                int b, i = 0;
+
+                while ((b = privateKeyReader.ReadByte()) != -1)
                 {
-                    if ((int)padding[i] != i + 1)
+                    if (b != i + 1)
                     {
                         throw new SshException("Padding of openssh key format contained wrong byte at position: " +
                                                i.ToString(CultureInfo.InvariantCulture));
                     }
+
+                    i++;
                 }
 
                 return parsedKey;

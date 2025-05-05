@@ -19,7 +19,9 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal static class Extensions
     {
+#pragma warning disable S4136 // Method overloads should be grouped together
         internal static byte[] ToArray(this ServiceName serviceName)
+#pragma warning restore S4136 // Method overloads should be grouped together
         {
             switch (serviceName)
             {
@@ -381,6 +383,28 @@ namespace Renci.SshNet.Common
 
             value = default;
             return false;
+        }
+
+        internal static ArraySegment<T> Slice<T>(this ArraySegment<T> arraySegment, int index)
+        {
+            return new ArraySegment<T>(arraySegment.Array, arraySegment.Offset + index, arraySegment.Count - index);
+        }
+
+        internal static ArraySegment<T> Slice<T>(this ArraySegment<T> arraySegment, int index, int count)
+        {
+            return new ArraySegment<T>(arraySegment.Array, arraySegment.Offset + index, count);
+        }
+
+        internal static T[] ToArray<T>(this ArraySegment<T> arraySegment)
+        {
+            if (arraySegment.Count == 0)
+            {
+                return Array.Empty<T>();
+            }
+
+            var array = new T[arraySegment.Count];
+            Array.Copy(arraySegment.Array, arraySegment.Offset, array, 0, arraySegment.Count);
+            return array;
         }
 #endif
     }

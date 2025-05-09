@@ -675,11 +675,7 @@ namespace Renci.SshNet
         /// <param name="fileOrDirectory">The file or directory to upload.</param>
         private void UploadTimes(IChannelSession channel, Stream input, FileSystemInfo fileOrDirectory)
         {
-#if NET
             var zeroTime = DateTime.UnixEpoch;
-#else
-            var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-#endif
             var modificationSeconds = (long)(fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
             var accessSeconds = (long)(fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
             SendData(channel, string.Format(CultureInfo.InvariantCulture, "T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
@@ -856,11 +852,7 @@ namespace Renci.SshNet
                     var mtime = long.Parse(match.Result("${mtime}"), CultureInfo.InvariantCulture);
                     var atime = long.Parse(match.Result("${atime}"), CultureInfo.InvariantCulture);
 
-#if NET
                     var zeroTime = DateTime.UnixEpoch;
-#else
-                    var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-#endif
                     modifiedTime = zeroTime.AddSeconds(mtime);
                     accessedTime = zeroTime.AddSeconds(atime);
                     continue;

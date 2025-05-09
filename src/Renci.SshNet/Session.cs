@@ -5,9 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-#if !NET
-using System.Text;
-#endif
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -310,7 +307,7 @@ namespace Renci.SshNet
             private set
             {
                 _sessionId = value;
-                SessionIdHex = ToHex(value);
+                SessionIdHex = value == null ? null : Convert.ToHexString(value);
             }
         }
 
@@ -1592,7 +1589,7 @@ namespace Renci.SshNet
             {
                 System.IO.File.AppendAllText(
                     path,
-                    $"{ToHex(ClientInitMessage.Cookie)} SHARED_SECRET {ToHex(kex.SharedKey)}{Environment.NewLine}");
+                    $"{Convert.ToHexString(ClientInitMessage.Cookie)} SHARED_SECRET {Convert.ToHexString(kex.SharedKey)}{Environment.NewLine}");
             }
 #endif
 
@@ -1859,27 +1856,6 @@ namespace Renci.SshNet
             }
 
             return message;
-        }
-
-        private static string ToHex(byte[] bytes)
-        {
-            if (bytes is null)
-            {
-                return null;
-            }
-
-#if NET
-            return Convert.ToHexString(bytes);
-#else
-            var builder = new StringBuilder(bytes.Length * 2);
-
-            foreach (var b in bytes)
-            {
-                builder.Append(b.ToString("X2"));
-            }
-
-            return builder.ToString();
-#endif
         }
 
         /// <summary>

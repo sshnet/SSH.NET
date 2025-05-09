@@ -82,11 +82,7 @@ namespace Renci.SshNet
                                     Convert.ToInt32(_argon2Iterations),
                                     Convert.ToInt32(_argon2Memory),
                                     Convert.ToInt32(_argon2Parallelism),
-#if NET
                                     Convert.FromHexString(_argon2Salt),
-#else
-                                    Org.BouncyCastle.Utilities.Encoders.Hex.Decode(_argon2Salt),
-#endif
                                     _passPhrase);
 
                                 cipherKey = keyData.Take(32);
@@ -152,11 +148,9 @@ namespace Renci.SshNet
                 {
                     macValue = hmac.ComputeHash(macData);
                 }
-#if NET
+
                 var reference = Convert.FromHexString(_mac);
-#else
-                var reference = Org.BouncyCastle.Utilities.Encoders.Hex.Decode(_mac);
-#endif
+
                 if (!macValue.SequenceEqual(reference))
                 {
                     throw new SshException("MAC verification failed for PuTTY key file");

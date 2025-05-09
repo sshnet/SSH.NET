@@ -386,11 +386,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
-#if NET
             Write(string.Join(',', data), Ascii);
-#else
-            Write(string.Join(",", data), Ascii);
-#endif
         }
 
         /// <summary>

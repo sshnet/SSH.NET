@@ -1,5 +1,7 @@
 ﻿using System;
+#if !NET
 using System.Collections.Generic;
+#endif
 using System.Globalization;
 #if !NET
 using System.IO;
@@ -337,13 +339,6 @@ namespace Renci.SshNet.Common
             }
 
             return socket.Connected;
-        }
-
-        internal static string Join(this IEnumerable<string> values, string separator)
-        {
-            // Used to avoid analyzers asking to "use an overload with a char parameter"
-            // which is not available on all targets.
-            return string.Join(separator, values);
         }
 
 #if !NET

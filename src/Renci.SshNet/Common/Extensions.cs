@@ -50,7 +50,7 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this ReadOnlySpan<byte> data)
         {
-#if NETSTANDARD2_1 || NET
+#if NET
             return new BigInteger(data, isBigEndian: true);
 #else
             var reversed = data.ToArray();
@@ -61,7 +61,7 @@ namespace Renci.SshNet.Common
 
         internal static BigInteger ToBigInteger(this byte[] data)
         {
-#if NETSTANDARD2_1 || NET
+#if NET
             return new BigInteger(data, isBigEndian: true);
 #else
             var reversed = new byte[data.Length];
@@ -76,7 +76,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
-#if NETSTANDARD2_1 || NET
+#if NET
             return new BigInteger(data, isBigEndian: true, isUnsigned: true);
 #else
             if ((data[0] & (1 << 7)) != 0)
@@ -91,7 +91,7 @@ namespace Renci.SshNet.Common
 #endif
         }
 
-#if NETFRAMEWORK || NETSTANDARD2_0
+#if !NET
         public static byte[] ToByteArray(this BigInteger bigInt, bool isUnsigned = false, bool isBigEndian = false)
         {
             var data = bigInt.ToByteArray();
@@ -361,7 +361,7 @@ namespace Renci.SshNet.Common
             return string.Join(separator, values);
         }
 
-#if NETFRAMEWORK || NETSTANDARD2_0
+#if !NET
         internal static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (!dictionary.ContainsKey(key))

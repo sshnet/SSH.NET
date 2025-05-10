@@ -59,7 +59,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-#if NETFRAMEWORK || NETSTANDARD2_0
+#if !NET
         private void Write(ReadOnlySpan<byte> buffer)
         {
             var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
@@ -129,7 +129,7 @@ namespace Renci.SshNet.Common
             ThrowHelper.ThrowIfNull(s);
             ThrowHelper.ThrowIfNull(encoding);
 
-#if NETSTANDARD2_1 || NET
+#if NET
             ReadOnlySpan<char> value = s;
             var count = encoding.GetByteCount(value);
             var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
@@ -220,7 +220,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public BigInteger ReadBigInt()
         {
-#if NETSTANDARD2_1 || NET
+#if NET
             var data = ReadBinarySegment();
             return new BigInteger(data, isBigEndian: true);
 #else

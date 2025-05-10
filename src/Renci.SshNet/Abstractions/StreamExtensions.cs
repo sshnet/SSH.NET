@@ -1,4 +1,4 @@
-#if NETFRAMEWORK || NETSTANDARD2_0
+#if !NET
 using System;
 using System.IO;
 using System.Threading.Tasks;

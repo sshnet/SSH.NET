@@ -55,7 +55,7 @@ namespace Renci.SshNet.Messages.Authentication
             PartialSuccess = ReadBoolean();
             if (PartialSuccess)
             {
-#if NET || NETSTANDARD2_1
+#if NET
                 Message = string.Join(',', AllowedAuthentications);
 #else
                 Message = string.Join(",", AllowedAuthentications);

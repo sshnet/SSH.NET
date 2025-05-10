@@ -147,7 +147,7 @@ namespace Renci.SshNet.Security
                 Buffer.BlockCopy(qy, 0, q, qx.Length + 1, qy.Length);
 
                 // returns Curve-Name and x/y as ECPoint
-#if NETSTANDARD2_1 || NET
+#if NET
                 return new[] { curve, new BigInteger(q, isBigEndian: true) };
 #else
                 Array.Reverse(q);

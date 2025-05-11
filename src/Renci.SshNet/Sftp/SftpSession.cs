@@ -2272,7 +2272,7 @@ namespace Renci.SshNet.Sftp
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
         }
 
-        private static SshException GetSftpException(SftpStatusResponse response)
+        internal static SshException GetSftpException(SftpStatusResponse response)
         {
 #pragma warning disable IDE0010 // Add missing cases
             switch (response.StatusCode)

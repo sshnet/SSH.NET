@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Threading;
@@ -914,6 +915,8 @@ namespace Renci.SshNet.Sftp
                                  AutoResetEvent wait,
                                  Action<SftpStatusResponse> writeCompleted = null)
         {
+            Debug.Assert((wait is null) != (writeCompleted is null), "Should have one parameter or the other.");
+
             SshException exception = null;
 
             var request = new SftpWriteRequest(ProtocolVersion,
@@ -925,10 +928,15 @@ namespace Renci.SshNet.Sftp
                                                length,
                                                response =>
                                                {
-                                                   writeCompleted?.Invoke(response);
-
-                                                   exception = GetSftpException(response);
-                                                   wait?.SetIgnoringObjectDisposed();
+                                                   if (writeCompleted is not null)
+                                                   {
+                                                       writeCompleted.Invoke(response);
+                                                   }
+                                                   else
+                                                   {
+                                                       exception = GetSftpException(response);
+                                                       wait.SetIgnoringObjectDisposed();
+                                                   }
                                                });
 
             SendRequest(request);
@@ -936,11 +944,11 @@ namespace Renci.SshNet.Sftp
             if (wait is not null)
             {
                 WaitOnHandle(wait, OperationTimeout);
-            }
 
-            if (exception is not null)
-            {
-                throw exception;
+                if (exception is not null)
+                {
+                    throw exception;
+                }
             }
         }
 

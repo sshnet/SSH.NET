@@ -2460,6 +2460,10 @@ namespace Renci.SshNet
 
             int bytesRead;
             var expectedResponses = 0;
+
+            // We will send out all the write requests without waiting for each response.
+            // Afterwards, we may wait on this handle until all responses are received
+            // or an error has occured.
             using var mres = new ManualResetEventSlim(initialState: false);
 
             ExceptionDispatchInfo? exception = null;
@@ -2484,11 +2488,6 @@ namespace Renci.SshNet
 
                     try
                     {
-                        if (Interlocked.Decrement(ref expectedResponses) == 0)
-                        {
-                            setHandle = true;
-                        }
-
                         if (Sftp.SftpSession.GetSftpException(s) is Exception ex)
                         {
                             exception = ExceptionDispatchInfo.Capture(ex);
@@ -2513,7 +2512,7 @@ namespace Renci.SshNet
                     }
                     finally
                     {
-                        if (setHandle)
+                        if (Interlocked.Decrement(ref expectedResponses) == 0 || setHandle)
                         {
                             mres.Set();
                         }
@@ -2523,7 +2522,11 @@ namespace Renci.SshNet
                 offset += (ulong)bytesRead;
             }
 
-            if (expectedResponses != 0)
+            // Make sure the read of exception cannot be executed ahead of
+            // the read of expectedResponses so that we do not miss an
+            // exception.
+
+            if (Volatile.Read(ref expectedResponses) != 0)
             {
                 _sftpSession.WaitOnHandle(mres.WaitHandle, _operationTimeout);
             }

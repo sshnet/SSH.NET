@@ -12,7 +12,7 @@
         {
         }
 
-        public StatusCodes StatusCode { get; private set; }
+        public StatusCodes StatusCode { get; set; }
 
         public string ErrorMessage { get; private set; }
 
@@ -38,6 +38,13 @@
                 // expressed as US-ASCII
                 Language = ReadString(Ascii);
             }
+        }
+
+        protected override void SaveData()
+        {
+            base.SaveData();
+
+            Write((uint)StatusCode);
         }
     }
 }

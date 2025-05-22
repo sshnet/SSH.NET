@@ -123,6 +123,50 @@ namespace Renci.SshNet.Tests.Classes
             Assert.ThrowsException<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
         }
 
+
+        [TestMethod]
+        public void WindowChangeRequest_ShouldReturnFalseWhenChannelSessionClosed()
+        {
+            var shellStream = CreateShellStream();
+            _channelSessionMock.Setup(s => s.IsOpen).Returns(false);
+            Assert.IsFalse(shellStream.ChangeWindow(80, 25, 0, 0));
+        }
+
+        [TestMethod]
+        public void WindowChangeRequest_ThrowsInvalidOperationException()
+        {
+            var shellStream = CreateShellStream();
+            _channelSessionMock.Setup(s => s.IsOpen).Returns(false);
+            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(
+                                          It.IsAny<uint>(), It.IsAny<uint>(),
+                                          It.IsAny<uint>(), It.IsAny<uint>())).Returns(false);
+            Assert.ThrowsException<InvalidOperationException>(() => shellStream.ChangeWindow(80, 25, 0, 0));
+        }
+
+        [TestMethod]
+        public void WindowChangeRequest_ThrowsObjectDisposedException()
+        {
+            var shellStream = CreateShellStream();
+
+            _channelSessionMock.Setup(p => p.Dispose());
+
+            shellStream.Dispose();
+
+            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.ChangeWindow(80, 25, 0, 0));
+        }
+
+        [TestMethod]
+        public void WindowChangeRequest_ShouldReturnTrueWhenResultSucceeds()
+        {
+            var shellStream = CreateShellStream();
+            _channelSessionMock.Setup(s => s.IsOpen).Returns(true);
+            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(
+                                          It.IsAny<uint>(), It.IsAny<uint>(),
+                                          It.IsAny<uint>(), It.IsAny<uint>())).Returns(true);
+            Assert.IsTrue(shellStream.ChangeWindow(80, 25, 0, 0));
+            _channelSessionMock.Verify(v => v.SendWindowChangeRequest(80, 25, 0, 0), Times.Once());
+        }
+
         private ShellStream CreateShellStream()
         {
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);

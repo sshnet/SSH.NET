@@ -68,6 +68,28 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Sends a Window Change Request via the Channel.
+        /// </summary>
+        /// <param name="columns">New screen width in # of columns</param>
+        /// <param name="rows">New screen height in # of rows</param>
+        /// <param name="width">New screen width in Pixels</param>
+        /// <param name="height">New screen height in Pixels</param>
+        /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
+        /// <exception cref="InvalidOperationException">The channel is closed.</exception>
+        /// <returns><see langword="true"/> if request was successful; otherwise <see langword="false"/></returns>
+        public bool ChangeWindow(uint columns, uint rows, uint width, uint height)
+        {
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
+            if (!_channel.IsOpen)
+            {
+                throw new InvalidOperationException("The channel is closed");
+            }
+
+            return _channel.SendWindowChangeRequest(columns, rows, width, height);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ShellStream"/> class.
         /// </summary>
         /// <param name="session">The SSH session.</param>

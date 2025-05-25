@@ -68,28 +68,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Sends a Window Change Request via the Channel.
-        /// </summary>
-        /// <param name="columns">New screen width in # of columns.</param>
-        /// <param name="rows">New screen height in # of rows.</param>
-        /// <param name="width">New screen width in Pixels.</param>
-        /// <param name="height">New screen height in Pixels.</param>
-        /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
-        /// <exception cref="InvalidOperationException">The channel is closed.</exception>
-        /// <returns><see langword="true"/> if request was successful; otherwise <see langword="false"/>.</returns>
-        public bool ChangeWindow(uint columns, uint rows, uint width, uint height)
-        {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
-
-            if (!_channel.IsOpen)
-            {
-                throw new InvalidOperationException("The channel is closed");
-            }
-
-            return _channel.SendWindowChangeRequest(columns, rows, width, height);
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ShellStream"/> class.
         /// </summary>
         /// <param name="session">The SSH session.</param>
@@ -301,6 +279,25 @@ namespace Renci.SshNet
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Sends new dimensions of the window (terminal) to the server.
+        /// </summary>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal height in rows.</param>
+        /// <param name="width">The terminal width in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <remarks>
+        /// The column/row dimensions override the pixel dimensions (when nonzero). Pixel dimensions refer
+        /// to the drawable area of the window.
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
+        public void ChangeWindowSize(uint columns, uint rows, uint width, uint height)
+        {
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
+            _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
 
         /// <summary>

@@ -109,7 +109,7 @@ namespace Renci.SshNet
         /// <param name="session">The SSH session.</param>
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
-        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="rows">The terminal height in rows.</param>
         /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>

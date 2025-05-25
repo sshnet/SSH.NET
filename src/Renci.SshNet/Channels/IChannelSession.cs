@@ -97,19 +97,13 @@ namespace Renci.SshNet.Channels
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <returns>
-        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
-        /// </returns>
-        bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height);
+        void SendWindowChangeRequest(uint columns, uint rows, uint width, uint height);
 
         /// <summary>
         /// Sends the local flow request.
         /// </summary>
         /// <param name="clientCanDo">if set to <see langword="true"/> [client can do].</param>
-        /// <returns>
-        /// <see langword="true"/> if request was successful; otherwise <see langword="false"/>.
-        /// </returns>
-        bool SendLocalFlowRequest(bool clientCanDo);
+        void SendLocalFlowRequest(bool clientCanDo);
 
         /// <summary>
         /// Sends the signal request.

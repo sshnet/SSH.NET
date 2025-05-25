@@ -123,28 +123,8 @@ namespace Renci.SshNet.Tests.Classes
             Assert.ThrowsException<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
         }
 
-
         [TestMethod]
-        public void WindowChangeRequest_ShouldReturnFalseWhenChannelSessionClosed()
-        {
-            var shellStream = CreateShellStream();
-            _channelSessionMock.Setup(s => s.IsOpen).Returns(false);
-            Assert.IsFalse(shellStream.ChangeWindow(80, 25, 0, 0));
-        }
-
-        [TestMethod]
-        public void WindowChangeRequest_ThrowsInvalidOperationException()
-        {
-            var shellStream = CreateShellStream();
-            _channelSessionMock.Setup(s => s.IsOpen).Returns(false);
-            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(
-                                          It.IsAny<uint>(), It.IsAny<uint>(),
-                                          It.IsAny<uint>(), It.IsAny<uint>())).Returns(false);
-            Assert.ThrowsException<InvalidOperationException>(() => shellStream.ChangeWindow(80, 25, 0, 0));
-        }
-
-        [TestMethod]
-        public void WindowChangeRequest_ThrowsObjectDisposedException()
+        public void ChangeWindowSize_AfterDispose_ThrowsObjectDisposedException()
         {
             var shellStream = CreateShellStream();
 
@@ -152,19 +132,19 @@ namespace Renci.SshNet.Tests.Classes
 
             shellStream.Dispose();
 
-            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.ChangeWindow(80, 25, 0, 0));
+            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.ChangeWindowSize(80, 25, 0, 0));
         }
 
         [TestMethod]
-        public void WindowChangeRequest_ShouldReturnTrueWhenResultSucceeds()
+        public void ChangeWindowSize_SendsWindowChangeRequest()
         {
             var shellStream = CreateShellStream();
-            _channelSessionMock.Setup(s => s.IsOpen).Returns(true);
-            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(
-                                          It.IsAny<uint>(), It.IsAny<uint>(),
-                                          It.IsAny<uint>(), It.IsAny<uint>())).Returns(true);
-            Assert.IsTrue(shellStream.ChangeWindow(80, 25, 0, 0));
-            _channelSessionMock.Verify(v => v.SendWindowChangeRequest(80, 25, 0, 0), Times.Once());
+
+            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(80, 25, 0, 1));
+
+            shellStream.ChangeWindowSize(80, 25, 0, 1);
+
+            _channelSessionMock.Verify(v => v.SendWindowChangeRequest(80, 25, 0, 1), Times.Once());
         }
 
         private ShellStream CreateShellStream()

@@ -426,13 +426,13 @@ namespace Renci.SshNet.Tests.Classes
 
             public bool SendKeepAliveRequest() => throw new NotImplementedException();
 
-            public bool SendLocalFlowRequest(bool clientCanDo) => throw new NotImplementedException();
+            public void SendLocalFlowRequest(bool clientCanDo) => throw new NotImplementedException();
 
             public bool SendSignalRequest(string signalName) => throw new NotImplementedException();
 
             public bool SendSubsystemRequest(string subsystem) => throw new NotImplementedException();
 
-            public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height) => throw new NotImplementedException();
+            public void SendWindowChangeRequest(uint columns, uint rows, uint width, uint height) => throw new NotImplementedException();
 
             public bool SendX11ForwardingRequest(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber) => throw new NotImplementedException();
 #pragma warning restore IDE0022 // Use block body for method

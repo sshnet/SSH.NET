@@ -457,14 +457,14 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                         client.Connect();
                         return client;
                     },
-                    (int counter, ParallelLoopState pls, SshClient client) =>
+                    (counter, pls, client) =>
                     {
                         var result = ExecuteTestCommand(client);
                         Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
                         Assert.IsTrue(result);
                         return client;
                     },
-                    (SshClient client) =>
+                    client =>
                     {
                         client.Disconnect();
                         client.Dispose();

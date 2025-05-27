@@ -282,6 +282,25 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Sends new dimensions of the window (terminal) to the server.
+        /// </summary>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal height in rows.</param>
+        /// <param name="width">The terminal width in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <remarks>
+        /// The column/row dimensions override the pixel dimensions (when nonzero). Pixel dimensions refer
+        /// to the drawable area of the window.
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
+        public void ChangeWindowSize(uint columns, uint rows, uint width, uint height)
+        {
+            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+
+            _channel.SendWindowChangeRequest(columns, rows, width, height);
+        }
+
+        /// <summary>
         /// Expects the specified expression and performs action when one is found.
         /// </summary>
         /// <param name="expectActions">The expected expressions and actions to perform.</param>

@@ -123,6 +123,30 @@ namespace Renci.SshNet.Tests.Classes
             Assert.ThrowsException<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
         }
 
+        [TestMethod]
+        public void ChangeWindowSize_AfterDispose_ThrowsObjectDisposedException()
+        {
+            var shellStream = CreateShellStream();
+
+            _channelSessionMock.Setup(p => p.Dispose());
+
+            shellStream.Dispose();
+
+            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.ChangeWindowSize(80, 25, 0, 0));
+        }
+
+        [TestMethod]
+        public void ChangeWindowSize_SendsWindowChangeRequest()
+        {
+            var shellStream = CreateShellStream();
+
+            _channelSessionMock.Setup(s => s.SendWindowChangeRequest(80, 25, 0, 1));
+
+            shellStream.ChangeWindowSize(80, 25, 0, 1);
+
+            _channelSessionMock.Verify(v => v.SendWindowChangeRequest(80, 25, 0, 1), Times.Once());
+        }
+
         private ShellStream CreateShellStream()
         {
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);

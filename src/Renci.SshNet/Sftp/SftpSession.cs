@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -22,8 +23,8 @@ namespace Renci.SshNet.Sftp
 
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
         private readonly ISftpResponseFactory _sftpResponseFactory;
-        private readonly List<byte> _data = new List<byte>(32 * 1024);
         private readonly Encoding _encoding;
+        private System.Net.ArrayBuffer _buffer = new(32 * 1024);
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(initialState: false);
         private IDictionary<string, string> _supportedExtensions;
 
@@ -303,125 +304,77 @@ namespace Renci.SshNet.Sftp
 
         protected override void OnDataReceived(byte[] data)
         {
-            const int packetLengthByteCount = 4;
-            const int sftpMessageTypeByteCount = 1;
-            const int minimumChannelDataLength = packetLengthByteCount + sftpMessageTypeByteCount;
+            ArraySegment<byte> d = new(data);
 
-            var offset = 0;
-            var count = data.Length;
-
-            // improve performance and reduce GC pressure by not buffering channel data if the received
-            // chunk contains the complete packet data.
-            //
-            // for this, the buffer should be empty and the chunk should contain at least the packet length
-            // and the type of the SFTP message
-            if (_data.Count == 0)
+            // If the buffer is empty then skip a copy and read packets
+            // directly out of the given data.
+            if (_buffer.ActiveLength == 0)
             {
-                while (count >= minimumChannelDataLength)
+                while (d.Count >= 4)
                 {
-                    // extract packet length
-                    var packetDataLength = data[offset] << 24 | data[offset + 1] << 16 | data[offset + 2] << 8 |
-                                           data[offset + 3];
+                    var packetLength = BinaryPrimitives.ReadInt32BigEndian(d);
 
-                    var packetTotalLength = packetDataLength + packetLengthByteCount;
-
-                    // check if complete packet data (or more) is available
-                    if (count >= packetTotalLength)
+                    if (d.Count - 4 < packetLength)
                     {
-                        // load and process SFTP message
-                        if (!TryLoadSftpMessage(data, offset + packetLengthByteCount, packetDataLength))
-                        {
-                            return;
-                        }
-
-                        // remove processed bytes from the number of bytes to process as the channel
-                        // data we received may contain (part of) another message
-                        count -= packetTotalLength;
-
-                        // move offset beyond bytes we just processed
-                        offset += packetTotalLength;
-                    }
-                    else
-                    {
-                        // we don't have a complete message
                         break;
                     }
+
+                    if (!TryLoadSftpMessage(d.Slice(4, packetLength)))
+                    {
+                        // An error occured.
+                        return;
+                    }
+
+                    d = d.Slice(4 + packetLength);
                 }
 
-                // check if there is channel data left to process or buffer
-                if (count == 0)
+                if (d.Count > 0)
                 {
-                    return;
+                    // Now buffer the remainder.
+                    _buffer.EnsureAvailableSpace(d.Count);
+                    d.AsSpan().CopyTo(_buffer.AvailableSpan);
+                    _buffer.Commit(d.Count);
                 }
 
-                // check if we processed part of the channel data we received
-                if (offset > 0)
-                {
-                    // add (remaining) channel data to internal data holder
-                    var remainingChannelData = new byte[count];
-                    Buffer.BlockCopy(data, offset, remainingChannelData, 0, count);
-                    _data.AddRange(remainingChannelData);
-                }
-                else
-                {
-                    // add (remaining) channel data to internal data holder
-                    _data.AddRange(data);
-                }
-
-                // skip further processing as we'll need a new chunk to complete the message
                 return;
             }
 
-            // add (remaining) channel data to internal data holder
-            _data.AddRange(data);
+            // The buffer already had some data. Append the new data and
+            // proceed with reading out packets.
+            _buffer.EnsureAvailableSpace(d.Count);
+            d.AsSpan().CopyTo(_buffer.AvailableSpan);
+            _buffer.Commit(d.Count);
 
-            while (_data.Count >= minimumChannelDataLength)
+            while (_buffer.ActiveLength >= 4)
             {
-                // extract packet length
-                var packetDataLength = _data[0] << 24 | _data[1] << 16 | _data[2] << 8 | _data[3];
+                d = new ArraySegment<byte>(
+                    _buffer.DangerousGetUnderlyingBuffer(),
+                    _buffer.ActiveStartOffset,
+                    _buffer.ActiveLength);
 
-                var packetTotalLength = packetDataLength + packetLengthByteCount;
+                var packetLength = BinaryPrimitives.ReadInt32BigEndian(d);
 
-                // check if complete packet data is available
-                if (_data.Count < packetTotalLength)
-                {
-                    // wait for complete message to arrive first
-                    break;
-                }
-
-                // create buffer to hold packet data
-                var packetData = new byte[packetDataLength];
-
-                // copy packet data and bytes for length to array
-                _data.CopyTo(packetLengthByteCount, packetData, 0, packetDataLength);
-
-                // remove loaded data and bytes for length from _data holder
-                if (_data.Count == packetTotalLength)
-                {
-                    // the only buffered data is the data we're processing
-                    _data.Clear();
-                }
-                else
-                {
-                    // remove only the data we're processing
-                    _data.RemoveRange(0, packetTotalLength);
-                }
-
-                // load and process SFTP message
-                if (!TryLoadSftpMessage(packetData, 0, packetDataLength))
+                if (d.Count - 4 < packetLength)
                 {
                     break;
                 }
+
+                // Note: the packet data in the buffer is safe to read from
+                // only for the duration of this load. If it needs to be stored,
+                // callees should make their own copy.
+                _ = TryLoadSftpMessage(d.Slice(4, packetLength));
+
+                _buffer.Discard(4 + packetLength);
             }
         }
 
-        private bool TryLoadSftpMessage(byte[] packetData, int offset, int count)
+        private bool TryLoadSftpMessage(ArraySegment<byte> packetData)
         {
             // Create SFTP message
-            var response = _sftpResponseFactory.Create(ProtocolVersion, packetData[offset], _encoding);
+            var response = _sftpResponseFactory.Create(ProtocolVersion, packetData.Array[packetData.Offset], _encoding);
 
             // Load message data into it
-            response.Load(packetData, offset + 1, count - 1);
+            response.Load(packetData.Array, packetData.Offset + 1, packetData.Count - 1);
 
             try
             {

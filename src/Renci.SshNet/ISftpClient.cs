@@ -701,6 +701,21 @@ namespace Renci.SshNet
         SftpFileAttributes GetAttributes(string path);
 
         /// <summary>
+        /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{SftpFileAttributes}"/> that represents the attribute retrieval operation.
+        /// The task result contains the <see cref="SftpFileAttributes"/> of the file on the path.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<SftpFileAttributes> GetAttributesAsync(string path, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Returns the date and time the specified file or directory was last accessed.
         /// </summary>
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>

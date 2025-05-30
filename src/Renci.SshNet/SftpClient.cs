@@ -2095,6 +2095,33 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{SftpFileAttributes}"/> that represents the attribute retrieval operation.
+        /// The task result contains the <see cref="SftpFileAttributes"/> of the file on the path.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async Task<SftpFileAttributes> GetAttributesAsync(string path, CancellationToken cancellationToken)
+        {
+            CheckDisposed();
+
+            if (_sftpSession is null)
+            {
+                throw new SshConnectionException("Client not connected.");
+            }
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            return await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Sets the specified <see cref="SftpFileAttributes"/> of the file on the specified path.
         /// </summary>
         /// <param name="path">The path to the file.</param>

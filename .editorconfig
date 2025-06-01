@@ -726,6 +726,9 @@ dotnet_diagnostic.CA1848.severity = silent
 # By default, this diagnostic is only reported for private members.
 dotnet_code_quality.CA1859.api_surface = private,internal
 
+# CA1873: Evaluation of this argument may be expensive and unnecessary if logging is disabled
+dotnet_diagnostic.CA1873.severity = suggestion
+
 # CA2208: Instantiate argument exceptions correctly
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2208
 #

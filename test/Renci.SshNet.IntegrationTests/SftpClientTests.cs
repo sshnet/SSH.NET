@@ -177,5 +177,33 @@ namespace Renci.SshNet.IntegrationTests
 
             Assert.IsFalse(await _sftpClient.ExistsAsync(testFileName).ConfigureAwait(false));
         }
+
+        [TestMethod]
+        public void Create_file_and_use_GetAttributes()
+        {
+            var testFileName = "test-file.txt";
+            var testContent = "file content";
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            _sftpClient.UploadFile(fileStream, testFileName);
+
+            var attributes = _sftpClient.GetAttributes(testFileName);
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.IsRegularFile);
+        }
+
+        [TestMethod]
+        public async Task Create_file_and_use_GetAttributesAsync()
+        {
+            var testFileName = "test-file.txt";
+            var testContent = "file content";
+
+            using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent));
+            await _sftpClient.UploadFileAsync(fileStream, testFileName).ConfigureAwait(false);
+
+            var attributes = await _sftpClient.GetAttributesAsync(testFileName, CancellationToken.None).ConfigureAwait(false);
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.IsRegularFile);
+        }
     }
 }

@@ -1,27 +1,30 @@
 using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshNet.Tests.Classes;
-
-public partial class SftpClientTest
+namespace Renci.SshNet.Tests.Classes
 {
-    [TestMethod]
-    public void GetAttributes_Throws_WhenNotConnected()
+    public partial class SftpClientTest
     {
-        using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+        [TestMethod]
+        public void GetAttributes_Throws_WhenNotConnected()
         {
-            Assert.ThrowsException<SshConnectionException>(() => sftp.GetAttributes("."));
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                Assert.ThrowsException<SshConnectionException>(() => sftp.GetAttributes("."));
+            }
         }
-    }
 
-    [TestMethod]
-    public void GetAttributes_Throws_WhenDisposed()
-    {
-        var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
-        sftp.Dispose();
+        [TestMethod]
+        public void GetAttributes_Throws_WhenDisposed()
+        {
+            var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
+            sftp.Dispose();
 
-        Assert.ThrowsException<ObjectDisposedException>(() => sftp.GetAttributes("."));
+            Assert.ThrowsException<ObjectDisposedException>(() => sftp.GetAttributes("."));
+        }
     }
 }

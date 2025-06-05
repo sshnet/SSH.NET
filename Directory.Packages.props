@@ -12,9 +12,9 @@
     <PackageVersion Include="Meziantou.Analyzer" Version="2.0.201" />
     
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
-    <PackageVersion Include="MSTest" Version="3.8.3" />
+    <PackageVersion Include="MSTest" Version="3.9.1" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />
@@ -23,6 +23,6 @@
     
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.2" />
-    <PackageVersion Include="Testcontainers" Version="4.3.0" />
+    <PackageVersion Include="Testcontainers" Version="4.5.0" />
   </ItemGroup>
 </Project>

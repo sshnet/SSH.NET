@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 /usr/sbin/syslog-ng
 
 # allow us to make changes to /etc/hosts; we need this for the port forwarding tests

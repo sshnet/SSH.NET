@@ -240,13 +240,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="source">The <see cref="Stream"/> to upload.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
-        /// <param name="notifyOnEmptyFile">Should the <see cref="Uploading"/> event be raised when the file is empty?</param>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public void Upload(Stream source, string path, bool notifyOnEmptyFile=false)
+        public void Upload(Stream source, string path)
         {
             if (Session is null)
             {
@@ -272,7 +271,7 @@ namespace Renci.SshNet
                 CheckReturnCode(input);
 
                 UploadFileModeAndName(channel, input, source.Length, posixPath.File);
-                UploadFileContent(channel, input, source, posixPath.File, notifyOnEmptyFile);
+                UploadFileContent(channel, input, source, posixPath.File);
             }
         }
 
@@ -281,14 +280,13 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="fileInfo">The file system info.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
-        /// <param name="notifyOnEmptyFile">Should the <see cref="Uploading"/> event be raised when the file is empty?</param>
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public void Upload(FileInfo fileInfo, string path, bool notifyOnEmptyFile=false)
+        public void Upload(FileInfo fileInfo, string path)
         {
             ThrowHelper.ThrowIfNull(fileInfo);
 
@@ -319,7 +317,7 @@ namespace Renci.SshNet
                 {
                     UploadTimes(channel, input, fileInfo);
                     UploadFileModeAndName(channel, input, source.Length, posixPath.File);
-                    UploadFileContent(channel, input, source, fileInfo.Name, notifyOnEmptyFile);
+                    UploadFileContent(channel, input, source, fileInfo.Name);
                 }
             }
         }
@@ -329,14 +327,13 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryInfo">The directory info.</param>
         /// <param name="path">A relative or absolute path for the remote directory.</param>
-        /// <param name="notifyOnEmptyFile">Should the <see cref="Uploading"/> event be raised when the file is empty?</param>
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length string.</exception>
         /// <exception cref="ScpException"><paramref name="path"/> does not exist on the remote host, is not a directory or the user does not have the required permission.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        public void Upload(DirectoryInfo directoryInfo, string path, bool notifyOnEmptyFile=false)
+        public void Upload(DirectoryInfo directoryInfo, string path)
         {
             ThrowHelper.ThrowIfNull(directoryInfo);
             ThrowHelper.ThrowIfNullOrEmpty(path);
@@ -365,7 +362,7 @@ namespace Renci.SshNet
 
                 CheckReturnCode(input);
 
-                UploadDirectoryContent(channel, input, directoryInfo, notifyOnEmptyFile);
+                UploadDirectoryContent(channel, input, directoryInfo);
             }
         }
 
@@ -559,11 +556,10 @@ namespace Renci.SshNet
         /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
         /// <param name="source">The content to upload.</param>
         /// <param name="remoteFileName">The name of the remote file, without path, to which the content is uploaded.</param>
-        /// <param name="notifyOnEmptyFile">Should the <see cref="Uploading"/> event be raised when the file is empty?</param>
         /// <remarks>
         /// <paramref name="remoteFileName"/> is only used for raising the <see cref="Uploading"/> event.
         /// </remarks>
-        private void UploadFileContent(IChannelSession channel, Stream input, Stream source, string remoteFileName, bool notifyOnEmptyFile)
+        private void UploadFileContent(IChannelSession channel, Stream input, Stream source, string remoteFileName)
         {
             var totalLength = source.Length;
             var buffer = new byte[BufferSize];
@@ -583,7 +579,7 @@ namespace Renci.SshNet
                 read = source.Read(buffer, 0, buffer.Length);
             }
 
-            if (totalLength == 0 && totalRead == 0 && notifyOnEmptyFile)
+            if (totalLength == 0 && totalRead == 0)
             {
                 RaiseUploadingEvent(remoteFileName, totalLength, totalRead);
             }
@@ -696,8 +692,7 @@ namespace Renci.SshNet
         /// <param name="channel">The channel to perform the upload in.</param>
         /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
         /// <param name="directoryInfo">The directory to upload.</param>
-        /// <param name="notifyOnEmptyFile">Should the <see cref="Uploading"/> event be raised when the file is empty?</param>
-        private void UploadDirectoryContent(IChannelSession channel, Stream input, DirectoryInfo directoryInfo, bool notifyOnEmptyFile=false)
+        private void UploadDirectoryContent(IChannelSession channel, Stream input, DirectoryInfo directoryInfo)
         {
             // Upload files
             var files = directoryInfo.GetFiles();
@@ -707,7 +702,7 @@ namespace Renci.SshNet
                 {
                     UploadTimes(channel, input, file);
                     UploadFileModeAndName(channel, input, source.Length, file.Name);
-                    UploadFileContent(channel, input, source, file.Name, notifyOnEmptyFile);
+                    UploadFileContent(channel, input, source, file.Name);
                 }
             }
 
@@ -717,7 +712,7 @@ namespace Renci.SshNet
             {
                 UploadTimes(channel, input, directory);
                 UploadDirectoryModeAndName(channel, input, directory.Name);
-                UploadDirectoryContent(channel, input, directory, notifyOnEmptyFile);
+                UploadDirectoryContent(channel, input, directory);
             }
 
             // Mark upload of current directory complete

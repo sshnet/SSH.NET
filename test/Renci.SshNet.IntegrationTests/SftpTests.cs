@@ -4353,11 +4353,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4397,11 +4397,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4438,7 +4438,7 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x00, fs.ReadByte());
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4474,11 +4474,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[550 - 1];
-                        Assert.AreEqual(550 - 1, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[550 - 1].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[550 - 1], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4599,11 +4599,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4641,11 +4641,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4681,11 +4681,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4722,11 +4722,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4813,7 +4813,7 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(writeBuffer.Length, fs.Length);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -4844,8 +4844,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(writeBuffer.Length + 1, fs.Length);
 
                         var readBuffer = new byte[writeBuffer.Length - 3];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(readBuffer.SequenceEqual(writeBuffer.Take(readBuffer.Length)));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
+                        CollectionAssert.AreEqual(writeBuffer.Take(readBuffer.Length), readBuffer);
 
                         Assert.AreEqual(0x01, fs.ReadByte());
                         Assert.AreEqual(0x05, fs.ReadByte());
@@ -4884,8 +4884,8 @@ namespace Renci.SshNet.IntegrationTests
 
                         // First part of file should not have been touched
                         var readBuffer = new byte[(int)client.BufferSize * 2];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(readBuffer.SequenceEqual(writeBuffer.Take(readBuffer.Length)));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
+                        CollectionAssert.AreEqual(writeBuffer.Take(readBuffer.Length), readBuffer);
 
                         // Check part that should have been updated
                         Assert.AreEqual(0x01, fs.ReadByte());
@@ -4895,8 +4895,10 @@ namespace Renci.SshNet.IntegrationTests
 
                         // Remaining bytes should not have been touched
                         readBuffer = new byte[((int)client.BufferSize * 2) - 4];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(readBuffer.SequenceEqual(writeBuffer.Skip(((int)client.BufferSize * 2) + 4).Take(readBuffer.Length)));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
+                        CollectionAssert.AreEqual(
+                            writeBuffer.Skip(((int)client.BufferSize * 2) + 4).Take(readBuffer.Length).ToArray(),
+                            readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4987,7 +4989,7 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         var readBuffer = new byte[200];
 
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
 
                         var newPosition = fs.Seek(offset: 3L, SeekOrigin.Begin);
 
@@ -5062,11 +5064,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -5104,11 +5106,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[soughtOverReadBuffer.Length], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -5148,7 +5150,7 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x00, fs.ReadByte());
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -5187,11 +5189,11 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(0x04, fs.ReadByte());
 
                         var soughtOverReadBuffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(seekOffset - 1, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
-                        Assert.IsTrue(new byte[seekOffset - 1].IsEqualTo(soughtOverReadBuffer));
+                        fs.ReadExactly(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length);
+                        CollectionAssert.AreEqual(new byte[seekOffset - 1], soughtOverReadBuffer);
 
                         var readBuffer = new byte[writeBuffer.Length];
-                        Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
+                        fs.ReadExactly(readBuffer, offset: 0, readBuffer.Length);
                         CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
@@ -6203,6 +6205,136 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public void Sftp_SftpFileStream_Fuzz()
+        {
+            const int OperationCount = 100;
+            const int MaxBufferSize = 1000;
+            const int MaxFileSize = 15_000;
+
+            int seed = Environment.TickCount;
+
+            Console.WriteLine("Using seed " + seed);
+
+            var random = new Random(seed);
+
+            using var client = new SftpClient(_connectionInfoFactory.Create())
+            {
+                BufferSize = 100
+            };
+            client.Connect();
+
+            // We will perform operations on an SftpFileStream and a local
+            // System.IO.FileStream, and check that the results are the same.
+            // This could use a MemoryStream for the local side, except for the
+            // fact that performing a 0-byte write at a position beyond the length
+            // of the MemoryStream causes its length to increase, which is not the
+            // case for FileStream. Since we've got 'FileStream' in the name, we
+            // check that we align with FileStream's behaviour.
+
+            string remoteFilePath = GenerateUniqueRemoteFileName();
+            string localFilePath = Path.GetTempFileName();
+
+            byte[] fileBytes = new byte[1024];
+            random.NextBytes(fileBytes);
+
+            File.WriteAllBytes(localFilePath, fileBytes);
+            client.WriteAllBytes(remoteFilePath, fileBytes);
+
+            try
+            {
+                using (var local = File.Open(localFilePath, FileMode.Open, FileAccess.ReadWrite))
+                using (var remote = client.Open(remoteFilePath, FileMode.Open, FileAccess.ReadWrite))
+                {
+                    for (int i = 0; i < OperationCount; i++)
+                    {
+#pragma warning disable IDE0010 // Add missing cases
+                        int op = random.Next(5);
+                        switch (op)
+                        {
+                            case 0 when local.Length < MaxFileSize: // Write
+                                {
+                                    var buffer = new byte[random.Next(0, MaxBufferSize)];
+                                    random.NextBytes(buffer);
+                                    int offset = random.Next(0, buffer.Length + 1);
+                                    int count = random.Next(0, buffer.Length - offset + 1);
+
+                                    remote.Write(buffer, offset, count);
+                                    local.Write(buffer, offset, count);
+                                    break;
+                                }
+                            case 1: // Read
+                                {
+                                    var remoteBuffer = new byte[random.Next(0, MaxBufferSize)];
+                                    var localBuffer = new byte[remoteBuffer.Length];
+                                    int offset = random.Next(0, remoteBuffer.Length + 1);
+                                    int count = random.Next(0, remoteBuffer.Length - offset + 1);
+
+                                    int remoteRead = ReadExactly(remote, remoteBuffer, offset, count);
+                                    int localRead = ReadExactly(local, localBuffer, offset, count);
+
+                                    Assert.AreEqual(localRead, remoteRead);
+                                    CollectionAssert.AreEqual(localBuffer, remoteBuffer);
+                                    break;
+                                }
+                            case 2 when local.Length < MaxFileSize: // Seek
+                                {
+                                    int position = (int)local.Position;
+                                    int length = (int)local.Length;
+
+                                    SeekOrigin origin = (SeekOrigin)random.Next(0, 3);
+                                    long offset = 0;
+                                    switch (origin)
+                                    {
+                                        case SeekOrigin.Begin:
+                                            offset = random.Next(0, length * 2);
+                                            break;
+                                        case SeekOrigin.Current:
+                                            offset = random.Next(-position, position);
+                                            break;
+                                        case SeekOrigin.End:
+                                            offset = random.Next(-length, length);
+                                            break;
+                                    }
+                                    long newPosRemote = remote.Seek(offset, origin);
+                                    long newPosLocal = local.Seek(offset, origin);
+                                    Assert.AreEqual(newPosLocal, newPosRemote);
+                                    Assert.AreEqual(local.Length, remote.Length);
+                                    break;
+                                }
+                            case 3: // SetLength
+                                {
+                                    long newLength = random.Next(0, MaxFileSize);
+                                    remote.SetLength(newLength);
+                                    local.SetLength(newLength);
+                                    Assert.AreEqual(local.Length, remote.Length);
+                                    Assert.AreEqual(local.Position, remote.Position);
+                                    break;
+                                }
+                            case 4: // Flush
+                                {
+                                    remote.Flush();
+                                    local.Flush();
+                                    break;
+                                }
+                        }
+#pragma warning restore IDE0010 // Add missing cases
+                    }
+                }
+
+                CollectionAssert.AreEqual(File.ReadAllBytes(localFilePath), client.ReadAllBytes(remoteFilePath));
+            }
+            finally
+            {
+                File.Delete(localFilePath);
+
+                if (client.Exists(remoteFilePath))
+                {
+                    client.DeleteFile(remoteFilePath);
+                }
+            }
+        }
+
         private static IEnumerable<object[]> GetSftpUploadFileFileStreamData()
         {
             yield return new object[] { 0 };
@@ -6292,21 +6424,24 @@ namespace Renci.SshNet.IntegrationTests
             return (length / 1024m) / (elapsedMilliseconds / 1000m);
         }
 
-        private static void SftpCreateRemoteFile(SftpClient client, string remoteFile, int size)
+        /// <summary>
+        /// Similar to the netcore ReadExactly but without throwing on end of stream.
+        /// </summary>
+        private static int ReadExactly(Stream stream, byte[] buffer, int offset, int count)
         {
-            var file = CreateTempFile(size);
-
-            try
+            int totalRead = 0;
+            while (totalRead < count)
             {
-                using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                int read = stream.Read(buffer, offset + totalRead, count - totalRead);
+                if (read == 0)
                 {
-                    client.UploadFile(fs, remoteFile);
+                    return totalRead;
                 }
+
+                totalRead += read;
             }
-            finally
-            {
-                File.Delete(file);
-            }
+
+            return totalRead;
         }
 
         private static byte[] GenerateRandom(int size)

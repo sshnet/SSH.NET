@@ -251,23 +251,6 @@ namespace Renci.SshNet.Sftp
             return canonizedPath + slash + pathParts[pathParts.Length - 1];
         }
 
-        /// <summary>
-        /// Creates an <see cref="ISftpFileReader"/> for reading the content of the file represented by a given <paramref name="handle"/>.
-        /// </summary>
-        /// <param name="handle">The handle of the file to read.</param>
-        /// <param name="sftpSession">The SFTP session.</param>
-        /// <param name="chunkSize">The maximum number of bytes to read with each chunk.</param>
-        /// <param name="maxPendingReads">The maximum number of pending reads.</param>
-        /// <param name="fileSize">The size of the file or <see langword="null"/> when the size could not be determined.</param>
-        /// <returns>
-        /// An <see cref="ISftpFileReader"/> for reading the content of the file represented by the
-        /// specified <paramref name="handle"/>.
-        /// </returns>
-        public ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
-        {
-            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
-        }
-
         internal string GetFullRemotePath(string path)
         {
             var fullPath = path;
@@ -820,6 +803,8 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         public Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
         {
+            Debug.Assert(length > 0, "This implementation cannot distinguish between EOF and zero-length reads");
+
             if (cancellationToken.IsCancellationRequested)
             {
                 return Task.FromCanceled<byte[]>(cancellationToken);
@@ -1075,15 +1060,8 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        /// <summary>
-        /// Performs SSH_FXP_FSTAT request.
-        /// </summary>
-        /// <param name="handle">The handle.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, returns <see langword="null"/> instead of throwing an exception.</param>
-        /// <returns>
-        /// File attributes.
-        /// </returns>
-        public SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError)
+        /// <inheritdoc/>
+        public SftpFileAttributes RequestFStat(byte[] handle)
         {
             SshException exception = null;
             SftpFileAttributes attributes = null;
@@ -1109,7 +1087,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-            if (!nullOnError && exception is not null)
+            if (exception is not null)
             {
                 throw exception;
             }

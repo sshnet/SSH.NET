@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 #if !NET
 using System.IO;
+using System.Threading.Tasks;
 #endif
 using System.Net;
 using System.Net.Sockets;
@@ -396,6 +397,29 @@ namespace Renci.SshNet.Common
                 }
 
                 totalRead += read;
+            }
+        }
+
+        internal static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancellationToken)
+        {
+            if (task.IsCompleted || !cancellationToken.CanBeCanceled)
+            {
+                return task;
+            }
+
+            return WaitCore();
+
+            async Task<T> WaitCore()
+            {
+                TaskCompletionSource<T> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                using var reg = cancellationToken.Register(
+                    () => tcs.TrySetCanceled(cancellationToken),
+                    useSynchronizationContext: false);
+
+                var completedTask = await Task.WhenAny(task, tcs.Task).ConfigureAwait(false);
+
+                return await completedTask.ConfigureAwait(false);
             }
         }
 #endif

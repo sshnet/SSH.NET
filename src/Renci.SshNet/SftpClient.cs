@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -899,17 +900,33 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public void DownloadFile(string path, Stream output, Action<ulong>? downloadCallback = null)
         {
+            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ThrowHelper.ThrowIfNull(output);
             CheckDisposed();
 
-            InternalDownloadFile(path, output, asyncResult: null, downloadCallback);
+            InternalDownloadFile(
+                path,
+                output,
+                asyncResult: null,
+                downloadCallback,
+                isAsync: false,
+                CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <inheritdoc />
         public Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken = default)
         {
+            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            ThrowHelper.ThrowIfNull(output);
             CheckDisposed();
 
-            return InternalDownloadFileAsync(path, output, cancellationToken);
+            return InternalDownloadFile(
+                path,
+                output,
+                asyncResult: null,
+                downloadCallback: null,
+                isAsync: true,
+                cancellationToken);
         }
 
         /// <summary>
@@ -976,17 +993,25 @@ namespace Renci.SshNet
         /// </remarks>
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback? asyncCallback, object? state, Action<ulong>? downloadCallback = null)
         {
-            CheckDisposed();
             ThrowHelper.ThrowIfNullOrWhiteSpace(path);
             ThrowHelper.ThrowIfNull(output);
+            CheckDisposed();
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
-            ThreadAbstraction.ExecuteThread(() =>
+            _ = DoDownloadAndSetResult();
+
+            async Task DoDownloadAndSetResult()
             {
                 try
                 {
-                    InternalDownloadFile(path, output, asyncResult, downloadCallback);
+                    await InternalDownloadFile(
+                        path,
+                        output,
+                        asyncResult,
+                        downloadCallback,
+                        isAsync: true,
+                        CancellationToken.None).ConfigureAwait(false);
 
                     asyncResult.SetAsCompleted(exception: null, completedSynchronously: false);
                 }
@@ -994,7 +1019,7 @@ namespace Renci.SshNet
                 {
                     asyncResult.SetAsCompleted(exp, completedSynchronously: false);
                 }
-            });
+            }
 
             return asyncResult;
         }
@@ -1050,7 +1075,7 @@ namespace Renci.SshNet
                 asyncResult: null,
                 uploadCallback,
                 isAsync: false,
-                default).GetAwaiter().GetResult();
+                CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <inheritdoc />
@@ -2233,32 +2258,59 @@ namespace Renci.SshNet
             return result;
         }
 
-        /// <summary>
-        /// Internals the download file.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="output">The output.</param>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
-        /// <param name="downloadCallback">The download callback.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is <see langword="null"/> or contains whitespace.</exception>
-        /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult? asyncResult, Action<ulong>? downloadCallback)
+#pragma warning disable S6966 // Awaitable method should be used
+        private async Task InternalDownloadFile(
+            string path,
+            Stream output,
+            SftpDownloadAsyncResult? asyncResult,
+            Action<ulong>? downloadCallback,
+            bool isAsync,
+            CancellationToken cancellationToken)
         {
-            ThrowHelper.ThrowIfNull(output);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
+            Debug.Assert(!string.IsNullOrWhiteSpace(path));
+            Debug.Assert(output is not null);
+            Debug.Assert(isAsync || cancellationToken == default);
 
             if (_sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            SftpFileStream sftpStream;
 
-            using (var fileReader = ServiceFactory.CreateSftpFileReader(fullPath, _sftpSession, _bufferSize))
+            if (isAsync)
             {
-                var totalBytesRead = 0UL;
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
+                sftpStream = await SftpFileStream.OpenAsync(
+                    _sftpSession,
+                    fullPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    (int)_bufferSize,
+                    cancellationToken,
+                    isDownloadFile: true).ConfigureAwait(false);
+            }
+            else
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
+
+                sftpStream = SftpFileStream.Open(
+                    _sftpSession,
+                    fullPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    (int)_bufferSize,
+                    isDownloadFile: true);
+            }
+
+            // The below is effectively sftpStream.CopyTo{Async}(output) with consideration
+            // for downloadCallback/asyncResult.
+
+            var buffer = ArrayPool<byte>.Shared.Rent(81920);
+            try
+            {
+                ulong totalBytesRead = 0;
                 while (true)
                 {
                     // Cancel download
@@ -2267,15 +2319,33 @@ namespace Renci.SshNet
                         break;
                     }
 
-                    var data = fileReader.Read();
-                    if (data.Length == 0)
+                    var bytesRead = isAsync
+#if NET
+                        ? await sftpStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
+#else
+                        ? await sftpStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
+#endif
+                        : sftpStream.Read(buffer, 0, buffer.Length);
+
+                    if (bytesRead == 0)
                     {
                         break;
                     }
 
-                    output.Write(data, 0, data.Length);
+                    if (isAsync)
+                    {
+#if NET
+                        await output.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken).ConfigureAwait(false);
+#else
+                        await output.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+#endif
+                    }
+                    else
+                    {
+                        output.Write(buffer, 0, bytesRead);
+                    }
 
-                    totalBytesRead += (ulong)data.Length;
+                    totalBytesRead += (ulong)bytesRead;
 
                     asyncResult?.Update(totalBytesRead);
 
@@ -2289,28 +2359,21 @@ namespace Renci.SshNet
                     }
                 }
             }
-        }
-
-        private async Task InternalDownloadFileAsync(string path, Stream output, CancellationToken cancellationToken)
-        {
-            ThrowHelper.ThrowIfNull(output);
-            ThrowHelper.ThrowIfNullOrWhiteSpace(path);
-
-            if (_sftpSession is null)
+            finally
             {
-                throw new SshConnectionException("Client not connected.");
-            }
+                ArrayPool<byte>.Shared.Return(buffer);
 
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            var openStreamTask = SftpFileStream.OpenAsync(_sftpSession, fullPath, FileMode.Open, FileAccess.Read, (int)_bufferSize, cancellationToken);
-
-            using (var input = await openStreamTask.ConfigureAwait(false))
-            {
-                await input.CopyToAsync(output, 81920, cancellationToken).ConfigureAwait(false);
+                if (isAsync)
+                {
+                    await sftpStream.DisposeAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    sftpStream.Dispose();
+                }
             }
         }
+#pragma warning restore S6966 // Awaitable method should be used
 
 #pragma warning disable S6966 // Awaitable method should be used
         private async Task InternalUploadFile(

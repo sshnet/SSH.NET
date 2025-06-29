@@ -67,11 +67,10 @@ namespace Renci.SshNet.Sftp
         /// Asynchronously performs a <c>SSH_FXP_FSTAT</c> request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
         /// The file attributes.
         /// </returns>
-        SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError);
+        SftpFileAttributes RequestFStat(byte[] handle);
 
         /// <summary>
         /// Asynchronously performs a <c>SSH_FXP_FSTAT</c> request.
@@ -522,19 +521,5 @@ namespace Renci.SshNet.Sftp
         /// Currently, we do not take the remote window size into account.
         /// </remarks>
         uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle);
-
-        /// <summary>
-        /// Creates an <see cref="ISftpFileReader"/> for reading the content of the file represented by a given <paramref name="handle"/>.
-        /// </summary>
-        /// <param name="handle">The handle of the file to read.</param>
-        /// <param name="sftpSession">The SFTP session.</param>
-        /// <param name="chunkSize">The maximum number of bytes to read with each chunk.</param>
-        /// <param name="maxPendingReads">The maximum number of pending reads.</param>
-        /// <param name="fileSize">The size of the file or <see langword="null"/> when the size could not be determined.</param>
-        /// <returns>
-        /// An <see cref="ISftpFileReader"/> for reading the content of the file represented by the
-        /// specified <paramref name="handle"/>.
-        /// </returns>
-        ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize);
     }
 }

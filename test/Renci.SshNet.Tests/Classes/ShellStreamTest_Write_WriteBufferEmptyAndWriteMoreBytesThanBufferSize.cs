@@ -129,7 +129,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void FlushShouldSendRemaningBytesToServer()
+        public void FlushShouldSendRemainingBytesToServer()
         {
             var expectedBytesSent = _data.Take(_bufferSize * 2, _data.Length - (_bufferSize * 2));
 

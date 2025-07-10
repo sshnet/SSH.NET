@@ -154,7 +154,7 @@ namespace Renci.SshNet
             _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             _channel.Closed += Channel_Closed;
             _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
 
             _channel.Open();
             if (!_noTerminal)
@@ -224,7 +224,7 @@ namespace Renci.SshNet
             _channel?.Dispose();
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             RaiseError(e);
         }
@@ -297,7 +297,7 @@ namespace Renci.SshNet
             }
 
             session.Disconnected -= Session_Disconnected;
-            session.ErrorOccured -= Session_ErrorOccured;
+            session.ErrorOccured -= Session_ErrorOccurred;
         }
 
         private bool _disposed;

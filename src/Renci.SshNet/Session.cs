@@ -355,6 +355,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
+        /// <remarks>A known misspelling of "occurred" preserved for backward compatibility.</remarks>
         public event EventHandler<ExceptionEventArgs> ErrorOccured;
 
         /// <summary>

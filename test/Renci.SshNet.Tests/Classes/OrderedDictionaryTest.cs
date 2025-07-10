@@ -69,7 +69,7 @@ namespace Renci.SshNet.Tests.Classes
                 valuesArray);
 
             // Creates a List<T> via enumeration, avoiding the ICollection<T>.CopyTo
-            // optimisation in the List<T> constructor.
+            // optimization in the List<T> constructor.
             static List<T> ToList<T>(IEnumerable<T> values)
             {
                 List<T> list = new();

@@ -94,7 +94,7 @@ namespace Renci.SshNet.Channels
             session.ChannelRequestReceived += OnChannelRequest;
             session.ChannelSuccessReceived += OnChannelSuccess;
             session.ChannelFailureReceived += OnChannelFailure;
-            session.ErrorOccured += Session_ErrorOccured;
+            session.ErrorOccured += Session_ErrorOccurred;
             session.Disconnected += Session_Disconnected;
         }
 
@@ -102,7 +102,7 @@ namespace Renci.SshNet.Channels
         /// Gets the session.
         /// </summary>
         /// <value>
-        ///  Thhe session.
+        ///  The session.
         /// </value>
         protected ISession Session
         {
@@ -328,7 +328,7 @@ namespace Renci.SshNet.Channels
         /// multiple chunks and will wait for the remote window size to be adjusted when it's zero.
         /// </para>
         /// <para>
-        /// This is done to support SSH servers will a small window size that do not agressively
+        /// This is done to support SSH servers will a small window size that do not aggressively
         /// increase their window size. We need to take into account that there may be SSH servers
         /// that only increase their window size when it has reached zero.
         /// </para>
@@ -586,7 +586,7 @@ namespace Renci.SshNet.Channels
         {
         }
 
-        protected virtual void OnErrorOccured(Exception exp)
+        protected virtual void OnErrorOccurred(Exception exp)
         {
         }
 
@@ -609,20 +609,20 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="ex">The <see cref="Exception"/>.</param>
         /// <remarks>
-        /// This method will in turn invoke <see cref="OnErrorOccured(System.Exception)"/>, and
+        /// This method will in turn invoke <see cref="OnErrorOccurred(System.Exception)"/>, and
         /// raise the <see cref="Exception"/> event.
         /// </remarks>
         protected void OnChannelException(Exception ex)
         {
-            OnErrorOccured(ex);
+            OnErrorOccurred(ex);
             RaiseExceptionEvent(ex);
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             try
             {
-                OnErrorOccured(e.Exception);
+                OnErrorOccurred(e.Exception);
             }
             catch (Exception ex)
             {
@@ -854,7 +854,7 @@ namespace Renci.SshNet.Channels
                     session.ChannelRequestReceived -= OnChannelRequest;
                     session.ChannelSuccessReceived -= OnChannelSuccess;
                     session.ChannelFailureReceived -= OnChannelFailure;
-                    session.ErrorOccured -= Session_ErrorOccured;
+                    session.ErrorOccured -= Session_ErrorOccurred;
                     session.Disconnected -= Session_Disconnected;
                 }
 

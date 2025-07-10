@@ -42,7 +42,7 @@ namespace Renci.SshNet
         /// Waits a specified time for a given <see cref="WaitHandle"/> to get signaled.
         /// </summary>
         /// <param name="waitHandle">The handle to wait for.</param>
-        /// <param name="millisecondsTimeout">The number of millieseconds wait for <paramref name="waitHandle"/> to get signaled, or <c>-1</c> to wait indefinitely.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds wait for <paramref name="waitHandle"/> to get signaled, or <c>-1</c> to wait indefinitely.</param>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
@@ -105,7 +105,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">No object satified the wait and a time interval equivalent to <paramref name="millisecondsTimeout"/> has passed.</exception>
+        /// <exception cref="SshOperationTimeoutException">No object satisfied the wait and a time interval equivalent to <paramref name="millisecondsTimeout"/> has passed.</exception>
         /// <remarks>
         /// For the return value, the index of the first non-system object is considered to be zero.
         /// </remarks>

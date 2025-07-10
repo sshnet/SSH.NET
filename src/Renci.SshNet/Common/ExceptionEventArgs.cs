@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for the ErrorOccured events.
+    /// Provides data for the ErrorOccurred events.
     /// </summary>
     public class ExceptionEventArgs : EventArgs
     {

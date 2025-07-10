@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedTwic()
+        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedTwice()
         {
             ServiceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Exactly(2));
         }

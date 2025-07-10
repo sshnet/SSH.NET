@@ -4570,9 +4570,9 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(seekOffset + writeBuffer.Length, fs.Length);
                         Assert.AreEqual(0x04, fs.ReadByte());
 
-                        var soughtOverReadBufferffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBufferffer.Length, fs.Read(soughtOverReadBufferffer, offset: 0, soughtOverReadBufferffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBufferffer.Length].IsEqualTo(soughtOverReadBufferffer));
+                        var soughtOverReadBuffer = new byte[seekOffset - 1];
+                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
+                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
@@ -4612,9 +4612,9 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(seekOffset + writeBuffer.Length, fs.Length);
                         Assert.AreEqual(0x04, fs.ReadByte());
 
-                        var soughtOverReadBufferffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBufferffer.Length, fs.Read(soughtOverReadBufferffer, offset: 0, soughtOverReadBufferffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBufferffer.Length].IsEqualTo(soughtOverReadBufferffer));
+                        var soughtOverReadBuffer = new byte[seekOffset - 1];
+                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
+                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
@@ -5315,9 +5315,9 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(seekOffset + writeBuffer.Length, fs.Length);
                         Assert.AreEqual(0x04, fs.ReadByte());
 
-                        var soughtOverReadBufferffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(soughtOverReadBufferffer.Length, fs.Read(soughtOverReadBufferffer, offset: 0, soughtOverReadBufferffer.Length));
-                        Assert.IsTrue(new byte[soughtOverReadBufferffer.Length].IsEqualTo(soughtOverReadBufferffer));
+                        var soughtOverReadBuffer = new byte[seekOffset - 1];
+                        Assert.AreEqual(soughtOverReadBuffer.Length, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
+                        Assert.IsTrue(new byte[soughtOverReadBuffer.Length].IsEqualTo(soughtOverReadBuffer));
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
@@ -5398,9 +5398,9 @@ namespace Renci.SshNet.IntegrationTests
 
                         Assert.AreEqual(0x04, fs.ReadByte());
 
-                        var soughtOverReadBufferffer = new byte[seekOffset - 1];
-                        Assert.AreEqual(seekOffset - 1, fs.Read(soughtOverReadBufferffer, offset: 0, soughtOverReadBufferffer.Length));
-                        Assert.IsTrue(new byte[seekOffset - 1].IsEqualTo(soughtOverReadBufferffer));
+                        var soughtOverReadBuffer = new byte[seekOffset - 1];
+                        Assert.AreEqual(seekOffset - 1, fs.Read(soughtOverReadBuffer, offset: 0, soughtOverReadBuffer.Length));
+                        Assert.IsTrue(new byte[seekOffset - 1].IsEqualTo(soughtOverReadBuffer));
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));

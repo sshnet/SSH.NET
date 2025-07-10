@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ErrorOccuredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnSubsystemSession()
+        public void ErrorOccurredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnSubsystemSession()
         {
             _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
 

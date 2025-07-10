@@ -98,9 +98,9 @@ namespace Renci.SshNet.Channels
             SocketAbstraction.ReadContinuous(_socket, buffer, 0, buffer.Length, SendData);
         }
 
-        protected override void OnErrorOccured(Exception exp)
+        protected override void OnErrorOccurred(Exception exp)
         {
-            base.OnErrorOccured(exp);
+            base.OnErrorOccurred(exp);
 
             // signal to the server that we will not send anything anymore; this will also interrupt the
             // blocking receive in Bind if the server sends FIN/ACK in time

@@ -225,7 +225,7 @@ namespace Renci.SshNet
             OutputStream = new PipeStream();
             ExtendedOutputStream = new PipeStream();
             _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
             _channel = _session.CreateChannelSession();
         }
 
@@ -263,9 +263,9 @@ namespace Renci.SshNet
                 OutputStream.Dispose();
                 ExtendedOutputStream.Dispose();
 
-                // Initialize output streams. We already initialised them for the first
+                // Initialize output streams. We already initialized them for the first
                 // execution in the constructor (to allow passing them around before execution)
-                // so we just need to reinitialise them for subsequent executions.
+                // so we just need to reinitialize them for subsequent executions.
                 OutputStream = new PipeStream();
                 ExtendedOutputStream = new PipeStream();
                 _channel = _session.CreateChannelSession();
@@ -512,7 +512,7 @@ namespace Renci.SshNet
             SetAsyncComplete(setResult: false);
         }
 
-        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
             _ = _tcs?.TrySetException(e.Exception);
 
@@ -642,7 +642,7 @@ namespace Renci.SshNet
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
                 _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
+                _session.ErrorOccured -= Session_ErrorOccurred;
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing

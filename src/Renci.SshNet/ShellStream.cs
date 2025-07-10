@@ -162,7 +162,7 @@ namespace Renci.SshNet
             _channel.DataReceived += Channel_DataReceived;
             _channel.Closed += Channel_Closed;
             _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
 
             _readBuffer = new System.Net.ArrayBuffer(bufferSize);
             _writeBuffer = new System.Net.ArrayBuffer(bufferSize);
@@ -927,7 +927,7 @@ namespace Renci.SshNet
 
                 // Do not dispose _session (we don't own it)
                 _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
+                _session.ErrorOccured -= Session_ErrorOccurred;
 
                 // But we do own _channel
                 _channel.DataReceived -= Channel_DataReceived;
@@ -940,7 +940,7 @@ namespace Renci.SshNet
             base.Dispose(disposing);
         }
 
-        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
             ErrorOccurred?.Invoke(this, e);
         }

@@ -83,7 +83,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void RaisingErrorOccuredOnSessionShouldDoNothing()
+        public void RaisingErrorOccurredOnSessionShouldDoNothing()
         {
             _sessionMock.Raise(s => s.ErrorOccured += null, new ExceptionEventArgs(new Exception()));
         }

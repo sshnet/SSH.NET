@@ -180,7 +180,7 @@ namespace Renci.SshNet.Connection
 
             var index = 0;
 
-            // Version of the negiotiation
+            // Version of the negotiation
             authenticationRequest[index++] = 0x01;
 
             // Length of the username

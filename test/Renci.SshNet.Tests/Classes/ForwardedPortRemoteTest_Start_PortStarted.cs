@@ -103,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void StartShouldThrowInvalidOperatationException()
+        public void StartShouldThrowInvalidOperationException()
         {
             Assert.IsNotNull(_actualException);
             Assert.AreEqual("Forwarded port is already started.", _actualException.Message);

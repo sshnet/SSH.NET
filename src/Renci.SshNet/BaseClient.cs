@@ -408,7 +408,7 @@ namespace Renci.SshNet
         {
         }
 
-        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
             ErrorOccurred?.Invoke(this, e);
         }
@@ -558,7 +558,7 @@ namespace Renci.SshNet
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
             session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
-            session.ErrorOccured += Session_ErrorOccured;
+            session.ErrorOccured += Session_ErrorOccurred;
 
             try
             {
@@ -577,7 +577,7 @@ namespace Renci.SshNet
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
             session.ServerIdentificationReceived += Session_ServerIdentificationReceived;
             session.HostKeyReceived += Session_HostKeyReceived;
-            session.ErrorOccured += Session_ErrorOccured;
+            session.ErrorOccured += Session_ErrorOccurred;
 
             try
             {
@@ -593,7 +593,7 @@ namespace Renci.SshNet
 
         private void DisposeSession(ISession session)
         {
-            session.ErrorOccured -= Session_ErrorOccured;
+            session.ErrorOccured -= Session_ErrorOccurred;
             session.HostKeyReceived -= Session_HostKeyReceived;
             session.ServerIdentificationReceived -= Session_ServerIdentificationReceived;
             session.Dispose();

@@ -102,7 +102,7 @@ namespace Renci.SshNet.Channels
         /// multiple chunks and will wait for the remote window size to be adjusted when it's zero.
         /// </para>
         /// <para>
-        /// This is done to support SSH servers will a small window size that do not agressively
+        /// This is done to support SSH servers will a small window size that do not aggressively
         /// increase their window size. We need to take into account that there may be SSH servers
         /// that only increase their window size when it has reached zero.
         /// </para>

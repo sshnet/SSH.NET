@@ -142,7 +142,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         {
                             // sleep for a short period to allow channel to actually start receiving from socket
                             Thread.Sleep(100);
-                            // raise ErrorOccured event on session
+                            // raise ErrorOccurred event on session
                             _sessionMock.Raise(s => s.ErrorOccured += null,
                                                new ExceptionEventArgs(new SystemException()));
                         });

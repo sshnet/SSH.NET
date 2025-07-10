@@ -406,7 +406,7 @@ namespace Renci.SshNet
 
             Certificate = new Certificate(Convert.FromBase64String(data));
 
-            Debug.Assert(Key is not null, $"{nameof(Key)} should have been initialised already.");
+            Debug.Assert(Key is not null, $"{nameof(Key)} should have been initialized already.");
 
             if (!Certificate.Key.Public.SequenceEqual(Key.Public))
             {

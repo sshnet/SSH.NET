@@ -66,7 +66,7 @@ namespace Renci.SshNet
                     throw new SshException("At this time only one public key in the openssh key is supported.");
                 }
 
-                // read public key in ssh-format, but we dont need it
+                // read public key in ssh-format, but we don't need it
                 _ = keyReader.ReadString(Encoding.UTF8);
 
                 // possibly encrypted private key

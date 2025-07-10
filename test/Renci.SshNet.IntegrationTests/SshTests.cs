@@ -831,7 +831,7 @@ namespace Renci.SshNet.IntegrationTests
                                 continue;
                             }
 
-                            // If hostname is currently mapped to another IP address, then remove the 
+                            // If hostname is currently mapped to another IP address, then remove the
                             // current mapping
                             hostConfig.Entries.RemoveAt(i);
                         }

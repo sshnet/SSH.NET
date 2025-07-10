@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void OnErrorOccuredShouldBeInvokedOnce()
+        public void OnErrorOccurredShouldBeInvokedOnce()
         {
             Assert.AreEqual(1, _channel.OnErrorOccurredInvocations.Count);
             Assert.AreSame(_onOpenConfirmationException, _channel.OnErrorOccurredInvocations[0]);

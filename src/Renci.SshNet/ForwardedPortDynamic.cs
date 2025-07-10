@@ -171,7 +171,7 @@ namespace Renci.SshNet
             // update bound port (in case original was passed as zero)
             BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
 
-            Session.ErrorOccured += Session_ErrorOccured;
+            Session.ErrorOccured += Session_ErrorOccurred;
             Session.Disconnected += Session_Disconnected;
 
             // consider port started when we're listening for inbound connections
@@ -401,7 +401,7 @@ namespace Renci.SshNet
             var session = Session;
             if (session is not null)
             {
-                session.ErrorOccured -= Session_ErrorOccured;
+                session.ErrorOccured -= Session_ErrorOccurred;
                 session.Disconnected -= Session_Disconnected;
             }
         }
@@ -449,7 +449,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             var session = Session;
             if (session is not null)

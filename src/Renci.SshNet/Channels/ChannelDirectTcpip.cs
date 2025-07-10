@@ -249,9 +249,9 @@ namespace Renci.SshNet.Channels
         /// Called whenever an unhandled <see cref="Exception"/> occurs in <see cref="Session"/> causing
         /// the message loop to be interrupted, or when an exception occurred processing a channel message.
         /// </summary>
-        protected override void OnErrorOccured(Exception exp)
+        protected override void OnErrorOccurred(Exception exp)
         {
-            base.OnErrorOccured(exp);
+            base.OnErrorOccurred(exp);
 
             // signal to the client that we will not send anything anymore; this will also interrupt the
             // blocking receive in Bind if the client sends FIN/ACK in time
@@ -261,7 +261,7 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Called when the server wants to terminate the connection immmediately.
+        /// Called when the server wants to terminate the connection immediately.
         /// </summary>
         /// <remarks>
         /// The sender MUST NOT send or receive any data after this message, and

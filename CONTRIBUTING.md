@@ -18,7 +18,7 @@ The library has a test project for unit tests and a test project for integration
 
 Code coverage information can be generated for all test projects at once or for individual test projects. From the root of the repository or from the individual test project directory, run `dotnet test --collect:"XPlat Code Coverage"`.
 
-The coverage information can be visualized using e.g. [ReportGenerator](https://reportgenerator.io/). Install the ReportGenerator dotnet tool with `dotnet tool update -g dotnet-reportgenerator-globaltool` and then run
+The coverage information can be visualised using e.g. [ReportGenerator](https://reportgenerator.io/). Install the ReportGenerator dotnet tool with `dotnet tool update -g dotnet-reportgenerator-globaltool` and then run
 
 ```
 reportgenerator -reports:**/coverage.cobertura.xml -targetdir:TestResults/CoverageReport -assemblyfilters:+Renci.SshNet

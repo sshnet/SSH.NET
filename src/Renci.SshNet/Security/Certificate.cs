@@ -176,7 +176,7 @@ namespace Renci.SshNet.Security
         /// The key identifies the option and the value encodes
         /// option-specific information.
         /// All such options are "critical" in the sense that an implementation
-        /// must refuse to authorize a key that has an unrecognized option.
+        /// must refuse to authorize a key that has an unrecognised option.
         /// </summary>
         public IDictionary<string, string> CriticalOptions
         {
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// A set of zero or more optional extensions. These extensions
         /// are not critical, and an implementation that encounters one that it does
-        /// not recognize may safely ignore it.
+        /// not recognise may safely ignore it.
         /// </summary>
         public IDictionary<string, string> Extensions
         {

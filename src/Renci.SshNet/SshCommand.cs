@@ -263,9 +263,9 @@ namespace Renci.SshNet
                 OutputStream.Dispose();
                 ExtendedOutputStream.Dispose();
 
-                // Initialize output streams. We already initialized them for the first
+                // Initialise output streams. We already initialised them for the first
                 // execution in the constructor (to allow passing them around before execution)
-                // so we just need to reinitialize them for subsequent executions.
+                // so we just need to reinitialise them for subsequent executions.
                 OutputStream = new PipeStream();
                 ExtendedOutputStream = new PipeStream();
                 _channel = _session.CreateChannelSession();

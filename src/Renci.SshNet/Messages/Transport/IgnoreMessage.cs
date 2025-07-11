@@ -28,7 +28,7 @@ namespace Renci.SshNet.Messages.Transport
         }
 
         /// <summary>
-        /// Gets ignore message data if this message has been initialized
+        /// Gets ignore message data if this message has been initialised
         /// with data to be sent. Otherwise, returns an empty array.
         /// </summary>
         public byte[] Data { get; private set; }

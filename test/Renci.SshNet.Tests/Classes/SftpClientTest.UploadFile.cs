@@ -89,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes
 
             public void SendMessage(Message message)
             {
-                // Initialization sequence for SFTP session
+                // Initialisation sequence for SFTP session
 
                 if (message is ChannelOpenMessage)
                 {

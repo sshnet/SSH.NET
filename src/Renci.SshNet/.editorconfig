@@ -1,4 +1,5 @@
 ﻿[*.cs]
+spelling_languages = en-us,en-gb
 spelling_exclusion_path = ../exclusion.dic
 spelling_checkable_types = all
 

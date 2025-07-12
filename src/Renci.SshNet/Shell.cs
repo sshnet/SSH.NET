@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents instance of the SSH shell object.
     /// </summary>
-    public class Shell : IDisposable
+    public sealed class Shell : IDisposable
     {
         private const int DefaultBufferSize = 1024;
 
@@ -315,7 +315,7 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_disposed)
             {

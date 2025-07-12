@@ -30,7 +30,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    public class Session : ISession
+    public sealed class Session : ISession
     {
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
@@ -2185,7 +2185,7 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_disposed)
             {

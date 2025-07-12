@@ -6,7 +6,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Provides data for <see cref="ForwardedPort.RequestReceived"/> event.
     /// </summary>
-    public class PortForwardEventArgs : EventArgs
+    public sealed class PortForwardEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PortForwardEventArgs"/> class.

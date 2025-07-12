@@ -17,7 +17,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Contains operation for working with SSH Shell.
     /// </summary>
-    public class ShellStream : Stream
+    public sealed class ShellStream : Stream
     {
         private const int DefaultBufferSize = 1024;
 

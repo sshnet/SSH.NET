@@ -1065,6 +1065,7 @@ namespace Renci.SshNet.Sftp
                 {
                     lock (_lock)
                     {
+#pragma warning disable CA1508 // Avoid dead conditional code
                         if (_session != null)
                         {
                             _canRead = false;
@@ -1088,6 +1089,7 @@ namespace Renci.SshNet.Sftp
 
                             _session = null;
                         }
+#pragma warning restore CA1508 // Avoid dead conditional code
                     }
                 }
             }

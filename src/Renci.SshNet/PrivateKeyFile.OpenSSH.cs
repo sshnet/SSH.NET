@@ -32,7 +32,7 @@ namespace Renci.SshNet
             /// </summary>
             public Key Parse()
             {
-                var keyReader = new SshDataStream(_data);
+                using var keyReader = new SshDataStream(_data);
 
                 // check magic header
                 var authMagic = "openssh-key-v1\0"u8;
@@ -171,7 +171,7 @@ namespace Renci.SshNet
                 // now parse the data we called the private key, it actually contains the public key again
                 // so we need to parse through it to get the private key bytes, plus there's some
                 // validation we need to do.
-                var privateKeyReader = new SshDataStream(privateKeyBytes);
+                using var privateKeyReader = new SshDataStream(privateKeyBytes);
 
                 // check ints should match, they wouldn't match for example if the wrong passphrase was supplied
                 var checkInt1 = (int)privateKeyReader.ReadUInt32();
@@ -200,7 +200,9 @@ namespace Renci.SshNet
 
                         // k || ENC(A)
                         unencryptedPrivateKey = privateKeyReader.ReadBinary();
+#pragma warning disable CA2000 // Dispose objects before losing scope
                         parsedKey = new ED25519Key(unencryptedPrivateKey);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                         break;
                     case "ecdsa-sha2-nistp256":
                     case "ecdsa-sha2-nistp384":
@@ -210,7 +212,9 @@ namespace Renci.SshNet
                         publicKey = privateKeyReader.ReadBinary();
 
                         unencryptedPrivateKey = privateKeyReader.ReadBinary();
+#pragma warning disable CA2000 // Dispose objects before losing scope
                         parsedKey = new EcdsaKey(curve, publicKey, unencryptedPrivateKey.TrimLeadingZeros());
+#pragma warning restore CA2000 // Dispose objects before losing scope
                         break;
                     case "ssh-rsa":
                         var modulus = privateKeyReader.ReadBigInt();
@@ -219,7 +223,9 @@ namespace Renci.SshNet
                         var inverseQ = privateKeyReader.ReadBigInt();
                         var p = privateKeyReader.ReadBigInt();
                         var q = privateKeyReader.ReadBigInt();
+#pragma warning disable CA2000 // Dispose objects before losing scope
                         parsedKey = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                         break;
                     default:
                         throw new SshException("OpenSSH key type '" + keyType + "' is not supported.");

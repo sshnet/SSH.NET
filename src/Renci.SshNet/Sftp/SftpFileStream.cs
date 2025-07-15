@@ -210,7 +210,9 @@ namespace Renci.SshNet.Sftp
 
         internal static SftpFileStream Open(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             return Open(session, path, mode, access, bufferSize, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
         internal static Task<SftpFileStream> OpenAsync(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, CancellationToken cancellationToken)

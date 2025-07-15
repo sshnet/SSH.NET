@@ -163,11 +163,11 @@ namespace Renci.SshNet
                     throw new SshException("MAC verification failed for PuTTY key file");
                 }
 
-                var publicKeyReader = new SshDataStream(_publicKey);
+                using var publicKeyReader = new SshDataStream(_publicKey);
                 var keyType = publicKeyReader.ReadString(Encoding.UTF8);
                 Debug.Assert(keyType == _algorithmName, $"{nameof(keyType)} is not the same as {nameof(_algorithmName)}");
 
-                var privateKeyReader = new SshDataStream(privateKey);
+                using var privateKeyReader = new SshDataStream(privateKey);
 
                 Key parsedKey;
 

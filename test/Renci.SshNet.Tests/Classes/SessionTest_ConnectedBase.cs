@@ -66,23 +66,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void TearDown()
         {
-            if (ServerListener != null)
-            {
-                ServerListener.Dispose();
-                ServerListener = null;
-            }
+            ServerListener?.Dispose();
+            ServerListener = null;
 
-            if (ServerSocket != null)
-            {
-                ServerSocket.Dispose();
-                ServerSocket = null;
-            }
+            ServerSocket?.Dispose();
+            ServerSocket = null;
 
-            if (Session != null)
-            {
-                Session.Dispose();
-                Session = null;
-            }
+            Session?.Dispose();
+            Session = null;
 
             if (ClientSocket != null && ClientSocket.Connected)
             {
@@ -90,11 +81,8 @@ namespace Renci.SshNet.Tests.Classes
                 ClientSocket.Dispose();
             }
 
-            if (FirstKexReceived != null)
-            {
-                FirstKexReceived.Dispose();
-                FirstKexReceived = null;
-            }
+            FirstKexReceived?.Dispose();
+            FirstKexReceived = null;
         }
 
         protected virtual void SetupData()

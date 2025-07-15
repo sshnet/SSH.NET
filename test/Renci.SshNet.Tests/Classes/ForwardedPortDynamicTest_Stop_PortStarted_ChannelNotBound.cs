@@ -38,16 +38,10 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _client = null;
-            }
-            if (_forwardedPort != null)
-            {
-                _forwardedPort.Dispose();
-                _forwardedPort = null;
-            }
+            _client?.Dispose();
+            _client = null;
+            _forwardedPort?.Dispose();
+            _forwardedPort = null;
         }
 
         protected void Arrange()

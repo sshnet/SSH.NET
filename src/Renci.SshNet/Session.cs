@@ -1570,17 +1570,11 @@ namespace Renci.SshNet
                 disposableClientCipher.Dispose();
             }
 
-            if (_serverMac != null)
-            {
-                _serverMac.Dispose();
-                _serverMac = null;
-            }
+            _serverMac?.Dispose();
+            _serverMac = null;
 
-            if (_clientMac != null)
-            {
-                _clientMac.Dispose();
-                _clientMac = null;
-            }
+            _clientMac?.Dispose();
+            _clientMac = null;
 
             // Update negotiated algorithms
             _serverCipher = _keyExchange.CreateServerCipher(out _serverAead);

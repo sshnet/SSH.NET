@@ -299,11 +299,8 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_netConfSession != null)
-                {
-                    _netConfSession.Dispose();
-                    _netConfSession = null;
-                }
+                _netConfSession?.Dispose();
+                _netConfSession = null;
             }
         }
 

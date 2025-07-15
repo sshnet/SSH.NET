@@ -37,17 +37,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestCleanup]
         public void Cleanup()
         {
-            if (_server != null)
-            {
-                _server.Dispose();
-                _server = null;
-            }
+            _server?.Dispose();
+            _server = null;
 
-            if (_client != null)
-            {
-                _client.Close();
-                _client = null;
-            }
+            _client?.Close();
+            _client = null;
         }
 
         protected void Arrange()

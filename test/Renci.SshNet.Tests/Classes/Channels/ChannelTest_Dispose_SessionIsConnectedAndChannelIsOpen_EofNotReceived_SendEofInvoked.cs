@@ -31,11 +31,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestCleanup]
         public void TearDown()
         {
-            if (_channelClosedEventHandlerCompleted != null)
-            {
-                _channelClosedEventHandlerCompleted.Dispose();
-                _channelClosedEventHandlerCompleted = null;
-            }
+            _channelClosedEventHandlerCompleted?.Dispose();
+            _channelClosedEventHandlerCompleted = null;
         }
 
         protected override void SetupData()

@@ -49,23 +49,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (ForwardedPort != null)
-            {
-                ForwardedPort.Dispose();
-                ForwardedPort = null;
-            }
+            ForwardedPort?.Dispose();
+            ForwardedPort = null;
 
-            if (_channelBindStarted != null)
-            {
-                _channelBindStarted.Dispose();
-                _channelBindStarted = null;
-            }
+            _channelBindStarted?.Dispose();
+            _channelBindStarted = null;
 
-            if (_channelBindCompleted != null)
-            {
-                _channelBindCompleted.Dispose();
-                _channelBindCompleted = null;
-            }
+            _channelBindCompleted?.Dispose();
+            _channelBindCompleted = null;
         }
 
         private void CreateMocks()

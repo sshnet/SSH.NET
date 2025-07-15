@@ -542,7 +542,8 @@ namespace Renci.SshNet.IntegrationTests
                         {
                             using HttpClientHandler handler = new()
                             {
-                                AllowAutoRedirect = false
+                                AllowAutoRedirect = false,
+                                CheckCertificateRevocationList = true,
                             };
 
                             using HttpClient httpClient = new(handler);
@@ -598,7 +599,8 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         using HttpClientHandler handler = new()
                         {
-                            AllowAutoRedirect = false
+                            AllowAutoRedirect = false,
+                            CheckCertificateRevocationList = true,
                         };
 
                         using HttpClient httpClient = new(handler);

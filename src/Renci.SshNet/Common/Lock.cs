@@ -5,14 +5,16 @@ namespace Renci.SshNet.Common
 {
     internal sealed class Lock
     {
+        private readonly object _lockObject = new object();
+
         public bool TryEnter()
         {
-            return Monitor.TryEnter(this);
+            return Monitor.TryEnter(_lockObject);
         }
 
         public void Exit()
         {
-            Monitor.Exit(this);
+            Monitor.Exit(_lockObject);
         }
     }
 }

@@ -100,7 +100,7 @@ namespace Renci.SshNet
             HostAddress = hostAddress;
             Port = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortRemote>();
+            _logger = Session.SessionLoggerFactory.CreateLogger<ForwardedPortRemote>();
         }
 
         /// <summary>

@@ -103,7 +103,7 @@ namespace Renci.SshNet
             Host = host;
             Port = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortLocal>();
+            _logger = Session.SessionLoggerFactory.CreateLogger<ForwardedPortLocal>();
         }
 
         /// <summary>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -10,6 +12,14 @@ namespace Renci.SshNet
     /// </summary>
     internal interface ISubsystemSession : IDisposable
     {
+        /// <summary>
+        /// Gets the logger factory for this subsystem session.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this connection.
+        /// </value>
+        public ILoggerFactory SessionLoggerFactory { get; }
+
         /// <summary>
         /// Gets or sets the number of milliseconds to wait for an operation to complete.
         /// </summary>

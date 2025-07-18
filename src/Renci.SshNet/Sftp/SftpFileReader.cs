@@ -71,7 +71,7 @@ namespace Renci.SshNet.Sftp
             _readAheadCompleted = new ManualResetEvent(initialState: false);
             _disposingWaitHandle = new ManualResetEvent(initialState: false);
             _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<SftpFileReader>();
+            _logger = sftpSession.SessionLoggerFactory.CreateLogger<SftpFileReader>();
 
             StartReadAhead();
         }

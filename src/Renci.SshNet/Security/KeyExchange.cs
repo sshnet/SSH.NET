@@ -69,7 +69,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         protected KeyExchange()
         {
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger = Session.SessionLoggerFactory.CreateLogger(GetType());
         }
 
         /// <inheritdoc/>

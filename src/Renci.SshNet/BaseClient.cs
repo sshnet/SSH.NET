@@ -20,8 +20,6 @@ namespace Renci.SshNet
         /// Holds value indicating whether the connection info is owned by this client.
         /// </summary>
         private readonly bool _ownsConnectionInfo;
-
-        private readonly ILogger _logger;
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
@@ -36,6 +34,14 @@ namespace Renci.SshNet
         /// The current session.
         /// </value>
         internal ISession? Session { get; private set; }
+
+        internal ILogger? Logger
+        {
+            get
+            {
+                return Session?.SessionLoggerFactory?.CreateLogger(GetType());
+            }
+        }
 
         /// <summary>
         /// Gets the factory for creating new services.
@@ -192,7 +198,6 @@ namespace Renci.SshNet
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
             _keepAliveInterval = Timeout.InfiniteTimeSpan;
         }
 
@@ -346,7 +351,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
-            _logger.LogInformation("Disconnecting client.");
+            Logger?.LogInformation("Disconnecting client.");
 
             CheckDisposed();
 
@@ -445,7 +450,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                _logger.LogDebug("Disposing client.");
+                Logger?.LogDebug("Disposing client.");
 
                 Disconnect();
 
@@ -508,7 +513,7 @@ namespace Renci.SshNet
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending keepalive message");
+                    Logger?.LogError(ex, "Error sending keepalive message");
                 }
                 finally
                 {

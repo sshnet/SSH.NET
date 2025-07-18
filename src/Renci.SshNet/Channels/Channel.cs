@@ -84,7 +84,7 @@ namespace Renci.SshNet.Channels
             LocalChannelNumber = localChannelNumber;
             LocalPacketSize = localPacketSize;
             LocalWindowSize = localWindowSize;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger = session.SessionLoggerFactory.CreateLogger(GetType());
 
             session.ChannelWindowAdjustReceived += OnChannelWindowAdjust;
             session.ChannelDataReceived += OnChannelData;

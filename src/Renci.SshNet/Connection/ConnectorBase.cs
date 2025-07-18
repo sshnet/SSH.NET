@@ -15,13 +15,15 @@ namespace Renci.SshNet.Connection
     internal abstract class ConnectorBase : IConnector
     {
         private readonly ILogger _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        protected ConnectorBase(ISocketFactory socketFactory)
+        protected ConnectorBase(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
         {
             ThrowHelper.ThrowIfNull(socketFactory);
 
             SocketFactory = socketFactory;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _loggerFactory = loggerFactory;
+            _logger = _loggerFactory.CreateLogger(GetType());
         }
 
         internal ISocketFactory SocketFactory { get; private set; }

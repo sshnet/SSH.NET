@@ -72,6 +72,14 @@ namespace Renci.SshNet
             get { return _channel is not null && _channel.IsOpen; }
         }
 
+        public ILoggerFactory SessionLoggerFactory
+        {
+            get
+            {
+                return _session.SessionLoggerFactory;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubsystemSession"/> class.
         /// </summary>
@@ -86,7 +94,7 @@ namespace Renci.SshNet
 
             _session = session;
             _subsystemName = subsystemName;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger = SessionLoggerFactory.CreateLogger(GetType());
             OperationTimeout = operationTimeout;
         }
 

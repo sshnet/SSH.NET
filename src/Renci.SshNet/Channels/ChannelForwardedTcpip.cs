@@ -48,7 +48,7 @@ namespace Renci.SshNet.Channels
                    remoteWindowSize,
                    remotePacketSize)
         {
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ChannelForwardedTcpip>();
+            _logger = session.SessionLoggerFactory.CreateLogger<ChannelForwardedTcpip>();
         }
 
         /// <summary>

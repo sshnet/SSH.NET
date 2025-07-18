@@ -33,7 +33,7 @@ namespace Renci.SshNet.Channels
         public ChannelDirectTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
             : base(session, localChannelNumber, localWindowSize, localPacketSize)
         {
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ChannelDirectTcpip>();
+            _logger = session.SessionLoggerFactory.CreateLogger<ChannelDirectTcpip>();
         }
 
         /// <summary>

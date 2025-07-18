@@ -353,6 +353,14 @@ namespace Renci.SshNet
         public ConnectionInfo ConnectionInfo { get; private set; }
 
         /// <summary>
+        /// Gets the logger factory for this session.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this session.
+        /// </value>
+        public ILoggerFactory SessionLoggerFactory { get; private set; }
+
+        /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
         /// <remarks>A known misspelling of "occurred" preserved for backward compatibility.</remarks>
@@ -554,9 +562,10 @@ namespace Renci.SshNet
             ThrowHelper.ThrowIfNull(socketFactory);
 
             ConnectionInfo = connectionInfo;
+            SessionLoggerFactory = connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<Session>();
+            _logger = SessionLoggerFactory.CreateLogger<Session>();
             _messageListenerCompleted = new ManualResetEvent(initialState: true);
         }
 

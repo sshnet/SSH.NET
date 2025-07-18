@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
@@ -18,8 +20,8 @@ namespace Renci.SshNet.Connection
     /// </remarks>
     internal sealed class Socks5Connector : ProxyConnector
     {
-        public Socks5Connector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public Socks5Connector(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
+            : base(socketFactory, loggerFactory)
         {
         }
 

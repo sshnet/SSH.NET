@@ -75,7 +75,7 @@ namespace Renci.SshNet
             BoundHost = host;
             BoundPort = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortDynamic>();
+            _logger = Session.SessionLoggerFactory.CreateLogger<ForwardedPortDynamic>();
         }
 
         /// <summary>

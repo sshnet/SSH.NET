@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
@@ -17,8 +19,8 @@ namespace Renci.SshNet.Connection
     /// </remarks>
     internal sealed class Socks4Connector : ProxyConnector
     {
-        public Socks4Connector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public Socks4Connector(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
+            : base(socketFactory, loggerFactory)
         {
         }
 

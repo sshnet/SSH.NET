@@ -16,7 +16,7 @@ namespace Renci.SshNet
         /// Gets the logger factory for this subsystem session.
         /// </summary>
         /// <value>
-        /// The logger factory for this connection.
+        /// The logger factory for this connection. Will never return <see langword="null"/>.
         /// </value>
         public ILoggerFactory SessionLoggerFactory { get; }
 

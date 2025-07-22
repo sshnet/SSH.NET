@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
@@ -25,6 +26,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _socketFactory2Mock = new Mock<ISocketFactory>(MockBehavior.Strict);
             _session2Mock = new Mock<ISession>(MockBehavior.Strict);
+            _session2Mock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
         }
 
         protected override void SetupMocks()

@@ -24,7 +24,7 @@ namespace Renci.SshNet
 
         private readonly string _subsystemName;
         private readonly ILogger _logger;
-        private ISession _session;
+        private readonly ISession _session;
         private IChannelSession _channel;
         private Exception _exception;
         private EventWaitHandle _errorOccurredWaitHandle = new ManualResetEvent(initialState: false);
@@ -530,11 +530,6 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session is null)
-            {
-                return;
-            }
-
             session.Disconnected -= Session_Disconnected;
             session.ErrorOccured -= Session_ErrorOccurred;
         }
@@ -562,8 +557,6 @@ namespace Renci.SshNet
             if (disposing)
             {
                 Disconnect();
-
-                _session = null;
 
                 var errorOccurredWaitHandle = _errorOccurredWaitHandle;
                 if (errorOccurredWaitHandle != null)

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
@@ -21,6 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         protected void CreateMocks()
         {
             SessionMock = new Mock<ISession>(MockBehavior.Strict);
+            SessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             ConnectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
         }
 

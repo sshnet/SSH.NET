@@ -20,6 +20,8 @@ namespace Renci.SshNet
         /// Holds value indicating whether the connection info is owned by this client.
         /// </summary>
         private readonly bool _ownsConnectionInfo;
+
+        private readonly ILogger _logger;
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
@@ -34,14 +36,6 @@ namespace Renci.SshNet
         /// The current session.
         /// </value>
         internal ISession? Session { get; private set; }
-
-        internal ILogger? Logger
-        {
-            get
-            {
-                return Session?.SessionLoggerFactory?.CreateLogger(GetType());
-            }
-        }
 
         /// <summary>
         /// Gets the factory for creating new services.
@@ -198,6 +192,7 @@ namespace Renci.SshNet
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
             _serviceFactory = serviceFactory;
+            _logger = (connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory).CreateLogger(GetType());
             _keepAliveInterval = Timeout.InfiniteTimeSpan;
         }
 
@@ -351,7 +346,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
-            Logger?.LogInformation("Disconnecting client.");
+            _logger.LogInformation("Disconnecting client.");
 
             CheckDisposed();
 
@@ -450,7 +445,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                Logger?.LogDebug("Disposing client.");
+                _logger.LogDebug("Disposing client.");
 
                 Disconnect();
 
@@ -513,7 +508,7 @@ namespace Renci.SshNet
                 }
                 catch (Exception ex)
                 {
-                    Logger?.LogError(ex, "Error sending keepalive message");
+                    _logger.LogError(ex, "Error sending keepalive message");
                 }
                 finally
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -109,6 +110,7 @@ namespace Renci.SshNet.Tests.Classes
         private ShellStream CreateShellStream()
         {
             var sessionMock = new Mock<ISession>(MockBehavior.Loose);
+            sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             var channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
             sessionMock.Setup(p => p.ConnectionInfo)

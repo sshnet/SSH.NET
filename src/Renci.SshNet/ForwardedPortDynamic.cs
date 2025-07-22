@@ -21,7 +21,6 @@ namespace Renci.SshNet
     /// </summary>
     public class ForwardedPortDynamic : ForwardedPort
     {
-        private readonly ILogger _logger;
         private ForwardedPortStatus _status;
 
         /// <summary>
@@ -75,7 +74,6 @@ namespace Renci.SshNet
             BoundHost = host;
             BoundPort = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = Session.SessionLoggerFactory.CreateLogger<ForwardedPortDynamic>();
         }
 
         /// <summary>
@@ -416,7 +414,12 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                _logger.LogInformation("Timeout waiting for pending channels in dynamic forwarded port to close.");
+                var session = Session;
+                if (session != null)
+                {
+                    var logger = session.SessionLoggerFactory.CreateLogger<ForwardedPortDynamic>();
+                    logger.LogInformation("Timeout waiting for pending channels in dynamic forwarded port to close.");
+                }
             }
         }
 

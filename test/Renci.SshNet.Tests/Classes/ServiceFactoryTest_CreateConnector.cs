@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -20,6 +21,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _serviceFactory = new ServiceFactory();
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock.Setup(p => p.LoggerFactory).Returns(NullLoggerFactory.Instance);
             _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
         }
 

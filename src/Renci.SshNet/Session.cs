@@ -358,7 +358,7 @@ namespace Renci.SshNet
         /// <value>
         /// The logger factory for this session.
         /// </value>
-        public ILoggerFactory SessionLoggerFactory { get; private set; }
+        public ILoggerFactory SessionLoggerFactory { get; }
 
         /// <summary>
         /// Occurs when an error occurred.

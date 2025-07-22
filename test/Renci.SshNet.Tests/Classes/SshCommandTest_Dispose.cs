@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -35,6 +36,7 @@ namespace Renci.SshNet.Tests.Classes
         private void Arrange()
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _commandText = new Random().Next().ToString(CultureInfo.InvariantCulture);
             _encoding = Encoding.UTF8;
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);

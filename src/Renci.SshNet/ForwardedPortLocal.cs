@@ -14,7 +14,6 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort
     {
-        private readonly ILogger _logger;
         private ForwardedPortStatus _status;
         private bool _isDisposed;
         private Socket _listener;
@@ -103,7 +102,6 @@ namespace Renci.SshNet
             Host = host;
             Port = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = Session.SessionLoggerFactory.CreateLogger<ForwardedPortLocal>();
         }
 
         /// <summary>
@@ -390,7 +388,12 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                _logger.LogInformation("Timeout waiting for pending channels in local forwarded port to close.");
+                var session = Session;
+                if (session != null)
+                {
+                    var logger = session.SessionLoggerFactory.CreateLogger<ForwardedPortLocal>();
+                    logger.LogInformation("Timeout waiting for pending channels in local forwarded port to close.");
+                }
             }
         }
 

@@ -502,7 +502,7 @@ namespace Renci.SshNet
         /// Gets or sets logger factory for this connection.
         /// </summary>
         /// <value>
-        /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> should be used.
+        /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> is used.
         /// </value>
         public ILoggerFactory LoggerFactory { get; set; }
     }

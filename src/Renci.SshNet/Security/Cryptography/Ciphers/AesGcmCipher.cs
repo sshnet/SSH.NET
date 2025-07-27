@@ -22,7 +22,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 #endif
 
         /// <summary>
-        /// Gets the minimun block size.
+        /// Gets the minimum block size.
         /// The reader is reminded that SSH requires that the data to be
         /// encrypted MUST be padded out to a multiple of the block size
         /// (16-octets for AES-GCM).
@@ -164,7 +164,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// Dispose the instance.
         /// </summary>
-        /// <param name="disposing">Set to True to dispose of resouces.</param>
+        /// <param name="disposing">Set to True to dispose of resources.</param>
         public void Dispose(bool disposing)
         {
             if (disposing)

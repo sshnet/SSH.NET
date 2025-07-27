@@ -213,7 +213,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Reads a <see cref="BigInteger"/> from the SSH datastream.
+        /// Reads a <see cref="BigInteger"/> from the SSH data stream.
         /// </summary>
         /// <returns>
         /// The <see cref="BigInteger"/> read from the SSH data stream.

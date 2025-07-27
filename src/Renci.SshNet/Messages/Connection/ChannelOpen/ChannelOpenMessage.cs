@@ -93,7 +93,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public ChannelOpenMessage()
         {
-            // Required for dynamicly loading request type when it comes from the server
+            // Required for dynamically loading request type when it comes from the server
         }
 
         /// <summary>

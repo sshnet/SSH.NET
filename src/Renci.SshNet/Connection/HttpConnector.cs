@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
@@ -48,8 +50,8 @@ namespace Renci.SshNet.Connection
         private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);
 #endif
 
-        public HttpConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public HttpConnector(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
+            : base(socketFactory, loggerFactory)
         {
         }
 

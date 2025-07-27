@@ -16,7 +16,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents an SSH command that can be executed.
     /// </summary>
-    public class SshCommand : IDisposable
+    public sealed class SshCommand : IDisposable
     {
         private readonly ISession _session;
         private readonly Encoding _encoding;
@@ -225,7 +225,7 @@ namespace Renci.SshNet
             OutputStream = new PipeStream();
             ExtendedOutputStream = new PipeStream();
             _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
             _channel = _session.CreateChannelSession();
         }
 
@@ -263,7 +263,7 @@ namespace Renci.SshNet
                 OutputStream.Dispose();
                 ExtendedOutputStream.Dispose();
 
-                // Initialize output streams. We already initialised them for the first
+                // Initialise output streams. We already initialised them for the first
                 // execution in the constructor (to allow passing them around before execution)
                 // so we just need to reinitialise them for subsequent executions.
                 OutputStream = new PipeStream();
@@ -512,7 +512,7 @@ namespace Renci.SshNet
             SetAsyncComplete(setResult: false);
         }
 
-        private void Session_ErrorOccured(object? sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
             _ = _tcs?.TrySetException(e.Exception);
 
@@ -630,7 +630,7 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_isDisposed)
             {
@@ -642,7 +642,7 @@ namespace Renci.SshNet
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
                 _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
+                _session.ErrorOccured -= Session_ErrorOccurred;
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing

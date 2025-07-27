@@ -1,4 +1,6 @@
 ﻿[*.cs]
+spelling_exclusion_path = ../../exclusion.dic
+spelling_checkable_types = identifiers,comments
 
 #### Meziantou.Analyzer rules ####
 

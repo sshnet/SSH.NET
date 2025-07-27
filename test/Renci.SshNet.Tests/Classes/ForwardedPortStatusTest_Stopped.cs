@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Equals_ShouldReturTrueWhenOtherIsStopped()
+        public void Equals_ShouldReturnTrueWhenOtherIsStopped()
         {
             var other = ForwardedPortStatus.Stopped;
 

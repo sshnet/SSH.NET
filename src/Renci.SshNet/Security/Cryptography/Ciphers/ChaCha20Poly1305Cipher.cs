@@ -27,7 +27,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private readonly Poly1305 _mac;
 
         /// <summary>
-        /// Gets the minimun block size.
+        /// Gets the minimum block size.
         /// </summary>
         public override byte MinimumSize
         {

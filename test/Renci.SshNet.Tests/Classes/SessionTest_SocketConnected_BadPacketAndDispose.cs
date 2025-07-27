@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -78,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
 
-            _clientSocket = new DirectConnector(_socketFactory).Connect(_connectionInfo);
+            _clientSocket = new DirectConnector(_socketFactory, NullLoggerFactory.Instance).Connect(_connectionInfo);
         }
 
         protected void SetupMocks()

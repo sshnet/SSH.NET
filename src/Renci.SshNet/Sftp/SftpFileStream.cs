@@ -16,7 +16,7 @@ namespace Renci.SshNet.Sftp
 #pragma warning disable IDE0079 // We intentionally want to suppress the below warning.
     [SuppressMessage("Performance", "CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'", Justification = "TODO: This should be addressed in the future.")]
 #pragma warning restore IDE0079
-    public class SftpFileStream : Stream
+    public sealed class SftpFileStream : Stream
     {
         private readonly Lock _lock = new Lock();
         private readonly int _readBufferSize;
@@ -162,7 +162,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The operating system file handle for the file that the current <see cref="SftpFileStream"/> encapsulates.
         /// </value>
-        public virtual byte[] Handle
+        public byte[] Handle
         {
             get
             {

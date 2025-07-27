@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -32,6 +33,7 @@ namespace Renci.SshNet.Tests.Classes
             connectionInfoMock.Setup(p => p.Encoding).Returns(Encoding.UTF8);
 
             var sessionMock = new Mock<ISession>();
+            sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
 
             sessionMock.Setup(p => p.ConnectionInfo).Returns(connectionInfoMock.Object);
             sessionMock.Setup(p => p.CreateChannelSession()).Returns(_channelSessionStub);

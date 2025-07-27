@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
@@ -18,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected virtual void SetupData()
         {
-            Connector = new HttpConnector(SocketFactoryMock.Object);
+            Connector = new HttpConnector(SocketFactoryMock.Object, NullLoggerFactory.Instance);
             SocketFactory = new SocketFactory();
         }
 

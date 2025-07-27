@@ -350,7 +350,7 @@ namespace Renci.SshNet.Abstractions
                     }
                     else
                     {
-                        throw; // any serious error occurr
+                        throw; // any serious error occur
                     }
                 }
             }

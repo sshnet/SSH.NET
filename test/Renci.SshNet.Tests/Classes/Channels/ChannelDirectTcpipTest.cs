@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -49,6 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
         }
@@ -142,7 +144,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         {
                             // sleep for a short period to allow channel to actually start receiving from socket
                             Thread.Sleep(100);
-                            // raise ErrorOccured event on session
+                            // raise ErrorOccurred event on session
                             _sessionMock.Raise(s => s.ErrorOccured += null,
                                                new ExceptionEventArgs(new SystemException()));
                         });

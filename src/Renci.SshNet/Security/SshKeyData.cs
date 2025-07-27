@@ -58,7 +58,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="SshKeyData"/> class.
         /// </summary>
-        /// <param name="name">The public key format identifer.</param>
+        /// <param name="name">The public key format identifier.</param>
         /// <param name="keys">The public key constituents.</param>
         public SshKeyData(string name, BigInteger[] keys)
         {

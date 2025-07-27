@@ -30,7 +30,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    public class Session : ISession
+    public sealed class Session : ISession
     {
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
@@ -353,8 +353,17 @@ namespace Renci.SshNet
         public ConnectionInfo ConnectionInfo { get; private set; }
 
         /// <summary>
+        /// Gets the logger factory for this session.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this session.
+        /// </value>
+        public ILoggerFactory SessionLoggerFactory { get; }
+
+        /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
+        /// <remarks>A known misspelling of "occurred" preserved for backward compatibility.</remarks>
         public event EventHandler<ExceptionEventArgs> ErrorOccured;
 
         /// <summary>
@@ -553,9 +562,10 @@ namespace Renci.SshNet
             ThrowHelper.ThrowIfNull(socketFactory);
 
             ConnectionInfo = connectionInfo;
+            SessionLoggerFactory = connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory;
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<Session>();
+            _logger = SessionLoggerFactory.CreateLogger<Session>();
             _messageListenerCompleted = new ManualResetEvent(initialState: true);
         }
 
@@ -2185,7 +2195,7 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_disposed)
             {

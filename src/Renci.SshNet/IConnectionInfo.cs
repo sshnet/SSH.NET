@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -12,6 +14,14 @@ namespace Renci.SshNet
     /// </summary>
     internal interface IConnectionInfo
     {
+        /// <summary>
+        /// Gets the logger factory for this connection.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> is used.
+        /// </value>
+        public ILoggerFactory LoggerFactory { get; }
+
         /// <summary>
         /// Gets the timeout to used when waiting for a server to acknowledge closing a channel.
         /// </summary>

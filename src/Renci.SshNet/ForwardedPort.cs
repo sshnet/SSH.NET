@@ -64,7 +64,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            Session.ErrorOccured += Session_ErrorOccured;
+            Session.ErrorOccured += Session_ErrorOccurred;
             StartPort();
         }
 
@@ -107,7 +107,7 @@ namespace Renci.SshNet
             var session = Session;
             if (session is not null)
             {
-                session.ErrorOccured -= Session_ErrorOccured;
+                session.ErrorOccured -= Session_ErrorOccurred;
             }
         }
 
@@ -162,11 +162,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Handles session ErrorOccured event.
+        /// Handles session ErrorOccurred event.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             RaiseExceptionEvent(e.Exception);
         }

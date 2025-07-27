@@ -14,7 +14,6 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort
     {
-        private readonly ILogger _logger;
         private ForwardedPortStatus _status;
         private bool _isDisposed;
         private Socket _listener;
@@ -103,7 +102,6 @@ namespace Renci.SshNet
             Host = host;
             Port = port;
             _status = ForwardedPortStatus.Stopped;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ForwardedPortLocal>();
         }
 
         /// <summary>
@@ -199,7 +197,7 @@ namespace Renci.SshNet
             // update bound port (in case original was passed as zero)
             BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
 
-            Session.ErrorOccured += Session_ErrorOccured;
+            Session.ErrorOccured += Session_ErrorOccurred;
             Session.Disconnected += Session_Disconnected;
 
             InitializePendingChannelCountdown();
@@ -375,7 +373,7 @@ namespace Renci.SshNet
             var session = Session;
             if (session != null)
             {
-                session.ErrorOccured -= Session_ErrorOccured;
+                session.ErrorOccured -= Session_ErrorOccurred;
                 session.Disconnected -= Session_Disconnected;
             }
         }
@@ -390,7 +388,12 @@ namespace Renci.SshNet
 
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                _logger.LogInformation("Timeout waiting for pending channels in local forwarded port to close.");
+                var session = Session;
+                if (session != null)
+                {
+                    var logger = session.SessionLoggerFactory.CreateLogger<ForwardedPortLocal>();
+                    logger.LogInformation("Timeout waiting for pending channels in local forwarded port to close.");
+                }
             }
         }
 
@@ -423,7 +426,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             var session = Session;
             if (session is not null)

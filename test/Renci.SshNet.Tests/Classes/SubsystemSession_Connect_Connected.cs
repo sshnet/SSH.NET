@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -40,6 +41,7 @@ namespace Renci.SshNet.Tests.Classes
             _errorOccurredRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _channelMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
             _sequence = new MockSequence();

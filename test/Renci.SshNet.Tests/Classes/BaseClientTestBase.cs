@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
@@ -16,6 +18,7 @@ namespace Renci.SshNet.Tests.Classes
             ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
             SessionMock = new Mock<ISession>(MockBehavior.Strict);
+            SessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
         }
 
         protected virtual void SetupData()

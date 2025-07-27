@@ -4,6 +4,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -215,6 +217,8 @@ namespace Renci.SshNet.Tests.Classes
             public IChannelSession CreateChannelSession() => new ChannelSession(this, 0, int.MaxValue, int.MaxValue);
 
             public WaitHandle MessageListenerCompleted => throw new NotImplementedException();
+
+            public ILoggerFactory SessionLoggerFactory => NullLoggerFactory.Instance;
 
             public void Connect()
             {

@@ -102,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ErrorOccuredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnBaseClient()
+        public void ErrorOccurredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnBaseClient()
         {
             var errorOccurredSignalCount = 0;
 

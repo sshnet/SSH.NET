@@ -3,6 +3,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -21,6 +23,14 @@ namespace Renci.SshNet
         /// </summary>
         /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
+
+        /// <summary>
+        /// Gets the logger factory for this session.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this session. Will never return <see langword="null"/>.
+        /// </value>
+        public ILoggerFactory SessionLoggerFactory { get; }
 
         /// <summary>
         /// Gets a value indicating whether the session is connected.

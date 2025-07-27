@@ -176,7 +176,7 @@ namespace Renci.SshNet.Security
         /// The key identifies the option and the value encodes
         /// option-specific information.
         /// All such options are "critical" in the sense that an implementation
-        /// must refuse to authorise a key that has an unrecognised option.
+        /// must refuse to authorize a key that has an unrecognised option.
         /// </summary>
         public IDictionary<string, string> CriticalOptions
         {

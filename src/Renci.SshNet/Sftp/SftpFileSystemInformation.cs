@@ -3,11 +3,9 @@
 namespace Renci.SshNet.Sftp
 {
     /// <summary>
-    /// Contains File system information exposed by statvfs@openssh.com request.
+    /// Contains file system information exposed by statvfs@openssh.com request.
     /// </summary>
-#pragma warning disable SA1649 // File name should match first type name
-    public class SftpFileSystemInformation
-#pragma warning restore SA1649 // File name should match first type name
+    public sealed class SftpFileSystemInformation
     {
 #pragma warning disable SA1310 // Field names should not contain underscore
         internal const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;

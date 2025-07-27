@@ -1596,11 +1596,11 @@ namespace Renci.SshNet.IntegrationTests
             var remotePathFile1 = CombinePaths(remoteDirectory, "file1");
             var remotePathFile2 = CombinePaths(remoteDirectory, "file2");
 
-            var absoluteremoteSubDirectory1 = CombinePaths(absoluteRemoteDirectory, "sub1");
+            var absoluteRemoteSubDirectory1 = CombinePaths(absoluteRemoteDirectory, "sub1");
             var remoteSubDirectory1 = CombinePaths(remoteDirectory, "sub1");
             var remotePathSubFile1 = CombinePaths(remoteSubDirectory1, "file1");
             var remotePathSubFile2 = CombinePaths(remoteSubDirectory1, "file2");
-            var absoluteremoteSubDirectory2 = CombinePaths(absoluteRemoteDirectory, "sub2");
+            var absoluteRemoteSubDirectory2 = CombinePaths(absoluteRemoteDirectory, "sub2");
             var remoteSubDirectory2 = CombinePaths(remoteDirectory, "sub2");
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1726,7 +1726,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsTrue(client.Exists(remoteSubDirectory1));
                     remoteSftpDirectory = client.Get(remoteSubDirectory1);
                     Assert.IsNotNull(remoteSftpDirectory);
-                    Assert.AreEqual(absoluteremoteSubDirectory1, remoteSftpDirectory.FullName);
+                    Assert.AreEqual(absoluteRemoteSubDirectory1, remoteSftpDirectory.FullName);
                     Assert.IsTrue(remoteSftpDirectory.IsDirectory);
                     Assert.IsFalse(remoteSftpDirectory.IsRegularFile);
                     Assert.AreEqual(Directory.GetLastWriteTimeUtc(localSubDirectory1), remoteSftpDirectory.LastWriteTimeUtc);
@@ -1740,7 +1740,7 @@ namespace Renci.SshNet.IntegrationTests
                     Assert.IsTrue(client.Exists(remoteSubDirectory2));
                     remoteSftpDirectory = client.Get(remoteSubDirectory2);
                     Assert.IsNotNull(remoteSftpDirectory);
-                    Assert.AreEqual(absoluteremoteSubDirectory2, remoteSftpDirectory.FullName);
+                    Assert.AreEqual(absoluteRemoteSubDirectory2, remoteSftpDirectory.FullName);
                     Assert.IsTrue(remoteSftpDirectory.IsDirectory);
                     Assert.IsFalse(remoteSftpDirectory.IsRegularFile);
                     Assert.AreEqual(Directory.GetLastWriteTimeUtc(localSubDirectory2), remoteSftpDirectory.LastWriteTimeUtc);

@@ -24,10 +24,10 @@ namespace Renci.SshNet
 
         private readonly string _subsystemName;
         private readonly ILogger _logger;
-        private ISession _session;
+        private readonly ISession _session;
         private IChannelSession _channel;
         private Exception _exception;
-        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(initialState: false);
+        private EventWaitHandle _errorOccurredWaitHandle = new ManualResetEvent(initialState: false);
         private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(initialState: false);
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(initialState: false);
         private bool _isDisposed;
@@ -72,6 +72,14 @@ namespace Renci.SshNet
             get { return _channel is not null && _channel.IsOpen; }
         }
 
+        public ILoggerFactory SessionLoggerFactory
+        {
+            get
+            {
+                return _session.SessionLoggerFactory;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubsystemSession"/> class.
         /// </summary>
@@ -86,7 +94,7 @@ namespace Renci.SshNet
 
             _session = session;
             _subsystemName = subsystemName;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger = SessionLoggerFactory.CreateLogger(GetType());
             OperationTimeout = operationTimeout;
         }
 
@@ -106,12 +114,12 @@ namespace Renci.SshNet
             }
 
             // reset waithandles in case we're reconnecting
-            _ = _errorOccuredWaitHandle.Reset();
+            _ = _errorOccurredWaitHandle.Reset();
             _ = _sessionDisconnectedWaitHandle.Reset();
             _ = _sessionDisconnectedWaitHandle.Reset();
             _ = _channelClosedWaitHandle.Reset();
 
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
             _session.Disconnected += Session_Disconnected;
 
             _channel = _session.CreateChannelSession();
@@ -185,7 +193,7 @@ namespace Renci.SshNet
 
             _logger.LogInformation(error, "Raised exception");
 
-            _ = _errorOccuredWaitHandle?.Set();
+            _ = _errorOccurredWaitHandle?.Set();
 
             SignalErrorOccurred(error);
         }
@@ -224,7 +232,7 @@ namespace Renci.SshNet
         {
             var waitHandles = new[]
                 {
-                    _errorOccuredWaitHandle,
+                    _errorOccurredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
                     waitHandle
@@ -269,8 +277,8 @@ namespace Renci.SshNet
 
             async Task<T> DoWaitAsync(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken)
             {
-                using RegisteredWait errorOccuredReg = new(
-                    _errorOccuredWaitHandle,
+                using RegisteredWait errorOccurredReg = new(
+                    _errorOccurredWaitHandle,
                     (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(_exception),
                     state: tcs);
 
@@ -348,7 +356,7 @@ namespace Renci.SshNet
         {
             var waitHandles = new[]
                 {
-                    _errorOccuredWaitHandle,
+                    _errorOccurredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
                     waitHandle
@@ -402,7 +410,7 @@ namespace Renci.SshNet
         {
             var waitHandles = new[]
                 {
-                    _errorOccuredWaitHandle,
+                    _errorOccurredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
                     waitHandleA,
@@ -441,7 +449,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">No object satified the wait and a time interval equivalent to <paramref name="millisecondsTimeout"/> has passed.</exception>
+        /// <exception cref="SshOperationTimeoutException">No object satisfied the wait and a time interval equivalent to <paramref name="millisecondsTimeout"/> has passed.</exception>
         /// <remarks>
         /// For the return value, the index of the first non-system object is considered to be zero.
         /// </remarks>
@@ -477,7 +485,7 @@ namespace Renci.SshNet
         {
             return new WaitHandle[]
                 {
-                    _errorOccuredWaitHandle,
+                    _errorOccurredWaitHandle,
                     _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
                     waitHandle1,
@@ -496,7 +504,7 @@ namespace Renci.SshNet
         public WaitHandle[] CreateWaitHandleArray(params WaitHandle[] waitHandles)
         {
             var array = new WaitHandle[waitHandles.Length + SystemWaitHandleCount];
-            array[0] = _errorOccuredWaitHandle;
+            array[0] = _errorOccurredWaitHandle;
             array[1] = _sessionDisconnectedWaitHandle;
             array[2] = _channelClosedWaitHandle;
 
@@ -515,7 +523,7 @@ namespace Renci.SshNet
             SignalDisconnected();
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             RaiseError(e.Exception);
         }
@@ -547,13 +555,8 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session is null)
-            {
-                return;
-            }
-
             session.Disconnected -= Session_Disconnected;
-            session.ErrorOccured -= Session_ErrorOccured;
+            session.ErrorOccured -= Session_ErrorOccurred;
         }
 
         /// <summary>
@@ -580,13 +583,11 @@ namespace Renci.SshNet
             {
                 Disconnect();
 
-                _session = null;
-
-                var errorOccuredWaitHandle = _errorOccuredWaitHandle;
-                if (errorOccuredWaitHandle != null)
+                var errorOccurredWaitHandle = _errorOccurredWaitHandle;
+                if (errorOccurredWaitHandle != null)
                 {
-                    _errorOccuredWaitHandle = null;
-                    errorOccuredWaitHandle.Dispose();
+                    _errorOccurredWaitHandle = null;
+                    errorOccurredWaitHandle.Dispose();
                 }
 
                 var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;

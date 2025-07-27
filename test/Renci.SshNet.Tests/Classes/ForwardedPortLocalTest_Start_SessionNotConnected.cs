@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -52,6 +53,7 @@ namespace Renci.SshNet.Tests.Classes
                 random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
 
             _sessionMock.Setup(p => p.IsConnected).Returns(false);

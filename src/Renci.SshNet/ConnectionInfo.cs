@@ -5,6 +5,8 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Authentication;
@@ -495,5 +497,13 @@ namespace Renci.SshNet
             get { return AuthenticationMethods.Cast<IAuthenticationMethod>().ToList(); }
 #pragma warning restore S2365 // Properties should not make collection or array copies
         }
+
+        /// <summary>
+        /// Gets or sets logger factory for this connection.
+        /// </summary>
+        /// <value>
+        /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> is used.
+        /// </value>
+        public ILoggerFactory LoggerFactory { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -78,6 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remotePacketSize = (uint)random.Next(100, 200);
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
 

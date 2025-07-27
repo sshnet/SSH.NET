@@ -108,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             }
         }
 
-        protected override void OnErrorOccured(Exception exp)
+        protected override void OnErrorOccurred(Exception exp)
         {
             OnErrorOccurredInvocations.Add(exp);
 

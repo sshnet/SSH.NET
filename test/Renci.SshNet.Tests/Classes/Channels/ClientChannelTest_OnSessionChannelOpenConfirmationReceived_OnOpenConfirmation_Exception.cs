@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -40,6 +41,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
 
             _channel = new ClientChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
@@ -62,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void OnErrorOccuredShouldBeInvokedOnce()
+        public void OnErrorOccurredShouldBeInvokedOnce()
         {
             Assert.AreEqual(1, _channel.OnErrorOccurredInvocations.Count);
             Assert.AreSame(_onOpenConfirmationException, _channel.OnErrorOccurredInvocations[0]);

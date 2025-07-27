@@ -579,6 +579,11 @@ namespace Renci.SshNet
                 read = source.Read(buffer, 0, buffer.Length);
             }
 
+            if (totalLength == 0 && totalRead == 0)
+            {
+                RaiseUploadingEvent(remoteFileName, totalLength, totalRead);
+            }
+
             SendSuccessConfirmation(channel);
             CheckReturnCode(input);
         }

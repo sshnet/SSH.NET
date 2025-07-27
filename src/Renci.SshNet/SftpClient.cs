@@ -2192,7 +2192,7 @@ namespace Renci.SshNet
             ThrowHelper.ThrowIfNull(sourcePath);
             ThrowHelper.ThrowIfNullOrWhiteSpace(destinationPath);
 
-            return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asynchResult: null);
+            return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult: null);
         }
 
         /// <summary>
@@ -2254,7 +2254,7 @@ namespace Renci.SshNet
             return ar.EndInvoke();
         }
 
-        private List<FileInfo> InternalSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, SftpSynchronizeDirectoriesAsyncResult? asynchResult)
+        private List<FileInfo> InternalSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, SftpSynchronizeDirectoriesAsyncResult? asyncResult)
         {
             if (!Directory.Exists(sourcePath))
             {
@@ -2325,7 +2325,7 @@ namespace Renci.SshNet
 
                             uploadedFiles.Add(localFile);
 
-                            asynchResult?.Update(uploadedFiles.Count);
+                            asyncResult?.Update(uploadedFiles.Count);
                         }
                         catch (Exception ex)
                         {
@@ -2350,7 +2350,7 @@ namespace Renci.SshNet
         /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
         /// <param name="listCallback">The list callback.</param>
         /// <returns>
-        /// A list of files in the specfied directory.
+        /// A list of files in the specified directory.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
@@ -2527,7 +2527,7 @@ namespace Renci.SshNet
 
             // We will send out all the write requests without waiting for each response.
             // Afterwards, we may wait on this handle until all responses are received
-            // or an error has occured.
+            // or an error has occurred.
             using var mres = new ManualResetEventSlim(initialState: false);
 
             ExceptionDispatchInfo? exception = null;

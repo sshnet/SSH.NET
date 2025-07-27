@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 namespace Renci.SshNet.Connection
 {
     /// <summary>
@@ -12,8 +14,8 @@ namespace Renci.SshNet.Connection
     /// </summary>
     internal abstract class ProxyConnector : ConnectorBase
     {
-        protected ProxyConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        protected ProxyConnector(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
+            : base(socketFactory, loggerFactory)
         {
         }
 

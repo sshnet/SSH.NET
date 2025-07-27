@@ -1,4 +1,4 @@
-﻿// Avoid looking for .editorconfig files in parent directories
+# Avoid looking for .editorconfig files in parent directories
 root=true
 
 [*]
@@ -7,6 +7,9 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 tab_width = 4
+spelling_languages = en-us,en-gb
+spelling_exclusion_path = exclusion.dic
+spelling_checkable_types = all
 
 [*.{xml,csproj,props}]
 
@@ -776,14 +779,14 @@ dotnet_diagnostic.IDE0032.severity = suggestion
 dotnet_diagnostic.IDE0045.severity = none
 
 # IDE0046: Use conditional expression for return
-# 
+#
 # Using a conditional expression is not always a clear win for readability.
 #
 # Configured using 'dotnet_style_prefer_conditional_expression_over_return'
 dotnet_diagnostic.IDE0046.severity = suggestion
 
 # IDE0047: Remove unnecessary parentheses
-# 
+#
 # Removing "unnecessary" parentheses is not always a clear win for readability.
 dotnet_diagnostic.IDE0047.severity = suggestion
 
@@ -794,7 +797,7 @@ dotnet_diagnostic.IDE0047.severity = suggestion
 dotnet_diagnostic.IDE0130.severity = none
 
 # IDE0270: Null check can be simplified
-# 
+#
 # var inputPath = originalDossierPathList.Find(x => x.id == updatedPath.id);
 # if (inputPath is null)
 # {
@@ -938,7 +941,7 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 # Enabling this setting breaks Resharper formatting for an enum field reference that is
 # deeply nested in an object initializer.
-# 
+#
 # For an example, see TDataExchangeGeneralEnricher_CernInfrastructureObstruction.
 #csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
@@ -1021,19 +1024,19 @@ dotnet_naming_rule.private_const_fields_pascal_case.severity = warning
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
 dotnet_naming_symbols.interface.applicable_accessibilities = *
-dotnet_naming_symbols.interface.required_modifiers = 
+dotnet_naming_symbols.interface.required_modifiers =
 
 dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum
 dotnet_naming_symbols.types.applicable_accessibilities = *
-dotnet_naming_symbols.types.required_modifiers = 
+dotnet_naming_symbols.types.required_modifiers =
 
 dotnet_naming_symbols.non_field_members.applicable_kinds = property, event, method
 dotnet_naming_symbols.non_field_members.applicable_accessibilities = *
-dotnet_naming_symbols.non_field_members.required_modifiers = 
+dotnet_naming_symbols.non_field_members.required_modifiers =
 
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
-dotnet_naming_symbols.private_fields.required_modifiers = 
+dotnet_naming_symbols.private_fields.required_modifiers =
 
 dotnet_naming_symbols.private_static_fields.applicable_kinds = field
 dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
@@ -1050,18 +1053,18 @@ dotnet_naming_symbols.private_const_fields.required_modifiers = const
 # Naming styles
 
 dotnet_naming_style.begins_with_i.required_prefix = I
-dotnet_naming_style.begins_with_i.required_suffix = 
-dotnet_naming_style.begins_with_i.word_separator = 
+dotnet_naming_style.begins_with_i.required_suffix =
+dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-dotnet_naming_style.pascal_case.required_prefix = 
-dotnet_naming_style.pascal_case.required_suffix = 
-dotnet_naming_style.pascal_case.word_separator = 
+dotnet_naming_style.pascal_case.required_prefix =
+dotnet_naming_style.pascal_case.required_suffix =
+dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 dotnet_naming_style.camel_case_begins_with_underscore.required_prefix = _
-dotnet_naming_style.camel_case_begins_with_underscore.required_suffix = 
-dotnet_naming_style.camel_case_begins_with_underscore.word_separator = 
+dotnet_naming_style.camel_case_begins_with_underscore.required_suffix =
+dotnet_naming_style.camel_case_begins_with_underscore.word_separator =
 dotnet_naming_style.camel_case_begins_with_underscore.capitalization = camel_case
 
 #### .NET Compiler Platform general options ####

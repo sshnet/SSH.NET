@@ -10,7 +10,7 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Contains SFTP file attributes.
     /// </summary>
-    public class SftpFileAttributes
+    public sealed class SftpFileAttributes
     {
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable SA1310 // Field names should not contain underscore

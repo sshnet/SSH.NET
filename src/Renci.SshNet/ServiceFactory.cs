@@ -26,11 +26,8 @@ namespace Renci.SshNet
         /// </summary>
         private const int PartialSuccessLimit = 5;
 
-        private readonly ILogger _logger;
-
         internal ServiceFactory()
         {
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger<ServiceFactory>();
         }
 
         /// <summary>
@@ -160,7 +157,7 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                _logger.LogInformation(ex, "Failed to obtain size of file. Allowing maximum {MaxPendingReads} pending reads", maxPendingReads);
+                sftpSession.SessionLoggerFactory.CreateLogger<ServiceFactory>().LogInformation(ex, "Failed to obtain size of file. Allowing maximum {MaxPendingReads} pending reads", maxPendingReads);
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
@@ -221,16 +218,18 @@ namespace Renci.SshNet
             ThrowHelper.ThrowIfNull(connectionInfo);
             ThrowHelper.ThrowIfNull(socketFactory);
 
+            var loggerFactory = connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory;
+
             switch (connectionInfo.ProxyType)
             {
                 case ProxyTypes.None:
-                    return new DirectConnector(socketFactory);
+                    return new DirectConnector(socketFactory, loggerFactory);
                 case ProxyTypes.Socks4:
-                    return new Socks4Connector(socketFactory);
+                    return new Socks4Connector(socketFactory, loggerFactory);
                 case ProxyTypes.Socks5:
-                    return new Socks5Connector(socketFactory);
+                    return new Socks5Connector(socketFactory, loggerFactory);
                 case ProxyTypes.Http:
-                    return new HttpConnector(socketFactory);
+                    return new HttpConnector(socketFactory, loggerFactory);
                 default:
                     throw new NotSupportedException(string.Format("ProxyTypes '{0}' is not supported.", connectionInfo.ProxyType));
             }

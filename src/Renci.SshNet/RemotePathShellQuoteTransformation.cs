@@ -118,7 +118,7 @@ namespace Renci.SshNet
                         break;
                     case '!':
                         /*
-                         * In C-Shell, an exclamatation point can only be protected from shell interpretation
+                         * In C-Shell, an exclamation point can only be protected from shell interpretation
                          * when escaped by a backslash.
                          *
                          * Source:

@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents instance of the SSH shell object.
     /// </summary>
-    public class Shell : IDisposable
+    public sealed class Shell : IDisposable
     {
         private const int DefaultBufferSize = 1024;
 
@@ -154,7 +154,7 @@ namespace Renci.SshNet
             _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             _channel.Closed += Channel_Closed;
             _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccured;
+            _session.ErrorOccured += Session_ErrorOccurred;
 
             _channel.Open();
             if (!_noTerminal)
@@ -224,7 +224,7 @@ namespace Renci.SshNet
             _channel?.Dispose();
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             RaiseError(e);
         }
@@ -297,7 +297,7 @@ namespace Renci.SshNet
             }
 
             session.Disconnected -= Session_Disconnected;
-            session.ErrorOccured -= Session_ErrorOccured;
+            session.ErrorOccured -= Session_ErrorOccurred;
         }
 
         private bool _disposed;
@@ -315,7 +315,7 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_disposed)
             {

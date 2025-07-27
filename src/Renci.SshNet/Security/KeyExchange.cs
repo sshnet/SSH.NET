@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security
     /// </summary>
     public abstract class KeyExchange : Algorithm, IKeyExchange
     {
-        private readonly ILogger _logger;
+        private ILogger _logger;
         private Func<byte[], KeyHostAlgorithm> _hostKeyAlgorithmFactory;
         private CipherInfo _clientCipherInfo;
         private CipherInfo _serverCipherInfo;
@@ -69,13 +69,13 @@ namespace Renci.SshNet.Security
         /// </summary>
         protected KeyExchange()
         {
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
         }
 
         /// <inheritdoc/>
         public virtual void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             Session = session;
+            _logger = Session.SessionLoggerFactory.CreateLogger(GetType());
 
             if (sendClientInitMessage)
             {

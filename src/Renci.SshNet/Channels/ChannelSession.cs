@@ -35,7 +35,7 @@ namespace Renci.SshNet.Channels
 
         private EventWaitHandle _channelRequestResponse = new ManualResetEvent(initialState: false);
 
-        private bool _channelRequestSucces;
+        private bool _channelRequestSuccess;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelSession"/> class.
@@ -136,7 +136,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalModeValues)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new X11ForwardingRequestInfo(isSingleConnection, protocol, cookie, screenNumber)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new EnvironmentVariableRequestInfo(variableName, variableValue)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new ShellRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new ExecRequestInfo(command, ConnectionInfo.Encoding)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new BreakRequestInfo(breakLength)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new SubsystemRequestInfo(subsystem)));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new EndOfWriteRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace Renci.SshNet.Channels
             _ = _channelRequestResponse.Reset();
             SendMessage(new ChannelRequestMessage(RemoteChannelNumber, new KeepAliveRequestInfo()));
             WaitOnHandle(_channelRequestResponse);
-            return _channelRequestSucces;
+            return _channelRequestSuccess;
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace Renci.SshNet.Channels
         {
             base.OnSuccess();
 
-            _channelRequestSucces = true;
+            _channelRequestSuccess = true;
             _ = _channelRequestResponse?.Set();
         }
 
@@ -312,7 +312,7 @@ namespace Renci.SshNet.Channels
         {
             base.OnFailure();
 
-            _channelRequestSucces = false;
+            _channelRequestSuccess = false;
             _ = _channelRequestResponse?.Set();
         }
 

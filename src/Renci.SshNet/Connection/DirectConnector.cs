@@ -2,12 +2,14 @@
 using System.Net.Sockets;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 namespace Renci.SshNet.Connection
 {
     internal sealed class DirectConnector : ConnectorBase
     {
-        public DirectConnector(ISocketFactory socketFactory)
-            : base(socketFactory)
+        public DirectConnector(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
+            : base(socketFactory, loggerFactory)
         {
         }
 

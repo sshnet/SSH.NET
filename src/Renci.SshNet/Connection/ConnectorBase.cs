@@ -16,12 +16,12 @@ namespace Renci.SshNet.Connection
     {
         private readonly ILogger _logger;
 
-        protected ConnectorBase(ISocketFactory socketFactory)
+        protected ConnectorBase(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
         {
             ThrowHelper.ThrowIfNull(socketFactory);
 
             SocketFactory = socketFactory;
-            _logger = SshNetLoggingConfiguration.LoggerFactory.CreateLogger(GetType());
+            _logger = loggerFactory.CreateLogger(GetType());
         }
 
         internal ISocketFactory SocketFactory { get; private set; }

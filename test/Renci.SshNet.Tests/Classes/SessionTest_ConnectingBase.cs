@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -199,7 +200,7 @@ namespace Renci.SshNet.Tests.Classes
             };
             ServerListener.Start();
 
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+            ClientSocket = new DirectConnector(_socketFactory, NullLoggerFactory.Instance).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()

@@ -93,7 +93,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ErrorOccuredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnSftpClient()
+        public void ErrorOccurredOnSessionShouldNoLongerBeSignaledViaErrorOccurredOnSftpClient()
         {
             var errorOccurredSignalCount = 0;
 

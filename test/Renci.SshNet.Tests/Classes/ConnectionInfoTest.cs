@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldNotThrowExceptionhenProxyTypesIsNoneAndProxyHostIsNull()
+        public void ConstructorShouldNotThrowExceptionWhenProxyTypesIsNoneAndProxyHostIsNull()
         {
             const string proxyHost = null;
 
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldThrowArgumentNullExceptionhenProxyTypesIsNotNoneAndProxyHostIsNull()
+        public void ConstructorShouldThrowArgumentNullExceptionWhenProxyTypesIsNotNoneAndProxyHostIsNull()
         {
             try
             {
@@ -153,7 +153,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldThrowArgumentNullExceptionhenHostIsNull()
+        public void ConstructorShouldThrowArgumentNullExceptionWhenHostIsNull()
         {
             try
             {
@@ -358,7 +358,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldThrowArgumentExceptionhenUsernameIsNull()
+        public void ConstructorShouldThrowArgumentExceptionWhenUsernameIsNull()
         {
             const string username = null;
 
@@ -384,7 +384,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldThrowArgumentExceptionhenUsernameIsEmpty()
+        public void ConstructorShouldThrowArgumentExceptionWhenUsernameIsEmpty()
         {
             var username = string.Empty;
 
@@ -411,7 +411,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void ConstructorShouldThrowArgumentExceptionhenUsernameContainsOnlyWhitespace()
+        public void ConstructorShouldThrowArgumentExceptionWhenUsernameContainsOnlyWhitespace()
         {
             const string username = " \t\r";
 

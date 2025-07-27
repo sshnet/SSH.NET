@@ -116,7 +116,7 @@ namespace Renci.SshNet
 
             foreach (var authenticationMethod in authenticationState.GetActiveAuthenticationMethods(matchingAuthenticationMethods))
             {
-                // guard against a stack overlow for servers that do not update the list of allowed authentication
+                // guard against a stack overflow for servers that do not update the list of allowed authentication
                 // methods after a partial success
                 if (authenticationState.GetPartialSuccessCount(authenticationMethod) >= _partialSuccessLimit)
                 {

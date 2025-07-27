@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -96,6 +97,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private void CreateMocks()
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
             _sftpResponseFactoryMock = new Mock<ISftpResponseFactory>(MockBehavior.Strict);
         }

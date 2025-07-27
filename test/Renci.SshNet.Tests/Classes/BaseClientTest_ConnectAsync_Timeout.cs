@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -23,6 +24,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Init()
         {
             var sessionMock = new Mock<ISession>();
+            sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             var serviceFactoryMock = new Mock<IServiceFactory>();
             var socketFactoryMock = new Mock<ISocketFactory>();
 

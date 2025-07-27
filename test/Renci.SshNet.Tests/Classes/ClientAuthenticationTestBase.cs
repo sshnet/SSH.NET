@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
@@ -22,6 +23,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             ConnectionInfoMock = new Mock<IConnectionInfoInternal>(MockBehavior.Strict);
             SessionMock = new Mock<ISession>(MockBehavior.Strict);
+            SessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             NoneAuthenticationMethodMock = new Mock<IAuthenticationMethod>(MockBehavior.Strict);
             PasswordAuthenticationMethodMock = new Mock<IAuthenticationMethod>(MockBehavior.Strict);
             PublicKeyAuthenticationMethodMock = new Mock<IAuthenticationMethod>(MockBehavior.Strict);

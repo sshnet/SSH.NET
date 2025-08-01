@@ -1396,7 +1396,7 @@ namespace Renci.SshNet
             CheckDisposed();
             ThrowHelper.ThrowIfNull(encoding);
 
-            return new StreamWriter(new SftpFileStream(_sftpSession, path, FileMode.Append, FileAccess.Write, (int)_bufferSize), encoding);
+            return new StreamWriter(Open(path, FileMode.Append, FileAccess.Write), encoding);
         }
 
         /// <summary>
@@ -1415,9 +1415,7 @@ namespace Renci.SshNet
         /// </remarks>
         public SftpFileStream Create(string path)
         {
-            CheckDisposed();
-
-            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int)_bufferSize);
+            return Create(path, (int)_bufferSize);
         }
 
         /// <summary>
@@ -1439,7 +1437,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
+            return SftpFileStream.Open(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
         /// <summary>
@@ -1615,7 +1613,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, mode, access, (int)_bufferSize);
+            return SftpFileStream.Open(_sftpSession, path, mode, access, (int)_bufferSize);
         }
 
         /// <summary>
@@ -1635,14 +1633,6 @@ namespace Renci.SshNet
         public Task<SftpFileStream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken)
         {
             CheckDisposed();
-            ThrowHelper.ThrowIfNull(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
         }
@@ -1692,9 +1682,7 @@ namespace Renci.SshNet
         /// </remarks>
         public SftpFileStream OpenWrite(string path)
         {
-            CheckDisposed();
-
-            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int)_bufferSize);
+            return Open(path, FileMode.OpenOrCreate, FileAccess.Write);
         }
 
         /// <summary>

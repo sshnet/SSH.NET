@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,34 +17,73 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     [TestClass]
     public class SftpFileStreamTest
     {
-        [TestMethod]
-        public void BadFileMode_ThrowsArgumentOutOfRangeException()
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task BadFileMode_ThrowsArgumentOutOfRangeException(bool isAsync)
         {
-            var ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-                new SftpFileStream(new Mock<ISftpSession>().Object, "file.txt", mode: 0, FileAccess.Read, bufferSize: 1024));
+            ArgumentOutOfRangeException ex;
+
+            if (isAsync)
+            {
+                ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                    SftpFileStream.OpenAsync(new Mock<ISftpSession>().Object, "file.txt", mode: 0, FileAccess.Read, bufferSize: 1024, CancellationToken.None));
+            }
+            else
+            {
+                ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                    SftpFileStream.Open(new Mock<ISftpSession>().Object, "file.txt", mode: 0, FileAccess.Read, bufferSize: 1024));
+            }
 
             Assert.AreEqual("mode", ex.ParamName);
         }
 
-        [TestMethod]
-        public void BadFileAccess_ThrowsArgumentOutOfRangeException()
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task BadFileAccess_ThrowsArgumentOutOfRangeException(bool isAsync)
         {
-            var ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-                new SftpFileStream(new Mock<ISftpSession>().Object, "file.txt", FileMode.Open, access: 0, bufferSize: 1024));
+            ArgumentOutOfRangeException ex;
+
+            if (isAsync)
+            {
+                ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                    SftpFileStream.OpenAsync(new Mock<ISftpSession>().Object, "file.txt", FileMode.Open, access: 0, bufferSize: 1024, CancellationToken.None));
+            }
+            else
+            {
+                ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                    SftpFileStream.Open(new Mock<ISftpSession>().Object, "file.txt", FileMode.Open, access: 0, bufferSize: 1024));
+            }
 
             Assert.AreEqual("access", ex.ParamName);
         }
 
         [TestMethod]
-        [DataRow(FileMode.Append, FileAccess.Read)]
-        [DataRow(FileMode.Append, FileAccess.ReadWrite)]
-        [DataRow(FileMode.Create, FileAccess.Read)]
-        [DataRow(FileMode.CreateNew, FileAccess.Read)]
-        [DataRow(FileMode.Truncate, FileAccess.Read)]
-        public void InvalidModeAccessCombination_ThrowsArgumentException(FileMode mode, FileAccess access)
+        [DataRow(FileMode.Append, FileAccess.Read, false)]
+        [DataRow(FileMode.Append, FileAccess.Read, true)]
+        [DataRow(FileMode.Append, FileAccess.ReadWrite, false)]
+        [DataRow(FileMode.Append, FileAccess.ReadWrite, true)]
+        [DataRow(FileMode.Create, FileAccess.Read, false)]
+        [DataRow(FileMode.Create, FileAccess.Read, true)]
+        [DataRow(FileMode.CreateNew, FileAccess.Read, false)]
+        [DataRow(FileMode.CreateNew, FileAccess.Read, true)]
+        [DataRow(FileMode.Truncate, FileAccess.Read, false)]
+        [DataRow(FileMode.Truncate, FileAccess.Read, true)]
+        public async Task InvalidModeAccessCombination_ThrowsArgumentException(FileMode mode, FileAccess access, bool isAsync)
         {
-            var ex = Assert.ThrowsExactly<ArgumentException>(() =>
-                new SftpFileStream(new Mock<ISftpSession>().Object, "file.txt", mode, access, bufferSize: 1024));
+            ArgumentException ex;
+
+            if (isAsync)
+            {
+                ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+                    SftpFileStream.OpenAsync(new Mock<ISftpSession>().Object, "file.txt", mode, access, bufferSize: 1024, CancellationToken.None));
+            }
+            else
+            {
+                ex = Assert.Throws<ArgumentException>(() =>
+                    SftpFileStream.Open(new Mock<ISftpSession>().Object, "file.txt", mode, access, bufferSize: 1024));
+            }
 
             Assert.AreEqual("mode", ex.ParamName);
         }
@@ -57,7 +97,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             SetupRemoteSize(sessionMock, 128);
 
-            var s = new SftpFileStream(sessionMock.Object, "file.txt", FileMode.Create, FileAccess.Write, bufferSize: 1024);
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Create, FileAccess.Write, bufferSize: 1024);
 
             Assert.IsFalse(s.CanRead);
 
@@ -80,7 +120,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
-            var s = new SftpFileStream(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.Read, bufferSize: 1024);
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.Read, bufferSize: 1024);
 
             Assert.IsFalse(s.CanWrite);
 
@@ -108,7 +148,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             SetupRemoteSize(sessionMock, 128);
 
-            var s = new SftpFileStream(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.Read, bufferSize: 1024);
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.Read, bufferSize: 1024);
 
             Assert.Throws<IOException>(() => s.Seek(offset, origin));
         }
@@ -174,7 +214,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             sessionMock.Setup(s => s.IsOpen).Returns(true);
             SetupRemoteSize(sessionMock, 0);
 
-            var s = new SftpFileStream(sessionMock.Object, "file.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, bufferSize: 1024);
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, bufferSize: 1024);
 
             // Buffer some data
             byte[] newData = "Some new bytes"u8.ToArray();
@@ -208,7 +248,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
-            var s = new SftpFileStream(sessionMock.Object, "file.txt", FileMode.Create, FileAccess.ReadWrite, bufferSize: 1024);
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Create, FileAccess.ReadWrite, bufferSize: 1024);
 
             Assert.IsTrue(s.CanRead);
             Assert.IsTrue(s.CanSeek);

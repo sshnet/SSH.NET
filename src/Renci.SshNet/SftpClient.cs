@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
@@ -1712,7 +1713,7 @@ namespace Renci.SshNet
             using (var stream = OpenRead(path))
             {
                 var buffer = new byte[stream.Length];
-                _ = stream.Read(buffer, 0, buffer.Length);
+                stream.ReadExactly(buffer, 0, buffer.Length);
                 return buffer;
             }
         }
@@ -1745,23 +1746,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string[] ReadAllLines(string path, Encoding encoding)
         {
-            /*
-             * We use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
-             * for the SftpFileStream. We may want to revisit this later.
-             */
-
-            var lines = new List<string>();
-
-            using (var stream = new StreamReader(OpenRead(path), encoding))
-            {
-                string? line;
-                while ((line = stream.ReadLine()) != null)
-                {
-                    lines.Add(line);
-                }
-            }
-
-            return lines.ToArray();
+            return ReadLines(path, encoding).ToArray();
         }
 
         /// <summary>
@@ -1792,15 +1777,8 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string ReadAllText(string path, Encoding encoding)
         {
-            /*
-             * We use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
-             * for the SftpFileStream. We may want to revisit this later.
-             */
-
-            using (var stream = new StreamReader(OpenRead(path), encoding))
-            {
-                return stream.ReadToEnd();
-            }
+            using var sr = new StreamReader(OpenRead(path), encoding);
+            return sr.ReadToEnd();
         }
 
         /// <summary>
@@ -1815,7 +1793,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public IEnumerable<string> ReadLines(string path)
         {
-            return ReadAllLines(path);
+            return ReadLines(path, Encoding.UTF8);
         }
 
         /// <summary>
@@ -1831,7 +1809,30 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public IEnumerable<string> ReadLines(string path, Encoding encoding)
         {
-            return ReadAllLines(path, encoding);
+            // We open the file eagerly i.e. outside of the state machine created by yield,
+            // in order to a) throw resulting (e.g. file-related) exceptions eagerly; and b)
+            // to match what File.ReadLines does.
+            // This probably makes it behave more predictably/closer to what most people expect.
+            // The downside is that if the return value is never enumerated, the file
+            // is never closed (we can't do "using" here because it would be disposed
+            // as soon as we return). This conundrum also exists with File.ReadLines.
+
+            var sr = new StreamReader(OpenRead(path), encoding);
+
+            return Enumerate(sr);
+
+            static IEnumerable<string> Enumerate(StreamReader sr)
+            {
+                using (sr)
+                {
+                    string? line;
+
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        yield return line;
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -214,7 +214,7 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     var actualContent1 = client.ReadAllBytes(remoteFile);
-                    Assert.IsTrue(newContent1Bytes.IsEqualTo(actualContent1));
+                    CollectionAssert.AreEqual(newContent1Bytes, actualContent1);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -227,7 +227,7 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     var actualContent2 = client.ReadAllBytes(remoteFile);
-                    Assert.IsTrue(newContent2Bytes.IsEqualTo(actualContent2));
+                    CollectionAssert.AreEqual(newContent2Bytes, actualContent2);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -726,12 +726,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -807,12 +803,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -852,13 +844,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -933,12 +920,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -982,12 +965,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -1064,12 +1043,8 @@ namespace Renci.SshNet.IntegrationTests
                         sw.Write(contentToAppend);
                     }
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -1111,12 +1086,8 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     // verify that original content is left untouched
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
 
                     // write content that is less bytes than original content
                     using (var sw = client.CreateText(remoteFile))
@@ -1128,12 +1099,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedContentBytes.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1224,12 +1191,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile);
                     Assert.AreEqual(initialContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1271,12 +1234,8 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     // verify that original content is left untouched
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
 
                     // write content that is less bytes than original content
                     using (var sw = client.CreateText(remoteFile, encoding))
@@ -1288,12 +1247,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedContentBytes.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1386,12 +1341,8 @@ namespace Renci.SshNet.IntegrationTests
                     var text = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(initialContent, text);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1438,41 +1389,6 @@ namespace Renci.SshNet.IntegrationTests
                         {
                             client.DeleteFile(remoteFile);
                         }
-                    }
-                }
-            }
-        }
-
-        [TestMethod]
-        public void Sftp_ReadAllBytes_ExistingFile()
-        {
-            var encoding = GetRandomEncoding();
-            var content = "\u0100ert & Ann";
-            var contentBytes = GetBytesWithPreamble(content, encoding);
-
-            using (var client = new SftpClient(_connectionInfoFactory.Create()))
-            {
-                client.Connect();
-
-                var remoteFile = GenerateUniqueRemoteFileName();
-
-                if (client.Exists(remoteFile))
-                {
-                    client.DeleteFile(remoteFile);
-                }
-
-                try
-                {
-                    client.WriteAllText(remoteFile, content, encoding);
-
-                    var actualBytes = client.ReadAllBytes(remoteFile);
-                    Assert.IsTrue(contentBytes.IsEqualTo(actualBytes));
-                }
-                finally
-                {
-                    if (client.Exists(remoteFile))
-                    {
-                        client.DeleteFile(remoteFile);
                     }
                 }
             }
@@ -1546,19 +1462,10 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadAllLines(remoteFile);
                     Assert.IsNotNull(actualLines);
-                    Assert.AreEqual(lines.Length, actualLines.Length);
+                    CollectionAssert.AreEqual(lines, actualLines);
 
-                    for (var i = 0; i < lines.Length; i++)
-                    {
-                        Assert.AreEqual(lines[i], actualLines[i]);
-                    }
-
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesBytes, actualBytes);
                 }
                 finally
                 {
@@ -1638,19 +1545,10 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadAllLines(remoteFile, encoding);
                     Assert.IsNotNull(actualLines);
-                    Assert.AreEqual(lines.Length, actualLines.Length);
+                    CollectionAssert.AreEqual(lines, actualLines);
 
-                    for (var i = 0; i < lines.Length; i++)
-                    {
-                        Assert.AreEqual(lines[i], actualLines[i]);
-                    }
-
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesBytes, actualBytes);
                 }
                 finally
                 {
@@ -1733,12 +1631,8 @@ namespace Renci.SshNet.IntegrationTests
                     var actualText = client.ReadAllText(remoteFile);
                     Assert.AreEqual(expectedText, actualText);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -1819,12 +1713,8 @@ namespace Renci.SshNet.IntegrationTests
                     var actualText = client.ReadAllText(remoteFile, encoding);
                     Assert.AreEqual(expectedText, actualText);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes, actualBytes);
                 }
                 finally
                 {
@@ -1903,16 +1793,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadLines(remoteFile);
                     Assert.IsNotNull(actualLines);
-
-                    var actualLinesEnum = actualLines.GetEnumerator();
-                    for (var i = 0; i < lines.Length; i++)
-                    {
-                        Assert.IsTrue(actualLinesEnum.MoveNext());
-                        var actualLine = actualLinesEnum.Current;
-                        Assert.AreEqual(lines[i], actualLine);
-                    }
-
-                    Assert.IsFalse(actualLinesEnum.MoveNext());
+                    CollectionAssert.AreEqual(lines, actualLines.ToArray());
                 }
                 finally
                 {
@@ -1990,19 +1871,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadLines(remoteFile, encoding);
                     Assert.IsNotNull(actualLines);
-
-                    using (var actualLinesEnum = actualLines.GetEnumerator())
-                    {
-                        for (var i = 0; i < lines.Length; i++)
-                        {
-                            Assert.IsTrue(actualLinesEnum.MoveNext());
-
-                            var actualLine = actualLinesEnum.Current;
-                            Assert.AreEqual(lines[i], actualLine);
-                        }
-
-                        Assert.IsFalse(actualLinesEnum.MoveNext());
-                    }
+                    CollectionAssert.AreEqual(lines, actualLines.ToArray());
                 }
                 finally
                 {
@@ -2122,7 +1991,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.WriteAllBytes(remoteFile, newContent1);
 
                     var actualContent1 = client.ReadAllBytes(remoteFile);
-                    Assert.IsTrue(expectedContent1.IsEqualTo(actualContent1));
+                    CollectionAssert.AreEqual(expectedContent1, actualContent1);
 
                     #endregion Write less bytes than the initial content, overwriting part of that content
 
@@ -2131,7 +2000,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.WriteAllBytes(remoteFile, newContent2);
 
                     var actualContent2 = client.ReadAllBytes(remoteFile);
-                    Assert.IsTrue(newContent2.IsEqualTo(actualContent2));
+                    CollectionAssert.AreEqual(newContent2, actualContent2);
 
                     #endregion Write less bytes than the initial content, overwriting part of that content
                 }
@@ -2165,12 +2034,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllBytes(remoteFile, content);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(content.IsEqualTo(actualBytes));
-                    }
+                    var actualContent1 = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(content, actualContent1);
                 }
                 finally
                 {
@@ -2258,12 +2123,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite1);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2271,12 +2132,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite2);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2312,12 +2169,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllLines(remoteFile, linesToWrite);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesToWriteBytes, actualBytes);
                 }
                 finally
                 {
@@ -2404,12 +2257,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite1, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2417,12 +2266,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite2, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2458,12 +2303,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllLines(remoteFile, linesToWrite, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesToWriteBytes, actualBytes);
                 }
                 finally
                 {
@@ -2546,12 +2387,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite1);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2559,12 +2396,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite2);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2600,12 +2433,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllLines(remoteFile, linesToWrite);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesToWriteBytes, actualBytes);
                 }
                 finally
                 {
@@ -2690,12 +2519,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite1, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2703,12 +2528,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllLines(remoteFile, linesToWrite2, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2744,12 +2565,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllLines(remoteFile, linesToWrite, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(linesToWriteBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(linesToWriteBytes, actualBytes);
                 }
                 finally
                 {
@@ -2833,12 +2650,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllText(remoteFile, newContent1);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2846,12 +2659,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllText(remoteFile, newContent2);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2888,12 +2697,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -2977,12 +2782,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllText(remoteFile, newContent1, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes1.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
 
                     #endregion Write less bytes than the current content, overwriting part of that content
 
@@ -2990,12 +2791,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     client.WriteAllText(remoteFile, newContent2, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(expectedBytes2.IsEqualTo(actualBytes));
-                    }
+                    actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -3032,12 +2829,8 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent, encoding);
 
-                    using (var fs = client.OpenRead(remoteFile))
-                    {
-                        var actualBytes = new byte[fs.Length];
-                        _ = fs.Read(actualBytes, offset: 0, actualBytes.Length);
-                        Assert.IsTrue(initialContentBytes.IsEqualTo(actualBytes));
-                    }
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -4576,7 +4369,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4618,7 +4411,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4655,7 +4448,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4695,7 +4488,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4816,7 +4609,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4858,7 +4651,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4898,7 +4691,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -4939,7 +4732,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -5026,7 +4819,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -5279,7 +5072,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -5321,7 +5114,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(readBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -5361,7 +5154,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());
@@ -5404,7 +5197,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         var readBuffer = new byte[writeBuffer.Length];
                         Assert.AreEqual(writeBuffer.Length, fs.Read(readBuffer, offset: 0, readBuffer.Length));
-                        Assert.IsTrue(writeBuffer.IsEqualTo(readBuffer));
+                        CollectionAssert.AreEqual(writeBuffer, readBuffer);
 
                         // Ensure we've reached end of the stream
                         Assert.AreEqual(-1, fs.ReadByte());

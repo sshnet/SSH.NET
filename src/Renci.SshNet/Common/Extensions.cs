@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+#if !NET
+using System.IO;
+#endif
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
@@ -405,6 +408,24 @@ namespace Renci.SshNet.Common
             var array = new T[arraySegment.Count];
             Array.Copy(arraySegment.Array, arraySegment.Offset, array, 0, arraySegment.Count);
             return array;
+        }
+
+#pragma warning disable CA1859 // Use concrete types for improved performance
+        internal static void ReadExactly(this Stream stream, byte[] buffer, int offset, int count)
+#pragma warning restore CA1859
+        {
+            var totalRead = 0;
+
+            while (totalRead < count)
+            {
+                var read = stream.Read(buffer, offset + totalRead, count - totalRead);
+                if (read == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+
+                totalRead += read;
+            }
         }
 #endif
     }

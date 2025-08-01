@@ -454,12 +454,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         StreamWriter CreateText(string path);
 
@@ -476,12 +472,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         StreamWriter CreateText(string path, Encoding encoding);
 
@@ -1151,12 +1143,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         void WriteAllBytes(string path, byte[] bytes);
 
@@ -1174,10 +1162,8 @@ namespace Renci.SshNet
         /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
         /// </para>
         /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </para>
         /// </remarks>
         void WriteAllLines(string path, IEnumerable<string> contents);
@@ -1193,12 +1179,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         void WriteAllLines(string path, IEnumerable<string> contents, Encoding encoding);
 
@@ -1216,10 +1198,8 @@ namespace Renci.SshNet
         /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
         /// </para>
         /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </para>
         /// </remarks>
         void WriteAllLines(string path, string[] contents);
@@ -1235,12 +1215,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         void WriteAllLines(string path, string[] contents, Encoding encoding);
 
@@ -1258,10 +1234,8 @@ namespace Renci.SshNet
         /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
         /// </para>
         /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </para>
         /// </remarks>
         void WriteAllText(string path, string contents);
@@ -1277,12 +1251,8 @@ namespace Renci.SshNet
         /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
+        /// If the file specified by <paramref name="path"/> does not exist, it is created.
+        /// If the file does exist, its contents are replaced.
         /// </remarks>
         void WriteAllText(string path, string contents, Encoding encoding);
     }

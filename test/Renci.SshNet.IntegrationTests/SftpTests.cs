@@ -1058,8 +1058,7 @@ namespace Renci.SshNet.IntegrationTests
             const string initialContent = "\u0100ert & Ann";
             var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             const string newContent = "\u0116ver";
-            const string expectedContent = "\u0116ver" + " & Ann";
-            var expectedContentBytes = GetBytesWithPreamble(expectedContent, encoding);
+            var newContentBytes = GetBytesWithPreamble(newContent, encoding);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -1076,26 +1075,21 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent);
 
-                    using (client.CreateText(remoteFile))
-                    {
-                    }
+                    Assert.AreEqual(initialContentBytes.Length, client.Get(remoteFile).Length);
 
-                    // verify that original content is left untouched
-                    var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
-
-                    // write content that is less bytes than original content
                     using (var sw = client.CreateText(remoteFile))
                     {
                         sw.Write(newContent);
                     }
 
-                    // verify that original content is only partially overwritten
-                    var text = client.ReadAllText(remoteFile);
-                    Assert.AreEqual(expectedContent, text);
+                    // verify that the file was truncated
+                    Assert.AreEqual(newContentBytes.Length, client.Get(remoteFile).Length);
 
-                    actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedContentBytes, actualBytes);
+                    var text = client.ReadAllText(remoteFile);
+                    Assert.AreEqual(newContent, text);
+
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(newContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1206,8 +1200,7 @@ namespace Renci.SshNet.IntegrationTests
             var initialContent = "\u0100ert & Ann";
             var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             var newContent = "\u0116ver";
-            var expectedContent = "\u0116ver" + " & Ann";
-            var expectedContentBytes = GetBytesWithPreamble(expectedContent, encoding);
+            var newContentBytes = GetBytesWithPreamble(newContent, encoding);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -1224,26 +1217,21 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent, encoding);
 
-                    using (client.CreateText(remoteFile))
-                    {
-                    }
+                    Assert.AreEqual(initialContentBytes.Length, client.Get(remoteFile).Length);
 
-                    // verify that original content is left untouched
-                    var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(initialContentBytes, actualBytes);
-
-                    // write content that is less bytes than original content
                     using (var sw = client.CreateText(remoteFile, encoding))
                     {
                         sw.Write(newContent);
                     }
 
-                    // verify that original content is only partially overwritten
-                    var text = client.ReadAllText(remoteFile, encoding);
-                    Assert.AreEqual(expectedContent, text);
+                    // verify that the file was truncated
+                    Assert.AreEqual(newContentBytes.Length, client.Get(remoteFile).Length);
 
-                    actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedContentBytes, actualBytes);
+                    var text = client.ReadAllText(remoteFile);
+                    Assert.AreEqual(newContent, text);
+
+                    var actualBytes = client.ReadAllBytes(remoteFile);
+                    CollectionAssert.AreEqual(newContentBytes, actualBytes);
                 }
                 finally
                 {
@@ -1942,9 +1930,6 @@ namespace Renci.SshNet.IntegrationTests
         {
             var initialContent = GenerateRandom(size: 13);
             var newContent1 = GenerateRandom(size: 5);
-            var expectedContent1 = new ArrayBuilder<byte>().Add(newContent1)
-                                                           .Add(initialContent, newContent1.Length, initialContent.Length - newContent1.Length)
-                                                           .Build();
             var newContent2 = GenerateRandom(size: 50000);
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
@@ -1965,14 +1950,14 @@ namespace Renci.SshNet.IntegrationTests
                         fs.Write(initialContent, offset: 0, initialContent.Length);
                     }
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllBytes(remoteFile, newContent1);
 
                     var actualContent1 = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedContent1, actualContent1);
+                    CollectionAssert.AreEqual(newContent1, actualContent1);
 
-                    #endregion Write less bytes than the initial content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
@@ -1981,7 +1966,7 @@ namespace Renci.SshNet.IntegrationTests
                     var actualContent2 = client.ReadAllBytes(remoteFile);
                     CollectionAssert.AreEqual(newContent2, actualContent2);
 
-                    #endregion Write less bytes than the initial content, overwriting part of that content
+                    #endregion
                 }
                 finally
                 {
@@ -2068,19 +2053,12 @@ namespace Renci.SshNet.IntegrationTests
         {
             var encoding = new UTF8Encoding(false, true);
             var initialContent = "\u0100ert & Ann Forever & Ever Lisa & Sofie";
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             IEnumerable<string> linesToWrite1 = new[] { "Forever", "&", "\u0116ver" };
             var linesToWrite1Bytes =
                 GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite1) + Environment.NewLine, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(linesToWrite1Bytes)
-                                                         .Add(initialContentBytes,
-                                                              linesToWrite1Bytes.Length,
-                                                              initialContentBytes.Length - linesToWrite1Bytes.Length)
-                                                         .Build();
             IEnumerable<string> linesToWrite2 = new[] { "Forever", "&", "\u0116ver", "Gert & Ann", "Lisa + Sofie" };
             var linesToWrite2Bytes =
                 GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite2) + Environment.NewLine, encoding);
-            var expectedBytes2 = linesToWrite2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2098,21 +2076,21 @@ namespace Renci.SshNet.IntegrationTests
                     // create initial content
                     client.WriteAllText(remoteFile, initialContent);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllLines(remoteFile, linesToWrite1);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllLines(remoteFile, linesToWrite2);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite2Bytes, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2203,18 +2181,11 @@ namespace Renci.SshNet.IntegrationTests
         {
             var encoding = GetRandomEncoding();
             const string initialContent = "\u0100ert & Ann Forever & Ever Lisa & Sofie";
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             IEnumerable<string> linesToWrite1 = new[] { "Forever", "&", "\u0116ver" };
             var linesToWrite1Bytes =
                 GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite1) + Environment.NewLine, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(linesToWrite1Bytes)
-                                                         .Add(initialContentBytes,
-                                                              linesToWrite1Bytes.Length,
-                                                              initialContentBytes.Length - linesToWrite1Bytes.Length)
-                                                         .Build();
             IEnumerable<string> linesToWrite2 = new[] { "Forever", "&", "\u0116ver", "Gert & Ann", "Lisa + Sofie" };
             var linesToWrite2Bytes = GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite2) + Environment.NewLine, encoding);
-            var expectedBytes2 = linesToWrite2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2232,21 +2203,21 @@ namespace Renci.SshNet.IntegrationTests
                     // create initial content
                     client.WriteAllText(remoteFile, initialContent, encoding);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllLines(remoteFile, linesToWrite1, encoding);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllLines(remoteFile, linesToWrite2, encoding);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite2Bytes, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2336,15 +2307,10 @@ namespace Renci.SshNet.IntegrationTests
         {
             var encoding = new UTF8Encoding(false, true);
             const string initialContent = "\u0100ert & Ann Forever & Ever Lisa & Sofie";
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             var linesToWrite1 = new[] { "Forever", "&", "\u0116ver" };
             var linesToWrite1Bytes = GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite1) + Environment.NewLine, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(linesToWrite1Bytes)
-                                                         .Add(initialContentBytes, linesToWrite1Bytes.Length, initialContentBytes.Length - linesToWrite1Bytes.Length)
-                                                         .Build();
             var linesToWrite2 = new[] { "Forever", "&", "\u0116ver", "Gert & Ann", "Lisa + Sofie" };
             var linesToWrite2Bytes = GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite2) + Environment.NewLine, encoding);
-            var expectedBytes2 = linesToWrite2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2362,21 +2328,21 @@ namespace Renci.SshNet.IntegrationTests
                     // create initial content
                     client.WriteAllText(remoteFile, initialContent);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllLines(remoteFile, linesToWrite1);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllLines(remoteFile, linesToWrite2);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite2Bytes, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2468,15 +2434,10 @@ namespace Renci.SshNet.IntegrationTests
             const string initialContent = "\u0100ert & Ann Forever & Ever Lisa & Sofie";
 
             var encoding = GetRandomEncoding();
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             var linesToWrite1 = new[] { "Forever", "&", "\u0116ver" };
             var linesToWrite1Bytes = GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite1) + Environment.NewLine, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(linesToWrite1Bytes)
-                                                         .Add(initialContentBytes, linesToWrite1Bytes.Length, initialContentBytes.Length - linesToWrite1Bytes.Length)
-                                                         .Build();
             var linesToWrite2 = new[] { "Forever", "&", "\u0116ver", "Gert & Ann", "Lisa + Sofie" };
             var linesToWrite2Bytes = GetBytesWithPreamble(string.Join(Environment.NewLine, linesToWrite2) + Environment.NewLine, encoding);
-            var expectedBytes2 = linesToWrite2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2494,23 +2455,23 @@ namespace Renci.SshNet.IntegrationTests
                     // create initial content
                     client.WriteAllText(remoteFile, initialContent, encoding);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllLines(remoteFile, linesToWrite1, encoding);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllLines(remoteFile, linesToWrite2, encoding);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(linesToWrite2Bytes, actualBytes);
 
-                    #endregion Write more bytes than the current content, overwriting and appending to that content
+                    #endregion
                 }
                 finally
                 {
@@ -2601,14 +2562,9 @@ namespace Renci.SshNet.IntegrationTests
             const string newContent1 = "For\u0116ver & Ever";
 
             var encoding = new UTF8Encoding(false, true);
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             var newContent1Bytes = GetBytesWithPreamble(newContent1, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(newContent1Bytes)
-                                                         .Add(initialContentBytes, newContent1Bytes.Length, initialContentBytes.Length - newContent1Bytes.Length)
-                                                         .Build();
             var newContent2 = "Sofie & Lisa For\u0116ver & Ever with \u0100ert & Ann";
             var newContent2Bytes = GetBytesWithPreamble(newContent2, encoding);
-            var expectedBytes2 = newContent2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2625,21 +2581,21 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllText(remoteFile, newContent1);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(newContent1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllText(remoteFile, newContent2);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(newContent2Bytes, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }
@@ -2734,13 +2690,8 @@ namespace Renci.SshNet.IntegrationTests
             const string newContent2 = "Sofie & Lisa For\u0116ver & Ever with \u0100ert & Ann";
 
             var encoding = GetRandomEncoding();
-            var initialContentBytes = GetBytesWithPreamble(initialContent, encoding);
             var newContent1Bytes = GetBytesWithPreamble(newContent1, encoding);
-            var expectedBytes1 = new ArrayBuilder<byte>().Add(newContent1Bytes)
-                                                         .Add(initialContentBytes, newContent1Bytes.Length, initialContentBytes.Length - newContent1Bytes.Length)
-                                                         .Build();
             var newContent2Bytes = GetBytesWithPreamble(newContent2, encoding);
-            var expectedBytes2 = newContent2Bytes;
 
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -2757,21 +2708,21 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.WriteAllText(remoteFile, initialContent, encoding);
 
-                    #region Write less bytes than the current content, overwriting part of that content
+                    #region Write less bytes than the current content, overwriting that content
 
                     client.WriteAllText(remoteFile, newContent1, encoding);
 
                     var actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes1, actualBytes);
+                    CollectionAssert.AreEqual(newContent1Bytes, actualBytes);
 
-                    #endregion Write less bytes than the current content, overwriting part of that content
+                    #endregion
 
                     #region Write more bytes than the current content, overwriting and appending to that content
 
                     client.WriteAllText(remoteFile, newContent2, encoding);
 
                     actualBytes = client.ReadAllBytes(remoteFile);
-                    CollectionAssert.AreEqual(expectedBytes2, actualBytes);
+                    CollectionAssert.AreEqual(newContent2Bytes, actualBytes);
 
                     #endregion Write more bytes than the current content, overwriting and appending to that content
                 }

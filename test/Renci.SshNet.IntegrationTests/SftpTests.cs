@@ -49,7 +49,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var memoryStream = new MemoryStream(size))
                     {
-                        client.DownloadFile(remoteFile, memoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, memoryStream);
+
                         memoryStream.Position = 0;
                         Assert.AreEqual(CreateFileHash(file), CreateHash(memoryStream));
                     }
@@ -164,7 +165,7 @@ namespace Renci.SshNet.IntegrationTests
                     // check uploaded file
                     using (var memoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, memoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, memoryStream);
                         memoryStream.Position = 0;
                         var remoteContent = Encoding.ASCII.GetString(memoryStream.ToArray());
                         Assert.AreEqual(content, remoteContent);
@@ -300,18 +301,12 @@ namespace Renci.SshNet.IntegrationTests
                     {
                         using (var fs = client.Create(remoteFile))
                         {
-                            byte[] buffer = new byte[Math.Min(client.BufferSize, imageStream.Length)];
-                            int bytesRead;
-
-                            while ((bytesRead = imageStream.Read(buffer, offset: 0, buffer.Length)) > 0)
-                            {
-                                fs.Write(buffer, offset: 0, bytesRead);
-                            }
+                            imageStream.CopyTo(fs);
                         }
 
                         using (var memoryStream = new MemoryStream())
                         {
-                            client.DownloadFile(remoteFile, memoryStream);
+                            DownloadFileRandomMethod(client, remoteFile, memoryStream);
 
                             memoryStream.Position = 0;
                             imageStream.Position = 0;
@@ -3192,7 +3187,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloadMemoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloadMemoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, downloadMemoryStream);
 
                         downloadMemoryStream.Position = 0;
 
@@ -3242,7 +3237,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloadMemoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloadMemoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, downloadMemoryStream);
 
                         downloadMemoryStream.Position = 0;
 
@@ -3328,7 +3323,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloadMemoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloadMemoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, downloadMemoryStream);
 
                         downloadMemoryStream.Position = 0;
 
@@ -3463,7 +3458,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloadMemoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloadMemoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, downloadMemoryStream);
 
                         downloadMemoryStream.Position = 0;
 
@@ -3515,7 +3510,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloadMemoryStream = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloadMemoryStream);
+                        DownloadFileRandomMethod(client, remoteFile, downloadMemoryStream);
 
                         downloadMemoryStream.Position = 0;
 
@@ -3556,19 +3551,24 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     var memoryStream = CreateMemoryStream(size);
                     memoryStream.Position = 0;
+                    var expectedHash = CreateHash(memoryStream);
+                    memoryStream.Position = 0;
 
                     client.UploadFile(memoryStream, remoteFile);
+
+                    memoryStream.SetLength(0);
 
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
 
-                    // check uploaded file
-                    memoryStream = new MemoryStream();
                     client.DownloadFile(remoteFile, memoryStream);
 
-                    Assert.AreEqual(size, memoryStream.Length);
-
                     stopwatch.Stop();
+
+                    Assert.AreEqual(size, memoryStream.Length);
+                    memoryStream.Position = 0;
+                    var actualHash = CreateHash(memoryStream);
+                    Assert.AreEqual(expectedHash, actualHash);
 
                     Console.WriteLine(@"Elapsed: {0} ms", stopwatch.ElapsedMilliseconds);
                     Console.WriteLine(@"Transfer speed: {0:N2} KB/s",
@@ -4141,46 +4141,6 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Sftp_DownloadFile_MemoryStream()
-        {
-            const int fileSize = 500 * 1024;
-
-            using (var client = new SftpClient(_connectionInfoFactory.Create()))
-            {
-                client.Connect();
-
-                var remoteFile = GenerateUniqueRemoteFileName();
-
-                SftpCreateRemoteFile(client, remoteFile, fileSize);
-
-                try
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-
-                        client.DownloadFile(remoteFile, memoryStream);
-                        stopwatch.Stop();
-
-                        var transferSpeed = CalculateTransferSpeed(memoryStream.Length, stopwatch.ElapsedMilliseconds);
-                        Console.WriteLine(@"Elapsed: {0} ms", stopwatch.ElapsedMilliseconds);
-                        Console.WriteLine(@"Transfer speed: {0:N2} KB/s", transferSpeed);
-
-                        Assert.AreEqual(fileSize, memoryStream.Length);
-                    }
-                }
-                finally
-                {
-                    if (client.Exists(remoteFile))
-                    {
-                        client.DeleteFile(remoteFile);
-                    }
-                }
-            }
-        }
-
-        [TestMethod]
         public void Sftp_SubsystemExecution_Failed()
         {
             var remoteSshdConfig = new RemoteSshd(_adminConnectionInfoFactory).OpenConfig();
@@ -4230,6 +4190,75 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Sftp_SftpFileStream_ReadAndWrite()
         {
+            TestReadAndWrite(
+                (s, buffer, offset, count) => s.Read(buffer, offset, count),
+                (s, buffer, offset, count) => s.Write(buffer, offset, count));
+        }
+
+        [TestMethod]
+        public void Sftp_SftpFileStream_ReadAndWriteByte()
+        {
+            TestReadAndWrite(
+                read: (s, buffer, offset, count) =>
+                {
+                    int bytesRead = 0;
+                    int b;
+
+                    while (bytesRead < count && (b = s.ReadByte()) != -1)
+                    {
+                        buffer[offset + bytesRead] = (byte)b;
+                        bytesRead++;
+                    }
+
+                    return bytesRead;
+                },
+                write: (s, buffer, offset, count) =>
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        s.WriteByte(buffer[offset + i]);
+                    }
+                });
+        }
+
+        [TestMethod]
+        public void Sftp_SftpFileStream_ReadAndWriteAsync()
+        {
+            TestReadAndWrite(
+                (s, buffer, offset, count) => s.ReadAsync(buffer, offset, count).GetAwaiter().GetResult(),
+                (s, buffer, offset, count) => s.WriteAsync(buffer, offset, count).GetAwaiter().GetResult());
+        }
+
+        [TestMethod]
+        public void Sftp_SftpFileStream_ReadAndWriteBeginEnd()
+        {
+            TestReadAndWrite(
+                (s, buffer, offset, count) => s.EndRead(s.BeginRead(buffer, offset, count, null, null)),
+                (s, buffer, offset, count) => s.EndWrite(s.BeginWrite(buffer, offset, count, null, null)));
+        }
+
+#if NET
+        [TestMethod]
+        public void Sftp_SftpFileStream_ReadAndWriteSpan()
+        {
+            TestReadAndWrite(
+                (s, buffer, offset, count) => s.Read(buffer.AsSpan(offset, count)),
+                (s, buffer, offset, count) => s.Write(buffer.AsSpan(offset, count)));
+        }
+
+        [TestMethod]
+        public void Sftp_SftpFileStream_ReadAndWriteAsyncMemory()
+        {
+            TestReadAndWrite(
+                (s, buffer, offset, count) => s.ReadAsync(buffer.AsMemory(offset, count)).AsTask().GetAwaiter().GetResult(),
+                (s, buffer, offset, count) => s.WriteAsync(buffer.AsMemory(offset, count)).AsTask().GetAwaiter().GetResult());
+        }
+#endif
+
+        private void TestReadAndWrite(
+            Func<SftpFileStream, byte[], int, int, int> read,
+            Action<SftpFileStream, byte[], int, int> write)
+        {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
@@ -4245,60 +4274,69 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     using (var s = client.Open(remoteFile, FileMode.CreateNew, FileAccess.Write))
                     {
-                        s.Write(new byte[] { 5, 4, 3, 2, 1 }, 1, 3);
+                        Assert.IsFalse(s.CanRead);
+                        Assert.IsTrue(s.CanWrite);
+
+                        write(s, new byte[] { 5, 4, 3, 2, 1 }, 1, 3);
                     }
 
                     // switch from read to write mode
                     using (var s = client.Open(remoteFile, FileMode.Open, FileAccess.ReadWrite))
                     {
-                        Assert.AreEqual(4, s.ReadByte());
-                        Assert.AreEqual(3, s.ReadByte());
+                        Assert.IsTrue(s.CanRead);
+                        Assert.IsTrue(s.CanWrite);
+
+                        Assert.AreEqual(4, ReadByte(s));
+                        Assert.AreEqual(3, ReadByte(s));
 
                         Assert.AreEqual(2, s.Position);
 
-                        s.WriteByte(7);
-                        s.Write(new byte[] { 8, 9, 10, 11, 12 }, 1, 3);
+                        WriteByte(s, 7);
+                        write(s, new byte[] { 8, 9, 10, 11, 12 }, 1, 3);
 
                         Assert.AreEqual(6, s.Position);
                     }
 
                     using (var s = client.Open(remoteFile, FileMode.Open, FileAccess.Read))
                     {
+                        Assert.IsTrue(s.CanRead);
+                        Assert.IsFalse(s.CanWrite);
+
                         Assert.AreEqual(6, s.Length);
 
                         var buffer = new byte[s.Length];
-                        Assert.AreEqual(6, s.Read(buffer, offset: 0, buffer.Length));
+                        Assert.AreEqual(6, read(s, buffer, 0, buffer.Length));
 
                         CollectionAssert.AreEqual(new byte[] { 4, 3, 7, 9, 10, 11 }, buffer);
 
                         // Ensure we've reached end of the stream
-                        Assert.AreEqual(-1, s.ReadByte());
+                        Assert.AreEqual(-1, ReadByte(s));
                     }
 
                     // switch from read to write mode, and back to read mode and finally
                     // append a byte
                     using (var s = client.Open(remoteFile, FileMode.Open, FileAccess.ReadWrite))
                     {
-                        Assert.AreEqual(4, s.ReadByte());
-                        Assert.AreEqual(3, s.ReadByte());
-                        Assert.AreEqual(7, s.ReadByte());
+                        Assert.AreEqual(4, ReadByte(s));
+                        Assert.AreEqual(3, ReadByte(s));
+                        Assert.AreEqual(7, ReadByte(s));
 
-                        s.Write(new byte[] { 0, 1, 6, 4 }, 1, 2);
+                        write(s, new byte[] { 0, 1, 6, 4 }, 1, 2);
 
-                        Assert.AreEqual(11, s.ReadByte());
+                        Assert.AreEqual(11, ReadByte(s));
 
                         // Ensure we've reached end of the stream
-                        Assert.AreEqual(-1, s.ReadByte());
+                        Assert.AreEqual(-1, ReadByte(s));
 
-                        s.WriteByte(12);
+                        WriteByte(s, 12);
                     }
 
                     // switch from write to read mode, and back to write mode
                     using (var s = client.Open(remoteFile, FileMode.Open, FileAccess.ReadWrite))
                     {
-                        s.WriteByte(5);
-                        Assert.AreEqual(3, s.ReadByte());
-                        s.WriteByte(13);
+                        WriteByte(s, 5);
+                        Assert.AreEqual(3, ReadByte(s));
+                        WriteByte(s, 13);
 
                         Assert.AreEqual(3, s.Position);
                     }
@@ -4308,12 +4346,12 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(7, s.Length);
 
                         var buffer = new byte[s.Length];
-                        Assert.AreEqual(7, s.Read(buffer, offset: 0, buffer.Length));
+                        Assert.AreEqual(7, read(s, buffer, 0, buffer.Length));
 
                         CollectionAssert.AreEqual(new byte[] { 5, 3, 13, 1, 6, 11, 12 }, buffer);
 
                         // Ensure we've reached end of the stream
-                        Assert.AreEqual(-1, s.ReadByte());
+                        Assert.AreEqual(-1, ReadByte(s));
                     }
                 }
                 finally
@@ -4323,6 +4361,18 @@ namespace Renci.SshNet.IntegrationTests
                         client.DeleteFile(remoteFile);
                     }
                 }
+            }
+
+            int ReadByte(SftpFileStream s)
+            {
+                var buffer = new byte[1];
+                var bytesRead = read(s, buffer, 0, 1);
+                return bytesRead == 0 ? -1 : buffer[0];
+            }
+
+            void WriteByte(SftpFileStream s, byte b)
+            {
+                write(s, [b], 0, 1);
             }
         }
 
@@ -4502,6 +4552,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         Assert.AreEqual(3, newPosition);
                         Assert.AreEqual(3, fs.Position);
+                        Assert.AreEqual(1, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4529,6 +4580,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         Assert.AreEqual(700, newPosition);
                         Assert.AreEqual(700, fs.Position);
+                        Assert.AreEqual(1, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4563,6 +4615,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(seekOffset, fs.Position);
 
                         fs.Write(writeBuffer, offset: 0, writeBuffer.Length);
+
+                        Assert.AreEqual(seekOffset + writeBuffer.Length, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4605,6 +4659,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(seekOffset, fs.Position);
 
                         fs.Write(writeBuffer, offset: 0, writeBuffer.Length);
+
+                        Assert.AreEqual(seekOffset + writeBuffer.Length, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4742,6 +4798,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         Assert.AreEqual(4, newPosition);
                         Assert.AreEqual(4, fs.Position);
+                        Assert.AreEqual(1, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4769,6 +4826,7 @@ namespace Renci.SshNet.IntegrationTests
 
                         Assert.AreEqual(701, newPosition);
                         Assert.AreEqual(701, fs.Position);
+                        Assert.AreEqual(1, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -4803,6 +4861,8 @@ namespace Renci.SshNet.IntegrationTests
                         Assert.AreEqual(4, fs.Position);
 
                         fs.Write(writeBuffer, offset: 0, writeBuffer.Length);
+
+                        Assert.AreEqual(1 + seekOffset + writeBuffer.Length, fs.Length);
                     }
 
                     using (var fs = client.OpenRead(remoteFile))
@@ -5455,7 +5515,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(new byte[size]), CreateHash(downloaded));
                     }
@@ -5495,6 +5555,9 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var s = client.Open(remoteFile, FileMode.Append, FileAccess.Write))
                     {
+                        Assert.IsFalse(s.CanRead);
+                        Assert.IsTrue(s.CanWrite);
+
                         var buffer = new byte[] { 0x05, 0x0f, 0x0d, 0x0a, 0x04 };
                         s.Write(buffer, offset: 0, buffer.Length);
                         input.Write(buffer, offset: 0, buffer.Length);
@@ -5502,7 +5565,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         input.Position = 0;
                         downloaded.Position = 0;
@@ -5562,7 +5625,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -5578,8 +5641,6 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
         }
-
-
 
         [TestMethod]
         public void Sftp_Open_PathAndMode_ModeIsCreate_FileDoesNotExist()
@@ -5619,12 +5680,15 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var s = client.Open(remoteFile, FileMode.Create))
                     {
+                        Assert.IsTrue(s.CanRead);
+                        Assert.IsTrue(s.CanWrite);
+
                         s.Write(content, offset: 0, content.Length);
                     }
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -5730,7 +5794,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -5823,7 +5887,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(newContent), CreateHash(downloaded));
@@ -5882,7 +5946,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -5940,7 +6004,7 @@ namespace Renci.SshNet.IntegrationTests
                     // Verify that the file was not modified
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         input.Position = 0;
                         downloaded.Position = 0;
@@ -6000,7 +6064,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -6048,7 +6112,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(expectedContent), CreateHash(downloaded));
@@ -6138,7 +6202,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(expectedContent), CreateHash(downloaded));
@@ -6197,7 +6261,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
                         downloaded.Position = 0;
                         Assert.AreEqual(CreateHash(content), CreateHash(downloaded));
                     }
@@ -6213,12 +6277,6 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
         }
-
-
-
-
-
-
 
         [TestMethod]
         public void Sftp_Open_Truncate_Write_ExistingFile()
@@ -6255,7 +6313,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     using (var downloaded = new MemoryStream())
                     {
-                        client.DownloadFile(remoteFile, downloaded);
+                        DownloadFileRandomMethod(client, remoteFile, downloaded);
 
                         input.Position = 0;
                         downloaded.Position = 0;
@@ -6300,49 +6358,6 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     Assert.IsFalse(client.Exists(remoteFile));
-                }
-                finally
-                {
-                    if (client.Exists(remoteFile))
-                    {
-                        client.DeleteFile(remoteFile);
-                    }
-                }
-            }
-        }
-
-        [TestMethod]
-        public void Sftp_OpenRead()
-        {
-            const int fileSize = 5 * 1024 * 1024;
-
-            using (var client = new SftpClient(_connectionInfoFactory.Create()))
-            {
-                client.Connect();
-
-                var remoteFile = GenerateUniqueRemoteFileName();
-
-                SftpCreateRemoteFile(client, remoteFile, fileSize);
-
-                try
-                {
-                    using (var s = client.OpenRead(remoteFile))
-                    {
-                        var buffer = new byte[s.Length];
-
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-
-                        var bytesRead = s.Read(buffer, offset: 0, buffer.Length);
-
-                        stopwatch.Stop();
-
-                        var transferSpeed = CalculateTransferSpeed(bytesRead, stopwatch.ElapsedMilliseconds);
-                        Console.WriteLine(@"Elapsed: {0} ms", stopwatch.ElapsedMilliseconds);
-                        Console.WriteLine(@"Transfer speed: {0:N2} KB/s", transferSpeed);
-
-                        Assert.AreEqual(fileSize, bytesRead);
-                    }
                 }
                 finally
                 {
@@ -6468,17 +6483,63 @@ namespace Renci.SshNet.IntegrationTests
 
         private static Encoding GetRandomEncoding()
         {
-            var random = new Random().Next(1, 3);
+            var random = new Random().Next(1, 4);
             switch (random)
             {
                 case 1:
                     return Encoding.Unicode;
                 case 2:
                     return Encoding.UTF8;
-                case 3:
-                    return Encoding.UTF32;
                 default:
-                    throw new NotImplementedException();
+                    Debug.Assert(random == 3);
+                    return Encoding.UTF32;
+            }
+        }
+
+        private void DownloadFileRandomMethod(SftpClient client, string path, Stream output)
+        {
+            Console.Write($"Downloading '{path}'");
+
+            var random = new Random().Next(1, 6);
+            switch (random)
+            {
+                case 1:
+                    Console.WriteLine($" with {nameof(SftpClient.DownloadFile)}");
+
+                    client.DownloadFile(path, output);
+
+                    break;
+                case 2:
+                    Console.WriteLine($" with {nameof(SftpClient.DownloadFileAsync)}");
+
+                    client.DownloadFileAsync(path, output).GetAwaiter().GetResult();
+
+                    break;
+                case 3:
+                    Console.WriteLine($" with {nameof(SftpClient.BeginDownloadFile)}");
+
+                    client.EndDownloadFile(client.BeginDownloadFile(path, output));
+
+                    break;
+                case 4:
+                    Console.WriteLine($" with {nameof(SftpFileStream.CopyTo)}");
+
+                    using (var fs = client.OpenRead(path))
+                    {
+                        fs.CopyTo(output);
+                    }
+
+                    break;
+                default:
+                    Debug.Assert(random == 5);
+                    Console.WriteLine($" with {nameof(SftpFileStream.CopyToAsync)}");
+
+                    using (var fs = client.OpenAsync(path, FileMode.Open, FileAccess.Read, CancellationToken.None).GetAwaiter().GetResult())
+                    {
+                        fs.CopyToAsync(output).GetAwaiter().GetResult();
+                    }
+
+                    break;
             }
         }
 

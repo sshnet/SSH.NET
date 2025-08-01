@@ -90,7 +90,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The new working directory.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
-        public async Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
+        public async Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -1469,7 +1469,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous <c>SSH_FXP_MKDIR</c> operation.</returns>
-        public Task RequestMkDirAsync(string path, CancellationToken cancellationToken = default)
+        public Task RequestMkDirAsync(string path, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -1529,7 +1529,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <inheritdoc />
-        public Task RequestRmDirAsync(string path, CancellationToken cancellationToken = default)
+        public Task RequestRmDirAsync(string path, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {

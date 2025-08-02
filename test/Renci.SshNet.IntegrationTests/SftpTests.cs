@@ -1788,6 +1788,9 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadLines(remoteFile);
                     Assert.IsNotNull(actualLines);
+
+                    // These two lines together test double enumeration.
+                    Assert.AreEqual(lines[0], actualLines.First());
                     CollectionAssert.AreEqual(lines, actualLines.ToArray());
                 }
                 finally
@@ -1801,7 +1804,9 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        public void Sftp_ReadLines_NoEncoding_FileDoesNotExist()
+        [DataRow(false)]
+        [DataRow(true)]
+        public void Sftp_ReadLines_FileDoesNotExist(bool encoding)
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -1814,13 +1819,28 @@ namespace Renci.SshNet.IntegrationTests
                     client.DeleteFile(remoteFile);
                 }
 
+                // This exception should bubble up immediately
+                var nullEx = encoding
+                    ? Assert.Throws<ArgumentNullException>(() => client.ReadLines(null, GetRandomEncoding()))
+                    : Assert.Throws<ArgumentNullException>(() => client.ReadLines(null));
+
+                Assert.AreEqual("path", nullEx.ParamName);
+
                 try
                 {
-                    client.ReadLines(remoteFile);
-                    Assert.Fail();
-                }
-                catch (SftpPathNotFoundException ex)
-                {
+                    var ex = Assert.ThrowsExactly<SftpPathNotFoundException>(() =>
+                    {
+                        // The PathNotFound exception is permitted to bubble up only upon
+                        // enumerating.
+                        var lines = encoding
+                            ? client.ReadLines(remoteFile, GetRandomEncoding())
+                            : client.ReadLines(remoteFile);
+
+                        using var enumerator = lines.GetEnumerator();
+
+                        _ = enumerator.MoveNext();
+                    });
+
                     Assert.IsNull(ex.InnerException);
                     Assert.AreEqual("No such file", ex.Message);
 
@@ -1866,46 +1886,10 @@ namespace Renci.SshNet.IntegrationTests
 
                     var actualLines = client.ReadLines(remoteFile, encoding);
                     Assert.IsNotNull(actualLines);
+
+                    // These two lines together test double enumeration.
+                    Assert.AreEqual(lines[0], actualLines.First());
                     CollectionAssert.AreEqual(lines, actualLines.ToArray());
-                }
-                finally
-                {
-                    if (client.Exists(remoteFile))
-                    {
-                        client.DeleteFile(remoteFile);
-                    }
-                }
-            }
-        }
-
-        [TestMethod]
-        public void Sftp_ReadLines_Encoding_FileDoesNotExist()
-        {
-            var encoding = GetRandomEncoding();
-
-            using (var client = new SftpClient(_connectionInfoFactory.Create()))
-            {
-                client.Connect();
-
-                var remoteFile = GenerateUniqueRemoteFileName();
-
-                if (client.Exists(remoteFile))
-                {
-                    client.DeleteFile(remoteFile);
-                }
-
-                try
-                {
-                    client.ReadLines(remoteFile, encoding);
-                    Assert.Fail();
-                }
-                catch (SftpPathNotFoundException ex)
-                {
-                    Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
-
-                    // ensure file was not created by us
-                    Assert.IsFalse(client.Exists(remoteFile));
                 }
                 finally
                 {

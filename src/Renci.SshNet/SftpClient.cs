@@ -1803,9 +1803,13 @@ namespace Renci.SshNet
         /// <returns>
         /// The lines of the file.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// The lines are enumerated lazily. The opening of the file and any resulting exceptions occur
+        /// upon enumeration.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>. Thrown eagerly.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected upon enumeration.</exception>
+        /// <exception cref="ObjectDisposedException">The return value is enumerated after the client is disposed.</exception>
         public IEnumerable<string> ReadLines(string path)
         {
             return ReadLines(path, Encoding.UTF8);
@@ -1819,33 +1823,34 @@ namespace Renci.SshNet
         /// <returns>
         /// The lines of the file.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// The lines are enumerated lazily. The opening of the file and any resulting exceptions occur
+        /// upon enumeration.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>. Thrown eagerly.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected upon enumeration.</exception>
+        /// <exception cref="ObjectDisposedException">The return value is enumerated after the client is disposed.</exception>
         public IEnumerable<string> ReadLines(string path, Encoding encoding)
         {
-            // We open the file eagerly i.e. outside of the state machine created by yield,
-            // in order to a) throw resulting (e.g. file-related) exceptions eagerly; and b)
-            // to match what File.ReadLines does.
-            // This probably makes it behave more predictably/closer to what most people expect.
-            // The downside is that if the return value is never enumerated, the file
-            // is never closed (we can't do "using" here because it would be disposed
-            // as soon as we return). This conundrum also exists with File.ReadLines.
+            // We allow this usage exception to throw eagerly...
+            ThrowHelper.ThrowIfNull(path);
 
-            var sr = new StreamReader(OpenRead(path), encoding);
+            // ... but other exceptions will throw lazily i.e. inside the state machine created
+            // by yield. We could choose to open the file eagerly as well in order to throw
+            // file-related exceptions eagerly (matching what File.ReadLines does), but this
+            // complicates double enumeration, and introduces the problem that File.ReadLines
+            // has whereby the file is not closed if the return value is not enumerated.
+            return Enumerate();
 
-            return Enumerate(sr);
-
-            static IEnumerable<string> Enumerate(StreamReader sr)
+            IEnumerable<string> Enumerate()
             {
-                using (sr)
-                {
-                    string? line;
+                using var sr = new StreamReader(OpenRead(path), encoding);
 
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        yield return line;
-                    }
+                string? line;
+
+                while ((line = sr.ReadLine()) != null)
+                {
+                    yield return line;
                 }
             }
         }

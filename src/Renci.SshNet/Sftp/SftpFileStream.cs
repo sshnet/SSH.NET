@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -191,7 +192,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private SftpFileStream(ISftpSession session, string path, FileAccess access, int bufferSize, byte[] handle, long position)
+        private SftpFileStream(ISftpSession session, string path, FileAccess access, int readBufferSize, int writeBufferSize, byte[] handle, long position)
         {
             Timeout = TimeSpan.FromSeconds(30);
             Name = path;
@@ -202,144 +203,35 @@ namespace Renci.SshNet.Sftp
             _canWrite = (access & FileAccess.Write) == FileAccess.Write;
 
             _handle = handle;
-
-            /*
-             * Instead of using the specified buffer size as is, we use it to calculate a buffer size
-             * that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
-             * or SSH_FXP_WRITE message.
-             */
-
-            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
-            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
-
+            _readBufferSize = readBufferSize;
+            _writeBufferSize = writeBufferSize;
             _position = position;
         }
 
-        internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
+        internal static SftpFileStream Open(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
         {
-            if (session is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            ThrowHelper.ThrowIfNull(path);
-
-            if (bufferSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(bufferSize), "Cannot be less than or equal to zero.");
-            }
-
-            Timeout = TimeSpan.FromSeconds(30);
-            Name = path;
-
-            // Initialize the object state.
-            _session = session;
-            _canRead = (access & FileAccess.Read) == FileAccess.Read;
-            _canSeek = true;
-            _canWrite = (access & FileAccess.Write) == FileAccess.Write;
-
-            var flags = Flags.None;
-
-            switch (access)
-            {
-                case FileAccess.Read:
-                    flags |= Flags.Read;
-                    break;
-                case FileAccess.Write:
-                    flags |= Flags.Write;
-                    break;
-                case FileAccess.ReadWrite:
-                    flags |= Flags.Read;
-                    flags |= Flags.Write;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(access));
-            }
-
-            if ((access & FileAccess.Read) == FileAccess.Read && mode == FileMode.Append)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                          "{0} mode can be requested only when combined with write-only access.",
-                                                          mode.ToString("G")),
-                                            nameof(mode));
-            }
-
-            if ((access & FileAccess.Write) != FileAccess.Write)
-            {
-                if (mode is FileMode.Create or FileMode.CreateNew or FileMode.Truncate or FileMode.Append)
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                              "Combining {0}: {1} with {2}: {3} is invalid.",
-                                                              nameof(FileMode),
-                                                              mode,
-                                                              nameof(FileAccess),
-                                                              access),
-                                                nameof(mode));
-                }
-            }
-
-            switch (mode)
-            {
-                case FileMode.Append:
-                    flags |= Flags.Append | Flags.CreateNewOrOpen;
-                    break;
-                case FileMode.Create:
-                    _handle = _session.RequestOpen(path, flags | Flags.Truncate, nullOnError: true);
-                    if (_handle is null)
-                    {
-                        flags |= Flags.CreateNew;
-                    }
-                    else
-                    {
-                        flags |= Flags.Truncate;
-                    }
-
-                    break;
-                case FileMode.CreateNew:
-                    flags |= Flags.CreateNew;
-                    break;
-                case FileMode.Open:
-                    break;
-                case FileMode.OpenOrCreate:
-                    flags |= Flags.CreateNewOrOpen;
-                    break;
-                case FileMode.Truncate:
-                    flags |= Flags.Truncate;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode));
-            }
-
-            _handle ??= _session.RequestOpen(path, flags);
-
-            /*
-             * Instead of using the specified buffer size as is, we use it to calculate a buffer size
-             * that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
-             * or SSH_FXP_WRITE message.
-             */
-
-            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
-            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
-
-            if (mode == FileMode.Append)
-            {
-                var attributes = _session.RequestFStat(_handle, nullOnError: false);
-                _position = attributes.Size;
-            }
+            return Open(session, path, mode, access, bufferSize, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        internal static async Task<SftpFileStream> OpenAsync(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, CancellationToken cancellationToken)
+        internal static Task<SftpFileStream> OpenAsync(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, CancellationToken cancellationToken)
         {
-            if (session is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
+            return Open(session, path, mode, access, bufferSize, isAsync: true, cancellationToken);
+        }
+
+        private static async Task<SftpFileStream> Open(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, bool isAsync, CancellationToken cancellationToken)
+        {
+            Debug.Assert(isAsync || cancellationToken == default);
 
             ThrowHelper.ThrowIfNull(path);
 
             if (bufferSize <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(bufferSize), "Cannot be less than or equal to zero.");
+            }
+
+            if (session is null)
+            {
+                throw new SshConnectionException("Client not connected.");
             }
 
             var flags = Flags.None;
@@ -405,32 +297,44 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException(nameof(mode));
             }
 
-            var handle = await session.RequestOpenAsync(path, flags, cancellationToken).ConfigureAwait(false);
+            byte[] handle;
+
+            if (isAsync)
+            {
+                handle = await session.RequestOpenAsync(path, flags, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                handle = session.RequestOpen(path, flags);
+            }
+
+            /*
+             * Instead of using the specified buffer size as is, we use it to calculate a buffer size
+             * that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
+             * or SSH_FXP_WRITE message.
+             */
+
+            var readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            var writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, handle);
 
             long position = 0;
             if (mode == FileMode.Append)
             {
-                try
-                {
-                    var attributes = await session.RequestFStatAsync(handle, cancellationToken).ConfigureAwait(false);
-                    position = attributes.Size;
-                }
-                catch
-                {
-                    try
-                    {
-                        await session.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        // The original exception is presumably more informative, so we just ignore this one.
-                    }
+                SftpFileAttributes attributes;
 
-                    throw;
+                if (isAsync)
+                {
+                    attributes = await session.RequestFStatAsync(handle, cancellationToken).ConfigureAwait(false);
                 }
+                else
+                {
+                    attributes = session.RequestFStat(handle, nullOnError: false);
+                }
+
+                position = attributes.Size;
             }
 
-            return new SftpFileStream(session, path, access, bufferSize, handle, position);
+            return new SftpFileStream(session, path, access, readBufferSize, writeBufferSize, handle, position);
         }
 
         /// <summary>

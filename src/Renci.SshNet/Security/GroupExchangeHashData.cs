@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 using Renci.SshNet.Common;
 
@@ -9,8 +8,6 @@ namespace Renci.SshNet.Security
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;
-        private byte[] _prime;
-        private byte[] _subGroup;
 
         public string ServerVersion
         {
@@ -36,17 +33,9 @@ namespace Renci.SshNet.Security
 
         public uint MaximumGroupSize { get; set; }
 
-        public BigInteger Prime
-        {
-            private get { return _prime.ToBigInteger(); }
-            set { _prime = value.ToByteArray(isBigEndian: true); }
-        }
+        public byte[] Prime { get; set; }
 
-        public BigInteger SubGroup
-        {
-            private get { return _subGroup.ToBigInteger(); }
-            set { _subGroup = value.ToByteArray(isBigEndian: true); }
-        }
+        public byte[] SubGroup { get; set; }
 
         public byte[] ClientExchangeValue { get; set; }
 
@@ -79,9 +68,9 @@ namespace Renci.SshNet.Security
                 capacity += 4; // PreferredGroupSize
                 capacity += 4; // MaximumGroupSize
                 capacity += 4; // Prime length
-                capacity += _prime.Length; // Prime
+                capacity += Prime.Length; // Prime
                 capacity += 4; // SubGroup length
-                capacity += _subGroup.Length; // SubGroup
+                capacity += SubGroup.Length; // SubGroup
                 capacity += 4; // ClientExchangeValue length
                 capacity += ClientExchangeValue.Length; // ClientExchangeValue
                 capacity += 4; // ServerExchangeValue length
@@ -107,8 +96,8 @@ namespace Renci.SshNet.Security
             Write(MinimumGroupSize);
             Write(PreferredGroupSize);
             Write(MaximumGroupSize);
-            WriteBinaryString(_prime);
-            WriteBinaryString(_subGroup);
+            WriteBinaryString(Prime);
+            WriteBinaryString(SubGroup);
             WriteBinaryString(ClientExchangeValue);
             WriteBinaryString(ServerExchangeValue);
             WriteBinaryString(SharedKey);

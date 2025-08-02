@@ -7,6 +7,8 @@ using System.Text;
 
 using Microsoft.Extensions.Logging;
 
+using Org.BouncyCastle.Crypto.Agreement;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages.Authentication;
@@ -357,12 +359,13 @@ namespace Renci.SshNet
                     { "ecdh-sha2-nistp256", () => new KeyExchangeECDH256() },
                     { "ecdh-sha2-nistp384", () => new KeyExchangeECDH384() },
                     { "ecdh-sha2-nistp521", () => new KeyExchangeECDH521() },
-                    { "diffie-hellman-group-exchange-sha256", () => new KeyExchangeDiffieHellmanGroupExchangeSha256() },
-                    { "diffie-hellman-group-exchange-sha1", () => new KeyExchangeDiffieHellmanGroupExchangeSha1() },
-                    { "diffie-hellman-group16-sha512", () => new KeyExchangeDiffieHellmanGroup16Sha512() },
-                    { "diffie-hellman-group14-sha256", () => new KeyExchangeDiffieHellmanGroup14Sha256() },
-                    { "diffie-hellman-group14-sha1", () => new KeyExchangeDiffieHellmanGroup14Sha1() },
-                    { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellmanGroup1Sha1() },
+                    { "diffie-hellman-group-exchange-sha256", () => new KeyExchangeDiffieHellmanGroupExchange("diffie-hellman-group-exchange-sha256", HashAlgorithmName.SHA256) },
+                    { "diffie-hellman-group16-sha512", () => new KeyExchangeDiffieHellman("diffie-hellman-group16-sha512", DHStandardGroups.rfc3526_4096, HashAlgorithmName.SHA512) },
+                    { "diffie-hellman-group18-sha512", () => new KeyExchangeDiffieHellman("diffie-hellman-group18-sha512", DHStandardGroups.rfc3526_8192, HashAlgorithmName.SHA512) },
+                    { "diffie-hellman-group14-sha256", () => new KeyExchangeDiffieHellman("diffie-hellman-group14-sha256", DHStandardGroups.rfc3526_2048, HashAlgorithmName.SHA256) },
+                    { "diffie-hellman-group-exchange-sha1", () => new KeyExchangeDiffieHellmanGroupExchange("diffie-hellman-group-exchange-sha1", HashAlgorithmName.SHA1) },
+                    { "diffie-hellman-group14-sha1", () => new KeyExchangeDiffieHellman("diffie-hellman-group14-sha1", DHStandardGroups.rfc3526_2048, HashAlgorithmName.SHA1) },
+                    { "diffie-hellman-group1-sha1", () => new KeyExchangeDiffieHellman("diffie-hellman-group1-sha1", DHStandardGroups.rfc2409_1024, HashAlgorithmName.SHA1) },
                 };
 
             Encryptions = new OrderedDictionary<string, CipherInfo>

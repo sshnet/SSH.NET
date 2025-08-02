@@ -194,3 +194,6 @@ dotnet_diagnostic.MA0042.severity = none
 
 # S3236: Caller information arguments should not be provided explicitly
 dotnet_diagnostic.S3236.severity = none
+
+# S3358: Ternary operators should not be nested
+dotnet_diagnostic.S3358.severity = none

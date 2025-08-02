@@ -44,12 +44,7 @@ namespace Renci.SshNet.Security
         /// </value>
         protected abstract int HashSize { get; }
 
-        /// <summary>
-        /// Calculates key exchange hash value.
-        /// </summary>
-        /// <returns>
-        /// Key exchange hash.
-        /// </returns>
+        /// <inheritdoc/>
         protected override byte[] CalculateHash()
         {
             var hashData = new KeyExchangeHashData
@@ -67,12 +62,7 @@ namespace Renci.SshNet.Security
             return Hash(hashData.GetBytes());
         }
 
-        /// <summary>
-        /// Validates the exchange hash.
-        /// </summary>
-        /// <returns>
-        /// true if exchange hash is valid; otherwise false.
-        /// </returns>
+        /// <inheritdoc/>
         protected override bool ValidateExchangeHash()
         {
             return ValidateExchangeHash(_hostKey, _signature);

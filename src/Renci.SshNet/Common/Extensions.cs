@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 
 using Renci.SshNet.Abstractions;
@@ -151,22 +149,6 @@ namespace Renci.SshNet.Common
             {
                 // ODE intentionally ignored.
             }
-        }
-
-        /// <summary>
-        /// Prints out the specified bytes.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        internal static void DebugPrint(this IEnumerable<byte> bytes)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var b in bytes)
-            {
-                _ = sb.AppendFormat(CultureInfo.CurrentCulture, "0x{0:x2}, ", b);
-            }
-
-            Debug.WriteLine(sb.ToString());
         }
 
         internal static void ValidatePort(this uint value, [CallerArgumentExpression(nameof(value))] string argument = null)

@@ -482,7 +482,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Validates the exchange hash.
         /// </summary>
-        /// <returns>true if exchange hash is valid; otherwise false.</returns>
+        /// <returns><see langword="true"/> if exchange hash is valid; otherwise <see langword="false"/>.</returns>
         protected abstract bool ValidateExchangeHash();
 
         private protected bool ValidateExchangeHash(byte[] encodedKey, byte[] encodedSignature)

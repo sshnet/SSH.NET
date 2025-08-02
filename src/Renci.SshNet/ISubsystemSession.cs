@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -49,14 +50,39 @@ namespace Renci.SshNet
         void Disconnect();
 
         /// <summary>
-        /// Waits a specified time for a given <see cref="WaitHandle"/> to get signaled.
+        /// Waits a specified time for a given <see cref="WaitHandle"/> to be signaled.
         /// </summary>
         /// <param name="waitHandle">The handle to wait for.</param>
-        /// <param name="millisecondsTimeout">The number of milliseconds wait for <paramref name="waitHandle"/> to get signaled, or <c>-1</c> to wait indefinitely.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for <paramref name="waitHandle"/> to be signaled, or <c>-1</c> to wait indefinitely.</param>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
         void WaitOnHandle(WaitHandle waitHandle, int millisecondsTimeout);
+
+        /// <summary>
+        /// Asynchronously waits for a given <see cref="WaitHandle"/> to be signaled.
+        /// </summary>
+        /// <param name="waitHandle">The handle to wait for.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for <paramref name="waitHandle"/> to be signaled, or <c>-1</c> to wait indefinitely.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <exception cref="SshException">The connection was closed by the server.</exception>
+        /// <exception cref="SshException">The channel was closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
+        /// <returns>A <see cref="Task"/> representing the wait.</returns>
+        Task WaitOnHandleAsync(WaitHandle waitHandle, int millisecondsTimeout, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Asynchronously waits for a given <see cref="TaskCompletionSource{T}"/> to complete.
+        /// </summary>
+        /// <typeparam name="T">The type of the result which is being awaited.</typeparam>
+        /// <param name="tcs">The handle to wait for.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for <paramref name="tcs"/> to complete, or <c>-1</c> to wait indefinitely.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <exception cref="SshException">The connection was closed by the server.</exception>
+        /// <exception cref="SshException">The channel was closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
+        /// <returns>A <see cref="Task"/> representing the wait.</returns>
+        Task<T> WaitOnHandleAsync<T>(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Waits for any of the elements in the specified array to receive a signal, using a 32-bit signed

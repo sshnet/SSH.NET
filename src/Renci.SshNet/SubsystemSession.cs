@@ -257,56 +257,81 @@ namespace Renci.SshNet
             }
         }
 
-        protected async Task<T> WaitOnHandleAsync<T>(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken)
+        public async Task WaitOnHandleAsync(WaitHandle waitHandle, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var errorOccurredReg = ThreadPool.RegisterWaitForSingleObject(
-                _errorOccurredWaitHandle,
-                (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(_exception),
-                state: tcs,
-                millisecondsTimeOutInterval: -1,
-                executeOnlyOnce: true);
+            using RegisteredWait reg = new(
+                waitHandle,
+                (tcs, _) => ((TaskCompletionSource<object>)tcs).TrySetResult(null),
+                state: tcs);
 
-            var sessionDisconnectedReg = ThreadPool.RegisterWaitForSingleObject(
-                _sessionDisconnectedWaitHandle,
-                static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Connection was closed by the server.")),
-                state: tcs,
-                millisecondsTimeOutInterval: -1,
-                executeOnlyOnce: true);
+            _ = await WaitOnHandleAsync(tcs, millisecondsTimeout, cancellationToken).ConfigureAwait(false);
+        }
 
-            var channelClosedReg = ThreadPool.RegisterWaitForSingleObject(
-                _channelClosedWaitHandle,
-                static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Channel was closed.")),
-                state: tcs,
-                millisecondsTimeOutInterval: -1,
-                executeOnlyOnce: true);
+        public Task<T> WaitOnHandleAsync<T>(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            return tcs.Task.IsCompleted ? tcs.Task
+                : cancellationToken.IsCancellationRequested ? Task.FromCanceled<T>(cancellationToken)
+                : DoWaitAsync(tcs, millisecondsTimeout, cancellationToken);
 
-            using var timeoutCts = new CancellationTokenSource(millisecondsTimeout);
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+            async Task<T> DoWaitAsync(TaskCompletionSource<T> tcs, int millisecondsTimeout, CancellationToken cancellationToken)
+            {
+                using RegisteredWait errorOccurredReg = new(
+                    _errorOccurredWaitHandle,
+                    (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(_exception),
+                    state: tcs);
 
-            using var tokenReg = linkedCts.Token.Register(
-                static s =>
+                using RegisteredWait sessionDisconnectedReg = new(
+                    _sessionDisconnectedWaitHandle,
+                    static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Connection was closed by the server.")),
+                    state: tcs);
+
+                using RegisteredWait channelClosedReg = new(
+                    _channelClosedWaitHandle,
+                    static (tcs, _) => ((TaskCompletionSource<T>)tcs).TrySetException(new SshException("Channel was closed.")),
+                    state: tcs);
+
+                using var timeoutCts = new CancellationTokenSource(millisecondsTimeout);
+                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+                using var tokenReg = linkedCts.Token.Register(
+                    static s =>
+                    {
+                        (var tcs, var cancellationToken) = ((TaskCompletionSource<T>, CancellationToken))s;
+                        _ = tcs.TrySetCanceled(cancellationToken);
+                    },
+                    state: (tcs, cancellationToken),
+                    useSynchronizationContext: false);
+
+                try
                 {
-                    (var tcs, var cancellationToken) = ((TaskCompletionSource<T>, CancellationToken))s;
-                    _ = tcs.TrySetCanceled(cancellationToken);
-                },
-                state: (tcs, cancellationToken),
-                useSynchronizationContext: false);
+                    return await tcs.Task.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException oce) when (timeoutCts.IsCancellationRequested)
+                {
+                    throw new SshOperationTimeoutException("Operation has timed out.", oce);
+                }
+            }
+        }
 
-            try
+        private readonly struct RegisteredWait : IDisposable
+        {
+            private readonly RegisteredWaitHandle _handle;
+
+            public RegisteredWait(WaitHandle waitObject, WaitOrTimerCallback callback, object state)
             {
-                return await tcs.Task.ConfigureAwait(false);
+                _handle = ThreadPool.RegisterWaitForSingleObject(
+                    waitObject,
+                    callback,
+                    state,
+                    millisecondsTimeOutInterval: -1,
+                    executeOnlyOnce: true);
             }
-            catch (OperationCanceledException oce) when (timeoutCts.IsCancellationRequested)
+
+            public void Dispose()
             {
-                throw new SshOperationTimeoutException("Operation has timed out.", oce);
-            }
-            finally
-            {
-                _ = errorOccurredReg.Unregister(waitObject: null);
-                _ = sessionDisconnectedReg.Unregister(waitObject: null);
-                _ = channelClosedReg.Unregister(waitObject: null);
+                _ = _handle.Unregister(waitObject: null);
             }
         }
 

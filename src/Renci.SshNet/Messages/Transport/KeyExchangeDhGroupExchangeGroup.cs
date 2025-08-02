@@ -9,8 +9,8 @@ namespace Renci.SshNet.Messages.Transport
     /// </summary>
     public class KeyExchangeDhGroupExchangeGroup : Message
     {
-        private byte[] _safePrime;
-        private byte[] _subGroup;
+        internal byte[] SafePrimeBytes { get; private set; }
+        internal byte[] SubGroupBytes { get; private set; }
 
         /// <inheritdoc />
         public override string MessageName
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </value>
         public BigInteger SafePrime
         {
-            get { return _safePrime.ToBigInteger(); }
+            get { return SafePrimeBytes.ToBigInteger(); }
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </value>
         public BigInteger SubGroup
         {
-            get { return _subGroup.ToBigInteger(); }
+            get { return SubGroupBytes.ToBigInteger(); }
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace Renci.SshNet.Messages.Transport
             {
                 var capacity = base.BufferCapacity;
                 capacity += 4; // SafePrime length
-                capacity += _safePrime.Length; // SafePrime
+                capacity += SafePrimeBytes.Length; // SafePrime
                 capacity += 4; // SubGroup length
-                capacity += _subGroup.Length; // SubGroup
+                capacity += SubGroupBytes.Length; // SubGroup
 
                 return capacity;
             }
@@ -77,8 +77,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            _safePrime = ReadBinary();
-            _subGroup = ReadBinary();
+            SafePrimeBytes = ReadBinary();
+            SubGroupBytes = ReadBinary();
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            WriteBinaryString(_safePrime);
-            WriteBinaryString(_subGroup);
+            WriteBinaryString(SafePrimeBytes);
+            WriteBinaryString(SubGroupBytes);
         }
 
         internal override void Process(Session session)

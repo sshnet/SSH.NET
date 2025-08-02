@@ -1,5 +1,10 @@
-﻿using System;
-using System.Numerics;
+﻿#nullable enable
+using System;
+using System.Security.Cryptography;
+
+using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -8,74 +13,65 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents base class for Diffie Hellman key exchange algorithm.
+    /// Provides the implementation of "diffie-hellman-groupN" algorithms.
     /// </summary>
-    internal abstract class KeyExchangeDiffieHellman : KeyExchange
+    public class KeyExchangeDiffieHellman : KeyExchange
     {
-#pragma warning disable SA1401 // Fields should be private
-        /// <summary>
-        /// Specifies key exchange group number.
-        /// </summary>
-        protected BigInteger _group;
+        private byte[]? _clientPayload;
+        private byte[]? _serverPayload;
+        private byte[]? _clientExchangeValue;
+        private byte[]? _serverExchangeValue;
+        private byte[]? _hostKey;
+        private byte[]? _signature;
+
+        /// <inheritdoc/>
+        public override string Name { get; }
+
+        private readonly DHParameters _dhParameters;
+#if NET462
+        private readonly HashAlgorithm _hash;
+#else
+        private readonly IncrementalHash _hash;
+#endif
+
+        private DHBasicAgreement? _keyAgreement;
 
         /// <summary>
-        /// Specifies key exchange prime number.
+        /// Initializes a new instance of the <see cref="KeyExchangeDiffieHellman"/> class.
         /// </summary>
-        protected BigInteger _prime;
-
-        /// <summary>
-        /// Specifies client payload.
-        /// </summary>
-        protected byte[] _clientPayload;
-
-        /// <summary>
-        /// Specifies server payload.
-        /// </summary>
-        protected byte[] _serverPayload;
-
-        /// <summary>
-        /// Specifies client exchange number.
-        /// </summary>
-        protected byte[] _clientExchangeValue;
-
-        /// <summary>
-        /// Specifies server exchange number.
-        /// </summary>
-        protected byte[] _serverExchangeValue;
-
-        /// <summary>
-        /// Specifies random generated number.
-        /// </summary>
-        protected BigInteger _privateExponent;
-
-        /// <summary>
-        /// Specifies host key data.
-        /// </summary>
-        protected byte[] _hostKey;
-
-        /// <summary>
-        /// Specifies signature data.
-        /// </summary>
-        protected byte[] _signature;
-#pragma warning restore SA1401 // Fields should be private
-
-        /// <summary>
-        /// Gets the size, in bits, of the computed hash code.
-        /// </summary>
-        /// <value>
-        /// The size, in bits, of the computed hash code.
-        /// </value>
-        protected abstract int HashSize { get; }
-
-        /// <summary>
-        /// Validates the exchange hash.
-        /// </summary>
-        /// <returns>
-        /// true if exchange hash is valid; otherwise false.
-        /// </returns>
-        protected override bool ValidateExchangeHash()
+        /// <param name="name">The name of the key exchange algorithm.</param>
+        /// <param name="parameters">The Diffie-Hellman parameters to be used.</param>
+        /// <param name="hashAlgorithm">The hash algorithm to be used.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="name"/>, <paramref name="parameters"/>, or <see cref="HashAlgorithmName.Name"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="hashAlgorithm"/> is not a valid hash algorithm.
+        /// </exception>
+        public KeyExchangeDiffieHellman(
+            string name,
+            DHParameters parameters,
+            HashAlgorithmName hashAlgorithm)
         {
-            return ValidateExchangeHash(_hostKey, _signature);
+            ThrowHelper.ThrowIfNull(name);
+            ThrowHelper.ThrowIfNull(parameters);
+            ThrowHelper.ThrowIfNullOrEmpty(hashAlgorithm.Name, nameof(hashAlgorithm));
+
+            Name = name;
+            _dhParameters = parameters;
+#if NET462
+            _hash = CryptoConfig.CreateFromName(hashAlgorithm.Name) as HashAlgorithm
+                ?? throw new ArgumentException($"Could not create {nameof(HashAlgorithm)} from `{hashAlgorithm}`.", nameof(hashAlgorithm));
+#else
+            try
+            {
+                _hash = IncrementalHash.CreateHash(hashAlgorithm);
+            }
+            catch (CryptographicException cex)
+            {
+                throw new ArgumentException($"Could not create {nameof(HashAlgorithm)} from `{hashAlgorithm}`.", nameof(hashAlgorithm), cex);
+            }
+#endif
         }
 
         /// <inheritdoc/>
@@ -85,66 +81,86 @@ namespace Renci.SshNet.Security
 
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
+
+            var g = new DHKeyPairGenerator();
+            g.Init(new DHKeyGenerationParameters(CryptoAbstraction.SecureRandom, _dhParameters));
+
+            var aKeyPair = g.GenerateKeyPair();
+
+            _keyAgreement = new DHBasicAgreement();
+            _keyAgreement.Init(aKeyPair.Private);
+            _clientExchangeValue = ((DHPublicKeyParameters)aKeyPair.Public).Y.ToByteArray();
+
+            Session.RegisterMessage("SSH_MSG_KEXDH_REPLY");
+
+            Session.KeyExchangeDhReplyMessageReceived += Session_KeyExchangeDhReplyMessageReceived;
+
+            SendMessage(new KeyExchangeDhInitMessage(_clientExchangeValue));
         }
 
-        /// <summary>
-        /// Populates the client exchange value.
-        /// </summary>
-        protected void PopulateClientExchangeValue()
+        /// <inheritdoc/>
+        protected override byte[] CalculateHash()
         {
-            if (_group.IsZero)
+            var keyExchangeHashData = new KeyExchangeHashData
             {
-                throw new ArgumentNullException("_group");
-            }
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                ClientExchangeValue = _clientExchangeValue,
+                ServerExchangeValue = _serverExchangeValue,
+                SharedKey = SharedKey,
+            };
 
-            if (_prime.IsZero)
-            {
-                throw new ArgumentNullException("_prime");
-            }
-
-            // generate private exponent that is twice the hash size (RFC 4419) with a minimum
-            // of 1024 bits (whatever is less)
-            var privateExponentSize = Math.Max(HashSize * 2, 1024);
-
-            BigInteger clientExchangeValue;
-
-            do
-            {
-                // Create private component
-                _privateExponent = RandomBigInt(privateExponentSize);
-
-                // Generate public component
-                clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
-            }
-            while (clientExchangeValue < 1 || clientExchangeValue > (_prime - 1));
-
-            _clientExchangeValue = clientExchangeValue.ToByteArray(isBigEndian: true);
+            return Hash(keyExchangeHashData.GetBytes());
         }
 
-        /// <summary>
-        /// Generates a new, random <see cref="BigInteger"/> of the specified length.
-        /// </summary>
-        /// <param name="bitLength">The number of bits for the new number.</param>
-        /// <returns>A random number of the specified length.</returns>
-        private static BigInteger RandomBigInt(int bitLength)
+        private void Session_KeyExchangeDhReplyMessageReceived(object? sender, MessageEventArgs<KeyExchangeDhReplyMessage> e)
         {
-            var bytesArray = CryptoAbstraction.GenerateRandom((bitLength / 8) + (((bitLength % 8) > 0) ? 1 : 0));
-            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F); // Ensure not a negative value
-            return new BigInteger(bytesArray);
+            var message = e.Message;
+
+            Session.KeyExchangeDhReplyMessageReceived -= Session_KeyExchangeDhReplyMessageReceived;
+
+            Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
+
+            _serverExchangeValue = message.F;
+            _hostKey = message.HostKey;
+            _signature = message.Signature;
+
+            var publicKey = new DHPublicKeyParameters(new Org.BouncyCastle.Math.BigInteger(message.F), _dhParameters);
+
+            SharedKey = _keyAgreement!.CalculateAgreement(publicKey).ToByteArray();
+
+            Finish();
         }
 
-        /// <summary>
-        /// Handles the server DH reply message.
-        /// </summary>
-        /// <param name="hostKey">The host key.</param>
-        /// <param name="serverExchangeValue">The server exchange value.</param>
-        /// <param name="signature">The signature.</param>
-        protected virtual void HandleServerDhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
+        /// <inheritdoc/>
+        protected override bool ValidateExchangeHash()
         {
-            _serverExchangeValue = serverExchangeValue;
-            _hostKey = hostKey;
-            SharedKey = BigInteger.ModPow(serverExchangeValue.ToBigInteger(), _privateExponent, _prime).ToByteArray(isBigEndian: true);
-            _signature = signature;
+            return ValidateExchangeHash(_hostKey, _signature);
+        }
+
+        /// <inheritdoc/>
+        protected override byte[] Hash(byte[] hashData)
+        {
+#if NET462
+            return _hash.ComputeHash(hashData);
+#else
+            _hash.AppendData(hashData);
+            return _hash.GetHashAndReset();
+#endif
+        }
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _hash.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

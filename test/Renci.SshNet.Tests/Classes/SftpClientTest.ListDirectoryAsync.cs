@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                await Assert.ThrowsExceptionAsync<SshConnectionException>(async () =>
+                await Assert.ThrowsExactlyAsync<SshConnectionException>(async () =>
                 {
                     await foreach (var x in sftp.ListDirectoryAsync(".", CancellationToken.None))
                     {

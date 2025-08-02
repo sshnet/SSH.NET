@@ -109,7 +109,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 using (var file = File.OpenRead(uploadedFileName))
                 {
-                    Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.UploadFile(file, remoteFileName));
+                    Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.UploadFile(file, remoteFileName));
                 }
 
                 sftp.Disconnect();
@@ -395,7 +395,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginUploadFile(null, "aaaaa", null, null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.BeginUploadFile(null, "aaaaa", null, null));
             }
         }
 
@@ -408,7 +408,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentException>(() => sftp.BeginUploadFile(new MemoryStream(), "   ", null, null));
+                Assert.ThrowsExactly<ArgumentException>(() => sftp.BeginUploadFile(new MemoryStream(), "   ", null, null));
             }
         }
 
@@ -421,7 +421,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginUploadFile(new MemoryStream(), null, null, null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.BeginUploadFile(new MemoryStream(), null, null, null));
             }
         }
 
@@ -438,7 +438,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 using var fileStream = File.OpenRead(filename);
                 var async2 = sftp.BeginUploadFile(fileStream, "test", null, null);
 
-                Assert.ThrowsException<ArgumentException>(() => sftp.EndUploadFile(async1));
+                Assert.ThrowsExactly<ArgumentException>(() => sftp.EndUploadFile(async1));
             }
         }
     }

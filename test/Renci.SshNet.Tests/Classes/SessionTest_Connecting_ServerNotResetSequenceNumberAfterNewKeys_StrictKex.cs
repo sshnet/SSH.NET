@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ShouldThrowSshConnectionException()
         {
-            var reason = Assert.ThrowsException<SshConnectionException>(Session.Connect).DisconnectReason;
+            var reason = Assert.ThrowsExactly<SshConnectionException>(Session.Connect).DisconnectReason;
             Assert.AreEqual(DisconnectReason.MacError, reason);
         }
     }

@@ -103,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes
             CollectionAssert.AreEqual(expectedData, actualData.Take(expectedData.Length));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\r\n")]
         [DataRow("\r")]
         [DataRow("\n")]
@@ -149,7 +149,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNull(_shellStream.ReadLine(TimeSpan.Zero));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\r\n")]
         [DataRow("\r")]
         [DataRow("\n")]

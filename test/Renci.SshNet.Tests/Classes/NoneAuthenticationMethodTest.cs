@@ -16,13 +16,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void None_Test_Pass_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new NoneAuthenticationMethod(null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new NoneAuthenticationMethod(null));
         }
 
         [TestMethod]
         public void None_Test_Pass_Whitespace()
         {
-            Assert.ThrowsException<ArgumentException>(() => new NoneAuthenticationMethod(string.Empty));
+            Assert.ThrowsExactly<ArgumentException>(() => new NoneAuthenticationMethod(string.Empty));
         }
 
         [TestMethod]

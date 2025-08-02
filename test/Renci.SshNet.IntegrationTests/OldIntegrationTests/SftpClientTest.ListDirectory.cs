@@ -17,7 +17,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.ListDirectory("/root"));
+                Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.ListDirectory("/root"));
             }
         }
 
@@ -29,7 +29,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ListDirectory("/asdfgh"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.ListDirectory("/asdfgh"));
             }
         }
 
@@ -107,7 +107,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.ListDirectory(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.ListDirectory(null));
             }
         }
 
@@ -283,7 +283,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.ChangeDirectory(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.ChangeDirectory(null));
             }
         }
 
@@ -296,7 +296,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.ChangeDirectoryAsync(null));
+                await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => sftp.ChangeDirectoryAsync(null));
             }
         }
 
@@ -312,7 +312,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var result = sftp.EndListDirectory(ar);
 
                 // TODO there is no reason that this should throw
-                Assert.ThrowsException<ArgumentException>(() => sftp.EndListDirectory(ar));
+                Assert.ThrowsExactly<ArgumentException>(() => sftp.EndListDirectory(ar));
             }
         }
     }

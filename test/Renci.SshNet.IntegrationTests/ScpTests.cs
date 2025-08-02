@@ -19,7 +19,7 @@ namespace Renci.SshNet.IntegrationTests
             _remotePathTransformation = RemotePathTransformation.ShellQuote;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadStreamDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Download_Stream_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                               string remotePath,
@@ -93,7 +93,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadStreamFileDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Download_Stream_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                          string remotePath,
@@ -169,7 +169,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Download_DirectoryInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                      string remotePath)
@@ -227,7 +227,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Download_DirectoryInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                             string remotePath)
@@ -290,7 +290,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadDirectoryInfoExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Download_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                  string remotePath)
@@ -433,7 +433,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Download_FileInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                 string remotePath,
@@ -505,7 +505,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoFileDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Download_FileInfo_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                            string remotePath,
@@ -579,7 +579,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Download_FileInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                             string remotePath)
@@ -648,7 +648,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadFileInfoExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Download_FileInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                        string remotePath,
@@ -740,7 +740,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadStreamExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Download_Stream_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                           string remotePath)
@@ -808,7 +808,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpDownloadStreamExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Download_Stream_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                      string remotePath,
@@ -895,7 +895,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileStream_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                 string remotePath,
@@ -965,7 +965,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileStream_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                             string remoteFile)
@@ -1028,7 +1028,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(ScpUploadFileStreamExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileStream_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                        string remoteFile)
@@ -1097,7 +1097,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileStreamFileDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileStream_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                            string remotePath,
@@ -1196,7 +1196,7 @@ namespace Renci.SshNet.IntegrationTests
         /// <summary>
         /// https://github.com/sshnet/SSH.NET/issues/289
         /// </summary>
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                               string remotePath,
@@ -1276,7 +1276,7 @@ namespace Renci.SshNet.IntegrationTests
         /// <summary>
         /// https://github.com/sshnet/SSH.NET/issues/286
         /// </summary>
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                           string remoteFile)
@@ -1338,7 +1338,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                      string remoteFile)
@@ -1416,7 +1416,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadFileInfoFileDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Upload_FileInfo_FileDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                          string remotePath,
@@ -1521,7 +1521,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoDirectoryDoesNotExistData), DynamicDataSourceType.Method)]
         public void Scp_Upload_DirectoryInfo_DirectoryDoesNotExist(IRemotePathTransformation remotePathTransformation,
                                                                    string remoteDirectory)
@@ -1586,7 +1586,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoExistingDirectoryData), DynamicDataSourceType.Method)]
         public void Scp_Upload_DirectoryInfo_ExistingDirectory(IRemotePathTransformation remotePathTransformation,
                                                                string remoteDirectory)
@@ -1790,7 +1790,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetScpUploadDirectoryInfoExistingFileData), DynamicDataSourceType.Method)]
         public void Scp_Upload_DirectoryInfo_ExistingFile(IRemotePathTransformation remotePathTransformation,
                                                           string remoteDirectory)

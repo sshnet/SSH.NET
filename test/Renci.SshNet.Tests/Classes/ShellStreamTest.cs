@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes
 
             var bytes = _encoding.GetBytes("Hello World!");
 
-            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
+            Assert.ThrowsExactly<ObjectDisposedException>(() => shellStream.Write(bytes, 0, bytes.Length));
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes
 
             shellStream.Dispose();
 
-            Assert.ThrowsException<ObjectDisposedException>(() => shellStream.ChangeWindowSize(80, 25, 0, 0));
+            Assert.ThrowsExactly<ObjectDisposedException>(() => shellStream.ChangeWindowSize(80, 25, 0, 0));
         }
 
         [TestMethod]

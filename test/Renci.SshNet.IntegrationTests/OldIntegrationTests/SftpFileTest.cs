@@ -31,7 +31,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.Get("/xyz"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.Get("/xyz"));
             }
         }
 
@@ -61,7 +61,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.Get(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.Get(null));
             }
         }
 
@@ -105,7 +105,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(() => sftp.GetAsync("/xyz", default));
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(() => sftp.GetAsync("/xyz", default));
             }
         }
 
@@ -135,7 +135,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.GetAsync(null, default));
+                await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => sftp.GetAsync(null, default));
             }
         }
 

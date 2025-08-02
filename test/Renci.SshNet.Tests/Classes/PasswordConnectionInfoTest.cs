@@ -33,33 +33,33 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void Test_ConnectionInfo_Username_Is_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD));
         }
 
         [TestMethod]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(
+            Assert.ThrowsExactly<ArgumentNullException>(
                 () => new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null));
         }
 
         [TestMethod]
         public void Test_ConnectionInfo_Username_Is_Whitespace()
         {
-            Assert.ThrowsException<ArgumentException>(() => new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD));
+            Assert.ThrowsExactly<ArgumentException>(() => new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD));
         }
 
         [TestMethod]
         public void Test_ConnectionInfo_SmallPortNumber()
         {
-            Assert.ThrowsException<ArgumentOutOfRangeException>(
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(
                 () => new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD));
         }
 
         [TestMethod]
         public void Test_ConnectionInfo_BigPortNumber()
         {
-            Assert.ThrowsException<ArgumentOutOfRangeException>(
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(
                 () => new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD));
         }
     }

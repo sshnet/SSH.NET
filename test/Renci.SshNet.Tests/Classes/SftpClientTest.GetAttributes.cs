@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                Assert.ThrowsException<SshConnectionException>(() => sftp.GetAttributes("."));
+                Assert.ThrowsExactly<SshConnectionException>(() => sftp.GetAttributes("."));
             }
         }
 
@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
             var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
             sftp.Dispose();
 
-            Assert.ThrowsException<ObjectDisposedException>(() => sftp.GetAttributes("."));
+            Assert.ThrowsExactly<ObjectDisposedException>(() => sftp.GetAttributes("."));
         }
     }
 }

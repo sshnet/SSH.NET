@@ -66,7 +66,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
             cmd.CancelAsync();
 
-            var tce = Assert.ThrowsException<TaskCanceledException>(() => cmd.EndExecute(asyncResult));
+            var tce = Assert.ThrowsExactly<TaskCanceledException>(() => cmd.EndExecute(asyncResult));
             Assert.AreEqual(CancellationToken.None, tce.CancellationToken);
             Assert.IsTrue(asyncResult.IsCompleted);
             Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
@@ -90,7 +90,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
             cmd.CancelAsync(forceKill: true);
 
-            var tce = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => executeTask);
+            var tce = await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => executeTask);
             Assert.AreEqual(CancellationToken.None, tce.CancellationToken);
             Assert.IsTrue(asyncResult.IsCompleted);
             Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
@@ -135,7 +135,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
             await cts.CancelAsync();
 
-            var tce = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => executeTask);
+            var tce = await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => executeTask);
             Assert.AreSame(executeTask, tce.Task);
             Assert.AreEqual(cts.Token, tce.CancellationToken);
             Assert.AreEqual(string.Empty, cmd.Result);
@@ -171,7 +171,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Connect();
                 using var cmd = client.CreateCommand("sleep 10s");
                 cmd.CommandTimeout = TimeSpan.FromSeconds(2);
-                Assert.ThrowsException<SshOperationTimeoutException>(cmd.Execute);
+                Assert.ThrowsExactly<SshOperationTimeoutException>(cmd.Execute);
                 client.Disconnect();
             }
         }
@@ -189,7 +189,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 Assert.IsTrue(((IAsyncResult)executeTask).AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3)));
 
-                await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => executeTask);
+                await Assert.ThrowsExactlyAsync<SshOperationTimeoutException>(() => executeTask);
                 client.Disconnect();
             }
         }
@@ -209,7 +209,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 client.Disconnect();
 
                 // Waiting for timeout is not optimal here, but better than hanging indefinitely.
-                await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => executeTask);
+                await Assert.ThrowsExactlyAsync<SshOperationTimeoutException>(() => executeTask);
             }
         }
 
@@ -403,7 +403,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("ls -l");
-                Assert.ThrowsException<ArgumentNullException>(() => cmd.EndExecute(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => cmd.EndExecute(null));
                 client.Disconnect();
             }
         }
@@ -510,7 +510,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 Assert.IsTrue(asyncResult.AsyncWaitHandle.WaitOne(0));
 
-                Assert.ThrowsException<ObjectDisposedException>(() => cmd.EndExecute(asyncResult));
+                Assert.ThrowsExactly<ObjectDisposedException>(() => cmd.EndExecute(asyncResult));
             }
         }
 

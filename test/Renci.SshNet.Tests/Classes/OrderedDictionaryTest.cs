@@ -86,22 +86,22 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 } };
 
-            Assert.ThrowsException<ArgumentNullException>(() => o[null]);
-            Assert.ThrowsException<ArgumentNullException>(() => o.Add(null, 1));
-            Assert.ThrowsException<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Add(new KeyValuePair<string, int>(null, 1)));
-            Assert.ThrowsException<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Contains(new KeyValuePair<string, int>(null, 1)));
-            Assert.ThrowsException<ArgumentNullException>(() => o.ContainsKey(null));
-            Assert.ThrowsException<ArgumentNullException>(() => o.IndexOf(null));
-            Assert.ThrowsException<ArgumentNullException>(() => o.Insert(0, null, 1));
-            Assert.ThrowsException<ArgumentNullException>(() => o.Remove(null, out _));
-            Assert.ThrowsException<ArgumentNullException>(() => o.Remove(null));
-            Assert.ThrowsException<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Remove(new KeyValuePair<string, int>(null, 1)));
-            Assert.ThrowsException<ArgumentNullException>(() => o.SetAt(0, null, 1));
-            Assert.ThrowsException<ArgumentNullException>(() => o.SetPosition(null, 0));
-            Assert.ThrowsException<ArgumentNullException>(() => o.TryAdd(null, 1));
-            Assert.ThrowsException<ArgumentNullException>(() => o.TryAdd(null, 1, out _));
-            Assert.ThrowsException<ArgumentNullException>(() => o.TryGetValue(null, out _));
-            Assert.ThrowsException<ArgumentNullException>(() => o.TryGetValue(null, out _, out _));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o[null]);
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Add(null, 1));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Add(new KeyValuePair<string, int>(null, 1)));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Contains(new KeyValuePair<string, int>(null, 1)));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.ContainsKey(null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.IndexOf(null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Insert(0, null, 1));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Remove(null, out _));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Remove(null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).Remove(new KeyValuePair<string, int>(null, 1)));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.SetAt(0, null, 1));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.SetPosition(null, 0));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.TryAdd(null, 1));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.TryAdd(null, 1, out _));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.TryGetValue(null, out _));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.TryGetValue(null, out _, out _));
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 } };
 
-            Assert.ThrowsException<KeyNotFoundException>(() => o["b"]);
+            Assert.ThrowsExactly<KeyNotFoundException>(() => o["b"]);
         }
 
         [TestMethod]
@@ -145,8 +145,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 } };
 
-            Assert.ThrowsException<ArgumentException>(() => o.Add("a", 8));
-            Assert.ThrowsException<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).Add(new KeyValuePair<string, int>("a", 8)));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Add("a", 8));
+            Assert.ThrowsExactly<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).Add(new KeyValuePair<string, int>("a", 8)));
         }
 
         [TestMethod]
@@ -164,20 +164,20 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 }, { "b", 8 } };
 
-            Assert.ThrowsException<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(null, 0));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], -1));
-            Assert.ThrowsException<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], 3));
-            Assert.ThrowsException<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], 2));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(null, 0));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], -1));
+            Assert.ThrowsExactly<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], 3));
+            Assert.ThrowsExactly<ArgumentException>(() => ((ICollection<KeyValuePair<string, int>>)o).CopyTo(new KeyValuePair<string, int>[3], 2));
 
-            Assert.ThrowsException<ArgumentNullException>(() => o.Keys.CopyTo(null, 0));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.Keys.CopyTo(new string[3], -1));
-            Assert.ThrowsException<ArgumentException>(() => o.Keys.CopyTo(new string[3], 3));
-            Assert.ThrowsException<ArgumentException>(() => o.Keys.CopyTo(new string[3], 2));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Keys.CopyTo(null, 0));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.Keys.CopyTo(new string[3], -1));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Keys.CopyTo(new string[3], 3));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Keys.CopyTo(new string[3], 2));
 
-            Assert.ThrowsException<ArgumentNullException>(() => o.Values.CopyTo(null, 0));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.Values.CopyTo(new int[3], -1));
-            Assert.ThrowsException<ArgumentException>(() => o.Values.CopyTo(new int[3], 3));
-            Assert.ThrowsException<ArgumentException>(() => o.Values.CopyTo(new int[3], 2));
+            Assert.ThrowsExactly<ArgumentNullException>(() => o.Values.CopyTo(null, 0));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.Values.CopyTo(new int[3], -1));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Values.CopyTo(new int[3], 3));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Values.CopyTo(new int[3], 2));
         }
 
         [TestMethod]
@@ -206,9 +206,9 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, string> o = new() { { "a", "1" } };
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.GetAt(-2));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.GetAt(-1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.GetAt(1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.GetAt(-2));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.GetAt(-1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.GetAt(1));
         }
 
         [TestMethod]
@@ -228,21 +228,21 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, double> o = new();
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(-2, 1.1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(-1, 1.1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(0, 1.1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(1, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(-2, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(-1, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(0, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(1, 1.1));
 
             o.Add("a", 4);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(-2, 1.1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(-1, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(-2, 1.1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(-1, 1.1));
 
             o.SetAt(0, 1.1);
 
             AssertEqual([new("a", 1.1)], o);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(1, 5.5));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(1, 5.5));
         }
 
         [TestMethod]
@@ -250,8 +250,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 }, { "b", 8 }, { "c", 12 } };
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(-1, "d", 16));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetAt(3, "d", 16));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(-1, "d", 16));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetAt(3, "d", 16));
         }
 
         [TestMethod]
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 }, { "b", 8 }, { "c", 12 } };
 
-            Assert.ThrowsException<ArgumentException>(() => o.SetAt(1, "c", 16));
+            Assert.ThrowsExactly<ArgumentException>(() => o.SetAt(1, "c", 16));
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, float> o = new() { { "a", 4 } };
 
-            Assert.ThrowsException<KeyNotFoundException>(() => o["doesn't exist"]);
+            Assert.ThrowsExactly<KeyNotFoundException>(() => o["doesn't exist"]);
             Assert.IsFalse(((ICollection<KeyValuePair<string, float>>)o).Contains(new KeyValuePair<string, float>("doesn't exist", 1)));
             Assert.IsFalse(o.ContainsKey("doesn't exist"));
             Assert.IsFalse(o.ContainsValue(999));
@@ -315,7 +315,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, float> o = new() { { "a", 4 }, { "b", 8 } };
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.Insert(-1, "c", 12));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.Insert(-1, "c", 12));
 
             o.Insert(0, "c", 12); // Start
             AssertEqual([new("c", 12), new("a", 4), new("b", 8)], o);
@@ -326,10 +326,10 @@ namespace Renci.SshNet.Tests.Classes
             o.Insert(o.Count, "e", 16); // End
             AssertEqual([new("c", 12), new("a", 4), new("d", 12), new("b", 8), new("e", 16)], o);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.Insert(o.Count + 1, "f", 16));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.Insert(o.Count + 1, "f", 16));
 
             // Existing key
-            Assert.ThrowsException<ArgumentException>(() => o.Insert(0, "a", 12));
+            Assert.ThrowsExactly<ArgumentException>(() => o.Insert(0, "a", 12));
         }
 
         [TestMethod]
@@ -357,8 +357,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, float> o = new() { { "a", 4 }, { "b", 8 }, { "c", 12 }, { "d", 16 } };
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.RemoveAt(-2));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.RemoveAt(-1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.RemoveAt(-2));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.RemoveAt(-1));
 
             o.RemoveAt(0); // Start
             AssertEqual([new("b", 8), new("c", 12), new("d", 16)], o);
@@ -369,7 +369,7 @@ namespace Renci.SshNet.Tests.Classes
             o.RemoveAt(1); // End
             AssertEqual([new("b", 8)], o);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.RemoveAt(1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.RemoveAt(1));
         }
 
         [TestMethod]
@@ -379,16 +379,16 @@ namespace Renci.SshNet.Tests.Classes
 
             ArgumentOutOfRangeException ex;
 
-            ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition(-1, 0));
+            ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition(-1, 0));
             Assert.AreEqual("index", ex.ParamName);
 
-            ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition(0, -1));
+            ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition(0, -1));
             Assert.AreEqual("newIndex", ex.ParamName);
 
-            ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition(0, 4));
+            ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition(0, 4));
             Assert.AreEqual("newIndex", ex.ParamName);
 
-            ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition(4, 0));
+            ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition(4, 0));
             Assert.AreEqual("index", ex.ParamName);
 
             o.SetPosition(1, 0);
@@ -418,9 +418,9 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, float> o = new() { { "a", 4 }, { "b", 8 }, { "c", 12 }, { "d", 16 } };
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition("a", -1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => o.SetPosition("a", 4));
-            Assert.ThrowsException<KeyNotFoundException>(() => o.SetPosition("e", 0));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition("a", -1));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => o.SetPosition("a", 4));
+            Assert.ThrowsExactly<KeyNotFoundException>(() => o.SetPosition("e", 0));
 
             o.SetPosition("b", 0);
             AssertEqual([new("b", 8), new("a", 4), new("c", 12), new("d", 16)], o);
@@ -456,14 +456,14 @@ namespace Renci.SshNet.Tests.Classes
             OrderedDictionary<string, int> o = new() { { "a", 4 }, { "b", 8 } };
 
             Assert.IsTrue(o.Keys.IsReadOnly);
-            Assert.ThrowsException<NotSupportedException>(() => o.Keys.Add("c"));
-            Assert.ThrowsException<NotSupportedException>(o.Keys.Clear);
-            Assert.ThrowsException<NotSupportedException>(() => o.Keys.Remove("a"));
+            Assert.ThrowsExactly<NotSupportedException>(() => o.Keys.Add("c"));
+            Assert.ThrowsExactly<NotSupportedException>(o.Keys.Clear);
+            Assert.ThrowsExactly<NotSupportedException>(() => o.Keys.Remove("a"));
 
             Assert.IsTrue(o.Values.IsReadOnly);
-            Assert.ThrowsException<NotSupportedException>(() => o.Values.Add(12));
-            Assert.ThrowsException<NotSupportedException>(o.Values.Clear);
-            Assert.ThrowsException<NotSupportedException>(() => o.Values.Remove(4));
+            Assert.ThrowsExactly<NotSupportedException>(() => o.Values.Add(12));
+            Assert.ThrowsExactly<NotSupportedException>(o.Values.Clear);
+            Assert.ThrowsExactly<NotSupportedException>(() => o.Values.Remove(4));
         }
     }
 }

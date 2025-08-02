@@ -71,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _session.InvokeDisconnected();
 
-            var ex = await Assert.ThrowsExceptionAsync<SshException>(() => openTask);
+            var ex = await Assert.ThrowsExactlyAsync<SshException>(() => openTask);
             Assert.AreEqual("Connection was closed by the server.", ex.Message);
         }
 
@@ -84,7 +84,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _session.InvokeChannelCloseReceived();
 
-            var ex = await Assert.ThrowsExceptionAsync<SshException>(() => openTask);
+            var ex = await Assert.ThrowsExactlyAsync<SshException>(() => openTask);
             Assert.AreEqual("Channel was closed.", ex.Message);
         }
 
@@ -99,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
 
             await cts.CancelAsync();
 
-            var ex = await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => openTask);
+            var ex = await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => openTask);
             Assert.AreEqual(cts.Token, ex.CancellationToken);
         }
 
@@ -110,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes
 
             Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
 
-            var ex = await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => openTask);
+            var ex = await Assert.ThrowsExactlyAsync<SshOperationTimeoutException>(() => openTask);
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _session.InvokeErrorOccurred(ex);
 
-            var ex2 = await Assert.ThrowsExceptionAsync<MyException>(() => openTask);
+            var ex2 = await Assert.ThrowsExactlyAsync<MyException>(() => openTask);
             Assert.AreEqual(ex.Message, ex2.Message);
         }
 

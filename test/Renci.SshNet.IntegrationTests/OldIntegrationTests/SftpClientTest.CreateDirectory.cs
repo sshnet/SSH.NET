@@ -30,7 +30,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.CreateDirectory("/sbin/test"));
+                Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.CreateDirectory("/sbin/test"));
             }
         }
 
@@ -42,7 +42,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.CreateDirectory("/abcdefg/abcefg"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.CreateDirectory("/abcdefg/abcefg"));
             }
         }
 
@@ -56,7 +56,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 sftp.CreateDirectory("test");
 
-                Assert.ThrowsException<SshException>(() => sftp.CreateDirectory("test"));
+                Assert.ThrowsExactly<SshException>(() => sftp.CreateDirectory("test"));
             }
         }
     }

@@ -15,13 +15,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void Password_Test_Pass_Null_Username()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new PasswordAuthenticationMethod(null, "valid"));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new PasswordAuthenticationMethod(null, "valid"));
         }
 
         [TestMethod]
         public void Password_Test_Pass_Null_Password()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new PasswordAuthenticationMethod("valid", (string)null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new PasswordAuthenticationMethod("valid", (string)null));
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void Password_Test_Pass_Whitespace()
         {
-            Assert.ThrowsException<ArgumentException>(() => new PasswordAuthenticationMethod(string.Empty, "valid"));
+            Assert.ThrowsExactly<ArgumentException>(() => new PasswordAuthenticationMethod(string.Empty, "valid"));
         }
 
         [TestMethod]

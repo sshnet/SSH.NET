@@ -105,7 +105,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 using var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
-                Assert.ThrowsException<SshConnectionException>(() => client.AddForwardedPort(port1));
+                Assert.ThrowsExactly<SshConnectionException>(() => client.AddForwardedPort(port1));
             }
         }
     }

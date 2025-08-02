@@ -18,7 +18,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 await sftp.ConnectAsync(cts.Token);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(async () => await sftp.GetAttributesAsync("/asdfgh", cts.Token));
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(async () => await sftp.GetAttributesAsync("/asdfgh", cts.Token));
             }
         }
 
@@ -33,7 +33,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 await sftp.ConnectAsync(cts.Token);
 
-                await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await sftp.GetAttributesAsync(null, cts.Token));
+                await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await sftp.GetAttributesAsync(null, cts.Token));
             }
         }
 

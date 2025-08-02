@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                Assert.ThrowsException<SshConnectionException>(() => client.CreateCommand("echo Hello"));
+                Assert.ThrowsExactly<SshConnectionException>(() => client.CreateCommand("echo Hello"));
             }
         }
     }

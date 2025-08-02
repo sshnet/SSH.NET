@@ -15,19 +15,19 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void PrivateKey_Test_Pass_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod(null, null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod(null, null));
         }
 
         [TestMethod]
         public void PrivateKey_Test_Pass_PrivateKey_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod("username", null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new PrivateKeyAuthenticationMethod("username", null));
         }
 
         [TestMethod]
         public void PrivateKey_Test_Pass_Whitespace()
         {
-            Assert.ThrowsException<ArgumentException>(() => new PrivateKeyAuthenticationMethod(string.Empty, null));
+            Assert.ThrowsExactly<ArgumentException>(() => new PrivateKeyAuthenticationMethod(string.Empty, null));
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.GetAttributes("/asdfgh"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.GetAttributes("/asdfgh"));
             }
         }
 
@@ -24,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.GetAttributes(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.GetAttributes(null));
             }
         }
 

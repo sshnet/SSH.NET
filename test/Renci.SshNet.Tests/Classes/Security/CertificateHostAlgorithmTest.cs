@@ -265,7 +265,7 @@ namespace Renci.SshNet.Tests.Classes.Security
 
             byte[] signature = algorithm.Sign(data);
 
-            var ex = Assert.ThrowsException<InvalidOperationException>(() => algorithm.VerifySignature(data, signature));
+            var ex = Assert.ThrowsExactly<InvalidOperationException>(() => algorithm.VerifySignature(data, signature));
             Assert.IsTrue(ex.Message.StartsWith("Invalid usage", StringComparison.Ordinal));
         }
 

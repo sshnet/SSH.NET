@@ -43,7 +43,7 @@
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.RenameFile(null, null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.RenameFile(null, null));
             }
         }
     }

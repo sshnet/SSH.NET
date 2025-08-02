@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ThreadAbstraction_ExecuteThread_ShouldThrowArgumentNullExceptionWhenActionIsNull()
         {
-            var ex = Assert.ThrowsException<ArgumentNullException>(() => ThreadAbstraction.ExecuteThread(null));
+            var ex = Assert.ThrowsExactly<ArgumentNullException>(() => ThreadAbstraction.ExecuteThread(null));
 
             Assert.IsNull(ex.InnerException);
             Assert.AreEqual("action", ex.ParamName);

@@ -96,7 +96,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             var command = _sshClient.CreateCommand("ls");
 
-            Assert.ThrowsException<InvalidOperationException>(command.CreateInputStream);
+            Assert.ThrowsExactly<InvalidOperationException>(command.CreateInputStream);
         }
 
         [TestMethod]
@@ -106,7 +106,7 @@ namespace Renci.SshNet.IntegrationTests
             var asyncResult = command.BeginExecute();
             command.EndExecute(asyncResult);
 
-            Assert.ThrowsException<InvalidOperationException>(command.CreateInputStream);
+            Assert.ThrowsExactly<InvalidOperationException>(command.CreateInputStream);
         }
 
         public void Dispose()

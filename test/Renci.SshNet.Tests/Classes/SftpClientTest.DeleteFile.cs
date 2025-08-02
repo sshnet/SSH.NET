@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.DeleteFile(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.DeleteFile(null));
             }
         }
     }

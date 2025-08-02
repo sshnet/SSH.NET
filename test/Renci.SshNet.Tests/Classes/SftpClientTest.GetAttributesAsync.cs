@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                await Assert.ThrowsExceptionAsync<SshConnectionException>(() => sftp.GetAttributesAsync(".", CancellationToken.None));
+                await Assert.ThrowsExactlyAsync<SshConnectionException>(() => sftp.GetAttributesAsync(".", CancellationToken.None));
             }
         }
 
@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes
             var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
             sftp.Dispose();
 
-            await Assert.ThrowsExceptionAsync<ObjectDisposedException>(() => sftp.GetAttributesAsync(".", CancellationToken.None));
+            await Assert.ThrowsExactlyAsync<ObjectDisposedException>(() => sftp.GetAttributesAsync(".", CancellationToken.None));
         }
     }
 }

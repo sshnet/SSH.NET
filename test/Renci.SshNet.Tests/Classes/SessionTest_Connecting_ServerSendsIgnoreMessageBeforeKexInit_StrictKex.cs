@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ShouldThrowSshConnectionException()
         {
-            var exception = Assert.ThrowsException<SshConnectionException>(Session.Connect);
+            var exception = Assert.ThrowsExactly<SshConnectionException>(Session.Connect);
             Assert.AreEqual(DisconnectReason.KeyExchangeFailed, exception.DisconnectReason);
             Assert.AreEqual("KEXINIT was not the first packet during strict key exchange.", exception.Message);
         }

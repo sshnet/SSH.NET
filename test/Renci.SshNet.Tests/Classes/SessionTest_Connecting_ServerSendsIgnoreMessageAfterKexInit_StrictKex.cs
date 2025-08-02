@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ShouldThrowSshException()
         {
-            var message = Assert.ThrowsException<SshException>(Session.Connect).Message;
+            var message = Assert.ThrowsExactly<SshException>(Session.Connect).Message;
             Assert.AreEqual("Message type 2 is not valid in the current context.", message);
         }
     }

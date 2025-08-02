@@ -25,7 +25,7 @@ namespace Renci.SshNet.IntegrationTests
             _remotePathTransformation = RemotePathTransformation.ShellQuote;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetSftpUploadFileFileStreamData), DynamicDataSourceType.Method)]
         public void Sftp_UploadFile_FileStream(int size)
         {

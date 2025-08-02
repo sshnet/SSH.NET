@@ -14,7 +14,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd"));
             }
         }
 
@@ -26,7 +26,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(
                     () => sftp.ChangeDirectoryAsync("/asdasd", CancellationToken.None));
             }
         }
@@ -38,7 +38,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/"));
             }
         }
 
@@ -50,7 +50,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(
                     () => sftp.ChangeDirectoryAsync("/asdasd/", CancellationToken.None));
             }
         }
@@ -62,7 +62,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds"));
             }
         }
 
@@ -74,7 +74,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(
                     () => sftp.ChangeDirectoryAsync("/asdasd/sssddds", CancellationToken.None));
             }
         }
@@ -86,7 +86,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 sftp.Connect();
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds/"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.ChangeDirectory("/asdasd/sssddds/"));
             }
         }
 
@@ -98,7 +98,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(
                     () => sftp.ChangeDirectoryAsync("/asdasd/sssddds/", CancellationToken.None));
             }
         }

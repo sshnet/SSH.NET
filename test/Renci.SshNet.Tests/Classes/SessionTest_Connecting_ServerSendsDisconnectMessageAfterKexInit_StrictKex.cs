@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisconnectIsAllowedDuringStrictKex()
         {
-            var exception = Assert.ThrowsException<SshConnectionException>(Session.Connect);
+            var exception = Assert.ThrowsExactly<SshConnectionException>(Session.Connect);
             Assert.AreEqual(DisconnectReason.TooManyConnections, exception.DisconnectReason);
         }
     }

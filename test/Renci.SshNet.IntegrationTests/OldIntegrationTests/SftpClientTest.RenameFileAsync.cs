@@ -46,7 +46,7 @@
             {
                 await sftp.ConnectAsync(default);
 
-                await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => sftp.RenameFileAsync(null, null, default));
+                await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => sftp.RenameFileAsync(null, null, default));
             }
         }
     }

@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public async Task ConnectAsyncWithTimeoutThrowsSshTimeoutException()
         {
-            await Assert.ThrowsExceptionAsync<SshOperationTimeoutException>(() => _client.ConnectAsync(CancellationToken.None));
+            await Assert.ThrowsExactlyAsync<SshOperationTimeoutException>(() => _client.ConnectAsync(CancellationToken.None));
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using var cancellationTokenSource = new CancellationTokenSource();
             await cancellationTokenSource.CancelAsync();
-            await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => _client.ConnectAsync(cancellationTokenSource.Token));
+            await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => _client.ConnectAsync(cancellationTokenSource.Token));
         }
 
         [TestCleanup]

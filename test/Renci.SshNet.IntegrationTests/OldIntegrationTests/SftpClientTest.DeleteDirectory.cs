@@ -15,7 +15,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.DeleteDirectory("abcdef"));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.DeleteDirectory("abcdef"));
             }
         }
 
@@ -27,7 +27,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.DeleteDirectory("/usr"));
+                Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.DeleteDirectory("/usr"));
             }
         }
 
@@ -55,7 +55,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.DeleteDirectory(null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.DeleteDirectory(null));
             }
         }
     }

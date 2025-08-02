@@ -433,7 +433,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var privateKey = GetData("Key.OPENSSH.RSA.txt"))
             using (var certificate = GetData("Key.OPENSSH.ECDSA521-cert.pub"))
             {
-                Assert.ThrowsException<ArgumentException>(() => new PrivateKeyFile(privateKey, passPhrase: null, certificate));
+                Assert.ThrowsExactly<ArgumentException>(() => new PrivateKeyFile(privateKey, passPhrase: null, certificate));
             }
         }
 
@@ -563,7 +563,7 @@ namespace Renci.SshNet.Tests.Classes
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(pk)))
             {
-                var ex = Assert.ThrowsException<SshException>(() => new PrivateKeyFile(stream));
+                var ex = Assert.ThrowsExactly<SshException>(() => new PrivateKeyFile(stream));
 
                 Assert.AreEqual("MAC verification failed for PuTTY key file", ex.Message);
             }
@@ -603,7 +603,7 @@ namespace Renci.SshNet.Tests.Classes
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(pk)))
             {
-                var ex = Assert.ThrowsException<SshException>(() => new PrivateKeyFile(stream));
+                var ex = Assert.ThrowsExactly<SshException>(() => new PrivateKeyFile(stream));
 
                 Assert.AreEqual("MAC verification failed for PuTTY key file", ex.Message);
             }

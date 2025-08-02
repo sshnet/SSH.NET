@@ -15,7 +15,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPermissionDeniedException>(() => sftp.DownloadFile("/root/.profile", Stream.Null));
+                Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.DownloadFile("/root/.profile", Stream.Null));
             }
         }
 
@@ -27,7 +27,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<SftpPathNotFoundException>(() => sftp.DownloadFile("/xxx/eee/yyy", Stream.Null));
+                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.DownloadFile("/xxx/eee/yyy", Stream.Null));
             }
         }
 
@@ -39,7 +39,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPermissionDeniedException>(() => sftp.DownloadFileAsync("/root/.profile", Stream.Null));
+                await Assert.ThrowsExactlyAsync<SftpPermissionDeniedException>(() => sftp.DownloadFileAsync("/root/.profile", Stream.Null));
             }
         }
 
@@ -51,7 +51,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 await sftp.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
 
-                await Assert.ThrowsExceptionAsync<SftpPathNotFoundException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null));
+                await Assert.ThrowsExactlyAsync<SftpPathNotFoundException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null));
             }
         }
 
@@ -65,7 +65,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cancelledToken = new CancellationToken(true);
 
-                await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null, cancelledToken));
+                await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null, cancelledToken));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginDownloadFile("aaaa", null, null, null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.BeginDownloadFile("aaaa", null, null, null));
             }
         }
 
@@ -91,7 +91,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentException>(() => sftp.BeginDownloadFile("   ", Stream.Null, null, null));
+                Assert.ThrowsExactly<ArgumentException>(() => sftp.BeginDownloadFile("   ", Stream.Null, null, null));
             }
         }
 
@@ -104,7 +104,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsException<ArgumentNullException>(() => sftp.BeginDownloadFile(null, Stream.Null, null, null));
+                Assert.ThrowsExactly<ArgumentNullException>(() => sftp.BeginDownloadFile(null, Stream.Null, null, null));
             }
         }
 
@@ -121,7 +121,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var async1 = sftp.BeginListDirectory("/", null, null);
                 var async2 = sftp.BeginDownloadFile("test123", new MemoryStream(), null, null);
 
-                Assert.ThrowsException<ArgumentException>(() => sftp.EndDownloadFile(async1));
+                Assert.ThrowsExactly<ArgumentException>(() => sftp.EndDownloadFile(async1));
             }
         }
     }

@@ -719,7 +719,7 @@ dotnet_code_quality.CA1828.api_surface = all
 dotnet_diagnostic.CA1852.severity = none
 
 # CA1848: don't enforce LoggerMessage pattern
-dotnet_diagnostic.CA1848.severity = suggestion
+dotnet_diagnostic.CA1848.severity = silent
 
 # CA1859: Change return type for improved performance
 #

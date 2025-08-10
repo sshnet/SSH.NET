@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var sftpVersionResponse = new SftpVersionResponse()
             {
                 Version = _version,
-                Extentions = _extensions
+                Extensions = _extensions
             };
             return sftpVersionResponse;
         }

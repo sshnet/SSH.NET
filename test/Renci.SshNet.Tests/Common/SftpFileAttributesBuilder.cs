@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 
 using Renci.SshNet.Sftp;
@@ -7,18 +8,21 @@ namespace Renci.SshNet.Tests.Common
 {
     public class SftpFileAttributesBuilder
     {
+        public static SftpFileAttributes Empty
+        {
+            get
+            {
+                return new SftpFileAttributesBuilder().Build();
+            }
+        }
+
         private DateTime? _lastAccessTime;
         private DateTime? _lastWriteTime;
         private long? _size;
         private int? _userId;
         private int? _groupId;
         private uint? _permissions;
-        private readonly IDictionary<string, string> _extensions;
-
-        public SftpFileAttributesBuilder()
-        {
-            _extensions = new Dictionary<string, string>();
-        }
+        private Dictionary<string, string>? _extensions;
 
         public SftpFileAttributesBuilder WithLastAccessTime(DateTime lastAccessTime)
         {
@@ -58,6 +62,7 @@ namespace Renci.SshNet.Tests.Common
 
         public SftpFileAttributesBuilder WithExtension(string name, string value)
         {
+            _extensions ??= [];
             _extensions.Add(name, value);
             return this;
         }

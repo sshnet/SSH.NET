@@ -10,7 +10,6 @@ using Moq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -60,9 +59,7 @@ namespace Renci.SshNet.Tests.Classes
             _offset = 0;
             _count = _data.Length;
 
-            _expectedBytesSent = new ArrayBuilder<byte>().Add(_bufferData)
-                                                         .Add(_data, 0, _bufferSize - _bufferData.Length)
-                                                         .Build();
+            _expectedBytesSent = [.. _bufferData, .. _data.Take(0, _bufferSize - _bufferData.Length)];
         }
 
         private void CreateMocks()

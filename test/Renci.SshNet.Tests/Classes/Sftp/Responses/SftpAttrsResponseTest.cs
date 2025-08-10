@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 {
@@ -61,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
         private SftpFileAttributes CreateSftpFileAttributes()
         {
-            var attributes = SftpFileAttributes.Empty;
+            var attributes = SftpFileAttributesBuilder.Empty;
             attributes.GroupId = _random.Next();
             attributes.LastAccessTime = new DateTime(2014, 8, 23, 17, 43, 50, DateTimeKind.Local);
             attributes.LastWriteTime = new DateTime(2013, 7, 22, 16, 40, 42, DateTimeKind.Local);

@@ -9,7 +9,6 @@ namespace Renci.SshNet.Sftp.Requests
     {
         private readonly Action<SftpHandleResponse> _handleAction;
         private byte[] _fileName;
-        private byte[] _attributes;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -23,12 +22,6 @@ namespace Renci.SshNet.Sftp.Requests
         }
 
         public Flags Flags { get; }
-
-        public SftpFileAttributes Attributes
-        {
-            get { return SftpFileAttributes.FromBytes(_attributes); }
-            private set { _attributes = value.GetBytes(); }
-        }
 
         public Encoding Encoding { get; }
 
@@ -46,23 +39,17 @@ namespace Renci.SshNet.Sftp.Requests
                 capacity += 4; // FileName length
                 capacity += _fileName.Length; // FileName
                 capacity += 4; // Flags
-                capacity += _attributes.Length; // Attributes
+                capacity += 4; // Attributes
                 return capacity;
             }
         }
 
         public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
-            : this(protocolVersion, requestId, fileName, encoding, flags, SftpFileAttributes.Empty, handleAction, statusAction)
-        {
-        }
-
-        private SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Encoding = encoding;
             Filename = fileName;
             Flags = flags;
-            Attributes = attributes;
 
             _handleAction = handleAction;
         }
@@ -79,7 +66,7 @@ namespace Renci.SshNet.Sftp.Requests
 
             WriteBinaryString(_fileName);
             Write((uint)Flags);
-            Write(_attributes);
+            Write(0u); // empty attributes
         }
 
         public override void Complete(SftpResponse response)

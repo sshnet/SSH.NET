@@ -1468,56 +1468,18 @@ namespace Renci.SshNet
             return SftpFileStream.Open(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
-        /// <summary>
-        /// Creates or opens a file for writing UTF-8 encoded text.
-        /// </summary>
-        /// <param name="path">The file to be opened for writing.</param>
-        /// <returns>
-        /// A <see cref="StreamWriter"/> that writes text to a file using UTF-8 encoding without
-        /// a Byte-Order Mark (BOM).
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public StreamWriter CreateText(string path)
         {
             return CreateText(path, Utf8NoBOM);
         }
 
-        /// <summary>
-        /// Creates or opens a file for writing text using the specified encoding.
-        /// </summary>
-        /// <param name="path">The file to be opened for writing.</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        /// <returns>
-        /// A <see cref="StreamWriter"/> that writes to a file using the specified encoding.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public StreamWriter CreateText(string path, Encoding encoding)
         {
             CheckDisposed();
 
-            return new StreamWriter(OpenWrite(path), encoding);
+            return new StreamWriter(Open(path, FileMode.Create, FileAccess.Write), encoding);
         }
 
         /// <summary>
@@ -1903,99 +1865,27 @@ namespace Renci.SshNet
             SetAttributes(path, attributes);
         }
 
-        /// <summary>
-        /// Writes the specified byte array to the specified file, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="bytes">The bytes to write to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllBytes(string path, byte[] bytes)
         {
-            using (var stream = OpenWrite(path))
-            {
-                stream.Write(bytes, 0, bytes.Length);
-            }
+            ThrowHelper.ThrowIfNull(bytes);
+
+            UploadFile(new MemoryStream(bytes), path);
         }
 
-        /// <summary>
-        /// Writes a collection of strings to the file using the UTF-8 encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The lines to write to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
-        /// </para>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllLines(string path, IEnumerable<string> contents)
         {
             WriteAllLines(path, contents, Utf8NoBOM);
         }
 
-        /// <summary>
-        /// Write the specified string array to the file using the UTF-8 encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The string array to write to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
-        /// </para>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllLines(string path, string[] contents)
         {
             WriteAllLines(path, contents, Utf8NoBOM);
         }
 
-        /// <summary>
-        /// Writes a collection of strings to the file using the specified encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The lines to write to the file.</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
             using (var stream = CreateText(path, encoding))
@@ -2007,55 +1897,13 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Writes the specified string array to the file by using the specified encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The string array to write to the file.</param>
-        /// <param name="encoding">An <see cref="Encoding"/> object that represents the character encoding applied to the string array.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllLines(string path, string[] contents, Encoding encoding)
         {
-            using (var stream = CreateText(path, encoding))
-            {
-                foreach (var line in contents)
-                {
-                    stream.WriteLine(line);
-                }
-            }
+            WriteAllLines(path, (IEnumerable<string>)contents, encoding);
         }
 
-        /// <summary>
-        /// Writes the specified string to the file using the UTF-8 encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The string to write to the file.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
-        /// </para>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllText(string path, string contents)
         {
             using (var stream = CreateText(path))
@@ -2064,24 +1912,7 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Writes the specified string to the file using the specified encoding, and closes the file.
-        /// </summary>
-        /// <param name="path">The file to write to.</param>
-        /// <param name="contents">The string to write to the file.</param>
-        /// <param name="encoding">The encoding to apply to the string.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
-        /// <para>
-        /// If the target file does not exist, it is created.
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc/>
         public void WriteAllText(string path, string contents, Encoding encoding)
         {
             using (var stream = CreateText(path, encoding))

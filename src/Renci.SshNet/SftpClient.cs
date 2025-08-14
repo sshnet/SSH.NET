@@ -2139,6 +2139,7 @@ namespace Renci.SshNet
 #pragma warning disable CA2000 // Dispose objects before losing scope
                             using (var file = File.OpenRead(localFile.FullName))
                             {
+#pragma warning disable CA2025 // Do not pass 'IDisposable' instances into unawaited tasks
                                 InternalUploadFile(
                                     file,
                                     remoteFileName,
@@ -2147,6 +2148,7 @@ namespace Renci.SshNet
                                     uploadCallback: null,
                                     isAsync: false,
                                     CancellationToken.None).GetAwaiter().GetResult();
+#pragma warning restore CA2025 // Do not pass 'IDisposable' instances into unawaited tasks
                             }
 #pragma warning restore CA2000 // Dispose objects before losing scope
 

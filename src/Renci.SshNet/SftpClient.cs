@@ -2363,6 +2363,7 @@ namespace Renci.SshNet
 
             while (true)
             {
+#pragma warning disable CA1849 // Call async methods when in an async method
                 var bytesRead = isAsync
 #if NET
                     ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
@@ -2370,6 +2371,7 @@ namespace Renci.SshNet
                     ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
 #endif
                     : input.Read(buffer, 0, buffer.Length);
+#pragma warning restore CA1849 // Call async methods when in an async method
 
                 if (bytesRead == 0)
                 {

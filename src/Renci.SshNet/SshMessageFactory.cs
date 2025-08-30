@@ -56,7 +56,10 @@ namespace Renci.SshNet
                 new MessageMetadata<KeyExchangeDhReplyMessage>(29, "SSH_MSG_KEXDH_REPLY", 31),
                 new MessageMetadata<KeyExchangeDhGroupExchangeReply>(30, "SSH_MSG_KEX_DH_GEX_REPLY", 33),
                 new MessageMetadata<KeyExchangeEcdhReplyMessage>(31, "SSH_MSG_KEX_ECDH_REPLY", 31),
-                new MessageMetadata<KeyExchangeHybridReplyMessage>(32, "SSH_MSG_KEX_HYBRID_REPLY", 31)
+                new MessageMetadata<KeyExchangeHybridReplyMessage>(32, "SSH_MSG_KEX_HYBRID_REPLY", 31),
+                new MessageMetadata<GssApiResponseMessage>(33, "SSH_MSG_USERAUTH_GSSAPI_RESPONSE", 60),
+                new MessageMetadata<GssApiTokenMessage>(34, "SSH_MSG_USERAUTH_GSSAPI_TOKEN", 61),
+                new MessageMetadata<GssApiErrorTokenMessage>(35, "SSH_MSG_USERAUTH_GSSAPI_ERRTOK", 65)
             };
 
         private static readonly Dictionary<string, MessageMetadata> MessagesByName = CreateMessagesByNameMapping();

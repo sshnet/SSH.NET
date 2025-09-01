@@ -23,6 +23,7 @@
                     capacity += 4; // mechanism count length
                     foreach (var oid in _supportedMechanismOids)
                     {
+                        capacity += 4; // mechanism length
                         capacity += oid.Length; // mechanism
                     }
                 }

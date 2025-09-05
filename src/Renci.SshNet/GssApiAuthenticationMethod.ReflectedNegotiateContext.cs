@@ -9,7 +9,6 @@ namespace Renci.SshNet
     {
         private sealed class ReflectedNegotiateContext : IAuthenticationContext
         {
-
 #pragma warning disable IDE0060 // Remove unused parameter
             public ReflectedNegotiateContext(bool delegateCredential, NetworkCredential credential, string targetName)
 #pragma warning restore IDE0060 // Remove unused parameter

@@ -91,6 +91,12 @@ namespace Renci.SshNet
             _authenticationContext = new ReflectedNegotiateContext(_credential.DelegateCredential, networkCredential, targetName);
 #endif
             var outgoingBlob = _authenticationContext.GetOutgoingBlob(Array.Empty<byte>(), out var statusCode);
+
+            if (outgoingBlob == null)
+            {
+                return AuthenticationResult.Failure;
+            }
+
             var tokenMessage = new GssApiTokenMessage { Token = outgoingBlob };
 
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;

@@ -5,16 +5,16 @@ namespace Renci.SshNet.Common
 {
     internal sealed class Lock
     {
-        private readonly object _lockObject = new object();
-
         public bool TryEnter()
         {
-            return Monitor.TryEnter(_lockObject);
+#pragma warning disable CA2002 // Do not lock on objects with weak identity
+            return Monitor.TryEnter(this);
+#pragma warning restore CA2002 // Do not lock on objects with weak identity
         }
 
         public void Exit()
         {
-            Monitor.Exit(_lockObject);
+            Monitor.Exit(this);
         }
     }
 }

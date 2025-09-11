@@ -218,7 +218,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var userNameBytes = Encoding.ASCII.GetBytes(_userName);
             var addressBytes = _remoteEndpoint.Address.GetAddressBytes();
-            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).Reverse().ToArray();
+            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).AsEnumerable().Reverse().ToArray();
 
             _client.Connect(_endpoint);
 

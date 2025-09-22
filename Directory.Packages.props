@@ -10,10 +10,11 @@
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
     <PackageVersion Include="Meziantou.Analyzer" Version="2.0.220" />
+    <PackageVersion Include="Microsoft.DotNet.ILCompiler" Version="9.0.9" />
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-    <PackageVersion Include="MSTest" Version="3.9.3" />
+    <PackageVersion Include="MSTest" Version="3.10.4" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />

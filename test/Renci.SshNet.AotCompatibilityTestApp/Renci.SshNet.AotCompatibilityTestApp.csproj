@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" />
     <ProjectReference Include="..\..\src\Renci.SshNet\Renci.SshNet.csproj" />
     <TrimmerRootAssembly Include="Renci.SshNet" />
   </ItemGroup>

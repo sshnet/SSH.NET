@@ -35,11 +35,17 @@ namespace Renci.SshNet.Security
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             base.Start(session, message, sendClientInitMessage);
+            StartImpl();
+        }
 
+        /// <summary>
+        /// The implementation of start key exchange algorithm.
+        /// </summary>
+        protected virtual void StartImpl()
+        {
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
-
 #if NET
             if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
             {
@@ -57,13 +63,18 @@ namespace Renci.SshNet.Security
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
 
-        /// <summary>
-        /// Finishes key exchange algorithm.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Finish()
         {
             base.Finish();
+            FinishImpl();
+        }
 
+        /// <summary>
+        /// The implementation of finish key exchange algorithm.
+        /// </summary>
+        protected virtual void FinishImpl()
+        {
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 

@@ -39,10 +39,8 @@ namespace Renci.SshNet.Security
         }
 
         /// <inheritdoc/>
-        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
+        protected override void StartImpl()
         {
-            base.Start(session, message, sendClientInitMessage);
-
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
@@ -75,13 +73,9 @@ namespace Renci.SshNet.Security
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
 
-        /// <summary>
-        /// Finishes key exchange algorithm.
-        /// </summary>
-        public override void Finish()
+        /// <inheritdoc/>
+        protected override void FinishImpl()
         {
-            base.Finish();
-
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 

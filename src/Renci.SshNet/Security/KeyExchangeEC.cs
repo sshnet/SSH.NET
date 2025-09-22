@@ -1,8 +1,10 @@
-﻿using Renci.SshNet.Messages.Transport;
+﻿using System;
+
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal abstract class KeyExchangeEC : KeyExchange
+    internal abstract partial class KeyExchangeEC : KeyExchange
     {
 #pragma warning disable SA1401 // Fields should be private
         /// <summary>
@@ -75,6 +77,24 @@ namespace Renci.SshNet.Security
 
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
+        }
+
+        protected internal abstract class Impl : IDisposable
+        {
+            public abstract byte[] GenerateClientECPoint();
+
+            public abstract byte[] CalculateAgreement(byte[] serverECPoint);
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
         }
     }
 }

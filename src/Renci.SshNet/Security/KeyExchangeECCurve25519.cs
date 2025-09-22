@@ -1,16 +1,16 @@
-﻿using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-
-using Renci.SshNet.Abstractions;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal sealed class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal sealed partial class KeyExchangeECCurve25519 : KeyExchangeEC
     {
-        private X25519Agreement _keyAgreement;
+#if NET
+        private Impl _impl;
+#else
+        private BouncyCastleImpl _impl;
+#endif
 
         /// <summary>
         /// Gets algorithm name.
@@ -40,13 +40,19 @@ namespace Renci.SshNet.Security
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-            var g = new X25519KeyPairGenerator();
-            g.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
+#if NET
+            if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
+            {
+                var curve = System.Security.Cryptography.ECCurve.CreateFromFriendlyName("Curve25519");
+                _impl = new BclImpl(curve);
+            }
+            else
+#endif
+            {
+                _impl = new BouncyCastleImpl();
+            }
 
-            var aKeyPair = g.GenerateKeyPair();
-            _keyAgreement = new X25519Agreement();
-            _keyAgreement.Init(aKeyPair.Private);
-            _clientExchangeValue = ((X25519PublicKeyParameters)aKeyPair.Public).GetEncoded();
+            _clientExchangeValue = _impl.GenerateClientECPoint();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
@@ -98,11 +104,19 @@ namespace Renci.SshNet.Security
             _hostKey = hostKey;
             _signature = signature;
 
-            var publicKey = new X25519PublicKeyParameters(serverExchangeValue);
-
-            var k1 = new byte[_keyAgreement.AgreementSize];
-            _keyAgreement.CalculateAgreement(publicKey, k1, 0);
+            var k1 = _impl.CalculateAgreement(serverExchangeValue);
             SharedKey = k1.ToBigInteger2().ToByteArray(isBigEndian: true);
+        }
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                _impl?.Dispose();
+            }
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
-    internal abstract partial class KeyExchangeECDH
+    internal abstract partial class KeyExchangeEC
     {
-        private sealed class BclImpl : Impl
+        protected internal sealed class BclImpl : Impl
         {
             private readonly ECCurve _curve;
             private readonly ECDiffieHellman _clientECDH;

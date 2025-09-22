@@ -4,7 +4,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal sealed partial class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal partial class KeyExchangeECCurve25519 : KeyExchangeEC
     {
 #if NET
         private Impl _impl;

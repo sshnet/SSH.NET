@@ -37,7 +37,7 @@ jobs:
         run: docfx ./docfx/docfx.json
 
       - name: Upload documentation
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: './docfx/_site'
 

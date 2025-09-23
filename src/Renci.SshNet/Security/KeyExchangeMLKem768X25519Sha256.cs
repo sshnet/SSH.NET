@@ -14,11 +14,6 @@ namespace Renci.SshNet.Security
     internal sealed class KeyExchangeMLKem768X25519Sha256 : KeyExchangeECCurve25519
     {
         private MLKemDecapsulator _mlkemDecapsulator;
-#if NET
-        private Impl _impl;
-#else
-        private BouncyCastleImpl _impl;
-#endif
 
         /// <summary>
         /// Gets algorithm name.
@@ -54,17 +49,6 @@ namespace Renci.SshNet.Security
             _mlkemDecapsulator.Init(mlkem768KeyPair.Private);
 
             var mlkem768PublicKey = ((MLKemPublicKeyParameters)mlkem768KeyPair.Public).GetEncoded();
-#if NET
-            if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
-            {
-                var curve = System.Security.Cryptography.ECCurve.CreateFromFriendlyName("Curve25519");
-                _impl = new BclImpl(curve);
-            }
-            else
-#endif
-            {
-                _impl = new BouncyCastleImpl();
-            }
 
             var x25519PublicKey = _impl.GenerateClientECPoint();
 
@@ -130,17 +114,6 @@ namespace Renci.SshNet.Security
             var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(_mlkemDecapsulator.EncapsulationLength, X25519PublicKeyParameters.KeySize));
 
             SharedKey = CryptoAbstraction.HashSHA256(mlkemSecret.Concat(x25519Agreement));
-        }
-
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                _impl?.Dispose();
-            }
         }
     }
 }

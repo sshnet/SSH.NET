@@ -6,11 +6,13 @@ namespace Renci.SshNet.Security
 {
     internal partial class KeyExchangeECCurve25519 : KeyExchangeEC
     {
+#pragma warning disable SA1401 // Fields should be private
 #if NET
-        private Impl _impl;
+        protected Impl _impl;
 #else
-        private BouncyCastleImpl _impl;
+        protected BouncyCastleImpl _impl;
 #endif
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets algorithm name.
@@ -35,17 +37,6 @@ namespace Renci.SshNet.Security
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             base.Start(session, message, sendClientInitMessage);
-            StartImpl();
-        }
-
-        /// <summary>
-        /// The implementation of start key exchange algorithm.
-        /// </summary>
-        protected virtual void StartImpl()
-        {
-            Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
-
-            Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 #if NET
             if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
             {
@@ -57,6 +48,18 @@ namespace Renci.SshNet.Security
             {
                 _impl = new BouncyCastleImpl();
             }
+
+            StartImpl();
+        }
+
+        /// <summary>
+        /// The implementation of start key exchange algorithm.
+        /// </summary>
+        protected virtual void StartImpl()
+        {
+            Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
+
+            Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
             _clientExchangeValue = _impl.GenerateClientECPoint();
 

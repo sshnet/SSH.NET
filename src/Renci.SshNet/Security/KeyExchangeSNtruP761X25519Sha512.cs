@@ -13,11 +13,6 @@ namespace Renci.SshNet.Security
     internal sealed class KeyExchangeSNtruP761X25519Sha512 : KeyExchangeECCurve25519
     {
         private SNtruPrimeKemExtractor _sntrup761Extractor;
-#if NET
-        private Impl _impl;
-#else
-        private BouncyCastleImpl _impl;
-#endif
 
         /// <summary>
         /// Gets algorithm name.
@@ -52,21 +47,8 @@ namespace Renci.SshNet.Security
             _sntrup761Extractor = new SNtruPrimeKemExtractor((SNtruPrimePrivateKeyParameters)sntrup761KeyPair.Private);
 
             var sntrup761PublicKey = ((SNtruPrimePublicKeyParameters)sntrup761KeyPair.Public).GetEncoded();
-#if NET
-            if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
-            {
-                var curve = System.Security.Cryptography.ECCurve.CreateFromFriendlyName("Curve25519");
-                _impl = new BclImpl(curve);
-            }
-            else
-#endif
-            {
-                _impl = new BouncyCastleImpl();
-            }
 
             var x25519PublicKey = _impl.GenerateClientECPoint();
-
-            _clientExchangeValue = sntrup761PublicKey.Concat(x25519PublicKey);
 
             _clientExchangeValue = sntrup761PublicKey.Concat(x25519PublicKey);
 
@@ -130,17 +112,6 @@ namespace Renci.SshNet.Security
             var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(_sntrup761Extractor.EncapsulationLength, X25519PublicKeyParameters.KeySize));
 
             SharedKey = CryptoAbstraction.HashSHA512(sntrup761Secret.Concat(x25519Agreement));
-        }
-
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                _impl?.Dispose();
-            }
         }
     }
 }

@@ -683,6 +683,10 @@ dotnet_diagnostic.CA1305.severity = none
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1309
 dotnet_diagnostic.CA1309.severity = none
 
+# CA1508: Avoid dead conditional code
+# Too many false positives.
+dotnet_diagnostic.CA1508.severity = none
+
 # CA1510: Use ArgumentNullException throw helper
 #
 # This is only available in .NET 6.0 and higher. We'd need to use conditional compilation to only

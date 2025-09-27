@@ -164,13 +164,11 @@ namespace Renci.SshNet.Channels
             lock (_socketShutdownAndCloseLock)
             {
                 var socket = _socket;
-#pragma warning disable CA1508 // Avoid dead conditional code
                 if (socket != null)
                 {
                     _socket = null;
                     socket.Dispose();
                 }
-#pragma warning restore CA1508 // Avoid dead conditional code
             }
         }
 

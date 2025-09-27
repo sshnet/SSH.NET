@@ -124,12 +124,10 @@ namespace Renci.SshNet.Channels
 
             lock (_socketLock)
             {
-#pragma warning disable CA1508 // Avoid dead conditional code
                 if (_socket is null)
                 {
                     return;
                 }
-#pragma warning restore CA1508 // Avoid dead conditional code
 
                 // closing a socket actually disposes the socket, so we can safely dereference
                 // the field to avoid entering the lock again later
@@ -295,13 +293,11 @@ namespace Renci.SshNet.Channels
                     lock (_socketLock)
                     {
                         var socket = _socket;
-#pragma warning disable CA1508 // Avoid dead conditional code
                         if (socket != null)
                         {
                             _socket = null;
                             socket.Dispose();
                         }
-#pragma warning restore CA1508 // Avoid dead conditional code
                     }
                 }
 

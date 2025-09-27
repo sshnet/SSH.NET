@@ -12,12 +12,12 @@ namespace Renci.SshNet.Security
         private sealed class BouncyCastleImpl : Impl
         {
             private readonly ECDomainParameters _domainParameters;
-            private readonly ECDHBasicAgreement _keyAgreement;
+            private readonly ECDHCBasicAgreement _keyAgreement;
 
             public BouncyCastleImpl(X9ECParameters curveParameters)
             {
                 _domainParameters = new ECDomainParameters(curveParameters);
-                _keyAgreement = new ECDHBasicAgreement();
+                _keyAgreement = new ECDHCBasicAgreement();
             }
 
             public override byte[] GenerateClientECPoint()

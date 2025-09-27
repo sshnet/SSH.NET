@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
-    internal abstract partial class KeyExchangeECCurve25519
+    internal partial class KeyExchangeECCurve25519
     {
         protected sealed class BclImpl : Impl
         {

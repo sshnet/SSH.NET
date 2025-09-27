@@ -8,7 +8,7 @@ namespace Renci.SshNet.Security
 {
     internal partial class KeyExchangeECCurve25519
     {
-        protected internal sealed class BouncyCastleImpl : Impl
+        protected sealed class BouncyCastleImpl : Impl
         {
             private X25519Agreement _keyAgreement;
 

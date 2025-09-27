@@ -4,7 +4,7 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal abstract partial class KeyExchangeEC : KeyExchange
+    internal abstract class KeyExchangeEC : KeyExchange
     {
 #pragma warning disable SA1401 // Fields should be private
         /// <summary>

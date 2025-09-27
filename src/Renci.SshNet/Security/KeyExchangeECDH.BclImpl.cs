@@ -6,7 +6,7 @@ namespace Renci.SshNet.Security
 {
     internal abstract partial class KeyExchangeECDH
     {
-        protected sealed class BclImpl : Impl
+        private sealed class BclImpl : Impl
         {
             private readonly ECCurve _curve;
             private readonly ECDiffieHellman _clientECDH;

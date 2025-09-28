@@ -12,7 +12,7 @@ namespace Renci.SshNet.Security
         {
             private X25519Agreement _keyAgreement;
 
-            public override byte[] GenerateClientECPoint()
+            public override byte[] GenerateClientPublicKey()
             {
                 var g = new X25519KeyPairGenerator();
                 g.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
@@ -24,9 +24,9 @@ namespace Renci.SshNet.Security
                 return ((X25519PublicKeyParameters)aKeyPair.Public).GetEncoded();
             }
 
-            public override byte[] CalculateAgreement(byte[] serverECPoint)
+            public override byte[] CalculateAgreement(byte[] serverPublicKey)
             {
-                var publicKey = new X25519PublicKeyParameters(serverECPoint);
+                var publicKey = new X25519PublicKeyParameters(serverPublicKey);
 
                 var k1 = new byte[_keyAgreement.AgreementSize];
                 _keyAgreement.CalculateAgreement(publicKey, k1, 0);

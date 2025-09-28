@@ -10,13 +10,13 @@ namespace Renci.SshNet.Security
             private readonly ECCurve _curve;
             private readonly ECDiffieHellman _clientECDH;
 
-            public BclImpl(ECCurve curve)
+            public BclImpl()
             {
-                _curve = curve;
+                _curve = ECCurve.CreateFromFriendlyName("Curve25519");
                 _clientECDH = ECDiffieHellman.Create();
             }
 
-            public override byte[] GenerateClientECPoint()
+            public override byte[] GenerateClientPublicKey()
             {
                 _clientECDH.GenerateKey(_curve);
 
@@ -25,15 +25,15 @@ namespace Renci.SshNet.Security
                 return q.X;
             }
 
-            public override byte[] CalculateAgreement(byte[] serverECPoint)
+            public override byte[] CalculateAgreement(byte[] serverPublicKey)
             {
                 var parameters = new ECParameters
                 {
                     Curve = _curve,
                     Q = new ECPoint
                     {
-                        X = serverECPoint,
-                        Y = new byte[serverECPoint.Length]
+                        X = serverPublicKey,
+                        Y = new byte[serverPublicKey.Length]
                     },
                 };
 

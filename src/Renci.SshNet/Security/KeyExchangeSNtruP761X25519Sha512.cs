@@ -48,7 +48,7 @@ namespace Renci.SshNet.Security
 
             var sntrup761PublicKey = ((SNtruPrimePublicKeyParameters)sntrup761KeyPair.Public).GetEncoded();
 
-            var x25519PublicKey = _impl.GenerateClientECPoint();
+            var x25519PublicKey = _impl.GenerateClientPublicKey();
 
             _clientExchangeValue = sntrup761PublicKey.Concat(x25519PublicKey);
 

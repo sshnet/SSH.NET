@@ -79,11 +79,11 @@ namespace Renci.SshNet.Security
             _clientPayload = Session.ClientInitMessage.GetBytes();
         }
 
-        protected internal abstract class Impl : IDisposable
+        protected abstract class Impl : IDisposable
         {
-            public abstract byte[] GenerateClientECPoint();
+            public abstract byte[] GenerateClientPublicKey();
 
-            public abstract byte[] CalculateAgreement(byte[] serverECPoint);
+            public abstract byte[] CalculateAgreement(byte[] serverPublicKey);
 
             protected virtual void Dispose(bool disposing)
             {

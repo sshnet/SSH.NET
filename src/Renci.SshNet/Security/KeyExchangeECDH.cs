@@ -49,7 +49,7 @@ namespace Renci.SshNet.Security
                 _impl = new BouncyCastleImpl(CurveParameter);
             }
 
-            _clientExchangeValue = _impl.GenerateClientECPoint();
+            _clientExchangeValue = _impl.GenerateClientPublicKey();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }

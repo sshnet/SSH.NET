@@ -50,7 +50,7 @@ namespace Renci.SshNet.Security
 
             var mlkem768PublicKey = ((MLKemPublicKeyParameters)mlkem768KeyPair.Public).GetEncoded();
 
-            var x25519PublicKey = _impl.GenerateClientECPoint();
+            var x25519PublicKey = _impl.GenerateClientPublicKey();
 
             _clientExchangeValue = mlkem768PublicKey.Concat(x25519PublicKey);
 

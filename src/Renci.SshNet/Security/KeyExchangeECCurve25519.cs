@@ -40,8 +40,7 @@ namespace Renci.SshNet.Security
 #if NET
             if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
             {
-                var curve = System.Security.Cryptography.ECCurve.CreateFromFriendlyName("Curve25519");
-                _impl = new BclImpl(curve);
+                _impl = new BclImpl();
             }
             else
 #endif
@@ -61,7 +60,7 @@ namespace Renci.SshNet.Security
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-            _clientExchangeValue = _impl.GenerateClientECPoint();
+            _clientExchangeValue = _impl.GenerateClientPublicKey();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }

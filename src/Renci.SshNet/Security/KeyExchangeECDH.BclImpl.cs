@@ -17,7 +17,7 @@ namespace Renci.SshNet.Security
                 _clientECDH = ECDiffieHellman.Create();
             }
 
-            public override byte[] GenerateClientECPoint()
+            public override byte[] GenerateClientPublicKey()
             {
                 _clientECDH.GenerateKey(_curve);
 
@@ -26,9 +26,9 @@ namespace Renci.SshNet.Security
                 return EncodeECPoint(q);
             }
 
-            public override byte[] CalculateAgreement(byte[] serverECPoint)
+            public override byte[] CalculateAgreement(byte[] serverPublicKey)
             {
-                var q = DecodeECPoint(serverECPoint);
+                var q = DecodeECPoint(serverPublicKey);
 
                 var parameters = new ECParameters
                 {

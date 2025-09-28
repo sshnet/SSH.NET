@@ -139,6 +139,17 @@ jobs:
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
           test\Renci.SshNet.IntegrationTests\
 
+    - name: Run Integration Tests .NET
+      run:
+        dotnet test `
+          -f net9.0 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `
+          test\Renci.SshNet.IntegrationTests\
+
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4
       with:

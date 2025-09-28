@@ -30,19 +30,20 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         private IFutureDockerImage _sshServerImage;
 
-        public string SshServerHostName { get; set; }
+        public string SshServerHostName { get; private set; }
 
-        public ushort SshServerPort { get; set; }
+        public ushort SshServerPort { get; private set; }
 
-        public SshUser AdminUser = new SshUser("sshnetadm", "ssh4ever");
+        public SshUser AdminUser { get; } = new SshUser("sshnetadm", "ssh4ever");
 
-        public SshUser User = new SshUser("sshnet", "ssh4ever");
+        public SshUser User { get; } = new SshUser("sshnet", "ssh4ever");
 
         public async Task InitializeAsync()
         {
 #pragma warning disable MA0144 // use System.OperatingSystem to check the current OS
             // for the Windows Tests in CI, the Container is set up in WSL2 with Podman
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Environment.GetEnvironmentVariable("CI") == "true")
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                Environment.GetEnvironmentVariable("CI") == "true")
 #pragma warning restore MA0144 // use System.OperatingSystem to check the current OS
             {
                 SshServerPort = 2222;
@@ -86,9 +87,24 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task DisposeAsync()
         {
+#pragma warning disable S6966 // Awaitable method should be used
+            try
+            {
+                using SftpClient client = new(new LinuxAdminConnectionFactory(SshServerHostName, SshServerPort).Create());
+
+                client.Connect();
+
+                Console.WriteLine("=== start auth.log ===");
+                Console.WriteLine(client.ReadAllText("/var/log/auth.log"));
+                Console.WriteLine("=== end auth.log ===");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.ToString());
+            }
+
             if (_sshServer != null)
             {
-#pragma warning disable S6966 // Awaitable method should be used
                 //try
                 //{
                 //    File.WriteAllBytes(@"C:\tmp\auth.log", await _sshServer.ReadFileAsync("/var/log/auth.log").ConfigureAwait(false));

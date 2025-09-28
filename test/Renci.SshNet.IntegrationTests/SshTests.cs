@@ -527,12 +527,9 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.Connect();
 
-                    var localEndPoint = new IPEndPoint(IPAddress.Loopback, 1225);
-
                     for (var i = 0; i < (connectionInfo.MaxSessions + 1); i++)
                     {
-                        var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                                   (uint)localEndPoint.Port,
+                        var forwardedPort = new ForwardedPortLocal(IPAddress.Loopback.ToString(),
                                                                    hostNameAlias,
                                                                    80);
                         client.AddForwardedPort(forwardedPort);
@@ -547,7 +544,8 @@ namespace Renci.SshNet.IntegrationTests
 
                             using HttpClient httpClient = new(handler);
 
-                            using HttpResponseMessage httpResponse = httpClient.GetAsync("http://" + localEndPoint).Result;
+                            using HttpResponseMessage httpResponse = httpClient.GetAsync(
+                                $"http://{forwardedPort.BoundHost}:{forwardedPort.BoundPort}").Result;
 
                             Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                         }
@@ -583,10 +581,7 @@ namespace Renci.SshNet.IntegrationTests
                 {
                     client.Connect();
 
-                    var localEndPoint = new IPEndPoint(IPAddress.Loopback, 1225);
-
-                    var forwardedPort = new ForwardedPortLocal(localEndPoint.Address.ToString(),
-                                                               (uint)localEndPoint.Port,
+                    var forwardedPort = new ForwardedPortLocal(IPAddress.Loopback.ToString(),
                                                                hostNameAlias,
                                                                80);
                     forwardedPort.Exception +=
@@ -603,7 +598,8 @@ namespace Renci.SshNet.IntegrationTests
 
                         using HttpClient httpClient = new(handler);
 
-                        using HttpResponseMessage httpResponse = httpClient.GetAsync("http://" + localEndPoint).Result;
+                        using HttpResponseMessage httpResponse = httpClient.GetAsync(
+                            $"http://{forwardedPort.BoundHost}:{forwardedPort.BoundPort}").Result;
 
                         Assert.AreEqual(HttpStatusCode.MovedPermanently, httpResponse.StatusCode);
                     }

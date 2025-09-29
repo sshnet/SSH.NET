@@ -15,7 +15,7 @@ jobs:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
   #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v4
+  #     uses: actions/setup-dotnet@v5
 
   #   - name: Build Unit Tests .NET
   #     run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
@@ -62,7 +62,7 @@ jobs:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
   #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v4
+  #     uses: actions/setup-dotnet@v5
 
   #   - name: Build Solution
   #     run: dotnet build Renci.SshNet.sln
@@ -113,7 +113,7 @@ jobs:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
 
     - name: Setup WSL2
       uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
@@ -134,7 +134,7 @@ jobs:
           -f net48 `
           --logger "console;verbosity=detailed" `
           --logger GitHubActions `
-          --filter "Name~Common_CreateMoreChannelsThanMaxSessions" `
+          --filter "Name~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
@@ -146,7 +146,7 @@ jobs:
           -f net9.0 `
           --logger "console;verbosity=detailed" `
           --logger GitHubActions `
-          --filter "Name~Common_CreateMoreChannelsThanMaxSessions" `
+          --filter "Name~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `

@@ -41,6 +41,7 @@ RUN apk update && apk upgrade --no-cache && \
     echo 'sshnetadm:ssh4ever' | chpasswd && \
     addgroup sshnetadm sudo && \
     dos2unix /opt/sshnet/* && \
+    chmod -R 777 /var/log && \
     # install shadow package; we use chage command in this package to expire/unexpire password of the sshnet user
     apk add --no-cache shadow && \
     # allow us to use telnet command; we use this in the remote port forwarding tests

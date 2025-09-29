@@ -134,7 +134,7 @@ jobs:
           -f net48 `
           --logger "console;verbosity=detailed" `
           --logger GitHubActions `
-          --filter "Name~ConnectivityTests" `
+          --filter "FullyQualifiedName~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
@@ -146,7 +146,7 @@ jobs:
           -f net9.0 `
           --logger "console;verbosity=detailed" `
           --logger GitHubActions `
-          --filter "Name~ConnectivityTests" `
+          --filter "FullyQualifiedName~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `

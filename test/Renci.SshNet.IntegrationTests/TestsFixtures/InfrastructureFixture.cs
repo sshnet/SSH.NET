@@ -1,4 +1,6 @@
-﻿using DotNet.Testcontainers.Builders;
+﻿using System.Runtime.InteropServices;
+
+using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 
@@ -38,16 +40,17 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task InitializeAsync()
         {
-            // for the .NET Framework Tests in CI, the Container is set up in WSL2 with Podman
-#if NETFRAMEWORK
-            if (Environment.GetEnvironmentVariable("CI") == "true")
+#pragma warning disable MA0144 // use System.OperatingSystem to check the current OS
+            // for the Windows Tests in CI, the Container is set up in WSL2 with Podman
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                Environment.GetEnvironmentVariable("CI") == "true")
+#pragma warning restore MA0144 // use System.OperatingSystem to check the current OS
             {
                 SshServerPort = 2222;
                 SshServerHostName = "localhost";
                 await Task.Delay(1_000);
                 return;
             }
-#endif
 
             var containerLogger = _loggerFactory.CreateLogger("testcontainers");
 

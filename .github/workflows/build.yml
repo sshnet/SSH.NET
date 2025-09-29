@@ -6,13 +6,13 @@ on:
   - workflow_dispatch
 
 jobs:
-  # Linux:
-  #   runs-on: ubuntu-24.04
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v5
-  #     with:
-  #       fetch-depth: 0 # needed for Nerdbank.GitVersioning
+  Linux:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
   #   - name: Setup .NET
   #     uses: actions/setup-dotnet@v4
@@ -53,13 +53,13 @@ jobs:
   #         name: Coverlet Results Linux
   #         path: coverlet
 
-  # Windows:
-  #   runs-on: windows-2025
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v5
-  #     with:
-  #       fetch-depth: 0 # needed for Nerdbank.GitVersioning
+  Windows:
+    runs-on: windows-2025
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
   #   - name: Setup .NET
   #     uses: actions/setup-dotnet@v4

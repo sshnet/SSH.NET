@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -530,9 +529,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         private byte[] GenerateSessionKey(byte[] sharedKey, byte[] exchangeHash, byte[] key, int size)
         {
-            var result = new List<byte>(key);
-
-            while (size > result.Count)
+            while (key.Length < size)
             {
                 var sessionKeyAdjustment = new SessionKeyAdjustment
                 {
@@ -541,10 +538,10 @@ namespace Renci.SshNet.Security
                     Key = key,
                 };
 
-                result.AddRange(Hash(sessionKeyAdjustment.GetBytes()));
+                key = key.Concat(Hash(sessionKeyAdjustment.GetBytes()));
             }
 
-            return result.ToArray();
+            return key;
         }
 
         /// <summary>

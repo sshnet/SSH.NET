@@ -9,12 +9,6 @@ namespace Renci.SshNet.Tests.Classes
     public class AbstractionsTest
     {
         [TestMethod]
-        public void SocketAbstraction_CanWrite_ShouldReturnFalseWhenSocketIsNull()
-        {
-            Assert.IsFalse(SocketAbstraction.CanWrite(null));
-        }
-
-        [TestMethod]
         public void CryptoAbstraction_GenerateRandom_ShouldPerformNoOpWhenDataIsZeroLength()
         {
             Assert.AreEqual(0, CryptoAbstraction.GenerateRandom(0).Length);

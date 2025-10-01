@@ -1,9 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 
-using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pqc.Crypto.NtruPrime;
 
@@ -13,10 +10,9 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal sealed class KeyExchangeSNtruP761X25519Sha512 : KeyExchangeEC
+    internal sealed class KeyExchangeSNtruP761X25519Sha512 : KeyExchangeECCurve25519
     {
         private SNtruPrimeKemExtractor _sntrup761Extractor;
-        private X25519Agreement _x25519Agreement;
 
         /// <summary>
         /// Gets algorithm name.
@@ -38,10 +34,8 @@ namespace Renci.SshNet.Security
         }
 
         /// <inheritdoc/>
-        public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
+        protected override void StartImpl()
         {
-            base.Start(session, message, sendClientInitMessage);
-
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
@@ -52,28 +46,18 @@ namespace Renci.SshNet.Security
 
             _sntrup761Extractor = new SNtruPrimeKemExtractor((SNtruPrimePrivateKeyParameters)sntrup761KeyPair.Private);
 
-            var x25519KeyPairGenerator = new X25519KeyPairGenerator();
-            x25519KeyPairGenerator.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
-            var x25519KeyPair = x25519KeyPairGenerator.GenerateKeyPair();
-
-            _x25519Agreement = new X25519Agreement();
-            _x25519Agreement.Init(x25519KeyPair.Private);
-
             var sntrup761PublicKey = ((SNtruPrimePublicKeyParameters)sntrup761KeyPair.Public).GetEncoded();
-            var x25519PublicKey = ((X25519PublicKeyParameters)x25519KeyPair.Public).GetEncoded();
+
+            var x25519PublicKey = _impl.GenerateClientPublicKey();
 
             _clientExchangeValue = sntrup761PublicKey.Concat(x25519PublicKey);
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
 
-        /// <summary>
-        /// Finishes key exchange algorithm.
-        /// </summary>
-        public override void Finish()
+        /// <inheritdoc/>
+        protected override void FinishImpl()
         {
-            base.Finish();
-
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 
@@ -122,14 +106,12 @@ namespace Renci.SshNet.Security
             }
 
             var sntrup761CipherText = serverExchangeValue.Take(_sntrup761Extractor.EncapsulationLength);
-            var secret = _sntrup761Extractor.ExtractSecret(sntrup761CipherText);
-            var sntrup761SecretLength = secret.Length;
 
-            var x25519PublicKey = new X25519PublicKeyParameters(serverExchangeValue, _sntrup761Extractor.EncapsulationLength);
-            Array.Resize(ref secret, sntrup761SecretLength + _x25519Agreement.AgreementSize);
-            _x25519Agreement.CalculateAgreement(x25519PublicKey, secret, sntrup761SecretLength);
+            var sntrup761Secret = _sntrup761Extractor.ExtractSecret(sntrup761CipherText);
 
-            SharedKey = CryptoAbstraction.HashSHA512(secret);
+            var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(_sntrup761Extractor.EncapsulationLength, X25519PublicKeyParameters.KeySize));
+
+            SharedKey = CryptoAbstraction.HashSHA512(sntrup761Secret.Concat(x25519Agreement));
         }
     }
 }

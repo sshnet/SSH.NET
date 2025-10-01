@@ -40,6 +40,22 @@ namespace Renci.SshNet.IntegrationTests
             DoTest(MessageAuthenticationCodeAlgorithm.HmacSha2_512);
         }
 
+        [TestMethod]
+        public void HmacSha2_512_ShortKexOutput()
+        {
+            _remoteSshdConfig.ClearMessageAuthenticationCodeAlgorithms()
+                             .AddMessageAuthenticationCodeAlgorithm(MessageAuthenticationCodeAlgorithm.HmacSha2_512)
+                             .ClearKeyExchangeAlgorithms()
+                             .AddKeyExchangeAlgorithm(KeyExchangeAlgorithm.DiffieHellmanGroupExchangeSha1)
+                             .Update()
+                             .Restart();
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         public void HmacSha1_Etm()

@@ -1,6 +1,4 @@
-﻿using System;
-
-using Org.BouncyCastle.Asn1.X9;
+﻿using Org.BouncyCastle.Asn1.X9;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -41,7 +39,7 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
 #if NET
-            if (!OperatingSystem.IsWindows() || OperatingSystem.IsWindowsVersionAtLeast(10))
+            if (!System.OperatingSystem.IsWindows() || System.OperatingSystem.IsWindowsVersionAtLeast(10))
             {
                 _impl = new BclImpl(Curve);
             }
@@ -51,7 +49,7 @@ namespace Renci.SshNet.Security
                 _impl = new BouncyCastleImpl(CurveParameter);
             }
 
-            _clientExchangeValue = _impl.GenerateClientECPoint();
+            _clientExchangeValue = _impl.GenerateClientPublicKey();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
@@ -104,24 +102,6 @@ namespace Renci.SshNet.Security
             if (disposing)
             {
                 _impl?.Dispose();
-            }
-        }
-
-        private abstract class Impl : IDisposable
-        {
-            public abstract byte[] GenerateClientECPoint();
-
-            public abstract byte[] CalculateAgreement(byte[] serverECPoint);
-
-            protected virtual void Dispose(bool disposing)
-            {
-            }
-
-            public void Dispose()
-            {
-                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-                Dispose(disposing: true);
-                GC.SuppressFinalize(this);
             }
         }
     }

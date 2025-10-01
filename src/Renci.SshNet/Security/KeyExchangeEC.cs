@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Messages.Transport;
+﻿using System;
+
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
@@ -75,6 +77,24 @@ namespace Renci.SshNet.Security
 
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
+        }
+
+        protected abstract class Impl : IDisposable
+        {
+            public abstract byte[] GenerateClientPublicKey();
+
+            public abstract byte[] CalculateAgreement(byte[] serverPublicKey);
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
         }
     }
 }

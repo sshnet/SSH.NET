@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -37,7 +37,7 @@ jobs:
         run: docfx ./docfx/docfx.json
 
       - name: Upload documentation
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: './docfx/_site'
 

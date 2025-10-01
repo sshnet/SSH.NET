@@ -14,44 +14,44 @@ jobs:
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
-  #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
 
-  #   - name: Build Unit Tests .NET
-  #     run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
+    - name: Build Unit Tests .NET
+      run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
 
-  #   - name: Build IntegrationTests .NET
-  #     run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
+    - name: Build IntegrationTests .NET
+      run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
 
-  #   - name: Run Unit Tests .NET
-  #     run: |
-  #       dotnet test \
-  #         -f net9.0 \
-  #         --no-build \
-  #         --logger "console;verbosity=normal" \
-  #         --logger GitHubActions \
-  #         -p:CollectCoverage=true \
-  #         -p:CoverletOutputFormat=cobertura \
-  #         -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
-  #         test/Renci.SshNet.Tests/
+    - name: Run Unit Tests .NET
+      run: |
+        dotnet test \
+          -f net9.0 \
+          --no-build \
+          --logger "console;verbosity=normal" \
+          --logger GitHubActions \
+          -p:CollectCoverage=true \
+          -p:CoverletOutputFormat=cobertura \
+          -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
+          test/Renci.SshNet.Tests/
 
-  #   - name: Run Integration Tests .NET
-  #     run: |
-  #       dotnet test \
-  #         -f net9.0 \
-  #         --no-build \
-  #         --logger "console;verbosity=normal" \
-  #         --logger GitHubActions \
-  #         -p:CollectCoverage=true \
-  #         -p:CoverletOutputFormat=cobertura \
-  #         -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
-  #         test/Renci.SshNet.IntegrationTests/
+    - name: Run Integration Tests .NET
+      run: |
+        dotnet test \
+          -f net9.0 \
+          --no-build \
+          --logger "console;verbosity=normal" \
+          --logger GitHubActions \
+          -p:CollectCoverage=true \
+          -p:CoverletOutputFormat=cobertura \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
+          test/Renci.SshNet.IntegrationTests/
 
-  #   - name: Archive Coverlet Results
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #         name: Coverlet Results Linux
-  #         path: coverlet
+    - name: Archive Coverlet Results
+      uses: actions/upload-artifact@v4
+      with:
+          name: Coverlet Results Linux
+          path: coverlet
 
   Windows:
     runs-on: windows-2025
@@ -61,47 +61,47 @@ jobs:
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
-  #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
 
-  #   - name: Build Solution
-  #     run: dotnet build Renci.SshNet.sln
+    - name: Build Solution
+      run: dotnet build Renci.SshNet.sln
 
-  #   - name: Publish AOT Compatibility Test App
-  #     run: dotnet publish -r win-x64 /warnaserror test/Renci.SshNet.AotCompatibilityTestApp/
+    - name: Publish AOT Compatibility Test App
+      run: dotnet publish -r win-x64 /warnaserror test/Renci.SshNet.AotCompatibilityTestApp/
 
-  #   - name: Create NuGet Package
-  #     run: dotnet pack
+    - name: Create NuGet Package
+      run: dotnet pack
 
-  #   - name: Archive NuGet Package
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: NuGet Package
-  #       path: src/Renci.SshNet/bin/Release/*.*nupkg
+    - name: Archive NuGet Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: NuGet Package
+        path: src/Renci.SshNet/bin/Release/*.*nupkg
 
-  #   - name: Run Unit Tests .NET
-  #     run: |
-  #       dotnet test `
-  #         -f net9.0 `
-  #         --no-build `
-  #         --logger "console;verbosity=normal" `
-  #         --logger GitHubActions `
-  #         -p:CollectCoverage=true `
-  #         -p:CoverletOutputFormat=cobertura `
-  #         -p:CoverletOutput=../../coverlet/windows_unit_test_net_9_coverage.xml `
-  #         test/Renci.SshNet.Tests/
+    - name: Run Unit Tests .NET
+      run: |
+        dotnet test `
+          -f net9.0 `
+          --no-build `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_net_9_coverage.xml `
+          test/Renci.SshNet.Tests/
 
-  #   - name: Run Unit Tests .NET Framework
-  #     run: |
-  #       dotnet test `
-  #         -f net462 `
-  #         --no-build `
-  #         --logger "console;verbosity=normal" `
-  #         --logger GitHubActions `
-  #         -p:CollectCoverage=true `
-  #         -p:CoverletOutputFormat=cobertura `
-  #         -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
-  #         test/Renci.SshNet.Tests/
+    - name: Run Unit Tests .NET Framework
+      run: |
+        dotnet test `
+          -f net462 `
+          --no-build `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
+          test/Renci.SshNet.Tests/
 
   Windows-Integration-Tests:
     name: Windows Integration Tests
@@ -132,9 +132,8 @@ jobs:
       run:
         dotnet test `
           -f net48 `
-          --logger "console;verbosity=detailed" `
+          --logger "console;verbosity=normal" `
           --logger GitHubActions `
-          --filter "FullyQualifiedName~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
@@ -144,9 +143,8 @@ jobs:
       run:
         dotnet test `
           -f net9.0 `
-          --logger "console;verbosity=detailed" `
+          --logger "console;verbosity=normal" `
           --logger GitHubActions `
-          --filter "FullyQualifiedName~ConnectivityTests" `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `

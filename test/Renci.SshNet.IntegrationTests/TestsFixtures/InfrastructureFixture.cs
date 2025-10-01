@@ -87,24 +87,9 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public async Task DisposeAsync()
         {
-#pragma warning disable S6966 // Awaitable method should be used
-            try
-            {
-                using SftpClient client = new(new LinuxAdminConnectionFactory(SshServerHostName, SshServerPort).Create());
-
-                client.Connect();
-
-                Console.WriteLine("=== start auth.log ===");
-                Console.WriteLine(client.ReadAllText("/var/log/auth.log"));
-                Console.WriteLine("=== end auth.log ===");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex.ToString());
-            }
-
             if (_sshServer != null)
             {
+#pragma warning disable S6966 // Awaitable method should be used
                 //try
                 //{
                 //    File.WriteAllBytes(@"C:\tmp\auth.log", await _sshServer.ReadFileAsync("/var/log/auth.log").ConfigureAwait(false));

@@ -10,7 +10,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Common
@@ -317,16 +316,6 @@ namespace Renci.SshNet.Common
             Buffer.BlockCopy(first, 0, concat, 0, first.Length);
             Buffer.BlockCopy(second, 0, concat, first.Length, second.Length);
             return concat;
-        }
-
-        internal static bool CanRead(this Socket socket)
-        {
-            return SocketAbstraction.CanRead(socket);
-        }
-
-        internal static bool CanWrite(this Socket socket)
-        {
-            return SocketAbstraction.CanWrite(socket);
         }
 
         internal static bool IsConnected(this Socket socket)

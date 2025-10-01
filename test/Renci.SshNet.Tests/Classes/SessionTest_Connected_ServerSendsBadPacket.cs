@@ -91,13 +91,20 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ReceiveOnServerSocketShouldReturnZero()
+        public void ServerShouldBeDisconnected()
         {
-            var buffer = new byte[1];
+            try
+            {
+                var buffer = new byte[1];
 
-            var actual = ServerSocket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+                var actual = ServerSocket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
 
-            Assert.AreEqual(0, actual);
+                Assert.AreEqual(0, actual); // FIN
+            }
+            catch (SocketException sx)
+            {
+                Assert.AreEqual(SocketError.ConnectionReset, sx.SocketErrorCode); // RST
+            }
         }
 
         [TestMethod]

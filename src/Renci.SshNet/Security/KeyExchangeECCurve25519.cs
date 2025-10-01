@@ -1,16 +1,18 @@
-﻿using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-
-using Renci.SshNet.Abstractions;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal sealed class KeyExchangeECCurve25519 : KeyExchangeEC
+    internal partial class KeyExchangeECCurve25519 : KeyExchangeEC
     {
-        private X25519Agreement _keyAgreement;
+#pragma warning disable SA1401 // Fields should be private
+#if NET
+        protected Impl _impl;
+#else
+        protected BouncyCastleImpl _impl;
+#endif
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Gets algorithm name.
@@ -35,29 +37,46 @@ namespace Renci.SshNet.Security
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             base.Start(session, message, sendClientInitMessage);
+#if NET
+            if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
+            {
+                _impl = new BclImpl();
+            }
+            else
+#endif
+            {
+                _impl = new BouncyCastleImpl();
+            }
 
+            StartImpl();
+        }
+
+        /// <summary>
+        /// The implementation of start key exchange algorithm.
+        /// </summary>
+        protected virtual void StartImpl()
+        {
             Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");
 
             Session.KeyExchangeEcdhReplyMessageReceived += Session_KeyExchangeEcdhReplyMessageReceived;
 
-            var g = new X25519KeyPairGenerator();
-            g.Init(new X25519KeyGenerationParameters(CryptoAbstraction.SecureRandom));
-
-            var aKeyPair = g.GenerateKeyPair();
-            _keyAgreement = new X25519Agreement();
-            _keyAgreement.Init(aKeyPair.Private);
-            _clientExchangeValue = ((X25519PublicKeyParameters)aKeyPair.Public).GetEncoded();
+            _clientExchangeValue = _impl.GenerateClientPublicKey();
 
             SendMessage(new KeyExchangeEcdhInitMessage(_clientExchangeValue));
         }
 
-        /// <summary>
-        /// Finishes key exchange algorithm.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Finish()
         {
             base.Finish();
+            FinishImpl();
+        }
 
+        /// <summary>
+        /// The implementation of finish key exchange algorithm.
+        /// </summary>
+        protected virtual void FinishImpl()
+        {
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 
@@ -98,11 +117,19 @@ namespace Renci.SshNet.Security
             _hostKey = hostKey;
             _signature = signature;
 
-            var publicKey = new X25519PublicKeyParameters(serverExchangeValue);
-
-            var k1 = new byte[_keyAgreement.AgreementSize];
-            _keyAgreement.CalculateAgreement(publicKey, k1, 0);
+            var k1 = _impl.CalculateAgreement(serverExchangeValue);
             SharedKey = k1.ToBigInteger2().ToByteArray(isBigEndian: true);
+        }
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                _impl?.Dispose();
+            }
         }
     }
 }

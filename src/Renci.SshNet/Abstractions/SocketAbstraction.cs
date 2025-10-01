@@ -12,34 +12,6 @@ namespace Renci.SshNet.Abstractions
 {
     internal static partial class SocketAbstraction
     {
-        public static bool CanRead(Socket socket)
-        {
-            if (socket.Connected)
-            {
-                return socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Returns a value indicating whether the specified <see cref="Socket"/> can be used
-        /// to send data.
-        /// </summary>
-        /// <param name="socket">The <see cref="Socket"/> to check.</param>
-        /// <returns>
-        /// <see langword="true"/> if <paramref name="socket"/> can be written to; otherwise, <see langword="false"/>.
-        /// </returns>
-        public static bool CanWrite(Socket socket)
-        {
-            if (socket != null && socket.Connected)
-            {
-                return socket.Poll(-1, SelectMode.SelectWrite);
-            }
-
-            return false;
-        }
-
         public static Socket Connect(IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             var socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };

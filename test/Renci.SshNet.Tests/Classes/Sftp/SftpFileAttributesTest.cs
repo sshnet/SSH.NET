@@ -103,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                     0, 0, 0x89, 0xe4 },
                 attributes.GetBytes());
 
-            Assert.StartsWith("-rwsr--r-- Size: ", attributes.ToString(), StringComparison.Ordinal);
+            Assert.IsTrue(attributes.ToString().StartsWith("-rwsr--r-- Size: ", StringComparison.Ordinal));
 
             // Uid/gid change
             attributes.UserId = 99;
@@ -139,7 +139,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.AreEqual(DateTimeKind.Utc, attributes.LastWriteTimeUtc.Kind);
 
             var attributesString = attributes.ToString();
-            Assert.StartsWith("-rwsr--r-- Size: ", attributesString, StringComparison.Ordinal);
+            Assert.IsTrue(attributesString.StartsWith("-rwsr--r-- Size: ", StringComparison.Ordinal));
             Assert.Contains(" LastWriteTime: ", attributesString, StringComparison.CurrentCulture);
         }
 

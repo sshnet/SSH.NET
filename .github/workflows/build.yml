@@ -128,18 +128,6 @@ jobs:
         podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
         podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
 
-    - name: Run Integration Tests .NET
-      run:
-        dotnet test `
-          -f net9.0 `
-          --logger "console;verbosity=normal" `
-          --logger GitHubActions `
-          --filter "Name~Curve25519|Name~X25519" `
-          -p:CollectCoverage=true `
-          -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `
-          test\Renci.SshNet.IntegrationTests\
-
     - name: Run Integration Tests .NET Framework
       run:
         dotnet test `

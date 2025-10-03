@@ -103,8 +103,8 @@ jobs:
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
           test/Renci.SshNet.Tests/
 
-  Windows-Integration-Tests:
-    name: Windows Integration Tests
+  Windows-Integration-Tests-NetFramework:
+    name: Windows Integration Tests .NET Framework
     runs-on: windows-2025
     steps:
     - name: Checkout
@@ -138,6 +138,37 @@ jobs:
           -p:CoverletOutputFormat=cobertura `
           -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
           test\Renci.SshNet.IntegrationTests\
+
+    - name: Archive Coverlet Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: Coverlet Results Windows
+        path: coverlet
+
+  Windows-Integration-Tests-Net:
+    name: Windows Integration Tests .NET
+    runs-on: windows-2025
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+
+    - name: Setup WSL2
+      uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
+      with:
+        distribution: Ubuntu-24.04
+
+    - name: Setup SSH Server
+      shell: wsl-bash {0}
+      run: |
+        apt-get update && apt-get upgrade -y
+        apt-get install -y podman
+        podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
+        podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
 
     - name: Run Integration Tests .NET
       run:

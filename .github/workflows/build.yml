@@ -142,7 +142,7 @@ jobs:
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4
       with:
-        name: Coverlet Results Windows
+        name: Coverlet Results Windows .NET Framework
         path: coverlet
 
   Windows-Integration-Tests-Net:
@@ -184,7 +184,7 @@ jobs:
     - name: Archive Coverlet Results
       uses: actions/upload-artifact@v4
       with:
-        name: Coverlet Results Windows
+        name: Coverlet Results Windows .NET
         path: coverlet
 
   Publish:

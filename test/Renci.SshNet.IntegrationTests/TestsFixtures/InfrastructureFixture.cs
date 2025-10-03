@@ -47,7 +47,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 #pragma warning restore MA0144 // use System.OperatingSystem to check the current OS
             {
                 SshServerPort = 2222;
-                SshServerHostName = "localhost";
+                SshServerHostName = "127.0.0.1";
                 await Task.Delay(1_000);
                 return;
             }

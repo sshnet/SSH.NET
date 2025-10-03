@@ -10,6 +10,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
@@ -34,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             _encoding = Encoding.Unicode;
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _pathBytes = _encoding.GetBytes(_path);
-            _attributes = SftpFileAttributes.Empty;
+            _attributes = SftpFileAttributesBuilder.Empty;
             _attributesBytes = _attributes.GetBytes();
         }
 

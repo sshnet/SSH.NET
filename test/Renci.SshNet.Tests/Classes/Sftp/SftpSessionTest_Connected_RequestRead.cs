@@ -12,6 +12,7 @@ using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -73,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpNameResponse = new SftpNameResponseBuilder().WithProtocolVersion(_protocolVersion)
                                                              .WithResponseId(1)
                                                              .WithEncoding(_encoding)
-                                                             .WithFile("XYZ", SftpFileAttributes.Empty)
+                                                             .WithFile("XYZ", SftpFileAttributesBuilder.Empty)
                                                              .Build();
 
             #endregion SftpSession.Connect()

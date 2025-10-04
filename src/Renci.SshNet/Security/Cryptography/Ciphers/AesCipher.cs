@@ -78,6 +78,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <inheritdoc/>
+        public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+        {
+            return _impl.Decrypt(input, offset, length, output, outputOffset);
+        }
+
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (_impl is IDisposable disposableImpl)

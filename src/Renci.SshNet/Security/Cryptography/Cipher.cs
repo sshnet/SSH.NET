@@ -1,3 +1,6 @@
+#nullable enable
+using System;
+
 namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
@@ -73,5 +76,25 @@ namespace Renci.SshNet.Security.Cryptography
         /// The decrypted data.
         /// </returns>
         public abstract byte[] Decrypt(byte[] input, int offset, int length);
+
+        /// <summary>
+        /// Decrypts the specified input into a given buffer.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="input"/>.</param>
+        /// <param name="output">The output buffer to write to.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write decrypted output.</param>
+        /// <returns>
+        /// The number of bytes written to <paramref name="output"/>.
+        /// </returns>
+        public virtual int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+        {
+            var plaintext = Decrypt(input, offset, length);
+
+            plaintext.AsSpan().CopyTo(output.AsSpan(outputOffset));
+
+            return plaintext.Length;
+        }
     }
 }

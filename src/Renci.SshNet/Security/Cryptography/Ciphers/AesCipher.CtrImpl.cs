@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -34,12 +36,32 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             public override byte[] Encrypt(byte[] input, int offset, int length)
             {
-                return CTREncryptDecrypt(input, offset, length);
+                return Decrypt(input, offset, length);
             }
 
             public override byte[] Decrypt(byte[] input, int offset, int length)
             {
-                return CTREncryptDecrypt(input, offset, length);
+                ArgumentNullException.ThrowIfNull(input);
+
+                var buffer = CTREncryptDecrypt(input, offset, length, output: null, 0);
+
+                // adjust output for non-blocksized lengths
+                if (buffer.Length > length)
+                {
+                    Array.Resize(ref buffer, length);
+                }
+
+                return buffer;
+            }
+
+            public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+            {
+                ArgumentNullException.ThrowIfNull(input);
+                ArgumentNullException.ThrowIfNull(output);
+
+                _ = CTREncryptDecrypt(input, offset, length, output, outputOffset);
+
+                return length;
             }
 
             public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
@@ -52,35 +74,46 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new NotImplementedException($"Invalid usage of {nameof(EncryptBlock)}.");
             }
 
-            private byte[] CTREncryptDecrypt(byte[] data, int offset, int length)
+            private byte[] CTREncryptDecrypt(byte[] data, int offset, int length, byte[]? output, int outputOffset)
             {
-                var count = length / BlockSize;
-                if (length % BlockSize != 0)
+                var blockSizedLength = length;
+                if (blockSizedLength % BlockSize != 0)
                 {
-                    count++;
+                    blockSizedLength += BlockSize - (blockSizedLength % BlockSize);
                 }
 
-                var buffer = new byte[count * BlockSize];
-                CTRCreateCounterArray(buffer);
-                _ = _encryptor.TransformBlock(buffer, 0, buffer.Length, buffer, 0);
-                ArrayXOR(buffer, data, offset, length);
+                Debug.Assert(blockSizedLength % BlockSize == 0);
 
-                // adjust output for non-blocksized lengths
-                if (buffer.Length > length)
+                if (output is null)
                 {
-                    Array.Resize(ref buffer, length);
+                    output = new byte[blockSizedLength];
+                    outputOffset = 0;
+                }
+                else if (data.AsSpan(offset, length).Overlaps(output.AsSpan(outputOffset, blockSizedLength)))
+                {
+                    throw new ArgumentException("Input and output buffers must not overlap");
                 }
 
-                return buffer;
+                CTRCreateCounterArray(output.AsSpan(outputOffset, blockSizedLength));
+
+                var bytesWritten = _encryptor.TransformBlock(output, outputOffset, blockSizedLength, output, outputOffset);
+
+                Debug.Assert(bytesWritten == blockSizedLength);
+
+                ArrayXOR(output, outputOffset, data, offset, length);
+
+                return output;
             }
 
             // creates the Counter array filled with incrementing copies of IV
-            private void CTRCreateCounterArray(byte[] buffer)
+            private void CTRCreateCounterArray(Span<byte> buffer)
             {
+                Debug.Assert(buffer.Length % 16 == 0);
+
                 for (var i = 0; i < buffer.Length; i += 16)
                 {
-                    BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i + 8), _ivLower);
-                    BinaryPrimitives.WriteUInt64BigEndian(buffer.AsSpan(i), _ivUpper);
+                    BinaryPrimitives.WriteUInt64BigEndian(buffer.Slice(i + 8), _ivLower);
+                    BinaryPrimitives.WriteUInt64BigEndian(buffer.Slice(i), _ivUpper);
 
                     _ivLower += 1;
                     _ivUpper += (_ivLower == 0) ? 1UL : 0UL;
@@ -88,20 +121,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
 
             // XOR 2 arrays using Vector<byte>
-            private static void ArrayXOR(byte[] buffer, byte[] data, int offset, int length)
+            private static void ArrayXOR(byte[] buffer, int bufferOffset, byte[] data, int offset, int length)
             {
                 var i = 0;
 
                 var oneVectorFromEnd = length - Vector<byte>.Count;
                 for (; i <= oneVectorFromEnd; i += Vector<byte>.Count)
                 {
-                    var v = new Vector<byte>(buffer, i) ^ new Vector<byte>(data, offset + i);
-                    v.CopyTo(buffer, i);
+                    var v = new Vector<byte>(buffer, bufferOffset + i) ^ new Vector<byte>(data, offset + i);
+                    v.CopyTo(buffer, bufferOffset + i);
                 }
 
                 for (; i < length; i++)
                 {
-                    buffer[i] ^= data[offset + i];
+                    buffer[bufferOffset + i] ^= data[offset + i];
                 }
             }
 

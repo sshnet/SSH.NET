@@ -371,7 +371,7 @@ namespace Renci.SshNet.Sftp
                 if (response is SftpVersionResponse versionResponse)
                 {
                     ProtocolVersion = versionResponse.Version;
-                    _supportedExtensions = versionResponse.Extentions;
+                    _supportedExtensions = versionResponse.Extensions;
 
                     _ = _sftpVersionConfirmed.Set();
                 }

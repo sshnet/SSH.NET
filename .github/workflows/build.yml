@@ -195,6 +195,8 @@ jobs:
     needs:
       - Windows
       - Linux
+      - Windows-Integration-Tests-NetFramework
+      - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
         uses: actions/download-artifact@v5

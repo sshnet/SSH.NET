@@ -1034,7 +1034,12 @@ namespace Renci.SshNet
 
             var flags = Flags.Write | Flags.Truncate;
 
-            if (canOverride)
+            if (input.Position > 0)
+            {
+                // if the local stream position is not zero, open the remote file in APPEND mode to resume upload
+                flags = Flags.Write | Flags.Append;
+            }
+            else if (canOverride)
             {
                 flags |= Flags.CreateNewOrOpen;
             }
@@ -1188,7 +1193,12 @@ namespace Renci.SshNet
 
             var flags = Flags.Write | Flags.Truncate;
 
-            if (canOverride)
+            if (input.Position > 0)
+            {
+                // if the local stream position is not zero, open the remote file in APPEND mode to resume upload
+                flags = Flags.Write | Flags.Append;
+            }
+            else if (canOverride)
             {
                 flags |= Flags.CreateNewOrOpen;
             }
@@ -2343,7 +2353,8 @@ namespace Renci.SshNet
                 handle = _sftpSession.RequestOpen(fullPath, flags);
             }
 
-            ulong offset = 0;
+            // Set the initial offset of the remote file to the same as the local file to allow resuming
+            var offset = (ulong)input.Position;
 
             // create buffer of optimal length
             var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];

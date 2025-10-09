@@ -90,10 +90,11 @@ namespace Renci.SshNet
         /// <param name="fileName">The file to read.</param>
         /// <param name="sftpSession">The SFTP session to use.</param>
         /// <param name="bufferSize">The size of buffer.</param>
+        /// <param name="offset">The offset to resume from.</param>
         /// <returns>
         /// An <see cref="ISftpFileReader"/>.
         /// </returns>
-        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
+        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize, ulong offset = 0);
 
         /// <summary>
         /// Creates a new <see cref="ISftpResponseFactory"/> instance.

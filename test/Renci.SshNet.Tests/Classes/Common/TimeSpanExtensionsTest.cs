@@ -3,7 +3,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -21,34 +20,17 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        public void AsTimeout_NegativeTimeSpan_ThrowsArgumentOutOfRangeException()
+        [DataRow(-2)]
+        [DataRow((double)int.MaxValue + 1)]
+        public void AsTimeout_InvalidTimeSpan_ThrowsArgumentOutOfRangeException(double milliseconds)
         {
-            var timeSpan = TimeSpan.FromSeconds(-1);
-            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.AsTimeout());
-        }
+            var timeSpan = TimeSpan.FromMilliseconds(milliseconds);
 
-        [TestMethod]
-        public void AsTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
-        {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.AsTimeout());
-        }
+            var ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.AsTimeout());
 
-        [TestMethod]
-        public void AsTimeout_ArgumentOutOfRangeException_HasCorrectInformation()
-        {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-            try
-            {
+            Assert.Contains("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex.Message, StringComparison.Ordinal);
 
-                timeSpan.AsTimeout();
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
-                Assert.AreEqual(nameof(timeSpan), ex.ParamName);
-            }
+            Assert.AreEqual(nameof(timeSpan), ex.ParamName);
         }
 
         [TestMethod]
@@ -60,34 +42,17 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        public void EnsureValidTimeout_NegativeTimeSpan_ThrowsArgumentOutOfRangeException()
+        [DataRow(-2)]
+        [DataRow((double)int.MaxValue + 1)]
+        public void EnsureValidTimeout_InvalidTimeSpan_ThrowsArgumentOutOfRangeException(double milliseconds)
         {
-            var timeSpan = TimeSpan.FromSeconds(-1);
-            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.EnsureValidTimeout());
-        }
+            var timeSpan = TimeSpan.FromMilliseconds(milliseconds);
 
-        [TestMethod]
-        public void EnsureValidTimeout_TimeSpanExceedingMaxValue_ThrowsArgumentOutOfRangeException()
-        {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.EnsureValidTimeout());
-        }
+            var ex = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => timeSpan.EnsureValidTimeout());
 
-        [TestMethod]
-        public void EnsureValidTimeout_ArgumentOutOfRangeException_HasCorrectInformation()
-        {
-            var timeSpan = TimeSpan.FromMilliseconds((double)int.MaxValue + 1);
-            try
-            {
+            Assert.Contains("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex.Message, StringComparison.Ordinal);
 
-                timeSpan.EnsureValidTimeout();
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
-                Assert.AreEqual(nameof(timeSpan), ex.ParamName);
-            }
+            Assert.AreEqual(nameof(timeSpan), ex.ParamName);
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Renci.SshNet.Common
         /// </exception>
         public static int AsTimeout(this TimeSpan timeSpan, [CallerArgumentExpression(nameof(timeSpan))] string? paramName = null)
         {
-            var timeoutInMilliseconds = timeSpan.TotalMilliseconds;
-            return timeoutInMilliseconds is < -1d or > int.MaxValue
-                       ? throw new ArgumentOutOfRangeException(paramName, "The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.")
+            var timeoutInMilliseconds = (long)timeSpan.TotalMilliseconds;
+            return timeoutInMilliseconds is < -1 or > int.MaxValue
+                       ? throw new ArgumentOutOfRangeException(paramName, timeSpan, "The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.")
                        : (int)timeoutInMilliseconds;
         }
 

@@ -307,7 +307,8 @@ namespace Renci.SshNet.Sftp
                     // If we are in a call to SftpClient.DownloadFile, then we know that we will read the whole file,
                     // so we can let there be several in-flight requests from the get go.
                     // This optimisation is mostly only beneficial to smaller files on higher latency connections.
-                    var initialPendingReads = (int)Math.Max(1, Math.Min(MaxPendingReads, 1 + (attributes.Size / readBufferSize)));
+                    // The +2 is +1 for rounding up to cover the whole file, and +1 for the final request to receive EOF.
+                    var initialPendingReads = (int)Math.Max(1, Math.Min(MaxPendingReads, 2 + (attributes.Size / readBufferSize)));
 
                     initialReader = new(handle, session, readBufferSize, position, MaxPendingReads, (ulong)attributes.Size, initialPendingReads);
                 }

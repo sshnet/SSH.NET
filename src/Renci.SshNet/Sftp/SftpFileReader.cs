@@ -92,7 +92,29 @@ namespace Renci.SshNet.Sftp
                     if (data.Length < request.Count)
                     {
                         // We didn't receive all the data we requested.
-                        // Add another request to fill in the gap.
+
+                        // If we've read exactly up to our known file size and the next
+                        // request is already in-flight, then wait for it and if it signals
+                        // EOF (as is likely), then call EOF here and omit a final round-trip.
+                        // This optimisation is mostly only beneficial to smaller files on
+                        // higher latency connections.
+
+                        var nextRequestOffset = _offset - (ulong)data.Length + request.Count;
+
+                        if (_offset == _fileSize &&
+                            _requests.TryGetValue(nextRequestOffset, out var nextRequest))
+                        {
+                            var nextRequestData = await nextRequest.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+                            if (nextRequestData.Length == 0)
+                            {
+                                _offset = nextRequestOffset;
+                                _currentMaxRequests = 0;
+                                return data;
+                            }
+                        }
+
+                        // Otherwise, add another request to fill in the gap.
                         AddRequest(_offset, request.Count - (uint)data.Length);
 
                         if (data.Length < _chunkSize)
@@ -106,8 +128,13 @@ namespace Renci.SshNet.Sftp
 
                     if (_currentMaxRequests > 0)
                     {
-                        if (_readAheadOffset > _fileSize)
+                        if (_readAheadOffset > _fileSize + _chunkSize)
                         {
+                            // If the file size is known and we've got requests
+                            // out beyond that (plus a buffer for EOD read), then
+                            // restrict the number of outgoing requests.
+                            // This does nothing for the performance of this download
+                            // but may reduce traffic for other downloads.
                             _currentMaxRequests = 1;
                         }
                         else if (_currentMaxRequests < _maxPendingReads)

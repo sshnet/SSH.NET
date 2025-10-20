@@ -1714,8 +1714,20 @@ namespace Renci.SshNet
         {
             using (var stream = OpenRead(path))
             {
-                var buffer = new byte[stream.Length];
-                stream.ReadExactly(buffer, 0, buffer.Length);
+                byte[] buffer;
+
+                if (stream.CanSeek)
+                {
+                    buffer = new byte[stream.Length];
+                    stream.ReadExactly(buffer, 0, buffer.Length);
+                }
+                else
+                {
+                    MemoryStream ms = new();
+                    stream.CopyTo(ms);
+                    buffer = ms.ToArray();
+                }
+
                 return buffer;
             }
         }

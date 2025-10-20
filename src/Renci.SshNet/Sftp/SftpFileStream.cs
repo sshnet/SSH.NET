@@ -55,7 +55,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether timeout properties are usable for <see cref="SftpFileStream"/>.
         /// </summary>
         /// <value>
-        /// <see langword="true"/> in all cases.
+        /// <see langword="false"/> in all cases.
         /// </value>
         public override bool CanTimeout
         {

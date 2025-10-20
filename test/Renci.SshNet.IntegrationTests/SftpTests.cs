@@ -6360,7 +6360,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             Console.Write($"Downloading '{path}'");
 
-            var random = new Random().Next(1, 6);
+            var random = new Random().Next(1, 7);
             switch (random)
             {
                 case 1:
@@ -6390,14 +6390,22 @@ namespace Renci.SshNet.IntegrationTests
                     }
 
                     break;
-                default:
-                    Debug.Assert(random == 5);
+                case 5:
                     Console.WriteLine($" with {nameof(SftpFileStream.CopyToAsync)}");
 
                     using (var fs = client.OpenAsync(path, FileMode.Open, FileAccess.Read, CancellationToken.None).GetAwaiter().GetResult())
                     {
                         fs.CopyToAsync(output).GetAwaiter().GetResult();
                     }
+
+                    break;
+                default:
+                    Debug.Assert(random == 6);
+                    Console.WriteLine($" with {nameof(SftpClient.ReadAllBytes)}");
+
+                    byte[] bytes = client.ReadAllBytes(path);
+
+                    output.Write(bytes, 0, bytes.Length);
 
                     break;
             }

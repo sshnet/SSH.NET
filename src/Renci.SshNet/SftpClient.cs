@@ -2476,7 +2476,7 @@ namespace Renci.SshNet
                             return;
                         }
 
-                        Debug.Assert(s.StatusCode == StatusCodes.Ok);
+                        Debug.Assert(s.StatusCode == StatusCode.Ok);
 
                         asyncResult?.Update(writtenBytes);
 

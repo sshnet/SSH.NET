@@ -266,7 +266,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -393,7 +394,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -513,7 +515,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -637,7 +640,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -759,7 +763,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
 
                 finally
@@ -877,7 +882,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -999,7 +1005,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -1125,7 +1132,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -1269,7 +1277,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -1361,7 +1370,8 @@ namespace Renci.SshNet.IntegrationTests
                     catch (SftpPathNotFoundException ex)
                     {
                         Assert.IsNull(ex.InnerException);
-                        Assert.AreEqual("No such file", ex.Message);
+                        Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                        Assert.AreEqual(remoteFile, ex.Path);
 
                         // ensure file was not created by us
                         Assert.IsFalse(client.Exists(remoteFile));
@@ -1399,7 +1409,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1482,7 +1493,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1567,7 +1579,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1649,7 +1662,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1733,7 +1747,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1830,7 +1845,8 @@ namespace Renci.SshNet.IntegrationTests
                     });
 
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
 
                     // ensure file was not created by us
                     Assert.IsFalse(client.Exists(remoteFile));
@@ -1913,7 +1929,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2036,7 +2053,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2164,7 +2182,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2290,7 +2309,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2416,7 +2436,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2543,7 +2564,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2670,7 +2692,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                    Assert.AreEqual(remoteFile, ex.Path);
                 }
                 finally
                 {
@@ -2799,7 +2822,8 @@ namespace Renci.SshNet.IntegrationTests
                         catch (SftpPathNotFoundException ex)
                         {
                             Assert.IsNull(ex.InnerException);
-                            Assert.AreEqual("No such file", ex.Message);
+                            Assert.AreEqual($"No such file. Path: '{remoteFile}'.", ex.Message);
+                            Assert.AreEqual(remoteFile, ex.Path);
 
                             // ensure file was not created by us
                             Assert.IsFalse(client.Exists(remoteFile));
@@ -2844,7 +2868,8 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SftpPathNotFoundException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.AreEqual("No such file", ex.Message);
+                    Assert.AreEqual($"No such file. Path: '{remoteDirectory}'.", ex.Message);
+                    Assert.AreEqual(remoteDirectory, ex.Path);
 
                     // ensure directory was not created by us
                     Assert.IsFalse(client.Exists(remoteDirectory));
@@ -3098,17 +3123,8 @@ namespace Renci.SshNet.IntegrationTests
 
                     var asyncResult = client.BeginUploadFile(uploadMemoryStream, remoteFile, false, null, null);
 
-                    try
-                    {
-                        client.EndUploadFile(asyncResult);
-                        Assert.Fail();
-                    }
-                    catch (SshException ex)
-                    {
-                        Assert.AreEqual(typeof(SshException), ex.GetType());
-                        Assert.IsNull(ex.InnerException);
-                        Assert.AreEqual("Failure", ex.Message);
-                    }
+                    var ex = Assert.Throws<SftpException>(() => client.EndUploadFile(asyncResult));
+                    Assert.AreEqual(StatusCode.Failure, ex.StatusCode);
                 }
                 finally
                 {

@@ -1,7 +1,7 @@
-﻿using System;
-#if NETFRAMEWORK
-using System.Runtime.Serialization;
-#endif // NETFRAMEWORK
+﻿#nullable enable
+using System;
+
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Common
 {
@@ -10,47 +10,82 @@ namespace Renci.SshNet.Common
     /// </summary>
 #if NETFRAMEWORK
     [Serializable]
-#endif // NETFRAMEWORK
-    public class SftpPathNotFoundException : SshException
+#endif
+    public class SftpPathNotFoundException : SftpException
     {
+        private const StatusCode Code = StatusCode.NoSuchFile;
+
+        /// <summary>
+        /// Gets the path that cannot be found.
+        /// </summary>
+        /// <value>
+        /// The path that cannot be found, or <see langword="null"/> if no path was
+        /// passed to the constructor for this instance.
+        /// </value>
+        public string? Path { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
         public SftpPathNotFoundException()
+            : this(message: null, path: null, innerException: null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public SftpPathNotFoundException(string message)
-            : base(message)
+        /// <inheritdoc cref="Exception(string)" path="/param"/>
+        public SftpPathNotFoundException(string? message)
+            : this(message, path: null, innerException: null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="innerException">The inner exception.</param>
-        public SftpPathNotFoundException(string message, Exception innerException)
-            : base(message, innerException)
+        /// <inheritdoc cref="Exception(string)" path="/param"/>
+        public SftpPathNotFoundException(string? message, string? path)
+            : this(message, path, innerException: null)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
+        /// </summary>
+        /// <inheritdoc cref="Exception(string, Exception)" path="/param"/>
+        public SftpPathNotFoundException(string? message, Exception? innerException)
+            : this(message, path: null, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="path">The path that cannot be found.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
+        public SftpPathNotFoundException(string? message, string? path, Exception? innerException)
+            : base(Code, string.IsNullOrEmpty(message) ? GetDefaultMessage(path) : message, innerException)
+        {
+            Path = path;
+        }
+
+        private static string GetDefaultMessage(string? path)
+        {
+            var message = GetDefaultMessage(Code);
+
+            return path is not null
+                ? $"{message} Path: '{path}'."
+                : message;
         }
 
 #if NETFRAMEWORK
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
-        /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <see langword="null"/>.</exception>
-        /// <exception cref="SerializationException">The class name is <see langword="null"/> or <see cref="Exception.HResult"/> is zero (0). </exception>
-        protected SftpPathNotFoundException(SerializationInfo info, StreamingContext context)
+        /// <inheritdoc/>
+        protected SftpPathNotFoundException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
         }
-#endif // NETFRAMEWORK
+#endif
     }
 }

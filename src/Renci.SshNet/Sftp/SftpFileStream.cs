@@ -282,7 +282,7 @@ namespace Renci.SshNet.Sftp
                     attributes = session.RequestFStat(handle);
                 }
             }
-            catch (SshException ex)
+            catch (SftpException ex)
             {
                 session.SessionLoggerFactory.CreateLogger<SftpFileStream>().LogInformation(
                     ex, "fstat failed after opening {Path}. Will set CanSeek=false.", path);

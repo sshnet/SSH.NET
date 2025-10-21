@@ -1,5 +1,6 @@
 ﻿
 using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
@@ -56,7 +57,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 sftp.CreateDirectory("test");
 
-                Assert.ThrowsExactly<SshException>(() => sftp.CreateDirectory("test"));
+                var ex = Assert.ThrowsExactly<SftpException>(() => sftp.CreateDirectory("test"));
+                Assert.AreEqual(StatusCode.Failure, ex.StatusCode);
             }
         }
     }

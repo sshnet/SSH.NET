@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -184,11 +186,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected void Act()
         {
-            var openAsyncResult = _sftpSession.BeginOpen(_path, Flags.Read, null, null);
-            var readAsyncResult = _sftpSession.BeginRead(_handle, _offset, _length, null, null);
+            Task<byte[]> openTask = _sftpSession.RequestOpenAsync(_path, Flags.Read, CancellationToken.None);
+            Task<byte[]> readTask = _sftpSession.RequestReadAsync(_handle, _offset, _length, CancellationToken.None);
 
-            _actualHandle = _sftpSession.EndOpen(openAsyncResult);
-            _actualData = _sftpSession.EndRead(readAsyncResult);
+            Task.WaitAll(openTask, readTask);
+
+            _actualHandle = openTask.Result;
+            _actualData = readTask.Result;
         }
 
         [TestMethod]

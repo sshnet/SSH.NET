@@ -87,32 +87,10 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
         /// File attributes.
         /// </returns>
-        SftpFileAttributes RequestStat(string path, bool nullOnError = false);
-
-        /// <summary>
-        /// Performs SSH_FXP_STAT request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginOpen(string, Flags, AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SftpOpenAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SFtpStatAsyncResult BeginStat(string path, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous read.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SFtpStatAsyncResult"/> that represents an asynchronous call.</param>
-        /// <returns>
-        /// The file attributes.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult);
+        SftpFileAttributes RequestStat(string path);
 
         /// <summary>
         /// Performs SSH_FXP_LSTAT request.
@@ -135,27 +113,6 @@ namespace Renci.SshNet.Sftp
         Task<SftpFileAttributes> RequestLStatAsync(string path, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Performs SSH_FXP_LSTAT request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginLStat(string, AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SFtpStatAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SFtpStatAsyncResult BeginLStat(string path, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous SSH_FXP_LSTAT request.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SFtpStatAsyncResult"/> that represents an asynchronous call.</param>
-        /// <returns>
-        /// The file attributes.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult);
-
-        /// <summary>
         /// Performs SSH_FXP_MKDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -174,11 +131,10 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
         /// The file handle for the specified path.
         /// </returns>
-        byte[] RequestOpen(string path, Flags flags, bool nullOnError = false);
+        byte[] RequestOpen(string path, Flags flags);
 
         /// <summary>
         /// Asynchronously performs a <c>SSH_FXP_OPEN</c> request.
@@ -193,40 +149,13 @@ namespace Renci.SshNet.Sftp
         Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Performs SSH_FXP_OPEN request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="flags">The flags.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginOpen(string, Flags, AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SftpOpenAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SftpOpenAsyncResult BeginOpen(string path, Flags flags, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous read.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SftpOpenAsyncResult"/> that represents an asynchronous call.</param>
-        /// <returns>
-        /// A <see cref="byte"/> array representing a file handle.
-        /// </returns>
-        /// <remarks>
-        /// If all available data has been read, the <see cref="EndOpen(SftpOpenAsyncResult)"/> method completes
-        /// immediately and returns zero bytes.
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        byte[] EndOpen(SftpOpenAsyncResult asyncResult);
-
-        /// <summary>
         /// Performs a <c>SSH_FXP_OPENDIR</c> request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
         /// A file handle for the specified path.
         /// </returns>
-        byte[] RequestOpenDir(string path, bool nullOnError = false);
+        byte[] RequestOpenDir(string path);
 
         /// <summary>
         /// Asynchronously performs a <c>SSH_FXP_OPENDIR</c> request.
@@ -252,35 +181,10 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The handle.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
-        /// <returns>data array; null if EOF.</returns>
+        /// <returns>
+        /// The data that was read, or an empty array when the end of the file was reached.
+        /// </returns>
         byte[] RequestRead(byte[] handle, ulong offset, uint length);
-
-        /// <summary>
-        /// Begins an asynchronous read using a SSH_FXP_READ request.
-        /// </summary>
-        /// <param name="handle">The handle to the file to read from.</param>
-        /// <param name="offset">The offset in the file to start reading from.</param>
-        /// <param name="length">The number of bytes to read.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginRead(byte[], ulong, uint, AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SftpReadAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SftpReadAsyncResult BeginRead(byte[] handle, ulong offset, uint length, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous read.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SftpReadAsyncResult"/> that represents an asynchronous call.</param>
-        /// <returns>
-        /// A <see cref="byte"/> array representing the data read.
-        /// </returns>
-        /// <remarks>
-        /// If all available data has been read, the <see cref="EndRead(SftpReadAsyncResult)"/> method completes
-        /// immediately and returns zero bytes.
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        byte[] EndRead(SftpReadAsyncResult asyncResult);
 
         /// <summary>
         /// Asynchronously performs a <c>SSH_FXP_READ</c> request.
@@ -318,27 +222,6 @@ namespace Renci.SshNet.Sftp
         /// of the file.
         /// </returns>
         Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Performs SSH_FXP_REALPATH request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginRealPath(string, AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SftpRealPathAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SftpRealPathAsyncResult BeginRealPath(string path, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous SSH_FXP_REALPATH request.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SftpRealPathAsyncResult"/> that represents an asynchronous call.</param>
-        /// <returns>
-        /// The absolute path.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        string EndRealPath(SftpRealPathAsyncResult asyncResult);
 
         /// <summary>
         /// Performs a <c>SSH_FXP_REMOVE</c> request.
@@ -401,12 +284,10 @@ namespace Renci.SshNet.Sftp
         /// Performs a <c>statvfs@openssh.com</c> extended request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">If set to <see langword="true"/>, <see langword="null"/> is returned in case of an error.</param>
         /// <returns>
-        /// The file system information for the specified path, or <see langword="null"/> when
-        /// the request failed and <paramref name="nullOnError"/> is <see langword="true"/>.
+        /// The file system information for the specified path.
         /// </returns>
-        SftpFileSystemInformation RequestStatVfs(string path, bool nullOnError = false);
+        SftpFileSystemInformation RequestStatVfs(string path);
 
         /// <summary>
         /// Asynchronously performs a <c>statvfs@openssh.com</c> extended request.
@@ -481,24 +362,6 @@ namespace Renci.SshNet.Sftp
         /// A task that represents the asynchronous <c>SSH_FXP_CLOSE</c> request.
         /// </returns>
         Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Performs SSH_FXP_CLOSE request.
-        /// </summary>
-        /// <param name="handle">The handle.</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginClose(byte[], AsyncCallback, object)"/> completes.</param>
-        /// <param name="state">An object that contains any additional user-defined data.</param>
-        /// <returns>
-        /// A <see cref="SftpCloseAsyncResult"/> that represents the asynchronous call.
-        /// </returns>
-        SftpCloseAsyncResult BeginClose(byte[] handle, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Handles the end of an asynchronous close.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="SftpCloseAsyncResult"/> that represents an asynchronous call.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>.</exception>
-        void EndClose(SftpCloseAsyncResult asyncResult);
 
         /// <summary>
         /// Calculates the optimal size of the buffer to read data from the channel.

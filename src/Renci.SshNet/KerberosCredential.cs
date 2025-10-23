@@ -6,7 +6,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Repesents credential for Kerberos authentication.
+    /// Represents credential for Kerberos authentication.
     /// </summary>
     public sealed class KerberosCredential
     {

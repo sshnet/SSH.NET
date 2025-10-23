@@ -191,11 +191,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected void Act()
         {
-            var openAsyncResult = _sftpSession.BeginOpen(_path, Flags.Read, null, null);
-            var readAsyncResult = _sftpSession.BeginRead(_handle, _offset, _length, null, null);
-
-            _actualHandle = _sftpSession.EndOpen(openAsyncResult);
-            _actualData = _sftpSession.EndRead(readAsyncResult);
+            _actualHandle = _sftpSession.RequestOpen(_path, Flags.Read);
+            _actualData = _sftpSession.RequestRead(_handle, _offset, _length);
         }
 
         [TestMethod]

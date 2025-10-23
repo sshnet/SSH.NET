@@ -84,18 +84,6 @@ namespace Renci.SshNet
         IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms);
 
         /// <summary>
-        /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
-        /// buffer size.
-        /// </summary>
-        /// <param name="fileName">The file to read.</param>
-        /// <param name="sftpSession">The SFTP session to use.</param>
-        /// <param name="bufferSize">The size of buffer.</param>
-        /// <returns>
-        /// An <see cref="ISftpFileReader"/>.
-        /// </returns>
-        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
-
-        /// <summary>
         /// Creates a new <see cref="ISftpResponseFactory"/> instance.
         /// </summary>
         /// <returns>

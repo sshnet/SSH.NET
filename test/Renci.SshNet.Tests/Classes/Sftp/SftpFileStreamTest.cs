@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
@@ -85,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                     SftpFileStream.Open(new Mock<ISftpSession>().Object, "file.txt", mode, access, bufferSize: 1024));
             }
 
-            Assert.AreEqual("mode", ex.ParamName);
+            Assert.AreEqual("access", ex.ParamName);
         }
 
         [TestMethod]
@@ -93,6 +94,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sessionMock = new Mock<ISftpSession>();
 
+            sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
             SetupRemoteSize(sessionMock, 128);
@@ -118,6 +120,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sessionMock = new Mock<ISftpSession>();
 
+            sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
             var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.Read, bufferSize: 1024);
@@ -135,7 +138,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Assert.Throws<NotSupportedException>(() => s.SetLength(1024));
         }
 
-        [Ignore("TODO Currently throws EndOfStreamException in all cases.")]
         [TestMethod]
         [DataRow(-1, SeekOrigin.Begin)]
         [DataRow(-1, SeekOrigin.Current)]
@@ -144,6 +146,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sessionMock = new Mock<ISftpSession>();
 
+            sessionMock.Setup(s => s.CalculateOptimalReadLength(It.IsAny<uint>())).Returns<uint>(x => x);
+            sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
             SetupRemoteSize(sessionMock, 128);
@@ -155,7 +159,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         private static void SetupRemoteSize(Mock<ISftpSession> sessionMock, long size)
         {
-            sessionMock.Setup(s => s.RequestFStat(It.IsAny<byte[]>(), It.IsAny<bool>())).Returns(new SftpFileAttributes(
+            sessionMock.Setup(s => s.RequestFStat(It.IsAny<byte[]>())).Returns(new SftpFileAttributes(
                 default, default, size: size, default, default, default, default
                 ));
         }
@@ -210,6 +214,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sessionMock = new Mock<ISftpSession>();
 
+            sessionMock.Setup(s => s.CalculateOptimalReadLength(It.IsAny<uint>())).Returns<uint>(x => x);
             sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
             SetupRemoteSize(sessionMock, 0);
@@ -246,12 +251,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var sessionMock = new Mock<ISftpSession>();
 
+            sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
 
             var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Create, FileAccess.ReadWrite, bufferSize: 1024);
 
             Assert.IsTrue(s.CanRead);
-            Assert.IsTrue(s.CanSeek);
             Assert.IsTrue(s.CanWrite);
 
             s.Dispose();
@@ -274,6 +279,46 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             // Test no-op second dispose
             s.Dispose();
             sessionMock.Verify(p => p.RequestClose(It.IsAny<byte[]>()), Times.Once);
+        }
+
+        [TestMethod]
+        public void FstatFailure_DisablesSeek()
+        {
+            TestFstatFailure(fstat => fstat.Throws<SftpPermissionDeniedException>());
+        }
+
+        [TestMethod]
+        public void FstatSizeNotReturned_DisablesSeek()
+        {
+            TestFstatFailure(fstat => fstat.Returns(SftpFileAttributes.FromBytes([0, 0, 0, 0])));
+        }
+
+        private void TestFstatFailure(Action<Moq.Language.Flow.ISetup<ISftpSession, SftpFileAttributes>> fstatSetup)
+        {
+            var sessionMock = new Mock<ISftpSession>();
+
+            sessionMock.Setup(s => s.CalculateOptimalReadLength(It.IsAny<uint>())).Returns<uint>(x => x);
+            sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
+            sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
+            sessionMock.Setup(s => s.IsOpen).Returns(true);
+
+            fstatSetup(sessionMock.Setup(s => s.RequestFStat(It.IsAny<byte[]>())));
+
+            var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.Open, FileAccess.ReadWrite, bufferSize: 1024);
+
+            Assert.IsFalse(s.CanSeek);
+            Assert.IsTrue(s.CanRead);
+            Assert.IsTrue(s.CanWrite);
+
+            Assert.Throws<NotSupportedException>(() => s.Position);
+            Assert.Throws<NotSupportedException>(() => s.Length);
+            Assert.Throws<NotSupportedException>(() => s.Seek(0, SeekOrigin.Begin));
+            Assert.Throws<NotSupportedException>(() => s.SetLength(1024));
+
+            // Reads and writes still succeed.
+            _ = s.Read(new byte[16], 0, 16);
+            s.Write(new byte[16], 0, 16);
+            s.Flush();
         }
 
         private static void VerifyRequestWrite(Mock<ISftpSession> sessionMock, ReadOnlyMemory<byte> newData, int serverOffset)

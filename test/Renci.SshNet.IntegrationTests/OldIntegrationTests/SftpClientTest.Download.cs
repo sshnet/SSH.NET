@@ -65,7 +65,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var cancelledToken = new CancellationToken(true);
 
-                await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null, cancelledToken));
+                await Assert.ThrowsAsync<OperationCanceledException>(() => sftp.DownloadFileAsync("/xxx/eee/yyy", Stream.Null, cancelledToken));
             }
         }
 

@@ -271,7 +271,7 @@ namespace Renci.SshNet.Sftp
 
                     if (!TryLoadSftpMessage(data.Slice(4, packetLength)))
                     {
-                        // An error occured.
+                        // An error occurred.
                         return;
                     }
 

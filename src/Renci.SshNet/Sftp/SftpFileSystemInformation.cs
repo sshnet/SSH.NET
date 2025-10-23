@@ -109,10 +109,10 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Gets the max name lenght.
+        /// Gets the max name length.
         /// </summary>
         /// <value>
-        /// The max name lenght.
+        /// The max name length.
         /// </value>
         public ulong MaxNameLenght { get; private set; }
 

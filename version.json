@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "2025.1.0-prerelease.{height}",
+  "version": "2025.1.0",
   "assemblyVersion": {
     "precision": "revision"
   },
@@ -12,7 +12,7 @@
     "^refs/tags/\\d{4}\\.\\d+\\.\\d+"
   ],
   "release": {
-    "firstUnstableTag": "prerelease",
-    "versionIncrement": "build"
+    "versionIncrement": "build",
+    "firstUnstableTag": "prerelease"
   }
 }

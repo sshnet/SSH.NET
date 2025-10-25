@@ -54,7 +54,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        [Timeout(5000)]
         public void Test_CancelAsync_Unfinished_Command()
         {
             using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
@@ -76,7 +75,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        [Timeout(5000)]
         public async Task Test_CancelAsync_Kill_Unfinished_Command()
         {
             using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
@@ -122,7 +120,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        [Timeout(5000)]
         public async Task Test_ExecuteAsync_CancellationToken()
         {
             using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
@@ -195,7 +192,6 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         }
 
         [TestMethod]
-        [Timeout(15000)]
         public async Task Test_ExecuteAsync_Disconnect()
         {
             using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))

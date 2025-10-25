@@ -26,7 +26,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetSftpUploadFileFileStreamData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetSftpUploadFileFileStreamData))]
         public void Sftp_UploadFile_FileStream(int size)
         {
             var file = CreateTempFile(size);

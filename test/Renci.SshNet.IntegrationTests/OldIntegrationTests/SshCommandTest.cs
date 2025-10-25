@@ -226,7 +226,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     Assert.Fail("Operation should fail");
                 }
-                Assert.IsTrue(cmd.ExitStatus > 0);
+                Assert.IsGreaterThan(0, cmd.ExitStatus.Value);
 
                 client.Disconnect();
             }
@@ -244,7 +244,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 {
                     Assert.Fail("Operation should fail");
                 }
-                Assert.IsTrue(cmd.ExitStatus > 0);
+                Assert.IsGreaterThan(0, cmd.ExitStatus.Value);
 
                 var result = ExecuteTestCommand(client);
 

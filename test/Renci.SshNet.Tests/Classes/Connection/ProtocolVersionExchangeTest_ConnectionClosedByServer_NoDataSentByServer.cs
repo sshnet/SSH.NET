@@ -103,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ClientIdentificationWasSentToServer()
         {
-            Assert.AreEqual(5, _dataReceivedByServer.Count);
+            Assert.HasCount(5, _dataReceivedByServer);
 
             Assert.AreEqual(0xed, _dataReceivedByServer[0]);
             Assert.AreEqual(0x95, _dataReceivedByServer[1]);

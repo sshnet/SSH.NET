@@ -36,25 +36,25 @@ namespace Renci.SshNet.Tests.Classes
             Session.Disconnect();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
         public void DisconnectedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectedRegister.Count);
+            Assert.IsEmpty(DisconnectedRegister);
         }
 
         [TestMethod]
         public void DisconnectReceivedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectReceivedRegister.Count);
+            Assert.IsEmpty(DisconnectReceivedRegister);
         }
 
         [TestMethod]
         public void ErrorOccurredIsNeverRaised()
         {
-            Assert.AreEqual(0, ErrorOccurredRegister.Count, ErrorOccurredRegister.AsString());
+            Assert.IsEmpty(ErrorOccurredRegister, ErrorOccurredRegister.AsString());
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
             Session.Dispose();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]

@@ -50,25 +50,25 @@ namespace Renci.SshNet.Tests.Classes
             Session.Disconnect();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
         public void DisconnectedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectedRegister.Count);
+            Assert.IsEmpty(DisconnectedRegister);
         }
 
         [TestMethod]
         public void DisconnectReceivedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectReceivedRegister.Count);
+            Assert.IsEmpty(DisconnectReceivedRegister);
         }
 
         [TestMethod]
         public void ErrorOccurredIsRaisedOnce()
         {
-            Assert.AreEqual(1, ErrorOccurredRegister.Count, ErrorOccurredRegister.AsString());
+            Assert.HasCount(1, ErrorOccurredRegister, ErrorOccurredRegister.AsString());
 
             var errorOccurred = ErrorOccurredRegister[0];
             Assert.IsNotNull(errorOccurred);
@@ -91,7 +91,7 @@ namespace Renci.SshNet.Tests.Classes
             Session.Dispose();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(100);
 
             Assert.IsNotNull(bytesReceivedByServer);
-            Assert.AreEqual(24, bytesReceivedByServer.Length);
+            Assert.HasCount(24, bytesReceivedByServer);
         }
 
         [TestMethod]
@@ -149,7 +149,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(100);
 
             Assert.IsNotNull(bytesReceivedByServer);
-            Assert.AreEqual(24, bytesReceivedByServer.Length);
+            Assert.HasCount(24, bytesReceivedByServer);
         }
 
         [TestMethod]
@@ -168,7 +168,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(100);
 
             Assert.IsNotNull(bytesReceivedByServer);
-            Assert.AreEqual(24, bytesReceivedByServer.Length);
+            Assert.HasCount(24, bytesReceivedByServer);
         }
 
         [TestMethod]

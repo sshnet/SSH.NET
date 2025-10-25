@@ -401,7 +401,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(Certificate.CertificateType.User, cert.Type);
             Assert.AreEqual("rsa-cert-rsa", cert.KeyId);
             CollectionAssert.AreEqual(new string[] { "sshnet" }, cert.ValidPrincipals.ToList());
-            Assert.AreEqual(0, cert.CriticalOptions.Count);
+            Assert.IsEmpty(cert.CriticalOptions);
             Assert.IsTrue(cert.ValidAfter.EqualsExact(new DateTimeOffset(2024, 07, 17, 20, 50, 34, TimeSpan.Zero)));
             Assert.AreEqual(ulong.MaxValue, cert.ValidBeforeUnixSeconds);
             Assert.AreEqual(DateTimeOffset.MaxValue, cert.ValidBefore);
@@ -415,7 +415,7 @@ namespace Renci.SshNet.Tests.Classes
             }, new Dictionary<string, string>(cert.Extensions));
             Assert.AreEqual("NqLEgdYti0XjUkYjGyQv2Ddy1O5v2NZDZFRtlfESLIA", cert.CertificateAuthorityKeyFingerPrint);
 
-            Assert.AreEqual(6, pkFile.HostKeyAlgorithms.Count);
+            Assert.HasCount(6, pkFile.HostKeyAlgorithms);
 
             var algorithms = pkFile.HostKeyAlgorithms.ToList();
 
@@ -460,7 +460,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(Certificate.CertificateType.User, cert.Type);
             Assert.AreEqual("ecdsa521certEcdsa", cert.KeyId);
             CollectionAssert.AreEqual(new string[] { "sshnet" }, cert.ValidPrincipals.ToList());
-            Assert.AreEqual(0, cert.CriticalOptions.Count);
+            Assert.IsEmpty(cert.CriticalOptions);
             Assert.AreEqual(0UL, cert.ValidAfterUnixSeconds);
             Assert.IsTrue(cert.ValidAfter.EqualsExact(UnixEpoch));
             Assert.AreEqual(ulong.MaxValue, cert.ValidBeforeUnixSeconds);
@@ -475,7 +475,7 @@ namespace Renci.SshNet.Tests.Classes
             }, new Dictionary<string, string>(cert.Extensions));
             Assert.AreEqual("r/t6I+bZQzN5BhSuntFSHDHlrnNHVM2lAo6gbvynG/4", cert.CertificateAuthorityKeyFingerPrint);
 
-            Assert.AreEqual(2, pkFile.HostKeyAlgorithms.Count);
+            Assert.HasCount(2, pkFile.HostKeyAlgorithms);
 
             var algorithms = pkFile.HostKeyAlgorithms.ToList();
 
@@ -635,7 +635,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Assert.IsInstanceOfType<RsaKey>(rsaPrivateKeyFile.Key);
             Assert.IsNotNull(rsaPrivateKeyFile.HostKeyAlgorithms);
-            Assert.AreEqual(3, rsaPrivateKeyFile.HostKeyAlgorithms.Count);
+            Assert.HasCount(3, rsaPrivateKeyFile.HostKeyAlgorithms);
 
             var algorithms = rsaPrivateKeyFile.HostKeyAlgorithms.ToList();
 

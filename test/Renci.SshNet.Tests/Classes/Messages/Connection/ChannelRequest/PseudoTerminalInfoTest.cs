@@ -59,7 +59,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             expectedBytesLength += 4; // Length of "encoded terminal modes"
             expectedBytesLength += (_terminalModeValues.Count * (1 + 4)) + 1; // encoded terminal modes
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 
@@ -95,7 +95,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             expectedBytesLength += 4; // PixelHeight
             expectedBytesLength += 4; // Length of "encoded terminal modes"
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 
@@ -131,7 +131,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             expectedBytesLength += 4; // PixelHeight
             expectedBytesLength += 4; // Length of "encoded terminal modes"
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

@@ -55,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             request.Complete(statusResponse);
 
-            Assert.AreEqual(1, statusActionInvocations.Count);
+            Assert.HasCount(1, statusActionInvocations);
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
         }
 
@@ -75,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             expectedBytesLength += 8; // Offset
             expectedBytesLength += 8; // Length
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

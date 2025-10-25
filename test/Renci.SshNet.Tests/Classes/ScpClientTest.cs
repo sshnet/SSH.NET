@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(port, passwordConnectionInfo.Port);
             Assert.AreSame(userName, passwordConnectionInfo.Username);
             Assert.IsNotNull(passwordConnectionInfo.AuthenticationMethods);
-            Assert.AreEqual(1, passwordConnectionInfo.AuthenticationMethods.Count);
+            Assert.HasCount(1, passwordConnectionInfo.AuthenticationMethods);
 
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(22, passwordConnectionInfo.Port);
             Assert.AreSame(userName, passwordConnectionInfo.Username);
             Assert.IsNotNull(passwordConnectionInfo.AuthenticationMethods);
-            Assert.AreEqual(1, passwordConnectionInfo.AuthenticationMethods.Count);
+            Assert.HasCount(1, passwordConnectionInfo.AuthenticationMethods);
 
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
@@ -138,15 +138,15 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(port, privateKeyConnectionInfo.Port);
             Assert.AreSame(userName, privateKeyConnectionInfo.Username);
             Assert.IsNotNull(privateKeyConnectionInfo.AuthenticationMethods);
-            Assert.AreEqual(1, privateKeyConnectionInfo.AuthenticationMethods.Count);
+            Assert.HasCount(1, privateKeyConnectionInfo.AuthenticationMethods);
 
             var privateKeyAuthentication = privateKeyConnectionInfo.AuthenticationMethods[0] as PrivateKeyAuthenticationMethod;
             Assert.IsNotNull(privateKeyAuthentication);
             Assert.AreEqual(userName, privateKeyAuthentication.Username);
             Assert.IsNotNull(privateKeyAuthentication.KeyFiles);
-            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeyFiles.Count);
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[0]));
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[1]));
+            Assert.HasCount(privateKeys.Length, privateKeyAuthentication.KeyFiles);
+            Assert.Contains(privateKeys[0], privateKeyAuthentication.KeyFiles);
+            Assert.Contains(privateKeys[1], privateKeyAuthentication.KeyFiles);
         }
 
         [TestMethod]
@@ -171,15 +171,15 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(22, privateKeyConnectionInfo.Port);
             Assert.AreSame(userName, privateKeyConnectionInfo.Username);
             Assert.IsNotNull(privateKeyConnectionInfo.AuthenticationMethods);
-            Assert.AreEqual(1, privateKeyConnectionInfo.AuthenticationMethods.Count);
+            Assert.HasCount(1, privateKeyConnectionInfo.AuthenticationMethods);
 
             var privateKeyAuthentication = privateKeyConnectionInfo.AuthenticationMethods[0] as PrivateKeyAuthenticationMethod;
             Assert.IsNotNull(privateKeyAuthentication);
             Assert.AreEqual(userName, privateKeyAuthentication.Username);
             Assert.IsNotNull(privateKeyAuthentication.KeyFiles);
-            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeyFiles.Count);
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[0]));
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[1]));
+            Assert.HasCount(privateKeys.Length, privateKeyAuthentication.KeyFiles);
+            Assert.Contains(privateKeys[0], privateKeyAuthentication.KeyFiles);
+            Assert.Contains(privateKeys[1], privateKeyAuthentication.KeyFiles);
         }
 
         [TestMethod]

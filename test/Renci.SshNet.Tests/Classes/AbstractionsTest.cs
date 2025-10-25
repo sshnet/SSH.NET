@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CryptoAbstraction_GenerateRandom_ShouldPerformNoOpWhenDataIsZeroLength()
         {
-            Assert.AreEqual(0, CryptoAbstraction.GenerateRandom(0).Length);
+            Assert.IsEmpty(CryptoAbstraction.GenerateRandom(0));
         }
 
         [TestMethod]
@@ -22,8 +22,8 @@ namespace Renci.SshNet.Tests.Classes
             var dataA = CryptoAbstraction.GenerateRandom(dataLength);
             var dataB = CryptoAbstraction.GenerateRandom(dataLength);
 
-            Assert.AreEqual(dataLength, dataA.Length);
-            Assert.AreEqual(dataLength, dataB.Length);
+            Assert.HasCount(dataLength, dataA);
+            Assert.HasCount(dataLength, dataB);
 
             CollectionAssert.AreNotEqual(dataA, dataB);
         }

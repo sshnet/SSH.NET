@@ -380,19 +380,19 @@ namespace Renci.SshNet.IntegrationTests
                 }
 
                 var localFiles = Directory.GetFiles(localDirectory);
-                Assert.AreEqual(2, localFiles.Length);
+                Assert.HasCount(2, localFiles);
                 Assert.IsTrue(localFiles.Contains(localPathFile1));
                 Assert.IsTrue(localFiles.Contains(localPathFile2));
 
                 var localSubDirecties = Directory.GetDirectories(localDirectory);
-                Assert.AreEqual(1, localSubDirecties.Length);
+                Assert.HasCount(1, localSubDirecties);
                 Assert.AreEqual(localPathSubDirectory, localSubDirecties[0]);
 
                 var localFilesSubDirectory = Directory.GetFiles(localPathSubDirectory);
-                Assert.AreEqual(1, localFilesSubDirectory.Length);
+                Assert.HasCount(1, localFilesSubDirectory);
                 Assert.AreEqual(localPathFile3, localFilesSubDirectory[0]);
 
-                Assert.AreEqual(0, Directory.GetDirectories(localPathSubDirectory).Length);
+                Assert.IsEmpty(Directory.GetDirectories(localPathSubDirectory));
             }
             finally
             {

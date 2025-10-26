@@ -164,7 +164,9 @@ namespace Renci.SshNet.Sftp
             int bufferSize,
             bool isDownloadFile = false)
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
             return Open(session, path, mode, access, bufferSize, isDownloadFile, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
         internal static Task<SftpFileStream> OpenAsync(

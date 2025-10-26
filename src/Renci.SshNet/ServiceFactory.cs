@@ -4,8 +4,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-using Microsoft.Extensions.Logging;
-
 using Renci.SshNet.Common;
 using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
@@ -116,51 +114,6 @@ namespace Renci.SshNet
         public INetConfSession CreateNetConfSession(ISession session, int operationTimeout)
         {
             return new NetConfSession(session, operationTimeout);
-        }
-
-        /// <summary>
-        /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
-        /// buffer size.
-        /// </summary>
-        /// <param name="fileName">The file to read.</param>
-        /// <param name="sftpSession">The SFTP session to use.</param>
-        /// <param name="bufferSize">The size of buffer.</param>
-        /// <returns>
-        /// An <see cref="ISftpFileReader"/>.
-        /// </returns>
-        public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
-        {
-            const int defaultMaxPendingReads = 10;
-
-            // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
-            // causes a performance degradation on Sun SSH
-            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, callback: null, state: null);
-            var handle = sftpSession.EndOpen(openAsyncResult);
-
-            var statAsyncResult = sftpSession.BeginLStat(fileName, callback: null, state: null);
-
-            long? fileSize;
-            int maxPendingReads;
-
-            var chunkSize = sftpSession.CalculateOptimalReadLength(bufferSize);
-
-            // fallback to a default maximum of pending reads when remote server does not allow us to obtain
-            // the attributes of the file
-            try
-            {
-                var fileAttributes = sftpSession.EndLStat(statAsyncResult);
-                fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(100, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
-            }
-            catch (SshException ex)
-            {
-                fileSize = null;
-                maxPendingReads = defaultMaxPendingReads;
-
-                sftpSession.SessionLoggerFactory.CreateLogger<ServiceFactory>().LogInformation(ex, "Failed to obtain size of file. Allowing maximum {MaxPendingReads} pending reads", maxPendingReads);
-            }
-
-            return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
 
         /// <summary>

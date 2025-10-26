@@ -237,6 +237,21 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public async Task ReadAsyncDoesNotBlockWriteAsync()
+        {
+            byte[] buffer = new byte[16];
+            Task<int> readTask = _shellStream.ReadAsync(buffer, 0, buffer.Length);
+
+            await _shellStream.WriteAsync("ls\n"u8.ToArray(), 0, 3);
+
+            Assert.IsFalse(readTask.IsCompleted);
+
+            _channelSessionStub.Receive("Directory.Build.props"u8.ToArray());
+
+            await readTask;
+        }
+
+        [TestMethod]
         public void Read_MultiByte()
         {
             _channelSessionStub.Receive(new byte[] { 0xF0 });

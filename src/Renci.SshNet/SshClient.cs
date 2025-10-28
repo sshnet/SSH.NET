@@ -19,6 +19,11 @@ namespace Renci.SshNet
         private readonly List<ForwardedPort> _forwardedPorts;
 
         /// <summary>
+        /// Cached readonly collection of forwarded ports.
+        /// </summary>
+        private readonly IEnumerable<ForwardedPort> _forwardedPortsReadOnly;
+
+        /// <summary>
         /// Holds a value indicating whether the current instance is disposed.
         /// </summary>
         /// <value>
@@ -33,7 +38,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return _forwardedPorts.AsReadOnly();
+                return _forwardedPortsReadOnly;
             }
         }
 
@@ -137,6 +142,7 @@ namespace Renci.SshNet
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             _forwardedPorts = new List<ForwardedPort>();
+            _forwardedPortsReadOnly = _forwardedPorts.AsReadOnly();
         }
 
         /// <summary>

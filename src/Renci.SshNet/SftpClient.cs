@@ -4,7 +4,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -2120,7 +2119,7 @@ namespace Renci.SshNet
         {
             if (!Directory.Exists(sourcePath))
             {
-                throw new FileNotFoundException(string.Format("Source directory not found: {0}", sourcePath));
+                throw new FileNotFoundException($"Source directory not found: {sourcePath}");
             }
 
             var uploadedFiles = new List<FileInfo>();
@@ -2170,7 +2169,7 @@ namespace Renci.SshNet
 
                     if (isDifferent)
                     {
-                        var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+                        var remoteFileName = $"{destinationPath}/{localFile.Name}";
                         try
                         {
                             using (var file = File.OpenRead(localFile.FullName))
@@ -2237,7 +2236,7 @@ namespace Renci.SshNet
             if (!basePath.EndsWith("/", StringComparison.Ordinal))
 #endif
             {
-                basePath = string.Format("{0}/", fullPath);
+                basePath = $"{fullPath}/";
             }
 
             var result = new List<ISftpFile>();
@@ -2249,7 +2248,7 @@ namespace Renci.SshNet
                 foreach (var f in files)
                 {
                     result.Add(new SftpFile(_sftpSession,
-                                            string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key),
+                                            $"{basePath}{f.Key}",
                                             f.Value));
                 }
 
@@ -2420,102 +2419,110 @@ namespace Renci.SshNet
 
             ulong offset = 0;
 
-            // create buffer of optimal length
-            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
+            // create buffer of optimal length using ArrayPool
+            var bufferLength = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+            var buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
 
-            var expectedResponses = 0;
-
-            // We will send out all the write requests without waiting for each response.
-            // Afterwards, we may wait on this handle until all responses are received
-            // or an error has occurred.
-            using var mres = new ManualResetEventSlim(initialState: false);
-
-            ExceptionDispatchInfo? exception = null;
-
-            while (true)
+            try
             {
-                var bytesRead = isAsync
-#if NET
-                    ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
-#else
-                    ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
-#endif
-                    : input.Read(buffer, 0, buffer.Length);
+                var expectedResponses = 0;
 
-                if (bytesRead == 0)
+                // We will send out all the write requests without waiting for each response.
+                // Afterwards, we may wait on this handle until all responses are received
+                // or an error has occurred.
+                using var mres = new ManualResetEventSlim(initialState: false);
+
+                ExceptionDispatchInfo? exception = null;
+
+                while (true)
                 {
-                    break;
+                    var bytesRead = isAsync
+#if NET
+                        ? await input.ReadAsync(buffer.AsMemory(0, bufferLength), cancellationToken).ConfigureAwait(false)
+#else
+                        ? await input.ReadAsync(buffer, 0, bufferLength, cancellationToken).ConfigureAwait(false)
+#endif
+                        : input.Read(buffer, 0, bufferLength);
+
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    if (asyncResult is not null && asyncResult.IsUploadCanceled)
+                    {
+                        break;
+                    }
+
+                    exception?.Throw();
+
+                    var writtenBytes = offset + (ulong)bytesRead;
+
+                    _ = Interlocked.Increment(ref expectedResponses);
+                    mres.Reset();
+
+                    _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
+                    {
+                        var setHandle = false;
+
+                        try
+                        {
+                            if (Sftp.SftpSession.GetSftpException(s) is Exception ex)
+                            {
+                                exception = ExceptionDispatchInfo.Capture(ex);
+                            }
+
+                            if (exception is not null)
+                            {
+                                setHandle = true;
+                                return;
+                            }
+
+                            Debug.Assert(s.StatusCode == StatusCode.Ok);
+
+                            asyncResult?.Update(writtenBytes);
+
+                            // Call callback to report number of bytes written
+                            if (uploadCallback is not null)
+                            {
+                                // Execute callback on different thread
+                                ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
+                            }
+                        }
+                        finally
+                        {
+                            if (Interlocked.Decrement(ref expectedResponses) == 0 || setHandle)
+                            {
+                                mres.Set();
+                            }
+                        }
+                    });
+
+                    offset += (ulong)bytesRead;
                 }
 
-                if (asyncResult is not null && asyncResult.IsUploadCanceled)
+                // Make sure the read of exception cannot be executed ahead of
+                // the read of expectedResponses so that we do not miss an
+                // exception.
+
+                if (Volatile.Read(ref expectedResponses) != 0)
                 {
-                    break;
+                    if (isAsync)
+                    {
+                        await _sftpSession.WaitOnHandleAsync(mres.WaitHandle, _operationTimeout, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        _sftpSession.WaitOnHandle(mres.WaitHandle, _operationTimeout);
+                    }
                 }
 
                 exception?.Throw();
-
-                var writtenBytes = offset + (ulong)bytesRead;
-
-                _ = Interlocked.Increment(ref expectedResponses);
-                mres.Reset();
-
-                _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
-                {
-                    var setHandle = false;
-
-                    try
-                    {
-                        if (Sftp.SftpSession.GetSftpException(s) is Exception ex)
-                        {
-                            exception = ExceptionDispatchInfo.Capture(ex);
-                        }
-
-                        if (exception is not null)
-                        {
-                            setHandle = true;
-                            return;
-                        }
-
-                        Debug.Assert(s.StatusCode == StatusCode.Ok);
-
-                        asyncResult?.Update(writtenBytes);
-
-                        // Call callback to report number of bytes written
-                        if (uploadCallback is not null)
-                        {
-                            // Execute callback on different thread
-                            ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
-                        }
-                    }
-                    finally
-                    {
-                        if (Interlocked.Decrement(ref expectedResponses) == 0 || setHandle)
-                        {
-                            mres.Set();
-                        }
-                    }
-                });
-
-                offset += (ulong)bytesRead;
             }
-
-            // Make sure the read of exception cannot be executed ahead of
-            // the read of expectedResponses so that we do not miss an
-            // exception.
-
-            if (Volatile.Read(ref expectedResponses) != 0)
+            finally
             {
-                if (isAsync)
-                {
-                    await _sftpSession.WaitOnHandleAsync(mres.WaitHandle, _operationTimeout, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    _sftpSession.WaitOnHandle(mres.WaitHandle, _operationTimeout);
-                }
+                ArrayPool<byte>.Shared.Return(buffer);
             }
-
-            exception?.Throw();
 
             if (isAsync)
             {

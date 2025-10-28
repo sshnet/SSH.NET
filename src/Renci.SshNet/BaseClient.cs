@@ -550,7 +550,7 @@ namespace Renci.SshNet
         /// </returns>
         private Timer CreateKeepAliveTimer(TimeSpan dueTime, TimeSpan period)
         {
-            return new Timer(state => SendKeepAliveMessage(), Session, dueTime, period);
+            return new Timer(static state => ((BaseClient)state!).SendKeepAliveMessage(), this, dueTime, period);
         }
 
         private ISession CreateAndConnectSession()

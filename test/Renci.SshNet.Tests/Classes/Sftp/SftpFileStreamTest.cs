@@ -217,6 +217,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             sessionMock.Setup(s => s.CalculateOptimalReadLength(It.IsAny<uint>())).Returns<uint>(x => x);
             sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
+            sessionMock
+                .Setup(s => s.RequestReadAsync(It.IsAny<byte[]>(), It.IsAny<ulong>(), It.IsAny<uint>(), It.IsAny<CancellationToken>()))
+                .Returns<byte[], ulong, uint, CancellationToken>((_, _, _, _) => Task.FromResult(new ReadOnlyMemoryOwner(new(0, usePool: true))));
+
             SetupRemoteSize(sessionMock, 0);
 
             var s = SftpFileStream.Open(sessionMock.Object, "file.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, bufferSize: 1024);
@@ -301,6 +305,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             sessionMock.Setup(s => s.CalculateOptimalWriteLength(It.IsAny<uint>(), It.IsAny<byte[]>())).Returns<uint, byte[]>((x, _) => x);
             sessionMock.Setup(p => p.SessionLoggerFactory).Returns(NullLoggerFactory.Instance);
             sessionMock.Setup(s => s.IsOpen).Returns(true);
+            sessionMock
+                .Setup(s => s.RequestReadAsync(It.IsAny<byte[]>(), It.IsAny<ulong>(), It.IsAny<uint>(), It.IsAny<CancellationToken>()))
+                .Returns<byte[], ulong, uint, CancellationToken>((_, _, _, _) => Task.FromResult(new ReadOnlyMemoryOwner(new(0, usePool: true))));
 
             fstatSetup(sessionMock.Setup(s => s.RequestFStat(It.IsAny<byte[]>())));
 

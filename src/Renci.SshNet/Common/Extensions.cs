@@ -417,6 +417,14 @@ namespace Renci.SshNet.Common
                 return await completedTask.ConfigureAwait(false);
             }
         }
+
+        extension(Task t)
+        {
+            internal bool IsCompletedSuccessfully
+            {
+                get { return t.Status == TaskStatus.RanToCompletion; }
+            }
+        }
 #endif
     }
 }

@@ -65,7 +65,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public async Task Async_ObservesSessionDisconnected()
         {
-            Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
+            var openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
 
             Assert.IsFalse(openTask.IsCompleted);
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public async Task Async_ObservesChannelClosed()
         {
-            Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
+            var openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
 
             Assert.IsFalse(openTask.IsCompleted);
 
@@ -93,7 +93,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             using CancellationTokenSource cts = new();
 
-            Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, cts.Token);
+            var openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, cts.Token);
 
             Assert.IsFalse(openTask.IsCompleted);
 
@@ -108,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _client.OperationTimeout = TimeSpan.FromMilliseconds(250);
 
-            Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
+            var openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
 
             var ex = await Assert.ThrowsExactlyAsync<SshOperationTimeoutException>(() => openTask);
         }
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public async Task Async_ObservesErrorOccurred()
         {
-            Task<SftpFileStream> openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
+            var openTask = _client.OpenAsync("path", FileMode.Create, FileAccess.Write, CancellationToken.None);
 
             Assert.IsFalse(openTask.IsCompleted);
 

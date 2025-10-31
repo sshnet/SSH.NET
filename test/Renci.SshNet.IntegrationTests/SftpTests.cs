@@ -256,7 +256,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.DeleteFile(remoteFile);
                 }
 
-                SftpFileStream fs = null;
+                Stream fs = null;
 
                 try
                 {
@@ -4000,8 +4000,8 @@ namespace Renci.SshNet.IntegrationTests
 #endif
 
         private void TestReadAndWrite(
-            Func<SftpFileStream, byte[], int, int, int> read,
-            Action<SftpFileStream, byte[], int, int> write)
+            Func<Stream, byte[], int, int, int> read,
+            Action<Stream, byte[], int, int> write)
         {
             using (var client = new SftpClient(_connectionInfoFactory.Create()))
             {
@@ -4107,14 +4107,14 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
 
-            int ReadByte(SftpFileStream s)
+            int ReadByte(Stream s)
             {
                 var buffer = new byte[1];
                 var bytesRead = read(s, buffer, 0, 1);
                 return bytesRead == 0 ? -1 : buffer[0];
             }
 
-            void WriteByte(SftpFileStream s, byte b)
+            void WriteByte(Stream s, byte b)
             {
                 write(s, [b], 0, 1);
             }

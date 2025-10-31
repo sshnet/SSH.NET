@@ -1457,7 +1457,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path and name of the file to create.</param>
         /// <returns>
-        /// A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path.
+        /// A <see cref="Stream"/> that provides read/write access to the file specified in path.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -1466,7 +1466,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// If the target file already exists, it is first truncated to zero bytes.
         /// </remarks>
-        public SftpFileStream Create(string path)
+        public Stream Create(string path)
         {
             return Create(path, (int)_bufferSize);
         }
@@ -1477,7 +1477,7 @@ namespace Renci.SshNet
         /// <param name="path">The path and name of the file to create.</param>
         /// <param name="bufferSize">The maximum number of bytes buffered for reads and writes to the file.</param>
         /// <returns>
-        /// A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path.
+        /// A <see cref="Stream"/> that provides read/write access to the file specified in path.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -1486,7 +1486,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// If the target file already exists, it is first truncated to zero bytes.
         /// </remarks>
-        public SftpFileStream Create(string path, int bufferSize)
+        public Stream Create(string path, int bufferSize)
         {
             CheckDisposed();
 
@@ -1597,34 +1597,34 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.
+        /// Opens a <see cref="Stream"/> on the specified path with read/write access.
         /// </summary>
         /// <param name="path">The file to open.</param>
         /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <returns>
-        /// An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and read/write access.
+        /// An unshared <see cref="Stream"/> that provides access to the specified file, with the specified mode and read/write access.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileStream Open(string path, FileMode mode)
+        public Stream Open(string path, FileMode mode)
         {
             return Open(path, mode, FileAccess.ReadWrite);
         }
 
         /// <summary>
-        /// Opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
+        /// Opens a <see cref="Stream"/> on the specified path, with the specified mode and access.
         /// </summary>
         /// <param name="path">The file to open.</param>
         /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
         /// <returns>
-        /// An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
+        /// An unshared <see cref="Stream"/> that provides access to the specified file, with the specified mode and access.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileStream Open(string path, FileMode mode, FileAccess access)
+        public Stream Open(string path, FileMode mode, FileAccess access)
         {
             CheckDisposed();
 
@@ -1632,24 +1632,24 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Asynchronously opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
+        /// Asynchronously opens a <see cref="Stream"/> on the specified path, with the specified mode and access.
         /// </summary>
         /// <param name="path">The file to open.</param>
         /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>
-        /// A <see cref="Task{SftpFileStream}"/> that represents the asynchronous open operation.
-        /// The task result contains the <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
+        /// A <see cref="Task{Stream}"/> that represents the asynchronous open operation.
+        /// The task result contains the <see cref="Stream"/> that provides access to the specified file, with the specified mode and access.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public Task<SftpFileStream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken)
+        public async Task<Stream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken)
         {
             CheckDisposed();
 
-            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
+            return await SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1657,12 +1657,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>
         /// <returns>
-        /// A read-only <see cref="SftpFileStream"/> on the specified path.
+        /// A read-only <see cref="Stream"/> on the specified path.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileStream OpenRead(string path)
+        public Stream OpenRead(string path)
         {
             return Open(path, FileMode.Open, FileAccess.Read);
         }
@@ -1687,7 +1687,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for writing.</param>
         /// <returns>
-        /// An unshared <see cref="SftpFileStream"/> object on the specified path with <see cref="FileAccess.Write"/> access.
+        /// An unshared <see cref="Stream"/> object on the specified path with <see cref="FileAccess.Write"/> access.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -1695,7 +1695,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// If the file does not exist, it is created.
         /// </remarks>
-        public SftpFileStream OpenWrite(string path)
+        public Stream OpenWrite(string path)
         {
             return Open(path, FileMode.OpenOrCreate, FileAccess.Write);
         }

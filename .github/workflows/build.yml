@@ -48,7 +48,7 @@ jobs:
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
           name: Coverlet Results Linux
           path: coverlet
@@ -74,7 +74,7 @@ jobs:
       run: dotnet pack
 
     - name: Archive NuGet Package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: NuGet Package
         path: src/Renci.SshNet/bin/Release/*.*nupkg
@@ -140,7 +140,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: Coverlet Results Windows .NET Framework
         path: coverlet
@@ -182,7 +182,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: Coverlet Results Windows .NET
         path: coverlet

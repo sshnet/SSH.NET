@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable MSTEST0037 // Use proper 'Assert' methods
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,11 +29,11 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual(expected[i].Value, value);
                 Assert.AreEqual(i, index);
 
-                Assert.Contains(expected[i], o);
+                Assert.IsTrue(((ICollection<KeyValuePair<TKey, TValue>>)o).Contains(expected[i]));
                 Assert.IsTrue(o.ContainsKey(expected[i].Key));
                 Assert.IsTrue(o.ContainsValue(expected[i].Value));
-                Assert.Contains(expected[i].Key, o.Keys);
-                Assert.Contains(expected[i].Value, o.Values);
+                Assert.IsTrue(o.Keys.Contains(expected[i].Key));
+                Assert.IsTrue(o.Values.Contains(expected[i].Value));
 
                 Assert.AreEqual(i, o.IndexOf(expected[i].Key));
 
@@ -41,11 +42,11 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual(i, index);
             }
 
-            Assert.HasCount(expected.Count, o.Keys);
+            Assert.AreEqual(expected.Count, o.Keys.Count);
             CollectionAssert.AreEqual(expected.Select(kvp => kvp.Key).ToList(), ToList(o.Keys));
             CollectionAssert.AreEqual(ToList(o.Keys), ToList(((IReadOnlyDictionary<TKey, TValue>)o).Keys));
 
-            Assert.HasCount(expected.Count, o.Values);
+            Assert.AreEqual(expected.Count, o.Values.Count);
             CollectionAssert.AreEqual(expected.Select(kvp => kvp.Value).ToList(), ToList(o.Values));
             CollectionAssert.AreEqual(ToList(o.Values), ToList(((IReadOnlyDictionary<TKey, TValue>)o).Values));
 
@@ -185,8 +186,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             OrderedDictionary<string, int> o = new() { { "a", 4 } };
 
-            Assert.DoesNotContain(new KeyValuePair<string, int>("a", 8), o);
-            Assert.Contains(new KeyValuePair<string, int>("a", 4), o);
+            Assert.IsFalse(((ICollection<KeyValuePair<string, int>>)o).Contains(new KeyValuePair<string, int>("a", 8)));
+            Assert.IsTrue(((ICollection<KeyValuePair<string, int>>)o).Contains(new KeyValuePair<string, int>("a", 4)));
         }
 
         [TestMethod]
@@ -288,7 +289,7 @@ namespace Renci.SshNet.Tests.Classes
             OrderedDictionary<string, float> o = new() { { "a", 4 } };
 
             Assert.ThrowsExactly<KeyNotFoundException>(() => o["doesn't exist"]);
-            Assert.DoesNotContain(new KeyValuePair<string, float>("doesn't exist", 1), o);
+            Assert.IsFalse(((ICollection<KeyValuePair<string, float>>)o).Contains(new KeyValuePair<string, float>("doesn't exist", 1)));
             Assert.IsFalse(o.ContainsKey("doesn't exist"));
             Assert.IsFalse(o.ContainsValue(999));
             Assert.AreEqual(-1, o.IndexOf("doesn't exist"));

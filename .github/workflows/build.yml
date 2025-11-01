@@ -200,7 +200,7 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: NuGet Package
 
@@ -229,7 +229,7 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: NuGet Package
 

@@ -679,7 +679,8 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
 
-            var fileInfo = new FileInfo(Path.GetTempFileName());
+            // Create a local file larger than the remote file in order to test truncation.
+            var fileInfo = new FileInfo(CreateTempFile(size + 64));
 
             try
             {

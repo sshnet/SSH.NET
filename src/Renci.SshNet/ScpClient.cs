@@ -831,7 +831,7 @@ namespace Renci.SshNet
                         fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
                     }
 
-                    using (var output = fileInfo.OpenWrite())
+                    using (var output = fileInfo.Open(FileMode.Create, FileAccess.Write))
                     {
                         InternalDownload(channel, input, output, fileName, length);
                     }

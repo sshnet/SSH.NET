@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,7 +21,7 @@ namespace Renci.SshNet
         /// <value>
         /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> is used.
         /// </value>
-        public ILoggerFactory LoggerFactory { get; }
+        public ILoggerFactory? LoggerFactory { get; }
 
         /// <summary>
         /// Gets the timeout to used when waiting for a server to acknowledge closing a channel.
@@ -77,7 +78,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets proxy connection host.
         /// </summary>
-        string ProxyHost { get; }
+        string? ProxyHost { get; }
 
         /// <summary>
         /// Gets proxy connection port.
@@ -87,12 +88,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets proxy connection username.
         /// </summary>
-        string ProxyUsername { get; }
+        string? ProxyUsername { get; }
 
         /// <summary>
         /// Gets proxy connection password.
         /// </summary>
-        string ProxyPassword { get; }
+        string? ProxyPassword { get; }
 
         /// <summary>
         /// Gets the number of retry attempts when session channel creation failed.
@@ -113,6 +114,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
-        event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
+        event EventHandler<AuthenticationBannerEventArgs>? AuthenticationBanner;
     }
 }

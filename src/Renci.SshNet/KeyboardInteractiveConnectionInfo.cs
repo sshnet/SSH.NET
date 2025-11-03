@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 using Renci.SshNet.Common;
 
@@ -14,7 +15,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when server prompts for more authentication information.
         /// </summary>
-        public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
+        public event EventHandler<AuthenticationPromptEventArgs>? AuthenticationPrompt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
@@ -46,7 +47,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, port, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -61,7 +62,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -74,7 +75,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -88,7 +89,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -103,7 +104,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
-        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword)
             : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
@@ -119,7 +120,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
-        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new KeyboardInteractiveAuthenticationMethod(username))
         {
             foreach (var authenticationMethod in AuthenticationMethods)
@@ -131,7 +132,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
+        private void AuthenticationMethod_AuthenticationPrompt(object? sender, AuthenticationPromptEventArgs e)
         {
 #pragma warning disable MA0091 // Sender should be 'this' for instance events
             AuthenticationPrompt?.Invoke(sender, e);

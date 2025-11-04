@@ -129,7 +129,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                           PacketDump.Create(expectedSocksRequest, 2),
                                           PacketDump.Create(_bytesReceivedByProxy, 2));
 
-            Assert.IsTrue(expectedSocksRequest.SequenceEqual(_bytesReceivedByProxy), errorText);
+            CollectionAssert.AreEqual(expectedSocksRequest, _bytesReceivedByProxy, errorText);
         }
 
         [TestMethod]

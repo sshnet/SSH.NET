@@ -87,11 +87,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             Assert.AreEqual((uint)_handle.Length, sshDataStream.ReadUInt32());
             var actualHandle = new byte[_handle.Length];
             _ = sshDataStream.Read(actualHandle, 0, actualHandle.Length);
-            Assert.IsTrue(_handle.SequenceEqual(actualHandle));
+            CollectionAssert.AreEqual(_handle, actualHandle);
 
             var actualAttributes = new byte[_attributesBytes.Length];
             _ = sshDataStream.Read(actualAttributes, 0, actualAttributes.Length);
-            Assert.IsTrue(_attributesBytes.SequenceEqual(actualAttributes));
+            CollectionAssert.AreEqual(_attributesBytes, actualAttributes);
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

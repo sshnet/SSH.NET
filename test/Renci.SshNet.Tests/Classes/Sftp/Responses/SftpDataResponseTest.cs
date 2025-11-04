@@ -53,7 +53,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             target.Load(sshData);
 
             Assert.IsNotNull(target.Data);
-            Assert.IsTrue(target.Data.SequenceEqual(_data));
+            CollectionAssert.AreEqual(_data, target.Data);
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual(_responseId, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);

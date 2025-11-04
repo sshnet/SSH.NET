@@ -198,13 +198,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void ReturnedValueShouldBeDataOfSftpDataResponse()
         {
-            Assert.IsTrue(_data.IsEqualTo(_actualData));
+            CollectionAssert.AreEqual(_data, _actualData);
         }
 
         [TestMethod]
         public void ReturnedHandleShouldBeHandleOfSftpHandleResponse()
         {
-            Assert.IsTrue(_handle.IsEqualTo(_actualHandle));
+            CollectionAssert.AreEqual(_handle, _actualHandle);
         }
     }
 }

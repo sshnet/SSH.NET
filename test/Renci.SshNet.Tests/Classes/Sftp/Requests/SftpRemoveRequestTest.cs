@@ -87,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             Assert.AreEqual((uint)_filenameBytes.Length, sshDataStream.ReadUInt32());
             var actualFilename = new byte[_filenameBytes.Length];
             _ = sshDataStream.Read(actualFilename, 0, actualFilename.Length);
-            Assert.IsTrue(_filenameBytes.SequenceEqual(actualFilename));
+            CollectionAssert.AreEqual(_filenameBytes, actualFilename);
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

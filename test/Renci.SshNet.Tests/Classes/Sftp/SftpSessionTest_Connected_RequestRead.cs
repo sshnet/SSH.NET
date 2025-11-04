@@ -163,7 +163,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public void ReturnedValueShouldBeDataOfSftpDataResponse()
         {
             Assert.IsNotNull(_actual);
-            Assert.IsTrue(_data.SequenceEqual(_actual));
+            CollectionAssert.AreEqual(_data, _actual);
         }
     }
 }

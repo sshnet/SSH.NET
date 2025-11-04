@@ -82,7 +82,7 @@ namespace Renci.SshNet.Tests.Classes
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
             Assert.AreEqual(userName, passwordAuthentication.Username);
-            Assert.IsTrue(Encoding.UTF8.GetBytes(password).IsEqualTo(passwordAuthentication.Password));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(password), passwordAuthentication.Password);
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace Renci.SshNet.Tests.Classes
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
             Assert.AreEqual(userName, passwordAuthentication.Username);
-            Assert.IsTrue(Encoding.UTF8.GetBytes(password).IsEqualTo(passwordAuthentication.Password));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(password), passwordAuthentication.Password);
         }
 
         [TestMethod]

@@ -143,7 +143,7 @@ namespace Renci.SshNet.Tests.Classes
 
             Assert.IsNotNull(actualBytesSent);
             Assert.AreEqual(expectedBytesSent.Length, actualBytesSent.Length);
-            Assert.IsTrue(expectedBytesSent.IsEqualTo(actualBytesSent));
+            CollectionAssert.AreEqual(expectedBytesSent, actualBytesSent);
 
             _channelSessionMock.VerifyAll();
         }

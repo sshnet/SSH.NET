@@ -165,7 +165,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void ReturnedValueShouldBeDataOfSftpDataResponse()
         {
-            Assert.IsTrue(_data.IsEqualTo(_actual));
+            CollectionAssert.AreEqual(_data, _actual);
         }
     }
 }

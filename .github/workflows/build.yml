@@ -187,7 +187,8 @@ jobs:
         name: Coverlet Results Windows .NET
         path: coverlet
 
-  Publish:
+  Publish-GitHub-Package:
+    name: Publish GitHub Package
     runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/develop'
     permissions:
@@ -214,3 +215,32 @@ jobs:
           dotnet nuget push "*.nupkg" \
             --source github \
             --api-key ${{ secrets.GITHUB_TOKEN }}
+
+  Publish-NuGet-Package:
+    name: Publish NuGet Package
+    runs-on: ubuntu-24.04
+    if: startsWith(github.event.ref, 'refs/tags/20')
+    permissions:
+      id-token: write
+    needs:
+      - Windows
+      - Linux
+      - Windows-Integration-Tests-NetFramework
+      - Windows-Integration-Tests-Net
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v5
+        with:
+          name: NuGet Package
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish to NuGet Registry
+        run: |
+          dotnet nuget push "*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ steps.login.outputs.NUGET_API_KEY }}

@@ -1,7 +1,9 @@
-﻿using Renci.SshNet.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Tests.Classes
 {

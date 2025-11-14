@@ -436,7 +436,7 @@ namespace Renci.SshNet.IntegrationTests
                 catch (SshAuthenticationException ex)
                 {
                     Assert.IsNull(ex.InnerException);
-                    Assert.StartsWith("AuthenticationPrompt.Response is null for prompt \"Password: \"", ex.Message, $"Message was \"{ex.Message}\"");
+                    Assert.StartsWith("AuthenticationPrompt.Response is null for prompt \"Password: \"", ex.Message);
                 }
             }
         }

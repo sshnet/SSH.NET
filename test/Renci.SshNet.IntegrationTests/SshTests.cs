@@ -74,7 +74,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     var line = shellStream.ReadLine();
                     Assert.IsNotNull(line);
-                    Assert.EndsWith("Hello!", line, line);
+                    Assert.EndsWith("Hello!", line);
 
                     Assert.IsTrue(shellStream.ReadLine() is null || shellStream.ReadLine() is null); // we might first get e.g. "renci-ssh-tests-server:~$"
                 }
@@ -94,7 +94,7 @@ namespace Renci.SshNet.IntegrationTests
                     shellStream.WriteLine($"echo {foo}");
                     var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
                     Assert.IsNotNull(line);
-                    Assert.EndsWith(foo, line, line);
+                    Assert.EndsWith(foo, line);
                 }
             }
         }
@@ -221,7 +221,7 @@ namespace Renci.SshNet.IntegrationTests
                     var outputString = outputReader.ReadLine();
 
                     Assert.IsNotNull(outputString);
-                    Assert.EndsWith(foo, outputString, outputString);
+                    Assert.EndsWith(foo, outputString);
 
                     shell.Stop();
                 }
@@ -383,7 +383,7 @@ namespace Renci.SshNet.IntegrationTests
                 socksSocket.Send(httpGetRequest);
 
                 var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                Assert.Contains(searchText, httpResponse, httpResponse);
+                Assert.Contains(searchText, httpResponse);
             }
 
             Assert.IsTrue(socksSocket.Connected);
@@ -427,7 +427,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     socksSocket.Send(httpGetRequest);
                     var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                    Assert.Contains(searchText, httpResponse, httpResponse);
+                    Assert.Contains(searchText, httpResponse);
 
                     // Verify if port is still open
                     socksSocket.Send(httpGetRequest);
@@ -447,7 +447,7 @@ namespace Renci.SshNet.IntegrationTests
 
                     socksSocket.Send(httpGetRequest);
                     httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                    Assert.Contains(searchText, httpResponse, httpResponse);
+                    Assert.Contains(searchText, httpResponse);
 
                     forwardedPort.Dispose();
 
@@ -496,7 +496,7 @@ namespace Renci.SshNet.IntegrationTests
 
                 socksSocket.Send(httpGetRequest);
                 var httpResponse = GetHttpResponse(socksSocket, Encoding.ASCII);
-                Assert.Contains(searchText, httpResponse, httpResponse);
+                Assert.Contains(searchText, httpResponse);
 
                 forwardedPort.Dispose();
 

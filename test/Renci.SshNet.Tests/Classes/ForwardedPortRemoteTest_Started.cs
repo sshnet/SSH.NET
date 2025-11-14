@@ -127,8 +127,8 @@ namespace Renci.SshNet.Tests.Classes
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);
             channelMock.Verify(p => p.Dispose(), Times.Once);
 
-            Assert.AreEqual(0, _closingRegister.Count);
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_closingRegister);
+            Assert.IsEmpty(_exceptionRegister);
         }
 
         [TestMethod]
@@ -153,8 +153,8 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 
-            Assert.AreEqual(0, _closingRegister.Count);
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_closingRegister);
+            Assert.IsEmpty(_exceptionRegister);
         }
 
         [TestMethod]
@@ -179,8 +179,8 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 
-            Assert.AreEqual(0, _closingRegister.Count);
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_closingRegister);
+            Assert.IsEmpty(_exceptionRegister);
         }
 
         [TestMethod]
@@ -201,8 +201,8 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 
-            Assert.AreEqual(0, _closingRegister.Count);
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_closingRegister);
+            Assert.IsEmpty(_exceptionRegister);
         }
     }
 }

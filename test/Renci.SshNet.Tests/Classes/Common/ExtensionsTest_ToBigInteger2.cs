@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = value.ToBigInteger2().ToByteArray(isBigEndian: true);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(2, actual.Length);
+            Assert.HasCount(2, actual);
             Assert.AreEqual(0x0a, actual[0]);
             Assert.AreEqual(0x0d, actual[1]);
         }
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = value.ToBigInteger2().ToByteArray(isBigEndian: true);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(4, actual.Length);
+            Assert.HasCount(4, actual);
             Assert.AreEqual(0x00, actual[0]);
             Assert.AreEqual(0xff, actual[1]);
             Assert.AreEqual(0x0a, actual[2]);

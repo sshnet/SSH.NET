@@ -66,8 +66,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             request.Complete(dataResponse);
 
-            Assert.AreEqual(0, statusActionInvocations.Count);
-            Assert.AreEqual(1, dataActionInvocations.Count);
+            Assert.IsEmpty(statusActionInvocations);
+            Assert.HasCount(1, dataActionInvocations);
             Assert.AreSame(dataResponse, dataActionInvocations[0]);
         }
 
@@ -92,9 +92,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             request.Complete(statusResponse);
 
-            Assert.AreEqual(1, statusActionInvocations.Count);
+            Assert.HasCount(1, statusActionInvocations);
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
-            Assert.AreEqual(0, dataActionInvocations.Count);
+            Assert.IsEmpty(dataActionInvocations);
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             expectedBytesLength += 8; // Offset
             expectedBytesLength += 4; // Length
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

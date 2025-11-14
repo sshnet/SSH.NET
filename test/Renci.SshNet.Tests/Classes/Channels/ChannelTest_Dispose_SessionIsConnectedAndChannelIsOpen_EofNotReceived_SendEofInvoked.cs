@@ -139,13 +139,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void WaitOnHandleOnSessionShouldWaitForChannelCloseMessageToBeReceived()
         {
-            Assert.IsTrue(_closeTimer.ElapsedMilliseconds >= 100, "Elapsed milliseconds=" + _closeTimer.ElapsedMilliseconds);
+            Assert.IsGreaterThanOrEqualTo(100, _closeTimer.ElapsedMilliseconds, "Elapsed milliseconds=" + _closeTimer.ElapsedMilliseconds);
         }
 
         [TestMethod]
         public void ClosedEventShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _channelClosedRegister.Count);
+            Assert.HasCount(1, _channelClosedRegister);
             Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
         }
 
@@ -158,7 +158,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.IsEmpty(_channelExceptionRegister);
         }
     }
 }

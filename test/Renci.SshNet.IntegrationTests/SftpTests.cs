@@ -26,7 +26,7 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetSftpUploadFileFileStreamData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetSftpUploadFileFileStreamData))]
         public void Sftp_UploadFile_FileStream(int size)
         {
             var file = CreateTempFile(size);
@@ -3669,7 +3669,7 @@ namespace Renci.SshNet.IntegrationTests
                     client.ChangeDirectory(remoteDirectory);
 
                     var directoryContent = client.ListDirectory(".").OrderBy(p => p.Name).ToList();
-                    Assert.AreEqual(5, directoryContent.Count);
+                    Assert.HasCount(5, directoryContent);
 
                     Assert.AreEqual(".", directoryContent[0].Name);
                     Assert.AreEqual($"{remoteDirectory}/.", directoryContent[0].FullName);

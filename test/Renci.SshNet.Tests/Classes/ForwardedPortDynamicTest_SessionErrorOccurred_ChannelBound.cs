@@ -194,13 +194,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClosingShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _closingRegister.Count);
+            Assert.HasCount(1, _closingRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldHaveFiredOne()
         {
-            Assert.AreEqual(1, _exceptionRegister.Count, _exceptionRegister.AsString());
+            Assert.HasCount(1, _exceptionRegister, _exceptionRegister.AsString());
             Assert.IsNotNull(_exceptionRegister[0], _exceptionRegister.AsString());
             Assert.AreSame(_sessionException, _exceptionRegister[0].Exception, _exceptionRegister.AsString());
         }

@@ -51,14 +51,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionEventShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _channelExceptionRegister.Count);
+            Assert.HasCount(1, _channelExceptionRegister);
             Assert.AreSame(_onCloseException, _channelExceptionRegister[0].Exception);
         }
 
         [TestMethod]
         public void OnErrorOccurredShouldBeInvokedOnce()
         {
-            Assert.AreEqual(1, _channel.OnErrorOccurredInvocations.Count);
+            Assert.HasCount(1, _channel.OnErrorOccurredInvocations);
             Assert.AreSame(_onCloseException, _channel.OnErrorOccurredInvocations[0]);
         }
     }

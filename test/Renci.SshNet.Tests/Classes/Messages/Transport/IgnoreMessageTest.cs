@@ -26,7 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         {
             var target = new IgnoreMessage();
             Assert.IsNotNull(target.Data);
-            Assert.AreEqual(0, target.Data.Length);
+            Assert.IsEmpty(target.Data);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             expectedBytesLength += 4; // Data length
             expectedBytesLength += _data.Length; // Data
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 
@@ -89,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             target.Load(bytes, 1, bytes.Length - 1);
 
             Assert.IsNotNull(target.Data);
-            Assert.AreEqual(0, target.Data.Length);
+            Assert.IsEmpty(target.Data);
         }
     }
 }

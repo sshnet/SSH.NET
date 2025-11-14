@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Take(value, offset, count);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(0, actual.Length);
+            Assert.IsEmpty(actual);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Take(value, offset, count);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(value.Length, actual.Length);
+            Assert.HasCount(value.Length, actual);
             Assert.AreEqual(value, actual);
         }
 
@@ -74,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Take(value, offset, count);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(count, actual.Length);
+            Assert.HasCount(count, actual);
             Assert.AreEqual(value[0], actual[0]);
             Assert.AreEqual(value[1], actual[1]);
             Assert.AreEqual(value[2], actual[2]);
@@ -92,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Take(value, offset, count);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(count, actual.Length);
+            Assert.HasCount(count, actual);
             Assert.AreEqual(value[3], actual[0]);
             Assert.AreEqual(value[4], actual[1]);
             Assert.AreEqual(value[5], actual[2]);

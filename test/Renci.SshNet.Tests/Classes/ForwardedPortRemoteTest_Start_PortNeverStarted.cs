@@ -137,13 +137,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClosingShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _closingRegister.Count);
+            Assert.IsEmpty(_closingRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_exceptionRegister);
         }
     }
 }

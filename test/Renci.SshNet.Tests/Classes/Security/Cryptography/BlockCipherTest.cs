@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             {
                 EncryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
                     {
-                        Assert.AreEqual(8, inputBuffer.Length);
+                        Assert.HasCount(8, inputBuffer);
                         Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
                         return inputBuffer.Length;
                     }
@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             {
                 EncryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
                 {
-                    Assert.AreEqual(8, inputBuffer.Length);
+                    Assert.HasCount(8, inputBuffer);
                     Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
                     return inputBuffer.Length;
                 }
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             {
                 EncryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
                 {
-                    Assert.AreEqual(8, inputBuffer.Length);
+                    Assert.HasCount(8, inputBuffer);
                     Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
                     return inputBuffer.Length;
                 }
@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             {
                 DecryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
                     {
-                        Assert.AreEqual(8, outputBuffer.Length);
+                        Assert.HasCount(8, outputBuffer);
                         Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
                         Buffer.BlockCopy(padding, 0, outputBuffer, output.Length, padding.Length);
                         return inputBuffer.Length;
@@ -110,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             {
                 DecryptBlockDelegate = (inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset) =>
                 {
-                    Assert.AreEqual(8, inputBuffer.Length);
+                    Assert.HasCount(8, inputBuffer);
                     Buffer.BlockCopy(output, 0, outputBuffer, 0, output.Length);
                     return inputBuffer.Length;
                 }

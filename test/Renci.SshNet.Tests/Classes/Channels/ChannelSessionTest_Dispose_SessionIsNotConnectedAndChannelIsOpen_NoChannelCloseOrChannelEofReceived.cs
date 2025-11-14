@@ -101,13 +101,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.IsEmpty(_channelExceptionRegister);
         }
 
         [TestMethod]
         public void ClosedEventShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _channelClosedRegister.Count);
+            Assert.IsEmpty(_channelClosedRegister);
         }
 
         [TestMethod]

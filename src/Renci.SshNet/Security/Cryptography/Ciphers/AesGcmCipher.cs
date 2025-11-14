@@ -65,15 +65,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 #if !NETSTANDARD
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
-                try
-                {
-                    _impl = new BclImpl(key, _iv);
-                }
-                catch (DllNotFoundException)
-                {
-                    // Mono doesn't have BCrypt.dll
-                    _impl = new BouncyCastleImpl(key, _iv);
-                }
+                _impl = new BclImpl(key, _iv);
             }
             else
 #endif

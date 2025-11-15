@@ -72,20 +72,20 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisconnectHasNeverFired()
         {
-            Assert.AreEqual(0, _disconnectedRegister.Count);
+            Assert.IsEmpty(_disconnectedRegister);
         }
 
         [TestMethod]
         public void ErrorOccurredHaveFiredOnce()
         {
-            Assert.AreEqual(1, _errorOccurredRegister.Count, _errorOccurredRegister.AsString());
+            Assert.HasCount(1, _errorOccurredRegister, _errorOccurredRegister.AsString());
             Assert.AreSame(_onDataReceivedException, _errorOccurredRegister[0].Exception, _errorOccurredRegister.AsString());
         }
 
         [TestMethod]
         public void OnDataReceivedShouldBeInvokedOnce()
         {
-            Assert.AreEqual(1, _subsystemSession.OnDataReceivedInvocations.Count);
+            Assert.HasCount(1, _subsystemSession.OnDataReceivedInvocations);
 
             var received = _subsystemSession.OnDataReceivedInvocations[0];
             Assert.AreEqual(_channelDataEventArgs.Data, received.Data);

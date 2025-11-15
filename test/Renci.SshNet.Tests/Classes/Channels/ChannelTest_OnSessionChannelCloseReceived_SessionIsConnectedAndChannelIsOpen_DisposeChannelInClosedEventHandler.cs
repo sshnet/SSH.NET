@@ -121,20 +121,20 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ClosedEventShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _channelClosedRegister.Count);
+            Assert.HasCount(1, _channelClosedRegister);
             Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
         }
 
         [TestMethod]
         public void EndOfDataEventShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelEndOfDataRegister.Count);
+            Assert.IsEmpty(_channelEndOfDataRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.IsEmpty(_channelExceptionRegister);
         }
 
         [TestMethod]

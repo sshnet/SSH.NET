@@ -136,7 +136,7 @@ namespace Renci.SshNet.Tests.Classes
             _shellStream.Flush();
 
             Assert.IsNotNull(bytesSent);
-            Assert.AreEqual(_bufferData.Length + _count, bytesSent.Length);
+            Assert.HasCount(_bufferData.Length + _count, bytesSent);
             Assert.IsTrue(_bufferData.IsEqualTo(bytesSent.Take(_bufferData.Length)));
             Assert.IsTrue(_data.Take(0, _count).IsEqualTo(bytesSent.Take(_bufferData.Length, _count)));
 

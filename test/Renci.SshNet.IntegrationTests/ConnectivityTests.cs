@@ -432,7 +432,7 @@ namespace Renci.SshNet.IntegrationTests
                 var ex = Assert.Throws<SshConnectionException>(client.Connect);
 
                 Assert.AreEqual(DisconnectReason.KeyExchangeFailed, ex.DisconnectReason);
-                Assert.IsTrue(ex.Message.StartsWith("No matching host key algorithm"), ex.Message);
+                Assert.StartsWith("No matching host key algorithm", ex.Message);
             }
         }
 

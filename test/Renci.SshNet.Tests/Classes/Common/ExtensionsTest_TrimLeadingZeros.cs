@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.TrimLeadingZeros(value);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(2, actual.Length);
+            Assert.HasCount(2, actual);
             Assert.AreEqual(0x0a, actual[0]);
             Assert.AreEqual(0x0d, actual[1]);
         }
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.TrimLeadingZeros(value);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(4, actual.Length);
+            Assert.HasCount(4, actual);
             Assert.AreEqual(0x0a, actual[0]);
             Assert.AreEqual(0x00, actual[1]);
             Assert.AreEqual(0x0d, actual[2]);
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.TrimLeadingZeros(value);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(3, actual.Length);
+            Assert.HasCount(3, actual);
             Assert.AreEqual(0x0a, actual[0]);
             Assert.AreEqual(0x00, actual[1]);
             Assert.AreEqual(0x0d, actual[2]);
@@ -76,7 +76,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.TrimLeadingZeros(value);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(0, actual.Length);
+            Assert.IsEmpty(actual);
         }
     }
 }

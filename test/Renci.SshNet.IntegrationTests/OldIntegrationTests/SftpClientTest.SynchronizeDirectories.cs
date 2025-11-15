@@ -24,7 +24,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 string searchPattern = Path.GetFileName(uploadedFileName);
                 var upLoadedFiles = sftp.SynchronizeDirectories(sourceDir, destDir, searchPattern);
 
-                Assert.IsTrue(upLoadedFiles.Count() > 0);
+                Assert.IsGreaterThan(0, upLoadedFiles.Count());
 
                 foreach (var file in upLoadedFiles)
                 {
@@ -63,7 +63,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var upLoadedFiles = sftp.EndSynchronizeDirectories(asyncResult);
 
-                Assert.IsTrue(upLoadedFiles.Count() > 0);
+                Assert.IsGreaterThan(0, upLoadedFiles.Count());
 
                 foreach (var file in upLoadedFiles)
                 {

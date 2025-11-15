@@ -49,7 +49,11 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition=" !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <PackageReference Include="Microsoft.Bcl.Cryptography" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 

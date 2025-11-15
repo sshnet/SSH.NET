@@ -114,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             expectedBytesLength += 4; // Data length
             expectedBytesLength += size; // Data
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

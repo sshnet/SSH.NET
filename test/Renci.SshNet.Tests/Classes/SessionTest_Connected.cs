@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes
         public void IncludeStrictKexPseudoAlgorithmInInitKex()
         {
             Assert.IsTrue(FirstKexReceived.Wait(1000));
-            Assert.IsTrue(ServerBytesReceivedRegister.Count > 0);
+            Assert.IsNotEmpty(ServerBytesReceivedRegister);
 
             var kexInitMessage = new KeyExchangeInitMessage();
             kexInitMessage.Load(ServerBytesReceivedRegister[0], 4 + 1 + 1, ServerBytesReceivedRegister[0].Length - 4 - 1 - 1);
@@ -106,7 +106,7 @@ namespace Renci.SshNet.Tests.Classes
             // give session time to process message
             Thread.Sleep(100);
 
-            Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+            Assert.HasCount(1, ServerBytesReceivedRegister);
         }
 
         [TestMethod]
@@ -128,16 +128,16 @@ namespace Renci.SshNet.Tests.Classes
             if (wantReply)
             {
                 // Should have sent a failure reply.
-                Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+                Assert.HasCount(1, ServerBytesReceivedRegister);
                 Assert.AreEqual(82, ServerBytesReceivedRegister[0][5], "Expected to have sent SSH_MSG_REQUEST_FAILURE(82)");
             }
             else
             {
                 // Should not have sent any reply.
-                Assert.AreEqual(0, ServerBytesReceivedRegister.Count);
+                Assert.IsEmpty(ServerBytesReceivedRegister);
             }
 
-            Assert.AreEqual(0, ErrorOccurredRegister.Count);
+            Assert.IsEmpty(ErrorOccurredRegister);
         }
 
         [TestMethod]
@@ -218,7 +218,7 @@ namespace Renci.SshNet.Tests.Classes
             // give session time to process message
             Thread.Sleep(100);
 
-            Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+            Assert.HasCount(1, ServerBytesReceivedRegister);
         }
 
         [TestMethod]
@@ -235,7 +235,7 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(100);
 
             Assert.IsTrue(actual);
-            Assert.AreEqual(1, ServerBytesReceivedRegister.Count);
+            Assert.HasCount(1, ServerBytesReceivedRegister);
         }
 
         [TestMethod]

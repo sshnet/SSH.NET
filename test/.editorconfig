@@ -102,6 +102,12 @@ dotnet_diagnostic.SA1623.severity = none
 # For unit test projects, we do not care about documentation.
 dotnet_diagnostic.SA1629.severity = none
 
+# Workaround https://github.com/SonarSource/sonar-dotnet/issues/9767
+dotnet_diagnostic.S1450.severity = none
+dotnet_diagnostic.S1764.severity = none
+dotnet_diagnostic.S3260.severity = none
+dotnet_diagnostic.S5445.severity = none
+
 #### .NET Compiler Platform analysers rules ####
 
 # CA1001: Types that own disposable fields should be disposable

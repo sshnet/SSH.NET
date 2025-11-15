@@ -129,7 +129,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void UploadingShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _uploadingRegister.Count);
+            Assert.IsEmpty(_uploadingRegister);
         }
     }
 }

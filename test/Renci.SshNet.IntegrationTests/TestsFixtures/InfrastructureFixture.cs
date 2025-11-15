@@ -6,6 +6,8 @@ using DotNet.Testcontainers.Images;
 
 using Microsoft.Extensions.Logging;
 
+using Renci.SshNet.IntegrationTests.Logging;
+
 namespace Renci.SshNet.IntegrationTests.TestsFixtures
 {
     public sealed class InfrastructureFixture : IDisposable
@@ -16,7 +18,7 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
             {
                 builder.SetMinimumLevel(LogLevel.Debug);
                 builder.AddFilter("testcontainers", LogLevel.Information);
-                builder.AddConsole();
+                builder.AddTestConsoleLogger();
             });
 
             SshNetLoggingConfiguration.InitializeLogging(_loggerFactory);

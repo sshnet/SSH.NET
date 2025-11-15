@@ -344,6 +344,10 @@ dotnet_diagnostic.S5659.severity = none
 # https://rules.sonarsource.com/csharp/RSPEC-5773/
 dotnet_diagnostic.S4581.severity = none
 
+# S6966: Awaitable method should be used
+# Duplicate of CA1849
+dotnet_diagnostic.S6966.severity = none
+
 #### StyleCop rules ####
 
 # SA1003: Symbols must be spaced correctly

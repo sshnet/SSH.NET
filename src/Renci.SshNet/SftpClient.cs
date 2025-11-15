@@ -2269,7 +2269,7 @@ namespace Renci.SshNet
             return result;
         }
 
-#pragma warning disable S6966 // Awaitable method should be used
+#pragma warning disable CA1849 // Call async methods when in an async method
         private async Task InternalDownloadFile(
             string path,
             Stream output,
@@ -2330,7 +2330,6 @@ namespace Renci.SshNet
                         break;
                     }
 
-#pragma warning disable CA1849 // Call async methods when in an async method
                     var bytesRead = isAsync
 #if NET
                         ? await sftpStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
@@ -2338,7 +2337,6 @@ namespace Renci.SshNet
                         ? await sftpStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
 #endif
                         : sftpStream.Read(buffer, 0, buffer.Length);
-#pragma warning restore CA1849 // Call async methods when in an async method
 
                     if (bytesRead == 0)
                     {
@@ -2355,9 +2353,7 @@ namespace Renci.SshNet
                     }
                     else
                     {
-#pragma warning disable CA1849 // Call async methods when in an async method
                         output.Write(buffer, 0, bytesRead);
-#pragma warning restore CA1849 // Call async methods when in an async method
                     }
 
                     totalBytesRead += (ulong)bytesRead;
@@ -2384,15 +2380,11 @@ namespace Renci.SshNet
                 }
                 else
                 {
-#pragma warning disable CA1849 // Call async methods when in an async method
                     sftpStream.Dispose();
-#pragma warning restore CA1849 // Call async methods when in an async method
                 }
             }
         }
-#pragma warning restore S6966 // Awaitable method should be used
 
-#pragma warning disable S6966 // Awaitable method should be used
         private async Task InternalUploadFile(
             Stream input,
             string path,
@@ -2439,7 +2431,6 @@ namespace Renci.SshNet
 
             while (true)
             {
-#pragma warning disable CA1849 // Call async methods when in an async method
                 var bytesRead = isAsync
 #if NET
                     ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
@@ -2447,7 +2438,6 @@ namespace Renci.SshNet
                     ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
 #endif
                     : input.Read(buffer, 0, buffer.Length);
-#pragma warning restore CA1849 // Call async methods when in an async method
 
                 if (bytesRead == 0)
                 {
@@ -2533,7 +2523,7 @@ namespace Renci.SshNet
                 _sftpSession.RequestClose(handle);
             }
         }
-#pragma warning restore S6966 // Awaitable method should be used
+#pragma warning restore CA1849 // Call async methods when in an async method
 
         /// <summary>
         /// Called when client is connected to the server.

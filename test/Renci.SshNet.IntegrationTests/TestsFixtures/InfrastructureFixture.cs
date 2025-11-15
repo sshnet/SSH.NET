@@ -91,7 +91,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
         {
             if (_sshServer != null)
             {
-#pragma warning disable S6966 // Awaitable method should be used
                 //try
                 //{
                 //    File.WriteAllBytes(@"C:\tmp\auth.log", await _sshServer.ReadFileAsync("/var/log/auth.log").ConfigureAwait(false));
@@ -100,7 +99,6 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
                 //{
                 //    Console.Error.WriteLine(ex.ToString());
                 //}
-#pragma warning restore S6966 // Awaitable method should be used
 
                 await _sshServer.DisposeAsync();
             }

@@ -177,7 +177,7 @@ dotnet_diagnostic.S2699.severity = none
 # S2930: "IDisposables" should be disposed
 # https://rules.sonarsource.com/csharp/RSPEC-2930/
 #
-# Duplicate of CA2000.
+# too noisy.
 dotnet_diagnostic.S2930.severity = none
 
 # S2933: Fields that are only assigned in the constructor should be "readonly"
@@ -732,6 +732,11 @@ dotnet_code_quality.CA1859.api_surface = private,internal
 
 # CA1873: Evaluation of this argument may be expensive and unnecessary if logging is disabled
 dotnet_diagnostic.CA1873.severity = suggestion
+
+# CA2000: Dispose objects before losing scope
+#
+# too noisy.
+dotnet_diagnostic.CA2000.severity = suggestion
 
 # CA2208: Instantiate argument exceptions correctly
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2208

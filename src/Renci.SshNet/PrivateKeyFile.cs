@@ -370,10 +370,8 @@ namespace Renci.SshNet
             if (_key is RsaKey rsaKey)
             {
                 _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
                 _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             else
             {
@@ -420,7 +418,6 @@ namespace Renci.SshNet
 
                 _hostAlgorithms.Insert(0, new CertificateHostAlgorithm("ssh-rsa-cert-v01@openssh.com", Key, Certificate));
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _hostAlgorithms.Insert(0, new CertificateHostAlgorithm(
                     "rsa-sha2-256-cert-v01@openssh.com",
                     Key,
@@ -432,7 +429,6 @@ namespace Renci.SshNet
                     Key,
                     Certificate,
                     new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             else
             {

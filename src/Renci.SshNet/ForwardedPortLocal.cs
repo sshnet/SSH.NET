@@ -212,9 +212,7 @@ namespace Renci.SshNet
         {
             if (e is null)
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 e = new SocketAsyncEventArgs();
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 e.Completed += AcceptCompleted;
             }
             else

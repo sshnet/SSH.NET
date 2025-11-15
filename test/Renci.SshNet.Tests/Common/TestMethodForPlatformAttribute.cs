@@ -10,7 +10,9 @@ namespace Renci.SshNet.Tests.Common
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class TestMethodForPlatformAttribute : TestMethodAttribute
     {
+#pragma warning disable CA1019 // CA1019: Define accessors for attribute arguments
         public TestMethodForPlatformAttribute(string platform, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) : base(callerFilePath, callerLineNumber)
+#pragma warning restore CA1019 // CA1019: Define accessors for attribute arguments
         {
             Platform = platform;
         }

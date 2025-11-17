@@ -7,7 +7,6 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
@@ -83,8 +82,8 @@ namespace Renci.SshNet.Security
             uint preferredGroupSize,
             uint maximumGroupSize)
         {
-            ThrowHelper.ThrowIfNull(name);
-            ThrowHelper.ThrowIfNullOrEmpty(hashAlgorithm.Name, nameof(hashAlgorithm));
+            ArgumentNullException.ThrowIfNull(name);
+            ArgumentException.ThrowIfNullOrEmpty(hashAlgorithm.Name, nameof(hashAlgorithm));
 
             if (preferredGroupSize < minimumGroupSize || preferredGroupSize > maximumGroupSize)
             {

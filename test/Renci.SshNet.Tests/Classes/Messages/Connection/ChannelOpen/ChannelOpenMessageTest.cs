@@ -92,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             expectedBytesLength += 4; // MaximumPacketSize
             expectedBytesLength += infoBytes.Length; // Info
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

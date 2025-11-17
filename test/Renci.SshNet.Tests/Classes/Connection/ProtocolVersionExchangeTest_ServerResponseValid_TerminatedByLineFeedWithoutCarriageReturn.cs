@@ -37,11 +37,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestCleanup]
         public void Cleanup()
         {
-            if (_server != null)
-            {
-                _server.Dispose();
-                _server = null;
-            }
+            _server?.Dispose();
+            _server = null;
 
             if (_client != null)
             {
@@ -99,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             var expected = Encoding.UTF8.GetBytes(_clientVersion);
 
-            Assert.AreEqual(expected.Length + 2, _dataReceivedByServer.Count);
+            Assert.HasCount(expected.Length + 2, _dataReceivedByServer);
 
             Assert.IsTrue(expected.SequenceEqual(_dataReceivedByServer.Take(expected.Length)));
             Assert.AreEqual(Session.CarriageReturn, _dataReceivedByServer[_dataReceivedByServer.Count - 2]);

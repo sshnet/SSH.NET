@@ -18,7 +18,7 @@ namespace Renci.SshNet.Connection
 
         protected ConnectorBase(ISocketFactory socketFactory, ILoggerFactory loggerFactory)
         {
-            ThrowHelper.ThrowIfNull(socketFactory);
+            ArgumentNullException.ThrowIfNull(socketFactory);
 
             SocketFactory = socketFactory;
             _logger = loggerFactory.CreateLogger(GetType());

@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected override void CheckDisposed()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
         }
 
         /// <summary>
@@ -182,9 +182,7 @@ namespace Renci.SshNet
         {
             if (e is null)
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 e = new SocketAsyncEventArgs();
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 e.Completed += AcceptCompleted;
             }
             else

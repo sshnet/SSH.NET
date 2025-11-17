@@ -42,11 +42,8 @@ namespace Renci.SshNet
                     {
                         throw new SshPassPhraseNullOrEmptyException("Private key is encrypted but passphrase is empty.");
                     }
-#if NET
+
                     var binarySalt = Convert.FromHexString(_salt);
-#else
-                    var binarySalt = Org.BouncyCastle.Utilities.Encoders.Hex.Decode(_salt);
-#endif
                     CipherInfo cipher;
                     switch (_cipherName)
                     {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -116,7 +115,7 @@ namespace Renci.SshNet
             }
             set
             {
-                ThrowHelper.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
 
                 _remotePathTransformation = value;
             }
@@ -152,7 +151,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
         {
@@ -181,7 +179,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true)
         {
@@ -288,7 +285,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
-            ThrowHelper.ThrowIfNull(fileInfo);
+            ArgumentNullException.ThrowIfNull(fileInfo);
 
             if (Session is null)
             {
@@ -335,8 +332,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
-            ThrowHelper.ThrowIfNull(directoryInfo);
-            ThrowHelper.ThrowIfNullOrEmpty(path);
+            ArgumentNullException.ThrowIfNull(directoryInfo);
+            ArgumentException.ThrowIfNullOrEmpty(path);
 
             if (Session is null)
             {
@@ -378,8 +375,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
-            ThrowHelper.ThrowIfNullOrEmpty(filename);
-            ThrowHelper.ThrowIfNull(fileInfo);
+            ArgumentException.ThrowIfNullOrEmpty(filename);
+            ArgumentNullException.ThrowIfNull(fileInfo);
 
             if (Session is null)
             {
@@ -418,8 +415,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
-            ThrowHelper.ThrowIfNullOrEmpty(directoryName);
-            ThrowHelper.ThrowIfNull(directoryInfo);
+            ArgumentException.ThrowIfNullOrEmpty(directoryName);
+            ArgumentNullException.ThrowIfNull(directoryInfo);
 
             if (Session is null)
             {
@@ -458,8 +455,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, Stream destination)
         {
-            ThrowHelper.ThrowIfNullOrWhiteSpace(filename);
-            ThrowHelper.ThrowIfNull(destination);
+            ArgumentException.ThrowIfNullOrWhiteSpace(filename);
+            ArgumentNullException.ThrowIfNull(destination);
 
             if (Session is null)
             {
@@ -675,11 +672,7 @@ namespace Renci.SshNet
         /// <param name="fileOrDirectory">The file or directory to upload.</param>
         private void UploadTimes(IChannelSession channel, Stream input, FileSystemInfo fileOrDirectory)
         {
-#if NET
             var zeroTime = DateTime.UnixEpoch;
-#else
-            var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-#endif
             var modificationSeconds = (long)(fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
             var accessSeconds = (long)(fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
             SendData(channel, string.Format(CultureInfo.InvariantCulture, "T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
@@ -856,11 +849,7 @@ namespace Renci.SshNet
                     var mtime = long.Parse(match.Result("${mtime}"), CultureInfo.InvariantCulture);
                     var atime = long.Parse(match.Result("${atime}"), CultureInfo.InvariantCulture);
 
-#if NET
                     var zeroTime = DateTime.UnixEpoch;
-#else
-                    var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-#endif
                     modifiedTime = zeroTime.AddSeconds(mtime);
                     accessedTime = zeroTime.AddSeconds(atime);
                     continue;

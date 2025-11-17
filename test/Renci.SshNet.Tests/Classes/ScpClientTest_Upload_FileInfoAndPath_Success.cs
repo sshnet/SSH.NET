@@ -151,7 +151,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void UploadingShouldHaveFiredTwice()
         {
-            Assert.AreEqual(2, _uploadingRegister.Count);
+            Assert.HasCount(2, _uploadingRegister);
 
             var uploading = _uploadingRegister[0];
             Assert.IsNotNull(uploading);

@@ -62,7 +62,7 @@ namespace Renci.SshNet.IntegrationTests
                     shellStream.WriteLine($"echo {foo}");
                     var line = shellStream.ReadLine(TimeSpan.FromSeconds(1));
                     Assert.IsNotNull(line);
-                    Assert.IsTrue(line.EndsWith(foo), line);
+                    Assert.EndsWith(foo, line);
                 }
             }
         }
@@ -122,7 +122,7 @@ namespace Renci.SshNet.IntegrationTests
                     var outputString = outputReader.ReadLine();
 
                     Assert.IsNotNull(outputString);
-                    Assert.IsTrue(outputString.EndsWith(foo), outputString);
+                    Assert.EndsWith(foo, outputString);
 
                     shell.Stop();
                 }

@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void NoExceptionShouldHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.IsEmpty(_channelExceptionRegister);
         }
     }
 

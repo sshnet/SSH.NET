@@ -10,7 +10,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Connection;
@@ -79,23 +78,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void TearDown()
         {
-            if (ServerListener != null)
-            {
-                ServerListener.Dispose();
-                ServerListener = null;
-            }
+            ServerListener?.Dispose();
+            ServerListener = null;
 
-            if (ServerSocket != null)
-            {
-                ServerSocket.Dispose();
-                ServerSocket = null;
-            }
+            ServerSocket?.Dispose();
+            ServerSocket = null;
 
-            if (Session != null)
-            {
-                Session.Dispose();
-                Session = null;
-            }
+            Session?.Dispose();
+            Session = null;
 
             if (ClientSocket != null && ClientSocket.Connected)
             {
@@ -183,7 +173,7 @@ namespace Renci.SshNet.Tests.Classes
                         var serviceAcceptMessage = ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication)
                                                                               .Build(ServerOutboundPacketSequence);
 
-                        var hash = CryptoAbstraction.HashSHA256(serviceAcceptMessage);
+                        var hash = SHA256.HashData(serviceAcceptMessage);
 
                         var packet = new byte[serviceAcceptMessage.Length - 4 + hash.Length];
 

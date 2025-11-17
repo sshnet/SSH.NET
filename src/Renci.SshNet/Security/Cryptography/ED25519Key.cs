@@ -78,7 +78,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public ED25519Key(SshKeyData publicKeyData)
         {
-            ThrowHelper.ThrowIfNull(publicKeyData);
+            ArgumentNullException.ThrowIfNull(publicKeyData);
 
             if (publicKeyData.Name != "ssh-ed25519" || publicKeyData.Keys.Length != 1)
             {

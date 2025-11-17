@@ -33,8 +33,8 @@ namespace Renci.SshNet.Sftp
                 throw new SshConnectionException("Client not connected.");
             }
 
-            ThrowHelper.ThrowIfNull(attributes);
-            ThrowHelper.ThrowIfNull(fullName);
+            ArgumentNullException.ThrowIfNull(attributes);
+            ArgumentNullException.ThrowIfNull(fullName);
 
             _sftpSession = sftpSession;
             Attributes = attributes;
@@ -485,7 +485,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is <see langword="null"/>.</exception>
         public void MoveTo(string destFileName)
         {
-            ThrowHelper.ThrowIfNull(destFileName);
+            ArgumentNullException.ThrowIfNull(destFileName);
 
             _sftpSession.RequestRename(FullName, destFileName);
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet
 {
     /// <summary>
@@ -82,7 +80,7 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             // result is at least value and (likely) leading/trailing single-quotes
             var sb = new StringBuilder(path.Length + 2);

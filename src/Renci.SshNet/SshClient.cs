@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -58,9 +57,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         public SshClient(string host, int port, string username, string password)
-#pragma warning disable CA2000 // Dispose objects before losing scope
             : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
-#pragma warning restore CA2000 // Dispose objects before losing scope
         {
         }
 
@@ -87,7 +84,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true)
         {
@@ -155,7 +151,7 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public void AddForwardedPort(ForwardedPort port)
         {
-            ThrowHelper.ThrowIfNull(port);
+            ArgumentNullException.ThrowIfNull(port);
 
             EnsureSessionIsOpen();
 
@@ -166,7 +162,7 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public void RemoveForwardedPort(ForwardedPort port)
         {
-            ThrowHelper.ThrowIfNull(port);
+            ArgumentNullException.ThrowIfNull(port);
 
             // Stop port forwarding before removing it
             port.Stop();
@@ -325,11 +321,8 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_inputStream != null)
-                {
-                    _inputStream.Dispose();
-                    _inputStream = null;
-                }
+                _inputStream?.Dispose();
+                _inputStream = null;
 
                 _isDisposed = true;
             }

@@ -191,7 +191,7 @@ namespace Renci.SshNet.Sftp
         {
             Debug.Assert(isAsync || cancellationToken == default);
 
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             if (bufferSize <= 0)
             {
@@ -332,7 +332,7 @@ namespace Renci.SshNet.Sftp
         /// <inheritdoc/>
         public override void Flush()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             var writeLength = _writeBuffer.ActiveLength;
 
@@ -363,7 +363,7 @@ namespace Renci.SshNet.Sftp
         /// <inheritdoc/>
         public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             var writeLength = _writeBuffer.ActiveLength;
 
@@ -662,7 +662,7 @@ namespace Renci.SshNet.Sftp
         /// <inheritdoc/>
         public override void SetLength(long value)
         {
-            ThrowHelper.ThrowIfNegative(value);
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
             ThrowIfNotWriteable();
             ThrowIfNotSeekable();
 
@@ -755,7 +755,7 @@ namespace Renci.SshNet.Sftp
         {
             if (!CanSeek)
             {
-                ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+                ObjectDisposedException.ThrowIf(_disposed, this);
                 Throw();
             }
 
@@ -769,7 +769,7 @@ namespace Renci.SshNet.Sftp
         {
             if (!CanWrite)
             {
-                ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+                ObjectDisposedException.ThrowIf(_disposed, this);
                 Throw();
             }
 
@@ -783,7 +783,7 @@ namespace Renci.SshNet.Sftp
         {
             if (!CanRead)
             {
-                ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+                ObjectDisposedException.ThrowIf(_disposed, this);
                 Throw();
             }
 

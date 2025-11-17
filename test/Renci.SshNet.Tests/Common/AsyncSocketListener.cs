@@ -90,11 +90,8 @@ namespace Renci.SshNet.Tests.Common
 
             _listener?.Dispose();
 
-            if (_receiveThread != null)
-            {
-                _receiveThread.Join();
-                _receiveThread = null;
-            }
+            _receiveThread?.Join();
+            _receiveThread = null;
         }
 
         public void Dispose()

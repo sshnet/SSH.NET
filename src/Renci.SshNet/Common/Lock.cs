@@ -7,7 +7,9 @@ namespace Renci.SshNet.Common
     {
         public bool TryEnter()
         {
+#pragma warning disable CA2002 // Do not lock on objects with weak identity
             return Monitor.TryEnter(this);
+#pragma warning restore CA2002 // Do not lock on objects with weak identity
         }
 
         public void Exit()

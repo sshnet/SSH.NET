@@ -310,10 +310,6 @@ dotnet_diagnostic.CA1851.severity = silent
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1859
 dotnet_diagnostic.CA1859.severity = silent
 
-# CA2000: Dispose objects before losing scope
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
-dotnet_diagnostic.CA2000.severity = silent
-
 # CA2007: Do not directly await a Task
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007
 dotnet_diagnostic.CA2007.severity = silent

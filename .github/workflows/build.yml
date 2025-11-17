@@ -18,37 +18,37 @@ jobs:
       uses: actions/setup-dotnet@v5
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
+      run: dotnet build -f net10.0 test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
+      run: dotnet build -f net10.0 test/Renci.SshNet.IntegrationTests/
 
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
-          -f net9.0 \
+          -f net10.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_unit_test_net_10_coverage.xml \
           test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
-          -f net9.0 \
+          -f net10.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
           name: Coverlet Results Linux
           path: coverlet
@@ -74,7 +74,7 @@ jobs:
       run: dotnet pack
 
     - name: Archive NuGet Package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: NuGet Package
         path: src/Renci.SshNet/bin/Release/*.*nupkg
@@ -82,13 +82,13 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test `
-          -f net9.0 `
+          -f net10.0 `
           --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=../../coverlet/windows_unit_test_net_9_coverage.xml `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_net_10_coverage.xml `
           test/Renci.SshNet.Tests/
 
     - name: Run Unit Tests .NET Framework
@@ -140,7 +140,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: Coverlet Results Windows .NET Framework
         path: coverlet
@@ -173,7 +173,7 @@ jobs:
     - name: Run Integration Tests .NET
       run:
         dotnet test `
-          -f net9.0 `
+          -f net10.0 `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `
@@ -182,7 +182,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: Coverlet Results Windows .NET
         path: coverlet
@@ -200,7 +200,7 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: NuGet Package
 
@@ -229,7 +229,7 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: NuGet Package
 

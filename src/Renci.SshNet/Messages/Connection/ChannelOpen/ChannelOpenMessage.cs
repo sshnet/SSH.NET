@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
@@ -106,7 +104,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/>.</exception>
         public ChannelOpenMessage(uint channelNumber, uint initialWindowSize, uint maximumPacketSize, ChannelOpenInfo info)
         {
-            ThrowHelper.ThrowIfNull(info);
+            ArgumentNullException.ThrowIfNull(info);
 
             ChannelType = Ascii.GetBytes(info.ChannelType);
             LocalChannelNumber = channelNumber;

@@ -1,4 +1,4 @@
-#if NET
+#if !NETSTANDARD
 using System;
 using System.Security.Cryptography;
 

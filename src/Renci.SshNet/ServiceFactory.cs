@@ -85,8 +85,8 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public IKeyExchange CreateKeyExchange(IDictionary<string, Func<IKeyExchange>> clientAlgorithms, string[] serverAlgorithms)
         {
-            ThrowHelper.ThrowIfNull(clientAlgorithms);
-            ThrowHelper.ThrowIfNull(serverAlgorithms);
+            ArgumentNullException.ThrowIfNull(clientAlgorithms);
+            ArgumentNullException.ThrowIfNull(serverAlgorithms);
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmFactory = (from c in clientAlgorithms
@@ -96,7 +96,7 @@ namespace Renci.SshNet
 
             if (keyExchangeAlgorithmFactory is null)
             {
-                throw new SshConnectionException($"No matching key exchange algorithm (server offers {serverAlgorithms.Join(",")})", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException($"No matching key exchange algorithm (server offers {string.Join(',', serverAlgorithms)})", DisconnectReason.KeyExchangeFailed);
             }
 
             return keyExchangeAlgorithmFactory();
@@ -168,8 +168,8 @@ namespace Renci.SshNet
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            ThrowHelper.ThrowIfNull(connectionInfo);
-            ThrowHelper.ThrowIfNull(socketFactory);
+            ArgumentNullException.ThrowIfNull(connectionInfo);
+            ArgumentNullException.ThrowIfNull(socketFactory);
 
             var loggerFactory = connectionInfo.LoggerFactory ?? SshNetLoggingConfiguration.LoggerFactory;
 

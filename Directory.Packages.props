@@ -13,7 +13,7 @@
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
     <PackageVersion Include="MSTest" Version="4.0.2" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pqc.Crypto.NtruPrime;
@@ -70,7 +71,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            return CryptoAbstraction.HashSHA512(hashData);
+            return SHA512.HashData(hashData);
         }
 
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)
@@ -111,7 +112,7 @@ namespace Renci.SshNet.Security
 
             var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(_sntrup761Extractor.EncapsulationLength, X25519PublicKeyParameters.KeySize));
 
-            SharedKey = CryptoAbstraction.HashSHA512(sntrup761Secret.Concat(x25519Agreement));
+            SharedKey = SHA512.HashData(sntrup761Secret.Concat(x25519Agreement));
         }
     }
 }

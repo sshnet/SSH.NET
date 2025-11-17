@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Abstractions;
+using System.Security.Cryptography;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -89,7 +90,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            return CryptoAbstraction.HashSHA256(hashData);
+            return SHA256.HashData(hashData);
         }
 
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)

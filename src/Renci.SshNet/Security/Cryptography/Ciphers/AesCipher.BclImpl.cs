@@ -25,7 +25,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 if (cipherMode != System.Security.Cryptography.CipherMode.ECB)
                 {
-                    ThrowHelper.ThrowIfNull(iv);
+                    ArgumentNullException.ThrowIfNull(iv);
 
                     aes.IV = iv.Take(16);
                 }

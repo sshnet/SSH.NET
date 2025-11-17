@@ -112,7 +112,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Write(byte[] data)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             Write(data, 0, data.Length);
         }
@@ -126,8 +126,8 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
         public void Write(string s, Encoding encoding)
         {
-            ThrowHelper.ThrowIfNull(s);
-            ThrowHelper.ThrowIfNull(encoding);
+            ArgumentNullException.ThrowIfNull(s);
+            ArgumentNullException.ThrowIfNull(encoding);
 
 #if NET
             ReadOnlySpan<char> value = s;
@@ -192,7 +192,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
         public void WriteBinary(byte[] buffer)
         {
-            ThrowHelper.ThrowIfNull(buffer);
+            ArgumentNullException.ThrowIfNull(buffer);
 
             WriteBinary(buffer, 0, buffer.Length);
         }

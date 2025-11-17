@@ -47,17 +47,11 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestCleanup]
         public void CleanUp()
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _client = null;
-            }
+            _client?.Dispose();
+            _client = null;
 
-            if (_listener != null)
-            {
-                _listener.Stop();
-                _listener = null;
-            }
+            _listener?.Stop();
+            _listener = null;
         }
 
         private void Arrange()

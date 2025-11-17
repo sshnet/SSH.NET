@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet
 {
     /// <summary>
@@ -36,7 +34,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <see langword="null"/>.</exception>
         protected AuthenticationMethod(string username)
         {
-            ThrowHelper.ThrowIfNullOrWhiteSpace(username);
+            ArgumentException.ThrowIfNullOrWhiteSpace(username);
 
             Username = username;
         }

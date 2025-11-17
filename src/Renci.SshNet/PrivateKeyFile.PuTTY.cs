@@ -9,7 +9,6 @@ using System.Text;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Security.Cryptography.Ciphers;
@@ -72,22 +71,18 @@ namespace Renci.SshNet
                         switch (_version)
                         {
                             case "3":
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Type);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Iterations);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Memory);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Parallelism);
-                                ThrowHelper.ThrowIfNullOrEmpty(_argon2Salt);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Type);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Iterations);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Memory);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Parallelism);
+                                ArgumentException.ThrowIfNullOrEmpty(_argon2Salt);
 
                                 var keyData = Argon2(
                                     _argon2Type,
                                     Convert.ToInt32(_argon2Iterations),
                                     Convert.ToInt32(_argon2Memory),
                                     Convert.ToInt32(_argon2Parallelism),
-#if NET
                                     Convert.FromHexString(_argon2Salt),
-#else
-                                    Org.BouncyCastle.Utilities.Encoders.Hex.Decode(_argon2Salt),
-#endif
                                     _passPhrase);
 
                                 cipherKey = keyData.Take(32);
@@ -103,7 +98,7 @@ namespace Renci.SshNet
                                 cipherKey = keyData.Take(32);
                                 cipherIV = new byte[16];
 
-                                macKey = CryptoAbstraction.HashSHA1(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key" + _passPhrase)).Take(20);
+                                macKey = SHA1.HashData(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key" + _passPhrase)).Take(20);
                                 hmac = new HMACSHA1(macKey);
 
                                 break;
@@ -124,7 +119,7 @@ namespace Renci.SshNet
                                 hmac = new HMACSHA256(Array.Empty<byte>());
                                 break;
                             case "2":
-                                var macKey = CryptoAbstraction.HashSHA1(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key"));
+                                var macKey = SHA1.HashData(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key"));
                                 hmac = new HMACSHA1(macKey);
                                 break;
                             default:
@@ -153,21 +148,19 @@ namespace Renci.SshNet
                 {
                     macValue = hmac.ComputeHash(macData);
                 }
-#if NET
+
                 var reference = Convert.FromHexString(_mac);
-#else
-                var reference = Org.BouncyCastle.Utilities.Encoders.Hex.Decode(_mac);
-#endif
+
                 if (!macValue.SequenceEqual(reference))
                 {
                     throw new SshException("MAC verification failed for PuTTY key file");
                 }
 
-                var publicKeyReader = new SshDataStream(_publicKey);
+                using var publicKeyReader = new SshDataStream(_publicKey);
                 var keyType = publicKeyReader.ReadString(Encoding.UTF8);
                 Debug.Assert(keyType == _algorithmName, $"{nameof(keyType)} is not the same as {nameof(_algorithmName)}");
 
-                var privateKeyReader = new SshDataStream(privateKey);
+                using var privateKeyReader = new SshDataStream(privateKey);
 
                 Key parsedKey;
 

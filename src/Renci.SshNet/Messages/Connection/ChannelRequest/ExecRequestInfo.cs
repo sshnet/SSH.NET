@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
@@ -81,8 +79,8 @@ namespace Renci.SshNet.Messages.Connection
         public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
-            ThrowHelper.ThrowIfNull(command);
-            ThrowHelper.ThrowIfNull(encoding);
+            ArgumentNullException.ThrowIfNull(command);
+            ArgumentNullException.ThrowIfNull(encoding);
 
             _command = encoding.GetBytes(command);
             Encoding = encoding;

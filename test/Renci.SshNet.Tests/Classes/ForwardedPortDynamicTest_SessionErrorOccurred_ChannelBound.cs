@@ -47,26 +47,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _client = null;
-            }
-            if (_forwardedPort != null)
-            {
-                _forwardedPort.Dispose();
-                _forwardedPort = null;
-            }
-            if (_channelBindStarted != null)
-            {
-                _channelBindStarted.Dispose();
-                _channelBindStarted = null;
-            }
-            if (_channelBindCompleted != null)
-            {
-                _channelBindCompleted.Dispose();
-                _channelBindCompleted = null;
-            }
+            _client?.Dispose();
+            _client = null;
+            _forwardedPort?.Dispose();
+            _forwardedPort = null;
+            _channelBindStarted?.Dispose();
+            _channelBindStarted = null;
+            _channelBindCompleted?.Dispose();
+            _channelBindCompleted = null;
         }
 
         private void CreateMocks()
@@ -230,7 +218,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var userNameBytes = Encoding.ASCII.GetBytes(_userName);
             var addressBytes = _remoteEndpoint.Address.GetAddressBytes();
-            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).Reverse().ToArray();
+            var portBytes = BitConverter.GetBytes((ushort)_remoteEndpoint.Port).AsEnumerable().Reverse().ToArray();
 
             _client.Connect(_endpoint);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
@@ -84,10 +84,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _path = random.Next().ToString();
-            _handle = CryptoAbstraction.GenerateRandom(4);
+            _handle = RandomNumberGenerator.GetBytes(4);
             _offset = (uint)random.Next(1, 5);
             _length = (uint)random.Next(30, 50);
-            _data = CryptoAbstraction.GenerateRandom(200);
+            _data = RandomNumberGenerator.GetBytes(200);
             _sftpOpenRequestBytes = new SftpOpenRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                 .WithRequestId(2)
                                                                 .WithFileName(_path)

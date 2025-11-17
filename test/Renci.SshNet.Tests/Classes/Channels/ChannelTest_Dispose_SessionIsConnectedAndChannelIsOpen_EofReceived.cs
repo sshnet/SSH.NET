@@ -91,23 +91,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestCleanup]
         public void TearDown()
         {
-            if (_channelClosedReceived != null)
-            {
-                _channelClosedReceived.Dispose();
-                _channelClosedReceived = null;
-            }
+            _channelClosedReceived?.Dispose();
+            _channelClosedReceived = null;
 
-            if (_raiseChannelCloseReceivedThread != null)
-            {
-                _raiseChannelCloseReceivedThread.Join();
-                _raiseChannelCloseReceivedThread = null;
-            }
+            _raiseChannelCloseReceivedThread?.Join();
+            _raiseChannelCloseReceivedThread = null;
 
-            if (_channelClosedEventHandlerCompleted != null)
-            {
-                _channelClosedEventHandlerCompleted.Dispose();
-                _channelClosedEventHandlerCompleted = null;
-            }
+            _channelClosedEventHandlerCompleted?.Dispose();
+            _channelClosedEventHandlerCompleted = null;
         }
 
         protected override void Arrange()

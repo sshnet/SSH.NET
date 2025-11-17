@@ -215,7 +215,7 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override void Flush()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             if (_writeBuffer.ActiveLength > 0)
             {
@@ -295,7 +295,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void ChangeWindowSize(uint columns, uint rows, uint width, uint height)
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
@@ -864,7 +864,7 @@ namespace Renci.SshNet
         private void Write(ReadOnlySpan<byte> buffer)
 #endif
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             while (!buffer.IsEmpty)
             {
@@ -909,7 +909,7 @@ namespace Renci.SshNet
         private async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
 #endif
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             while (!buffer.IsEmpty)
             {

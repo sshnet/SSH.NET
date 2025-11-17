@@ -40,26 +40,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _client = null;
-            }
-            if (_forwardedPort != null)
-            {
-                _forwardedPort.Dispose();
-                _forwardedPort = null;
-            }
-            if (_channelBound != null)
-            {
-                _channelBound.Dispose();
-                _channelBound = null;
-            }
-            if (_channelBindCompleted != null)
-            {
-                _channelBindCompleted.Dispose();
-                _channelBindCompleted = null;
-            }
+            _client?.Dispose();
+            _client = null;
+            _forwardedPort?.Dispose();
+            _forwardedPort = null;
+            _channelBound?.Dispose();
+            _channelBound = null;
+            _channelBindCompleted?.Dispose();
+            _channelBindCompleted = null;
         }
 
         private void CreateMocks()

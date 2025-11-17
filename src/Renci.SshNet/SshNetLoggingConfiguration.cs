@@ -1,8 +1,8 @@
 ﻿#nullable enable
+using System;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -19,7 +19,7 @@ namespace Renci.SshNet
         /// <param name="loggerFactory">The logger factory.</param>
         public static void InitializeLogging(ILoggerFactory loggerFactory)
         {
-            ThrowHelper.ThrowIfNull(loggerFactory);
+            ArgumentNullException.ThrowIfNull(loggerFactory);
             LoggerFactory = loggerFactory;
         }
 

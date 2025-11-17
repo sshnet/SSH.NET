@@ -21,7 +21,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         public ED25519DigitalSignature(ED25519Key key)
         {
-            ThrowHelper.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(key);
 
             _key = key;
         }

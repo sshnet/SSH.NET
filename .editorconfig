@@ -177,7 +177,7 @@ dotnet_diagnostic.S2699.severity = none
 # S2930: "IDisposables" should be disposed
 # https://rules.sonarsource.com/csharp/RSPEC-2930/
 #
-# Duplicate of CA2000.
+# too noisy.
 dotnet_diagnostic.S2930.severity = none
 
 # S2933: Fields that are only assigned in the constructor should be "readonly"
@@ -343,6 +343,10 @@ dotnet_diagnostic.S5659.severity = none
 # S5773: Types allowed to be deserialized should be restricted
 # https://rules.sonarsource.com/csharp/RSPEC-5773/
 dotnet_diagnostic.S4581.severity = none
+
+# S6966: Awaitable method should be used
+# Duplicate of CA1849
+dotnet_diagnostic.S6966.severity = none
 
 #### StyleCop rules ####
 
@@ -683,6 +687,10 @@ dotnet_diagnostic.CA1305.severity = none
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1309
 dotnet_diagnostic.CA1309.severity = none
 
+# CA1508: Avoid dead conditional code
+# Too many false positives.
+dotnet_diagnostic.CA1508.severity = none
+
 # CA1510: Use ArgumentNullException throw helper
 #
 # This is only available in .NET 6.0 and higher. We'd need to use conditional compilation to only
@@ -725,6 +733,14 @@ dotnet_diagnostic.CA1848.severity = silent
 #
 # By default, this diagnostic is only reported for private members.
 dotnet_code_quality.CA1859.api_surface = private,internal
+
+# CA1873: Evaluation of this argument may be expensive and unnecessary if logging is disabled
+dotnet_diagnostic.CA1873.severity = suggestion
+
+# CA2000: Dispose objects before losing scope
+#
+# too noisy.
+dotnet_diagnostic.CA2000.severity = suggestion
 
 # CA2208: Instantiate argument exceptions correctly
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2208

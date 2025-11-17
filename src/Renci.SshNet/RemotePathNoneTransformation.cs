@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet
 {
     /// <summary>
@@ -23,7 +21,7 @@ namespace Renci.SshNet
         /// </remarks>
         public string Transform(string path)
         {
-            ThrowHelper.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(path);
 
             return path;
         }

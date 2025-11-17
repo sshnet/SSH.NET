@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CryptoAbstraction_GenerateRandom_ShouldPerformNoOpWhenDataIsZeroLength()
         {
-            Assert.IsEmpty(CryptoAbstraction.GenerateRandom(0));
+            Assert.IsEmpty(RandomNumberGenerator.GetBytes(0));
         }
 
         [TestMethod]
@@ -21,8 +22,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var dataLength = new Random().Next(1, 100);
 
-            var dataA = CryptoAbstraction.GenerateRandom(dataLength);
-            var dataB = CryptoAbstraction.GenerateRandom(dataLength);
+            var dataA = RandomNumberGenerator.GetBytes(dataLength);
+            var dataB = RandomNumberGenerator.GetBytes(dataLength);
 
             Assert.HasCount(dataLength, dataA);
             Assert.HasCount(dataLength, dataB);

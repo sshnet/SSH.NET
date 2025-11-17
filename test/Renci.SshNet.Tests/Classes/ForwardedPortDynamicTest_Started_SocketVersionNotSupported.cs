@@ -45,17 +45,11 @@ namespace Renci.SshNet.Tests.Classes
                 _forwardedPort.Stop();
             }
 
-            if (_client != null)
-            {
-                _client.Close();
-                _client = null;
-            }
+            _client?.Close();
+            _client = null;
 
-            if (_exceptionFired != null)
-            {
-                _exceptionFired.Dispose();
-                _exceptionFired = null;
-            }
+            _exceptionFired?.Dispose();
+            _exceptionFired = null;
         }
 
         private void SetupData()

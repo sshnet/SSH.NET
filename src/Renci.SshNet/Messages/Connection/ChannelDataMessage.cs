@@ -1,4 +1,4 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 
 namespace Renci.SshNet.Messages.Connection
 {
@@ -89,7 +89,7 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data)
             : base(localChannelNumber)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             Data = data;
             Offset = 0;
@@ -106,7 +106,7 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data, int offset, int size)
             : base(localChannelNumber)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             Data = data;
             Offset = offset;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
@@ -101,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
+            var data = RandomNumberGenerator.GetBytes(random.Next(10, 20));
             var offset = random.Next(0, data.Length - 1);
             var size = random.Next(0, data.Length - offset);
 
@@ -135,7 +135,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
+            var data = RandomNumberGenerator.GetBytes(random.Next(10, 20));
 
             var offset = random.Next(0, data.Length - 1);
             var size = random.Next(0, data.Length - offset);

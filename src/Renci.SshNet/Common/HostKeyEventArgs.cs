@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
+using System.Security.Cryptography;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Common
@@ -97,16 +97,16 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
-            ThrowHelper.ThrowIfNull(host);
+            ArgumentNullException.ThrowIfNull(host);
 
             CanTrust = true;
             HostKey = host.KeyData.GetBytes();
             HostKeyName = host.Name;
             KeyLength = host.Key.KeyLength;
 
-            _lazyFingerPrint = new Lazy<byte[]>(() => CryptoAbstraction.HashMD5(HostKey));
+            _lazyFingerPrint = new Lazy<byte[]>(() => MD5.HashData(HostKey));
 
-            _lazyFingerPrintSHA256 = new Lazy<string>(() => Convert.ToBase64String(CryptoAbstraction.HashSHA256(HostKey)).TrimEnd('='));
+            _lazyFingerPrintSHA256 = new Lazy<string>(() => Convert.ToBase64String(SHA256.HashData(HostKey)).TrimEnd('='));
 
             _lazyFingerPrintMD5 = new Lazy<string>(() =>
                 {

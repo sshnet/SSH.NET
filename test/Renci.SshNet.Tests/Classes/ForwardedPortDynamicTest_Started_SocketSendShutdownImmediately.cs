@@ -59,11 +59,8 @@ namespace Renci.SshNet.Tests.Classes
                 }
             }
 
-            if (_channelDisposed != null)
-            {
-                _channelDisposed.Dispose();
-                _channelDisposed = null;
-            }
+            _channelDisposed?.Dispose();
+            _channelDisposed = null;
         }
 
         private void SetupData()

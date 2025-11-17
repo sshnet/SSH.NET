@@ -1,5 +1,7 @@
 ﻿using System;
+#if !NET
 using System.Collections.Generic;
+#endif
 using System.Globalization;
 #if !NET
 using System.IO;
@@ -193,7 +195,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -225,7 +227,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -244,8 +246,8 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            ThrowHelper.ThrowIfNull(left);
-            ThrowHelper.ThrowIfNull(right);
+            ArgumentNullException.ThrowIfNull(left);
+            ArgumentNullException.ThrowIfNull(right);
 
             return left.AsSpan().SequenceEqual(right);
         }
@@ -259,7 +261,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             for (var i = 0; i < value.Length; i++)
             {
@@ -327,13 +329,6 @@ namespace Renci.SshNet.Common
             }
 
             return socket.Connected;
-        }
-
-        internal static string Join(this IEnumerable<string> values, string separator)
-        {
-            // Used to avoid analyzers asking to "use an overload with a char parameter"
-            // which is not available on all targets.
-            return string.Join(separator, values);
         }
 
 #if !NET

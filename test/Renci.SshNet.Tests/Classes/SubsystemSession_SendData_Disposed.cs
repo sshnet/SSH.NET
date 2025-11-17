@@ -82,13 +82,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisconnectHasNeverFired()
         {
-            Assert.AreEqual(0, _disconnectedRegister.Count);
+            Assert.IsEmpty(_disconnectedRegister);
         }
 
         [TestMethod]
         public void ErrorOccurredHasNeverFired()
         {
-            Assert.AreEqual(0, _errorOccurredRegister.Count);
+            Assert.IsEmpty(_errorOccurredRegister);
         }
 
         [TestMethod]

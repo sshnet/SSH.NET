@@ -38,16 +38,10 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _client = null;
-            }
-            if (_forwardedPort != null)
-            {
-                _forwardedPort.Dispose();
-                _forwardedPort = null;
-            }
+            _client?.Dispose();
+            _client = null;
+            _forwardedPort?.Dispose();
+            _forwardedPort = null;
         }
 
         protected void Arrange()
@@ -131,13 +125,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClosingShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _closingRegister.Count);
+            Assert.HasCount(1, _closingRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.IsEmpty(_exceptionRegister);
         }
 
         [TestMethod]

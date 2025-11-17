@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable MSTEST0037 // Use proper 'Assert' methods: some tests are for specific interface implementations.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 

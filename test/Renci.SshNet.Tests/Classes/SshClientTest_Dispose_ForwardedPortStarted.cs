@@ -77,8 +77,7 @@ namespace Renci.SshNet.Tests.Classes
             try
             {
                 var connected = _sshClient.IsConnected;
-                Assert.Fail("IsConnected should have thrown {0} but returned {1}.",
-                    typeof(ObjectDisposedException).FullName, connected);
+                Assert.Fail($"IsConnected should have thrown {typeof(ObjectDisposedException).FullName} but returned {connected}.");
             }
             catch (ObjectDisposedException)
             {

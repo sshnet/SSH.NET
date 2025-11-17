@@ -113,22 +113,14 @@ namespace Renci.SshNet.Sftp
             if (fullPath.EndsWith("/.", StringComparison.OrdinalIgnoreCase) ||
                 fullPath.EndsWith("/..", StringComparison.OrdinalIgnoreCase) ||
                 fullPath.Equals("/", StringComparison.OrdinalIgnoreCase) ||
-#if NET
                 fullPath.IndexOf('/', StringComparison.OrdinalIgnoreCase) < 0)
-#else
-                fullPath.IndexOf('/') < 0)
-#endif
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
 
-#if NET
             var partialFullPath = string.Join('/', pathParts, 0, pathParts.Length - 1);
-#else
-            var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
-#endif
 
             if (string.IsNullOrEmpty(partialFullPath))
             {

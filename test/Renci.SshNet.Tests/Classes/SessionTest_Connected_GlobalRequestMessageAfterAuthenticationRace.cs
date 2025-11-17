@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorOccurredShouldNotBeRaised()
         {
-            Assert.AreEqual(0, ErrorOccurredRegister.Count, ErrorOccurredRegister.AsString());
+            Assert.IsEmpty(ErrorOccurredRegister, ErrorOccurredRegister.AsString());
         }
     }
 }

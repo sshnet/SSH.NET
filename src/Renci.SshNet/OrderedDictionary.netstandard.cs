@@ -9,7 +9,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
+#if !NET
 using Renci.SshNet.Common;
+#endif
 
 namespace Renci.SshNet
 {
@@ -486,8 +488,8 @@ namespace Renci.SshNet
 
             public virtual void CopyTo(T[] array, int arrayIndex)
             {
-                ThrowHelper.ThrowIfNull(array);
-                ThrowHelper.ThrowIfNegative(arrayIndex);
+                ArgumentNullException.ThrowIfNull(array);
+                ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 
                 if (array.Length - arrayIndex < Count)
                 {

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
 
-            _data = CryptoAbstraction.GenerateRandom(_bufferSize - 10);
+            _data = RandomNumberGenerator.GetBytes(_bufferSize - 10);
             _offset = random.Next(1, 5);
             _count = _data.Length - _offset - random.Next(1, 10);
         }

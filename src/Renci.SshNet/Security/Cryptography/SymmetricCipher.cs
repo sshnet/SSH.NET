@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Renci.SshNet.Common;
-
 namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
@@ -21,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         protected SymmetricCipher(byte[] key)
         {
-            ThrowHelper.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(key);
 
             Key = key;
         }

@@ -172,7 +172,7 @@ namespace Renci.SshNet
         /// <param name="key">The key.</param>
         public PrivateKeyFile(Key key)
         {
-            ThrowHelper.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(key);
 
             _key = key;
             _hostAlgorithms.Add(new KeyHostAlgorithm(key.ToString(), key));
@@ -223,7 +223,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
         public PrivateKeyFile(string fileName, string? passPhrase, string? certificateFileName)
         {
-            ThrowHelper.ThrowIfNull(fileName);
+            ArgumentNullException.ThrowIfNull(fileName);
 
             using (var keyFile = File.OpenRead(fileName))
             {
@@ -263,7 +263,7 @@ namespace Renci.SshNet
         /// <param name="certificate">A certificate which certifies the private key.</param>
         public PrivateKeyFile(Stream privateKey, string? passPhrase, Stream? certificate)
         {
-            ThrowHelper.ThrowIfNull(privateKey);
+            ArgumentNullException.ThrowIfNull(privateKey);
 
             Open(privateKey, passPhrase);
 
@@ -370,10 +370,8 @@ namespace Renci.SshNet
             if (_key is RsaKey rsaKey)
             {
                 _hostAlgorithms.Add(new KeyHostAlgorithm("ssh-rsa", _key));
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-512", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
                 _hostAlgorithms.Add(new KeyHostAlgorithm("rsa-sha2-256", _key, new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA256)));
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             else
             {
@@ -420,7 +418,6 @@ namespace Renci.SshNet
 
                 _hostAlgorithms.Insert(0, new CertificateHostAlgorithm("ssh-rsa-cert-v01@openssh.com", Key, Certificate));
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _hostAlgorithms.Insert(0, new CertificateHostAlgorithm(
                     "rsa-sha2-256-cert-v01@openssh.com",
                     Key,
@@ -432,7 +429,6 @@ namespace Renci.SshNet
                     Key,
                     Certificate,
                     new RsaDigitalSignature(rsaKey, HashAlgorithmName.SHA512)));
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             else
             {

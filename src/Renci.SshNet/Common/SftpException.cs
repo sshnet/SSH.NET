@@ -11,7 +11,9 @@ namespace Renci.SshNet.Common
 #if NETFRAMEWORK
     [Serializable]
 #endif
+#pragma warning disable CA1032 // Implement standard exception constructors
     public class SftpException : SshException
+#pragma warning restore CA1032 // Implement standard exception constructors
     {
         /// <summary>
         /// Gets the status code that is associated with this exception.

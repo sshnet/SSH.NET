@@ -91,23 +91,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestCleanup]
         public void TearDown()
         {
-            if (_channelClosedReceived != null)
-            {
-                _channelClosedReceived.Dispose();
-                _channelClosedReceived = null;
-            }
+            _channelClosedReceived?.Dispose();
+            _channelClosedReceived = null;
 
-            if (_raiseChannelCloseReceivedThread != null)
-            {
-                _raiseChannelCloseReceivedThread.Join();
-                _raiseChannelCloseReceivedThread = null;
-            }
+            _raiseChannelCloseReceivedThread?.Join();
+            _raiseChannelCloseReceivedThread = null;
 
-            if (_channelClosedEventHandlerCompleted != null)
-            {
-                _channelClosedEventHandlerCompleted.Dispose();
-                _channelClosedEventHandlerCompleted = null;
-            }
+            _channelClosedEventHandlerCompleted?.Dispose();
+            _channelClosedEventHandlerCompleted = null;
         }
 
         protected override void Arrange()
@@ -173,21 +164,21 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ClosedEventShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _channelClosedRegister.Count);
+            Assert.HasCount(1, _channelClosedRegister);
             Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
         }
 
         [TestMethod]
         public void EndOfDataEventShouldNotHaveFired()
         {
-            Assert.AreEqual(1, _channelEndOfDataRegister.Count);
+            Assert.HasCount(1, _channelEndOfDataRegister);
             Assert.AreEqual(_localChannelNumber, _channelEndOfDataRegister[0].ChannelNumber);
         }
 
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.IsEmpty(_channelExceptionRegister);
         }
 
         [TestMethod]

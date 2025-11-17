@@ -91,17 +91,17 @@ namespace Renci.SshNet.Security
             {
                 _logger.LogTrace("[{SessionId}] Host key algorithm: we offer {WeOffer}",
                     Session.SessionIdHex,
-                    session.ConnectionInfo.HostKeyAlgorithms.Keys.Join(","));
+                    string.Join(',', session.ConnectionInfo.HostKeyAlgorithms.Keys));
 
                 _logger.LogTrace("[{SessionId}] Host key algorithm: they offer {TheyOffer}",
                     Session.SessionIdHex,
-                    message.ServerHostKeyAlgorithms.Join(","));
+                    string.Join(',', message.ServerHostKeyAlgorithms));
             }
 
             if (hostKeyAlgorithmName is null)
             {
                 throw new SshConnectionException(
-                    $"No matching host key algorithm (server offers {message.ServerHostKeyAlgorithms.Join(",")})",
+                    $"No matching host key algorithm (server offers {string.Join(',', message.ServerHostKeyAlgorithms)})",
                     DisconnectReason.KeyExchangeFailed);
             }
 
@@ -118,17 +118,17 @@ namespace Renci.SshNet.Security
             {
                 _logger.LogTrace("[{SessionId}] Encryption client to server: we offer {WeOffer}",
                     Session.SessionIdHex,
-                    session.ConnectionInfo.Encryptions.Keys.Join(","));
+                    string.Join(',', session.ConnectionInfo.Encryptions.Keys));
 
                 _logger.LogTrace("[{SessionId}] Encryption client to server: they offer {TheyOffer}",
                     Session.SessionIdHex,
-                    message.EncryptionAlgorithmsClientToServer.Join(","));
+                    string.Join(',', message.EncryptionAlgorithmsClientToServer));
             }
 
             if (clientEncryptionAlgorithmName is null)
             {
                 throw new SshConnectionException(
-                    $"No matching client encryption algorithm (server offers {message.EncryptionAlgorithmsClientToServer.Join(",")})",
+                    $"No matching client encryption algorithm (server offers {string.Join(',', message.EncryptionAlgorithmsClientToServer)})",
                     DisconnectReason.KeyExchangeFailed);
             }
 
@@ -145,17 +145,17 @@ namespace Renci.SshNet.Security
             {
                 _logger.LogTrace("[{SessionId}] Encryption server to client: we offer {WeOffer}",
                     Session.SessionIdHex,
-                    session.ConnectionInfo.Encryptions.Keys.Join(","));
+                    string.Join(',', session.ConnectionInfo.Encryptions.Keys));
 
                 _logger.LogTrace("[{SessionId}] Encryption server to client: they offer {TheyOffer}",
                     Session.SessionIdHex,
-                    message.EncryptionAlgorithmsServerToClient.Join(","));
+                    string.Join(',', message.EncryptionAlgorithmsServerToClient));
             }
 
             if (serverDecryptionAlgorithmName is null)
             {
                 throw new SshConnectionException(
-                    $"No matching server encryption algorithm (server offers {message.EncryptionAlgorithmsServerToClient.Join(",")})",
+                    $"No matching server encryption algorithm (server offers {string.Join(',', message.EncryptionAlgorithmsServerToClient)})",
                     DisconnectReason.KeyExchangeFailed);
             }
 
@@ -174,17 +174,17 @@ namespace Renci.SshNet.Security
                 {
                     _logger.LogTrace("[{SessionId}] MAC client to server: we offer {WeOffer}",
                         Session.SessionIdHex,
-                        session.ConnectionInfo.HmacAlgorithms.Keys.Join(","));
+                        string.Join(',', session.ConnectionInfo.HmacAlgorithms.Keys));
 
                     _logger.LogTrace("[{SessionId}] MAC client to server: they offer {TheyOffer}",
                         Session.SessionIdHex,
-                        message.MacAlgorithmsClientToServer.Join(","));
+                        string.Join(',', message.MacAlgorithmsClientToServer));
                 }
 
                 if (clientHmacAlgorithmName is null)
                 {
                     throw new SshConnectionException(
-                        $"No matching client MAC algorithm (server offers {message.MacAlgorithmsClientToServer.Join(",")})",
+                        $"No matching client MAC algorithm (server offers {string.Join(',', message.MacAlgorithmsClientToServer)})",
                         DisconnectReason.KeyExchangeFailed);
                 }
 
@@ -204,17 +204,17 @@ namespace Renci.SshNet.Security
                 {
                     _logger.LogTrace("[{SessionId}] MAC server to client: we offer {WeOffer}",
                         Session.SessionIdHex,
-                        session.ConnectionInfo.HmacAlgorithms.Keys.Join(","));
+                        string.Join(',', session.ConnectionInfo.HmacAlgorithms.Keys));
 
                     _logger.LogTrace("[{SessionId}] MAC server to client: they offer {TheyOffer}",
                         Session.SessionIdHex,
-                        message.MacAlgorithmsServerToClient.Join(","));
+                        string.Join(',', message.MacAlgorithmsServerToClient));
                 }
 
                 if (serverHmacAlgorithmName is null)
                 {
                     throw new SshConnectionException(
-                        $"No matching server MAC algorithm (server offers {message.MacAlgorithmsServerToClient.Join(",")})",
+                        $"No matching server MAC algorithm (server offers {string.Join(',', message.MacAlgorithmsServerToClient)})",
                         DisconnectReason.KeyExchangeFailed);
                 }
 
@@ -232,17 +232,17 @@ namespace Renci.SshNet.Security
             {
                 _logger.LogTrace("[{SessionId}] Compression client to server: we offer {WeOffer}",
                     Session.SessionIdHex,
-                    session.ConnectionInfo.CompressionAlgorithms.Keys.Join(","));
+                    string.Join(',', session.ConnectionInfo.CompressionAlgorithms.Keys));
 
                 _logger.LogTrace("[{SessionId}] Compression client to server: they offer {TheyOffer}",
                     Session.SessionIdHex,
-                    message.CompressionAlgorithmsClientToServer.Join(","));
+                    string.Join(',', message.CompressionAlgorithmsClientToServer));
             }
 
             if (compressionAlgorithmName is null)
             {
                 throw new SshConnectionException(
-                    $"No matching client compression algorithm (server offers {message.CompressionAlgorithmsClientToServer.Join(",")})",
+                    $"No matching client compression algorithm (server offers {string.Join(',', message.CompressionAlgorithmsClientToServer)})",
                     DisconnectReason.KeyExchangeFailed);
             }
 
@@ -259,17 +259,17 @@ namespace Renci.SshNet.Security
             {
                 _logger.LogTrace("[{SessionId}] Compression server to client: we offer {WeOffer}",
                     Session.SessionIdHex,
-                    session.ConnectionInfo.CompressionAlgorithms.Keys.Join(","));
+                    string.Join(',', session.ConnectionInfo.CompressionAlgorithms.Keys));
 
                 _logger.LogTrace("[{SessionId}] Compression server to client: they offer {TheyOffer}",
                     Session.SessionIdHex,
-                    message.CompressionAlgorithmsServerToClient.Join(","));
+                    string.Join(',', message.CompressionAlgorithmsServerToClient));
             }
 
             if (decompressionAlgorithmName is null)
             {
                 throw new SshConnectionException(
-                    $"No matching server compression algorithm (server offers {message.CompressionAlgorithmsServerToClient.Join(",")})",
+                    $"No matching server compression algorithm (server offers {string.Join(',', message.CompressionAlgorithmsServerToClient)})",
                     DisconnectReason.KeyExchangeFailed);
             }
 

@@ -26,7 +26,7 @@ namespace Renci.SshNet.Sftp
         private readonly int _readBufferSize;
 
         private SftpFileReader? _sftpFileReader;
-        private ReadOnlyMemory<byte> _readBuffer;
+        private ReadOnlyMemoryOwner _readBuffer;
         private System.Net.ArrayBuffer _writeBuffer;
 
         private long _position;
@@ -153,6 +153,7 @@ namespace Renci.SshNet.Sftp
             _readBufferSize = readBufferSize;
             _position = position;
             _writeBuffer = new System.Net.ArrayBuffer(writeBufferSize);
+            _readBuffer = new ReadOnlyMemoryOwner(new System.Net.ArrayBuffer(0, usePool: true));
             _sftpFileReader = initialReader;
         }
 
@@ -390,7 +391,7 @@ namespace Renci.SshNet.Sftp
 
         private void InvalidateReads()
         {
-            _readBuffer = ReadOnlyMemory<byte>.Empty;
+            _readBuffer.Dispose();
             _sftpFileReader?.Dispose();
             _sftpFileReader = null;
         }
@@ -441,7 +442,7 @@ namespace Renci.SshNet.Sftp
             var bytesRead = Math.Min(buffer.Length, _readBuffer.Length);
 
             _readBuffer.Span.Slice(0, bytesRead).CopyTo(buffer);
-            _readBuffer = _readBuffer.Slice(bytesRead);
+            _readBuffer.Slice(bytesRead);
 
             _position += bytesRead;
 
@@ -494,8 +495,8 @@ namespace Renci.SshNet.Sftp
 
             var bytesRead = Math.Min(buffer.Length, _readBuffer.Length);
 
-            _readBuffer.Slice(0, bytesRead).CopyTo(buffer);
-            _readBuffer = _readBuffer.Slice(bytesRead);
+            _readBuffer.Span.Slice(0, bytesRead).CopyTo(buffer.Span);
+            _readBuffer.Slice(bytesRead);
 
             _position += bytesRead;
 
@@ -649,7 +650,7 @@ namespace Renci.SshNet.Sftp
 
             if (readBufferStart <= newPosition && newPosition <= readBufferEnd)
             {
-                _readBuffer = _readBuffer.Slice((int)(newPosition - readBufferStart));
+                _readBuffer.Slice((int)(newPosition - readBufferStart));
             }
             else
             {

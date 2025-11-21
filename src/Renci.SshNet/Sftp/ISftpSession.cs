@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
@@ -198,7 +199,7 @@ namespace Renci.SshNet.Sftp
         /// its <see cref="Task{Task}.Result"/> contains the data read from the file, or an empty
         /// array when the end of the file is reached.
         /// </returns>
-        Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
+        Task<ReadOnlyMemoryOwner> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
 
         /// <summary>
         /// Performs a <c>SSH_FXP_READDIR</c> request.

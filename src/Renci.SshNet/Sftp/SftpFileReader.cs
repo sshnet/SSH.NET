@@ -6,9 +6,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if !NET
 using Renci.SshNet.Common;
-#endif
 
 namespace Renci.SshNet.Sftp
 {
@@ -58,7 +56,7 @@ namespace Renci.SshNet.Sftp
                 _cts = new CancellationTokenSource();
             }
 
-            public async Task<byte[]> ReadAsync(CancellationToken cancellationToken)
+            public async Task<ReadOnlyMemoryOwner> ReadAsync(CancellationToken cancellationToken)
             {
                 _exception?.Throw();
 
@@ -172,14 +170,21 @@ namespace Renci.SshNet.Sftp
 
                 if (_requests.Count > 0)
                 {
-                    // Cancel outstanding requests and observe the exception on them
-                    // as an effort to prevent unhandled exceptions.
-
                     _cts.Cancel();
 
                     foreach (var request in _requests.Values)
                     {
-                        _ = request.Task.Exception;
+                        // Return rented buffers to the pool, or observe exception on
+                        // the task as an effort to prevent unhandled exceptions.
+
+                        if (request.Task.IsCompletedSuccessfully)
+                        {
+                            request.Task.GetAwaiter().GetResult().Dispose();
+                        }
+                        else
+                        {
+                            _ = request.Task.Exception;
+                        }
                     }
 
                     _requests.Clear();
@@ -190,7 +195,7 @@ namespace Renci.SshNet.Sftp
 
             private sealed class Request
             {
-                public Request(ulong offset, uint count, Task<byte[]> task)
+                public Request(ulong offset, uint count, Task<ReadOnlyMemoryOwner> task)
                 {
                     Offset = offset;
                     Count = count;
@@ -199,7 +204,7 @@ namespace Renci.SshNet.Sftp
 
                 public ulong Offset { get; }
                 public uint Count { get; }
-                public Task<byte[]> Task { get; }
+                public Task<ReadOnlyMemoryOwner> Task { get; }
             }
         }
     }

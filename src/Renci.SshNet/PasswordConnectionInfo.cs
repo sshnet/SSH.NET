@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Net;
 using System.Text;
 
@@ -16,7 +17,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
-        public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;
+        public event EventHandler<AuthenticationPasswordChangeEventArgs>? PasswordExpired;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PasswordConnectionInfo" /> class.
@@ -56,7 +57,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -72,7 +73,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -86,7 +87,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -101,7 +102,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -117,7 +118,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
-        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
@@ -158,7 +159,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, port, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -174,7 +175,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -188,7 +189,7 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
-        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort)
             : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
@@ -203,7 +204,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
-        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername)
             : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
@@ -219,7 +220,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
-        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword)
             : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
@@ -236,7 +237,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
-        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
         {
             foreach (var authenticationMethod in AuthenticationMethods)
@@ -248,7 +249,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void AuthenticationMethod_PasswordExpired(object sender, AuthenticationPasswordChangeEventArgs e)
+        private void AuthenticationMethod_PasswordExpired(object? sender, AuthenticationPasswordChangeEventArgs e)
         {
 #pragma warning disable MA0091 // Sender should be 'this' for instance events
             PasswordExpired?.Invoke(sender, e);

@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace Renci.SshNet.Sftp
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
         private readonly ISftpResponseFactory _sftpResponseFactory;
         private readonly Encoding _encoding;
-        private System.Net.ArrayBuffer _buffer = new(32 * 1024);
+        private ArrayBuffer _buffer = new(32 * 1024);
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(initialState: false);
         private IDictionary<string, string> _supportedExtensions;
 
@@ -495,7 +496,7 @@ namespace Renci.SshNet.Sftp
                                                   length,
                                                   response =>
                                                   {
-                                                      data = response.Data;
+                                                      data = response.Data.ToArray();
                                                       wait.SetIgnoringObjectDisposed();
                                                   },
                                                   response =>
@@ -526,28 +527,42 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <inheritdoc/>
-        public Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
+        public Task<ReadOnlyMemoryOwner> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
         {
             Debug.Assert(length > 0, "This implementation cannot distinguish between EOF and zero-length reads");
 
             if (cancellationToken.IsCancellationRequested)
             {
-                return Task.FromCanceled<byte[]>(cancellationToken);
+                return Task.FromCanceled<ReadOnlyMemoryOwner>(cancellationToken);
             }
 
-            var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var tcs = new TaskCompletionSource<ReadOnlyMemoryOwner>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             SendRequest(new SftpReadRequest(ProtocolVersion,
                                             NextRequestId,
                                             handle,
                                             offset,
                                             length,
-                                            response => tcs.TrySetResult(response.Data),
+                                            response =>
+                                            {
+                                                ArrayBuffer buffer = new(response.Data.Count, usePool: true);
+
+                                                response.Data.AsSpan().CopyTo(buffer.AvailableSpan);
+
+                                                buffer.Commit(response.Data.Count);
+
+                                                ReadOnlyMemoryOwner owner = new(buffer);
+
+                                                if (!tcs.TrySetResult(owner))
+                                                {
+                                                    owner.Dispose();
+                                                }
+                                            },
                                             response =>
                                             {
                                                 if (response.StatusCode == StatusCode.Eof)
                                                 {
-                                                    _ = tcs.TrySetResult(Array.Empty<byte>());
+                                                    _ = tcs.TrySetResult(new(new(0, usePool: true)));
                                                 }
                                                 else
                                                 {

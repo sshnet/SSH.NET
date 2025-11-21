@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -79,7 +80,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported compression algorithms for this connection.
         /// </summary>
-        public IOrderedDictionary<string, Func<Compressor>> CompressionAlgorithms { get; }
+        public IOrderedDictionary<string, Func<Compressor>?> CompressionAlgorithms { get; }
 
         /// <summary>
         /// Gets the supported channel requests for this connection.
@@ -129,7 +130,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets proxy connection host.
         /// </summary>
-        public string ProxyHost { get; }
+        public string? ProxyHost { get; }
 
         /// <summary>
         /// Gets proxy connection port.
@@ -139,12 +140,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets proxy connection username.
         /// </summary>
-        public string ProxyUsername { get; }
+        public string? ProxyUsername { get; }
 
         /// <summary>
         /// Gets proxy connection password.
         /// </summary>
-        public string ProxyPassword { get; }
+        public string? ProxyPassword { get; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -219,57 +220,63 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
-        public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
+        public event EventHandler<AuthenticationBannerEventArgs>? AuthenticationBanner;
 
         /// <summary>
         /// Gets the current key exchange algorithm.
         /// </summary>
-        public string CurrentKeyExchangeAlgorithm { get; internal set; }
+        public string? CurrentKeyExchangeAlgorithm { get; internal set; }
 
         /// <summary>
         /// Gets the current server encryption.
         /// </summary>
-        public string CurrentServerEncryption { get; internal set; }
+        public string? CurrentServerEncryption { get; internal set; }
 
         /// <summary>
         /// Gets the current client encryption.
         /// </summary>
-        public string CurrentClientEncryption { get; internal set; }
+        public string? CurrentClientEncryption { get; internal set; }
 
         /// <summary>
         /// Gets the current server hash algorithm.
         /// </summary>
-        public string CurrentServerHmacAlgorithm { get; internal set; }
+        public string? CurrentServerHmacAlgorithm { get; internal set; }
 
         /// <summary>
         /// Gets the current client hash algorithm.
         /// </summary>
-        public string CurrentClientHmacAlgorithm { get; internal set; }
+        public string? CurrentClientHmacAlgorithm { get; internal set; }
 
         /// <summary>
         /// Gets the current host key algorithm.
         /// </summary>
-        public string CurrentHostKeyAlgorithm { get; internal set; }
+        public string? CurrentHostKeyAlgorithm { get; internal set; }
 
         /// <summary>
         /// Gets the current server compression algorithm.
         /// </summary>
-        public string CurrentServerCompressionAlgorithm { get; internal set; }
-
-        /// <summary>
-        /// Gets the server version.
-        /// </summary>
-        public string ServerVersion { get; internal set; }
-
-        /// <summary>
-        /// Gets the client version.
-        /// </summary>
-        public string ClientVersion { get; internal set; }
+        public string? CurrentServerCompressionAlgorithm { get; internal set; }
 
         /// <summary>
         /// Gets the current client compression algorithm.
         /// </summary>
-        public string CurrentClientCompressionAlgorithm { get; internal set; }
+        public string? CurrentClientCompressionAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the server version.
+        /// </summary>
+        public string? ServerVersion { get; internal set; }
+
+        /// <summary>
+        /// Gets the client version.
+        /// </summary>
+        public string ClientVersion
+        {
+            get
+            {
+                return Session.ClientVersionString;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
@@ -323,7 +330,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyPort" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
-        public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
+        public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string? proxyHost, int proxyPort, string? proxyUsername, string? proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
             ArgumentNullException.ThrowIfNull(host);
             port.ValidatePort();
@@ -413,7 +420,7 @@ namespace Renci.SshNet
 #pragma warning restore SA1107 // Code should not contain multiple statements on one line
             HostKeyAlgorithms = hostAlgs;
 
-            CompressionAlgorithms = new OrderedDictionary<string, Func<Compressor>>
+            CompressionAlgorithms = new OrderedDictionary<string, Func<Compressor>?>
                 {
                     { "none", null },
                     { "zlib@openssh.com", () => new ZlibOpenSsh() },
@@ -472,7 +479,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="sender">The session in which the banner message was received.</param>
         /// <param name="e">The banner message.</param>
-        void IConnectionInfoInternal.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
+        void IConnectionInfoInternal.UserAuthenticationBannerReceived(object? sender, MessageEventArgs<BannerMessage> e)
         {
             AuthenticationBanner?.Invoke(this, new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
         }
@@ -507,6 +514,6 @@ namespace Renci.SshNet
         /// <value>
         /// The logger factory for this connection. If <see langword="null"/> then <see cref="SshNetLoggingConfiguration.LoggerFactory"/> is used.
         /// </value>
-        public ILoggerFactory LoggerFactory { get; set; }
+        public ILoggerFactory? LoggerFactory { get; set; }
     }
 }

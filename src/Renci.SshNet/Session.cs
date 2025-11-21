@@ -33,9 +33,6 @@ namespace Renci.SshNet
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
 
-        private static readonly string ClientVersionString =
-            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
-
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
@@ -71,6 +68,9 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
         private const int LocalChannelDataPacketSize = 1024 * 64;
+
+        internal static readonly string ClientVersionString =
+            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -594,7 +594,6 @@ namespace Renci.SshNet
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-                ConnectionInfo.ClientVersion = ClientVersion;
 
                 _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 
@@ -720,7 +719,6 @@ namespace Renci.SshNet
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-                ConnectionInfo.ClientVersion = ClientVersion;
 
                 _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 

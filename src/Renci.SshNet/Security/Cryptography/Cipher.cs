@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Gets the block size.
         /// </summary>
-        public int BlockSize
+        public byte BlockSize
         {
             get
             {

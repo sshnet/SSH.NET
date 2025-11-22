@@ -48,17 +48,5 @@ namespace Renci.SshNet.Benchmarks.Security.Cryptography.Ciphers
         {
             return new AesCtrCipher(_key, _iv).Decrypt(_data);
         }
-
-        [Benchmark]
-        public byte[] Encrypt_ECB()
-        {
-            return new AesCipher(_key, null, CipherMode.ECB, false).Encrypt(_data);
-        }
-
-        [Benchmark]
-        public byte[] Decrypt_ECB()
-        {
-            return new AesCipher(_key, null, CipherMode.ECB, false).Decrypt(_data);
-        }
     }
 }

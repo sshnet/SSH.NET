@@ -8,7 +8,6 @@ namespace Renci.SshNet.Sftp.Requests
     internal sealed class SftpMkDirRequest : SftpRequest
     {
         private byte[] _path;
-        private byte[] _attributesBytes;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -23,18 +22,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public Encoding Encoding { get; private set; }
 
-        private SftpFileAttributes Attributes { get; set; }
-
-        private byte[] AttributesBytes
-        {
-            get
-            {
-                _attributesBytes ??= Attributes.GetBytes();
-
-                return _attributesBytes;
-            }
-        }
-
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -48,36 +35,30 @@ namespace Renci.SshNet.Sftp.Requests
                 var capacity = base.BufferCapacity;
                 capacity += 4; // Path length
                 capacity += _path.Length; // Path
-                capacity += AttributesBytes.Length; // Attributes
+                capacity += 4; // Attributes
                 return capacity;
             }
         }
 
         public SftpMkDirRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpStatusResponse> statusAction)
-            : this(protocolVersion, requestId, path, encoding, SftpFileAttributes.Empty, statusAction)
-        {
-        }
-
-        private SftpMkDirRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Encoding = encoding;
             Path = path;
-            Attributes = attributes;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
             _path = ReadBinary();
-            Attributes = ReadAttributes();
+            _ = ReadAttributes();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
             WriteBinaryString(_path);
-            Write(AttributesBytes);
+            Write(0u); // empty attributes
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Load(byte[] data)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             LoadInternal(data, 0, data.Length);
         }
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
         public void Load(byte[] data, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(data);
+            ArgumentNullException.ThrowIfNull(data);
 
             LoadInternal(data, offset, count);
         }
@@ -386,11 +386,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
-#if NET
             Write(string.Join(',', data), Ascii);
-#else
-            Write(string.Join(",", data), Ascii);
-#endif
         }
 
         /// <summary>

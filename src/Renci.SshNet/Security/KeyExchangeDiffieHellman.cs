@@ -7,7 +7,6 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
@@ -53,9 +52,9 @@ namespace Renci.SshNet.Security
             DHParameters parameters,
             HashAlgorithmName hashAlgorithm)
         {
-            ThrowHelper.ThrowIfNull(name);
-            ThrowHelper.ThrowIfNull(parameters);
-            ThrowHelper.ThrowIfNullOrEmpty(hashAlgorithm.Name, nameof(hashAlgorithm));
+            ArgumentNullException.ThrowIfNull(name);
+            ArgumentNullException.ThrowIfNull(parameters);
+            ArgumentException.ThrowIfNullOrEmpty(hashAlgorithm.Name, nameof(hashAlgorithm));
 
             Name = name;
             _dhParameters = parameters;

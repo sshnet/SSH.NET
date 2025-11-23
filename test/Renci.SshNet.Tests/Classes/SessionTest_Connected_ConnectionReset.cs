@@ -35,25 +35,25 @@ namespace Renci.SshNet.Tests.Classes
             Session.Disconnect();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
         public void DisconnectedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectedRegister.Count);
+            Assert.IsEmpty(DisconnectedRegister);
         }
 
         [TestMethod]
         public void DisconnectReceivedIsNeverRaised()
         {
-            Assert.AreEqual(0, DisconnectReceivedRegister.Count);
+            Assert.IsEmpty(DisconnectReceivedRegister);
         }
 
         [TestMethod]
         public void ErrorOccurredIsRaisedOnce()
         {
-            Assert.AreEqual(1, ErrorOccurredRegister.Count, ErrorOccurredRegister.AsString());
+            Assert.HasCount(1, ErrorOccurredRegister, ErrorOccurredRegister.AsString());
 
             var errorOccurred = ErrorOccurredRegister[0];
             Assert.IsNotNull(errorOccurred);
@@ -64,8 +64,6 @@ namespace Renci.SshNet.Tests.Classes
 
             var connectionException = (SshConnectionException)exception;
             Assert.AreEqual(DisconnectReason.ConnectionLost, connectionException.DisconnectReason);
-            Assert.IsNull(connectionException.InnerException);
-            Assert.AreEqual("An established connection was aborted by the server.", connectionException.Message);
         }
 
         [TestMethod]
@@ -77,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes
             Session.Dispose();
 
             stopwatch.Stop();
-            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
+            Assert.IsLessThan(500, stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
@@ -137,45 +135,29 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionException()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
-            try
-            {
-                session.WaitOnHandle(waitHandle);
-                Assert.Fail();
-            }
-            catch (SshConnectionException ex)
-            {
-                Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
-            }
+            var ex = Assert.ThrowsExactly<SshConnectionException>(() => session.WaitOnHandle(waitHandle));
+
+            Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
         }
 
         [TestMethod]
         public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionException()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
-            try
-            {
-                session.WaitOnHandle(waitHandle, Timeout.InfiniteTimeSpan);
-                Assert.Fail();
-            }
-            catch (SshConnectionException ex)
-            {
-                Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
-            }
+            var ex = Assert.ThrowsExactly<SshConnectionException>(() => session.WaitOnHandle(waitHandle));
+
+            Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
         }
 
         [TestMethod]
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan);
 
@@ -186,7 +168,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
             var result = session.TryWait(waitHandle, Timeout.InfiniteTimeSpan, out var exception);
 

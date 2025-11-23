@@ -1,16 +1,14 @@
-﻿using System;
-#if NETFRAMEWORK
-using System.Runtime.Serialization;
-#endif // NETFRAMEWORK
+﻿#nullable enable
+using System;
 
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// The exception that is thrown when SSH exception occurs.
+    /// The exception that is thrown when an SSH exception occurs.
     /// </summary>
 #if NETFRAMEWORK
     [Serializable]
-#endif // NETFRAMEWORK
+#endif
     public class SshException : Exception
     {
         /// <summary>
@@ -23,8 +21,8 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="SshException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public SshException(string message)
+        /// <inheritdoc cref="Exception(string, Exception)" path="/param"/>
+        public SshException(string? message)
             : base(message)
         {
         }
@@ -32,25 +30,18 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="SshException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="inner">The inner.</param>
-        public SshException(string message, Exception inner)
-            : base(message, inner)
+        /// <inheritdoc cref="Exception(string, Exception)" path="/param"/>
+        public SshException(string? message, Exception? innerException)
+            : base(message, innerException)
         {
         }
 
 #if NETFRAMEWORK
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SshException"/> class.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
-        /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <see langword="null"/>.</exception>
-        /// <exception cref="SerializationException">The class name is <see langword="null"/> or <see cref="Exception.HResult"/> is zero (0). </exception>
-        protected SshException(SerializationInfo info, StreamingContext context)
+        /// <inheritdoc/>
+        protected SshException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
         }
-#endif // NETFRAMEWORK
+#endif
     }
 }

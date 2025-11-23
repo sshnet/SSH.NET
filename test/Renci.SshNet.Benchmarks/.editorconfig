@@ -74,10 +74,6 @@ dotnet_diagnostic.MA0026.severity = silent
 
 #### .NET Compiler Platform analysers rules ####
 
-# CA2000: Dispose objects before losing scope
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2000
-dotnet_diagnostic.CA2000.severity = silent
-
 # IDE0046: Use conditional expression for return
 # https://learn.microsoft.com/en-ca/dotnet/fundamentals/code-analysis/style-rules/ide0046
 dotnet_diagnostic.IDE0046.severity = silent

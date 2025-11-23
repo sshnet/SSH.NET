@@ -55,7 +55,7 @@ namespace Renci.SshNet
         {
             get
             {
-                ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+                ObjectDisposedException.ThrowIf(_isDisposed, this);
 
                 return _channel;
             }
@@ -89,8 +89,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <see langword="null"/>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            ThrowHelper.ThrowIfNull(session);
-            ThrowHelper.ThrowIfNull(subsystemName);
+            ArgumentNullException.ThrowIfNull(session);
+            ArgumentNullException.ThrowIfNull(subsystemName);
 
             _session = session;
             _subsystemName = subsystemName;
@@ -106,7 +106,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The channel session could not be opened, or the subsystem could not be executed.</exception>
         public void Connect()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
 
             if (IsOpen)
             {
@@ -166,7 +166,7 @@ namespace Renci.SshNet
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
             EnsureSessionIsOpen();
 
             _channel.SendData(data);

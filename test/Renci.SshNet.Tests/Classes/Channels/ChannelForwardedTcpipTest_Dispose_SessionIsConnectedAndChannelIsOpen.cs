@@ -47,23 +47,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestCleanup]
         public void CleanUp()
         {
-            if (_remoteListener != null)
-            {
-                _remoteListener.Stop();
-                _remoteListener = null;
-            }
+            _remoteListener?.Stop();
+            _remoteListener = null;
 
-            if (_channelThread != null)
-            {
-                _channelThread.Join();
-                _channelThread = null;
-            }
+            _channelThread?.Join();
+            _channelThread = null;
 
-            if (_channel != null)
-            {
-                _channel.Dispose();
-                _channel = null;
-            }
+            _channel?.Dispose();
+            _channel = null;
         }
 
         private void Arrange()
@@ -174,8 +165,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ChannelShouldShutdownSocketToRemoteListener()
         {
-            Assert.AreEqual(1, _connectedRegister.Count);
-            Assert.AreEqual(1, _disconnectedRegister.Count);
+            Assert.HasCount(1, _connectedRegister);
+            Assert.HasCount(1, _disconnectedRegister);
             Assert.AreSame(_connectedRegister[0], _disconnectedRegister[0]);
         }
 

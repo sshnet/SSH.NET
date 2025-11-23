@@ -59,11 +59,8 @@ namespace Renci.SshNet.Tests.Classes
                 }
             }
 
-            if (_channelDisposed != null)
-            {
-                _channelDisposed.Dispose();
-                _channelDisposed = null;
-            }
+            _channelDisposed?.Dispose();
+            _channelDisposed = null;
         }
 
         private void SetupData()
@@ -149,13 +146,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClosingShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _closingRegister.Count);
+            Assert.IsEmpty(_closingRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldNeverBeFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count, _exceptionRegister.AsString());
+            Assert.IsEmpty(_exceptionRegister, _exceptionRegister.AsString());
         }
 
         [TestMethod]

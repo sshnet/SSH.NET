@@ -20,7 +20,7 @@ namespace Renci.SshNet.Security
                 _keyAgreement = new ECDHCBasicAgreement();
             }
 
-            public override byte[] GenerateClientECPoint()
+            public override byte[] GenerateClientPublicKey()
             {
                 var g = new ECKeyPairGenerator();
                 g.Init(new ECKeyGenerationParameters(_domainParameters, CryptoAbstraction.SecureRandom));
@@ -31,10 +31,10 @@ namespace Renci.SshNet.Security
                 return ((ECPublicKeyParameters)aKeyPair.Public).Q.GetEncoded();
             }
 
-            public override byte[] CalculateAgreement(byte[] serverECPoint)
+            public override byte[] CalculateAgreement(byte[] serverPublicKey)
             {
                 var c = _domainParameters.Curve;
-                var q = c.DecodePoint(serverECPoint);
+                var q = c.DecodePoint(serverPublicKey);
                 var publicKey = new ECPublicKeyParameters("ECDH", q, _domainParameters);
 
                 return _keyAgreement.CalculateAgreement(publicKey).ToByteArray();

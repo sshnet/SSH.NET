@@ -32,7 +32,7 @@ namespace Renci.SshNet
             /// </summary>
             public Key Parse()
             {
-                var keyReader = new SshDataStream(_data);
+                using var keyReader = new SshDataStream(_data);
 
                 // check magic header
                 var authMagic = "openssh-key-v1\0"u8;
@@ -171,7 +171,7 @@ namespace Renci.SshNet
                 // now parse the data we called the private key, it actually contains the public key again
                 // so we need to parse through it to get the private key bytes, plus there's some
                 // validation we need to do.
-                var privateKeyReader = new SshDataStream(privateKeyBytes);
+                using var privateKeyReader = new SshDataStream(privateKeyBytes);
 
                 // check ints should match, they wouldn't match for example if the wrong passphrase was supplied
                 var checkInt1 = (int)privateKeyReader.ReadUInt32();

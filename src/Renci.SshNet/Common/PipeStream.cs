@@ -123,7 +123,7 @@ namespace Renci.SshNet.Common
         {
             Debug.Assert(Monitor.IsEntered(_sync));
 
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             _buffer.EnsureAvailableSpace(buffer.Length);
 

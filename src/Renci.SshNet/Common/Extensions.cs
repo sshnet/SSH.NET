@@ -1,8 +1,11 @@
 ﻿using System;
+#if !NET
 using System.Collections.Generic;
+#endif
 using System.Globalization;
 #if !NET
 using System.IO;
+using System.Threading.Tasks;
 #endif
 using System.Net;
 using System.Net.Sockets;
@@ -10,7 +13,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Common
@@ -193,7 +195,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -225,7 +227,7 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             if (count == 0)
             {
@@ -244,8 +246,8 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            ThrowHelper.ThrowIfNull(left);
-            ThrowHelper.ThrowIfNull(right);
+            ArgumentNullException.ThrowIfNull(left);
+            ArgumentNullException.ThrowIfNull(right);
 
             return left.AsSpan().SequenceEqual(right);
         }
@@ -259,7 +261,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            ThrowHelper.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             for (var i = 0; i < value.Length; i++)
             {
@@ -319,16 +321,6 @@ namespace Renci.SshNet.Common
             return concat;
         }
 
-        internal static bool CanRead(this Socket socket)
-        {
-            return SocketAbstraction.CanRead(socket);
-        }
-
-        internal static bool CanWrite(this Socket socket)
-        {
-            return SocketAbstraction.CanWrite(socket);
-        }
-
         internal static bool IsConnected(this Socket socket)
         {
             if (socket is null)
@@ -337,13 +329,6 @@ namespace Renci.SshNet.Common
             }
 
             return socket.Connected;
-        }
-
-        internal static string Join(this IEnumerable<string> values, string separator)
-        {
-            // Used to avoid analyzers asking to "use an overload with a char parameter"
-            // which is not available on all targets.
-            return string.Join(separator, values);
         }
 
 #if !NET
@@ -407,6 +392,45 @@ namespace Renci.SshNet.Common
                 }
 
                 totalRead += read;
+            }
+        }
+
+        internal static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancellationToken)
+        {
+            if (task.IsCompleted || !cancellationToken.CanBeCanceled)
+            {
+                return task;
+            }
+
+            return WaitCore();
+
+            async Task<T> WaitCore()
+            {
+                TaskCompletionSource<T> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                using var reg = cancellationToken.Register(
+                    () => tcs.TrySetCanceled(cancellationToken),
+                    useSynchronizationContext: false);
+
+                var completedTask = await Task.WhenAny(task, tcs.Task).ConfigureAwait(false);
+
+                return await completedTask.ConfigureAwait(false);
+            }
+        }
+
+        extension(Array)
+        {
+            internal static int MaxLength
+            {
+                get { return 0X7FFFFFC7; }
+            }
+        }
+
+        extension(Task t)
+        {
+            internal bool IsCompletedSuccessfully
+            {
+                get { return t.Status == TaskStatus.RanToCompletion; }
             }
         }
 #endif

@@ -188,7 +188,7 @@ namespace Renci.SshNet.Security
         /// <param name="publicKeyData">The encoded public key data.</param>
         public EcdsaKey(SshKeyData publicKeyData)
         {
-            ThrowHelper.ThrowIfNull(publicKeyData);
+            ArgumentNullException.ThrowIfNull(publicKeyData);
 
             if (!publicKeyData.Name.StartsWith("ecdsa-sha2-", StringComparison.Ordinal) || publicKeyData.Keys.Length != 2)
             {

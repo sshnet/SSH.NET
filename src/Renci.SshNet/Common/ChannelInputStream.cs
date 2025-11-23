@@ -106,7 +106,7 @@ namespace Renci.SshNet.Common
 #endif
             ValidateBufferArguments(buffer, offset, count);
 
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
 
             if (count == 0)
             {

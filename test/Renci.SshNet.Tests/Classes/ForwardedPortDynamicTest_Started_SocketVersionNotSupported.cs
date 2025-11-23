@@ -45,17 +45,11 @@ namespace Renci.SshNet.Tests.Classes
                 _forwardedPort.Stop();
             }
 
-            if (_client != null)
-            {
-                _client.Close();
-                _client = null;
-            }
+            _client?.Close();
+            _client = null;
 
-            if (_exceptionFired != null)
-            {
-                _exceptionFired.Dispose();
-                _exceptionFired = null;
-            }
+            _exceptionFired?.Dispose();
+            _exceptionFired = null;
         }
 
         private void SetupData()
@@ -136,13 +130,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ClosingShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _closingRegister.Count);
+            Assert.IsEmpty(_closingRegister);
         }
 
         [TestMethod]
         public void ExceptionShouldHaveFiredOnce()
         {
-            Assert.AreEqual(1, _exceptionRegister.Count, _exceptionRegister.AsString());
+            Assert.HasCount(1, _exceptionRegister, _exceptionRegister.AsString());
 
             var exception = _exceptionRegister[0].Exception;
             Assert.IsNotNull(exception);

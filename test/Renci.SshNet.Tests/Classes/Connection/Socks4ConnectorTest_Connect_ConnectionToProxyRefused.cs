@@ -75,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                           _connectionInfo.Timeout.TotalMilliseconds);
 
             // Compare elapsed time with configured timeout, allowing for a margin of error
-            Assert.IsTrue(_stopWatch.ElapsedMilliseconds < _connectionInfo.Timeout.TotalMilliseconds + 100, errorText);
+            Assert.IsLessThan(_connectionInfo.Timeout.TotalMilliseconds + 100, _stopWatch.ElapsedMilliseconds, errorText);
         }
 
         [TestMethod]

@@ -1,4 +1,5 @@
-﻿namespace Renci.SshNet.Sftp.Responses
+﻿#nullable enable
+namespace Renci.SshNet.Sftp.Responses
 {
     internal sealed class SftpStatusResponse : SftpResponse
     {
@@ -12,17 +13,17 @@
         {
         }
 
-        public StatusCodes StatusCode { get; set; }
+        public StatusCode StatusCode { get; set; }
 
-        public string ErrorMessage { get; private set; }
+        public string? ErrorMessage { get; private set; }
 
-        public string Language { get; private set; }
+        public string? Language { get; private set; }
 
         protected override void LoadData()
         {
             base.LoadData();
 
-            StatusCode = (StatusCodes)ReadUInt32();
+            StatusCode = (StatusCode)ReadUInt32();
 
             if (ProtocolVersion < 3)
             {

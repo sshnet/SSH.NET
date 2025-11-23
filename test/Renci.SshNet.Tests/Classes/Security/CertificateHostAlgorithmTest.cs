@@ -69,7 +69,7 @@ namespace Renci.SshNet.Tests.Classes.Security
 
             List<CertificateHostAlgorithm> certAlgs = pkFile.HostKeyAlgorithms.OfType<CertificateHostAlgorithm>().ToList();
 
-            Assert.AreEqual(3, certAlgs.Count);
+            Assert.HasCount(3, certAlgs);
 
             for (int i = 0; i < 3; i++)
             {

@@ -15,7 +15,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;
         private readonly int _aadLength;
-#if NET
+#if !NETSTANDARD
         private readonly Impl _impl;
 #else
         private readonly BouncyCastleImpl _impl;
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // SSH AES-GCM requires a 12-octet Initial IV
             _iv = iv.Take(12);
             _aadLength = aadLength;
-#if NET
+#if !NETSTANDARD
             if (System.Security.Cryptography.AesGcm.IsSupported)
             {
                 _impl = new BclImpl(key, _iv);
@@ -110,6 +110,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return output;
         }
 
+        public override byte[] Decrypt(byte[] input, int offset, int length)
+        {
+            var output = new byte[length];
+
+            var bytesWritten = Decrypt(input, offset, length, output, 0);
+
+            Debug.Assert(bytesWritten == length);
+
+            return output;
+        }
+
         /// <summary>
         /// Decrypts the specified input.
         /// </summary>
@@ -121,17 +132,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
         /// <param name="length">The number of bytes to decrypt and authenticate from <paramref name="input"/>.</param>
-        /// <returns>
-        /// The decrypted data with below format:
-        /// <code>
-        ///   [----Plain Text----]
-        /// </code>
-        /// </returns>
-        public override byte[] Decrypt(byte[] input, int offset, int length)
+        /// <param name="output">The buffer to which to write the decrypted bytes.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write the decrypted bytes.</param>
+        /// <returns>The number of plaintext bytes written to <paramref name="output"/>.</returns>
+        public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
-            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
-
-            var output = new byte[length];
+            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equal to aad length");
 
             _impl.Decrypt(
                 input,
@@ -140,11 +146,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 associatedDataOffset: offset - _aadLength,
                 associatedDataLength: _aadLength,
                 output,
-                plainTextOffset: 0);
+                outputOffset);
 
             IncrementCounter();
 
-            return output;
+            return length;
         }
 
         /// <summary>

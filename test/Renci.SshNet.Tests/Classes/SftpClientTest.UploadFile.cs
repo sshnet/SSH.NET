@@ -145,7 +145,7 @@ namespace Renci.SshNet.Tests.Classes
                     else if (dataMsg.Data[sizeof(uint)] == (byte)SftpMessageTypes.Write)
                     {
                         // Fail the 5th write request
-                        var statusCode = ++_numWriteRequests == 5 ? StatusCodes.PermissionDenied : StatusCodes.Ok;
+                        var statusCode = ++_numWriteRequests == 5 ? StatusCode.PermissionDenied : StatusCode.Ok;
                         var responseId = ++_numRequests;
 
                         // Dispatch the responses on a different thread to simulate reality.

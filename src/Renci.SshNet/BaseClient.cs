@@ -186,8 +186,8 @@ namespace Renci.SshNet
         /// </remarks>
         private protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
-            ThrowHelper.ThrowIfNull(connectionInfo);
-            ThrowHelper.ThrowIfNull(serviceFactory);
+            ArgumentNullException.ThrowIfNull(connectionInfo);
+            ArgumentNullException.ThrowIfNull(serviceFactory);
 
             _connectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
@@ -467,7 +467,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
         protected void CheckDisposed()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_isDisposed, this);
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
         }
 
         /// <summary>

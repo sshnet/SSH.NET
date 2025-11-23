@@ -8,6 +8,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 {
@@ -29,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             _requestId = (uint)random.Next(0, int.MaxValue);
             _handle = new byte[random.Next(1, 10)];
             random.NextBytes(_handle);
-            _attributes = SftpFileAttributes.Empty;
+            _attributes = SftpFileAttributesBuilder.Empty;
             _attributesBytes = _attributes.GetBytes();
         }
 
@@ -56,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             request.Complete(statusResponse);
 
-            Assert.AreEqual(1, statusActionInvocations.Count);
+            Assert.HasCount(1, statusActionInvocations);
             Assert.AreSame(statusResponse, statusActionInvocations[0]);
         }
 
@@ -75,7 +76,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             expectedBytesLength += _handle.Length; // Handle
             expectedBytesLength += _attributesBytes.Length; // Attributes
 
-            Assert.AreEqual(expectedBytesLength, bytes.Length);
+            Assert.HasCount(expectedBytesLength, bytes);
 
             var sshDataStream = new SshDataStream(bytes);
 

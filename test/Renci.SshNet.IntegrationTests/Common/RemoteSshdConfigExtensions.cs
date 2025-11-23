@@ -23,6 +23,7 @@ namespace Renci.SshNet.IntegrationTests.Common
                             .ClearHostKeyAlgorithms()
                             .ClearPublicKeyAcceptedAlgorithms()
                             .ClearMessageAuthenticationCodeAlgorithms()
+                            .PermitTTY(true)
                             .WithUsePAM(true)
                             .Update()
                             .Restart();

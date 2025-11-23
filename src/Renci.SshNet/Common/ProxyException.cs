@@ -1,7 +1,5 @@
-﻿using System;
-#if NETFRAMEWORK
-using System.Runtime.Serialization;
-#endif // NETFRAMEWORK
+﻿#nullable enable
+using System;
 
 namespace Renci.SshNet.Common
 {
@@ -10,7 +8,7 @@ namespace Renci.SshNet.Common
     /// </summary>
 #if NETFRAMEWORK
     [Serializable]
-#endif // NETFRAMEWORK
+#endif
     public class ProxyException : SshException
     {
         /// <summary>
@@ -23,8 +21,8 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public ProxyException(string message)
+        /// <inheritdoc cref="Exception(string)" path="/param"/>
+        public ProxyException(string? message)
             : base(message)
         {
         }
@@ -32,25 +30,18 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyException"/> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="innerException">The inner exception.</param>
-        public ProxyException(string message, Exception innerException)
+        /// <inheritdoc cref="Exception(string, Exception)" path="/param"/>
+        public ProxyException(string? message, Exception? innerException)
             : base(message, innerException)
         {
         }
 
 #if NETFRAMEWORK
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProxyException"/> class.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
-        /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <see langword="null"/>.</exception>
-        /// <exception cref="SerializationException">The class name is <see langword="null"/> or <see cref="Exception.HResult"/> is zero (0).</exception>
-        protected ProxyException(SerializationInfo info, StreamingContext context)
+        /// <inheritdoc/>
+        protected ProxyException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
         }
-#endif // NETFRAMEWORK
+#endif
     }
 }

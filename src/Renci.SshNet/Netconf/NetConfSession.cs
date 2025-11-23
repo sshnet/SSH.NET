@@ -213,17 +213,11 @@ namespace Renci.SshNet.NetConf
 
             if (disposing)
             {
-                if (_serverCapabilitiesConfirmed != null)
-                {
-                    _serverCapabilitiesConfirmed.Dispose();
-                    _serverCapabilitiesConfirmed = null;
-                }
+                _serverCapabilitiesConfirmed?.Dispose();
+                _serverCapabilitiesConfirmed = null;
 
-                if (_rpcReplyReceived != null)
-                {
-                    _rpcReplyReceived.Dispose();
-                    _rpcReplyReceived = null;
-                }
+                _rpcReplyReceived?.Dispose();
+                _rpcReplyReceived = null;
             }
         }
     }

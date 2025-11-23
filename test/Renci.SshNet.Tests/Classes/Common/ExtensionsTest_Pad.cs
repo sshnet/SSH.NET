@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             byte[] value = { 0x0a, 0x0d };
             var padded = value.Pad(2);
             Assert.AreEqual(value, padded);
-            Assert.AreEqual(value.Length, padded.Length);
+            Assert.HasCount(value.Length, padded);
         }
 
         [TestMethod]
@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             byte[] value = { 0x0a, 0x0d };
             var padded = value.Pad(3);
-            Assert.AreEqual(value.Length + 1, padded.Length);
+            Assert.HasCount(value.Length + 1, padded);
             Assert.AreEqual(0x00, padded[0]);
             Assert.AreEqual(0x0a, padded[1]);
             Assert.AreEqual(0x0d, padded[2]);

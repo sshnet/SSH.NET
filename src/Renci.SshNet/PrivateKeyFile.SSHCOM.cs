@@ -28,22 +28,22 @@ namespace Renci.SshNet
 
             public Key Parse()
             {
-                var reader = new SshDataStream(_data);
-                var magicNumber = reader.ReadUInt32();
+                using var dataReader = new SshDataStream(_data);
+                var magicNumber = dataReader.ReadUInt32();
                 if (magicNumber != 0x3f6ff9eb)
                 {
                     throw new SshException("Invalid SSH2 private key.");
                 }
 
-                _ = reader.ReadUInt32(); // Read total bytes length including magic number
-                var keyType = reader.ReadString(SshData.Ascii);
-                var ssh2CipherName = reader.ReadString(SshData.Ascii);
-                var blobSize = (int)reader.ReadUInt32();
+                _ = dataReader.ReadUInt32(); // Read total bytes length including magic number
+                var keyType = dataReader.ReadString(SshData.Ascii);
+                var ssh2CipherName = dataReader.ReadString(SshData.Ascii);
+                var blobSize = (int)dataReader.ReadUInt32();
 
                 byte[] keyData;
                 if (ssh2CipherName == "none")
                 {
-                    keyData = reader.ReadBytes(blobSize);
+                    keyData = dataReader.ReadBytes(blobSize);
                 }
                 else if (ssh2CipherName == "3des-cbc")
                 {
@@ -53,17 +53,17 @@ namespace Renci.SshNet
                     }
 
                     var key = GetCipherKey(_passPhrase, 192 / 8);
-                    var ssh2Сipher = new TripleDesCipher(key, new byte[8], CipherMode.CBC, pkcs7Padding: false);
-                    keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
+                    using var ssh2Сipher = new TripleDesCipher(key, new byte[8], CipherMode.CBC, pkcs7Padding: false);
+                    keyData = ssh2Сipher.Decrypt(dataReader.ReadBytes(blobSize));
                 }
                 else
                 {
                     throw new SshException(string.Format("Cipher method '{0}' is not supported.", ssh2CipherName));
                 }
 
-                reader = new SshDataStream(keyData);
+                using var keyReader = new SshDataStream(keyData);
 
-                var decryptedLength = reader.ReadUInt32();
+                var decryptedLength = keyReader.ReadUInt32();
 
                 if (decryptedLength > blobSize - 4)
                 {
@@ -72,12 +72,12 @@ namespace Renci.SshNet
 
                 if (keyType.Contains("rsa"))
                 {
-                    var exponent = ReadBigIntWithBits(reader);
-                    var d = ReadBigIntWithBits(reader);
-                    var modulus = ReadBigIntWithBits(reader);
-                    var inverseQ = ReadBigIntWithBits(reader);
-                    var q = ReadBigIntWithBits(reader);
-                    var p = ReadBigIntWithBits(reader);
+                    var exponent = ReadBigIntWithBits(keyReader);
+                    var d = ReadBigIntWithBits(keyReader);
+                    var modulus = ReadBigIntWithBits(keyReader);
+                    var inverseQ = ReadBigIntWithBits(keyReader);
+                    var q = ReadBigIntWithBits(keyReader);
+                    var p = ReadBigIntWithBits(keyReader);
                     return new RsaKey(modulus, exponent, d, p, q, inverseQ);
                 }
 

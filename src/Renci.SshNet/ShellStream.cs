@@ -215,7 +215,7 @@ namespace Renci.SshNet
         /// <inheritdoc/>
         public override void Flush()
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             if (_writeBuffer.ActiveLength > 0)
             {
@@ -295,7 +295,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The stream is closed.</exception>
         public void ChangeWindowSize(uint columns, uint rows, uint width, uint height)
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
@@ -864,7 +864,7 @@ namespace Renci.SshNet
         private void Write(ReadOnlySpan<byte> buffer)
 #endif
         {
-            ThrowHelper.ThrowObjectDisposedIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed, this);
 
             while (!buffer.IsEmpty)
             {
@@ -889,6 +889,57 @@ namespace Renci.SshNet
         public override void WriteByte(byte value)
         {
             Write([value]);
+        }
+
+        /// <inheritdoc/>
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+#if !NET
+            ThrowHelper.
+#endif
+            ValidateBufferArguments(buffer, offset, count);
+
+            return WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+        }
+
+#if NET
+        /// <inheritdoc/>
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+#else
+        private async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+#endif
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            while (!buffer.IsEmpty)
+            {
+                if (_writeBuffer.AvailableLength == 0)
+                {
+                    await FlushAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                var bytesToCopy = Math.Min(buffer.Length, _writeBuffer.AvailableLength);
+
+                Debug.Assert(bytesToCopy > 0);
+
+                buffer.Slice(0, bytesToCopy).CopyTo(_writeBuffer.AvailableMemory);
+
+                _writeBuffer.Commit(bytesToCopy);
+
+                buffer = buffer.Slice(bytesToCopy);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            return TaskToAsyncResult.Begin(WriteAsync(buffer, offset, count), callback, state);
+        }
+
+        /// <inheritdoc/>
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            TaskToAsyncResult.End(asyncResult);
         }
 
         /// <summary>

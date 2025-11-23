@@ -83,17 +83,8 @@ namespace Renci.SshNet.Tests.Classes
             var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
             var target = new SftpClient(connectionInfo);
 
-            try
-            {
-                target.OperationTimeout = operationTimeout;
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
-
-                Assert.AreEqual("OperationTimeout", ex.ParamName);
-            }
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => target.OperationTimeout = operationTimeout);
+            Assert.AreEqual("OperationTimeout", ex.ParamName);
         }
 
         [TestMethod]
@@ -103,17 +94,8 @@ namespace Renci.SshNet.Tests.Classes
             var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
             var target = new SftpClient(connectionInfo);
 
-            try
-            {
-                target.OperationTimeout = operationTimeout;
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue milliseconds, inclusive.", ex);
-
-                Assert.AreEqual("OperationTimeout", ex.ParamName);
-            }
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => target.OperationTimeout = operationTimeout);
+            Assert.AreEqual("OperationTimeout", ex.ParamName);
         }
     }
 }

@@ -11,14 +11,14 @@ namespace Renci.SshNet.Sftp.Responses
 
         public uint Version { get; set; }
 
-        public IDictionary<string, string> Extentions { get; set; }
+        public IDictionary<string, string> Extensions { get; set; }
 
         protected override void LoadData()
         {
             base.LoadData();
 
             Version = ReadUInt32();
-            Extentions = ReadExtensionPair();
+            Extensions = ReadExtensionPair();
         }
 
         protected override void SaveData()
@@ -27,9 +27,9 @@ namespace Renci.SshNet.Sftp.Responses
 
             Write(Version);
 
-            if (Extentions != null)
+            if (Extensions != null)
             {
-                Write(Extentions);
+                Write(Extensions);
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿#pragma warning disable
 #if !NET
-// Copied verbatim from https://github.com/dotnet/runtime/blob/261611930d6b436d7c4395450356b624d903d9bf/src/libraries/Common/src/System/Threading/Tasks/TaskToAsyncResult.cs
+// Copied verbatim from https://github.com/dotnet/runtime/blob/7b2de1e5ed6368c536ee646346e6fd81939e6fe6/src/libraries/Common/src/System/Threading/Tasks/TaskToAsyncResult.cs
 
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -35,15 +35,7 @@ namespace System.Threading.Tasks
         /// </remarks>
         public static IAsyncResult Begin(Task task, AsyncCallback? callback, object? state)
         {
-#if NET
             ArgumentNullException.ThrowIfNull(task);
-#else
-            if (task is null)
-            {
-                throw new ArgumentNullException(nameof(task));
-            }
-#endif
-
             return new TaskAsyncResult(task, state, callback);
         }
 
@@ -72,14 +64,7 @@ namespace System.Threading.Tasks
         /// <exception cref="ArgumentException"><paramref name="asyncResult"/> was not produced by a call to <see cref="Begin"/>.</exception>
         public static Task Unwrap(IAsyncResult asyncResult)
         {
-#if NET
             ArgumentNullException.ThrowIfNull(asyncResult);
-#else
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
-#endif
 
             if ((asyncResult as TaskAsyncResult)?._task is not Task task)
             {
@@ -101,14 +86,7 @@ namespace System.Threading.Tasks
         /// </exception>
         public static Task<TResult> Unwrap<TResult>(IAsyncResult asyncResult)
         {
-#if NET
             ArgumentNullException.ThrowIfNull(asyncResult);
-#else
-            if (asyncResult is null)
-            {
-                throw new ArgumentNullException(nameof(asyncResult));
-            }
-#endif
 
             if ((asyncResult as TaskAsyncResult)?._task is not Task<TResult> task)
             {

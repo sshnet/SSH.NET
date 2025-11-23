@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Concat(first, second);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(first.Length + second.Length, actual.Length);
+            Assert.HasCount(first.Length + second.Length, actual);
             Assert.AreEqual(first[0], actual[0]);
             Assert.AreEqual(first[1], actual[1]);
             Assert.AreEqual(first[2], actual[2]);

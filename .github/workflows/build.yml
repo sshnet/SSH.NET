@@ -10,45 +10,45 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net9.0 test/Renci.SshNet.Tests/
+      run: dotnet build -f net10.0 test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net9.0 test/Renci.SshNet.IntegrationTests/
+      run: dotnet build -f net10.0 test/Renci.SshNet.IntegrationTests/
 
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
-          -f net9.0 \
+          -f net10.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_unit_test_net_9_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_unit_test_net_10_coverage.xml \
           test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
-          -f net9.0 \
+          -f net10.0 \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_9_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
           name: Coverlet Results Linux
           path: coverlet
@@ -57,12 +57,12 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
 
     - name: Build Solution
       run: dotnet build Renci.SshNet.sln
@@ -74,7 +74,7 @@ jobs:
       run: dotnet pack
 
     - name: Archive NuGet Package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: NuGet Package
         path: src/Renci.SshNet/bin/Release/*.*nupkg
@@ -82,13 +82,13 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test `
-          -f net9.0 `
+          -f net10.0 `
           --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=../../coverlet/windows_unit_test_net_9_coverage.xml `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_net_10_coverage.xml `
           test/Renci.SshNet.Tests/
 
     - name: Run Unit Tests .NET Framework
@@ -103,17 +103,17 @@ jobs:
           -p:CoverletOutput=../../coverlet/windows_unit_test_net_4_6_2_coverage.xml `
           test/Renci.SshNet.Tests/
 
-  Windows-Integration-Tests:
-    name: Windows Integration Tests
+  Windows-Integration-Tests-NetFramework:
+    name: Windows Integration Tests .NET Framework
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
 
     - name: Setup WSL2
       uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
@@ -140,12 +140,55 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
-        name: Coverlet Results Windows
+        name: Coverlet Results Windows .NET Framework
         path: coverlet
 
-  Publish:
+  Windows-Integration-Tests-Net:
+    name: Windows Integration Tests .NET
+    runs-on: windows-2025
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # needed for Nerdbank.GitVersioning
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+
+    - name: Setup WSL2
+      uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
+      with:
+        distribution: Ubuntu-24.04
+
+    - name: Setup SSH Server
+      shell: wsl-bash {0}
+      run: |
+        apt-get update && apt-get upgrade -y
+        apt-get install -y podman
+        podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
+        podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
+
+    - name: Run Integration Tests .NET
+      run:
+        dotnet test `
+          -f net10.0 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `
+          test\Renci.SshNet.IntegrationTests\
+
+    - name: Archive Coverlet Results
+      uses: actions/upload-artifact@v5
+      with:
+        name: Coverlet Results Windows .NET
+        path: coverlet
+
+  Publish-GitHub-Package:
+    name: Publish GitHub Package
     runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/develop'
     permissions:
@@ -153,9 +196,11 @@ jobs:
     needs:
       - Windows
       - Linux
+      - Windows-Integration-Tests-NetFramework
+      - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: NuGet Package
 
@@ -170,3 +215,32 @@ jobs:
           dotnet nuget push "*.nupkg" \
             --source github \
             --api-key ${{ secrets.GITHUB_TOKEN }}
+
+  Publish-NuGet-Package:
+    name: Publish NuGet Package
+    runs-on: ubuntu-24.04
+    if: startsWith(github.event.ref, 'refs/tags/20')
+    permissions:
+      id-token: write
+    needs:
+      - Windows
+      - Linux
+      - Windows-Integration-Tests-NetFramework
+      - Windows-Integration-Tests-Net
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v6
+        with:
+          name: NuGet Package
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish to NuGet Registry
+        run: |
+          dotnet nuget push "*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ steps.login.outputs.NUGET_API_KEY }}

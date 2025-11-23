@@ -187,7 +187,7 @@ namespace Renci.SshNet
 
         public void EnableAndActivateMessage(string messageName)
         {
-            ThrowHelper.ThrowIfNull(messageName);
+            ArgumentNullException.ThrowIfNull(messageName);
 
             lock (_lock)
             {
@@ -211,7 +211,7 @@ namespace Renci.SshNet
 
         public void DisableAndDeactivateMessage(string messageName)
         {
-            ThrowHelper.ThrowIfNull(messageName);
+            ArgumentNullException.ThrowIfNull(messageName);
 
             lock (_lock)
             {

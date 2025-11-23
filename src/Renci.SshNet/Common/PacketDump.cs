@@ -14,8 +14,8 @@ namespace Renci.SshNet.Common
 
         public static string Create(byte[] data, int indentLevel)
         {
-            ThrowHelper.ThrowIfNull(data);
-            ThrowHelper.ThrowIfNegative(indentLevel);
+            ArgumentNullException.ThrowIfNull(data);
+            ArgumentOutOfRangeException.ThrowIfNegative(indentLevel);
 
             const int lineWidth = 16;
 

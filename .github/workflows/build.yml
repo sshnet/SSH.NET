@@ -110,7 +110,7 @@ jobs:
     - name: Print Windows Version
       shell: pwsh
       run: |
-        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object LCUVe
+        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 
     - name: Checkout
       uses: actions/checkout@v5
@@ -157,7 +157,7 @@ jobs:
     - name: Print Windows Version
       shell: pwsh
       run: |
-        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object LCUVe
+        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
 
     - name: Checkout
       uses: actions/checkout@v5

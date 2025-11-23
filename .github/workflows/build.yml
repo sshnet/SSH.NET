@@ -35,9 +35,8 @@ jobs:
           -p:CoverletOutput=../../coverlet/linux_unit_test_net_10_coverage.xml \
           test/Renci.SshNet.Tests/
 
-    - name: Run Integration Tests .NET 1
+    - name: Run Integration Tests .NET
       run: |
-        openssl version
         dotnet test \
           -f net10.0 \
           --no-build \
@@ -45,34 +44,7 @@ jobs:
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage_1.xml \
-          test/Renci.SshNet.IntegrationTests/
-
-    - name: Run Integration Tests .NET 2
-      run: |
-        # ml-kem requires openssl 3.5.0+ https://learn.microsoft.com/en-us/dotnet/standard/security/cross-platform-cryptography#ml-kem
-        sudo apt remove openssl -y
-        wget https://github.com/openssl/openssl/releases/download/openssl-3.5.4/openssl-3.5.4.tar.gz
-        tar -xzvf openssl-3.5.4.tar.gz
-        cd openssl-3.5.4
-        ./Configure --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
-        make
-        sudo make install
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/ssl
-        export PATH=/usr/local/ssl/bin:$PATH
-        sudo ldconfig
-        openssl version
-        sudo systemctl restart ssh
-        cd ..
-        dotnet test \
-          -f net10.0 \
-          --logger "console;verbosity=normal" \
-          --logger GitHubActions \
-          --filter "Name=MLKem768X25519Sha256" \
-          -p:DefineConstants="Test_BCL_MLKem" \
-          -p:CollectCoverage=true \
-          -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage_2.xml \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results

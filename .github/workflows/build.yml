@@ -107,6 +107,11 @@ jobs:
     name: Windows Integration Tests .NET Framework
     runs-on: windows-2025
     steps:
+    - name: Print Windows Version
+      shell: pwsh
+      run: |
+        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object LCUVe
+
     - name: Checkout
       uses: actions/checkout@v5
       with:
@@ -149,6 +154,11 @@ jobs:
     name: Windows Integration Tests .NET
     runs-on: windows-2025
     steps:
+    - name: Print Windows Version
+      shell: pwsh
+      run: |
+        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object LCUVe
+
     - name: Checkout
       uses: actions/checkout@v5
       with:

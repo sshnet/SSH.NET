@@ -65,7 +65,7 @@ jobs:
       uses: actions/setup-dotnet@v5
 
     - name: Build Solution
-      run: dotnet build Renci.SshNet.sln
+      run: dotnet build Renci.SshNet.slnx
 
     - name: Publish AOT Compatibility Test App
       run: dotnet publish -r win-x64 /warnaserror test/Renci.SshNet.AotCompatibilityTestApp/

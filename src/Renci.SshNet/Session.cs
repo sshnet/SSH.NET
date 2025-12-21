@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +33,18 @@ namespace Renci.SshNet
     {
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
+
+        /// <summary>
+        /// Maximum number of lines that we permit from the server when waiting
+        /// for a valid SSH identification string.
+        /// </summary>
+        private const int MaximumBannerLines = 1024;
+
+        /// <summary>
+        /// Maximum length of a line we permit from the server when waiting for
+        /// a valid SSH identification string.
+        /// </summary>
+        private const int MaximumBannerLineLength = 8192;
 
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
@@ -71,6 +84,8 @@ namespace Renci.SshNet
 
         internal static readonly string ClientVersionString =
             "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
+
+        internal static readonly byte[] ClientVersionBytes = [.. Encoding.ASCII.GetBytes(ClientVersionString), (byte)'\r', (byte)'\n'];
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -594,15 +609,18 @@ namespace Renci.SshNet
 
                 var connector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
 
-                _socket = isAsync
-                    ? await connector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false)
-                    : connector.Connect(ConnectionInfo);
+                SshIdentification serverIdentification;
 
-                var protocolVersionExchange = _serviceFactory.CreateProtocolVersionExchange();
-
-                var serverIdentification = isAsync
-                    ? await protocolVersionExchange.StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false)
-                    : protocolVersionExchange.Start(ClientVersion, _socket, ConnectionInfo.Timeout);
+                if (isAsync)
+                {
+                    _socket = await connector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+                    serverIdentification = await DoProtocolVersionExchange(_socket, ConnectionInfo.Timeout, isAsync: true, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    _socket = connector.Connect(ConnectionInfo);
+                    serverIdentification = DoProtocolVersionExchange(_socket, ConnectionInfo.Timeout, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+                }
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
@@ -689,6 +707,162 @@ namespace Renci.SshNet
             {
                 _ = _connectLock.Release();
             }
+        }
+
+        private async Task<SshIdentification> DoProtocolVersionExchange(
+            Socket socket,
+            TimeSpan timeout,
+            bool isAsync,
+            CancellationToken cancellationToken)
+        {
+            if (isAsync)
+            {
+                _ = await socket.SendAsync(ClientVersionBytes, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                socket.SendTimeout = socket.ReceiveTimeout = timeout.AsTimeout();
+
+                _ = socket.Send(ClientVersionBytes);
+            }
+
+            for (var n = 0; n < MaximumBannerLines; n++)
+            {
+                var bytesObserved = 0;
+                int indexOfLf;
+
+                while (true)
+                {
+                    var boundedLength = Math.Min(_receiveBuffer.ActiveLength, MaximumBannerLineLength);
+
+                    // Bound the search space below by what we have already observed, in order
+                    // to avoid O(n^2) behavior when the data comes in piecewise, and above by
+                    // the maximum line length to also avoid redundant work since we will throw
+                    // if we exceed that anyway.
+                    var relativeIndexOfNullOrLf = _receiveBuffer.ActiveReadOnlySpan
+                        .Slice(bytesObserved, boundedLength - bytesObserved)
+                        .IndexOfAny((byte)0, (byte)'\n');
+
+                    if (relativeIndexOfNullOrLf >= 0)
+                    {
+                        var indexOfNullOrLf = bytesObserved + relativeIndexOfNullOrLf;
+
+                        if (_receiveBuffer.ActiveReadOnlySpan[indexOfNullOrLf] == 0)
+                        {
+                            throw new SshConnectionException(
+                                "The server response contained an invalid null character before a valid SSH identification string was received.",
+                                DisconnectReason.ProtocolError);
+                        }
+
+                        indexOfLf = indexOfNullOrLf;
+                        break;
+                    }
+
+                    if (_receiveBuffer.ActiveLength >= MaximumBannerLineLength)
+                    {
+                        throw new SshConnectionException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "The server returned a banner line that exceeds the maximum allowed length of {0} bytes.",
+                                MaximumBannerLineLength),
+                            DisconnectReason.ProtocolError);
+                    }
+
+                    bytesObserved = _receiveBuffer.ActiveLength;
+
+                    _receiveBuffer.EnsureAvailableSpace(1);
+
+                    int bytesRead;
+                    if (isAsync)
+                    {
+#if NET
+                        bytesRead = await socket.ReceiveAsync(_receiveBuffer.AvailableMemory, cancellationToken).ConfigureAwait(false);
+#else
+                        bytesRead = await socket.ReceiveAsync(
+                            buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                            offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                            length: _receiveBuffer.AvailableLength,
+                            cancellationToken).ConfigureAwait(false);
+#endif
+                    }
+                    else
+                    {
+                        try
+                        {
+                            bytesRead = socket.Receive(
+                                buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                                offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                                size: _receiveBuffer.AvailableLength,
+                                SocketFlags.None);
+                        }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                        {
+                            throw new SshOperationTimeoutException(
+                                string.Format(CultureInfo.InvariantCulture,
+                                "Socket read operation has timed out after {0:F0} milliseconds.",
+                                timeout.TotalMilliseconds),
+                                ex);
+                        }
+                    }
+
+                    _receiveBuffer.Commit(bytesRead);
+
+                    if (bytesRead == 0)
+                    {
+                        throw new SshConnectionException(
+                            "The connection to the remote server was closed before a valid SSH identification string was received.",
+                            DisconnectReason.ConnectionLost);
+                    }
+                }
+
+                var currentLine = _receiveBuffer.ActiveReadOnlySpan.Slice(0, indexOfLf);
+
+                if (!currentLine.IsEmpty && currentLine[^1] == (byte)'\r')
+                {
+                    currentLine = currentLine[..^1];
+                }
+
+                int indexOfDash;
+
+                if (!currentLine.StartsWith("SSH-"u8) ||
+                    (indexOfDash = currentLine.Slice(4).IndexOf((byte)'-')) < 0)
+                {
+                    // This line is not interesting to us, go for a new one.
+                    _receiveBuffer.Discard(indexOfLf + 1);
+                    continue;
+                }
+
+                var protocolVersion = Encoding.ASCII.GetString(_receiveBuffer.ActiveReadOnlySpan.Slice(4, indexOfDash));
+
+                var softwareVersionAndComments = currentLine.Slice(4 + indexOfDash + 1);
+
+                var indexOfSpace = softwareVersionAndComments.IndexOf((byte)' ');
+
+                string softwareVersion;
+                string comments;
+
+                if (indexOfSpace >= 0)
+                {
+                    softwareVersion = Encoding.ASCII.GetString(softwareVersionAndComments.Slice(0, indexOfSpace));
+                    comments = Encoding.UTF8.GetString(softwareVersionAndComments.Slice(indexOfSpace + 1));
+                }
+                else
+                {
+                    softwareVersion = Encoding.ASCII.GetString(softwareVersionAndComments);
+                    comments = null;
+                }
+
+                _receiveBuffer.Discard(indexOfLf + 1);
+
+                return new SshIdentification(protocolVersion, softwareVersion, comments);
+            }
+
+            throw new SshConnectionException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "The server response exceeded the maximum allowed number of banner lines ({0}) before a valid SSH identification string was received.",
+                    MaximumBannerLines),
+                DisconnectReason.ProtocolError);
         }
 
         /// <summary>
@@ -1915,6 +2089,7 @@ namespace Renci.SshNet
             _isDisconnecting = false;
             _isAuthenticated = false;
             _exception = null;
+            _receiveBuffer.DiscardAll();
         }
 
         private static SshConnectionException CreateConnectionAbortedByServerException()

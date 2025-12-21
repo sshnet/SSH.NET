@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +28,6 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;
         private Mock<IConnector> _connectorMock;
-        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
@@ -107,8 +107,7 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     ServerSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
-                    // having established the connection instead of when the client has been identified
+                    _ = ServerSocket.Send(Encoding.ASCII.GetBytes(ServerIdentification + "\r\n"));
 
                     var keyExchangeInitMessage = new KeyExchangeInitMessage
                     {
@@ -141,7 +140,6 @@ namespace Renci.SshNet.Tests.Classes
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
             _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
-            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
             _keyExchangeMock = new Mock<IKeyExchange>(MockBehavior.Strict);
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
@@ -152,10 +150,6 @@ namespace Renci.SshNet.Tests.Classes
                                    .Returns(_connectorMock.Object);
             _ = _connectorMock.Setup(p => p.Connect(ConnectionInfo))
                               .Returns(ClientSocket);
-            _ = _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
-                                   .Returns(_protocolVersionExchangeMock.Object);
-            _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                            .Returns(ServerIdentification);
             _ = _serviceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm }))
                                    .Returns(_keyExchangeMock.Object);
             _ = _keyExchangeMock.Setup(p => p.Name)

@@ -1,5 +1,5 @@
 ﻿#pragma warning disable
-// Copied verbatim from https://github.com/dotnet/runtime/blob/d2650b6ae7023a2d9d2c74c56116f1f18472ab04/src/libraries/Common/src/System/Net/ArrayBuffer.cs
+// Copied verbatim from https://github.com/dotnet/runtime/blob/591622c69134f9a790f902e364c7a6a5c572b12d/src/libraries/Common/src/System/Net/ArrayBuffer.cs
 
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -24,12 +24,6 @@ namespace System.Net
     [StructLayout(LayoutKind.Auto)]
     internal struct ArrayBuffer : IDisposable
     {
-#if NET
-        private static int ArrayMaxLength => Array.MaxLength;
-#else
-        private const int ArrayMaxLength = 0X7FFFFFC7;
-#endif
-
         private readonly bool _usePool;
         private byte[] _bytes;
         private int _activeStart;
@@ -62,8 +56,7 @@ namespace System.Net
 
         public void Dispose()
         {
-            _activeStart = 0;
-            _availableStart = 0;
+            DiscardAll();
 
             byte[] array = _bytes;
             _bytes = null!;
@@ -80,8 +73,7 @@ namespace System.Net
             Debug.Assert(_usePool);
             Debug.Assert(_bytes is not null);
 
-            _activeStart = 0;
-            _availableStart = 0;
+            DiscardAll();
 
             byte[] bufferToReturn = _bytes;
             _bytes = Array.Empty<byte>();
@@ -113,6 +105,12 @@ namespace System.Net
                 _activeStart = 0;
                 _availableStart = 0;
             }
+        }
+
+        public void DiscardAll()
+        {
+            _activeStart = 0;
+            _availableStart = 0;
         }
 
         public void Commit(int byteCount)
@@ -155,13 +153,13 @@ namespace System.Net
 
             int desiredSize = ActiveLength + byteCount;
 
-            if ((uint)desiredSize > ArrayMaxLength)
+            if ((uint)desiredSize > Array.MaxLength)
             {
                 throw new OutOfMemoryException();
             }
 
             // Double the existing buffer size (capped at Array.MaxLength).
-            int newSize = Math.Max(desiredSize, (int)Math.Min(ArrayMaxLength, 2 * (uint)_bytes.Length));
+            int newSize = Math.Max(desiredSize, (int)Math.Min(Array.MaxLength, 2 * (uint)_bytes.Length));
 
             byte[] newBytes = _usePool ?
                 ArrayPool<byte>.Shared.Rent(newSize) :

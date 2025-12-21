@@ -12,6 +12,9 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+#if !NET
+using System.Text;
+#endif
 using System.Threading;
 
 using Renci.SshNet.Messages;
@@ -419,14 +422,6 @@ namespace Renci.SshNet.Common
             }
         }
 
-        extension(Array)
-        {
-            internal static int MaxLength
-            {
-                get { return 0X7FFFFFC7; }
-            }
-        }
-
         extension(Task t)
         {
             internal bool IsCompletedSuccessfully
@@ -460,5 +455,11 @@ namespace Renci.SshNet.Common
             return true;
 #endif
         }
+#if !NET
+        internal static string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes)
+        {
+            return encoding.GetString(bytes.ToArray());
+        }
+#endif
     }
 }

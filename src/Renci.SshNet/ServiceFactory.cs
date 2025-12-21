@@ -175,18 +175,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates an <see cref="IProtocolVersionExchange"/> that deals with the SSH protocol
-        /// version exchange.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="IProtocolVersionExchange"/>.
-        /// </returns>
-        public IProtocolVersionExchange CreateProtocolVersionExchange()
-        {
-            return new ProtocolVersionExchange();
-        }
-
-        /// <summary>
         /// Creates a factory to create <see cref="Socket"/> instances.
         /// </summary>
         /// <returns>

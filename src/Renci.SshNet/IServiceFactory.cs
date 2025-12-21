@@ -152,15 +152,6 @@ namespace Renci.SshNet
         IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory);
 
         /// <summary>
-        /// Creates an <see cref="IProtocolVersionExchange"/> that deals with the SSH protocol
-        /// version exchange.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="IProtocolVersionExchange"/>.
-        /// </returns>
-        IProtocolVersionExchange CreateProtocolVersionExchange();
-
-        /// <summary>
         /// Creates a factory to create <see cref="Socket"/> instances.
         /// </summary>
         /// <returns>

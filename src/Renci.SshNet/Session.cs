@@ -200,6 +200,7 @@ namespace Renci.SshNet
         private Socket _socket;
 
         private ArrayBuffer _receiveBuffer = new(4 * 1024);
+        private byte[] _plaintextReceiveBuffer = new byte[4 * 1024];
 
         /// <summary>
         /// Gets the session semaphore that controls session channels.
@@ -1319,11 +1320,16 @@ namespace Renci.SshNet
 
             // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
             // to generate the hash.
-            var data = new byte[4 + totalPacketLength - serverMacLength];
+            var plaintextLength = 4 + totalPacketLength - serverMacLength;
 
-            BinaryPrimitives.WriteUInt32BigEndian(data, _inboundPacketSequence);
+            if (_plaintextReceiveBuffer.Length < plaintextLength)
+            {
+                Array.Resize(ref _plaintextReceiveBuffer, Math.Max(plaintextLength, 2 * _plaintextReceiveBuffer.Length));
+            }
 
-            plainFirstBlock.AsSpan().CopyTo(data.AsSpan(4));
+            BinaryPrimitives.WriteUInt32BigEndian(_plaintextReceiveBuffer, _inboundPacketSequence);
+
+            plainFirstBlock.AsSpan().CopyTo(_plaintextReceiveBuffer.AsSpan(4));
 
             if (_serverMac != null && _serverEtm)
             {
@@ -1331,7 +1337,7 @@ namespace Renci.SshNet
 
                 // sequence_number
                 _ = _serverMac.TransformBlock(
-                    inputBuffer: data,
+                    inputBuffer: _plaintextReceiveBuffer,
                     inputOffset: 0,
                     inputCount: 4,
                     outputBuffer: null,
@@ -1363,21 +1369,23 @@ namespace Renci.SshNet
                     input: _receiveBuffer.DangerousGetUnderlyingBuffer(),
                     offset: _receiveBuffer.ActiveStartOffset + blockSize,
                     length: numberOfBytesToDecrypt,
-                    output: data,
+                    output: _plaintextReceiveBuffer,
                     outputOffset: 4 + blockSize);
 
                 Debug.Assert(numberOfBytesDecrypted == numberOfBytesToDecrypt);
             }
             else
             {
-                _receiveBuffer.ActiveReadOnlySpan.Slice(blockSize, numberOfBytesToDecrypt).CopyTo(data.AsSpan(4 + blockSize));
+                _receiveBuffer.ActiveReadOnlySpan
+                    .Slice(blockSize, numberOfBytesToDecrypt)
+                    .CopyTo(_plaintextReceiveBuffer.AsSpan(4 + blockSize));
             }
 
             if (_serverMac != null && !_serverEtm)
             {
                 // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
 
-                var clientHash = _serverMac.ComputeHash(data);
+                var clientHash = _serverMac.ComputeHash(_plaintextReceiveBuffer, 0, plaintextLength);
 
                 if (!CryptoAbstraction.FixedTimeEquals(clientHash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
                 {
@@ -1387,19 +1395,16 @@ namespace Renci.SshNet
 
             _receiveBuffer.Discard(totalPacketLength);
 
-            var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-            var messagePayloadLength = packetLength - paddingLength - paddingLengthFieldLength;
-            var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
+            var paddingLength = _plaintextReceiveBuffer[inboundPacketSequenceLength + packetLengthFieldLength];
+
+            ArraySegment<byte> payload = new(
+                _plaintextReceiveBuffer,
+                offset: inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength,
+                count: packetLength - paddingLength - paddingLengthFieldLength);
 
             if (_serverDecompression != null)
             {
-                data = _serverDecompression.Decompress(data, messagePayloadOffset, messagePayloadLength);
-
-                // Data now only contains the decompressed payload, and as such the offset is reset to zero
-                messagePayloadOffset = 0;
-
-                // The length of the payload is now the complete decompressed content
-                messagePayloadLength = data.Length;
+                payload = new(_serverDecompression.Decompress(payload.Array, payload.Offset, payload.Count));
             }
 
             _inboundPacketSequence++;
@@ -1411,7 +1416,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
+            return LoadMessage(payload.Array, payload.Offset, payload.Count);
         }
 
         private void TrySendDisconnect(DisconnectReason reasonCode, string message)

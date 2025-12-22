@@ -1134,6 +1134,22 @@ namespace Renci.SshNet
         Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Asynchronously uploads a <see cref="Stream"/> to a remote file path.
+        /// </summary>
+        /// <param name="input">The <see cref="Stream"/> to write to the remote path.</param>
+        /// <param name="path">The remote file path to write to.</param>
+        /// <param name="canOverride">Whether the remote file can be overwritten if it already exists.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="input"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is empty or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> An SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">An SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task UploadFileAsync(Stream input, string path, bool canOverride, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Writes the specified byte array to the specified file, and closes the file.
         /// </summary>
         /// <param name="path">The file to write to.</param>

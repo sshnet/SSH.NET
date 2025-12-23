@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
@@ -57,7 +57,7 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
@@ -65,7 +65,7 @@ jobs:
       uses: actions/setup-dotnet@v5
 
     - name: Build Solution
-      run: dotnet build Renci.SshNet.sln
+      run: dotnet build Renci.SshNet.slnx
 
     - name: Publish AOT Compatibility Test App
       run: dotnet publish -r win-x64 /warnaserror test/Renci.SshNet.AotCompatibilityTestApp/
@@ -108,7 +108,7 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 
@@ -150,7 +150,7 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
 

@@ -9,7 +9,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.1" />
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.264" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.267" />
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
@@ -22,6 +22,6 @@
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.1" />
-    <PackageVersion Include="Testcontainers" Version="4.9.0" />
+    <PackageVersion Include="Testcontainers" Version="4.10.0" />
   </ItemGroup>
 </Project>

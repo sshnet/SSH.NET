@@ -1078,14 +1078,31 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default)
         {
+            return UploadFileAsync(input, path, canOverride: true, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UploadFileAsync(Stream input, string path, bool canOverride, CancellationToken cancellationToken = default)
+        {
             ArgumentNullException.ThrowIfNull(input);
             ArgumentException.ThrowIfNullOrWhiteSpace(path);
             CheckDisposed();
 
+            var flags = Flags.Write | Flags.Truncate;
+
+            if (canOverride)
+            {
+                flags |= Flags.CreateNewOrOpen;
+            }
+            else
+            {
+                flags |= Flags.CreateNew;
+            }
+
             return InternalUploadFile(
                 input,
                 path,
-                Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen,
+                flags,
                 asyncResult: null,
                 uploadCallback: null,
                 isAsync: true,

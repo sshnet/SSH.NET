@@ -107,11 +107,6 @@ jobs:
     name: Windows Integration Tests .NET Framework
     runs-on: windows-2025
     steps:
-    - name: Print Windows Version
-      shell: pwsh
-      run: |
-        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-
     - name: Checkout
       uses: actions/checkout@v6
       with:
@@ -133,7 +128,7 @@ jobs:
         podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
         podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
 
-    - name: Run Integration Tests .NET Framework
+    - name: Run Integration Tests .NET Framework 1
       run:
         dotnet test `
           -f net48 `
@@ -141,7 +136,33 @@ jobs:
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage_1.xml `
+          test\Renci.SshNet.IntegrationTests\
+
+    - name: Run Integration Tests .NET Framework 2
+      run:
+        dotnet test `
+          -f net48 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          --filter "Name=MLKem768X25519Sha256" `
+          -p:DefineConstants="Test_BCL_MLKem" `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage_2.xml `
+          test\Renci.SshNet.IntegrationTests\
+
+    - name: Run Integration Tests .NET Framework 3
+      run:
+        dotnet test `
+          -f net48 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          --filter "Name=MLKem768X25519Sha256" `
+          -p:DefineConstants="Test_BouncyCastle_MLKem" `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage_3.xml `
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
@@ -154,11 +175,6 @@ jobs:
     name: Windows Integration Tests .NET
     runs-on: windows-2025
     steps:
-    - name: Print Windows Version
-      shell: pwsh
-      run: |
-        Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-
     - name: Checkout
       uses: actions/checkout@v6
       with:
@@ -180,7 +196,7 @@ jobs:
         podman build -t renci-ssh-tests-server-image -f test/Renci.SshNet.IntegrationTests/Dockerfile test/Renci.SshNet.IntegrationTests/
         podman run --rm -h renci-ssh-tests-server -d -p 2222:22 renci-ssh-tests-server-image
 
-    - name: Run Integration Tests .NET
+    - name: Run Integration Tests .NET 1
       run:
         dotnet test `
           -f net10.0 `
@@ -188,7 +204,33 @@ jobs:
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_10_coverage.xml `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_10_coverage_1.xml `
+          test\Renci.SshNet.IntegrationTests\
+
+    - name: Run Integration Tests .NET 2
+      run:
+        dotnet test `
+          -f net10.0 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          --filter "Name=MLKem768X25519Sha256" `
+          -p:DefineConstants="Test_BCL_MLKem" `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_10_coverage_2.xml `
+          test\Renci.SshNet.IntegrationTests\
+
+    - name: Run Integration Tests .NET 3
+      run:
+        dotnet test `
+          -f net10.0 `
+          --logger "console;verbosity=normal" `
+          --logger GitHubActions `
+          --filter "Name=MLKem768X25519Sha256" `
+          -p:DefineConstants="Test_BouncyCastle_MLKem" `
+          -p:CollectCoverage=true `
+          -p:CoverletOutputFormat=cobertura `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_10_coverage_3.xml `
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results

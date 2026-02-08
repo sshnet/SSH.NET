@@ -187,12 +187,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         protected void Act()
         {
             Task<byte[]> openTask = _sftpSession.RequestOpenAsync(_path, Flags.Read, CancellationToken.None);
-            Task<byte[]> readTask = _sftpSession.RequestReadAsync(_handle, _offset, _length, CancellationToken.None);
+            Task<ReadOnlyMemoryOwner> readTask = _sftpSession.RequestReadAsync(_handle, _offset, _length, CancellationToken.None);
 
             Task.WaitAll(openTask, readTask);
 
             _actualHandle = openTask.Result;
-            _actualData = readTask.Result;
+
+            using ReadOnlyMemoryOwner actualData = readTask.Result;
+            _actualData = actualData.Span.ToArray();
         }
 
         [TestMethod]

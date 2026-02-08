@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
@@ -31,9 +32,6 @@ namespace Renci.SshNet
     {
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
-
-        private static readonly string ClientVersionString =
-            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
 
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
@@ -70,6 +68,9 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
         private const int LocalChannelDataPacketSize = 1024 * 64;
+
+        internal static readonly string ClientVersionString =
+            "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -197,6 +198,8 @@ namespace Renci.SshNet
         /// Holds connection socket.
         /// </summary>
         private Socket _socket;
+
+        private ArrayBuffer _receiveBuffer = new(4 * 1024);
 
         /// <summary>
         /// Gets the session semaphore that controls session channels.
@@ -591,7 +594,6 @@ namespace Renci.SshNet
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-                ConnectionInfo.ClientVersion = ClientVersion;
 
                 _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 
@@ -717,7 +719,6 @@ namespace Renci.SshNet
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-                ConnectionInfo.ClientVersion = ClientVersion;
 
                 _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
 
@@ -1210,7 +1211,8 @@ namespace Renci.SshNet
 
             int blockSize;
 
-            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes, or 4 if "packet length" field is handled separately.
+            // Determine the size of the first block which is 8 or cipher block size (whichever is larger) bytes,
+            // or 4 if "packet length" field is handled separately.
             if (_serverEtm || _serverAead)
             {
                 blockSize = (byte)4;
@@ -1235,117 +1237,159 @@ namespace Renci.SshNet
                 serverMacLength = _serverMac.HashSize / 8;
             }
 
-            byte[] data;
-            uint packetLength;
-
-            // Read first block - which starts with the packet length
-            var firstBlock = new byte[blockSize];
-            if (TrySocketRead(socket, firstBlock, 0, blockSize) == 0)
+            if (_receiveBuffer.ActiveLength < blockSize)
             {
-                // connection with SSH server was closed
-                return null;
-            }
+                var bytesNeeded = blockSize - _receiveBuffer.ActiveLength;
 
-            var plainFirstBlock = firstBlock;
+                _receiveBuffer.EnsureAvailableSpace(bytesNeeded);
 
-            // First block is not encrypted in AES GCM mode.
-            if (_serverCipher is not null and not Security.Cryptography.Ciphers.AesGcmCipher)
-            {
-                _serverCipher.SetSequenceNumber(_inboundPacketSequence);
+                var bytesRead = TrySocketRead(
+                    socket,
+                    buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                    offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                    length: _receiveBuffer.AvailableLength,
+                    minimumLength: bytesNeeded);
 
-                // First block is not encrypted in ETM mode.
-                if (_serverMac == null || !_serverEtm)
+                _receiveBuffer.Commit(bytesRead);
+
+                if (bytesRead < bytesNeeded)
                 {
-                    plainFirstBlock = _serverCipher.Decrypt(firstBlock);
-                }
-            }
-
-            packetLength = BinaryPrimitives.ReadUInt32BigEndian(plainFirstBlock);
-
-            // Test packet minimum and maximum boundaries
-            if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
-            {
-                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
-                                                 DisconnectReason.ProtocolError);
-            }
-
-            // Determine the number of bytes left to read; We've already read "blockSize" bytes, but the
-            // "packet length" field itself - which is 4 bytes - is not included in the length of the packet
-            var bytesToRead = (int)(packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
-
-            // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
-            // to generate the hash.
-            //
-            // The total length of the "data" buffer is an addition of:
-            // - inboundPacketSequenceLength (4 bytes)
-            // - packetLength
-            // - serverMacLength
-            //
-            // We include the inbound packet sequence to allow us to have the the full SSH packet in a single
-            // byte[] for the purpose of calculating the client hash. Room for the server MAC is foreseen
-            // to read the packet including server MAC in a single pass (except for the initial block).
-            data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
-            BinaryPrimitives.WriteUInt32BigEndian(data, _inboundPacketSequence);
-
-            // Use raw packet length field to calculate the mac in AEAD mode.
-            if (_serverAead)
-            {
-                Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, blockSize);
-            }
-            else
-            {
-                Buffer.BlockCopy(plainFirstBlock, 0, data, inboundPacketSequenceLength, blockSize);
-            }
-
-            if (bytesToRead > 0)
-            {
-                if (TrySocketRead(socket, data, blockSize + inboundPacketSequenceLength, bytesToRead) == 0)
-                {
+                    // connection with SSH server was closed
                     return null;
                 }
             }
 
-            // validate encrypted message against MAC
+            var firstBlock = new ArraySegment<byte>(
+                _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                _receiveBuffer.ActiveStartOffset,
+                blockSize);
+
+            var plainFirstBlock = firstBlock;
+
+            // For ETM or AES-GCM, firstBlock holds the packet length which is
+            // not encrypted. Otherwise, we decrypt the first "blockSize" bytes.
+            // (For chacha20-poly1305, this means passing the encrypted packet
+            // length as AAD).
+            if (_serverCipher is not null and not Security.Cryptography.Ciphers.AesGcmCipher)
+            {
+                _serverCipher.SetSequenceNumber(_inboundPacketSequence);
+
+                if (_serverMac == null || !_serverEtm)
+                {
+                    plainFirstBlock = new ArraySegment<byte>(_serverCipher.Decrypt(
+                        firstBlock.Array,
+                        firstBlock.Offset,
+                        firstBlock.Count));
+                }
+            }
+
+            var packetLength = BinaryPrimitives.ReadInt32BigEndian(plainFirstBlock);
+
+            // Test packet minimum and maximum boundaries
+            if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+            {
+                throw new SshConnectionException(
+                    string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", (uint)packetLength),
+                    DisconnectReason.ProtocolError);
+            }
+
+            var totalPacketLength = 4 + packetLength + serverMacLength;
+
+            if (_receiveBuffer.ActiveLength < totalPacketLength)
+            {
+                var bytesNeeded = totalPacketLength - _receiveBuffer.ActiveLength;
+
+                _receiveBuffer.EnsureAvailableSpace(bytesNeeded);
+
+                var bytesRead = TrySocketRead(
+                    socket,
+                    buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                    offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                    length: _receiveBuffer.AvailableLength,
+                    minimumLength: bytesNeeded);
+
+                _receiveBuffer.Commit(bytesRead);
+
+                if (bytesRead < bytesNeeded)
+                {
+                    // connection with SSH server was closed
+                    return null;
+                }
+            }
+
+            // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
+            // to generate the hash.
+            var data = new byte[4 + totalPacketLength - serverMacLength];
+
+            BinaryPrimitives.WriteUInt32BigEndian(data, _inboundPacketSequence);
+
+            plainFirstBlock.AsSpan().CopyTo(data.AsSpan(4));
+
             if (_serverMac != null && _serverEtm)
             {
-                var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-#if NET
-                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
-#else
-                if (!Org.BouncyCastle.Utilities.Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
-#endif
+                // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
+
+                // sequence_number
+                _ = _serverMac.TransformBlock(
+                    inputBuffer: data,
+                    inputOffset: 0,
+                    inputCount: 4,
+                    outputBuffer: null,
+                    outputOffset: 0);
+
+                // packet_length || encrypted_packet
+                _ = _serverMac.TransformBlock(
+                    inputBuffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                    inputOffset: _receiveBuffer.ActiveStartOffset,
+                    inputCount: totalPacketLength - serverMacLength,
+                    outputBuffer: null,
+                    outputOffset: 0);
+
+                _ = _serverMac.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+
+                if (!CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
             }
 
-            if (_serverCipher != null)
+            var numberOfBytesToDecrypt = 4 + packetLength - blockSize;
+
+            if (_serverCipher != null && numberOfBytesToDecrypt > 0)
             {
-                var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
-                if (numberOfBytesToDecrypt > 0)
-                {
-                    var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
-                    Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
-                }
+                Debug.Assert(numberOfBytesToDecrypt % blockSize == 0);
+
+                var numberOfBytesDecrypted = _serverCipher.Decrypt(
+                    input: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                    offset: _receiveBuffer.ActiveStartOffset + blockSize,
+                    length: numberOfBytesToDecrypt,
+                    output: data,
+                    outputOffset: 4 + blockSize);
+
+                Debug.Assert(numberOfBytesDecrypted == numberOfBytesToDecrypt);
+            }
+            else
+            {
+                _receiveBuffer.ActiveReadOnlySpan.Slice(blockSize, numberOfBytesToDecrypt).CopyTo(data.AsSpan(4 + blockSize));
             }
 
-            var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-            var messagePayloadLength = (int)packetLength - paddingLength - paddingLengthFieldLength;
-            var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
-
-            // validate decrypted message against MAC
             if (_serverMac != null && !_serverEtm)
             {
-                var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
-#if NET
-                if (!CryptographicOperations.FixedTimeEquals(clientHash, new ReadOnlySpan<byte>(data, data.Length - serverMacLength, serverMacLength)))
-#else
-                if (!Org.BouncyCastle.Utilities.Arrays.FixedTimeEquals(serverMacLength, clientHash, 0, data, data.Length - serverMacLength))
-#endif
+                // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
+
+                var clientHash = _serverMac.ComputeHash(data);
+
+                if (!CryptoAbstraction.FixedTimeEquals(clientHash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
             }
+
+            _receiveBuffer.Discard(totalPacketLength);
+
+            var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
+            var messagePayloadLength = packetLength - paddingLength - paddingLengthFieldLength;
+            var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
             if (_serverDecompression != null)
             {
@@ -1835,20 +1879,42 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
+        /// Performs a blocking read on the socket until at least <paramref name="minimumLength"/> bytes are received.
         /// </summary>
         /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data.</param>
         /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
-        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="length">The maximum number of bytes to read.</param>
+        /// <param name="minimumLength">The minimum number of bytes to read.</param>
         /// <returns>
         /// The number of bytes read.
         /// </returns>
-        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        private static int TrySocketRead(Socket socket, byte[] buffer, int offset, int length)
+        private static int TrySocketRead(Socket socket, byte[] buffer, int offset, int length, int minimumLength)
         {
-            return SocketAbstraction.Read(socket, buffer, offset, length, Timeout.InfiniteTimeSpan);
+            Debug.Assert(offset >= 0);
+            Debug.Assert((uint)length <= buffer.Length - offset);
+            Debug.Assert(minimumLength <= length);
+
+            if (socket is null)
+            {
+                return 0;
+            }
+
+            var totalRead = 0;
+            while (totalRead < minimumLength)
+            {
+                var read = socket.Receive(buffer, offset + totalRead, length - totalRead, SocketFlags.None);
+
+                if (read == 0)
+                {
+                    return totalRead;
+                }
+
+                totalRead += read;
+            }
+
+            return totalRead;
         }
 
         /// <summary>
@@ -1897,17 +1963,15 @@ namespace Renci.SshNet
         {
             try
             {
+                if (_socket is { } s)
+                {
+                    s.ReceiveTimeout = 0;
+                }
+
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (true)
                 {
-                    var socket = _socket;
-
-                    if (socket is null || !socket.Connected)
-                    {
-                        break;
-                    }
-
-                    var message = ReceiveMessage(socket);
+                    var message = ReceiveMessage(_socket);
                     if (message is null)
                     {
                         // Connection with SSH server was closed, so break out of the message loop

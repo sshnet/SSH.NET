@@ -59,18 +59,49 @@ namespace Renci.SshNet.Common
             }
         }
 
-#if !NET
-        private void Write(ReadOnlySpan<byte> buffer)
+        // Because this type derives from MemoryStream, the base Write(ReadOnlySpan) chooses
+        // to rent an array, copy the data in and delegate to Write(byte[], int, int) for
+        // backwards compatibility.
+        // With a bit of extra ceremony, we can instead allow the various Write methods here
+        // to write directly into the underlying buffer without the need for any intermediate
+        // arrays (rented or otherwise).
+
+#if NET9_0_OR_GREATER
+        /// <inheritdoc/>
+        public override void Write(ReadOnlySpan<byte> buffer)
         {
-            var sharedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(buffer.Length);
-
-            buffer.CopyTo(sharedBuffer);
-
-            Write(sharedBuffer, 0, buffer.Length);
-
-            System.Buffers.ArrayPool<byte>.Shared.Return(sharedBuffer);
+            Write(buffer, buffer.Length, static (span, buffer) => buffer.CopyTo(span));
         }
 #endif
+
+        private delegate void WriteAction<in TArg>(Span<byte> span, TArg arg)
+#if NET9_0_OR_GREATER
+            where TArg : allows ref struct
+#endif
+            ;
+
+        private void Write<TArg>(TArg arg, int numBytesToWrite, WriteAction<TArg> writeAction)
+#if NET9_0_OR_GREATER
+            where TArg : allows ref struct
+#endif
+        {
+            var endPosition = Position + numBytesToWrite;
+
+            if (Capacity < endPosition)
+            {
+                var newCapacity = Math.Max(endPosition, Math.Min(2 * (uint)Capacity, Array.MaxLength));
+                Capacity = checked((int)newCapacity);
+            }
+
+            if (endPosition > Length)
+            {
+                SetLength(endPosition);
+            }
+
+            writeAction(GetRemainingBuffer().AsSpan(0, numBytesToWrite), arg);
+
+            Position = endPosition;
+        }
 
         /// <summary>
         /// Writes an <see cref="uint"/> to the SSH data stream.
@@ -78,9 +109,7 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="uint"/> data to write.</param>
         public void Write(uint value)
         {
-            Span<byte> bytes = stackalloc byte[4];
-            BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
-            Write(bytes);
+            Write(value, 4, static (span, value) => BinaryPrimitives.WriteUInt32BigEndian(span, value));
         }
 
         /// <summary>
@@ -89,9 +118,7 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="ulong"/> data to write.</param>
         public void Write(ulong value)
         {
-            Span<byte> bytes = stackalloc byte[8];
-            BinaryPrimitives.WriteUInt64BigEndian(bytes, value);
-            Write(bytes);
+            Write(value, 8, static (span, value) => BinaryPrimitives.WriteUInt64BigEndian(span, value));
         }
 
         /// <summary>
@@ -100,9 +127,22 @@ namespace Renci.SshNet.Common
         /// <param name="data">The <see cref="BigInteger" /> to write.</param>
         public void Write(BigInteger data)
         {
+#if NET
+            var byteCount = data.GetByteCount();
+
+            Write((data, byteCount), 4 + byteCount, static (span, args) =>
+            {
+                BinaryPrimitives.WriteUInt32BigEndian(span, (uint)args.byteCount);
+
+                var success = args.data.TryWriteBytes(span.Slice(4), out var bytesWritten, isBigEndian: true);
+
+                Debug.Assert(success && bytesWritten == span.Length - 4);
+            });
+#else
             var bytes = data.ToByteArray(isBigEndian: true);
 
             WriteBinary(bytes, 0, bytes.Length);
+#endif
         }
 
         /// <summary>
@@ -129,16 +169,26 @@ namespace Renci.SshNet.Common
             ArgumentNullException.ThrowIfNull(s);
             ArgumentNullException.ThrowIfNull(encoding);
 
+            var byteCount = encoding.GetByteCount(s);
 #if NET
-            ReadOnlySpan<char> value = s;
-            var count = encoding.GetByteCount(value);
-            var bytes = count <= 256 ? stackalloc byte[count] : new byte[count];
-            encoding.GetBytes(value, bytes);
-            Write((uint)count);
-            Write(bytes);
+            Write((s, byteCount, encoding), 4 + byteCount, static (span, args) =>
+            {
+                BinaryPrimitives.WriteUInt32BigEndian(span, (uint)args.byteCount);
+
+                var bytesWritten = args.encoding.GetBytes(args.s, span.Slice(4));
+
+                Debug.Assert(bytesWritten == span.Length - 4);
+            });
 #else
-            var bytes = encoding.GetBytes(s);
-            WriteBinary(bytes, 0, bytes.Length);
+            var rentedBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(byteCount);
+
+            var bytesWritten = encoding.GetBytes(s, 0, s.Length, rentedBuffer, 0);
+
+            Debug.Assert(bytesWritten == byteCount);
+
+            WriteBinary(rentedBuffer, 0, bytesWritten);
+
+            System.Buffers.ArrayPool<byte>.Shared.Return(rentedBuffer);
 #endif
         }
 

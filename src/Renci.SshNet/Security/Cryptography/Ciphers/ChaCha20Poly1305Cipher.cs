@@ -112,18 +112,39 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Decrypts the AAD.
+        /// Decrypts the specified bytes.
         /// </summary>
-        /// <param name="input">The encrypted AAD.</param>
-        /// <returns>The decrypted AAD.</returns>
-        public override byte[] Decrypt(byte[] input)
+        /// <remarks>
+        /// If a positive AAD length was specified for this instance, the bytes are
+        /// decrypted as if they are AAD (i.e. the packet length of an SSH packet).
+        /// </remarks>
+        /// <param name="input">The buffer containing the ciphertext to decrypt.</param>
+        /// <param name="offset">The offset of the ciphertext in the buffer.</param>
+        /// <param name="length">The length of the ciphertext to decrypt.</param>
+        /// <returns>The decrypted plaintext.</returns>
+        public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            Debug.Assert(_aadCipher != null, "The aadCipher must not be null");
+            byte[] output;
 
-            _aadCipher.Init(forEncryption: false, new ParametersWithIV(_aadKeyParameter, _iv));
+            if (_aadLength > 0)
+            {
+                // If we are in 'AAD mode', then put these bytes through the AAD cipher.
 
-            var output = new byte[input.Length];
-            _aadCipher.ProcessBytes(input, 0, input.Length, output, 0);
+                Debug.Assert(_aadCipher != null);
+
+                _aadCipher.Init(forEncryption: false, new ParametersWithIV(_aadKeyParameter, _iv));
+
+                output = new byte[length];
+                _aadCipher.ProcessBytes(input, offset, length, output, 0);
+            }
+            else
+            {
+                output = new byte[length];
+
+                var bytesWritten = Decrypt(input, offset, length, output, 0);
+
+                Debug.Assert(bytesWritten == length);
+            }
 
             return output;
         }
@@ -139,13 +160,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
         /// <param name="length">The number of bytes to decrypt and authenticate from <paramref name="input"/>.</param>
-        /// <returns>
-        /// The decrypted data with below format:
-        /// <code>
-        ///   [----Plain Text----]
-        /// </code>
-        /// </returns>
-        public override byte[] Decrypt(byte[] input, int offset, int length)
+        /// <param name="output">The buffer to which to write the decrypted bytes.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write the decrypted bytes.</param>
+        /// <returns>The number of plaintext bytes written to <paramref name="output"/>.</returns>
+        public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
             Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
 
@@ -163,10 +181,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new SshConnectionException("MAC error", DisconnectReason.MacError);
             }
 
-            var output = new byte[length];
-            _cipher.ProcessBytes(input, offset, length, output, 0);
+            _cipher.ProcessBytes(input, offset, length, output, outputOffset);
 
-            return output;
+            return length;
         }
 
         internal override void SetSequenceNumber(uint sequenceNumber)

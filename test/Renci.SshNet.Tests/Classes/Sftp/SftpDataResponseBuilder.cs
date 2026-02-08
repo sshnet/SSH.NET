@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Sftp.Responses;
+﻿using System;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -31,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             return new SftpDataResponse(_protocolVersion)
             {
                 ResponseId = _responseId,
-                Data = _data
+                Data = new ArraySegment<byte>(_data)
             };
         }
     }

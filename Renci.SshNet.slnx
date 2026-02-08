@@ -1,0 +1,67 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="CODEOWNERS" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="exclusion.dic" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+    <File Path="stylecop.json" />
+    <File Path="THIRD-PARTY-NOTICES.TXT" />
+    <File Path="version.json" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/">
+    <File Path=".github/dependabot.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/docs.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/images/" />
+  <Folder Name="/Solution Items/images/logo/" />
+  <Folder Name="/Solution Items/images/logo/ai/">
+    <File Path="images/logo/ai/SS-NET-icon-white.ai" />
+    <File Path="images/logo/ai/SS-NET-icon.ai" />
+    <File Path="images/logo/ai/SS-NET-white.ai" />
+    <File Path="images/logo/ai/SS-NET.ai" />
+  </Folder>
+  <Folder Name="/Solution Items/images/logo/png/">
+    <File Path="images/logo/png/SS-NET-1280x640.png" />
+    <File Path="images/logo/png/SS-NET-h50.png" />
+    <File Path="images/logo/png/SS-NET-h500.png" />
+    <File Path="images/logo/png/SS-NET-icon-h50.png" />
+    <File Path="images/logo/png/SS-NET-icon-h500.png" />
+    <File Path="images/logo/png/SS-NET-icon-white-h50.png" />
+    <File Path="images/logo/png/SS-NET-icon-white-h500.png" />
+    <File Path="images/logo/png/SS-NET-white-h50.png" />
+    <File Path="images/logo/png/SS-NET-white-h500.png" />
+  </Folder>
+  <Folder Name="/Solution Items/images/logo/svg/">
+    <File Path="images/logo/svg/SS-NET-icon-white.svg" />
+    <File Path="images/logo/svg/SS-NET-icon.svg" />
+    <File Path="images/logo/svg/SS-NET-white.svg" />
+    <File Path="images/logo/svg/SS-NET.svg" />
+  </Folder>
+  <Folder Name="/Solution Items/src/" />
+  <Folder Name="/Solution Items/src/References/">
+    <File Path="src/References/How the SCP protocol works.pdf" />
+    <File Path="src/References/X.690-0207.pdf" />
+    <File Path="src/References/X.690-0207.txt" />
+  </Folder>
+  <Folder Name="/Solution Items/test/">
+    <File Path="test/Directory.Build.props" />
+  </Folder>
+  <Project Path="src/Renci.SshNet/Renci.SshNet.csproj" />
+  <Project Path="test/Renci.SshNet.AotCompatibilityTestApp/Renci.SshNet.AotCompatibilityTestApp.csproj" />
+  <Project Path="test/Renci.SshNet.Benchmarks/Renci.SshNet.Benchmarks.csproj" />
+  <Project Path="test/Renci.SshNet.IntegrationBenchmarks/Renci.SshNet.IntegrationBenchmarks.csproj" />
+  <Project Path="test/Renci.SshNet.IntegrationTests/Renci.SshNet.IntegrationTests.csproj" />
+  <Project Path="test/Renci.SshNet.Tests/Renci.SshNet.Tests.csproj" />
+  <Project Path="test/Renci.SshNet.TestTools.OpenSSH/Renci.SshNet.TestTools.OpenSSH.csproj" />
+</Solution>

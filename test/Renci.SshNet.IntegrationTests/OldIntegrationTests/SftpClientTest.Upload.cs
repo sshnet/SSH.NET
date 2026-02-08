@@ -74,6 +74,18 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     await sftp.UploadFileAsync(file, remoteFileName).ConfigureAwait(false);
                 }
 
+                // uploading again should not throw because of the default canOverride = true
+                using (var file = File.OpenRead(uploadedFileName))
+                {
+                    await sftp.UploadFileAsync(file, remoteFileName).ConfigureAwait(false);
+                }
+
+                // uploading with canOverride = false should throw because the file already exists
+                using (var file = File.OpenRead(uploadedFileName))
+                {
+                    await Assert.ThrowsAsync<SftpException>(async () => await sftp.UploadFileAsync(file, remoteFileName, canOverride: false).ConfigureAwait(false));
+                }
+
                 var downloadedFileName = Path.GetTempFileName();
 
                 using (var file = File.OpenWrite(downloadedFileName))

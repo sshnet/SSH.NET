@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 
 using Renci.SshNet.Messages.Authentication;
 
@@ -14,7 +15,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="sender">The session in which the banner message was received.</param>
         /// <param name="e">The banner message.</param>
-        void UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e);
+        void UserAuthenticationBannerReceived(object? sender, MessageEventArgs<BannerMessage> e);
 
         /// <summary>
         /// Gets the supported authentication methods for this connection.

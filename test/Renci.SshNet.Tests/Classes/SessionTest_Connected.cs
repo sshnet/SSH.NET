@@ -260,9 +260,9 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnSuccessIfWaitHandleIsSignaled()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(true);
+            using var waitHandle = new ManualResetEvent(true);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+            var result = session.TryWait(waitHandle, TimeSpan.Zero);
 
             Assert.AreEqual(WaitResult.Success, result);
         }
@@ -271,9 +271,9 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+            var result = session.TryWait(waitHandle, TimeSpan.Zero);
 
             Assert.AreEqual(WaitResult.TimedOut, result);
         }
@@ -300,9 +300,9 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnSuccessIfWaitHandleIsSignaled()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(true);
+            using var waitHandle = new ManualResetEvent(true);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
+            var result = session.TryWait(waitHandle, TimeSpan.Zero, out var exception);
 
             Assert.AreEqual(WaitResult.Success, result);
             Assert.IsNull(exception);
@@ -312,9 +312,9 @@ namespace Renci.SshNet.Tests.Classes
         public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
         {
             var session = (ISession)Session;
-            var waitHandle = new ManualResetEvent(false);
+            using var waitHandle = new ManualResetEvent(false);
 
-            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out var exception);
+            var result = session.TryWait(waitHandle, TimeSpan.Zero, out var exception);
 
             Assert.AreEqual(WaitResult.TimedOut, result);
             Assert.IsNull(exception);

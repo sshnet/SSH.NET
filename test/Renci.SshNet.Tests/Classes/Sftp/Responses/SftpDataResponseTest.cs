@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpDataResponse(_protocolVersion);
 
-            Assert.IsNull(target.Data);
+            Assert.AreEqual(default, target.Data);
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual((uint)0, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);
@@ -51,8 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             target.Load(sshData);
 
-            Assert.IsNotNull(target.Data);
-            CollectionAssert.AreEqual(_data, target.Data);
+            CollectionAssert.AreEqual(_data, target.Data.ToArray());
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual(_responseId, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);

@@ -620,6 +620,12 @@ dotnet_diagnostic.MA0112.severity = warning
 # MA0165: Make interpolated string
 dotnet_diagnostic.MA0165.severity = none
 
+# MA0182: Avoid unused internal types
+dotnet_diagnostic.MA0182.severity = none
+
+# MA0184: Do not use interpolated string without parameters
+dotnet_diagnostic.MA0184.severity = none
+
 #### MSTest rules ####
 
 # MSTEST0015: Test method should not be ignored

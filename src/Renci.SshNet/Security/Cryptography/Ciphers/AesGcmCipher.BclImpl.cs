@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 try
                 {
-                    _aesGcm.Decrypt(_nonce, cipherText, tag, output.AsSpan(plainTextOffset), associatedData);
+                    _aesGcm.Decrypt(_nonce, cipherText, tag, output.AsSpan(plainTextOffset, cipherTextLength), associatedData);
                 }
                 catch (AuthenticationTagMismatchException ex)
                 {

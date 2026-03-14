@@ -254,7 +254,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -297,7 +299,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -343,7 +347,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -386,7 +392,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -426,7 +434,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
@@ -466,7 +476,9 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
+#pragma warning disable IDE0370 // Remove unnecessary suppression
                 channel.DataReceived += (sender, e) => input.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
+#pragma warning restore IDE0370 // Remove unnecessary suppression
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 

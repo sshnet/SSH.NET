@@ -105,10 +105,7 @@ namespace Renci.SshNet
             RaiseClosing();
 
             var session = Session;
-            if (session is not null)
-            {
-                session.ErrorOccured -= Session_ErrorOccurred;
-            }
+            session?.ErrorOccured -= Session_ErrorOccurred;
         }
 
         /// <summary>

@@ -124,5 +124,34 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 Assert.ThrowsExactly<ArgumentException>(() => sftp.EndDownloadFile(async1));
             }
         }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public async Task Test_Sftp_DownloadFileAsync_DownloadCallback()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None);
+                var filename = Path.GetTempFileName();
+                int testFileSizeMB = 1;
+                CreateTestFile(filename, testFileSizeMB);
+                await sftp.UploadFileAsync(File.OpenRead(filename), "test123");
+                using ManualResetEventSlim finalCallbackCalledEvent = new();
+
+                void Callback(ulong totalBytesRead)
+                {
+                    if ((int)totalBytesRead == testFileSizeMB * 1024 * 1024)
+                    {
+                        finalCallbackCalledEvent.Set();
+                    }
+                }
+
+                await sftp.DownloadFileAsync("test123", new MemoryStream(), Callback, CancellationToken.None);
+
+                // since the callback is queued to the thread pool, wait for the event.
+                bool callbackCalled = finalCallbackCalledEvent.Wait(5000);
+                Assert.IsTrue(callbackCalled);
+            }
+        }
     }
 }

@@ -913,6 +913,12 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken = default)
         {
+            return DownloadFileAsync(path, output, downloadCallback: null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task DownloadFileAsync(string path, Stream output, Action<ulong>? downloadCallback, CancellationToken cancellationToken = default)
+        {
             ArgumentException.ThrowIfNullOrWhiteSpace(path);
             ArgumentNullException.ThrowIfNull(output);
             CheckDisposed();
@@ -921,7 +927,7 @@ namespace Renci.SshNet
                 path,
                 output,
                 asyncResult: null,
-                downloadCallback: null,
+                downloadCallback: downloadCallback,
                 isAsync: true,
                 cancellationToken);
         }

@@ -127,7 +127,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        public async Task Test_Sftp_DownloadFileAsync_DownloadCallback()
+        public async Task Test_Sftp_DownloadFileAsync_DownloadProgress()
         {
             using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
@@ -138,15 +138,15 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 await sftp.UploadFileAsync(File.OpenRead(filename), "test123");
                 using ManualResetEventSlim finalCallbackCalledEvent = new();
 
-                void Callback(ulong totalBytesRead)
+                IProgress<DownloadFileProgressReport> progress = new Progress<DownloadFileProgressReport>(r =>
                 {
-                    if ((int)totalBytesRead == testFileSizeMB * 1024 * 1024)
+                    if ((int)r.TotalBytesDownloaded == testFileSizeMB * 1024 * 1024)
                     {
                         finalCallbackCalledEvent.Set();
                     }
-                }
+                });
 
-                await sftp.DownloadFileAsync("test123", new MemoryStream(), Callback, CancellationToken.None);
+                await sftp.DownloadFileAsync("test123", new MemoryStream(), progress, CancellationToken.None);
 
                 // since the callback is queued to the thread pool, wait for the event.
                 bool callbackCalled = finalCallbackCalledEvent.Wait(5000);

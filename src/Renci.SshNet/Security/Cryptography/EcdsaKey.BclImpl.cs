@@ -65,10 +65,8 @@ namespace Renci.SshNet.Security
             public override void Export(out byte[] qx, out byte[] qy)
             {
                 var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
-#pragma warning disable IDE0370 // Remove unnecessary suppression
                 qx = parameter.Q.X!;
                 qy = parameter.Q.Y!;
-#pragma warning restore IDE0370 // Remove unnecessary suppression
             }
 
             protected override void Dispose(bool disposing)

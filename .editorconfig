@@ -847,6 +847,11 @@ dotnet_diagnostic.IDE0300.severity = none
 # TODO: Discuss whether we want to start using this
 dotnet_diagnostic.IDE0301.severity = none
 
+# IDE0370: Remove unnecessary suppression
+#
+# This can lead to many false positives in different target frameworks.
+dotnet_diagnostic.IDE0370.severity = suggestion
+
 #### .NET Compiler Platform code style rules ####
 
 ### Language rules ###

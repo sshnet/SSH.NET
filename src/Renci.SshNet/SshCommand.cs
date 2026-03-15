@@ -307,9 +307,7 @@ namespace Renci.SshNet
                 {
                     try
                     {
-#pragma warning disable IDE0370 // Remove unnecessary suppression
                         ((SshCommand)cmd!).CancelAsync();
-#pragma warning restore IDE0370 // Remove unnecessary suppression
                     }
                     catch
                     {
@@ -585,9 +583,7 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object? sender, ChannelExtendedDataEventArgs e)
         {
-#pragma warning disable IDE0370 // Remove unnecessary suppression
             ExtendedOutputStream.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
-#pragma warning restore IDE0370 // Remove unnecessary suppression
 
             if (e.DataTypeCode == 1)
             {
@@ -597,9 +593,7 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object? sender, ChannelDataEventArgs e)
         {
-#pragma warning disable IDE0370 // Remove unnecessary suppression
             OutputStream.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
-#pragma warning restore IDE0370 // Remove unnecessary suppression
         }
 
         /// <summary>

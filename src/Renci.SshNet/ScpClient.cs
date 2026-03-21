@@ -122,6 +122,23 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the "-d" flag should be passed to the scp process on the server
+        /// when uploading files.
+        /// The "-d" flag is an undocumented flag that ensures that the target is actually a directory. However,
+        /// some scp implementations (like Cisco) do not support this flag and will fail.
+        /// You can set this to <see langword="false"/> to work around this.
+        /// </summary>
+        public bool UseDirectoryFlag { get; set; } = true;
+
+        private string EnsureIsDirectoryArg
+        {
+            get
+            {
+                return UseDirectoryFlag ? "-d" : string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Occurs when downloading file.
         /// </summary>
         public event EventHandler<ScpDownloadEventArgs>? Downloading;
@@ -258,9 +275,9 @@ namespace Renci.SshNet
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
-                // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
+                // Pass only the directory part of the path to the server, and optionally use the (hidden) -d option to signal
                 // that we expect the target to be a directory.
-                if (!channel.SendExecRequest(string.Format("scp -t -d {0}", _remotePathTransformation.Transform(posixPath.Directory))))
+                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(posixPath.Directory)}"))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -301,9 +318,9 @@ namespace Renci.SshNet
                 channel.Closed += (sender, e) => input.Dispose();
                 channel.Open();
 
-                // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
+                // Pass only the directory part of the path to the server, and optionally use the (hidden) -d option to signal
                 // that we expect the target to be a directory.
-                if (!channel.SendExecRequest($"scp -t -d {_remotePathTransformation.Transform(posixPath.Directory)}"))
+                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(posixPath.Directory)}"))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -352,7 +369,7 @@ namespace Renci.SshNet
                 // -r copy directories recursively
                 // -d expect path to be a directory
                 // -t copy to remote
-                if (!channel.SendExecRequest($"scp -r -p -d -t {_remotePathTransformation.Transform(path)}"))
+                if (!channel.SendExecRequest($"scp -r -p {EnsureIsDirectoryArg} -t {_remotePathTransformation.Transform(path)}"))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }

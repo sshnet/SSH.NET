@@ -18,6 +18,7 @@ RUN apk update && apk upgrade --no-cache && \
     # Set the default RSA key
     echo 'HostKey /etc/ssh/ssh_host_rsa_key' >> /etc/ssh/sshd_config && \
     echo 'TrustedUserCAKeys /etc/ssh/user-ca.pub' >> /etc/ssh/sshd_config && \
+    echo 'RekeyLimit 1M 0' >> /etc/ssh/sshd_config && \
     chmod 646 /etc/ssh/sshd_config && \
     # install and configure sudo
     apk add --no-cache sudo && \

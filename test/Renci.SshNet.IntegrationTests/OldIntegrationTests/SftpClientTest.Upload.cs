@@ -482,5 +482,25 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 Assert.IsTrue(callbackCalled);
             }
         }
+
+#if NET
+        [TestMethod]
+        public async Task Test_SftpUpload_WithLowRekeyLimit()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None);
+
+                await Parallel.ForEachAsync(Enumerable.Range(0, 10), async (i, ct) =>
+                {
+                    var filename = Path.GetTempFileName();
+                    int testFileSizeMB = 100;
+                    CreateTestFile(filename, testFileSizeMB);
+                    using var fileStream = File.OpenRead(filename);
+                    await sftp.UploadFileAsync(fileStream, "test" + i, ct);
+                });
+            }
+        }
+#endif
     }
 }

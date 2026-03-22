@@ -123,11 +123,13 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Gets or sets a value indicating whether the "-d" flag should be passed to the scp process on the server
-        /// when uploading files.
+        /// when uploading files. Defaults to <see langword="true"/>.
+        /// </summary>
+        /// <remarks>
         /// The "-d" flag is an undocumented flag that ensures that the target is actually a directory. However,
         /// some scp implementations (like Cisco) do not support this flag and will fail.
         /// You can set this to <see langword="false"/> to work around this.
-        /// </summary>
+        /// </remarks>
         public bool UseDirectoryFlag { get; set; } = true;
 
         private string EnsureIsDirectoryArg

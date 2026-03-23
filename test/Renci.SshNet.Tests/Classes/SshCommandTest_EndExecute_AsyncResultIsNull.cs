@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -17,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<ISession> _sessionMock;
         private string _commandText;
         private Encoding _encoding;
-        private SshCommand _sshCommand;
+        private V2.SshCommand _sshCommand;
         private IAsyncResult _asyncResult;
         private ArgumentNullException _actualException;
 
@@ -37,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes
             _encoding = Encoding.UTF8;
             _asyncResult = null;
 
-            _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);
+            _sshCommand = new V2.SshCommand(_sessionMock.Object, _commandText, _encoding);
         }
 
         private void Act()

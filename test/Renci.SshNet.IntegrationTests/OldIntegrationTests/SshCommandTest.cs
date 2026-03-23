@@ -4,6 +4,7 @@
 using Renci.SshNet.Abstractions;
 #endif
 using Renci.SshNet.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
@@ -16,7 +17,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Run_SingleCommand()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 #region Example SshCommand RunCommand Result
                 client.Connect();
@@ -36,7 +37,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_SingleCommand()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 #region Example SshCommand CreateCommand Execute
                 client.Connect();
@@ -56,7 +57,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_CancelAsync_Unfinished_Command()
         {
-            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            using var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
             using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
@@ -77,7 +78,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public async Task Test_CancelAsync_Kill_Unfinished_Command()
         {
-            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            using var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
             using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
@@ -100,7 +101,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_CancelAsync_Finished_Command()
         {
-            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            using var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
             using var cmd = client.CreateCommand($"echo -n {testValue}");
@@ -122,7 +123,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public async Task Test_ExecuteAsync_CancellationToken()
         {
-            using var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            using var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
             client.Connect();
             var testValue = Guid.NewGuid().ToString();
             using var cmd = client.CreateCommand($"sleep 15s; echo {testValue}");
@@ -143,7 +144,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_ExtendedOutputStream()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 #region Example SshCommand CreateCommand Execute ExtendedOutputStream
 
@@ -163,7 +164,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Timeout()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("sleep 10s");
@@ -176,7 +177,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public async Task Test_ExecuteAsync_Timeout()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("sleep 10s");
@@ -194,7 +195,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public async Task Test_ExecuteAsync_Disconnect()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("sleep 10s");
@@ -212,7 +213,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_InvalidCommand()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -231,7 +232,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_InvalidCommand_Then_Execute_ValidCommand()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand(";");
@@ -253,7 +254,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Command_Reconnect_Execute_Command()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 var result = ExecuteTestCommand(client);
@@ -270,7 +271,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Command_ExitStatus()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -284,7 +285,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Command_Asynchronously()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -315,7 +316,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Command_Asynchronously_With_Error()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -335,7 +336,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Execute_Command_Asynchronously_With_Callback_On_Different_Thread()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -366,7 +367,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [WorkItem(563), TestMethod]
         public void Test_Execute_Command_Same_Object_Different_Commands()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("echo 12345");
@@ -381,7 +382,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_Get_Result_Without_Execution()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("ls -l");
@@ -395,7 +396,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [WorkItem(703), TestMethod]
         public void Test_EndExecute_Before_BeginExecute()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 using var cmd = client.CreateCommand("ls -l");
@@ -413,7 +414,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             string expected = "123\n";
             string result;
 
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 #region Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute
 
@@ -449,7 +450,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 Parallel.For(0, 100, options,
                     () =>
                     {
-                        var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+                        var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
                         client.Connect();
                         return client;
                     },
@@ -476,7 +477,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_MultipleThread_100_MultipleSessions()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
                 Parallel.For(0, 100,
@@ -495,7 +496,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
         [TestMethod]
         public void Test_ExecuteAsync_Dispose_CommandFinishes()
         {
-            using (var client = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            using (var client = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
             {
                 client.Connect();
 
@@ -510,7 +511,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             }
         }
 
-        private static bool ExecuteTestCommand(SshClient s)
+        private static bool ExecuteTestCommand(V2.SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();
             var command = string.Format("echo -n {0}", testValue);

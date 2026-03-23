@@ -8,13 +8,14 @@ using Moq;
 
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
     public class SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected : BaseClientTestBase
     {
-        private SshClient _sshClient;
+        private V2.SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
         private string _terminalName;
         private uint _widthColumns;
@@ -71,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _sshClient = new V2.SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _sshClient.Connect();
         }
 

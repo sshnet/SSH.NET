@@ -4,13 +4,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
+using Renci.SshNet.V2;
+
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
     public class SshClientTest_Disconnect_ForwardedPortStarted : BaseClientTestBase
     {
         private Mock<ForwardedPort> _forwardedPortMock;
-        private SshClient _sshClient;
+        private V2.SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
 
         protected override void CreateMocks()
@@ -46,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _sshClient = new V2.SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _sshClient.Connect();
             _sshClient.AddForwardedPort(_forwardedPortMock.Object);
 

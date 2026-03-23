@@ -2,12 +2,14 @@
 
 using Moq;
 
+using Renci.SshNet.V2;
+
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
     public class SshClientTest_Dispose_Disconnected : BaseClientTestBase
     {
-        private SshClient _sshClient;
+        private V2.SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
 
         protected override void SetupData()
@@ -34,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _sshClient = new SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _sshClient = new V2.SshClient(_connectionInfo, false, ServiceFactoryMock.Object);
             _sshClient.Connect();
             _sshClient.Disconnect();
         }

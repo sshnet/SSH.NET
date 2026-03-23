@@ -9,6 +9,7 @@ using Moq;
 
 using Renci.SshNet.Channels;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -19,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IChannelSession> _channelSessionMock;
         private string _commandText;
         private Encoding _encoding;
-        private SshCommand _sshCommand;
+        private V2.SshCommand _sshCommand;
         private InvalidOperationException _actualException;
 
         protected override void OnInit()
@@ -45,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.InSequence(seq).Setup(p => p.Open());
             _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText)).Returns(true);
 
-            _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);
+            _sshCommand = new V2.SshCommand(_sessionMock.Object, _commandText, _encoding);
             _sshCommand.BeginExecute();
         }
 

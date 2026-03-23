@@ -1,3 +1,5 @@
+using Renci.SshNet.V2;
+
 namespace Renci.SshNet.IntegrationTests
 {
     /// <summary>
@@ -6,11 +8,11 @@ namespace Renci.SshNet.IntegrationTests
     [TestClass]
     public class SshClientTests : IntegrationTestBase, IDisposable
     {
-        private readonly SshClient _sshClient;
+        private readonly V2.SshClient _sshClient;
 
         public SshClientTests()
         {
-            _sshClient = new SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            _sshClient = new V2.SshClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
             _sshClient.Connect();
         }
 

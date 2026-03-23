@@ -9,6 +9,7 @@ using Moq;
 
 using Renci.SshNet.Channels;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -20,8 +21,8 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IChannelSession> _channelSessionBMock;
         private string _commandText;
         private Encoding _encoding;
-        private SshCommand _sshCommandA;
-        private SshCommand _sshCommandB;
+        private V2.SshCommand _sshCommandA;
+        private V2.SshCommand _sshCommandB;
         private ArgumentException _actualException;
         private IAsyncResult _asyncResultB;
 
@@ -62,10 +63,10 @@ namespace Renci.SshNet.Tests.Classes
                                     .Setup(p => p.SendExecRequest(_commandText))
                                     .Returns(true);
 
-            _sshCommandA = new SshCommand(_sessionMock.Object, _commandText, _encoding);
+            _sshCommandA = new V2.SshCommand(_sessionMock.Object, _commandText, _encoding);
             _ = _sshCommandA.BeginExecute();
 
-            _sshCommandB = new SshCommand(_sessionMock.Object, _commandText, _encoding);
+            _sshCommandB = new V2.SshCommand(_sessionMock.Object, _commandText, _encoding);
             _asyncResultB = _sshCommandB.BeginExecute();
         }
 

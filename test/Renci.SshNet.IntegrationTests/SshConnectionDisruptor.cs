@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.IntegrationTests
+﻿using Renci.SshNet.V2;
+
+namespace Renci.SshNet.IntegrationTests
 {
     internal class SshConnectionDisruptor
     {
@@ -11,7 +13,7 @@
 
         public SshConnectionRestorer BreakConnections()
         {
-            var client = new SshClient(_connectionInfoFactory.Create());
+            var client = new V2.SshClient(_connectionInfoFactory.Create());
 
             client.Connect();
 
@@ -20,7 +22,7 @@
             return new SshConnectionRestorer(client);
         }
 
-        private static void PauseSshd(SshClient client)
+        private static void PauseSshd(V2.SshClient client)
         {
             using (var command = client.CreateCommand("sudo echo 'DenyUsers sshnet' >> /etc/ssh/sshd_config"))
             {

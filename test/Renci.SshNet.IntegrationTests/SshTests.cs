@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using Renci.SshNet.Common;
 using Renci.SshNet.IntegrationTests.Common;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.V2;
 
 namespace Renci.SshNet.IntegrationTests
 {
@@ -44,7 +45,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Ssh_ShellStream_Exit()
         {
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
@@ -84,7 +85,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Ssh_CreateShellStreamNoTerminal()
         {
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
@@ -128,7 +129,7 @@ namespace Renci.SshNet.IntegrationTests
             scriptBuilder.Append("echo Line 6 \n");
             scriptBuilder.Append("exit 13\n");
 
-            using (var sshClient = new SshClient(_connectionInfoFactory.Create()))
+            using (var sshClient = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 sshClient.Connect();
 
@@ -171,7 +172,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Ssh_CreateShell()
         {
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
@@ -196,7 +197,7 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Ssh_CreateShellNoTerminal()
         {
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
@@ -254,7 +255,7 @@ namespace Renci.SshNet.IntegrationTests
             scriptBuilder.Append("echo Line 6 \n");
             scriptBuilder.Append("exit 13\n");
 
-            using (var sshClient = new SshClient(_connectionInfoFactory.Create()))
+            using (var sshClient = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 sshClient.Connect();
 
@@ -311,7 +312,7 @@ namespace Renci.SshNet.IntegrationTests
             scriptBuilder.Append("echo Line 6 \n");
             scriptBuilder.Append("exit 13\n");
 
-            using (var sshClient = new SshClient(_connectionInfoFactory.Create()))
+            using (var sshClient = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 sshClient.Connect();
 
@@ -365,7 +366,7 @@ namespace Renci.SshNet.IntegrationTests
             var httpGetRequest = Encoding.ASCII.GetBytes($"GET / HTTP/1.1\r\nHost: {hostName}\r\n\r\n");
             Socket socksSocket;
 
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                 client.Connect();
@@ -410,7 +411,7 @@ namespace Renci.SshNet.IntegrationTests
 
             try
             {
-                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
                 {
                     client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                     client.Connect();
@@ -479,7 +480,7 @@ namespace Renci.SshNet.IntegrationTests
             var ipv4 = Dns.GetHostAddresses(hostName).FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork);
             Assert.IsNotNull(ipv4, $@"No IPv4 address found for '{hostName}'.");
 
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.ConnectionInfo.Timeout = TimeSpan.FromSeconds(200);
                 client.Connect();
@@ -523,7 +524,7 @@ namespace Renci.SshNet.IntegrationTests
                 var connectionInfo = _connectionInfoFactory.Create();
                 connectionInfo.MaxSessions = 1;
 
-                using (var client = new SshClient(connectionInfo))
+                using (var client = new V2.SshClient(connectionInfo))
                 {
                     client.Connect();
 
@@ -578,7 +579,7 @@ namespace Renci.SshNet.IntegrationTests
 
             try
             {
-                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
                 {
                     client.Connect();
 
@@ -639,7 +640,7 @@ namespace Renci.SshNet.IntegrationTests
             using (var socketListener2 = new AsyncSocketListener(endpoint2))
             using (var bytesReceivedEventOnListener1 = new AutoResetEvent(false))
             using (var bytesReceivedEventOnListener2 = new AutoResetEvent(false))
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 socketListener1.BytesReceived += (received, socket) =>
                 {
@@ -740,7 +741,7 @@ namespace Renci.SshNet.IntegrationTests
                 }
             }
 
-            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            using (var client = new V2.SshClient(_connectionInfoFactory.Create()))
             {
                 client.Connect();
 
@@ -991,7 +992,7 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
-        private static void RemoveFileOrDirectory(SshClient client, string remoteFile)
+        private static void RemoveFileOrDirectory(V2.SshClient client, string remoteFile)
         {
             using (var cmd = client.CreateCommand("rm -Rf " + remoteFile))
             {

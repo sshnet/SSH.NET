@@ -9,7 +9,7 @@ Getting Started
 using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("path/to/my/key")))
 {
     client.Connect();
-    using SshCommand cmd = client.RunCommand("echo 'Hello World!'");
+    using ISshCommand cmd = client.RunCommand("echo 'Hello World!'");
     Console.WriteLine(cmd.Result); // "Hello World!\n"
 }
 ```
@@ -134,7 +134,7 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
     client.Connect();
 
     // Make the server echo back the input file with "cat"
-    using (SshCommand command = client.CreateCommand("cat"))
+    using (ISshCommand command = client.CreateCommand("cat"))
     {
         Task executeTask = command.ExecuteAsync(CancellationToken.None);
 

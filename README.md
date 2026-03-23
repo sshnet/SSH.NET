@@ -24,7 +24,7 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 using (var client = new SshClient("sftp.foo.com", "guest", new PrivateKeyFile("path/to/my/key")))
 {
     client.Connect();
-    using SshCommand cmd = client.RunCommand("echo 'Hello World!'");
+    using ISshCommand cmd = client.RunCommand("echo 'Hello World!'");
     Console.WriteLine(cmd.Result); // "Hello World!\n"
 }
 ```

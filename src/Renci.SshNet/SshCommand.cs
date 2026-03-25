@@ -478,6 +478,73 @@ namespace Renci.SshNet
             }
         }
 
+        private static string? GetSignalName(CommandSignal signal)
+        {
+#if NETCOREAPP
+            return Enum.GetName(signal);
+#else
+
+            // Boxes signal, but Enum.GetName does not have a non-boxing overload prior to .NET Core.
+            return Enum.GetName(typeof(CommandSignal), signal);
+#endif
+        }
+
+        /// <summary>
+        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
+        /// </summary>
+        /// <param name="signal">The signal to send</param>
+        /// <returns>If the signal was sent.</returns>
+        public bool TrySendSignal(CommandSignal signal)
+        {
+            var signalName = GetSignalName(signal);
+            if (signalName is null)
+            {
+                return false;
+            }
+
+            if (_tcs is null || _tcs.Task.IsCompleted || _channel?.IsOpen != true)
+            {
+                return false;
+            }
+
+            try
+            {
+                // Try to send the cancellation signal.
+                return _channel.SendSignalRequest(signalName);
+            }
+            catch (Exception)
+            {
+                // Exception can be ignored since we are in a Try method
+                // Possible exceptions here: InvalidOperationException, SshConnectionException, SshOperationTimeoutException
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
+        /// </summary>
+        /// <param name="signal">The signal to send</param>
+        /// <exception cref="ArgumentException">Signal was not a valid CommandSignal.</exception>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <exception cref="InvalidOperationException">Command has not been started.</exception>
+        public void SendSignal(CommandSignal signal)
+        {
+            var signalName = GetSignalName(signal);
+            if (signalName is null)
+            {
+                throw new ArgumentException("Signal was not a valid CommandSignal.");
+            }
+            if (_tcs is null || _tcs.Task.IsCompleted || _channel?.IsOpen != true)
+            {
+                throw new InvalidOperationException("Command has not been started.");
+            }
+
+            _ = _channel.SendSignalRequest(signalName);
+        }
+
         /// <summary>
         /// Executes the command specified by <see cref="CommandText"/>.
         /// </summary>

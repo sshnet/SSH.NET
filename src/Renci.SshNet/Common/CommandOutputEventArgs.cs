@@ -27,7 +27,7 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                return Encoding.GetString(RawData.Array, RawData.Offset, RawData.Count);
+                return Encoding.GetString(RawData.Array!, RawData.Offset, RawData.Count);
             }
         }
 

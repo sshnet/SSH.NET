@@ -31,7 +31,6 @@ namespace Renci.SshNet.Common
         /// <seealso cref="ExitSignal"/>
         public int? ExitStatus { get; }
 
-
         /// <summary>
         /// Gets the name of the signal due to which the command
         /// terminated violently, if applicable, otherwise <see langword="null"/>.

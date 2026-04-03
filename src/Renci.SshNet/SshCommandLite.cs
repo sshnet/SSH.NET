@@ -352,7 +352,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
         /// </summary>
-        /// <param name="signal">The signal to send</param>
+        /// <param name="signal">The signal to send.</param>
         /// <returns>If the signal was sent.</returns>
         public bool TrySendSignal(CommandSignal signal)
         {
@@ -384,7 +384,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
         /// </summary>
-        /// <param name="signal">The signal to send</param>
+        /// <param name="signal">The signal to send.</param>
         /// <exception cref="ArgumentException">Signal was not a valid CommandSignal.</exception>
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
@@ -397,6 +397,7 @@ namespace Renci.SshNet
             {
                 throw new ArgumentException("Signal was not a valid CommandSignal.");
             }
+
             if (_tcs is null || _tcs.Task.IsCompleted || _channel?.IsOpen != true)
             {
                 throw new InvalidOperationException("Command has not been started.");

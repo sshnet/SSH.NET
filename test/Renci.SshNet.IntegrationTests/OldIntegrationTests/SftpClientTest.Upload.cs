@@ -74,6 +74,18 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                     await sftp.UploadFileAsync(file, remoteFileName).ConfigureAwait(false);
                 }
 
+                // uploading again should not throw because of the default canOverride = true
+                using (var file = File.OpenRead(uploadedFileName))
+                {
+                    await sftp.UploadFileAsync(file, remoteFileName).ConfigureAwait(false);
+                }
+
+                // uploading with canOverride = false should throw because the file already exists
+                using (var file = File.OpenRead(uploadedFileName))
+                {
+                    await Assert.ThrowsAsync<SftpException>(async () => await sftp.UploadFileAsync(file, remoteFileName, canOverride: false).ConfigureAwait(false));
+                }
+
                 var downloadedFileName = Path.GetTempFileName();
 
                 using (var file = File.OpenWrite(downloadedFileName))
@@ -439,6 +451,35 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 var async2 = sftp.BeginUploadFile(fileStream, "test", null, null);
 
                 Assert.ThrowsExactly<ArgumentException>(() => sftp.EndUploadFile(async1));
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public async Task Test_Sftp_UploadFileAsync_UploadProgress()
+        {
+            using (var sftp = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password))
+            {
+                await sftp.ConnectAsync(CancellationToken.None);
+                var filename = Path.GetTempFileName();
+                int testFileSizeMB = 1;
+                CreateTestFile(filename, testFileSizeMB);
+                using var fileStream = File.OpenRead(filename);
+                using ManualResetEventSlim finalCallbackCalledEvent = new();
+
+                IProgress<UploadFileProgressReport> progress = new Progress<UploadFileProgressReport>(r =>
+                {
+                    if ((int)r.TotalBytesUploaded == testFileSizeMB * 1024 * 1024)
+                    {
+                        finalCallbackCalledEvent.Set();
+                    }
+                });
+
+                await sftp.UploadFileAsync(fileStream, "test", progress);
+
+                // since the callback is queued to the thread pool, wait for the event.
+                bool callbackCalled = finalCallbackCalledEvent.Wait(5000);
+                Assert.IsTrue(callbackCalled);
             }
         }
     }

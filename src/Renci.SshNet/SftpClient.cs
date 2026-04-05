@@ -901,17 +901,30 @@ namespace Renci.SshNet
             ArgumentNullException.ThrowIfNull(output);
             CheckDisposed();
 
+            IProgress<DownloadFileProgressReport>? downloadProgress = null;
+
+            if (downloadCallback != null)
+            {
+                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+            }
+
             InternalDownloadFile(
                 path,
                 output,
                 asyncResult: null,
-                downloadCallback,
+                downloadProgress,
                 isAsync: false,
                 CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <inheritdoc />
         public Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken = default)
+        {
+            return DownloadFileAsync(path, output, downloadProgress: null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task DownloadFileAsync(string path, Stream output, IProgress<DownloadFileProgressReport>? downloadProgress, CancellationToken cancellationToken = default)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(path);
             ArgumentNullException.ThrowIfNull(output);
@@ -921,7 +934,7 @@ namespace Renci.SshNet
                 path,
                 output,
                 asyncResult: null,
-                downloadCallback: null,
+                downloadProgress: downloadProgress,
                 isAsync: true,
                 cancellationToken);
         }
@@ -994,6 +1007,13 @@ namespace Renci.SshNet
             ArgumentNullException.ThrowIfNull(output);
             CheckDisposed();
 
+            IProgress<DownloadFileProgressReport>? downloadProgress = null;
+
+            if (downloadCallback != null)
+            {
+                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+            }
+
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
             _ = DoDownloadAndSetResult();
@@ -1006,7 +1026,7 @@ namespace Renci.SshNet
                         path,
                         output,
                         asyncResult,
-                        downloadCallback,
+                        downloadProgress,
                         isAsync: true,
                         CancellationToken.None).ConfigureAwait(false);
 
@@ -1065,12 +1085,19 @@ namespace Renci.SshNet
                 flags |= Flags.CreateNew;
             }
 
+            IProgress<UploadFileProgressReport>? uploadProgress = null;
+
+            if (uploadCallback != null)
+            {
+                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+            }
+
             InternalUploadFile(
                 input,
                 path,
                 flags,
                 asyncResult: null,
-                uploadCallback,
+                uploadProgress,
                 isAsync: false,
                 CancellationToken.None).GetAwaiter().GetResult();
         }
@@ -1078,16 +1105,39 @@ namespace Renci.SshNet
         /// <inheritdoc />
         public Task UploadFileAsync(Stream input, string path, CancellationToken cancellationToken = default)
         {
+            return UploadFileAsync(input, path, canOverride: true, uploadProgress: null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UploadFileAsync(Stream input, string path, IProgress<UploadFileProgressReport>? uploadProgress, CancellationToken cancellationToken = default)
+        {
+            return UploadFileAsync(input, path, canOverride: true, uploadProgress, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UploadFileAsync(Stream input, string path, bool canOverride, IProgress<UploadFileProgressReport>? uploadProgress = null, CancellationToken cancellationToken = default)
+        {
             ArgumentNullException.ThrowIfNull(input);
             ArgumentException.ThrowIfNullOrWhiteSpace(path);
             CheckDisposed();
 
+            var flags = Flags.Write | Flags.Truncate;
+
+            if (canOverride)
+            {
+                flags |= Flags.CreateNewOrOpen;
+            }
+            else
+            {
+                flags |= Flags.CreateNew;
+            }
+
             return InternalUploadFile(
                 input,
                 path,
-                Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen,
+                flags,
                 asyncResult: null,
-                uploadCallback: null,
+                uploadProgress,
                 isAsync: true,
                 cancellationToken);
         }
@@ -1219,6 +1269,13 @@ namespace Renci.SshNet
                 flags |= Flags.CreateNew;
             }
 
+            IProgress<UploadFileProgressReport>? uploadProgress = null;
+
+            if (uploadCallback != null)
+            {
+                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+            }
+
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
 
             _ = DoUploadAndSetResult();
@@ -1232,7 +1289,7 @@ namespace Renci.SshNet
                         path,
                         flags,
                         asyncResult,
-                        uploadCallback,
+                        uploadProgress,
                         isAsync: true,
                         CancellationToken.None).ConfigureAwait(false);
 
@@ -2178,7 +2235,7 @@ namespace Renci.SshNet
                                     remoteFileName,
                                     uploadFlag,
                                     asyncResult: null,
-                                    uploadCallback: null,
+                                    uploadProgress: null,
                                     isAsync: false,
                                     CancellationToken.None).GetAwaiter().GetResult();
 #pragma warning restore CA2025 // Do not pass 'IDisposable' instances into unawaited tasks
@@ -2274,7 +2331,7 @@ namespace Renci.SshNet
             string path,
             Stream output,
             SftpDownloadAsyncResult? asyncResult,
-            Action<ulong>? downloadCallback,
+            IProgress<DownloadFileProgressReport>? downloadProgress,
             bool isAsync,
             CancellationToken cancellationToken)
         {
@@ -2360,13 +2417,15 @@ namespace Renci.SshNet
 
                     asyncResult?.Update(totalBytesRead);
 
-                    if (downloadCallback is not null)
+                    if (downloadProgress is not null)
                     {
                         // Copy offset to ensure it's not modified between now and execution of callback
-                        var downloadOffset = totalBytesRead;
+                        var report = new DownloadFileProgressReport()
+                        {
+                            TotalBytesDownloaded = totalBytesRead,
+                        };
 
-                        // Execute callback on different thread
-                        ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
+                        downloadProgress.Report(report);
                     }
                 }
             }
@@ -2390,7 +2449,7 @@ namespace Renci.SshNet
             string path,
             Flags flags,
             SftpUploadAsyncResult? asyncResult,
-            Action<ulong>? uploadCallback,
+            IProgress<UploadFileProgressReport>? uploadProgress,
             bool isAsync,
             CancellationToken cancellationToken)
         {
@@ -2478,10 +2537,14 @@ namespace Renci.SshNet
                         asyncResult?.Update(writtenBytes);
 
                         // Call callback to report number of bytes written
-                        if (uploadCallback is not null)
+                        if (uploadProgress is not null)
                         {
-                            // Execute callback on different thread
-                            ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
+                            UploadFileProgressReport report = new()
+                            {
+                                TotalBytesUploaded = writtenBytes,
+                            };
+
+                            uploadProgress.Report(report);
                         }
                     }
                     finally

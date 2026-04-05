@@ -66,9 +66,8 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
             await _sshServerImage.CreateAsync();
 
-            _sshServer = new ContainerBuilder()
+            _sshServer = new ContainerBuilder(_sshServerImage)
                 .WithHostname("renci-ssh-tests-server")
-                .WithImage(_sshServerImage)
                 .WithPortBinding(22, true)
                 .WithLogger(containerLogger)
                 .Build();

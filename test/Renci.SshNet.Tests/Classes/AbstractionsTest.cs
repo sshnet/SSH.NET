@@ -1,5 +1,7 @@
-﻿using Renci.SshNet.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Renci.SshNet.Abstractions;
+
 using System;
 using System.Threading;
 using System.Security.Cryptography;

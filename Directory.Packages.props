@@ -9,19 +9,19 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.1" />
-    <PackageVersion Include="Meziantou.Analyzer" Version="2.0.264" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.18" />
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.1" />
-    <PackageVersion Include="MSTest" Version="4.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
+    <PackageVersion Include="MSTest" Version="4.1.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.17.0.131074" />
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.20.0.135146" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="System.Formats.Asn1" Version="10.0.1" />
-    <PackageVersion Include="Testcontainers" Version="4.9.0" />
+    <PackageVersion Include="System.Formats.Asn1" Version="10.0.3" />
+    <PackageVersion Include="Testcontainers" Version="4.10.0" />
   </ItemGroup>
 </Project>

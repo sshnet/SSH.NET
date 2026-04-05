@@ -2098,5 +2098,64 @@ namespace Renci.SshNet.IntegrationTests
 
             return path1 + "/" + path2;
         }
+
+        [TestMethod]
+        public async Task UploadWithUseDirectoryFlagFalse()
+        {
+            string remoteDirectory = "/home/sshnet/usedirectoryflagfalsetest";
+
+            // remote cleanup
+            using (var sftpClient = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                await sftpClient.ConnectAsync(CancellationToken.None);
+
+                if (await sftpClient.ExistsAsync(remoteDirectory))
+                {
+                    await sftpClient.DeleteDirectoryAsync(remoteDirectory);
+                }
+
+                await sftpClient.CreateDirectoryAsync(remoteDirectory);
+            }
+
+            using (var client = new ScpClient(_connectionInfoFactory.Create()))
+            {
+                client.UseDirectoryFlag = false;
+
+                await client.ConnectAsync(CancellationToken.None);
+                int tempFileSize = 1024;
+                string tempFilePath = CreateTempFile(tempFileSize);
+                MemoryStream downloadedStream = new();
+
+                // FileInfo overload
+                client.Upload(new FileInfo(tempFilePath), $"{remoteDirectory}/file1");
+                client.Download($"{remoteDirectory}/file1", downloadedStream);
+                Assert.AreEqual(tempFileSize, downloadedStream.Length);
+
+                // Stream overload
+                downloadedStream = new();
+                using (Stream stream = File.OpenRead(tempFilePath))
+                {
+                    client.Upload(stream, $"{remoteDirectory}/file2");
+                    client.Download($"{remoteDirectory}/file2", downloadedStream);
+                    Assert.AreEqual(tempFileSize, downloadedStream.Length);
+                }
+
+                // DirectoryInfo overload
+                downloadedStream = new();
+                string tempDir = Path.Combine(Path.GetTempPath(), "SSH.NET_UploadWithUseDirectoryFlagFalseTest");
+
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+
+                Directory.CreateDirectory(tempDir);
+                File.Move(tempFilePath, $"{tempDir}/file3");
+
+                client.Upload(new DirectoryInfo(tempDir), remoteDirectory);
+                client.Download($"{remoteDirectory}/file3", downloadedStream);
+                Assert.AreEqual(tempFileSize, downloadedStream.Length);
+            }
+        }
     }
 }

@@ -234,7 +234,7 @@ namespace Renci.SshNet
             }
 
             AssertConsistency();
-            value = default!;
+            value = default;
             return false;
         }
 

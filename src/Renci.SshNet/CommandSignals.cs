@@ -1,74 +1,73 @@
 ﻿namespace Renci.SshNet
 {
     /// <summary>
-    /// The ssh compatible POSIX/ANSI signals with their libc compatible values.
+    /// The ssh compatible standard POSIX/ANSI signals.
     /// </summary>
-#pragma warning disable CA1720 // Identifier contains type name
-    public enum CommandSignal
+    public static class CommandSignals
     {
         /// <summary>
         /// Hangup (POSIX).
         /// </summary>
-        HUP = 1,
+        public const string SIGHUP = "HUP";
 
         /// <summary>
         /// Interrupt (ANSI).
         /// </summary>
-        INT = 2,
+        public const string SIGINT = "INT";
 
         /// <summary>
         /// Quit (POSIX).
         /// </summary>
-        QUIT = 3,
+        public const string SIGQUIT = "QUIT";
 
         /// <summary>
         /// Illegal instruction (ANSI).
         /// </summary>
-        ILL = 4,
+        public const string SIGILL = "ILL";
 
         /// <summary>
         /// Abort (ANSI).
         /// </summary>
-        ABRT = 6,
+        public const string SIGABRT = "ABRT";
 
         /// <summary>
         /// Floating-point exception (ANSI).
         /// </summary>
-        FPE = 8,
+        public const string SIGFPE = "FPE";
 
         /// <summary>
         /// Kill, unblockable (POSIX).
         /// </summary>
-        KILL = 9,
+        public const string SIGKILL = "KILL";
 
         /// <summary>
         /// User-defined signal 1 (POSIX).
         /// </summary>
-        USR1 = 10,
+        public const string SIGUSR1 = "USR1";
 
         /// <summary>
         /// Segmentation violation (ANSI).
         /// </summary>
-        SEGV = 11,
+        public const string SIGSEGV = "SEGV";
 
         /// <summary>
         /// User-defined signal 2 (POSIX).
         /// </summary>
-        USR2 = 12,
+        public const string SIGUSR2 = "USR2";
 
         /// <summary>
         /// Broken pipe (POSIX).
         /// </summary>
-        PIPE = 13,
+        public const string SIGPIPE = "PIPE";
 
         /// <summary>
         /// Alarm clock (POSIX).
         /// </summary>
-        ALRM = 14,
+        public const string SIGALRM = "ALRM";
 
         /// <summary>
         /// Termination (ANSI).
         /// </summary>
-        TERM = 15,
+        public const string SIGTERM = "TERM";
     }
 }

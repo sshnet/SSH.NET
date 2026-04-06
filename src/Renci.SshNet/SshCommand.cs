@@ -478,26 +478,14 @@ namespace Renci.SshNet
             }
         }
 
-        private static string? GetSignalName(CommandSignal signal)
-        {
-#if NETCOREAPP
-            return Enum.GetName(signal);
-#else
-
-            // Boxes signal, but Enum.GetName does not have a non-boxing overload prior to .NET Core.
-            return Enum.GetName(typeof(CommandSignal), signal);
-#endif
-        }
-
         /// <summary>
-        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
+        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGTERM or any of the <see cref="CommandSignals"/>.
         /// </summary>
-        /// <param name="signal">The signal to send.</param>
+        /// <param name="signal">The signal to send. See <see cref="CommandSignals"/> for a standard list of signals.</param>
         /// <returns>If the signal was sent.</returns>
-        public bool TrySendSignal(CommandSignal signal)
+        public bool TrySendSignal(string signal)
         {
-            var signalName = GetSignalName(signal);
-            if (signalName is null)
+            if (signal is null)
             {
                 return false;
             }
@@ -510,7 +498,7 @@ namespace Renci.SshNet
             try
             {
                 // Try to send the cancellation signal.
-                return _channel.SendSignalRequest(signalName);
+                return _channel.SendSignalRequest(signal);
             }
             catch (Exception)
             {
@@ -522,18 +510,17 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGINT or SIGTERM.
+        /// Tries to send a POSIX/ANSI signal to the remote process executing the command, such as SIGTERM or any of the <see cref="CommandSignals"/>.
         /// </summary>
-        /// <param name="signal">The signal to send.</param>
+        /// <param name="signal">The signal to send. See <see cref="CommandSignals"/> for a standard list of signals.</param>
         /// <exception cref="ArgumentException">Signal was not a valid CommandSignal.</exception>
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         /// <exception cref="InvalidOperationException">Command has not been started.</exception>
-        public void SendSignal(CommandSignal signal)
+        public void SendSignal(string signal)
         {
-            var signalName = GetSignalName(signal);
-            if (signalName is null)
+            if (signal is null)
             {
                 throw new ArgumentException("Signal was not a valid CommandSignal.");
             }
@@ -543,7 +530,7 @@ namespace Renci.SshNet
                 throw new InvalidOperationException("Command has not been started.");
             }
 
-            _ = _channel.SendSignalRequest(signalName);
+            _ = _channel.SendSignalRequest(signal);
         }
 
         /// <summary>

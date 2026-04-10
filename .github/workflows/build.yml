@@ -1,21 +1,30 @@
 name: Build
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+      - 'copilot/**'
+  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   Linux:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
+        persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
 
     - name: Build Unit Tests .NET
       run: dotnet build -f net10.0 test/Renci.SshNet.Tests/
@@ -48,7 +57,7 @@ jobs:
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
           name: Coverlet Results Linux
           path: coverlet
@@ -57,12 +66,13 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
+        persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
 
     - name: Build Solution
       run: dotnet build Renci.SshNet.slnx
@@ -74,7 +84,7 @@ jobs:
       run: dotnet pack
 
     - name: Archive NuGet Package
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: NuGet Package
         path: src/Renci.SshNet/bin/Release/*.*nupkg
@@ -108,15 +118,16 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
+        persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
 
     - name: Setup WSL2
-      uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
+      uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # 7.0.0
       with:
         distribution: Ubuntu-24.04
 
@@ -140,7 +151,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: Coverlet Results Windows .NET Framework
         path: coverlet
@@ -150,15 +161,16 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
+        persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
 
     - name: Setup WSL2
-      uses: Vampire/setup-wsl@6a8db447be7ed35f2f499c02c6e60ff77ef11278 # v6.0.0
+      uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
       with:
         distribution: Ubuntu-24.04
 
@@ -182,7 +194,7 @@ jobs:
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: Coverlet Results Windows .NET
         path: coverlet
@@ -200,7 +212,7 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: NuGet Package
 
@@ -219,7 +231,8 @@ jobs:
   Publish-NuGet-Package:
     name: Publish NuGet Package
     runs-on: ubuntu-24.04
-    if: startsWith(github.event.ref, 'refs/tags/20')
+    if: github.event_name == 'release'
+    environment: nuget-publish
     permissions:
       id-token: write
     needs:
@@ -229,12 +242,12 @@ jobs:
       - Windows-Integration-Tests-Net
     steps:
       - name: Download NuGet Package
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: NuGet Package
 
       - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
+        uses: NuGet/login@d22cc5f58ff5b88bf9bd452535b4335137e24544 # v1.1.0
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}

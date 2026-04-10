@@ -9,14 +9,14 @@ updates:
     directory: "/test/Renci.SshNet.IntegrationTests/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "monthly"
     ignore: # See justifications in Directory.Packages.props
-      - dependency-name: "Microsoft.Bcl.AsyncInterfaces"
-  
       - dependency-name: "System.Formats.Asn1"
         update-types: ["version-update:semver-major"]
       
@@ -26,8 +26,12 @@ updates:
       dependencies:
         patterns:
           - "*"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7

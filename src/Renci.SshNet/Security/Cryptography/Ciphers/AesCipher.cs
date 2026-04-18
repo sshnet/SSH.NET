@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Security.Cryptography;
 
@@ -69,6 +70,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             return _impl.Encrypt(input, offset, length);
+        }
+
+        /// <inheritdoc/>
+        public override int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+        {
+            return _impl.Encrypt(input, offset, length, output, outputOffset);
         }
 
         /// <inheritdoc/>

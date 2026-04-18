@@ -1050,67 +1050,79 @@ namespace Renci.SshNet
             }
 
             var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
-            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead);
+
+            var macLength = 0;
+
+            if (_clientAead)
+            {
+                macLength = _clientCipher.TagSize;
+            }
+            else if (_clientMac != null)
+            {
+                macLength = _clientMac.HashSize / 8;
+            }
+
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead, macLength);
+
+            if (packetData.Length > MaximumSshPacketSize)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
+            }
 
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
             lock (_socketWriteLock)
             {
-                byte[] hash = null;
-                var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
-
                 // write outbound packet sequence to start of packet data
                 BinaryPrimitives.WriteUInt32BigEndian(packetData, _outboundPacketSequence);
 
                 if (_clientMac != null && !_clientEtm)
                 {
-                    // calculate packet hash
-                    hash = _clientMac.ComputeHash(packetData);
+                    // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
+
+                    var hashSuccess = _clientMac.TryComputeHash(
+                        buffer: packetData,
+                        offset: 0,
+                        count: packetData.Length - macLength,
+                        destination: packetData.AsSpan(packetData.Length - macLength),
+                        bytesWritten: out var bytesWritten);
+
+                    Debug.Assert(hashSuccess && bytesWritten == macLength);
                 }
 
-                // Encrypt packet data
                 if (_clientCipher != null)
                 {
                     _clientCipher.SetSequenceNumber(_outboundPacketSequence);
-                    if (_clientEtm)
-                    {
-                        // The length of the "packet length" field in bytes
-                        const int packetLengthFieldLength = 4;
 
-                        var encryptedData = _clientCipher.Encrypt(packetData, packetDataOffset + packetLengthFieldLength, packetData.Length - packetDataOffset - packetLengthFieldLength);
+                    // Not encrypting the sequence number (it is not part of the packet),
+                    // nor the packet length for ETM.
+                    var offset = _clientEtm ? 8 : 4;
 
-                        Array.Resize(ref packetData, packetDataOffset + packetLengthFieldLength + encryptedData.Length);
+                    var numberOfBytesEncrypted = _clientCipher.Encrypt(
+                        input: packetData,
+                        offset,
+                        length: packetData.Length - offset - macLength,
+                        output: packetData,
+                        outputOffset: offset);
 
-                        // write encrypted data
-                        Buffer.BlockCopy(encryptedData, 0, packetData, packetDataOffset + packetLengthFieldLength, encryptedData.Length);
-
-                        // calculate packet hash
-                        hash = _clientMac.ComputeHash(packetData);
-                    }
-                    else
-                    {
-                        packetData = _clientCipher.Encrypt(packetData, packetDataOffset, packetData.Length - packetDataOffset);
-                        packetDataOffset = 0;
-                    }
+                    Debug.Assert(numberOfBytesEncrypted == packetData.Length - offset - macLength + (_clientAead ? macLength : 0));
                 }
 
-                if (packetData.Length > MaximumSshPacketSize)
+                if (_clientMac != null && _clientEtm)
                 {
-                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
+                    // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
+
+                    var hashSuccess = _clientMac.TryComputeHash(
+                        buffer: packetData,
+                        offset: 0,
+                        count: packetData.Length - macLength,
+                        destination: packetData.AsSpan(packetData.Length - macLength),
+                        bytesWritten: out var bytesWritten);
+
+                    Debug.Assert(hashSuccess && bytesWritten == macLength);
                 }
 
-                var packetLength = packetData.Length - packetDataOffset;
-                if (hash is null)
-                {
-                    SendPacket(packetData, packetDataOffset, packetLength);
-                }
-                else
-                {
-                    var data = new byte[packetLength + hash.Length];
-                    Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
-                    Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
-                    SendPacket(data, 0, data.Length);
-                }
+                SendPacket(packetData, 4, packetData.Length - 4);
 
                 if (_isStrictKex && message is NewKeysMessage)
                 {

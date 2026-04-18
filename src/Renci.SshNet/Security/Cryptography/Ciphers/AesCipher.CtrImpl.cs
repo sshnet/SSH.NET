@@ -11,12 +11,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     {
         private sealed class CtrImpl : BlockCipher, IDisposable
         {
+            private const int KeystreamBufferLength = 4096;
+
             private readonly Aes _aes;
 
             private readonly ICryptoTransform _encryptor;
 
             private ulong _ivUpper; // The upper 64 bits of the IV
             private ulong _ivLower; // The lower 64 bits of the IV
+
+            private byte[]? _keystreamBuffer;
 
             public CtrImpl(
                 byte[] key,
@@ -37,6 +41,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             public override byte[] Encrypt(byte[] input, int offset, int length)
             {
                 return Decrypt(input, offset, length);
+            }
+
+            public override int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+            {
+                return Decrypt(input, offset, length, output, outputOffset);
             }
 
             public override byte[] Decrypt(byte[] input, int offset, int length)
@@ -84,23 +93,61 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 Debug.Assert(blockSizedLength % BlockSize == 0);
 
-                if (output is null)
+                byte[] keystream;
+                int keystreamOffset;
+                int chunkSize;
+
+                if (data == output && offset == outputOffset)
                 {
-                    output = new byte[blockSizedLength];
-                    outputOffset = 0;
+                    keystream = _keystreamBuffer ??= new byte[KeystreamBufferLength];
+                    keystreamOffset = 0;
+                    chunkSize = KeystreamBufferLength;
                 }
-                else if (data.AsSpan(offset, length).Overlaps(output.AsSpan(outputOffset, blockSizedLength)))
+                else
                 {
-                    throw new ArgumentException("Input and output buffers must not overlap");
+                    if (output is null)
+                    {
+                        output = new byte[blockSizedLength];
+                        outputOffset = 0;
+                    }
+                    else if (data.AsSpan(offset, length).Overlaps(output.AsSpan(outputOffset, blockSizedLength)))
+                    {
+                        throw new ArgumentException("Input and output buffers must not overlap (except when identical).");
+                    }
+
+                    keystream = output;
+                    keystreamOffset = outputOffset;
+                    chunkSize = length;
                 }
 
-                CTRCreateCounterArray(output.AsSpan(outputOffset, blockSizedLength));
+                var bytesProcessed = 0;
+                while (bytesProcessed < length)
+                {
+                    var bytesThisChunk = Math.Min(chunkSize, length - bytesProcessed);
+                    var blockSizedChunk = (bytesThisChunk + BlockSize - 1) & ~(BlockSize - 1);
 
-                var bytesWritten = _encryptor.TransformBlock(output, outputOffset, blockSizedLength, output, outputOffset);
+                    CTRCreateCounterArray(keystream.AsSpan(keystreamOffset, blockSizedChunk));
 
-                Debug.Assert(bytesWritten == blockSizedLength);
+                    var bytesWritten = _encryptor.TransformBlock(
+                        inputBuffer: keystream,
+                        inputOffset: keystreamOffset,
+                        inputCount: blockSizedChunk,
+                        outputBuffer: keystream,
+                        outputOffset: keystreamOffset);
 
-                ArrayXOR(output, outputOffset, data, offset, length);
+                    Debug.Assert(bytesWritten == blockSizedChunk);
+
+                    ArrayXOR(
+                        dst: output,
+                        dstOffset: outputOffset + bytesProcessed,
+                        a: data,
+                        aOffset: offset + bytesProcessed,
+                        b: keystream,
+                        bOffset: keystreamOffset,
+                        length: bytesThisChunk);
+
+                    bytesProcessed += bytesThisChunk;
+                }
 
                 return output;
             }
@@ -120,21 +167,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            // XOR 2 arrays using Vector<byte>
-            private static void ArrayXOR(byte[] buffer, int bufferOffset, byte[] data, int offset, int length)
+            // dst[i] = a[i] ^ b[i]
+            private static void ArrayXOR(byte[] dst, int dstOffset, byte[] a, int aOffset, byte[] b, int bOffset, int length)
             {
                 var i = 0;
 
                 var oneVectorFromEnd = length - Vector<byte>.Count;
                 for (; i <= oneVectorFromEnd; i += Vector<byte>.Count)
                 {
-                    var v = new Vector<byte>(buffer, bufferOffset + i) ^ new Vector<byte>(data, offset + i);
-                    v.CopyTo(buffer, bufferOffset + i);
+                    var v = new Vector<byte>(a, aOffset + i) ^ new Vector<byte>(b, bOffset + i);
+                    v.CopyTo(dst, dstOffset + i);
                 }
 
                 for (; i < length; i++)
                 {
-                    buffer[bufferOffset + i] ^= data[offset + i];
+                    dst[dstOffset + i] = (byte)(a[aOffset + i] ^ b[bOffset + i]);
                 }
             }
 

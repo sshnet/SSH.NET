@@ -55,6 +55,26 @@ namespace Renci.SshNet.Security.Cryptography
         public abstract byte[] Encrypt(byte[] input, int offset, int length);
 
         /// <summary>
+        /// Encrypts the specified input into a given buffer.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
+        /// <param name="output">The output buffer to write to.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write encrypted output.</param>
+        /// <returns>
+        /// The number of bytes written to <paramref name="output"/>.
+        /// </returns>
+        public virtual int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+        {
+            var ciphertext = Encrypt(input, offset, length);
+
+            ciphertext.AsSpan().CopyTo(output.AsSpan(outputOffset));
+
+            return ciphertext.Length;
+        }
+
+        /// <summary>
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>

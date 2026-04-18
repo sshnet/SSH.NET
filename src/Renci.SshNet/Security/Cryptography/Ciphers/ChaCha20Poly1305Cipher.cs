@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
 
@@ -20,9 +21,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     {
         private readonly byte[] _iv;
         private readonly int _aadLength;
-        private readonly KeyParameter _aadKeyParameter;
+        private readonly KeyParameter? _aadKeyParameter;
         private readonly KeyParameter _keyParameter;
-        private readonly ChaCha7539Engine _aadCipher;
+        private readonly ChaCha7539Engine? _aadCipher;
         private readonly ChaCha7539Engine _cipher;
         private readonly Poly1305 _mac;
 
@@ -74,6 +75,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _mac = new Poly1305();
         }
 
+        public override byte[] Encrypt(byte[] input, int offset, int length)
+        {
+            var output = new byte[length + TagSize];
+
+            var bytesWritten = Encrypt(input, offset, length, output, 0);
+
+            Debug.Assert(bytesWritten == length);
+
+            return output;
+        }
+
         /// <summary>
         /// Encrypts the specified input.
         /// </summary>
@@ -85,13 +97,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
         /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
-        /// <returns>
-        /// The encrypted data with below format:
+        /// <param name="output">The output buffer to write to.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write encrypted output.</param>
+        /// <remarks>
+        /// The output data is written with the below format:
         ///   <code>
         ///   [----Cipher AAD----][----Cipher Text----][----TAG----]
         ///   </code>
-        /// </returns>
-        public override byte[] Encrypt(byte[] input, int offset, int length)
+        /// </remarks>
+        public override int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
             _aadCipher?.Init(forEncryption: true, new ParametersWithIV(_aadKeyParameter, _iv));
             _cipher.Init(forEncryption: true, new ParametersWithIV(_keyParameter, _iv));
@@ -100,15 +114,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
             _mac.Init(new KeyParameter(keyStream, 0, 32));
 
-            var output = new byte[length + TagSize];
+            _aadCipher?.ProcessBytes(input, offset, _aadLength, output, outputOffset);
+            _cipher.ProcessBytes(input, offset + _aadLength, length - _aadLength, output, outputOffset + _aadLength);
 
-            _aadCipher?.ProcessBytes(input, offset, _aadLength, output, 0);
-            _cipher.ProcessBytes(input, offset + _aadLength, length - _aadLength, output, _aadLength);
+            _mac.BlockUpdate(output, outputOffset, length);
+            var macBytesWritten = _mac.DoFinal(output, outputOffset + length);
 
-            _mac.BlockUpdate(output, 0, length);
-            _ = _mac.DoFinal(output, length);
+            Debug.Assert(macBytesWritten == TagSize);
 
-            return output;
+            return length + macBytesWritten;
         }
 
         /// <summary>

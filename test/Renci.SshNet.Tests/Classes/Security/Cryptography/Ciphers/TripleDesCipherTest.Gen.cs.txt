@@ -7,7 +7,6 @@
 Dictionary<string, (string, CipherMode)> modes = new()
 {
     ["cbc"] = ("(byte[])iv.Clone(), CipherMode.CBC", CipherMode.CBC),
-    ["cfb"] = ("(byte[])iv.Clone(), CipherMode.CFB", CipherMode.CFB),
 };
 
 Random random = new(123);

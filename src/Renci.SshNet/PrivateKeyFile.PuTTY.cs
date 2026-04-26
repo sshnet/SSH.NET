@@ -106,7 +106,7 @@ namespace Renci.SshNet
                                 throw new SshException("PuTTY key file version " + _version + " is not supported");
                         }
 
-                        using (var cipher = new AesCipher(cipherKey, cipherIV, AesCipherMode.CBC, pkcs7Padding: false))
+                        using (var cipher = new AesCipher(cipherKey, cipherIV, CipherMode.CBC))
                         {
                             privateKey = cipher.Decrypt(_data);
                         }

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// AES GCM cipher implementation.
     /// <see href="https://datatracker.ietf.org/doc/html/rfc5647"/>.
     /// </summary>
-    internal sealed partial class AesGcmCipher : SymmetricCipher, IDisposable
+    internal sealed partial class AesGcmCipher : Cipher, IDisposable
     {
         private const int TagSizeInBytes = 16;
         private readonly byte[] _iv;

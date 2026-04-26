@@ -1,18 +1,28 @@
+#nullable enable
 using System;
 using System.Security.Cryptography;
 
-using Org.BouncyCastle.Crypto.Paddings;
-
-using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// AES cipher implementation.
     /// </summary>
-    public sealed partial class AesCipher : BlockCipher, IDisposable
+    internal sealed class AesCipher : Cipher, IDisposable
     {
-        private readonly BlockCipher _impl;
+        private readonly Aes _aes;
+        private readonly ICryptoTransform _encryptor;
+        private readonly ICryptoTransform _decryptor;
+
+        /// <inheritdoc/>
+        public override byte MinimumSize
+        {
+            get
+            {
+                return 16;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AesCipher"/> class.
@@ -23,73 +33,85 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="pkcs7Padding">Enable PKCS7 padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
-        public AesCipher(byte[] key, byte[] iv, AesCipherMode mode, bool pkcs7Padding = false)
-            : base(key, 16, mode: null, padding: null)
+        public AesCipher(byte[] key, byte[] iv, CipherMode mode, bool pkcs7Padding = false)
+            : base(key)
         {
-            if (mode == AesCipherMode.OFB)
-            {
-                // OFB is not supported on modern .NET
-                _impl = new BlockImpl(key, new OfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
-            }
-#if !NET
-            else if (mode == AesCipherMode.CFB)
-            {
-                // CFB not supported on NetStandard 2.1
-                _impl = new BlockImpl(key, new CfbCipherMode(iv), pkcs7Padding ? new Pkcs7Padding() : null);
-            }
-#endif
-            else if (mode == AesCipherMode.CTR)
-            {
-                // CTR not supported by the BCL, use an optimized implementation
-                _impl = new CtrImpl(key, iv);
-            }
-            else
-            {
-                _impl = new BclImpl(
-                    key,
-                    iv,
-                    (System.Security.Cryptography.CipherMode)mode,
-                    pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None);
-            }
-        }
-
-        /// <inheritdoc/>
-        public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            return _impl.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-        }
-
-        /// <inheritdoc/>
-        public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            return _impl.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+            var aes = Aes.Create();
+            aes.Key = key;
+            aes.IV = iv.Take(16);
+            aes.Mode = mode;
+            aes.Padding = pkcs7Padding ? PaddingMode.PKCS7 : PaddingMode.None;
+            _aes = aes;
+            _encryptor = aes.CreateEncryptor();
+            _decryptor = aes.CreateDecryptor();
         }
 
         /// <inheritdoc/>
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            return _impl.Encrypt(input, offset, length);
+            return Transform(_encryptor, input, offset, length, output: null, 0, out _);
         }
 
         /// <inheritdoc/>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            return _impl.Decrypt(input, offset, length);
+            return Transform(_decryptor, input, offset, length, output: null, 0, out _);
         }
 
         /// <inheritdoc/>
         public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
-            return _impl.Decrypt(input, offset, length, output, outputOffset);
+            _ = Transform(_decryptor, input, offset, length, output, outputOffset, out var bytesWritten);
+
+            return bytesWritten;
+        }
+
+        private byte[] Transform(ICryptoTransform transform, byte[] input, int offset, int length, byte[]? output, int outputOffset, out int bytesWritten)
+        {
+            if (_aes.Padding != PaddingMode.None)
+            {
+                // If padding has been specified, call TransformFinalBlock to apply
+                // the padding and reset the state.
+
+                var finalBlock = transform.TransformFinalBlock(input, offset, length);
+
+                if (output is not null)
+                {
+                    finalBlock.AsSpan().CopyTo(output.AsSpan(outputOffset));
+                }
+
+                bytesWritten = finalBlock.Length;
+
+                return finalBlock;
+            }
+
+            // Otherwise, (the most important case) assume this instance is
+            // used for one direction of an SSH connection, whereby the
+            // encrypted data in all packets are considered a single data
+            // stream i.e. we do not want to reset the state between calls to Decrypt.
+            if (output is null)
+            {
+                output = new byte[length];
+
+                bytesWritten = transform.TransformBlock(input, offset, length, output, outputOffset);
+
+                // Manually unpad the output.
+                Array.Resize(ref output, bytesWritten);
+            }
+            else
+            {
+                bytesWritten = transform.TransformBlock(input, offset, length, output, outputOffset);
+            }
+
+            return output;
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            if (_impl is IDisposable disposableImpl)
-            {
-                disposableImpl.Dispose();
-            }
+            _aes.Dispose();
+            _encryptor.Dispose();
+            _decryptor.Dispose();
         }
     }
 }

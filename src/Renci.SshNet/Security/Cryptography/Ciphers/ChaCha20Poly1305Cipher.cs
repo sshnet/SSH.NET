@@ -138,23 +138,28 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>The decrypted plaintext.</returns>
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
-            byte[] output;
+            var output = new byte[length];
+
+            _cipher.Init(forEncryption: false, new ParametersWithIV(_keyParameter, _iv));
+
+            var keyStream = new byte[64];
+            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
+            _mac.Init(new KeyParameter(keyStream, 0, 32));
 
             if (_aadLength > 0)
             {
                 // If we are in 'AAD mode', then put these bytes through the AAD cipher.
 
+                _mac.BlockUpdate(input, offset, length);
+
                 Debug.Assert(_aadCipher != null);
 
                 _aadCipher.Init(forEncryption: false, new ParametersWithIV(_aadKeyParameter, _iv));
 
-                output = new byte[length];
                 _aadCipher.ProcessBytes(input, offset, length, output, 0);
             }
             else
             {
-                output = new byte[length];
-
                 var bytesWritten = Decrypt(input, offset, length, output, 0);
 
                 Debug.Assert(bytesWritten == length);
@@ -169,7 +174,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="input">
         /// The input data with below format:
         ///   <code>
-        ///   [----][----Cipher AAD----(offset)][----Cipher Text----(length)][----TAG----]
+        ///   [----(offset)][----Cipher Text----(length)][----TAG----]
         ///   </code>
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting and authenticating.</param>
@@ -179,16 +184,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>The number of plaintext bytes written to <paramref name="output"/>.</returns>
         public override int Decrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
-            Debug.Assert(offset >= _aadLength, "The offset must be greater than or equals to aad length");
-
-            _cipher.Init(forEncryption: false, new ParametersWithIV(_keyParameter, _iv));
-
-            var keyStream = new byte[64];
-            _cipher.ProcessBytes(keyStream, 0, keyStream.Length, keyStream, 0);
-            _mac.Init(new KeyParameter(keyStream, 0, 32));
-
             var tag = new byte[TagSize];
-            _mac.BlockUpdate(input, offset - _aadLength, length + _aadLength);
+            _mac.BlockUpdate(input, offset, length);
             _ = _mac.DoFinal(tag, 0);
             if (!Arrays.FixedTimeEquals(TagSize, tag, 0, input, offset + length))
             {

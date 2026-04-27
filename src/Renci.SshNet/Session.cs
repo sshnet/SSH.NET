@@ -105,6 +105,23 @@ namespace Renci.SshNet
         /// </summary>
         private readonly SemaphoreSlim _connectLock = new SemaphoreSlim(1, 1);
 
+        private readonly byte[] _inboundPacketSequenceBytes = new byte[4];
+
+        /// <summary>
+        /// Gets or sets the incoming packet number.
+        /// </summary>
+        private uint InboundPacketSequence
+        {
+            get
+            {
+                return BinaryPrimitives.ReadUInt32BigEndian(_inboundPacketSequenceBytes);
+            }
+            set
+            {
+                BinaryPrimitives.WriteUInt32BigEndian(_inboundPacketSequenceBytes, value);
+            }
+        }
+
         /// <summary>
         /// Holds metadata about session messages.
         /// </summary>
@@ -119,11 +136,6 @@ namespace Renci.SshNet
         /// Specifies outbound packet number.
         /// </summary>
         private volatile uint _outboundPacketSequence;
-
-        /// <summary>
-        /// Specifies incoming packet number.
-        /// </summary>
-        private uint _inboundPacketSequence;
 
         /// <summary>
         /// WaitHandle to signal that last service request was accepted.
@@ -200,7 +212,6 @@ namespace Renci.SshNet
         private Socket _socket;
 
         private ArrayBuffer _receiveBuffer = new(4 * 1024);
-        private byte[] _plaintextReceiveBuffer = new byte[4 * 1024];
 
         /// <summary>
         /// Gets the session semaphore that controls session channels.
@@ -1213,9 +1224,6 @@ namespace Renci.SshNet
         /// </remarks>
         private Message ReceiveMessage(Socket socket)
         {
-            // the length of the packet sequence field in bytes
-            const int inboundPacketSequenceLength = 4;
-
             // The length of the "packet length" field in bytes
             const int packetLengthFieldLength = 4;
 
@@ -1272,31 +1280,28 @@ namespace Renci.SshNet
                 }
             }
 
-            var firstBlock = new ArraySegment<byte>(
-                _receiveBuffer.DangerousGetUnderlyingBuffer(),
-                _receiveBuffer.ActiveStartOffset,
-                blockSize);
-
-            var plainFirstBlock = firstBlock;
-
-            // For ETM or AES-GCM, firstBlock holds the packet length which is
-            // not encrypted. Otherwise, we decrypt the first "blockSize" bytes.
-            // (For chacha20-poly1305, this means passing the encrypted packet
-            // length as AAD).
+            // For ETM or AES-GCM, the first "blockSize" bytes hold the packet length
+            // which is not encrypted. Otherwise, we decrypt them.
+            // (For chacha20-poly1305, this means passing the encrypted packet length
+            // to its AAD cipher instance - it is the awkward difference between the
+            // 3-arg and 5-arg Decrypt, and explains why we don't just decrypt these
+            // bytes in-place).
             if (_serverCipher is not null and not Security.Cryptography.Ciphers.AesGcmCipher)
             {
-                _serverCipher.SetSequenceNumber(_inboundPacketSequence);
+                _serverCipher.SetSequenceNumber(InboundPacketSequence);
 
                 if (_serverMac == null || !_serverEtm)
                 {
-                    plainFirstBlock = new ArraySegment<byte>(_serverCipher.Decrypt(
-                        firstBlock.Array,
-                        firstBlock.Offset,
-                        firstBlock.Count));
+                    var plainFirstBlock = _serverCipher.Decrypt(
+                        _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                        _receiveBuffer.ActiveStartOffset,
+                        blockSize);
+
+                    plainFirstBlock.CopyTo(_receiveBuffer.ActiveSpan);
                 }
             }
 
-            var packetLength = BinaryPrimitives.ReadInt32BigEndian(plainFirstBlock);
+            var packetLength = BinaryPrimitives.ReadInt32BigEndian(_receiveBuffer.ActiveReadOnlySpan);
 
             // Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)8, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
@@ -1330,26 +1335,13 @@ namespace Renci.SshNet
                 }
             }
 
-            // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
-            // to generate the hash.
-            var plaintextLength = 4 + totalPacketLength - serverMacLength;
-
-            if (_plaintextReceiveBuffer.Length < plaintextLength)
-            {
-                Array.Resize(ref _plaintextReceiveBuffer, Math.Max(plaintextLength, 2 * _plaintextReceiveBuffer.Length));
-            }
-
-            BinaryPrimitives.WriteUInt32BigEndian(_plaintextReceiveBuffer, _inboundPacketSequence);
-
-            plainFirstBlock.AsSpan().CopyTo(_plaintextReceiveBuffer.AsSpan(4));
-
             if (_serverMac != null && _serverEtm)
             {
                 // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
 
                 // sequence_number
                 _ = _serverMac.TransformBlock(
-                    inputBuffer: _plaintextReceiveBuffer,
+                    inputBuffer: _inboundPacketSequenceBytes,
                     inputOffset: 0,
                     inputCount: 4,
                     outputBuffer: null,
@@ -1377,41 +1369,52 @@ namespace Renci.SshNet
             {
                 Debug.Assert(numberOfBytesToDecrypt % blockSize == 0);
 
+                var decryptBuffer = _receiveBuffer.DangerousGetUnderlyingBuffer();
+                var decryptOffset = _receiveBuffer.ActiveStartOffset + blockSize;
+
                 var numberOfBytesDecrypted = _serverCipher.Decrypt(
-                    input: _receiveBuffer.DangerousGetUnderlyingBuffer(),
-                    offset: _receiveBuffer.ActiveStartOffset + blockSize,
+                    input: decryptBuffer,
+                    offset: decryptOffset,
                     length: numberOfBytesToDecrypt,
-                    output: _plaintextReceiveBuffer,
-                    outputOffset: 4 + blockSize);
+                    output: decryptBuffer,
+                    outputOffset: decryptOffset);
 
                 Debug.Assert(numberOfBytesDecrypted == numberOfBytesToDecrypt);
-            }
-            else
-            {
-                _receiveBuffer.ActiveReadOnlySpan
-                    .Slice(blockSize, numberOfBytesToDecrypt)
-                    .CopyTo(_plaintextReceiveBuffer.AsSpan(4 + blockSize));
             }
 
             if (_serverMac != null && !_serverEtm)
             {
                 // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
 
-                var clientHash = _serverMac.ComputeHash(_plaintextReceiveBuffer, 0, plaintextLength);
+                // sequence_number
+                _ = _serverMac.TransformBlock(
+                    inputBuffer: _inboundPacketSequenceBytes,
+                    inputOffset: 0,
+                    inputCount: 4,
+                    outputBuffer: null,
+                    outputOffset: 0);
 
-                if (!CryptoAbstraction.FixedTimeEquals(clientHash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
+                // unencrypted_packet
+                _ = _serverMac.TransformBlock(
+                    inputBuffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                    inputOffset: _receiveBuffer.ActiveStartOffset,
+                    inputCount: totalPacketLength - serverMacLength,
+                    outputBuffer: null,
+                    outputOffset: 0);
+
+                _ = _serverMac.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+
+                if (!CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
             }
 
-            _receiveBuffer.Discard(totalPacketLength);
-
-            var paddingLength = _plaintextReceiveBuffer[inboundPacketSequenceLength + packetLengthFieldLength];
+            var paddingLength = _receiveBuffer.ActiveReadOnlySpan[packetLengthFieldLength];
 
             ArraySegment<byte> payload = new(
-                _plaintextReceiveBuffer,
-                offset: inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength,
+                _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                offset: _receiveBuffer.ActiveStartOffset + packetLengthFieldLength + paddingLengthFieldLength,
                 count: packetLength - paddingLength - paddingLengthFieldLength);
 
             if (_serverDecompression != null)
@@ -1419,16 +1422,24 @@ namespace Renci.SshNet
                 payload = new(_serverDecompression.Decompress(payload.Array, payload.Offset, payload.Count));
             }
 
-            _inboundPacketSequence++;
+            var newInboundPacketSequence = ++InboundPacketSequence;
 
             // The below code mirrors from https://github.com/openssh/openssh-portable/commit/1edb00c58f8a6875fad6a497aa2bacf37f9e6cd5
             // It ensures the integrity of key exchange process.
-            if (_inboundPacketSequence == uint.MaxValue && _isInitialKex)
+            if (newInboundPacketSequence == uint.MaxValue && _isInitialKex)
             {
                 throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return LoadMessage(payload.Array, payload.Offset, payload.Count);
+            var message = LoadMessage(payload.Array, payload.Offset, payload.Count);
+
+            // The deserialised message may still reference data in the buffer, so calling Discard
+            // here might seem misguided. It is OK because Discard does not mutate the buffer
+            // and it will not be touched again until the next call to ReceiveMessage, which will
+            // only occur after the message has been fully processed.
+            _receiveBuffer.Discard(totalPacketLength);
+
+            return message;
         }
 
         private void TrySendDisconnect(DisconnectReason reasonCode, string message)
@@ -1545,7 +1556,7 @@ namespace Renci.SshNet
 
                 _logger.LogDebug("[{SessionId}] Enabling strict key exchange extension.", SessionIdHex);
 
-                if (_inboundPacketSequence != 1)
+                if (InboundPacketSequence != 1)
                 {
                     throw new SshConnectionException("KEXINIT was not the first packet during strict key exchange.", DisconnectReason.KeyExchangeFailed);
                 }
@@ -1646,7 +1657,7 @@ namespace Renci.SshNet
 
             if (_isStrictKex)
             {
-                _inboundPacketSequence = 0;
+                InboundPacketSequence = 0;
             }
 
             NewKeysReceived?.Invoke(this, new MessageEventArgs<NewKeysMessage>(message));

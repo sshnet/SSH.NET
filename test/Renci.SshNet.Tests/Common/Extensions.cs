@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System;
+using System.Collections.Generic;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Compression;
+using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -20,6 +24,23 @@ namespace Renci.SshNet.Tests.Common
             }
 
             return reportedExceptions;
+        }
+
+        /// <returns>[4 bytes] || packet_len || padding_len || payload || padding.</returns>
+        public static byte[] GetPacket(this Message message, byte paddingMultiplier, Compressor? compressor)
+        {
+            var buffer = Array.Empty<byte>();
+
+            var byteCount = message.GetPacket(
+                ref buffer,
+                paddingMultiplier,
+                compressor,
+                excludePacketLengthFieldWhenPadding: false,
+                macLength: 0);
+
+            Array.Resize(ref buffer, byteCount);
+
+            return buffer;
         }
     }
 }

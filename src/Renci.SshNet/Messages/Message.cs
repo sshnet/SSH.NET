@@ -1,4 +1,7 @@
 ﻿#nullable enable
+using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 
 using Renci.SshNet.Abstractions;
@@ -38,116 +41,85 @@ namespace Renci.SshNet.Messages
             base.WriteBytes(stream);
         }
 
-        /// <returns>[4 bytes] || packet_len || padding_len || payload || padding || [macLength bytes].</returns>
-        internal byte[] GetPacket(byte paddingMultiplier, Compressor? compressor, bool excludePacketLengthFieldWhenPadding = false, int macLength = 0)
+        /// <returns>The number of bytes occupied by the packet in <paramref name="buffer"/>.</returns>
+        /// <remarks>
+        /// [4 bytes] || packet_len || padding_len || payload || padding || [macLength bytes].
+        /// </remarks>
+        internal int GetPacket(ref byte[] buffer, byte paddingMultiplier, Compressor? compressor, bool excludePacketLengthFieldWhenPadding, int macLength)
         {
             const int outboundPacketSequenceSize = 4;
 
             var messageLength = BufferCapacity;
 
+            ArraySegment<byte> payload = default;
+
             if (messageLength == -1 || compressor != null)
             {
-                using (var sshDataStream = new SshDataStream(DefaultCapacity))
+                using (var sshDataStream = new SshDataStream(messageLength != -1 ? messageLength : DefaultCapacity))
                 {
-                    // skip:
-                    // * 4 bytes for the outbound packet sequence
-                    // * 4 bytes for the packet data length
-                    // * one byte for the packet padding length
-                    _ = sshDataStream.Seek(outboundPacketSequenceSize + 4 + 1, SeekOrigin.Begin);
-
-                    if (compressor != null)
-                    {
-                        // obtain uncompressed message payload
-                        using (var uncompressedDataStream = new SshDataStream(messageLength != -1 ? messageLength : DefaultCapacity))
-                        {
-                            WriteBytes(uncompressedDataStream);
-
-                            // compress message payload
-                            var compressedMessageData = compressor.Compress(uncompressedDataStream.ToArray());
-
-                            // add compressed message payload
-                            sshDataStream.Write(compressedMessageData, 0, compressedMessageData.Length);
-                        }
-                    }
-                    else
-                    {
-                        // add message payload
-                        WriteBytes(sshDataStream);
-                    }
-
-                    messageLength = (int)sshDataStream.Length - (outboundPacketSequenceSize + 4 + 1);
-
-                    var packetLength = messageLength + 4 + 1;
-
-                    // determine the padding length
-                    // in Encrypt-then-MAC mode or AEAD, the length field is not encrypted, so we should keep it out of the
-                    // padding length calculation
-                    var paddingLength = GetPaddingLength(paddingMultiplier, excludePacketLengthFieldWhenPadding ? packetLength - 4 : packetLength);
-
-                    var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
-
-                    // skip bytes for outbound packet sequence
-                    _ = sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
-
-                    // add packet data length
-                    sshDataStream.Write(packetDataLength);
-
-                    // add packet padding length
-                    sshDataStream.WriteByte(paddingLength);
-
-                    _ = sshDataStream.Seek(0, SeekOrigin.End);
-
-                    sshDataStream.SetLength(sshDataStream.Length + paddingLength + macLength);
-
-                    var buffer = sshDataStream.ToArray();
-
-                    // add padding bytes
-                    CryptoAbstraction.Randomizer.GetBytes(buffer, (int)sshDataStream.Position, paddingLength);
-
-                    return buffer;
-                }
-            }
-            else
-            {
-                var packetLength = messageLength + 4 + 1;
-
-                // determine the padding length
-                // in Encrypt-then-MAC mode or AEAD, the length field is not encrypted, so we should keep it out of the
-                // padding length calculation
-                var paddingLength = GetPaddingLength(paddingMultiplier, excludePacketLengthFieldWhenPadding ? packetLength - 4 : packetLength);
-
-                var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
-
-                // lets construct an SSH data stream of the exact size required
-                using (var sshDataStream = new SshDataStream(packetLength + paddingLength + outboundPacketSequenceSize + macLength))
-                {
-                    // skip bytes for outbound packet sequenceSize
-                    _ = sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
-
-                    // add packet data length
-                    sshDataStream.Write(packetDataLength);
-
-                    // add packet padding length
-                    sshDataStream.WriteByte(paddingLength);
-
-                    // add message payload
                     WriteBytes(sshDataStream);
 
-                    sshDataStream.SetLength(sshDataStream.Length + paddingLength + macLength);
+                    var success = sshDataStream.TryGetBuffer(out payload);
 
-                    var buffer = sshDataStream.ToArray();
-
-                    // add padding bytes
-                    CryptoAbstraction.Randomizer.GetBytes(buffer, (int)sshDataStream.Position, paddingLength);
-
-                    return buffer;
+                    Debug.Assert(success);
                 }
-            }
-        }
 
-        private static uint GetPacketDataLength(int messageLength, byte paddingLength)
-        {
-            return (uint)(messageLength + paddingLength + 1);
+                if (compressor != null)
+                {
+                    payload = new(compressor.Compress(payload.Array, payload.Offset, payload.Count));
+                }
+
+                messageLength = payload.Count;
+            }
+
+            // determine the padding length
+            // in Encrypt-then-MAC mode or AEAD, the length field is not encrypted, so we should keep it out of the
+            // padding length calculation
+            var paddingLength = GetPaddingLength(
+                paddingMultiplier, (excludePacketLengthFieldWhenPadding ? 0 : 4) + 1 + messageLength);
+
+            var packetLength = 1 + messageLength + paddingLength;
+
+            var bytesRequired = 4 + 4 + packetLength + macLength;
+
+            if ((uint)bytesRequired > (uint)Session.MaximumSshPacketSize)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", Session.MaximumSshPacketSize));
+            }
+
+            if (buffer.Length < bytesRequired)
+            {
+                Array.Resize(ref buffer, Math.Max(bytesRequired, 2 * buffer.Length));
+            }
+
+            using (var sshDataStream = new SshDataStream(buffer))
+            {
+                // skip bytes for outbound packet sequenceSize
+                _ = sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
+
+                // add packet length
+                sshDataStream.Write((uint)packetLength);
+
+                // add padding length
+                sshDataStream.WriteByte(paddingLength);
+
+                // add message payload
+                if (payload != default)
+                {
+                    sshDataStream.Write(payload.Array!, payload.Offset, payload.Count);
+                }
+                else
+                {
+                    WriteBytes(sshDataStream);
+                }
+
+                Debug.Assert(sshDataStream.Position == bytesRequired - macLength - paddingLength);
+
+                // add padding bytes
+                CryptoAbstraction.Randomizer.GetBytes(buffer, (int)sshDataStream.Position, paddingLength);
+            }
+
+            return bytesRequired;
         }
 
         private static byte GetPaddingLength(byte paddingMultiplier, long packetLength)

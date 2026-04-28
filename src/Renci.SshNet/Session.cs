@@ -212,6 +212,7 @@ namespace Renci.SshNet
         private Socket _socket;
 
         private ArrayBuffer _receiveBuffer = new(4 * 1024);
+        private byte[] _sendBuffer = new byte[4 * 1024];
 
         /// <summary>
         /// Gets the session semaphore that controls session channels.
@@ -1073,29 +1074,29 @@ namespace Renci.SshNet
                 macLength = _clientMac.HashSize / 8;
             }
 
-            var packetData = message.GetPacket(paddingMultiplier, _clientCompression, _clientEtm || _clientAead, macLength);
-
-            if (packetData.Length > MaximumSshPacketSize)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
-            }
-
             // take a write lock to ensure the outbound packet sequence number is incremented
             // atomically, and only after the packet has actually been sent
             lock (_socketWriteLock)
             {
+                var activeBufferLength = message.GetPacket(
+                    ref _sendBuffer,
+                    paddingMultiplier,
+                    _clientCompression,
+                    _clientEtm || _clientAead,
+                    macLength);
+
                 // write outbound packet sequence to start of packet data
-                BinaryPrimitives.WriteUInt32BigEndian(packetData, _outboundPacketSequence);
+                BinaryPrimitives.WriteUInt32BigEndian(_sendBuffer, _outboundPacketSequence);
 
                 if (_clientMac != null && !_clientEtm)
                 {
                     // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
 
                     var hashSuccess = _clientMac.TryComputeHash(
-                        buffer: packetData,
+                        buffer: _sendBuffer,
                         offset: 0,
-                        count: packetData.Length - macLength,
-                        destination: packetData.AsSpan(packetData.Length - macLength),
+                        count: activeBufferLength - macLength,
+                        destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
                         bytesWritten: out var bytesWritten);
 
                     Debug.Assert(hashSuccess && bytesWritten == macLength);
@@ -1110,13 +1111,13 @@ namespace Renci.SshNet
                     var offset = _clientEtm ? 8 : 4;
 
                     var numberOfBytesEncrypted = _clientCipher.Encrypt(
-                        input: packetData,
+                        input: _sendBuffer,
                         offset,
-                        length: packetData.Length - offset - macLength,
-                        output: packetData,
+                        length: activeBufferLength - offset - macLength,
+                        output: _sendBuffer,
                         outputOffset: offset);
 
-                    Debug.Assert(numberOfBytesEncrypted == packetData.Length - offset - macLength + (_clientAead ? macLength : 0));
+                    Debug.Assert(numberOfBytesEncrypted == activeBufferLength - offset - macLength + (_clientAead ? macLength : 0));
                 }
 
                 if (_clientMac != null && _clientEtm)
@@ -1124,16 +1125,16 @@ namespace Renci.SshNet
                     // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
 
                     var hashSuccess = _clientMac.TryComputeHash(
-                        buffer: packetData,
+                        buffer: _sendBuffer,
                         offset: 0,
-                        count: packetData.Length - macLength,
-                        destination: packetData.AsSpan(packetData.Length - macLength),
+                        count: activeBufferLength - macLength,
+                        destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
                         bytesWritten: out var bytesWritten);
 
                     Debug.Assert(hashSuccess && bytesWritten == macLength);
                 }
 
-                SendPacket(packetData, 4, packetData.Length - 4);
+                SendPacket(_sendBuffer, 4, activeBufferLength - 4);
 
                 if (_isStrictKex && message is NewKeysMessage)
                 {

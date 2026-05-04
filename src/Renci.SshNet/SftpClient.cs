@@ -905,7 +905,7 @@ namespace Renci.SshNet
 
             if (downloadCallback != null)
             {
-                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+                downloadProgress = new SynchronousProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
             }
 
             InternalDownloadFile(
@@ -934,7 +934,7 @@ namespace Renci.SshNet
                 path,
                 output,
                 asyncResult: null,
-                downloadProgress: downloadProgress,
+                downloadProgress,
                 isAsync: true,
                 cancellationToken);
         }
@@ -1011,7 +1011,11 @@ namespace Renci.SshNet
 
             if (downloadCallback != null)
             {
-                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+                // The System.Progress<T> ctor captures the current synchronization context
+                // and posts the progress reports to it. For back-compat with previous
+                // versions which always posted the callback to the threadpool regardless of
+                // sync context, we use a custom IProgress<T> impl.
+                downloadProgress = new ThreadPoolProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
             }
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
@@ -1089,7 +1093,7 @@ namespace Renci.SshNet
 
             if (uploadCallback != null)
             {
-                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+                uploadProgress = new SynchronousProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
             }
 
             InternalUploadFile(
@@ -1273,7 +1277,11 @@ namespace Renci.SshNet
 
             if (uploadCallback != null)
             {
-                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+                // The System.Progress<T> ctor captures the current synchronization context
+                // and posts the progress reports to it. For back-compat with previous
+                // versions which always posted the callback to the threadpool regardless of
+                // sync context, we use a custom IProgress<T> impl.
+                uploadProgress = new ThreadPoolProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
             }
 
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
@@ -2417,16 +2425,10 @@ namespace Renci.SshNet
 
                     asyncResult?.Update(totalBytesRead);
 
-                    if (downloadProgress is not null)
+                    downloadProgress?.Report(new DownloadFileProgressReport()
                     {
-                        // Copy offset to ensure it's not modified between now and execution of callback
-                        var report = new DownloadFileProgressReport()
-                        {
-                            TotalBytesDownloaded = totalBytesRead,
-                        };
-
-                        downloadProgress.Report(report);
-                    }
+                        TotalBytesDownloaded = totalBytesRead
+                    });
                 }
             }
             finally
@@ -2536,16 +2538,10 @@ namespace Renci.SshNet
 
                         asyncResult?.Update(writtenBytes);
 
-                        // Call callback to report number of bytes written
-                        if (uploadProgress is not null)
+                        uploadProgress?.Report(new UploadFileProgressReport()
                         {
-                            UploadFileProgressReport report = new()
-                            {
-                                TotalBytesUploaded = writtenBytes,
-                            };
-
-                            uploadProgress.Report(report);
-                        }
+                            TotalBytesUploaded = writtenBytes
+                        });
                     }
                     finally
                     {
@@ -2650,6 +2646,49 @@ namespace Renci.SshNet
             {
                 sftpSession.Dispose();
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// An <see cref="IProgress{T}"/> implementation that posts callbacks to the threadpool.
+        /// </summary>
+        private sealed class ThreadPoolProgress<T> : IProgress<T>
+        {
+            private readonly Action<T> _handler;
+
+            public ThreadPoolProgress(Action<T> handler)
+            {
+                Debug.Assert(handler != null);
+                _handler = handler!;
+            }
+
+            void IProgress<T>.Report(T value)
+            {
+                _ = ThreadPool.QueueUserWorkItem(static state =>
+                {
+                    var (handler, value) = ((Action<T>, T))state!;
+                    handler(value);
+                },
+                (_handler, value));
+            }
+        }
+
+        /// <summary>
+        /// An <see cref="IProgress{T}"/> implementation that invokes callbacks synchronously.
+        /// </summary>
+        private sealed class SynchronousProgress<T> : IProgress<T>
+        {
+            private readonly Action<T> _handler;
+
+            public SynchronousProgress(Action<T> handler)
+            {
+                Debug.Assert(handler != null);
+                _handler = handler!;
+            }
+
+            void IProgress<T>.Report(T value)
+            {
+                _handler.Invoke(value);
             }
         }
     }

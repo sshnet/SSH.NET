@@ -51,6 +51,7 @@ namespace Renci.SshNet
 
         private TimeSpan _timeout;
         private TimeSpan _channelCloseTimeout;
+        private TimeSpan _sendTimeout = System.Threading.Timeout.InfiniteTimeSpan;
 
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
@@ -188,6 +189,25 @@ namespace Renci.SshNet
                 value.EnsureValidTimeout(nameof(ChannelCloseTimeout));
 
                 _channelCloseTimeout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the socket send timeout. Controls how long a socket send may block before
+        /// throwing a <see cref="System.Net.Sockets.SocketException"/>. The default value is
+        /// <see cref="Timeout.InfiniteTimeSpan"/> (no timeout).
+        /// </summary>
+        public TimeSpan SendTimeout
+        {
+            get
+            {
+                return _sendTimeout;
+            }
+            set
+            {
+                value.EnsureValidTimeout(nameof(SendTimeout));
+
+                _sendTimeout = value;
             }
         }
 

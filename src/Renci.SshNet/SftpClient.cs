@@ -134,7 +134,7 @@ namespace Renci.SshNet
         /// can prevent connection stalls when downloading larger files.
         /// </para>
         /// </remarks>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is less than 1.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The value is less than 1.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public int MaxPendingReads
         {

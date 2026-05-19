@@ -87,7 +87,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Some server may restrict number to prevent authentication attacks.
         /// </remarks>
-        private static readonly SemaphoreLight AuthenticationConnection = new SemaphoreLight(3);
+        private readonly SemaphoreLight _authenticationConnection = new SemaphoreLight(3);
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -579,7 +579,7 @@ namespace Renci.SshNet
 
             try
             {
-                AuthenticationConnection.Wait();
+                _authenticationConnection.Wait();
 
                 if (IsConnected)
                 {
@@ -682,7 +682,7 @@ namespace Renci.SshNet
             }
             finally
             {
-                _ = AuthenticationConnection.Release();
+                _ = _authenticationConnection.Release();
             }
         }
 

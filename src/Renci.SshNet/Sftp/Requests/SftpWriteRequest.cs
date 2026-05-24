@@ -1,17 +1,27 @@
 ﻿using System;
+using System.Buffers.Binary;
 
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
     internal sealed class SftpWriteRequest : SftpRequest
     {
+        private readonly SftpWriteRequestBuffer _buffer;
+
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.Write; }
         }
 
-        public byte[] Handle { get; private set; }
+        public ReadOnlySpan<byte> Handle
+        {
+            get
+            {
+                return _buffer.Handle;
+            }
+        }
 
         /// <summary>
         /// Gets the zero-based offset (in bytes) relative to the beginning of the file that the write
@@ -21,7 +31,13 @@ namespace Renci.SshNet.Sftp.Requests
         /// The zero-based offset (in bytes) relative to the beginning of the file that the write must
         /// start at.
         /// </value>
-        public ulong ServerFileOffset { get; private set; }
+        public ulong ServerFileOffset
+        {
+            get
+            {
+                return _buffer.ServerFileOffset;
+            }
+        }
 
         /// <summary>
         /// Gets the buffer holding the data to write.
@@ -29,36 +45,19 @@ namespace Renci.SshNet.Sftp.Requests
         /// <value>
         /// The buffer holding the data to write.
         /// </value>
-        public byte[] Data { get; private set; }
-
-        /// <summary>
-        /// Gets the zero-based offset in <see cref="Data" /> at which to begin taking bytes to
-        /// write.
-        /// </summary>
-        /// <value>
-        /// The zero-based offset in <see cref="Data" /> at which to begin taking bytes to write.
-        /// </value>
-        public int Offset { get; private set; }
-
-        /// <summary>
-        /// Gets the length (in bytes) of the data to write.
-        /// </summary>
-        /// <value>
-        /// The length (in bytes) of the data to write.
-        /// </value>
-        public int Length { get; private set; }
+        public ReadOnlySpan<byte> Data
+        {
+            get
+            {
+                return _buffer.Data.AsSpan(0, _buffer.DataLength);
+            }
+        }
 
         protected override int BufferCapacity
         {
             get
             {
-                var capacity = base.BufferCapacity;
-                capacity += 4; // Handle length
-                capacity += Handle.Length; // Handle
-                capacity += 8; // ServerFileOffset length
-                capacity += 4; // Data length
-                capacity += Length; // Data
-                return capacity;
+                return _buffer.ActiveBytes.Count;
             }
         }
 
@@ -72,31 +71,45 @@ namespace Renci.SshNet.Sftp.Requests
                                 Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            Handle = handle;
-            ServerFileOffset = serverFileOffset;
-            Data = data;
-            Offset = offset;
-            Length = length;
+            _buffer = new SftpWriteRequestBuffer(handle, serverFileOffset, data.AsSpan(offset, length))
+            {
+                RequestId = requestId,
+            };
+        }
+
+        public SftpWriteRequest(uint protocolVersion,
+                                SftpWriteRequestBuffer buffer,
+                                Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, buffer.RequestId, statusAction)
+        {
+            _buffer = buffer;
         }
 
         protected override void LoadData()
         {
-            base.LoadData();
-
-            Handle = ReadBinary();
-            ServerFileOffset = ReadUInt64();
-            Data = ReadBinary();
-            Offset = 0;
-            Length = Data.Length;
+            throw new NotImplementedException();
         }
 
         protected override void SaveData()
         {
-            base.SaveData();
+            throw new NotImplementedException();
+        }
 
-            WriteBinaryString(Handle);
-            Write(ServerFileOffset);
-            WriteBinary(Data, Offset, Length);
+        protected override void WriteBytes(SshDataStream stream)
+        {
+            var activeBuffer = GetBytes();
+
+            stream.Write(activeBuffer.Array, activeBuffer.Offset, activeBuffer.Count);
+        }
+
+        public new ArraySegment<byte> GetBytes()
+        {
+            var activeBuffer = _buffer.ActiveBytes;
+
+            // Write SFTP packet length.
+            BinaryPrimitives.WriteInt32BigEndian(activeBuffer.AsSpan(), activeBuffer.Count - 4);
+
+            return activeBuffer;
         }
     }
 }

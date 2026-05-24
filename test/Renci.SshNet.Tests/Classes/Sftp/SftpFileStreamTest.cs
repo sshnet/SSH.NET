@@ -11,7 +11,6 @@ using Moq;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -240,8 +239,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 It.IsAny<byte[]>(),
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<AutoResetEvent>(),
-                It.IsAny<Action<SftpStatusResponse>>()),
+                It.IsAny<AutoResetEvent>()),
                 Times.Never);
 
             // Whatever is called here should trigger the bytes to be sent
@@ -336,8 +334,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 /* data: */           It.Is<byte[]>(x => IndexOf(x, newData) >= 0),
                 /* offset: */         It.IsAny<int>(),
                 /* length: */         newData.Length,
-                /* wait: */           It.IsAny<AutoResetEvent>(),
-                /* writeCompleted: */ It.IsAny<Action<SftpStatusResponse>>()),
+                /* wait: */           It.IsAny<AutoResetEvent>()),
                 Times.Once);
         }
 

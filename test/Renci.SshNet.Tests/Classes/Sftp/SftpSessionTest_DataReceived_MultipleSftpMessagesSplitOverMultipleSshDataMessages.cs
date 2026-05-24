@@ -130,7 +130,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest("sftp")).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes))
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes, 0, _sftpInitRequestBytes.Length))
                                                     .Callback(() =>
                                                     {
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
@@ -140,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.Create(0U, (byte)SftpMessageTypes.Version, _encoding))
                                    .Returns(_sftpVersionResponse);
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes))
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes, 0, _sftpRealPathRequestBytes.Length))
                                                     .Callback(() =>
                                                     {
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
@@ -153,7 +153,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpOpenRequestBytes)).Callback(() =>
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpOpenRequestBytes, 0, _sftpOpenRequestBytes.Length)).Callback(() =>
                 {
                     var sshMessagePayload = new byte[_sftpHandleResponseBytes.Length + 40];
                     Buffer.BlockCopy(_sftpHandleResponseBytes, 0, sshMessagePayload, 0, _sftpHandleResponseBytes.Length);
@@ -166,7 +166,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.Create(_protocolVersion, (byte)SftpMessageTypes.Handle, _encoding))
                                    .Returns(new SftpHandleResponse(_protocolVersion));
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes)).Callback(() =>
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes, 0, _sftpReadRequestBytes.Length)).Callback(() =>
             {
                 var sshMessagePayload = new byte[_sftpDataResponseBytes.Length - 40];
                 Buffer.BlockCopy(_sftpDataResponseBytes, 40, sshMessagePayload, 0, _sftpDataResponseBytes.Length - 40);

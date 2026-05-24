@@ -114,14 +114,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest("sftp")).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes))
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes, 0, _sftpInitRequestBytes.Length))
                                                     .Callback(() =>
                                                     {
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
                                                                                   new ChannelDataEventArgs(0, _sftpVersionResponse.GetBytes()));
                                                     });
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes))
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes, 0, _sftpRealPathRequestBytes.Length))
                                                     .Callback(() =>
                                                     {
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
@@ -131,7 +131,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #endregion SftpSession.Connect()
 
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes))
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes, 0, _sftpReadRequestBytes.Length))
                                                     .Callback(() =>
                     {
                         _channelSessionMock.Raise(

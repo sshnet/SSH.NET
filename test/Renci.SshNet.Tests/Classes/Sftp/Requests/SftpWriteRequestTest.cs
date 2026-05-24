@@ -43,10 +43,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _serverFileOffset, _data, _offset, _length, null);
 
-            Assert.AreSame(_data, request.Data);
-            Assert.AreSame(_handle, request.Handle);
-            Assert.AreEqual(_length, request.Length);
-            Assert.AreEqual(_offset, request.Offset);
+            CollectionAssert.AreEqual(_data.Take(_offset, _length).ToArray(), request.Data.ToArray());
+            CollectionAssert.AreEqual(_handle, request.Handle.ToArray());
             Assert.AreEqual(_protocolVersion, request.ProtocolVersion);
             Assert.AreEqual(_requestId, request.RequestId);
             Assert.AreEqual(_serverFileOffset, request.ServerFileOffset);
@@ -81,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _serverFileOffset, _data, _offset, _length, null);
 
-            var bytes = request.GetBytes();
+            var bytes = ((SftpRequest)request).GetBytes();
 
             var expectedBytesLength = 0;
             expectedBytesLength += 4; // Length
@@ -114,6 +112,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             Assert.IsTrue(_data.Take(_offset, _length).SequenceEqual(actualData));
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
+
+            CollectionAssert.AreEqual(bytes, request.GetBytes().ToArray());
         }
     }
 }

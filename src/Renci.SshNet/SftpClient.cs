@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Sftp.Requests;
 
 namespace Renci.SshNet
 {
@@ -2477,7 +2478,8 @@ namespace Renci.SshNet
             ulong offset = 0;
 
             // create buffer of optimal length
-            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
+            var buffer = new SftpWriteRequestBuffer(handle, (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle));
+            var dataBuffer = buffer.Data;
 
             var expectedResponses = 0;
 
@@ -2492,11 +2494,11 @@ namespace Renci.SshNet
             {
                 var bytesRead = isAsync
 #if NET
-                    ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer, cancellationToken).ConfigureAwait(false)
 #else
-                    ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.Array, dataBuffer.Offset, dataBuffer.Count, cancellationToken).ConfigureAwait(false)
 #endif
-                    : input.Read(buffer, 0, buffer.Length);
+                    : input.Read(dataBuffer.Array!, dataBuffer.Offset, dataBuffer.Count);
 
                 if (bytesRead == 0)
                 {
@@ -2510,12 +2512,15 @@ namespace Renci.SshNet
 
                 exception?.Throw();
 
+                buffer.ServerFileOffset = offset;
+                buffer.DataLength = bytesRead;
+
                 var writtenBytes = offset + (ulong)bytesRead;
 
                 _ = Interlocked.Increment(ref expectedResponses);
                 mres.Reset();
 
-                _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
+                _sftpSession.RequestWrite(buffer, s =>
                 {
                     var setHandle = false;
 

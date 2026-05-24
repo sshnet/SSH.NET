@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
+using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
@@ -325,14 +326,19 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">the zero-based offset in <paramref name="data" /> at which to begin taking bytes to write.</param>
         /// <param name="length">The length (in bytes) of the data to write.</param>
         /// <param name="wait">The wait event handle if needed.</param>
-        /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         void RequestWrite(byte[] handle,
                           ulong serverOffset,
                           byte[] data,
                           int offset,
                           int length,
-                          AutoResetEvent wait,
-                          Action<SftpStatusResponse> writeCompleted = null);
+                          AutoResetEvent wait);
+
+        /// <summary>
+        /// Performs SSH_FXP_WRITE request.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
+        void RequestWrite(SftpWriteRequestBuffer buffer, Action<SftpStatusResponse> writeCompleted);
 
         /// <summary>
         /// Asynchronouly performs a <c>SSH_FXP_WRITE</c> request.

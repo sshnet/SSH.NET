@@ -1,5 +1,6 @@
 ﻿#nullable enable
-﻿using System;
+using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 
@@ -12,14 +13,15 @@ namespace Renci.SshNet.Sftp.Requests
     /// [Sftp packet length, SftpMessageType, RequestId, Handle length, Handle, Server offset, data length, data].
     /// [                 4,               1,         4,             4,      ?,             8,           4,    ?].
     /// </remarks>
-    internal sealed class SftpWriteRequestBuffer
+    internal sealed class SftpWriteRequestBuffer : IDisposable
     {
         private const int MessageTypeOffset = 4;
         private const int RequestIdOffset = MessageTypeOffset + 1;
         private const int HandleLengthOffset = RequestIdOffset + 4;
         private const int HandleOffset = HandleLengthOffset + 4;
 
-        private readonly byte[] _buffer;
+        private readonly bool _usePool;
+        private byte[] _buffer;
 
         public ArraySegment<byte> ActiveBytes
         {
@@ -29,11 +31,17 @@ namespace Renci.SshNet.Sftp.Requests
             }
         }
 
-        public SftpWriteRequestBuffer(ReadOnlySpan<byte> handle, int dataCapacity)
+        public SftpWriteRequestBuffer(ReadOnlySpan<byte> handle, int dataCapacity, bool usePool = false)
         {
             Debug.Assert(dataCapacity >= 0);
 
-            _buffer = new byte[HandleOffset + handle.Length + 8 + 4 + dataCapacity];
+            var totalCapacity = HandleOffset + handle.Length + 8 + 4 + dataCapacity;
+
+            _usePool = usePool;
+
+            _buffer = usePool
+                ? ArrayPool<byte>.Shared.Rent(totalCapacity)
+                : new byte[totalCapacity];
 
             _buffer[MessageTypeOffset] = (byte)SftpMessageTypes.Write;
 
@@ -42,8 +50,8 @@ namespace Renci.SshNet.Sftp.Requests
             handle.CopyTo(_buffer.AsSpan(HandleOffset));
         }
 
-        public SftpWriteRequestBuffer(ReadOnlySpan<byte> handle, ulong serverFileOffset, ReadOnlySpan<byte> data)
-            : this(handle, data.Length)
+        public SftpWriteRequestBuffer(ReadOnlySpan<byte> handle, ulong serverFileOffset, ReadOnlySpan<byte> data, bool usePool = false)
+            : this(handle, data.Length, usePool)
         {
             ServerFileOffset = serverFileOffset;
 
@@ -121,6 +129,20 @@ namespace Renci.SshNet.Sftp.Requests
             {
                 var offset = HandleOffset + HandleLength + 8 + 4;
                 return new ArraySegment<byte>(_buffer, offset, _buffer.Length - offset);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_usePool)
+            {
+                var buffer = _buffer;
+                _buffer = null!;
+
+                if (buffer is not null)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
             }
         }
     }

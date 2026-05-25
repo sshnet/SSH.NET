@@ -62,22 +62,6 @@ namespace Renci.SshNet.Sftp.Requests
         }
 
         public SftpWriteRequest(uint protocolVersion,
-                                uint requestId,
-                                byte[] handle,
-                                ulong serverFileOffset,
-                                byte[] data,
-                                int offset,
-                                int length,
-                                Action<SftpStatusResponse> statusAction)
-            : base(protocolVersion, requestId, statusAction)
-        {
-            _buffer = new SftpWriteRequestBuffer(handle, serverFileOffset, data.AsSpan(offset, length))
-            {
-                RequestId = requestId,
-            };
-        }
-
-        public SftpWriteRequest(uint protocolVersion,
                                 SftpWriteRequestBuffer buffer,
                                 Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, buffer.RequestId, statusAction)

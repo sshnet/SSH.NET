@@ -41,9 +41,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         [TestMethod]
         public void Constructor()
         {
-            var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _serverFileOffset, _data, _offset, _length, null);
+            var request = new SftpWriteRequest(
+                _protocolVersion,
+                new SftpWriteRequestBuffer(_handle, _serverFileOffset, _data.AsSpan(_offset, _length))
+                {
+                    RequestId = _requestId
+                },
+                statusAction: null);
 
-            CollectionAssert.AreEqual(_data.Take(_offset, _length).ToArray(), request.Data.ToArray());
+            CollectionAssert.AreEqual(_data.Take(_offset, _length), request.Data.ToArray());
             CollectionAssert.AreEqual(_handle, request.Handle.ToArray());
             Assert.AreEqual(_protocolVersion, request.ProtocolVersion);
             Assert.AreEqual(_requestId, request.RequestId);
@@ -60,12 +66,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var request = new SftpWriteRequest(
                 _protocolVersion,
-                _requestId,
-                _handle,
-                _serverFileOffset,
-                _data,
-                _offset,
-                _length,
+                new SftpWriteRequestBuffer(_handle, _serverFileOffset, _data.AsSpan(_offset, _length))
+                {
+                    RequestId = _requestId
+                },
                 statusAction);
 
             request.Complete(statusResponse);
@@ -77,7 +81,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         [TestMethod]
         public void GetBytes()
         {
-            var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _serverFileOffset, _data, _offset, _length, null);
+            var request = new SftpWriteRequest(
+                _protocolVersion,
+                new SftpWriteRequestBuffer(_handle, _serverFileOffset, _data.AsSpan(_offset, _length))
+                {
+                    RequestId = _requestId
+                },
+                statusAction: null);
 
             var bytes = ((SftpRequest)request).GetBytes();
 

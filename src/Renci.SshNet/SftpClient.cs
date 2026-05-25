@@ -2478,8 +2478,13 @@ namespace Renci.SshNet
             ulong offset = 0;
 
             // create buffer of optimal length
-            var buffer = new SftpWriteRequestBuffer(handle, (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle));
+            var dataCapacity = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+
+            using var buffer = new SftpWriteRequestBuffer(handle, dataCapacity, usePool: true);
+
             var dataBuffer = buffer.Data;
+
+            Debug.Assert(dataBuffer.Count >= dataCapacity);
 
             var expectedResponses = 0;
 
@@ -2494,11 +2499,11 @@ namespace Renci.SshNet
             {
                 var bytesRead = isAsync
 #if NET
-                    ? await input.ReadAsync(dataBuffer, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.AsMemory(0, dataCapacity), cancellationToken).ConfigureAwait(false)
 #else
-                    ? await input.ReadAsync(dataBuffer.Array, dataBuffer.Offset, dataBuffer.Count, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.Array, dataBuffer.Offset, dataCapacity, cancellationToken).ConfigureAwait(false)
 #endif
-                    : input.Read(dataBuffer.Array!, dataBuffer.Offset, dataBuffer.Count);
+                    : input.Read(dataBuffer.Array!, dataBuffer.Offset, dataCapacity);
 
                 if (bytesRead == 0)
                 {

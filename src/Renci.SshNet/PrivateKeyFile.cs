@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using Renci.SshNet.Common;
@@ -114,10 +115,20 @@ namespace Renci.SshNet
         private const string PuTTYPrivateKeyPattern = @"^(?<keyName>PuTTY-User-Key-File)-(?<version>\d+): (?<algorithmName>[\w-]+)\r?\nEncryption: (?<encryptionType>[\w-]+)\r?\nComment: (?<comment>.*?)\r?\nPublic-Lines: \d+\r?\n(?<publicKey>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)(Key-Derivation: (?<argon2Type>\w+)\r?\nArgon2-Memory: (?<argon2Memory>\d+)\r?\nArgon2-Passes: (?<argon2Passes>\d+)\r?\nArgon2-Parallelism: (?<argon2Parallelism>\d+)\r?\nArgon2-Salt: (?<argon2Salt>[a-fA-F0-9]+)\r?\n)?Private-Lines: \d+\r?\n(?<data>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)+Private-MAC: (?<mac>[a-fA-F0-9]+)";
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
+        /// <summary>
+        /// Matches an inline (single-line) PEM key where newlines were replaced by spaces,
+        /// for example: <c>-----BEGIN PRIVATE KEY----- &lt;base64data&gt; -----END PRIVATE KEY-----</c>.
+        /// This happens when SSH private keys are injected via CI/CD environment variables
+        /// (e.g., Azure DevOps) that do not preserve newlines.
+        /// Groups: header = BEGIN header, data = base64 payload (may contain spaces), footer = END footer.
+        /// </summary>
+        private const string InlinePemPattern = @"(?<header>-{5}BEGIN [^-]+-{5})\s+(?<data>[a-zA-Z0-9+/=]+(?:\s+[a-zA-Z0-9+/=]+)*)\s*(?<footer>-{5}END [^-]+-{5})";
+
 #if NET
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
         private static readonly Regex PuTTYPrivateKeyRegex = GetPrivateKeyPuTTYRegex();
         private static readonly Regex CertificateRegex = GetCertificateRegex();
+        private static readonly Regex InlinePemRegex = GetInlinePemRegex();
 
         [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
         private static partial Regex GetPrivateKeyRegex();
@@ -127,10 +138,14 @@ namespace Renci.SshNet
 
         [GeneratedRegex(CertificatePattern, RegexOptions.ExplicitCapture)]
         private static partial Regex GetCertificateRegex();
+
+        [GeneratedRegex(InlinePemPattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetInlinePemRegex();
 #else
         private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         private static readonly Regex PuTTYPrivateKeyRegex = new Regex(PuTTYPrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         private static readonly Regex CertificateRegex = new Regex(CertificatePattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex InlinePemRegex = new Regex(InlinePemPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif
 
         private readonly List<HostAlgorithm> _hostAlgorithms = new List<HostAlgorithm>();
@@ -279,6 +294,58 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Normalizes an inline PEM key where line breaks were replaced by spaces.
+        /// </summary>
+        /// <remarks>
+        /// Some CI/CD systems (e.g. Azure DevOps) replace newlines with spaces when injecting
+        /// secrets as environment variables. This method detects that pattern and reformats
+        /// the key into standard multi-line PEM so it can be parsed by the normal regex.
+        /// </remarks>
+        /// <param name="text">The raw text to normalize.</param>
+        /// <returns>
+        /// A new string with proper PEM line endings when the text matched the inline pattern;
+        /// otherwise the original <paramref name="text"/> instance (reference-equal).
+        /// </returns>
+        private static string NormalizePemText(string text)
+        {
+            var inlineMatch = InlinePemRegex.Match(text);
+            if (!inlineMatch.Success)
+            {
+                return text;
+            }
+
+            var header = inlineMatch.Groups["header"].Value;
+            var footer = inlineMatch.Groups["footer"].Value;
+
+            // Strip whitespace from the base64 payload.
+            // Each space represents a newline that was stripped by the CI/CD injector.
+            var rawData = inlineMatch.Groups["data"].Value;
+            var base64Data = new StringBuilder(rawData.Length);
+            foreach (var c in rawData)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    base64Data.Append(c);
+                }
+            }
+
+            // Reformat as standard PEM: header, 64-char base64 lines, footer.
+            const int lineLength = 64;
+            var base64 = base64Data.ToString();
+            var capacity = header.Length + 1 + base64.Length + (base64.Length / lineLength) + 1 + footer.Length + 1;
+            var sb = new StringBuilder(capacity);
+            sb.Append(header).Append('\n');
+            for (var i = 0; i < base64.Length; i += lineLength)
+            {
+                sb.Append(base64, i, Math.Min(lineLength, base64.Length - i));
+                sb.Append('\n');
+            }
+
+            sb.Append(footer).Append('\n');
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Opens the specified private key.
         /// </summary>
         /// <param name="privateKey">The private key.</param>
@@ -300,6 +367,19 @@ namespace Renci.SshNet
                 else
                 {
                     privateKeyMatch = PrivateKeyRegex.Match(text);
+
+                    if (!privateKeyMatch.Success)
+                    {
+                        // Attempt to normalize inline PEM format where newlines were replaced by
+                        // spaces (common when injecting SSH keys via CI/CD environment variables,
+                        // e.g. Azure DevOps). Only normalize when the standard match fails, to
+                        // keep the hot path allocation-free.
+                        var normalizedText = NormalizePemText(text);
+                        if (!ReferenceEquals(normalizedText, text))
+                        {
+                            privateKeyMatch = PrivateKeyRegex.Match(normalizedText);
+                        }
+                    }
                 }
             }
 

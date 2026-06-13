@@ -609,6 +609,39 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        [DataRow("Key.RSA.PKCS8.txt", null, typeof(RsaKey))]
+        [DataRow("Key.OPENSSH.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.ECDSA.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ED25519.txt", null, typeof(ED25519Key))]
+        public void Test_PrivateKey_InlinePem_SpacesSeparated(string name, string passPhrase, Type expectedKeyType)
+        {
+            // Simulate CI/CD environment variable injection (e.g. Azure DevOps) where
+            // the PEM newlines are replaced by spaces, producing an inline single-line key.
+            string original;
+            using (var stream = GetData(name))
+            using (var reader = new StreamReader(stream))
+            {
+                original = reader.ReadToEnd();
+            }
+
+            // Replace all newlines with spaces to produce the inline format
+            var inlinePem = original.Replace("\r\n", " ").Replace('\n', ' ').Trim();
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(inlinePem)))
+            {
+                var pkFile = new PrivateKeyFile(stream, passPhrase);
+
+                Assert.IsInstanceOfType(pkFile.Key, expectedKeyType);
+
+                if (expectedKeyType == typeof(RsaKey))
+                {
+                    TestRsaKeyFile(pkFile);
+                }
+            }
+        }
+
         private void SaveStreamToFile(Stream stream, string fileName)
         {
             var buffer = new byte[4000];

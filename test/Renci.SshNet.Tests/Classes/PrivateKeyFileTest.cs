@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -626,8 +627,9 @@ namespace Renci.SshNet.Tests.Classes
                 original = reader.ReadToEnd();
             }
 
-            // Replace all newlines with spaces to produce the inline format
-            var inlinePem = original.Replace("\r\n", " ").Replace('\n', ' ').Trim();
+            // Replace all newlines with spaces to produce the inline format,
+            // matching what CI/CD systems (e.g. Azure DevOps) produce when injecting secrets.
+            var inlinePem = Regex.Replace(original, @"\r?\n", " ").Trim();
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(inlinePem)))
             {

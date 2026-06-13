@@ -332,6 +332,8 @@ namespace Renci.SshNet
             // Reformat as standard PEM: header, 64-char base64 lines, footer.
             const int lineLength = 64;
             var base64 = base64Data.ToString();
+
+            // Capacity: header + '\n' + base64 data + one '\n' per 64-char line + footer + '\n'
             var capacity = header.Length + 1 + base64.Length + (base64.Length / lineLength) + 1 + footer.Length + 1;
             var sb = new StringBuilder(capacity);
             sb.Append(header).Append('\n');

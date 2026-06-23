@@ -110,17 +110,22 @@ namespace Renci.SshNet
     /// </remarks>
     public partial class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
-        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+[\r\n\t ]*((Proc-Type: 4,ENCRYPTED[\r\n\t ]+DEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[a-fA-F0-9]+)[\r\n\t ]+[\r\n\t ]+)|(Comment: ""?[^\r\n]*""?[\r\n\t ]+))?(?<data>[a-zA-Z0-9/+=\r\n\t ]+)([\r\n\t ]*)-+ *END \k<keyName> *-+";
+        private const string PrivateKeyPattern = @"^-+ *BEGIN (?<keyName>\w+( \w+)*) *-+[\r\n\t ]+((Proc-Type: 4,ENCRYPTED[\r\n\t ]+DEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[a-fA-F0-9]+)[\r\n\t ]+[\r\n\t ]+)|(Comment: ""?[^\r\n]*""?[\r\n\t ]+))?(?<data>[a-zA-Z0-9/+=\r\n\t ]+)([\r\n\t ]+)?-+ *END \k<keyName> *-+";
+        private const string InlinePrivateKeyPattern = @"^(?<begin>-+ *BEGIN (?<keyName>\w+( \w+)*) *-+)(?<data>[a-zA-Z0-9/+=]+)(?<end>-+ *END \k<keyName> *-+)$";
         private const string PuTTYPrivateKeyPattern = @"^(?<keyName>PuTTY-User-Key-File)-(?<version>\d+): (?<algorithmName>[\w-]+)\r?\nEncryption: (?<encryptionType>[\w-]+)\r?\nComment: (?<comment>.*?)\r?\nPublic-Lines: \d+\r?\n(?<publicKey>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)(Key-Derivation: (?<argon2Type>\w+)\r?\nArgon2-Memory: (?<argon2Memory>\d+)\r?\nArgon2-Passes: (?<argon2Passes>\d+)\r?\nArgon2-Parallelism: (?<argon2Parallelism>\d+)\r?\nArgon2-Salt: (?<argon2Salt>[a-fA-F0-9]+)\r?\n)?Private-Lines: \d+\r?\n(?<data>(([a-zA-Z0-9/+=]{1,64})\r?\n)+)+Private-MAC: (?<mac>[a-fA-F0-9]+)";
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
 #if NET
         private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
+        private static readonly Regex InlinePrivateKeyRegex = GetInlinePrivateKeyRegex();
         private static readonly Regex PuTTYPrivateKeyRegex = GetPrivateKeyPuTTYRegex();
         private static readonly Regex CertificateRegex = GetCertificateRegex();
 
         [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
         private static partial Regex GetPrivateKeyRegex();
+
+        [GeneratedRegex(InlinePrivateKeyPattern, RegexOptions.ExplicitCapture)]
+        private static partial Regex GetInlinePrivateKeyRegex();
 
         [GeneratedRegex(PuTTYPrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
         private static partial Regex GetPrivateKeyPuTTYRegex();
@@ -129,6 +134,7 @@ namespace Renci.SshNet
         private static partial Regex GetCertificateRegex();
 #else
         private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        private static readonly Regex InlinePrivateKeyRegex = new Regex(InlinePrivateKeyPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private static readonly Regex PuTTYPrivateKeyRegex = new Regex(PuTTYPrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         private static readonly Regex CertificateRegex = new Regex(CertificatePattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif
@@ -292,7 +298,7 @@ namespace Renci.SshNet
 
             using (var sr = new StreamReader(privateKey))
             {
-                var text = sr.ReadToEnd();
+                var text = NormalizeInlinePrivateKey(sr.ReadToEnd());
                 if (text.StartsWith("PuTTY-User-Key-File", StringComparison.Ordinal))
                 {
                     privateKeyMatch = PuTTYPrivateKeyRegex.Match(text);
@@ -301,6 +307,27 @@ namespace Renci.SshNet
                 {
                     privateKeyMatch = PrivateKeyRegex.Match(text);
                 }
+            }
+
+            private static string NormalizeInlinePrivateKey(string text)
+            {
+                if (text.IndexOfAny(['\r', '\n']) >= 0)
+                {
+                    return text;
+                }
+
+                var privateKeyMatch = InlinePrivateKeyRegex.Match(text.Trim());
+                if (!privateKeyMatch.Success)
+                {
+                    return text;
+                }
+
+                return string.Concat(
+                    privateKeyMatch.Groups["begin"].Value,
+                    "\n",
+                    privateKeyMatch.Groups["data"].Value,
+                    "\n",
+                    privateKeyMatch.Groups["end"].Value);
             }
 
             if (!privateKeyMatch.Success)

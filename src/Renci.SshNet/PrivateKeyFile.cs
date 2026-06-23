@@ -309,27 +309,6 @@ namespace Renci.SshNet
                 }
             }
 
-            private static string NormalizeInlinePrivateKey(string text)
-            {
-                if (text.IndexOfAny(['\r', '\n']) >= 0)
-                {
-                    return text;
-                }
-
-                var privateKeyMatch = InlinePrivateKeyRegex.Match(text.Trim());
-                if (!privateKeyMatch.Success)
-                {
-                    return text;
-                }
-
-                return string.Concat(
-                    privateKeyMatch.Groups["begin"].Value,
-                    "\n",
-                    privateKeyMatch.Groups["data"].Value,
-                    "\n",
-                    privateKeyMatch.Groups["end"].Value);
-            }
-
             if (!privateKeyMatch.Success)
             {
                 throw new SshException("Invalid private key file.");
@@ -404,6 +383,27 @@ namespace Renci.SshNet
             {
                 _hostAlgorithms.Add(new KeyHostAlgorithm(_key.ToString(), _key));
             }
+        }
+
+        private static string NormalizeInlinePrivateKey(string text)
+        {
+            if (text.IndexOfAny(['\r', '\n']) >= 0)
+            {
+                return text;
+            }
+
+            var privateKeyMatch = InlinePrivateKeyRegex.Match(text.Trim());
+            if (!privateKeyMatch.Success)
+            {
+                return text;
+            }
+
+            return string.Concat(
+                privateKeyMatch.Groups["begin"].Value,
+                "\n",
+                privateKeyMatch.Groups["data"].Value,
+                "\n",
+                privateKeyMatch.Groups["end"].Value);
         }
 
         /// <summary>

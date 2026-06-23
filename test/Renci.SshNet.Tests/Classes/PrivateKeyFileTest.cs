@@ -616,10 +616,10 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
         [DataRow("Key.ECDSA.txt", null, typeof(EcdsaKey))]
         [DataRow("Key.OPENSSH.ED25519.txt", null, typeof(ED25519Key))]
-        public void Test_PrivateKey_InlinePem_SpacesSeparated(string name, string passPhrase, Type expectedKeyType)
+        public void Test_PrivateKey_InlinePem_LineEndingsRemoved(string name, string passPhrase, Type expectedKeyType)
         {
             // Simulate CI/CD environment variable injection (e.g. Azure DevOps) where
-            // the PEM newlines are replaced by spaces, producing an inline single-line key.
+            // the PEM line endings are removed, producing an inline single-line key.
             string original;
             using (var stream = GetData(name))
             using (var reader = new StreamReader(stream))
@@ -627,9 +627,9 @@ namespace Renci.SshNet.Tests.Classes
                 original = reader.ReadToEnd();
             }
 
-            // Replace all newlines with spaces to produce the inline format,
+            // Remove all line endings to produce the inline format,
             // matching what CI/CD systems (e.g. Azure DevOps) produce when injecting secrets.
-            var inlinePem = Regex.Replace(original, @"\r?\n", " ").Trim();
+            var inlinePem = Regex.Replace(original, @"\r\n?|\n", string.Empty).Trim();
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(inlinePem)))
             {

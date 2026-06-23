@@ -905,7 +905,7 @@ namespace Renci.SshNet
 
             if (downloadCallback != null)
             {
-                downloadProgress = new SynchronousProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+                downloadProgress = new ThreadPoolProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
             }
 
             InternalDownloadFile(
@@ -1093,7 +1093,7 @@ namespace Renci.SshNet
 
             if (uploadCallback != null)
             {
-                uploadProgress = new SynchronousProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+                uploadProgress = new ThreadPoolProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
             }
 
             InternalUploadFile(
@@ -2670,25 +2670,6 @@ namespace Renci.SshNet
                     handler(value);
                 },
                 (_handler, value));
-            }
-        }
-
-        /// <summary>
-        /// An <see cref="IProgress{T}"/> implementation that invokes callbacks synchronously.
-        /// </summary>
-        private sealed class SynchronousProgress<T> : IProgress<T>
-        {
-            private readonly Action<T> _handler;
-
-            public SynchronousProgress(Action<T> handler)
-            {
-                Debug.Assert(handler != null);
-                _handler = handler!;
-            }
-
-            void IProgress<T>.Report(T value)
-            {
-                _handler.Invoke(value);
             }
         }
     }

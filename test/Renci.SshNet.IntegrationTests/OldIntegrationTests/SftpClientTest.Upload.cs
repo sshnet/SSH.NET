@@ -324,77 +324,104 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var remoteFileName = Path.GetRandomFileName();
                 var localFileName = Path.GetRandomFileName();
-                var uploadDelegateCalled = false;
-                var downloadDelegateCalled = false;
-                var listDirectoryDelegateCalled = false;
+                using var uploadDelegateEvent = new ManualResetEventSlim();
+                using var downloadDelegateEvent = new ManualResetEventSlim();
+                using var listDirectoryDelegateEvent = new ManualResetEventSlim();
+                using var uploadCallbackEvent = new ManualResetEventSlim();
+                using var downloadCallbackEvent = new ManualResetEventSlim();
+                using var listDirectoryCallbackEvent = new ManualResetEventSlim();
                 IAsyncResult asyncResult;
 
                 // Test for BeginUploadFile.
 
                 CreateTestFile(localFileName, 1);
 
-                using (var fileStream = File.OpenRead(localFileName))
+                var originalContext = SynchronizationContext.Current;
+                try
                 {
-                    asyncResult = sftp.BeginUploadFile(fileStream,
-                                                       remoteFileName,
-                                                       delegate (IAsyncResult ar)
-                                                           {
-                                                               sftp.EndUploadFile(ar);
-                                                               uploadDelegateCalled = true;
-                                                           },
-                                                       null);
+                    // Set a throwing context to verify it's not captured by the callback
+                    SynchronizationContext.SetSynchronizationContext(new ThrowingSynchronizationContext());
 
-                    while (!asyncResult.IsCompleted)
+                    using (var fileStream = File.OpenRead(localFileName))
                     {
-                        Thread.Sleep(500);
+                        asyncResult = sftp.BeginUploadFile(fileStream,
+                                                           remoteFileName,
+                                                           delegate (IAsyncResult ar)
+                                                               {
+                                                                   uploadDelegateEvent.Set();
+                                                               },
+                                                           state: null,
+                                                           uploadCallback: _ => uploadCallbackEvent.Set());
+
+                        sftp.EndUploadFile(asyncResult);
                     }
+                }
+                finally
+                {
+                    SynchronizationContext.SetSynchronizationContext(originalContext);
                 }
 
                 File.Delete(localFileName);
 
-                Assert.IsTrue(uploadDelegateCalled, "BeginUploadFile");
+                Assert.IsTrue(uploadDelegateEvent.Wait(1000));
+                Assert.IsTrue(uploadCallbackEvent.Wait(1000));
 
                 // Test for BeginDownloadFile.
 
                 asyncResult = null;
-                using (var fileStream = File.OpenWrite(localFileName))
+                try
                 {
-                    asyncResult = sftp.BeginDownloadFile(remoteFileName,
-                                                         fileStream,
-                                                         delegate (IAsyncResult ar)
-                                                            {
-                                                                sftp.EndDownloadFile(ar);
-                                                                downloadDelegateCalled = true;
-                                                            },
-                                                         null);
+                    // Set a throwing context to verify it's not captured by the callback
+                    SynchronizationContext.SetSynchronizationContext(new ThrowingSynchronizationContext());
 
-                    while (!asyncResult.IsCompleted)
+                    using (var fileStream = File.OpenWrite(localFileName))
                     {
-                        Thread.Sleep(500);
+                        asyncResult = sftp.BeginDownloadFile(remoteFileName,
+                                                             fileStream,
+                                                             delegate (IAsyncResult ar)
+                                                                {
+                                                                    downloadDelegateEvent.Set();
+                                                                },
+                                                             state: null,
+                                                             downloadCallback: _ => downloadCallbackEvent.Set());
+
+                        sftp.EndDownloadFile(asyncResult);
                     }
+                }
+                finally
+                {
+                    SynchronizationContext.SetSynchronizationContext(originalContext);
                 }
 
                 File.Delete(localFileName);
 
-                Assert.IsTrue(downloadDelegateCalled, "BeginDownloadFile");
+                Assert.IsTrue(downloadDelegateEvent.Wait(1000));
+                Assert.IsTrue(downloadCallbackEvent.Wait(1000));
 
                 // Test for BeginListDirectory.
 
-                asyncResult = null;
-                asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory,
-                                                      delegate (IAsyncResult ar)
-                                                        {
-                                                            _ = sftp.EndListDirectory(ar);
-                                                            listDirectoryDelegateCalled = true;
-                                                        },
-                                                      null);
-
-                while (!asyncResult.IsCompleted)
+                try
                 {
-                    Thread.Sleep(500);
+                    // Set a throwing context to verify it's not captured by the callback
+                    SynchronizationContext.SetSynchronizationContext(new ThrowingSynchronizationContext());
+
+                    asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory,
+                                                          delegate (IAsyncResult ar)
+                                                            {
+                                                                listDirectoryDelegateEvent.Set();
+                                                            },
+                                                          state: null,
+                                                          listCallback: _ => listDirectoryCallbackEvent.Set());
+
+                    _ = sftp.EndListDirectory(asyncResult);
+                }
+                finally
+                {
+                    SynchronizationContext.SetSynchronizationContext(originalContext);
                 }
 
-                Assert.IsTrue(listDirectoryDelegateCalled, "BeginListDirectory");
+                Assert.IsTrue(listDirectoryDelegateEvent.Wait(1000));
+                Assert.IsTrue(listDirectoryCallbackEvent.Wait(1000));
             }
         }
 
@@ -480,6 +507,19 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
                 // since the callback is queued to the thread pool, wait for the event.
                 bool callbackCalled = finalCallbackCalledEvent.Wait(5000);
                 Assert.IsTrue(callbackCalled);
+            }
+        }
+
+        private sealed class ThrowingSynchronizationContext : SynchronizationContext
+        {
+            public override void Post(SendOrPostCallback d, object state)
+            {
+                throw new InvalidOperationException();
+            }
+
+            public override void Send(SendOrPostCallback d, object state)
+            {
+                throw new InvalidOperationException();
             }
         }
     }

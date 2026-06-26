@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality to perform password authentication.
     /// </summary>
     [TestClass]
-    public partial class PasswordAuthenticationMethodTest : TestBase
+    public class PasswordAuthenticationMethodTest : TestBase
     {
         [TestMethod]
         public void Password_Test_Pass_Null_Username()

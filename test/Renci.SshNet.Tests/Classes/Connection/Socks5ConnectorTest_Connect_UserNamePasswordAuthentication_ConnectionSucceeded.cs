@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -201,7 +200,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                           PacketDump.Create(expectedSocksRequest, 2),
                                           PacketDump.Create(_bytesReceivedByProxy, 2));
 
-            Assert.IsTrue(expectedSocksRequest.SequenceEqual(_bytesReceivedByProxy), errorText);
+            CollectionAssert.AreEqual(expectedSocksRequest, _bytesReceivedByProxy, errorText);
         }
 
         [TestMethod]

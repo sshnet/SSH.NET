@@ -138,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 
             var actual = testCipher.Encrypt(input, 2, input.Length - 5);
 
-            Assert.IsTrue(actual.IsEqualTo(expected));
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 
             var actual = testCipher.Encrypt(input);
 
-            Assert.IsTrue(actual.IsEqualTo(expected));
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 
             var actual = testCipher.Decrypt(input);
 
-            Assert.IsTrue(expected.IsEqualTo(actual));
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -180,7 +180,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 
             var actual = testCipher.Decrypt(input, 1, input.Length - 3);
 
-            Assert.IsTrue(expected.IsEqualTo(actual));
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]

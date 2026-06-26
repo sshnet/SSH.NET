@@ -112,7 +112,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             Assert.HasCount(expected.Length + 2, _dataReceivedByServer);
 
-            Assert.IsTrue(expected.SequenceEqual(_dataReceivedByServer.Take(expected.Length)));
+            CollectionAssert.AreEqual(expected, _dataReceivedByServer.Take(expected.Length).ToArray());
             Assert.AreEqual(Session.CarriageReturn, _dataReceivedByServer[_dataReceivedByServer.Count - 2]);
             Assert.AreEqual(Session.LineFeed, _dataReceivedByServer[_dataReceivedByServer.Count - 1]);
         }

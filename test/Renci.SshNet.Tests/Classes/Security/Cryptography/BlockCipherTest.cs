@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -33,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             var actual = blockCipher.Encrypt(input);
 
-            Assert.IsTrue(output.SequenceEqual(actual));
+            CollectionAssert.AreEqual(output, actual);
         }
 
         [TestMethod]
@@ -54,7 +53,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             var actual = blockCipher.Encrypt(input);
 
-            Assert.IsTrue(output.SequenceEqual(actual));
+            CollectionAssert.AreEqual(output, actual);
         }
 
         [TestMethod]
@@ -75,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             var actual = blockCipher.Encrypt(input);
 
-            Assert.IsTrue(output.SequenceEqual(actual));
+            CollectionAssert.AreEqual(output, actual);
         }
 
         [TestMethod]
@@ -98,7 +97,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             var actual = blockCipher.Decrypt(input);
 
-            Assert.IsTrue(output.SequenceEqual(actual));
+            CollectionAssert.AreEqual(output, actual);
         }
 
         [TestMethod]
@@ -119,7 +118,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 
             var actual = blockCipher.Decrypt(input);
 
-            Assert.IsTrue(output.SequenceEqual(actual));
+            CollectionAssert.AreEqual(output, actual);
         }
 
 

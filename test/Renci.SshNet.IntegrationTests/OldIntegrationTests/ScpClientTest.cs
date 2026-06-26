@@ -8,7 +8,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
     /// Provides SCP client functionality.
     /// </summary>
     [TestClass]
-    public partial class ScpClientTest : IntegrationTestBase
+    public class ScpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Scp")]

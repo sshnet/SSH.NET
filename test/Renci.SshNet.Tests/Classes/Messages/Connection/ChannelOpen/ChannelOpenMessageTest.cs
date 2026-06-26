@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -103,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             var actualChannelType = new byte[actualChannelTypeLength];
             _ = sshDataStream.Read(actualChannelType, 0, (int)actualChannelTypeLength);
-            Assert.IsTrue(target.ChannelType.SequenceEqual(actualChannelType));
+            CollectionAssert.AreEqual(target.ChannelType, actualChannelType);
 
             Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
             Assert.AreEqual(initialWindowSize, sshDataStream.ReadUInt32());
@@ -111,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             var actualInfo = new byte[infoBytes.Length];
             _ = sshDataStream.Read(actualInfo, 0, actualInfo.Length);
-            Assert.IsTrue(infoBytes.SequenceEqual(actualInfo));
+            CollectionAssert.AreEqual(infoBytes, actualInfo);
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

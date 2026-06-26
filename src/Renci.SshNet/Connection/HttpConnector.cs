@@ -31,6 +31,7 @@ namespace Renci.SshNet.Connection
     ///   </item>
     /// </list>
     /// </remarks>
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
     internal sealed partial class HttpConnector : ProxyConnector
     {
         private const string HttpResponsePattern = @"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$";

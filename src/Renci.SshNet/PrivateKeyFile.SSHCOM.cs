@@ -70,7 +70,7 @@ namespace Renci.SshNet
                     throw new SshException("Invalid passphrase.");
                 }
 
-                if (keyType.Contains("rsa"))
+                if (keyType.Contains("rsa", StringComparison.Ordinal))
                 {
                     var exponent = ReadBigIntWithBits(keyReader);
                     var d = ReadBigIntWithBits(keyReader);

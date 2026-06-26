@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Buffers.Binary;
 using System.Diagnostics;
 
@@ -74,6 +75,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             }
         }
 
+        public override byte[] Encrypt(byte[] input, int offset, int length)
+        {
+            var output = new byte[length + TagSizeInBytes];
+
+            var bytesWritten = Encrypt(input, offset, length, output, 0);
+
+            Debug.Assert(bytesWritten == output.Length);
+
+            return output;
+        }
+
         /// <summary>
         /// Encrypts the specified input.
         /// </summary>
@@ -85,16 +97,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </param>
         /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
         /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
-        /// <returns>
-        /// The encrypted data with below format:
+        /// <param name="output">The output buffer to write to.</param>
+        /// <param name="outputOffset">The zero-based offset in <paramref name="output"/> at which to write encrypted output.</param>
+        /// <remarks>
+        /// The output data is written with the below format:
         ///   <code>
         ///   [----AAD----][----Cipher Text----][----TAG----]
         ///   </code>
-        /// </returns>
-        public override byte[] Encrypt(byte[] input, int offset, int length)
+        /// </remarks>
+        public override int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
         {
-            var output = new byte[length + TagSize];
-            Buffer.BlockCopy(input, offset, output, 0, _aadLength);
+            input.AsSpan(offset, _aadLength).CopyTo(output.AsSpan(outputOffset));
 
             _impl.Encrypt(
                 input,
@@ -103,11 +116,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 associatedDataOffset: offset,
                 associatedDataLength: _aadLength,
                 output,
-                cipherTextOffset: _aadLength);
+                outputOffset + _aadLength);
 
             IncrementCounter();
 
-            return output;
+            return length + TagSizeInBytes;
         }
 
         public override byte[] Decrypt(byte[] input, int offset, int length)

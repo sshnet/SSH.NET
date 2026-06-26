@@ -287,7 +287,7 @@ namespace Renci.SshNet.Tests.Classes.Security
                 "PD7/nXcyxnY3zALlPQTxb19EVx5lz58BS96gg=";
 
             char[] chars = goodCertString.ToCharArray();
-            chars[^10] = 'a';
+            chars[chars.Length - 10] = 'a';
             string badCertString = new string(chars);
 
             Assert.IsTrue(VerifySignature(goodCertString));

@@ -11,6 +11,7 @@ using Moq;
 
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {

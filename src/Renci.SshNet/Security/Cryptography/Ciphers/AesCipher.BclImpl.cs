@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 using Renci.SshNet.Common;
@@ -44,6 +45,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 return Transform(_encryptor, input, offset, length, output: null, 0, out _);
             }
 
+            public override int Encrypt(byte[] input, int offset, int length, byte[] output, int outputOffset)
+            {
+                _ = Transform(_encryptor, input, offset, length, output, outputOffset, out var bytesWritten);
+
+                return bytesWritten;
+            }
+
             public override byte[] Decrypt(byte[] input, int offset, int length)
             {
                 return Transform(_decryptor, input, offset, length, output: null, 0, out _);
@@ -80,6 +88,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 // encrypted data in all packets are considered a single data
                 // stream i.e. we do not want to reset the state between calls to Decrypt.
 
+                byte[]? tmp = null;
+
                 var paddingLength = 0;
                 if (length % BlockSize > 0)
                 {
@@ -89,33 +99,28 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                         // See https://github.com/dotnet/runtime/blob/e7d837da5b1aacd9325a8b8f2214cfaf4d3f0ff6/src/libraries/System.Security.Cryptography/src/System/Security/Cryptography/SymmetricPadding.cs#L20-L21
                         paddingLength = BlockSize - (length % BlockSize);
 
-                        var tmp = new byte[length + paddingLength];
+                        tmp = new byte[length + paddingLength];
 
                         input.AsSpan(offset, length).CopyTo(tmp);
-
-                        input = tmp;
-                        offset = 0;
-                        length = tmp.Length;
                     }
                 }
 
-                if (output is null)
+                output ??= new byte[length];
+
+                if (tmp is not null)
                 {
-                    output = new byte[length];
+                    bytesWritten = transform.TransformBlock(tmp, 0, tmp.Length, tmp, 0);
 
-                    bytesWritten = transform.TransformBlock(input, offset, length, output, outputOffset);
-
-                    bytesWritten -= paddingLength;
-
-                    // Manually unpad the output.
-                    Array.Resize(ref output, bytesWritten);
+                    tmp.AsSpan(0, length).CopyTo(output.AsSpan(outputOffset));
                 }
                 else
                 {
                     bytesWritten = transform.TransformBlock(input, offset, length, output, outputOffset);
-
-                    bytesWritten -= paddingLength;
                 }
+
+                bytesWritten -= paddingLength;
+
+                Debug.Assert(bytesWritten == length);
 
                 return output;
             }

@@ -3,14 +3,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -72,7 +70,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
             }
         }
 
-        [TestMethodForPlatform(nameof(OSPlatform.Windows))]
+        [TestMethod]
+        [OSCondition(OperatingSystems.Windows)]
         public void ConnectShouldHaveThrownSshOperationTimeoutExceptionOnWindows()
         {
             Assert.IsNull(_actualException.InnerException);
@@ -80,7 +79,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
             Assert.AreEqual(string.Format(CultureInfo.InvariantCulture, "Connection failed to establish within {0} milliseconds.", _connectionInfo.Timeout.TotalMilliseconds), _actualException.Message);
         }
 
-        [TestMethodForPlatform(nameof(OSPlatform.Linux))]
+        [TestMethod]
+        [OSCondition(OperatingSystems.Linux)]
         public void ConnectShouldHaveThrownSocketExceptionOnLinux()
         {
             Assert.IsNull(_actualException.InnerException);
@@ -88,7 +88,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
             Assert.AreEqual("Connection refused", _actualException.Message);
         }
 
-        [TestMethodForPlatform(nameof(OSPlatform.Windows))]
+        [TestMethod]
+        [OSCondition(OperatingSystems.Windows)]
         public void ConnectShouldHaveRespectedTimeoutOnWindows()
         {
             var errorText = string.Format("Elapsed: {0}, Timeout: {1}",

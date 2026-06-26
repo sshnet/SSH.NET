@@ -129,7 +129,7 @@ namespace Renci.SshNet.NetConf
             {
                 _ = _data.Append(chunk);
 
-                if (!chunk.Contains(Prompt))
+                if (!chunk.Contains(Prompt, StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -194,7 +194,7 @@ namespace Renci.SshNet.NetConf
             {
                 _ = _data.Append(chunk);
 
-                if (!chunk.Contains(Prompt))
+                if (!chunk.Contains(Prompt, StringComparison.Ordinal))
                 {
                     return;
                 }

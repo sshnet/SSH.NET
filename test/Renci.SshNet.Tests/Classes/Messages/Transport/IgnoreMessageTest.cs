@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -75,7 +74,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             var actualData = new byte[_data.Length];
             _ = sshDataStream.Read(actualData, 0, actualData.Length);
-            Assert.IsTrue(_data.SequenceEqual(actualData));
+            CollectionAssert.AreEqual(_data, actualData);
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

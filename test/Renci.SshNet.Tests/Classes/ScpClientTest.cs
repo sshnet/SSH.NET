@@ -3,7 +3,6 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -12,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides SCP client functionality.
     /// </summary>
     [TestClass]
-    public partial class ScpClientTest : TestBase
+    public class ScpClientTest : TestBase
     {
         private Random _random;
 
@@ -82,7 +81,7 @@ namespace Renci.SshNet.Tests.Classes
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
             Assert.AreEqual(userName, passwordAuthentication.Username);
-            Assert.IsTrue(Encoding.UTF8.GetBytes(password).IsEqualTo(passwordAuthentication.Password));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(password), passwordAuthentication.Password);
         }
 
         [TestMethod]
@@ -112,7 +111,7 @@ namespace Renci.SshNet.Tests.Classes
             var passwordAuthentication = passwordConnectionInfo.AuthenticationMethods[0] as PasswordAuthenticationMethod;
             Assert.IsNotNull(passwordAuthentication);
             Assert.AreEqual(userName, passwordAuthentication.Username);
-            Assert.IsTrue(Encoding.UTF8.GetBytes(password).IsEqualTo(passwordAuthentication.Password));
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(password), passwordAuthentication.Password);
         }
 
         [TestMethod]

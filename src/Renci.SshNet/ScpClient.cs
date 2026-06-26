@@ -30,6 +30,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
     public partial class ScpClient : BaseClient
     {
         private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";

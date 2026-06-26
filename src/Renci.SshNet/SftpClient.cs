@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Sftp.Requests;
 
 namespace Renci.SshNet
 {
@@ -2479,7 +2480,13 @@ namespace Renci.SshNet
             ulong offset = 0;
 
             // create buffer of optimal length
-            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
+            var dataCapacity = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+
+            using var buffer = new SftpWriteRequestBuffer(handle, dataCapacity, usePool: true);
+
+            var dataBuffer = buffer.Data;
+
+            Debug.Assert(dataBuffer.Count >= dataCapacity);
 
             var expectedResponses = 0;
 
@@ -2494,11 +2501,11 @@ namespace Renci.SshNet
             {
                 var bytesRead = isAsync
 #if NET
-                    ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.AsMemory(0, dataCapacity), cancellationToken).ConfigureAwait(false)
 #else
-                    ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.Array, dataBuffer.Offset, dataCapacity, cancellationToken).ConfigureAwait(false)
 #endif
-                    : input.Read(buffer, 0, buffer.Length);
+                    : input.Read(dataBuffer.Array!, dataBuffer.Offset, dataCapacity);
 
                 if (bytesRead == 0)
                 {
@@ -2512,12 +2519,15 @@ namespace Renci.SshNet
 
                 exception?.Throw();
 
+                buffer.ServerFileOffset = offset;
+                buffer.DataLength = bytesRead;
+
                 var writtenBytes = offset + (ulong)bytesRead;
 
                 _ = Interlocked.Increment(ref expectedResponses);
                 mres.Reset();
 
-                _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
+                _sftpSession.RequestWrite(buffer, s =>
                 {
                     var setHandle = false;
 

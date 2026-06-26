@@ -87,8 +87,16 @@ namespace Renci.SshNet.Sftp
 
         internal void SendMessage(SftpMessage sftpMessage)
         {
-            var data = sftpMessage.GetBytes();
-            SendData(data);
+            if (sftpMessage is SftpWriteRequest writeRequest)
+            {
+                var data = writeRequest.GetBytes();
+                SendData(data.Array, data.Offset, data.Count);
+            }
+            else
+            {
+                var data = sftpMessage.GetBytes();
+                SendData(data);
+            }
         }
 
         /// <inheritdoc/>
@@ -579,20 +587,31 @@ namespace Renci.SshNet.Sftp
                                  byte[] data,
                                  int offset,
                                  int length,
+                                 AutoResetEvent wait)
+        {
+            using var buffer = new SftpWriteRequestBuffer(handle, serverOffset, data.AsSpan(offset, length), usePool: true);
+
+            RequestWrite(buffer, wait, writeCompleted: null);
+        }
+
+        /// <inheritdoc/>
+        public void RequestWrite(SftpWriteRequestBuffer buffer, Action<SftpStatusResponse> writeCompleted)
+        {
+            RequestWrite(buffer, wait: null, writeCompleted);
+        }
+
+        private void RequestWrite(SftpWriteRequestBuffer buffer,
                                  AutoResetEvent wait,
-                                 Action<SftpStatusResponse> writeCompleted = null)
+                                 Action<SftpStatusResponse> writeCompleted)
         {
             Debug.Assert((wait is null) != (writeCompleted is null), "Should have one parameter or the other.");
 
             SftpException exception = null;
 
+            buffer.RequestId = NextRequestId;
+
             var request = new SftpWriteRequest(ProtocolVersion,
-                                               NextRequestId,
-                                               handle,
-                                               serverOffset,
-                                               data,
-                                               offset,
-                                               length,
+                                               buffer,
                                                response =>
                                                {
                                                    if (writeCompleted is not null)
@@ -629,24 +648,24 @@ namespace Renci.SshNet.Sftp
 
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            SendRequest(new SftpWriteRequest(ProtocolVersion,
-                                                NextRequestId,
-                                                handle,
-                                                serverOffset,
-                                                data,
-                                                offset,
-                                                length,
-                                                response =>
-                                                {
-                                                    if (response.StatusCode == StatusCode.Ok)
-                                                    {
-                                                        _ = tcs.TrySetResult(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        _ = tcs.TrySetException(GetSftpException(response));
-                                                    }
-                                                }));
+            using (var buffer = new SftpWriteRequestBuffer(handle, serverOffset, data.AsSpan(offset, length), usePool: true))
+            {
+                buffer.RequestId = NextRequestId;
+
+                SendRequest(new SftpWriteRequest(ProtocolVersion,
+                                                 buffer,
+                                                 response =>
+                                                 {
+                                                     if (response.StatusCode == StatusCode.Ok)
+                                                     {
+                                                         _ = tcs.TrySetResult(true);
+                                                     }
+                                                     else
+                                                     {
+                                                         _ = tcs.TrySetException(GetSftpException(response));
+                                                     }
+                                                 }));
+            }
 
             return WaitOnHandleAsync(tcs, OperationTimeout, cancellationToken);
         }

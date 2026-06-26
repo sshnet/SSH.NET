@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Represents SSH command that can be executed.
     /// </summary>
     [TestClass]
-    public partial class SshCommandTest : TestBase
+    public class SshCommandTest : TestBase
     {
         [TestMethod]
         public void Test_Execute_SingleCommand_Without_Connecting()

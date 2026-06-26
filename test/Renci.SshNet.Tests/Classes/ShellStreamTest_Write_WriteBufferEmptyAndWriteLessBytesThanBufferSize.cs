@@ -130,7 +130,7 @@ namespace Renci.SshNet.Tests.Classes
             _shellStream.Flush();
 
             Assert.IsNotNull(bytesSent);
-            Assert.IsTrue(_data.Take(_offset, _count).IsEqualTo(bytesSent));
+            CollectionAssert.AreEqual(_data.Take(_offset, _count), bytesSent);
 
             _channelSessionMock.Verify(p => p.SendData(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }

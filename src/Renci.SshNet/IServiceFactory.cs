@@ -14,7 +14,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Factory for creating new services.
     /// </summary>
-    internal partial interface IServiceFactory
+    internal interface IServiceFactory
     {
         /// <summary>
         /// Creates an <see cref="IClientAuthentication"/>.

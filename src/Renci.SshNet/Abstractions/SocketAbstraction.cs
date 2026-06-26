@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
+
 namespace Renci.SshNet.Abstractions
 {
     internal static partial class SocketAbstraction

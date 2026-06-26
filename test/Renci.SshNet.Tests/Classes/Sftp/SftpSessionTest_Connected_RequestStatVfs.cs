@@ -115,7 +115,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.IsOpen)
                                    .Returns(true);
             _ = _channelSessionMock.InSequence(sequence)
-                                   .Setup(p => p.SendData(_sftpInitRequestBytes))
+                                   .Setup(p => p.SendData(_sftpInitRequestBytes, 0, _sftpInitRequestBytes.Length))
                                    .Callback(() =>
                                         {
                                             _channelSessionMock.Raise(c => c.DataReceived += null,
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.IsOpen)
                                    .Returns(true);
             _ = _channelSessionMock.InSequence(sequence)
-                                   .Setup(p => p.SendData(_sftpRealPathRequestBytes))
+                                   .Setup(p => p.SendData(_sftpRealPathRequestBytes, 0, _sftpRealPathRequestBytes.Length))
                                    .Callback(() =>
                                        {
                                            _channelSessionMock.Raise(c => c.DataReceived += null,
@@ -138,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                    .Setup(p => p.IsOpen)
                                    .Returns(true);
             _ = _channelSessionMock.InSequence(sequence)
-                                   .Setup(p => p.SendData(_sftpStatVfsRequestBytes))
+                                   .Setup(p => p.SendData(_sftpStatVfsRequestBytes, 0, _sftpStatVfsRequestBytes.Length))
                                    .Callback(() =>
                                        {
                                            _channelSessionMock.Raise(c => c.DataReceived += null,

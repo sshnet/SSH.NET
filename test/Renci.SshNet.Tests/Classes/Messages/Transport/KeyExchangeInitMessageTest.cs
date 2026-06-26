@@ -25,16 +25,16 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
             Assert.IsFalse(m.FirstKexPacketFollows);
             Assert.AreEqual(0u, m.Reserved);
-            Assert.IsTrue(m.CompressionAlgorithmsClientToServer.SequenceEqual(new[] { "none", "zlib@openssh.com" }));
-            Assert.IsTrue(m.CompressionAlgorithmsServerToClient.SequenceEqual(new[] { "none", "zlib@openssh.com" }));
-            Assert.IsTrue(m.EncryptionAlgorithmsClientToServer.SequenceEqual(new[] { "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "blowfish-cbc", "cast128-cbc", "aes192-cbc", "aes256-cbc", "arcfour", "rijndael-cbc@lysator.liu.se" }));
-            Assert.IsTrue(m.EncryptionAlgorithmsServerToClient.SequenceEqual(new[] { "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "blowfish-cbc", "cast128-cbc", "aes192-cbc", "aes256-cbc", "arcfour", "rijndael-cbc@lysator.liu.se" }));
-            Assert.IsTrue(m.KeyExchangeAlgorithms.SequenceEqual(new[] { "ecdh-sha2-nistp256", "ecdh-sha2-nistp384", "ecdh-sha2-nistp521", "diffie-hellman-group-exchange-sha256", "diffie-hellman-group-exchange-sha1", "diffie-hellman-group14-sha1", "diffie-hellman-group1-sha1" }));
-            Assert.IsTrue(m.LanguagesClientToServer.SequenceEqual(new[] { "" }));
-            Assert.IsTrue(m.LanguagesServerToClient.SequenceEqual(new[] { "" }));
-            Assert.IsTrue(m.MacAlgorithmsClientToServer.SequenceEqual(new[] { "hmac-md5", "hmac-sha1", "umac-64@openssh.com", "hmac-sha2-256", "hmac-sha2-256-96", "hmac-sha2-512", "hmac-sha2-512-96", "hmac-ripemd160", "hmac-ripemd160@openssh.com", "hmac-sha1-96", "hmac-md5-96" }));
-            Assert.IsTrue(m.MacAlgorithmsServerToClient.SequenceEqual(new[] { "hmac-md5", "hmac-sha1", "umac-64@openssh.com", "hmac-sha2-256", "hmac-sha2-256-96", "hmac-sha2-512", "hmac-sha2-512-96", "hmac-ripemd160", "hmac-ripemd160@openssh.com", "hmac-sha1-96", "hmac-md5-96" }));
-            Assert.IsTrue(m.ServerHostKeyAlgorithms.SequenceEqual(new[] { "ssh-rsa", "ssh-dss", "ecdsa-sha2-nistp256" }));
+            CollectionAssert.AreEqual(new[] { "none", "zlib@openssh.com" }, m.CompressionAlgorithmsClientToServer);
+            CollectionAssert.AreEqual(new[] { "none", "zlib@openssh.com" }, m.CompressionAlgorithmsServerToClient);
+            CollectionAssert.AreEqual(new[] { "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "blowfish-cbc", "cast128-cbc", "aes192-cbc", "aes256-cbc", "arcfour", "rijndael-cbc@lysator.liu.se" }, m.EncryptionAlgorithmsClientToServer);
+            CollectionAssert.AreEqual(new[] { "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour256", "arcfour128", "aes128-cbc", "3des-cbc", "blowfish-cbc", "cast128-cbc", "aes192-cbc", "aes256-cbc", "arcfour", "rijndael-cbc@lysator.liu.se" }, m.EncryptionAlgorithmsServerToClient);
+            CollectionAssert.AreEqual(new[] { "ecdh-sha2-nistp256", "ecdh-sha2-nistp384", "ecdh-sha2-nistp521", "diffie-hellman-group-exchange-sha256", "diffie-hellman-group-exchange-sha1", "diffie-hellman-group14-sha1", "diffie-hellman-group1-sha1" }, m.KeyExchangeAlgorithms);
+            CollectionAssert.AreEqual(new[] { "" }, m.LanguagesClientToServer);
+            CollectionAssert.AreEqual(new[] { "" }, m.LanguagesServerToClient);
+            CollectionAssert.AreEqual(new[] { "hmac-md5", "hmac-sha1", "umac-64@openssh.com", "hmac-sha2-256", "hmac-sha2-256-96", "hmac-sha2-512", "hmac-sha2-512-96", "hmac-ripemd160", "hmac-ripemd160@openssh.com", "hmac-sha1-96", "hmac-md5-96" }, m.MacAlgorithmsClientToServer);
+            CollectionAssert.AreEqual(new[] { "hmac-md5", "hmac-sha1", "umac-64@openssh.com", "hmac-sha2-256", "hmac-sha2-256-96", "hmac-sha2-512", "hmac-sha2-512-96", "hmac-ripemd160", "hmac-ripemd160@openssh.com", "hmac-sha1-96", "hmac-md5-96" }, m.MacAlgorithmsServerToClient);
+            CollectionAssert.AreEqual(new[] { "ssh-rsa", "ssh-dss", "ecdsa-sha2-nistp256" }, m.ServerHostKeyAlgorithms);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             var output = m.GetBytes();
 
             //  Skip first 17 bytes since 16 bytes are randomly generated
-            Assert.IsTrue(input.Skip(17).SequenceEqual(output.Skip(17)));
+            CollectionAssert.AreEqual(input.Skip(17).ToArray(), output.Skip(17).ToArray());
 
         }
     }

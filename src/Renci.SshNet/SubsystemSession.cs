@@ -166,10 +166,21 @@ namespace Renci.SshNet
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
+            SendData(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Sends data to the subsystem.
+        /// </summary>
+        /// <param name="data">The data to be sent.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="data"/> at which to begin sending bytes.</param>
+        /// <param name="count">The number of bytes to send.</param>
+        public void SendData(byte[] data, int offset, int count)
+        {
             ObjectDisposedException.ThrowIf(_isDisposed, this);
             EnsureSessionIsOpen();
 
-            _channel.SendData(data);
+            _channel.SendData(data, offset, count);
         }
 
         /// <summary>

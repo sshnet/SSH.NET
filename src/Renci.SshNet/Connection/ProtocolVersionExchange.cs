@@ -19,6 +19,7 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://tools.ietf.org/html/rfc4253#section-4.2.
     /// </remarks>
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
     internal sealed partial class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;

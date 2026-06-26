@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Provides functionality to perform keyboard interactive authentication.
     /// </summary>
     [TestClass]
-    public partial class KeyboardInteractiveAuthenticationMethodTest : TestBase
+    public class KeyboardInteractiveAuthenticationMethodTest : TestBase
     {
         [TestMethod]
         public void Keyboard_Test_Pass_Null()

@@ -7,6 +7,8 @@ using System.Xml;
 
 using Renci.SshNet.Common;
 
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
+
 namespace Renci.SshNet.NetConf
 {
     internal sealed partial class NetConfSession : SubsystemSession, INetConfSession

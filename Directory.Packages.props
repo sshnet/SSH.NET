@@ -22,6 +22,6 @@
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.9" />
-    <PackageVersion Include="Testcontainers" Version="4.11.0" /> <!-- 4.12 is broken on .NET Framework -->
+    <PackageVersion Include="Testcontainers" Version="4.13.0" />
   </ItemGroup>
 </Project>

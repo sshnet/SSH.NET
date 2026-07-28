@@ -23,7 +23,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public class SftpClient : BaseClient, ISftpClient
+    public partial class SftpClient : BaseClient, ISftpClient
     {
         private static readonly Encoding Utf8NoBOM = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
@@ -284,41 +284,8 @@ namespace Renci.SshNet
 
         #endregion Constructors
 
-        /// <summary>
-        /// Changes remote directory to path.
-        /// </summary>
-        /// <param name="path">New directory path.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public void ChangeDirectory(string path)
-        {
-            CheckDisposed();
-            ArgumentNullException.ThrowIfNull(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            _sftpSession.ChangeDirectory(path);
-        }
-
-        /// <summary>
-        /// Asynchronously requests to change the current working directory to the specified path.
-        /// </summary>
-        /// <param name="path">The new working directory.</param>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task"/> that tracks the asynchronous change working directory request.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public Task ChangeDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -351,41 +318,8 @@ namespace Renci.SshNet
             file.SetPermissions(mode);
         }
 
-        /// <summary>
-        /// Creates remote directory specified by path.
-        /// </summary>
-        /// <param name="path">Directory path to create.</param>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to create the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public void CreateDirectory(string path)
-        {
-            CheckDisposed();
-            ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            _sftpSession.RequestMkDir(fullPath);
-        }
-
-        /// <summary>
-        /// Asynchronously requests to create a remote directory specified by path.
-        /// </summary>
-        /// <param name="path">Directory path to create.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous create directory operation.</returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to create the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -401,32 +335,8 @@ namespace Renci.SshNet
             await _sftpSession.RequestMkDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Deletes remote directory specified by path.
-        /// </summary>
-        /// <param name="path">Directory to be deleted path.</param>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to delete the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public void DeleteDirectory(string path)
-        {
-            CheckDisposed();
-            ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            _sftpSession.RequestRmDir(fullPath);
-        }
-
         /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task DeleteDirectoryAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -444,32 +354,8 @@ namespace Renci.SshNet
             await _sftpSession.RequestRmDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Deletes remote file specified by path.
-        /// </summary>
-        /// <param name="path">File to be deleted path.</param>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public void DeleteFile(string path)
-        {
-            CheckDisposed();
-            ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            _sftpSession.RequestRemove(fullPath);
-        }
-
         /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task DeleteFileAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -725,47 +611,8 @@ namespace Renci.SshNet
             return ar.EndInvoke();
         }
 
-        /// <summary>
-        /// Gets reference to remote file or directory.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// A reference to <see cref="ISftpFile"/> file object.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public ISftpFile Get(string path)
-        {
-            CheckDisposed();
-            ArgumentNullException.ThrowIfNull(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            var attributes = _sftpSession.RequestLStat(fullPath);
-
-            return new SftpFile(_sftpSession, fullPath, attributes);
-        }
-
-        /// <summary>
-        /// Gets reference to remote file or directory.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>
-        /// A <see cref="Task{ISftpFile}"/> that represents the get operation.
-        /// The task result contains the reference to <see cref="ISftpFile"/> file object.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task<ISftpFile> GetAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -785,74 +632,8 @@ namespace Renci.SshNet
             return new SftpFile(_sftpSession, fullPath, attributes);
         }
 
-        /// <summary>
-        /// Checks whether file or directory exists.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// <see langword="true"/> if directory or file exists; otherwise <see langword="false"/>.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public bool Exists(string path)
-        {
-            CheckDisposed();
-            ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            /*
-             * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
-             * been clear on how the server should respond when the specified path is not present on
-             * the server:
-             *
-             * SSH 1 to 4:
-             * No mention of how the server should respond if the path is not present on the server.
-             *
-             * SSH 5:
-             * The server SHOULD fail the request if the path is not present on the server.
-             *
-             * SSH 6:
-             * Draft 06: The server SHOULD fail the request if the path is not present on the server.
-             * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
-             *
-             * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
-             * currently only support up to v3.
-             */
-
-            try
-            {
-                _ = _sftpSession.RequestLStat(fullPath);
-                return true;
-            }
-            catch (SftpPathNotFoundException)
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Checks whether file or directory exists.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>
-        /// A <see cref="Task{T}"/> that represents the exists operation.
-        /// The task result contains <see langword="true"/> if directory or file exists; otherwise <see langword="false"/>.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1335,43 +1116,8 @@ namespace Renci.SshNet
             ar.EndInvoke();
         }
 
-        /// <summary>
-        /// Gets status using statvfs@openssh.com request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// A <see cref="SftpFileSystemInformation"/> instance that contains file status information.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileSystemInformation GetStatus(string path)
-        {
-            CheckDisposed();
-            ArgumentNullException.ThrowIfNull(path);
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            return _sftpSession.RequestStatVfs(fullPath);
-        }
-
-        /// <summary>
-        /// Asynchronously gets status using statvfs@openssh.com request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>
-        /// A <see cref="Task{SftpFileSystemInformation}"/> that represents the status operation.
-        /// The task result contains the <see cref="SftpFileSystemInformation"/> instance that contains file status information.
-        /// </returns>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task<SftpFileSystemInformation> GetStatusAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1572,21 +1318,8 @@ namespace Renci.SshNet
             return new StreamWriter(Open(path, FileMode.Create, FileAccess.Write), encoding);
         }
 
-        /// <summary>
-        /// Deletes the specified file or directory.
-        /// </summary>
-        /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public void Delete(string path)
-        {
-            var file = Get(path);
-            file.Delete();
-        }
-
         /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task DeleteAsync(string path, CancellationToken cancellationToken = default)
         {
             var file = await GetAsync(path, cancellationToken).ConfigureAwait(false);
@@ -1677,39 +1410,8 @@ namespace Renci.SshNet
             return Open(path, mode, FileAccess.ReadWrite);
         }
 
-        /// <summary>
-        /// Opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
-        /// </summary>
-        /// <param name="path">The file to open.</param>
-        /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
-        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
-        /// <returns>
-        /// An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileStream Open(string path, FileMode mode, FileAccess access)
-        {
-            CheckDisposed();
-
-            return SftpFileStream.Open(_sftpSession, path, mode, access, (int)_bufferSize);
-        }
-
-        /// <summary>
-        /// Asynchronously opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
-        /// </summary>
-        /// <param name="path">The file to open.</param>
-        /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
-        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>
-        /// A <see cref="Task{SftpFileStream}"/> that represents the asynchronous open operation.
-        /// The task result contains the <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public Task<SftpFileStream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -2023,44 +1725,8 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
-        /// </summary>
-        /// <param name="path">The path to the file.</param>
-        /// <returns>
-        /// The <see cref="SftpFileAttributes"/> of the file on the path.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFileAttributes GetAttributes(string path)
-        {
-            CheckDisposed();
-
-            if (_sftpSession is null)
-            {
-                throw new SshConnectionException("Client not connected.");
-            }
-
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            return _sftpSession.RequestLStat(fullPath);
-        }
-
-        /// <summary>
-        /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
-        /// </summary>
-        /// <param name="path">The path to the file.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>
-        /// A <see cref="Task{SftpFileAttributes}"/> that represents the attribute retrieval operation.
-        /// The task result contains the <see cref="SftpFileAttributes"/> of the file on the path.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc />
+        [Zomp.SyncMethodGenerator.CreateSyncVersion]
         public async Task<SftpFileAttributes> GetAttributesAsync(string path, CancellationToken cancellationToken)
         {
             CheckDisposed();

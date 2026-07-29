@@ -2322,11 +2322,21 @@ namespace Renci.SshNet
 
                 asyncResult?.Update(result.Count);
 
-                // Call callback to report number of files read
+                //  NOTE(apseth): Execute callback and return result if operation cancellation requested by the callback.
                 if (listCallback is not null)
                 {
-                    // Execute callback on different thread
+                    //  Execute callback on different thread
                     ThreadAbstraction.ExecuteThread(() => listCallback(result.Count));
+                    try
+                    {
+                        listCallback(result.Count);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        DiagnosticAbstraction.Log("The callback operation was cancelled, returning the result.");
+                        _sftpSession.RequestClose(handle);
+                        return result;
+                    }
                 }
 
                 files = _sftpSession.RequestReadDir(handle);

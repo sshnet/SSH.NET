@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
@@ -2322,18 +2324,18 @@ namespace Renci.SshNet
 
                 asyncResult?.Update(result.Count);
 
-                //  NOTE(apseth): Execute callback and return result if operation cancellation requested by the callback.
+                // NOTE(apseth): Execute callback and return result if operation cancellation requested by the callback.
                 if (listCallback is not null)
                 {
-                    //  Execute callback on different thread
+                    // Execute callback on different thread
                     ThreadAbstraction.ExecuteThread(() => listCallback(result.Count));
                     try
                     {
                         listCallback(result.Count);
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
-                        DiagnosticAbstraction.Log("The callback operation was cancelled, returning the result.");
+                        Logger.LogInformation(ex, "The callback operation was cancelled, returning the result.");
                         _sftpSession.RequestClose(handle);
                         return result;
                     }

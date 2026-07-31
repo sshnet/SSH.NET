@@ -47,14 +47,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the logger for this client.
-        /// </summary>
-        private protected ILogger Logger
-        {
-            get { return _logger; }
-        }
-
-        /// <summary>
         /// Gets the connection info.
         /// </summary>
         /// <value>

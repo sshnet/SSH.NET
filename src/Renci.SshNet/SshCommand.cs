@@ -318,7 +318,9 @@ namespace Renci.SshNet
 
             if (cancellationToken.CanBeCanceled)
             {
+#pragma warning disable IDE0370 // Suppression is required for target frameworks where the state argument is annotated as nullable.
                 _tokenRegistration = cancellationToken.Register(static cmd => ((SshCommand)cmd!).CancelAsync(), this);
+#pragma warning restore IDE0370
             }
 
             return _tcs.Task;

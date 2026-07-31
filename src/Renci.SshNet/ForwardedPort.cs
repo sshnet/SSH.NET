@@ -105,10 +105,12 @@ namespace Renci.SshNet
             RaiseClosing();
 
             var session = Session;
+#pragma warning disable IDE0031 // Null check can be simplified; null-conditional event unsubscription trips S1121.
             if (session is not null)
             {
                 session.ErrorOccured -= Session_ErrorOccured;
             }
+#pragma warning restore IDE0031
         }
 
         /// <summary>

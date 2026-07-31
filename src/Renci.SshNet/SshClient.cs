@@ -515,11 +515,8 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_inputStream != null)
-                {
-                    _inputStream.Dispose();
-                    _inputStream = null;
-                }
+                _inputStream?.Dispose();
+                _inputStream = null;
 
                 _isDisposed = true;
             }

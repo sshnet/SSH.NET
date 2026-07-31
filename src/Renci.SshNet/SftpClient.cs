@@ -10,8 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Logging;
-
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
@@ -2333,7 +2331,7 @@ namespace Renci.SshNet
                     }
                     catch (OperationCanceledException ex)
                     {
-                        Logger.LogInformation(ex, "The callback operation was cancelled, returning the result.");
+                        DiagnosticAbstraction.Log("The callback operation was cancelled, returning the result: " + ex);
                         _sftpSession.RequestClose(handle);
                         return result;
                     }

@@ -51,7 +51,7 @@ namespace Renci.SshNet.Common
         /// <param name="construct">its a construct.</param>
         public DerData(byte[] data, bool construct = false)
         {
-            _data = new List<byte>(data);
+            _data = [.. data];
             if (construct)
             {
                 _lastIndex = _readerIndex + data.Length;

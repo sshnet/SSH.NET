@@ -61,7 +61,9 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.IsNotNull(actual);
             Assert.HasCount(value.Length, actual);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(value, actual);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
         }
 
         [TestMethod]

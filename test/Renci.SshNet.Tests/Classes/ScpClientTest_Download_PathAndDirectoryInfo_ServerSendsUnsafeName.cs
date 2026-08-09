@@ -49,8 +49,6 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void SetupMocks()
         {
-            _ = ServiceFactoryMock.Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
-                                  .Returns(_remotePathTransformationMock.Object);
             _ = ServiceFactoryMock.Setup(p => p.CreateSocketFactory())
                                   .Returns(SocketFactoryMock.Object);
             _ = ServiceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
@@ -73,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object, _remotePathTransformationMock.Object);
             _scpClient.Connect();
         }
 

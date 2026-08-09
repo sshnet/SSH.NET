@@ -94,15 +94,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void StartShouldHaveThrownSshConnectionException()
         {
-            var expectedMessage = string.Format("The server response does not contain an SSH identification string:{0}{0}" +
-                                                "  00000000  53 53 48 2D 32 2E 30 0D 0A                       SSH-2.0..{0}{0}" +
-                                                "More information on the Protocol Version Exchange is available here:{0}" +
-                                                "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                Environment.NewLine);
-
-            Assert.IsNotNull(_actualException);
+            Assert.IsInstanceOfType<SshConnectionException>(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(expectedMessage, _actualException.Message);
+            Assert.AreEqual("The connection to the remote server was closed before a valid SSH identification string was received.", _actualException.Message);
         }
 
         [TestMethod]

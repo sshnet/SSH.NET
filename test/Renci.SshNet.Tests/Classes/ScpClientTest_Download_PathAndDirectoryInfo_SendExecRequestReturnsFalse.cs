@@ -38,9 +38,6 @@ namespace Renci.SshNet.Tests.Classes
             var sequence = new MockSequence();
 
             ServiceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
-                               .Returns(_remotePathTransformationMock.Object);
-            ServiceFactoryMock.InSequence(sequence)
                                .Setup(p => p.CreateSocketFactory())
                                .Returns(SocketFactoryMock.Object);
             ServiceFactoryMock.InSequence(sequence)
@@ -64,7 +61,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object);
+            _scpClient = new ScpClient(_connectionInfo, false, ServiceFactoryMock.Object, _remotePathTransformationMock.Object);
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
         }

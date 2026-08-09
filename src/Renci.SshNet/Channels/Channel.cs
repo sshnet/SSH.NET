@@ -344,10 +344,9 @@ namespace Renci.SshNet.Channels
             lock (_sendDataLock)
             {
                 var totalBytesToSend = size;
-                while (totalBytesToSend > 0)
+                int sizeOfCurrentMessage;
+                while ((sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend)) > 0)
                 {
-                    var sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
-
                     var channelDataMessage = new ChannelDataMessage(RemoteChannelNumber,
                                                                     data,
                                                                     offset,
@@ -789,22 +788,23 @@ namespace Renci.SshNet.Channels
         /// </returns>
         private int GetDataLengthThatCanBeSentInMessage(int messageLength)
         {
+            var dataLength = Math.Min(RemotePacketSize, (uint)messageLength);
+
             do
             {
                 lock (_serverWindowSizeLock)
                 {
                     var serverWindowSize = RemoteWindowSize;
-                    if (serverWindowSize == 0U)
+                    if (serverWindowSize == 0U && dataLength > 0)
                     {
-                        // Allow us to be signal when remote window size is adjusted
+                        // Allow us to be signalled when remote window size is adjusted
                         _ = _channelServerWindowAdjustWaitHandle.Reset();
                     }
                     else
                     {
-                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, (uint)messageLength),
-                            serverWindowSize);
-                        RemoteWindowSize -= bytesThatCanBeSent;
-                        return (int)bytesThatCanBeSent;
+                        dataLength = Math.Min(dataLength, serverWindowSize);
+                        RemoteWindowSize -= dataLength;
+                        return (int)dataLength;
                     }
                 }
 

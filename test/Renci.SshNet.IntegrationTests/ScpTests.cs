@@ -1,5 +1,7 @@
 ﻿using Renci.SshNet.Common;
 
+#pragma warning disable CS0618 // These SCP tests use the obsolete default-transformation constructors.
+
 namespace Renci.SshNet.IntegrationTests
 {
     // TODO SCP: UPLOAD / DOWNLOAD ZERO LENGTH FILES
@@ -2001,6 +2003,71 @@ namespace Renci.SshNet.IntegrationTests
         private static IEnumerable<object[]> GetScpUploadDirectoryInfoDirectoryDoesNotExistData()
         {
             yield return new object[] { RemotePathTransformation.None, "scp-directorydoesnotexist" };
+        }
+
+        /// <summary>
+        /// A recursive download must never write outside of the destination directory, even
+        /// when the server returns a file name containing a path separator. Backslash is a
+        /// legal byte in a Unix file name, so a stock OpenSSH server transmits it verbatim;
+        /// on a Windows client it would otherwise be interpreted as a directory separator.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Download_DirectoryInfo_ServerNameWithSeparator_StaysInsideDestination()
+        {
+            var remoteDirectory = "/tmp/sshnet-scp-guard-" + Guid.NewGuid().ToString("N");
+
+            // Set up a remote directory containing a normal file and a file whose name
+            // contains a backslash (a single, valid Unix file name).
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                _ = client.RunCommand("mkdir -p '" + remoteDirectory + "'");
+                _ = client.RunCommand("printf '%s' good > '" + remoteDirectory + "/good.txt'");
+                _ = client.RunCommand("printf '%s' ESCAPED > '" + remoteDirectory + "/..\\owned.txt'");
+            }
+
+            var localRoot = Path.GetTempFileName();
+            File.Delete(localRoot);
+            _ = Directory.CreateDirectory(localRoot);
+
+            var destination = Path.Combine(localRoot, "download");
+            _ = Directory.CreateDirectory(destination);
+
+            // Where "..\owned.txt", combined with the destination, would land on a Windows client.
+            var escapedFile = Path.Combine(localRoot, "owned.txt");
+
+            try
+            {
+                using (var client = new ScpClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+
+                    try
+                    {
+                        client.Download(remoteDirectory, new DirectoryInfo(destination));
+                    }
+                    catch (ScpException)
+                    {
+                        // Expected on platforms where '\' is a directory separator: the
+                        // download is aborted rather than allowed to escape.
+                    }
+                }
+
+                // The security invariant, asserted on every platform: nothing is written
+                // outside of the caller-supplied destination directory.
+                Assert.IsFalse(File.Exists(escapedFile),
+                    "A file was written outside of the destination directory: " + escapedFile);
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+
+                Directory.Delete(localRoot, recursive: true);
+            }
         }
 
         private static void CreateRemoteFile(ScpClient client, string remoteFile, int size)

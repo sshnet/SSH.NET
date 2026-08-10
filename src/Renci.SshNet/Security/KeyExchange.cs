@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 
 using Microsoft.Extensions.Logging;
@@ -82,10 +82,9 @@ namespace Renci.SshNet.Security
             }
 
             // Determine host key algorithm
-            var hostKeyAlgorithmName = (from b in session.ConnectionInfo.HostKeyAlgorithms.Keys
-                                        from a in message.ServerHostKeyAlgorithms
-                                        where a == b
-                                        select a).FirstOrDefault();
+            var hostKeyAlgorithmName = SelectAlgorithm(
+                session.ConnectionInfo.HostKeyAlgorithms.Keys,
+                message.ServerHostKeyAlgorithms);
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {
@@ -109,10 +108,9 @@ namespace Renci.SshNet.Security
             _hostKeyAlgorithmFactory = session.ConnectionInfo.HostKeyAlgorithms[hostKeyAlgorithmName];
 
             // Determine client encryption algorithm
-            var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
-                                                 from a in message.EncryptionAlgorithmsClientToServer
-                                                 where a == b
-                                                 select a).FirstOrDefault();
+            var clientEncryptionAlgorithmName = SelectAlgorithm(
+                session.ConnectionInfo.Encryptions.Keys,
+                message.EncryptionAlgorithmsClientToServer);
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {
@@ -136,10 +134,9 @@ namespace Renci.SshNet.Security
             _clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
 
             // Determine server encryption algorithm
-            var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
-                                                 from a in message.EncryptionAlgorithmsServerToClient
-                                                 where a == b
-                                                 select a).FirstOrDefault();
+            var serverDecryptionAlgorithmName = SelectAlgorithm(
+                session.ConnectionInfo.Encryptions.Keys,
+                message.EncryptionAlgorithmsServerToClient);
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {
@@ -165,10 +162,9 @@ namespace Renci.SshNet.Security
             if (!_clientCipherInfo.IsAead)
             {
                 // Determine client hmac algorithm
-                var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
-                                               from a in message.MacAlgorithmsClientToServer
-                                               where a == b
-                                               select a).FirstOrDefault();
+                var clientHmacAlgorithmName = SelectAlgorithm(
+                    session.ConnectionInfo.HmacAlgorithms.Keys,
+                    message.MacAlgorithmsClientToServer);
 
                 if (_logger.IsEnabled(LogLevel.Trace))
                 {
@@ -195,10 +191,9 @@ namespace Renci.SshNet.Security
             if (!_serverCipherInfo.IsAead)
             {
                 // Determine server hmac algorithm
-                var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
-                                               from a in message.MacAlgorithmsServerToClient
-                                               where a == b
-                                               select a).FirstOrDefault();
+                var serverHmacAlgorithmName = SelectAlgorithm(
+                    session.ConnectionInfo.HmacAlgorithms.Keys,
+                    message.MacAlgorithmsServerToClient);
 
                 if (_logger.IsEnabled(LogLevel.Trace))
                 {
@@ -223,10 +218,9 @@ namespace Renci.SshNet.Security
             }
 
             // Determine compression algorithm
-            var compressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
-                                            from a in message.CompressionAlgorithmsClientToServer
-                                            where a == b
-                                            select a).FirstOrDefault();
+            var compressionAlgorithmName = SelectAlgorithm(
+                session.ConnectionInfo.CompressionAlgorithms.Keys,
+                message.CompressionAlgorithmsClientToServer);
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {
@@ -250,10 +244,9 @@ namespace Renci.SshNet.Security
             _compressorFactory = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
 
             // Determine decompression algorithm
-            var decompressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
-                                              from a in message.CompressionAlgorithmsServerToClient
-                                              where a == b
-                                              select a).FirstOrDefault();
+            var decompressionAlgorithmName = SelectAlgorithm(
+                session.ConnectionInfo.CompressionAlgorithms.Keys,
+                message.CompressionAlgorithmsServerToClient);
 
             if (_logger.IsEnabled(LogLevel.Trace))
             {
@@ -275,6 +268,32 @@ namespace Renci.SshNet.Security
 
             session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
             _decompressorFactory = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
+        }
+
+        /// <summary>
+        /// Selects the first algorithm in <paramref name="clientAlgorithms"/> (in client preference order) that is
+        /// also present in <paramref name="serverAlgorithms"/>, using an explicit ordinal comparison instead of
+        /// LINQ's default equality comparison. This avoids relying on culture-sensitive string comparison behavior
+        /// that can differ across runtimes (for example, some Mono-based environments), which could otherwise cause
+        /// algorithm negotiation to fail or select an unexpected algorithm.
+        /// </summary>
+        /// <param name="clientAlgorithms">The algorithms supported by the client, in preference order.</param>
+        /// <param name="serverAlgorithms">The algorithms offered by the server.</param>
+        /// <returns>The first matching algorithm name, or <see langword="null"/> if none match.</returns>
+        private static string SelectAlgorithm(IEnumerable<string> clientAlgorithms, IEnumerable<string> serverAlgorithms)
+        {
+            foreach (var clientAlgorithm in clientAlgorithms)
+            {
+                foreach (var serverAlgorithm in serverAlgorithms)
+                {
+                    if (string.Equals(serverAlgorithm, clientAlgorithm, StringComparison.Ordinal))
+                    {
+                        return serverAlgorithm;
+                    }
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

@@ -334,23 +334,23 @@ namespace Renci.SshNet
                         throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "SOCKS version {0} is not supported.", version));
                 }
             }
+            catch (ObjectDisposedException)
+            {
+                // ignore exception caused by the client socket being disposed as part of closing
+                // the forwarded port while a blocking Socket.Poll/Receive call was in progress
+                return false;
+            }
             catch (SocketException ex)
             {
-                // ignore exception thrown by interrupting the blocking receive as part of closing
-                // the forwarded port
-#if NETFRAMEWORK
+                // ignore exception thrown by interrupting the blocking Socket.Poll call as part of
+                // closing the forwarded port; this is reported as SocketError.Interrupted regardless
+                // of the target framework, since Socket.Poll (unlike Socket.Receive) is not affected
+                // by the .NET 5+ change described in https://github.com/dotnet/runtime/issues/41585
                 if (ex.SocketErrorCode != SocketError.Interrupted)
                 {
                     RaiseExceptionEvent(ex);
                 }
-#else
-                // Since .NET 5 the exception has been changed.
-                // more info https://github.com/dotnet/runtime/issues/41585
-                if (ex.SocketErrorCode != SocketError.ConnectionAborted)
-                {
-                    RaiseExceptionEvent(ex);
-                }
-#endif
+
                 return false;
             }
             finally

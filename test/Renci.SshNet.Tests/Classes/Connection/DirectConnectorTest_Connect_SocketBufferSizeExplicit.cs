@@ -15,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         private ConnectionInfo _connectionInfo;
         private AsyncSocketListener _server;
         private Socket _clientSocket;
+        private Socket _controlSocket;
         private Socket _actual;
 
         protected override void SetupData()
@@ -23,6 +24,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString());
             _connectionInfo.SocketBufferSize = ExplicitBufferSize;
+
+            // The OS may clamp and/or double an explicitly requested buffer size (e.g. against
+            // net.core.wmem_max/rmem_max on Linux), so the exact requested value is not
+            // portably observable via Socket.SendBufferSize/ReceiveBufferSize after connecting.
+            // A freshly-created, never-touched socket represents the platform's minimal default,
+            // used as a lower bound below.
+            _controlSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 
             _clientSocket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
 
@@ -42,6 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             _server?.Dispose();
             _clientSocket?.Dispose();
+            _controlSocket?.Dispose();
         }
 
         protected override void Act()
@@ -50,15 +59,15 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
 
         [TestMethod]
-        public void SendBufferSizeShouldMatchExplicitValue()
+        public void SendBufferSizeShouldBeLargerThanUntouchedDefault()
         {
-            Assert.AreEqual(ExplicitBufferSize, _actual.SendBufferSize);
+            Assert.IsGreaterThan(_controlSocket.SendBufferSize, _actual.SendBufferSize);
         }
 
         [TestMethod]
-        public void ReceiveBufferSizeShouldMatchExplicitValue()
+        public void ReceiveBufferSizeShouldBeLargerThanUntouchedDefault()
         {
-            Assert.AreEqual(ExplicitBufferSize, _actual.ReceiveBufferSize);
+            Assert.IsGreaterThan(_controlSocket.ReceiveBufferSize, _actual.ReceiveBufferSize);
         }
     }
 }

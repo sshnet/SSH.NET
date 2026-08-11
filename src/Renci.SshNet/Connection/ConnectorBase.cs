@@ -35,9 +35,13 @@ namespace Renci.SshNet.Connection
         /// </summary>
         /// <param name="endPoint">The <see cref="EndPoint"/> representing the server to connect to.</param>
         /// <param name="timeout">The maximum time to wait for the connection to be established.</param>
+        /// <param name="socketBufferSize">
+        /// The size, in bytes, to use for the socket's send and receive buffers, or
+        /// <see langword="null"/> to use the default. See <see cref="ConnectionInfo.SocketBufferSize"/>.
+        /// </param>
         /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="ConnectionInfo.Timeout"/>.</exception>
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
-        protected Socket SocketConnect(EndPoint endPoint, TimeSpan timeout)
+        protected Socket SocketConnect(EndPoint endPoint, TimeSpan timeout, int? socketBufferSize = null)
         {
             _logger.LogInformation("Initiating connection to '{EndPoint}'.", endPoint);
 
@@ -47,9 +51,13 @@ namespace Renci.SshNet.Connection
             {
                 SocketAbstraction.Connect(socket, endPoint, timeout);
 
-                const int socketBufferSize = 10 * Session.MaximumSshPacketSize;
-                socket.SendBufferSize = socketBufferSize;
-                socket.ReceiveBufferSize = socketBufferSize;
+                var bufferSize = socketBufferSize ?? 10 * Session.MaximumSshPacketSize;
+                if (bufferSize != ConnectionInfo.AutoTuneSocketBufferSize)
+                {
+                    socket.SendBufferSize = bufferSize;
+                    socket.ReceiveBufferSize = bufferSize;
+                }
+
                 return socket;
             }
             catch (Exception)
@@ -64,9 +72,13 @@ namespace Renci.SshNet.Connection
         /// </summary>
         /// <param name="endPoint">The <see cref="EndPoint"/> representing the server to connect to.</param>
         /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <param name="socketBufferSize">
+        /// The size, in bytes, to use for the socket's send and receive buffers, or
+        /// <see langword="null"/> to use the default. See <see cref="ConnectionInfo.SocketBufferSize"/>.
+        /// </param>
         /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="ConnectionInfo.Timeout"/>.</exception>
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
-        protected async Task<Socket> SocketConnectAsync(EndPoint endPoint, CancellationToken cancellationToken)
+        protected async Task<Socket> SocketConnectAsync(EndPoint endPoint, CancellationToken cancellationToken, int? socketBufferSize = null)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -77,9 +89,13 @@ namespace Renci.SshNet.Connection
             {
                 await SocketAbstraction.ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
 
-                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
-                socket.SendBufferSize = socketBufferSize;
-                socket.ReceiveBufferSize = socketBufferSize;
+                var bufferSize = socketBufferSize ?? 2 * Session.MaximumSshPacketSize;
+                if (bufferSize != ConnectionInfo.AutoTuneSocketBufferSize)
+                {
+                    socket.SendBufferSize = bufferSize;
+                    socket.ReceiveBufferSize = bufferSize;
+                }
+
                 return socket;
             }
             catch (Exception)

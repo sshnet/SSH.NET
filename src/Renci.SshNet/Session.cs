@@ -468,11 +468,6 @@ namespace Renci.SshNet
         internal event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
 
         /// <summary>
-        /// Occurs when <see cref="RequestMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
-
-        /// <summary>
         /// Occurs when <see cref="FailureMessage"/> message received
         /// </summary>
         internal event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
@@ -1673,15 +1668,6 @@ namespace Renci.SshNet
         void ISession.OnDisconnecting()
         {
             _isDisconnecting = true;
-        }
-
-        /// <summary>
-        /// Called when <see cref="RequestMessage"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="RequestMessage"/> message.</param>
-        internal void OnUserAuthenticationRequestReceived(RequestMessage message)
-        {
-            UserAuthenticationRequestReceived?.Invoke(this, new MessageEventArgs<RequestMessage>(message));
         }
 
         /// <summary>

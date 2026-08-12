@@ -77,15 +77,6 @@ namespace Renci.SshNet
             _enabledMessagesByNumber = new MessageMetadata[HighestMessageNumber + 1];
         }
 
-        /// <summary>
-        /// Disables and deactivate all messages.
-        /// </summary>
-        public void Reset()
-        {
-            Array.Clear(_activatedMessagesById, 0, _activatedMessagesById.Length);
-            Array.Clear(_enabledMessagesByNumber, 0, _enabledMessagesByNumber.Length);
-        }
-
         public Message Create(byte messageNumber)
         {
             if (messageNumber > HighestMessageNumber)

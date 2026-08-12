@@ -44,6 +44,15 @@ namespace Renci.SshNet.IntegrationTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "MSTests requires context parameter")]
         public static async Task ClassInitialize(TestContext context)
         {
+            // The Windows Tests in CI cannot run the ProFTPD container: Docker on the Windows
+            // runners is in Windows containers mode ("no matching manifest for windows/amd64"),
+            // which is why the OpenSSH server for the other integration tests is set up in
+            // WSL2 with Podman instead (see InfrastructureFixture).
+            if (OperatingSystem.IsWindows() && Environment.GetEnvironmentVariable("CI") == "true")
+            {
+                Assert.Inconclusive("Requires a container runtime able to run Linux containers.");
+            }
+
             _traceLogWriter = new StreamWriter(Path.GetTempFileName()) { AutoFlush = true };
             _traceLoggerFactory = LoggerFactory.Create(builder =>
             {
@@ -65,6 +74,7 @@ namespace Renci.SshNet.IntegrationTests
             _proFtpdServer = new ContainerBuilder(_proFtpdImage)
                 .WithHostname("renci-ssh-tests-proftpd")
                 .WithPortBinding(22, true)
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(22))
                 .Build();
 
             await _proFtpdServer.StartAsync(context.CancellationToken);

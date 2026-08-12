@@ -1045,17 +1045,41 @@ namespace Renci.SshNet
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         internal void SendMessage(Message message)
         {
-            if (!_socket.IsConnected())
+            while (true)
             {
-                throw new SshConnectionException("Client not connected.");
-            }
+                if (!_socket.IsConnected())
+                {
+                    throw new SshConnectionException("Client not connected.");
+                }
 
-            if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
-            {
-                // Wait for key exchange to be completed
-                WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
-            }
+                if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
+                {
+                    // Wait for key exchange to be completed
+                    WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
+                }
 
+                // take a write lock to ensure the outbound packet sequence number is incremented
+                // atomically, and only after the packet has actually been sent
+                lock (_socketWriteLock)
+                {
+                    if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
+                    {
+                        // A key re-exchange started between the check above and acquiring the
+                        // write lock. Our SSH_MSG_KEXINIT may already have been sent, in which
+                        // case sending this message now would violate RFC 4253 section 7.1 and
+                        // cause the server to drop the connection. Go back to waiting for the
+                        // key exchange to complete.
+                        continue;
+                    }
+
+                    SendMessageWithinWriteLock(message);
+                    return;
+                }
+            }
+        }
+
+        private void SendMessageWithinWriteLock(Message message)
+        {
             if (_logger.IsEnabled(LogLevel.Trace))
             {
                 _logger.LogTrace("[{SessionId}] Sending message {MessageName}({MessageNumber}) to server: '{Message}'.", SessionIdHex, message.MessageName, message.MessageNumber, message.ToString());
@@ -1074,82 +1098,77 @@ namespace Renci.SshNet
                 macLength = _clientMac.HashSize / 8;
             }
 
-            // take a write lock to ensure the outbound packet sequence number is incremented
-            // atomically, and only after the packet has actually been sent
-            lock (_socketWriteLock)
+            var activeBufferLength = message.GetPacket(
+                ref _sendBuffer,
+                paddingMultiplier,
+                _clientCompression,
+                _clientEtm || _clientAead,
+                macLength);
+
+            // write outbound packet sequence to start of packet data
+            BinaryPrimitives.WriteUInt32BigEndian(_sendBuffer, _outboundPacketSequence);
+
+            if (_clientMac != null && !_clientEtm)
             {
-                var activeBufferLength = message.GetPacket(
-                    ref _sendBuffer,
-                    paddingMultiplier,
-                    _clientCompression,
-                    _clientEtm || _clientAead,
-                    macLength);
+                // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
 
-                // write outbound packet sequence to start of packet data
-                BinaryPrimitives.WriteUInt32BigEndian(_sendBuffer, _outboundPacketSequence);
+                var hashSuccess = _clientMac.TryComputeHash(
+                    buffer: _sendBuffer,
+                    offset: 0,
+                    count: activeBufferLength - macLength,
+                    destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
+                    bytesWritten: out var bytesWritten);
 
-                if (_clientMac != null && !_clientEtm)
-                {
-                    // non-ETM mac = MAC(key, sequence_number || unencrypted_packet)
+                Debug.Assert(hashSuccess && bytesWritten == macLength);
+            }
 
-                    var hashSuccess = _clientMac.TryComputeHash(
-                        buffer: _sendBuffer,
-                        offset: 0,
-                        count: activeBufferLength - macLength,
-                        destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
-                        bytesWritten: out var bytesWritten);
+            if (_clientCipher != null)
+            {
+                _clientCipher.SetSequenceNumber(_outboundPacketSequence);
 
-                    Debug.Assert(hashSuccess && bytesWritten == macLength);
-                }
+                // Not encrypting the sequence number (it is not part of the packet),
+                // nor the packet length for ETM.
+                var offset = _clientEtm ? 8 : 4;
 
-                if (_clientCipher != null)
-                {
-                    _clientCipher.SetSequenceNumber(_outboundPacketSequence);
+                var numberOfBytesEncrypted = _clientCipher.Encrypt(
+                    input: _sendBuffer,
+                    offset,
+                    length: activeBufferLength - offset - macLength,
+                    output: _sendBuffer,
+                    outputOffset: offset);
 
-                    // Not encrypting the sequence number (it is not part of the packet),
-                    // nor the packet length for ETM.
-                    var offset = _clientEtm ? 8 : 4;
+                Debug.Assert(numberOfBytesEncrypted == activeBufferLength - offset - macLength + (_clientAead ? macLength : 0));
+            }
 
-                    var numberOfBytesEncrypted = _clientCipher.Encrypt(
-                        input: _sendBuffer,
-                        offset,
-                        length: activeBufferLength - offset - macLength,
-                        output: _sendBuffer,
-                        outputOffset: offset);
+            if (_clientMac != null && _clientEtm)
+            {
+                // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
 
-                    Debug.Assert(numberOfBytesEncrypted == activeBufferLength - offset - macLength + (_clientAead ? macLength : 0));
-                }
+                var hashSuccess = _clientMac.TryComputeHash(
+                    buffer: _sendBuffer,
+                    offset: 0,
+                    count: activeBufferLength - macLength,
+                    destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
+                    bytesWritten: out var bytesWritten);
 
-                if (_clientMac != null && _clientEtm)
-                {
-                    // ETM mac = MAC(key, sequence_number || packet_length || encrypted_packet)
+                Debug.Assert(hashSuccess && bytesWritten == macLength);
+            }
 
-                    var hashSuccess = _clientMac.TryComputeHash(
-                        buffer: _sendBuffer,
-                        offset: 0,
-                        count: activeBufferLength - macLength,
-                        destination: _sendBuffer.AsSpan(activeBufferLength - macLength),
-                        bytesWritten: out var bytesWritten);
+            SendPacket(_sendBuffer, 4, activeBufferLength - 4);
 
-                    Debug.Assert(hashSuccess && bytesWritten == macLength);
-                }
-
-                SendPacket(_sendBuffer, 4, activeBufferLength - 4);
-
-                if (_isStrictKex && message is NewKeysMessage)
-                {
-                    _outboundPacketSequence = 0;
-                }
-                else
-                {
-                    // increment the packet sequence number only after we're sure the packet has
-                    // been sent; even though it's only used for the MAC, it needs to be incremented
-                    // for each package sent.
-                    //
-                    // the server will use it to verify the data integrity, and as such the order in
-                    // which messages are sent must follow the outbound packet sequence number
-                    _outboundPacketSequence++;
-                }
+            if (_isStrictKex && message is NewKeysMessage)
+            {
+                _outboundPacketSequence = 0;
+            }
+            else
+            {
+                // increment the packet sequence number only after we're sure the packet has
+                // been sent; even though it's only used for the MAC, it needs to be incremented
+                // for each package sent.
+                //
+                // the server will use it to verify the data integrity, and as such the order in
+                // which messages are sent must follow the outbound packet sequence number
+                _outboundPacketSequence++;
             }
         }
 

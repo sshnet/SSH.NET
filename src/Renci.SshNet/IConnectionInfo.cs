@@ -112,15 +112,6 @@ namespace Renci.SshNet
         TimeSpan Timeout { get; }
 
         /// <summary>
-        /// Gets the size, in bytes, of the underlying socket's send and receive buffers.
-        /// </summary>
-        /// <value>
-        /// The socket buffer size in bytes, or <see langword="null"/> to use the library's
-        /// default buffer size.
-        /// </value>
-        int? SocketBufferSize { get; }
-
-        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         event EventHandler<AuthenticationBannerEventArgs>? AuthenticationBanner;

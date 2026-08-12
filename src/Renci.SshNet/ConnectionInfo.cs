@@ -168,26 +168,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// A sentinel value for <see cref="SocketBufferSize"/> indicating that the underlying
-        /// socket's send and receive buffer sizes should not be set explicitly, allowing the
-        /// operating system to auto-tune them based on observed network conditions.
-        /// </summary>
-        public const int AutoTuneSocketBufferSize = 0;
-
-        /// <summary>
-        /// Gets or sets the size, in bytes, of the underlying socket's send and receive buffers.
-        /// </summary>
-        /// <value>
-        /// The socket buffer size in bytes. The default value is <see langword="null"/>, which
-        /// preserves this library's existing buffer sizing behavior. Set to
-        /// <see cref="AutoTuneSocketBufferSize"/> to leave the buffer size unset entirely and
-        /// let the operating system auto-tune it, which is recommended for connections with a
-        /// significant bandwidth-delay product (high latency and/or high bandwidth). Set to any
-        /// other positive value to use that exact buffer size.
-        /// </value>
-        public int? SocketBufferSize { get; set; }
-
-        /// <summary>
         /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
         /// </summary>
         /// <value>

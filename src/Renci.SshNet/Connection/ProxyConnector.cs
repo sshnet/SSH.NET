@@ -55,7 +55,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            var socket = SocketConnect(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), connectionInfo.Timeout, connectionInfo.SocketBufferSize);
+            var socket = SocketConnect(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), connectionInfo.Timeout);
 
             try
             {
@@ -81,7 +81,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            var socket = await SocketConnectAsync(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), cancellationToken, connectionInfo.SocketBufferSize).ConfigureAwait(false);
+            var socket = await SocketConnectAsync(new DnsEndPoint(connectionInfo.ProxyHost, connectionInfo.ProxyPort), cancellationToken).ConfigureAwait(false);
 
             try
             {

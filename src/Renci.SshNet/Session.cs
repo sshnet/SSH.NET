@@ -599,8 +599,9 @@ namespace Renci.SshNet
                 // Build list of available messages while connecting
                 _sshMessageFactory = new SshMessageFactory();
 
-                _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .Connect(ConnectionInfo);
+                _socket = ConnectionInfo.ConnectionHandler is { } connectionHandler
+                                            ? connectionHandler.Connect(ConnectionInfo)
+                                            : _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory).Connect(ConnectionInfo);
 
                 var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                             .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
@@ -724,8 +725,9 @@ namespace Renci.SshNet
                 // Build list of available messages while connecting
                 _sshMessageFactory = new SshMessageFactory();
 
-                _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+                _socket = ConnectionInfo.ConnectionHandler is { } connectionHandler
+                                            ? await connectionHandler.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false)
+                                            : await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory).ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
 
                 var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
                                                             .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);

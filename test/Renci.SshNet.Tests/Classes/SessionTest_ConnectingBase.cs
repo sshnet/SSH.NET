@@ -203,12 +203,18 @@ namespace Renci.SshNet.Tests.Classes
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
 
-        private void SetupMocks()
+        protected virtual void SetupConnectorMocks()
         {
             _ = ServiceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object))
                                   .Returns(ConnectorMock.Object);
             _ = ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
                              .Returns(ClientSocket);
+        }
+
+        private void SetupMocks()
+        {
+            SetupConnectorMocks();
+
             _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                   .Returns(_protocolVersionExchangeMock.Object);
             _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))

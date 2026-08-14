@@ -12,6 +12,7 @@ using Org.BouncyCastle.Crypto.Agreement;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Security;
@@ -216,6 +217,15 @@ namespace Renci.SshNet
         /// value is 10.
         /// </value>
         public int MaxSessions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the handler used to establish the underlying transport connection.
+        /// </summary>
+        /// <value>
+        /// The connection handler, or <see langword="null"/> to use this library's built-in
+        /// connection establishment behavior. The default value is <see langword="null"/>.
+        /// </value>
+        public ConnectionHandler? ConnectionHandler { get; set; }
 
         /// <summary>
         /// Occurs when authentication banner is sent by the server.

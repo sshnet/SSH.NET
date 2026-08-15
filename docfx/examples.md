@@ -126,6 +126,54 @@ using (var client = new SshClient("sftp.foo.com", "user", "password"))
 }
 ```
 
+### Customize the underlying socket connection
+
+Implement `ConnectionHandler` (or `DelegatingConnectionHandler`, if you only want to customize
+part of the default behavior) to configure the underlying socket beyond what `ConnectionInfo`
+exposes directly - for example, tuning the socket's buffer sizes on a high-latency connection:
+
+```cs
+public class BufferSizeConnectionHandler : DelegatingConnectionHandler
+{
+    private readonly int _bufferSize;
+
+    public BufferSizeConnectionHandler(ConnectionHandler inner, int bufferSize) : base(inner)
+    {
+        _bufferSize = bufferSize;
+    }
+
+    public override Socket Connect(ConnectionInfo connectionInfo)
+    {
+        var socket = base.Connect(connectionInfo);
+        socket.SendBufferSize = socket.ReceiveBufferSize = _bufferSize;
+        return socket;
+    }
+
+    public override async Task<Socket> ConnectAsync(ConnectionInfo connectionInfo, CancellationToken cancellationToken)
+    {
+        var socket = await base.ConnectAsync(connectionInfo, cancellationToken).ConfigureAwait(false);
+        socket.SendBufferSize = socket.ReceiveBufferSize = _bufferSize;
+        return socket;
+    }
+}
+```
+
+```cs
+var connectionInfo = new ConnectionInfo("sftp.foo.com", "guest", new PasswordAuthenticationMethod("guest", "pwd"))
+{
+    // DefaultConnectionHandler.Instance retains this library's built-in connection behavior,
+    // including proxy support, alongside your own customization.
+    ConnectionHandler = new BufferSizeConnectionHandler(DefaultConnectionHandler.Instance, 1024 * 1024)
+};
+
+using (var client = new SftpClient(connectionInfo))
+{
+    client.Connect();
+}
+```
+
+Multiple handlers can be composed by nesting them, similar to `DelegatingHandler` for `HttpClient`.
+
 ### Stream data to a command
 
 ```cs

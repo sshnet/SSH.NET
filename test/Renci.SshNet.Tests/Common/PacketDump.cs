@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Common
 
             if (length < data.Length)
             {
-                _ = hex.Append(new string(' ', (data.Length - length) * 3));
+                _ = hex.Append(' ', (data.Length - length) * 3);
             }
 
             return hex.ToString();

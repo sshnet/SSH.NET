@@ -148,16 +148,7 @@ jobs:
           -f net48 `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
-          -p:CollectCoverage=true `
-          -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
           test\Renci.SshNet.IntegrationTests\
-
-    - name: Archive Coverlet Results
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: Coverlet Results Windows .NET Framework
-        path: coverlet
 
   Windows-Integration-Tests-Net:
     name: Windows Integration Tests .NET

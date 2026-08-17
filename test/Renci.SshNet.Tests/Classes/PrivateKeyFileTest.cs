@@ -346,6 +346,7 @@ namespace Renci.SshNet.Tests.Classes
         [DataRow("Key.PuTTY2.RSA.Encrypted.12345.ppk", "12345", typeof(RsaKey))]
         [DataRow("Key.PuTTY2.RSA.ppk", null, typeof(RsaKey))]
         [DataRow("Key.PuTTY3.ECDSA.Encrypted.Argon2id.12345.ppk", "12345", typeof(EcdsaKey))]
+        [DataRow("Key.PuTTY3.ECDSA.LeadingZero.ppk", null, typeof(EcdsaKey))]
         [DataRow("Key.PuTTY3.ECDSA.ppk", null, typeof(EcdsaKey))]
         [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2i.12345.ppk", "12345", typeof(ED25519Key))]
         [DataRow("Key.PuTTY3.Ed25519.Encrypted.Argon2d.12345.ppk", "12345", typeof(ED25519Key))]

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-#if NET9_0_OR_GREATER
+#if NET
 using System.Threading;
 #endif
 

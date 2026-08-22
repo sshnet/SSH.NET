@@ -403,6 +403,16 @@ namespace Renci.SshNet
         internal event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
 
         /// <summary>
+        /// Occurs when <see cref="GssApiResponseMessage"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<GssApiResponseMessage>> UserAuthenticationGssApiResponseReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="GssApiTokenMessage"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<GssApiTokenMessage>> UserAuthenticationGssApiTokenReceived;
+
+        /// <summary>
         /// Occurs when <see cref="KeyExchangeDhGroupExchangeGroup"/> message is received from the server.
         /// </summary>
         internal event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeGroup>> KeyExchangeDhGroupExchangeGroupReceived;
@@ -1643,6 +1653,24 @@ namespace Renci.SshNet
         internal void OnUserAuthenticationPublicKeyReceived(PublicKeyMessage message)
         {
             UserAuthenticationPublicKeyReceived?.Invoke(this, new MessageEventArgs<PublicKeyMessage>(message));
+        }
+
+        /// <summary>
+        /// Called when <see cref="GssApiResponseMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="GssApiResponseMessage"/> message.</param>
+        internal void OnUserAuthenticationGssApiResponseReceived(GssApiResponseMessage message)
+        {
+            UserAuthenticationGssApiResponseReceived?.Invoke(this, new MessageEventArgs<GssApiResponseMessage>(message));
+        }
+
+        /// <summary>
+        /// Called when <see cref="GssApiTokenMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="GssApiTokenMessage"/> message.</param>
+        internal void OnUserAuthenticationGssApiTokenReceived(GssApiTokenMessage message)
+        {
+            UserAuthenticationGssApiTokenReceived?.Invoke(this, new MessageEventArgs<GssApiTokenMessage>(message));
         }
 
         /// <summary>

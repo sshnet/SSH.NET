@@ -210,6 +210,29 @@ namespace Renci.SshNet
         }
 
         /// <inheritdoc />
+        public SshCommandLite CreateCommandLite(string commandText)
+        {
+            return CreateCommandLite(commandText, ConnectionInfo.Encoding);
+        }
+
+        /// <inheritdoc />
+        public SshCommandLite CreateCommandLite(string commandText, Encoding encoding)
+        {
+            EnsureSessionIsOpen();
+
+            ConnectionInfo.Encoding = encoding;
+            return new SshCommandLite(Session!, commandText, encoding);
+        }
+
+        /// <inheritdoc />
+        public SshCommandLite RunCommandLite(string commandText)
+        {
+            var cmd = CreateCommandLite(commandText);
+            _ = cmd.Execute();
+            return cmd;
+        }
+
+        /// <inheritdoc />
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint>? terminalModes, int bufferSize)
         {
             EnsureSessionIsOpen();

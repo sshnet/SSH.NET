@@ -38,14 +38,11 @@ namespace Renci.SshNet.Connection
         private const string HttpHeaderPattern = @"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?";
 
 #if NET
-        private static readonly Regex HttpResponseRegex = GetHttpResponseRegex();
-        private static readonly Regex HttpHeaderRegex = GetHttpHeaderRegex();
-
         [GeneratedRegex(HttpResponsePattern)]
-        private static partial Regex GetHttpResponseRegex();
+        private static partial Regex HttpResponseRegex { get; }
 
         [GeneratedRegex(HttpHeaderPattern)]
-        private static partial Regex GetHttpHeaderRegex();
+        private static partial Regex HttpHeaderRegex { get; }
 #else
         private static readonly Regex HttpResponseRegex = new Regex(HttpResponsePattern, RegexOptions.Compiled);
         private static readonly Regex HttpHeaderRegex = new Regex(HttpHeaderPattern, RegexOptions.Compiled);

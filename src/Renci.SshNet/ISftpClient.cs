@@ -50,6 +50,27 @@ namespace Renci.SshNet
         uint BufferSize { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum number of pending read requests allowed in read-ahead mode.
+        /// </summary>
+        /// <value>
+        /// The maximum number of pending read requests. The default value is 100.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// This controls how many SSH_FXP_READ requests can be in-flight simultaneously
+        /// when sequentially reading a file. Higher values allow the library to pipeline
+        /// more requests, improving throughput on high-latency connections.
+        /// </para>
+        /// <para>
+        /// On resource-constrained platforms (e.g., mobile devices), reducing this value
+        /// can prevent connection stalls when downloading larger files.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">The value is less than 1.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        int MaxPendingReads { get; set; }
+
+        /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
         /// <value>

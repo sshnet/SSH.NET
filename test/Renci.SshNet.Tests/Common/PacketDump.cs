@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Renci.SshNet.Common
+namespace Renci.SshNet.Tests.Common
 {
     internal static class PacketDump
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -132,13 +131,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             Assert.AreEqual((uint)_filenameBytes.Length, sshDataStream.ReadUInt32());
             var actualPath = new byte[_filenameBytes.Length];
             _ = sshDataStream.Read(actualPath, 0, actualPath.Length);
-            Assert.IsTrue(_filenameBytes.SequenceEqual(actualPath));
+            CollectionAssert.AreEqual(_filenameBytes, actualPath);
 
             Assert.AreEqual((uint)_flags, sshDataStream.ReadUInt32());
 
             var actualAttributes = new byte[_attributesBytes.Length];
             _ = sshDataStream.Read(actualAttributes, 0, actualAttributes.Length);
-            Assert.IsTrue(_attributesBytes.SequenceEqual(actualAttributes));
+            CollectionAssert.AreEqual(_attributesBytes, actualAttributes);
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

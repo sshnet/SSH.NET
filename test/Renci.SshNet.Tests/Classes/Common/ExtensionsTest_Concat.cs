@@ -26,7 +26,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Concat(first, second);
 
             Assert.IsNotNull(actual);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(second, actual);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
         }
 
         [TestMethod]
@@ -38,7 +40,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Concat(first, second);
 
             Assert.IsNotNull(actual);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(second, actual);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
         }
 
         [TestMethod]
@@ -50,7 +54,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Concat(first, second);
 
             Assert.IsNotNull(actual);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(first, actual);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
         }
 
         [TestMethod]
@@ -62,7 +68,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Concat(first, second);
 
             Assert.IsNotNull(actual);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(first, actual);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
         }
 
         [TestMethod]

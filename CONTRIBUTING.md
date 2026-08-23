@@ -1,4 +1,13 @@
-Contributions in the form of issues, pull requests (PRs) and discussions are welcome to this repository. Please consider that the library is currently maintained as a hobby by a small number of individuals. As such, depending on the weather, work, private lives etc., your PR may wait an indeterminate amount of time before being addressed. Generally speaking, the more targeted and better tested the change, the quicker it can be merged.
+This repository is monitored for issues, discussions and security reports. However, at the time of writing (August 2026), non-trivial pull requests from new contributors are discouraged and may be ignored.
+
+If you are serious about contributing:
+1. Start by submitting small, simple changes
+2. Disclose the extent of AI use and human involvement
+3. Once/if you have had some changes accepted and built some trust, open issues to propose larger, non-trivial changes to gauge whether a maintainer will be willing to work with you on it.
+
+For AI usage in this repo, treat the Polars AI policy as a reference: https://github.com/pola-rs/polars/blob/8956615c8e6f8f6379590a7b3fde8317d4a517ca/AI_POLICY.md
+
+Above all please consider that the library is maintained by a small number of individuals for which it is not a primary interest. As such, depending on the weather, work, private lives or just plain motivation, your thread may wait an indeterminate amount of time before being addressed.
 
 ## Building
 

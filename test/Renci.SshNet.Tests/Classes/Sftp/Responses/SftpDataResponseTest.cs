@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -52,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             target.Load(sshData);
 
-            Assert.IsTrue(target.Data.SequenceEqual(_data));
+            CollectionAssert.AreEqual(_data, target.Data.ToArray());
             Assert.AreEqual(_protocolVersion, target.ProtocolVersion);
             Assert.AreEqual(_responseId, target.ResponseId);
             Assert.AreEqual(SftpMessageTypes.Data, target.SftpMessageType);

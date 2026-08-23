@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Sftp.Requests;
 
 namespace Renci.SshNet
 {
@@ -605,6 +606,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public IEnumerable<ISftpFile> ListDirectory(string path, Action<int>? listCallback = null)
@@ -626,6 +628,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public async IAsyncEnumerable<ISftpFile> ListDirectoryAsync(string path, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -905,7 +908,7 @@ namespace Renci.SshNet
 
             if (downloadCallback != null)
             {
-                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+                downloadProgress = new ThreadPoolProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
             }
 
             InternalDownloadFile(
@@ -934,7 +937,7 @@ namespace Renci.SshNet
                 path,
                 output,
                 asyncResult: null,
-                downloadProgress: downloadProgress,
+                downloadProgress,
                 isAsync: true,
                 cancellationToken);
         }
@@ -1011,7 +1014,11 @@ namespace Renci.SshNet
 
             if (downloadCallback != null)
             {
-                downloadProgress = new Progress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
+                // The System.Progress<T> ctor captures the current synchronization context
+                // and posts the progress reports to it. For back-compat with previous
+                // versions which always posted the callback to the threadpool regardless of
+                // sync context, we use a custom IProgress<T> impl.
+                downloadProgress = new ThreadPoolProgress<DownloadFileProgressReport>(r => downloadCallback(r.TotalBytesDownloaded));
             }
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
@@ -1089,7 +1096,7 @@ namespace Renci.SshNet
 
             if (uploadCallback != null)
             {
-                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+                uploadProgress = new ThreadPoolProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
             }
 
             InternalUploadFile(
@@ -1273,7 +1280,11 @@ namespace Renci.SshNet
 
             if (uploadCallback != null)
             {
-                uploadProgress = new Progress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
+                // The System.Progress<T> ctor captures the current synchronization context
+                // and posts the progress reports to it. For back-compat with previous
+                // versions which always posted the callback to the threadpool regardless of
+                // sync context, we use a custom IProgress<T> impl.
+                uploadProgress = new ThreadPoolProgress<UploadFileProgressReport>(r => uploadCallback(r.TotalBytesUploaded));
             }
 
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
@@ -2417,16 +2428,10 @@ namespace Renci.SshNet
 
                     asyncResult?.Update(totalBytesRead);
 
-                    if (downloadProgress is not null)
+                    downloadProgress?.Report(new DownloadFileProgressReport()
                     {
-                        // Copy offset to ensure it's not modified between now and execution of callback
-                        var report = new DownloadFileProgressReport()
-                        {
-                            TotalBytesDownloaded = totalBytesRead,
-                        };
-
-                        downloadProgress.Report(report);
-                    }
+                        TotalBytesDownloaded = totalBytesRead
+                    });
                 }
             }
             finally
@@ -2477,7 +2482,13 @@ namespace Renci.SshNet
             ulong offset = 0;
 
             // create buffer of optimal length
-            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
+            var dataCapacity = (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle);
+
+            using var buffer = new SftpWriteRequestBuffer(handle, dataCapacity, usePool: true);
+
+            var dataBuffer = buffer.Data;
+
+            Debug.Assert(dataBuffer.Count >= dataCapacity);
 
             var expectedResponses = 0;
 
@@ -2492,11 +2503,11 @@ namespace Renci.SshNet
             {
                 var bytesRead = isAsync
 #if NET
-                    ? await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.AsMemory(0, dataCapacity), cancellationToken).ConfigureAwait(false)
 #else
-                    ? await input.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)
+                    ? await input.ReadAsync(dataBuffer.Array, dataBuffer.Offset, dataCapacity, cancellationToken).ConfigureAwait(false)
 #endif
-                    : input.Read(buffer, 0, buffer.Length);
+                    : input.Read(dataBuffer.Array!, dataBuffer.Offset, dataCapacity);
 
                 if (bytesRead == 0)
                 {
@@ -2510,12 +2521,15 @@ namespace Renci.SshNet
 
                 exception?.Throw();
 
+                buffer.ServerFileOffset = offset;
+                buffer.DataLength = bytesRead;
+
                 var writtenBytes = offset + (ulong)bytesRead;
 
                 _ = Interlocked.Increment(ref expectedResponses);
                 mres.Reset();
 
-                _sftpSession.RequestWrite(handle, offset, buffer, offset: 0, bytesRead, wait: null, s =>
+                _sftpSession.RequestWrite(buffer, s =>
                 {
                     var setHandle = false;
 
@@ -2536,16 +2550,10 @@ namespace Renci.SshNet
 
                         asyncResult?.Update(writtenBytes);
 
-                        // Call callback to report number of bytes written
-                        if (uploadProgress is not null)
+                        uploadProgress?.Report(new UploadFileProgressReport()
                         {
-                            UploadFileProgressReport report = new()
-                            {
-                                TotalBytesUploaded = writtenBytes,
-                            };
-
-                            uploadProgress.Report(report);
-                        }
+                            TotalBytesUploaded = writtenBytes
+                        });
                     }
                     finally
                     {
@@ -2650,6 +2658,30 @@ namespace Renci.SshNet
             {
                 sftpSession.Dispose();
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// An <see cref="IProgress{T}"/> implementation that posts callbacks to the threadpool.
+        /// </summary>
+        private sealed class ThreadPoolProgress<T> : IProgress<T>
+        {
+            private readonly Action<T> _handler;
+
+            public ThreadPoolProgress(Action<T> handler)
+            {
+                Debug.Assert(handler != null);
+                _handler = handler!;
+            }
+
+            void IProgress<T>.Report(T value)
+            {
+                _ = ThreadPool.QueueUserWorkItem(static state =>
+                {
+                    var (handler, value) = ((Action<T>, T))state!;
+                    handler(value);
+                },
+                (_handler, value));
             }
         }
     }

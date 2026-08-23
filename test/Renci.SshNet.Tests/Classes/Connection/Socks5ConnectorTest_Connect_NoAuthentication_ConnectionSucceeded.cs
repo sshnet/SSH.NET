@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,7 +8,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
@@ -187,7 +185,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                           PacketDump.Create(expectedSocksRequest, 2),
                                           PacketDump.Create(_bytesReceivedByProxy, 2));
 
-            Assert.IsTrue(expectedSocksRequest.SequenceEqual(_bytesReceivedByProxy), errorText);
+            CollectionAssert.AreEqual(expectedSocksRequest, _bytesReceivedByProxy, errorText);
         }
 
         [TestMethod]

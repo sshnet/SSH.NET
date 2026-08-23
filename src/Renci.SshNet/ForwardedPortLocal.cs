@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for local port forwarding.
     /// </summary>
-    public partial class ForwardedPortLocal : ForwardedPort
+    public class ForwardedPortLocal : ForwardedPort
     {
         private ForwardedPortStatus _status;
         private bool _isDisposed;

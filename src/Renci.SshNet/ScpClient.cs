@@ -29,9 +29,40 @@ namespace Renci.SshNet
     ///   </item>
     /// </list>
     /// </para>
+    /// <para>
+    /// <note type="caution">
+    /// SCP performs a transfer by running <c>scp</c> on the server with the remote path embedded in the
+    /// command. How that path must be encoded depends on the kind of server:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <description>
+    ///     On a shell-based server the command is interpreted by a shell, so the path must be quoted or
+    ///     escaped according to that shell's rules. An unsuitable transformation can allow a crafted path
+    ///     to be executed as a command on the server.
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <description>
+    ///     On a non-shell-based server the path is used literally and must not be quoted or escaped
+    ///     (see <see cref="RemotePathTransformation.None"/>); otherwise the quoting or escape
+    ///     characters end up as part of the file or directory path.
+    ///     </description>
+    ///   </item>
+    /// </list>
+    /// Choose the <see cref="RemotePathTransformation"/> supplied to the constructor to suit the remote
+    /// server and the trust you place in the paths you pass. Prefer <see cref="SftpClient"/>, which does
+    /// not involve a remote shell, where possible.
+    /// </note>
+    /// </para>
     /// </remarks>
+#pragma warning disable MA0204 // Remove unnecessary partial modifier; not true for all targets
     public partial class ScpClient : BaseClient
     {
+        private const string ConstructorObsoleteMessage =
+           @"SCP with insufficiently-escaped paths can allow remote command injection. Use a constructor " +
+            "taking an IRemotePathTransformation which suits the escaping rules of the remote server and " +
+            "the trust environment in which this code runs, and consider using SFTP where possible.";
+
         private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
         private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
         private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
@@ -57,6 +88,8 @@ namespace Renci.SshNet
 
         private static readonly byte[] SuccessConfirmationCode = { 0 };
         private static readonly byte[] ErrorConfirmationCode = { 1 };
+
+        private static readonly char[] InvalidLocalNameChars = Path.GetInvalidFileNameChars();
 
         private IRemotePathTransformation _remotePathTransformation;
         private TimeSpan _operationTimeout;
@@ -94,7 +127,9 @@ namespace Renci.SshNet
         /// Gets or sets the transformation to apply to remote paths.
         /// </summary>
         /// <value>
-        /// The transformation to apply to remote paths. The default is <see cref="RemotePathTransformation.DoubleQuote"/>.
+        /// The transformation to apply to remote paths. This is initialized from the transformation
+        /// passed to the constructor; the obsolete constructors that do not take one use
+        /// <see cref="RemotePathTransformation.DoubleQuote"/>.
         /// </value>
         /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -118,6 +153,14 @@ namespace Renci.SshNet
                 ArgumentNullException.ThrowIfNull(value);
 
                 _remotePathTransformation = value;
+            }
+        }
+
+        private static IRemotePathTransformation DefaultTransform
+        {
+            get
+            {
+                return SshNet.RemotePathTransformation.DoubleQuote;
             }
         }
 
@@ -154,65 +197,105 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        public ScpClient(ConnectionInfo connectionInfo, IRemotePathTransformation remotePathTransformation)
+            : this(connectionInfo, ownsConnectionInfo: false, remotePathTransformation)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        public ScpClient(string host, int port, string username, string password, IRemotePathTransformation remotePathTransformation)
+            : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true, remotePathTransformation)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        public ScpClient(string host, string username, string password, IRemotePathTransformation remotePathTransformation)
+            : this(host, ConnectionInfo.DefaultPort, username, password, remotePathTransformation)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        public ScpClient(string host, int port, string username, IRemotePathTransformation remotePathTransformation, params IPrivateKeySource[] keyFiles)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true, remotePathTransformation)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        public ScpClient(string host, string username, IRemotePathTransformation remotePathTransformation, params IPrivateKeySource[] keyFiles)
+            : this(host, ConnectionInfo.DefaultPort, username, remotePathTransformation, keyFiles)
+        {
+        }
+
+        /// <inheritdoc cref="ScpClient(ConnectionInfo, IRemotePathTransformation)"/>
+        [Obsolete(ConstructorObsoleteMessage)]
         public ScpClient(ConnectionInfo connectionInfo)
-            : this(connectionInfo, ownsConnectionInfo: false)
+            : this(connectionInfo, ownsConnectionInfo: false, DefaultTransform)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScpClient"/> class.
-        /// </summary>
-        /// <param name="host">Connection host.</param>
-        /// <param name="port">Connection port.</param>
-        /// <param name="username">Authentication username.</param>
-        /// <param name="password">Authentication password.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        /// <inheritdoc cref="ScpClient(string, int, string, string, IRemotePathTransformation)"/>
+        [Obsolete(ConstructorObsoleteMessage)]
         public ScpClient(string host, int port, string username, string password)
-            : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
+            : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true, DefaultTransform)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScpClient"/> class.
-        /// </summary>
-        /// <param name="host">Connection host.</param>
-        /// <param name="username">Authentication username.</param>
-        /// <param name="password">Authentication password.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <inheritdoc cref="ScpClient(string, string, string, IRemotePathTransformation)"/>
+        [Obsolete(ConstructorObsoleteMessage)]
         public ScpClient(string host, string username, string password)
-            : this(host, ConnectionInfo.DefaultPort, username, password)
+            : this(host, ConnectionInfo.DefaultPort, username, password, DefaultTransform)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScpClient"/> class.
-        /// </summary>
-        /// <param name="host">Connection host.</param>
-        /// <param name="port">Connection port.</param>
-        /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        /// <inheritdoc cref="ScpClient(string, int, string, IRemotePathTransformation, IPrivateKeySource[])"/>
+        [Obsolete(ConstructorObsoleteMessage)]
         public ScpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true, DefaultTransform)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScpClient"/> class.
-        /// </summary>
-        /// <param name="host">Connection host.</param>
-        /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <see langword="null"/> or contains only whitespace characters.</exception>
+        /// <inheritdoc cref="ScpClient(string, string, IRemotePathTransformation, IPrivateKeySource[])"/>
+        [Obsolete(ConstructorObsoleteMessage)]
         public ScpClient(string host, string username, params IPrivateKeySource[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
+            : this(host, ConnectionInfo.DefaultPort, username, DefaultTransform, keyFiles)
         {
         }
 
@@ -221,13 +304,14 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
-        private ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
-            : this(connectionInfo, ownsConnectionInfo, new ServiceFactory())
+        private ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IRemotePathTransformation remotePathTransformation)
+            : this(connectionInfo, ownsConnectionInfo, new ServiceFactory(), remotePathTransformation)
         {
         }
 
@@ -237,18 +321,19 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <param name="remotePathTransformation">The transformation to apply to remote paths.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// If <paramref name="ownsConnectionInfo"/> is <see langword="true"/>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
-        internal ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+        internal ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory, IRemotePathTransformation remotePathTransformation)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             OperationTimeout = Timeout.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
-            _remotePathTransformation = serviceFactory.CreateRemotePathDoubleQuoteTransformation();
+            _remotePathTransformation = remotePathTransformation;
         }
 
         /// <summary>
@@ -741,6 +826,33 @@ namespace Renci.SshNet
             CheckReturnCode(input);
         }
 
+        /// <summary>
+        /// Ensures that a file or directory name received from the remote host in the SCP
+        /// protocol stream is a plain local name that cannot redirect a write outside of the
+        /// caller-supplied destination directory.
+        /// </summary>
+        /// <param name="name">The file or directory name as sent by the server.</param>
+        /// <exception cref="ScpException">
+        /// <paramref name="name"/> is empty, refers to the current or parent directory, or
+        /// contains a character that is not valid in a local file name (such as a directory
+        /// separator).
+        /// </exception>
+        internal static void EnsureValidLocalName(string name)
+        {
+            // A legitimate SCP server only ever sends a single, plain path component in a
+            // C (file) or D (directory) record. Reject anything that is empty, refers to the
+            // current/parent directory, or carries a directory separator, drive qualifier or
+            // other character that is not valid in a local file name. Path.GetInvalidFileNameChars()
+            // is platform-aware: on Windows it includes '\', '/' and ':'; on Unix it includes '/'.
+            if (string.IsNullOrEmpty(name) ||
+                name.Equals(".", StringComparison.Ordinal) ||
+                name.Equals("..", StringComparison.Ordinal) ||
+                name.IndexOfAny(InvalidLocalNameChars) >= 0)
+            {
+                throw new ScpException($"The server sent a file or directory name (\"{name}\") that is not a valid local name.");
+            }
+        }
+
         private void InternalDownload(IChannel channel, Stream input, Stream output, string filename, long length)
         {
             var buffer = new byte[Math.Min(length, BufferSize)];
@@ -813,6 +925,10 @@ namespace Renci.SshNet
                     DirectoryInfo newDirectoryInfo;
                     if (directoryCounter > 0)
                     {
+                        // The server-supplied name is combined into a local path; ensure it
+                        // cannot escape the destination directory.
+                        EnsureValidLocalName(filename);
+
                         newDirectoryInfo = Directory.CreateDirectory(Path.Combine(currentDirectoryFullName, filename));
                         newDirectoryInfo.LastAccessTime = accessedTime;
                         newDirectoryInfo.LastWriteTime = modifiedTime;
@@ -840,6 +956,10 @@ namespace Renci.SshNet
 
                     if (fileSystemInfo is not FileInfo fileInfo)
                     {
+                        // The server-supplied name is combined into a local path; ensure it
+                        // cannot escape the destination directory.
+                        EnsureValidLocalName(fileName);
+
                         fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
                     }
 

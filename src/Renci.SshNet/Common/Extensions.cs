@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading;
 
 using Renci.SshNet.Messages;
@@ -434,5 +435,30 @@ namespace Renci.SshNet.Common
             }
         }
 #endif
+        public static bool TryComputeHash(
+            this HashAlgorithm hashAlgorithm,
+            byte[] buffer,
+            int offset,
+            int count,
+            Span<byte> destination,
+            out int bytesWritten)
+        {
+#if NET
+            return hashAlgorithm.TryComputeHash(buffer.AsSpan(offset, count), destination, out bytesWritten);
+#else
+            if (destination.Length < hashAlgorithm.HashSize / 8)
+            {
+                bytesWritten = 0;
+                return false;
+            }
+
+            var hash = hashAlgorithm.ComputeHash(buffer, offset, count);
+
+            hash.CopyTo(destination);
+
+            bytesWritten = hash.Length;
+            return true;
+#endif
+        }
     }
 }

@@ -620,11 +620,20 @@ dotnet_diagnostic.MA0112.severity = warning
 # MA0165: Make interpolated string
 dotnet_diagnostic.MA0165.severity = none
 
+# MA0173 - Use LazyInitializer.EnsureInitialize
+dotnet_diagnostic.MA0173.severity = none
+
 # MA0182: Avoid unused internal types
 dotnet_diagnostic.MA0182.severity = none
 
 # MA0184: Do not use interpolated string without parameters
 dotnet_diagnostic.MA0184.severity = none
+
+# MA0190 - Use partial property instead of partial method for GeneratedRegex
+dotnet_diagnostic.MA0190.severity = none
+
+# MA0192 - Use HasFlag instead of bitwise checks
+dotnet_diagnostic.MA0192.severity = none
 
 #### MSTest rules ####
 

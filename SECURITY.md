@@ -1,0 +1,1 @@
+To report security issues privately, please use GitHub's private vulnerability reporting feature which is enabled for this repository. The maintainers will endeavour to acknowledge the report within 14 calendar days.

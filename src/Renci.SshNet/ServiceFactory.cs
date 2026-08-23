@@ -16,7 +16,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Basic factory for creating new services.
     /// </summary>
-    internal sealed partial class ServiceFactory : IServiceFactory
+    internal sealed class ServiceFactory : IServiceFactory
     {
         /// <summary>
         /// Defines the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/>
@@ -137,20 +137,6 @@ namespace Renci.SshNet
         public ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize)
         {
             return new ShellStream(session, bufferSize);
-        }
-
-        /// <summary>
-        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
-        /// any embedded double quote with a backslash.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
-        /// embedded double quote with a backslash.
-        /// with a shell.
-        /// </returns>
-        public IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation()
-        {
-            return RemotePathTransformation.DoubleQuote;
         }
 
         /// <summary>

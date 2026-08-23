@@ -2,13 +2,15 @@
 
 using Renci.SshNet.Common;
 
+#pragma warning disable CS0618 // These SCP tests use the obsolete default-transformation constructors.
+
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
     /// Provides SCP client functionality.
     /// </summary>
     [TestClass]
-    public partial class ScpClientTest : IntegrationTestBase
+    public class ScpClientTest : IntegrationTestBase
     {
         [TestMethod]
         [TestCategory("Scp")]

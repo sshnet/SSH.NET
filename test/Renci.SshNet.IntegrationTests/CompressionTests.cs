@@ -27,7 +27,7 @@ namespace Renci.SshNet.IntegrationTests
 
         private void DoTest(KeyValuePair<string, Func<Compressor>> compressor)
         {
-            using (var scpClient = new ScpClient(_connectionInfoFactory.Create()))
+            using (var scpClient = new ScpClient(_connectionInfoFactory.Create(), RemotePathTransformation.ShellQuote))
             {
                 scpClient.ConnectionInfo.CompressionAlgorithms.Clear();
                 scpClient.ConnectionInfo.CompressionAlgorithms.Add(compressor);

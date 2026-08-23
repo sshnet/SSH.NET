@@ -141,6 +141,20 @@ foreach ((string mode, (string modeCode, CipherMode? bclMode)) in modes)
                 tw.WriteLine();
                 tw.WriteLine($"CollectionAssert.AreEqual(input, decrypted);");
 
+                tw.WriteLine();
+                tw.WriteLine($"// Decrypt in-place");
+                tw.WriteLine($"var decryptCount = new AesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Decrypt(actual, 0, actual.Length, actual, 0);");
+                tw.WriteLine();
+                tw.WriteLine($"Assert.AreEqual(input.Length, decryptCount);");
+                tw.WriteLine($"CollectionAssert.AreEqual(input, {(pad ? "actual.Take(decryptCount)" : "actual")});");
+
+                tw.WriteLine();
+                tw.WriteLine($"// Re-encrypt in-place");
+                tw.WriteLine($"var encryptCount = new AesCipher(key, {modeCode}, pkcs7Padding: {(pad ? "true" : "false")}).Encrypt(actual, 0, input.Length, actual, 0);");
+                tw.WriteLine();
+                tw.WriteLine($"Assert.AreEqual(expected.Length, encryptCount);");
+                tw.WriteLine($"CollectionAssert.AreEqual(expected, actual);");
+
                 tw.Indent--;
                 tw.WriteLine("}");
                 tw.WriteLine();

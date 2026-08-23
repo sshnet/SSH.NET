@@ -91,16 +91,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void StartShouldHaveThrownSshConnectionException()
         {
-            var expectedMessage = string.Format("The server response contains a null character at position 0x00000005:{0}{0}" +
-                                                "  00000000  ED 95 9C 21 00                                   ...!.{0}{0}" +
-                                                "A server must not send a null character before the Protocol Version Exchange is complete.{0}{0}" +
-                                                "More information is available here:{0}" +
-                                                "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                Environment.NewLine);
-
-            Assert.IsNotNull(_actualException);
+            Assert.IsInstanceOfType<SshConnectionException>(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(expectedMessage, _actualException.Message);
+            Assert.AreEqual("The server response contained an invalid null character before a valid SSH identification string was received.", _actualException.Message);
         }
 
         [TestMethod]
@@ -110,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             Assert.HasCount(expected.Length + 2, _dataReceivedByServer);
 
-            Assert.IsTrue(expected.SequenceEqual(_dataReceivedByServer.Take(expected.Length)));
+            CollectionAssert.AreEqual(expected, _dataReceivedByServer.Take(expected.Length).ToArray());
             Assert.AreEqual(Session.CarriageReturn, _dataReceivedByServer[_dataReceivedByServer.Count - 2]);
             Assert.AreEqual(Session.LineFeed, _dataReceivedByServer[_dataReceivedByServer.Count - 1]);
         }

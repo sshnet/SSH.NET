@@ -14,7 +14,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Factory for creating new services.
     /// </summary>
-    internal partial interface IServiceFactory
+    internal interface IServiceFactory
     {
         /// <summary>
         /// Creates an <see cref="IClientAuthentication"/>.
@@ -135,17 +135,6 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         ShellStream CreateShellStreamNoTerminal(ISession session, int bufferSize);
-
-        /// <summary>
-        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
-        /// any embedded double quote with a backslash.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
-        /// embedded double quote with a backslash.
-        /// with a shell.
-        /// </returns>
-        IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation();
 
         /// <summary>
         /// Creates an <see cref="IConnector"/> that can be used to establish a connection

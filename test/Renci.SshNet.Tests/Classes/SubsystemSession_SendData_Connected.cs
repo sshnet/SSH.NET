@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes
             _channelMock.InSequence(_sequence).Setup(p => p.Open());
             _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
             _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelMock.InSequence(_sequence).Setup(p => p.SendData(_data));
+            _channelMock.InSequence(_sequence).Setup(p => p.SendData(_data, 0, _data.Length));
 
             _subsystemSession = new SubsystemSessionStub(
                 _sessionMock.Object,
@@ -81,7 +81,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendDataOnChannelShouldBeInvokedOnce()
         {
-            _channelMock.Verify(p => p.SendData(_data), Times.Once);
+            _channelMock.Verify(p => p.SendData(_data, 0, _data.Length), Times.Once);
         }
 
         [TestMethod]

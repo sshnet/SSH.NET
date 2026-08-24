@@ -1327,6 +1327,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var numberOfBytesToDecrypt = 4 + packetLength - blockSize;
@@ -1374,6 +1379,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var paddingLength = _receiveBuffer.ActiveReadOnlySpan[packetLengthFieldLength];

@@ -92,7 +92,6 @@
 
         internal override void Process(Session session)
         {
-            session.OnDebugReceived(this);
         }
     }
 }

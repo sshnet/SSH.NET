@@ -225,8 +225,6 @@ namespace Renci.SshNet.Channels
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
         {
-            base.OnOpenFailure(reasonCode, description, language);
-
             _ = _channelOpen.Set();
         }
 

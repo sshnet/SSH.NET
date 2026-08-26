@@ -88,40 +88,6 @@ namespace Renci.SshNet.Abstractions
             args.Dispose();
         }
 
-        public static void ClearReadBuffer(Socket socket)
-        {
-            var timeout = TimeSpan.FromMilliseconds(500);
-            var buffer = new byte[256];
-            int bytesReceived;
-
-            do
-            {
-                bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, timeout);
-            }
-            while (bytesReceived > 0);
-        }
-
-        public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
-        {
-            socket.ReceiveTimeout = timeout.AsTimeout();
-
-            try
-            {
-                return socket.Receive(buffer, offset, size, SocketFlags.None);
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                                                                         "Socket read operation has timed out after {0:F0} milliseconds.",
-                                                                         timeout.TotalMilliseconds));
-                }
-
-                throw;
-            }
-        }
-
         public static void ReadContinuous(Socket socket, byte[] buffer, int offset, int size, Action<byte[], int, int> processReceivedBytesAction)
         {
             // do not time-out receive

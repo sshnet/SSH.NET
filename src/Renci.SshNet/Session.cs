@@ -1323,7 +1323,14 @@ namespace Renci.SshNet
 
                 _ = _serverMac.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
 
-                if (!CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
+                var macIsValid = CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength));
+
+                // Not all HashAlgorithm implementations reset their internal state after
+                // TransformFinalBlock(), so we need to explicitly reinitialize the algorithm
+                // before it can be reused to compute the MAC of the next packet.
+                _serverMac.Initialize();
+
+                if (!macIsValid)
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
@@ -1370,7 +1377,14 @@ namespace Renci.SshNet
 
                 _ = _serverMac.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
 
-                if (!CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength)))
+                var macIsValid = CryptoAbstraction.FixedTimeEquals(_serverMac.Hash, _receiveBuffer.ActiveSpan.Slice(totalPacketLength - serverMacLength, serverMacLength));
+
+                // Not all HashAlgorithm implementations reset their internal state after
+                // TransformFinalBlock(), so we need to explicitly reinitialize the algorithm
+                // before it can be reused to compute the MAC of the next packet.
+                _serverMac.Initialize();
+
+                if (!macIsValid)
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }

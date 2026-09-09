@@ -1,4 +1,4 @@
-#if !NET9_0_OR_GREATER
+#if !NET
 using System.Threading;
 
 namespace Renci.SshNet.Common

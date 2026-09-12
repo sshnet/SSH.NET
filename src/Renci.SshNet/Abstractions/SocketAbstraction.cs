@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -24,11 +23,6 @@ namespace Renci.SshNet.Abstractions
         public static void Connect(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: false);
-        }
-
-        public static async Task ConnectAsync(Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
-        {
-            await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
 
         private static void ConnectCore(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
@@ -250,13 +244,6 @@ namespace Renci.SshNet.Abstractions
 
             return totalBytesRead;
         }
-
-#if !NET
-        public static Task<int> ReadAsync(Socket socket, byte[] buffer, CancellationToken cancellationToken)
-        {
-            return socket.ReceiveAsync(buffer, 0, buffer.Length, cancellationToken);
-        }
-#endif
 
         public static void Send(Socket socket, byte[] data)
         {

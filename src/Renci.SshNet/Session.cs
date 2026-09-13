@@ -544,117 +544,7 @@ namespace Renci.SshNet
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         public void Connect()
         {
-            if (IsConnected)
-            {
-                return;
-            }
-
-            _connectLock.Wait();
-
-            try
-            {
-                if (IsConnected)
-                {
-                    return;
-                }
-
-                // Reset connection specific information
-                Reset();
-
-                // Build list of available messages while connecting
-                _sshMessageFactory = new SshMessageFactory();
-
-                _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .Connect(ConnectionInfo);
-
-                var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
-                                                            .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
-
-                // Set connection versions
-                ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-
-                _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
-
-                if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
-                {
-                    throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
-                                                        DisconnectReason.ProtocolVersionNotSupported);
-                }
-
-                ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
-
-                // Register Transport response messages
-                RegisterMessage("SSH_MSG_DISCONNECT");
-                RegisterMessage("SSH_MSG_IGNORE");
-                RegisterMessage("SSH_MSG_UNIMPLEMENTED");
-                RegisterMessage("SSH_MSG_DEBUG");
-                RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
-                RegisterMessage("SSH_MSG_KEXINIT");
-                RegisterMessage("SSH_MSG_NEWKEYS");
-
-                // Some server implementations might sent this message first, prior to establishing encryption algorithm
-                RegisterMessage("SSH_MSG_USERAUTH_BANNER");
-
-                // Send our key exchange init.
-                // We need to do this before starting the message listener to avoid the case where we receive the server
-                // key exchange init and we continue the key exchange before having sent our own init.
-                _isInitialKex = true;
-                ClientInitMessage = BuildClientInitMessage(includeStrictKexPseudoAlgorithm: true);
-                SendMessage(ClientInitMessage);
-
-                // Mark the message listener threads as started
-                _ = _messageListenerCompleted.Reset();
-
-                // Start incoming request listener
-                // ToDo: Make message pump async, to not consume a thread for every session
-                _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
-
-                // Wait for key exchange to be completed
-                WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
-
-                // If sessionId is not set then its not connected
-                if (SessionId is null)
-                {
-                    Disconnect();
-                    return;
-                }
-
-                // Request user authorization service
-                SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
-
-                // Wait for service to be accepted
-                WaitOnHandle(_serviceAccepted);
-
-                if (string.IsNullOrEmpty(ConnectionInfo.Username))
-                {
-                    throw new SshException("Username is not specified.");
-                }
-
-                // Some servers send a global request immediately after successful authentication
-                // Avoid race condition by already enabling SSH_MSG_GLOBAL_REQUEST before authentication
-                RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
-
-                ConnectionInfo.Authenticate(this, _serviceFactory);
-                _isAuthenticated = true;
-
-                // Register Connection messages
-                RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-                RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
-                RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
-                RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
-                RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
-                RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
-                RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_DATA");
-                RegisterMessage("SSH_MSG_CHANNEL_EOF");
-                RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
-            }
-            finally
-            {
-                _ = _connectLock.Release();
-            }
+            ConnectCore(isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -666,15 +556,28 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        public Task ConnectAsync(CancellationToken cancellationToken)
         {
-            // If connected don't connect again
+            return ConnectCore(isAsync: true, cancellationToken);
+        }
+
+        private async Task ConnectCore(bool isAsync, CancellationToken cancellationToken)
+        {
             if (IsConnected)
             {
                 return;
             }
 
-            await _connectLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            if (isAsync)
+            {
+                await _connectLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                Debug.Assert(cancellationToken == default);
+
+                _connectLock.Wait(CancellationToken.None);
+            }
 
             try
             {
@@ -689,11 +592,17 @@ namespace Renci.SshNet
                 // Build list of available messages while connecting
                 _sshMessageFactory = new SshMessageFactory();
 
-                _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+                var connector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
 
-                var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
-                                                            .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);
+                _socket = isAsync
+                    ? await connector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false)
+                    : connector.Connect(ConnectionInfo);
+
+                var protocolVersionExchange = _serviceFactory.CreateProtocolVersionExchange();
+
+                var serverIdentification = isAsync
+                    ? await protocolVersionExchange.StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false)
+                    : protocolVersionExchange.Start(ClientVersion, _socket, ConnectionInfo.Timeout);
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();

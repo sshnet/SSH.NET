@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -607,6 +608,40 @@ namespace Renci.SshNet.Tests.Classes
                 var ex = Assert.ThrowsExactly<SshException>(() => new PrivateKeyFile(stream));
 
                 Assert.AreEqual("MAC verification failed for PuTTY key file", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        [DataRow("Key.RSA.PKCS8.txt", null, typeof(RsaKey))]
+        [DataRow("Key.OPENSSH.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.RSA.txt", null, typeof(RsaKey))]
+        [DataRow("Key.ECDSA.txt", null, typeof(EcdsaKey))]
+        [DataRow("Key.OPENSSH.ED25519.txt", null, typeof(ED25519Key))]
+        public void Test_PrivateKey_InlinePem_LineEndingsRemoved(string name, string passPhrase, Type expectedKeyType)
+        {
+            // Simulate CI/CD environment variable injection (e.g. Azure DevOps) where
+            // the PEM line endings are removed, producing an inline single-line key.
+            string original;
+            using (var stream = GetData(name))
+            using (var reader = new StreamReader(stream))
+            {
+                original = reader.ReadToEnd();
+            }
+
+            // Remove all line endings to produce the inline format,
+            // matching what CI/CD systems (e.g. Azure DevOps) produce when injecting secrets.
+            var inlinePem = Regex.Replace(original, @"\r\n?|\n", string.Empty).Trim();
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(inlinePem)))
+            {
+                var pkFile = new PrivateKeyFile(stream, passPhrase);
+
+                Assert.IsInstanceOfType(pkFile.Key, expectedKeyType);
+
+                if (expectedKeyType == typeof(RsaKey))
+                {
+                    TestRsaKeyFile(pkFile);
+                }
             }
         }
 

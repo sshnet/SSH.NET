@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -88,6 +89,15 @@ namespace Renci.SshNet
         /// incremented atomatically.
         /// </remarks>
         private readonly Lock _socketWriteLock = new Lock();
+
+        /// <summary>
+        /// The connection protocol messages that were received while a key re-exchange was in progress. They
+        /// are processed once the key exchange has completed, see <see cref="MessageListener"/>.
+        /// </summary>
+        /// <remarks>
+        /// Only accessed by the message listener thread.
+        /// </remarks>
+        private readonly Queue<Message> _messagesReceivedDuringKeyExchange = new Queue<Message>();
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can dispose
@@ -1201,14 +1211,21 @@ namespace Renci.SshNet
         /// <summary>
         /// Receives the message from the server.
         /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
+        /// <param name="processAfterKeyExchange">
+        /// <see langword="true"/> if the message is a connection protocol message that was received during a key
+        /// re-exchange, and is to be processed once that has completed; otherwise, <see langword="false"/>.
+        /// </param>
         /// <returns>
         /// The incoming SSH message, or <see langword="null"/> if the connection with the SSH server was closed.
         /// </returns>
         /// <remarks>
         /// We need no locking here since all messages are read by a single thread.
         /// </remarks>
-        private Message ReceiveMessage(Socket socket)
+        private Message ReceiveMessage(Socket socket, out bool processAfterKeyExchange)
         {
+            processAfterKeyExchange = false;
+
             // The length of the "packet length" field in bytes
             const int packetLengthFieldLength = 4;
 
@@ -1426,12 +1443,22 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Inbound packet sequence number is about to wrap during initial key exchange.", DisconnectReason.KeyExchangeFailed);
             }
 
+            if (payload.Count > 0 && IsToBeProcessedAfterKeyExchange(payload.Array[payload.Offset]))
+            {
+                // Unlike any other message, this one is not going to be processed before the next call to
+                // ReceiveMessage, which reuses the receive buffer that the deserialised message would
+                // otherwise reference (e.g. the data of an SSH_MSG_CHANNEL_DATA). So give it its own copy.
+                payload = new ArraySegment<byte>(payload.AsSpan().ToArray());
+                processAfterKeyExchange = true;
+            }
+
             var message = LoadMessage(payload.Array, payload.Offset, payload.Count);
 
             // The deserialised message may still reference data in the buffer, so calling Discard
             // here might seem misguided. It is OK because Discard does not mutate the buffer
             // and it will not be touched again until the next call to ReceiveMessage, which will
-            // only occur after the message has been fully processed.
+            // only occur after the message has been fully processed (or has been given its own copy
+            // of the data, see above).
             _receiveBuffer.Discard(totalPacketLength);
 
             return message;
@@ -1518,8 +1545,15 @@ namespace Renci.SshNet
                 }
             }
 
-            // Disable messages that are not key exchange related
-            _sshMessageFactory.DisableNonKeyExchangeMessages(_isStrictKex);
+            // Disable messages that are not key exchange related.
+            //
+            // The strict key exchange restrictions apply to the initial key exchange only. In a key
+            // re-exchange of an established session we still accept connection protocol messages (e.g. data
+            // that the server had already queued): they are protected by the old keys until the server's
+            // SSH_MSG_NEWKEYS. They are not processed until the key exchange has completed, see MessageListener.
+            _sshMessageFactory.DisableNonKeyExchangeMessages(
+                strict: _isStrictKex && _isInitialKex,
+                allowConnectionProtocolMessages: !_isInitialKex);
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
                                                              message.KeyExchangeAlgorithms);
@@ -1944,15 +1978,33 @@ namespace Renci.SshNet
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (true)
                 {
-                    var message = ReceiveMessage(_socket);
+                    var message = ReceiveMessage(_socket, out var processAfterKeyExchange);
                     if (message is null)
                     {
                         // Connection with SSH server was closed, so break out of the message loop
                         break;
                     }
 
+                    if (processAfterKeyExchange)
+                    {
+                        // A connection protocol message received during a key re-exchange. Processing it now could
+                        // make it send a message (e.g. SSH_MSG_CHANNEL_WINDOW_ADJUST) which is held back until the
+                        // key exchange completes, which only this thread can bring about by reading the
+                        // rest of the key exchange.
+                        _messagesReceivedDuringKeyExchange.Enqueue(message);
+                        continue;
+                    }
+
                     // process message
                     message.Process(this);
+
+                    if (message is NewKeysMessage)
+                    {
+                        // The key exchange is now complete (and sending is allowed again), so we can process the
+                        // messages that were received during it - in the order in which they were received, and
+                        // before reading the next packet.
+                        ProcessMessagesReceivedDuringKeyExchange();
+                    }
                 }
 
                 // connection with SSH server was closed or socket was disposed
@@ -1970,6 +2022,37 @@ namespace Renci.SshNet
             {
                 // signal that the message listener thread has stopped
                 _ = _messageListenerCompleted.Set();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether a received message has to wait until the key re-exchange that is in progress has completed.
+        /// </summary>
+        /// <param name="messageNumber">The number of the received message.</param>
+        /// <returns>
+        /// <see langword="true"/> if the message is a connection protocol message and a key
+        /// re-exchange is in progress; otherwise, <see langword="false"/>.
+        /// </returns>
+        private bool IsToBeProcessedAfterKeyExchange(byte messageNumber)
+        {
+            if (messageNumber < SshMessageFactory.FirstConnectionProtocolMessageNumber || _isInitialKex)
+            {
+                return false;
+            }
+
+            var keyExchangeCompletedWaitHandle = _keyExchangeCompletedWaitHandle;
+
+            return keyExchangeCompletedWaitHandle is { IsSet: false };
+        }
+
+        /// <summary>
+        /// Processes the messages that were received while a key re-exchange was in progress.
+        /// </summary>
+        private void ProcessMessagesReceivedDuringKeyExchange()
+        {
+            while (_messagesReceivedDuringKeyExchange.Count > 0)
+            {
+                _messagesReceivedDuringKeyExchange.Dequeue().Process(this);
             }
         }
 
@@ -2009,6 +2092,7 @@ namespace Renci.SshNet
             _ = _exceptionWaitHandle?.Reset();
             _keyExchangeCompletedWaitHandle?.Reset();
             _ = _messageListenerCompleted?.Set();
+            _messagesReceivedDuringKeyExchange.Clear();
 
             SessionId = null;
             _isDisconnectMessageSent = false;

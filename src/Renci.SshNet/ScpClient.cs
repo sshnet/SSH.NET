@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
+#if NET
+using System.Runtime.InteropServices;
+#endif
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -85,6 +88,12 @@ namespace Renci.SshNet
         private static readonly Regex DirectoryInfoRegex = new Regex(DirectoryInfoPattern, RegexOptions.Compiled);
         private static readonly Regex TimestampRegex = new Regex(TimestampPattern, RegexOptions.Compiled);
 #endif
+
+        /// <summary>
+        /// The maximum length, in bytes and excluding the terminating line feed, of a control line
+        /// or error message received from the server.
+        /// </summary>
+        internal const int MaxControlLineLength = 64 * 1024;
 
         private static readonly byte[] SuccessConfirmationCode = { 0 };
         private static readonly byte[] ErrorConfirmationCode = { 1 };
@@ -753,18 +762,25 @@ namespace Renci.SshNet
 
             while (b != SshNet.Session.LineFeed)
             {
+                if (buffer.Count == MaxControlLineLength)
+                {
+                    throw new ScpException(string.Format("The server sent a line that exceeds the maximum length of {0} bytes.", MaxControlLineLength));
+                }
+
                 buffer.Add((byte)b);
                 b = ReadByte(stream);
             }
-
-            var readBytes = buffer.ToArray();
-
+#if NET
+            var line = ConnectionInfo.Encoding.GetString(CollectionsMarshal.AsSpan(buffer));
+#else
+            var line = ConnectionInfo.Encoding.GetString(buffer.ToArray(), 0, buffer.Count);
+#endif
             if (hasError)
             {
-                throw new ScpException(ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length));
+                throw new ScpException(line);
             }
 
-            return ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length);
+            return line;
         }
 
         /// <summary>

@@ -65,13 +65,7 @@ namespace Renci.SshNet.Common
                     _ = Monitor.Wait(_sync);
                 }
 
-                var bytesRead = Math.Min(buffer.Length, _buffer.ActiveLength);
-
-                _buffer.ActiveReadOnlySpan.Slice(0, bytesRead).CopyTo(buffer);
-
-                _buffer.Discard(bytesRead);
-
-                return bytesRead;
+                return ReadCore(buffer);
             }
         }
 
@@ -84,6 +78,20 @@ namespace Renci.SshNet.Common
             return read == 0 ? -1 : b;
         }
 #endif
+
+        private int ReadCore(Span<byte> buffer)
+        {
+            Debug.Assert(Monitor.IsEntered(_sync));
+            Debug.Assert(_buffer.ActiveLength > 0 || _disposed);
+
+            var bytesRead = Math.Min(buffer.Length, _buffer.ActiveLength);
+
+            _buffer.ActiveReadOnlySpan.Slice(0, bytesRead).CopyTo(buffer);
+
+            _buffer.Discard(bytesRead);
+
+            return bytesRead;
+        }
 
         /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
@@ -134,17 +142,80 @@ namespace Renci.SshNet.Common
             Monitor.PulseAll(_sync);
         }
 
-        // We provide overrides for async Write methods but not async Read.
-        // The default implementations from the base class effectively call the
-        // sync methods on a threadpool thread, but only allowing one async
-        // operation at a time (for protecting thread-unsafe implementations).
-        // This constraint is desirable for reads because if there were multiple
-        // readers and no data coming in, our current Monitor.Wait implementation
-        // would just block as many threadpool threads as there are readers.
-        // But since a write is just short-lived buffer copying and can unblock
+        // We provide overrides for async Write methods, but the async Read overrides
+        // have only partial implementations (for the happy path when data is available
+        // to be read), and otherwise defer to the base implementation.
+        // The default implementations from the base class effectively call the sync
+        // methods on a threadpool thread, but only allowing one such async-over-sync
+        // operation at a time.
+        // This constraint is desirable for blocking reads because if there were
+        // multiple readers and no data coming in, our current Monitor.Wait
+        // implementation would just block as many threadpool threads as there
+        // are readers. But when data is already available, a read is just
+        // short-lived buffer copying, so we can complete synchronously and avoid
+        // the overhead of the base.
+        // Likewise, since a write is just short-lived buffer copying and can unblock
         // readers, it is beneficial to circumvent the one-at-a-time constraint,
         // as otherwise a waiting async read will block the async write that could
         // unblock it.
+        // Note that we do not override BeginRead/EndRead because the base ReadAsync
+        // takes a faster path in this way (and it can introduce circular dependency).
+
+        /// <inheritdoc/>
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+#if !NET
+            ThrowHelper.
+#endif
+            ValidateBufferArguments(buffer, offset, count);
+
+            if (!cancellationToken.IsCancellationRequested &&
+                TryReadWithoutBlocking(buffer.AsSpan(offset, count), out var bytesRead))
+            {
+                return Task.FromResult(bytesRead);
+            }
+
+            return base.ReadAsync(buffer, offset, count, cancellationToken);
+        }
+
+#if NET
+        /// <inheritdoc/>
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (!cancellationToken.IsCancellationRequested &&
+                TryReadWithoutBlocking(buffer.Span, out var bytesRead))
+            {
+                return new ValueTask<int>(bytesRead);
+            }
+
+            return base.ReadAsync(buffer, cancellationToken);
+        }
+#endif
+
+        private bool TryReadWithoutBlocking(Span<byte> buffer, out int bytesRead)
+        {
+            if (!Monitor.TryEnter(_sync))
+            {
+                bytesRead = 0;
+                return false;
+            }
+
+            try
+            {
+                if (_buffer.ActiveLength == 0 && !_disposed)
+                {
+                    bytesRead = 0;
+                    return false;
+                }
+
+                bytesRead = ReadCore(buffer);
+                return true;
+            }
+            finally
+            {
+                Monitor.Exit(_sync);
+            }
+        }
 
         /// <inheritdoc/>
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

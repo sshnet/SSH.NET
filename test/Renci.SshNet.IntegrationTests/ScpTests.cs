@@ -2070,6 +2070,129 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
+        /// <summary>
+        /// A line feed in the file name part of the upload path must not be sent in the C record. It would
+        /// end the record early: the server reads the rest of the name as the start of the file content,
+        /// and content crafted to match is then read as further records, creating another file.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            // The server reads the rest of the name (22 x's) and the line feed that ends the record as the
+            // start of the 29 bytes of content, followed by "report". It then reads the "\0" as the status
+            // byte that ends the file, and the remaining 22 bytes as a C record for extra.txt and its content.
+            var fileName = "report.txt\n" + new string('x', 22);
+            var content = "report\0C0644 4 extra.txt\ndata"u8.ToArray();
+
+            AssertNameWithLineFeedDoesNotCreateFiles<ArgumentException>(
+                (client, remoteDirectory) =>
+                {
+                    using (var source = new MemoryStream(content))
+                    {
+                        client.Upload(source, remoteDirectory + "/" + fileName);
+                    }
+                });
+        }
+
+        /// <inheritdoc cref="Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles"/>
+        [TestMethod]
+        public void Scp_Upload_FileInfo_FileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            var localFile = Path.GetTempFileName();
+            File.WriteAllBytes(localFile, "report\0C0644 4 extra.txt\ndata"u8.ToArray());
+
+            try
+            {
+                AssertNameWithLineFeedDoesNotCreateFiles<ArgumentException>((client, remoteDirectory)
+                    => client.Upload(new FileInfo(localFile), remoteDirectory + "/report.txt\n" + new string('x', 22)));
+            }
+            finally
+            {
+                File.Delete(localFile);
+            }
+        }
+
+        /// <summary>
+        /// A local file whose name contains a line feed must not be sent in a C record when uploading a
+        /// directory; see <see cref="Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles"/>.
+        /// </summary>
+        [TestMethod]
+        [OSCondition(ConditionMode.Exclude, OperatingSystems.Windows,
+            IgnoreMessage = "A line feed is not valid in a file name on Windows.")]
+        public void Scp_Upload_DirectoryInfo_LocalFileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            var localDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "sshnet-scp-lf-" + Guid.NewGuid().ToString("N")));
+            File.WriteAllBytes(Path.Combine(localDirectory.FullName, "report.txt\n" + new string('x', 22)),
+                               "report\0C0644 4 extra.txt\ndata"u8.ToArray());
+
+            try
+            {
+                AssertNameWithLineFeedDoesNotCreateFiles<ScpException>((client, remoteDirectory)
+                    => client.Upload(localDirectory, remoteDirectory));
+            }
+            finally
+            {
+                localDirectory.Delete(recursive: true);
+            }
+        }
+
+        /// <summary>
+        /// Runs <paramref name="upload"/> into a new, empty remote directory, and asserts that it throws
+        /// <typeparamref name="TException"/> without creating anything in that directory.
+        /// </summary>
+        private void AssertNameWithLineFeedDoesNotCreateFiles<TException>(Action<ScpClient, string> upload)
+            where TException : Exception
+        {
+            var remoteDirectory = "/tmp/sshnet-scp-lf-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                _ = client.RunCommand("mkdir -p '" + remoteDirectory + "'");
+            }
+
+            try
+            {
+                Exception exception = null;
+
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+
+                    try
+                    {
+                        upload(client, remoteDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
+                }
+
+                using (var client = new SftpClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+
+                    var entries = client.ListDirectory(remoteDirectory)
+                                        .Where(f => f.Name is not "." and not "..")
+                                        .Select(f => f.Name)
+                                        .ToArray();
+
+                    Assert.IsEmpty(entries, "Files were created on the server: " + string.Join(", ", entries));
+                }
+
+                Assert.IsInstanceOfType<TException>(exception);
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+            }
+        }
+
         private static void CreateRemoteFile(ScpClient client, string remoteFile, int size)
         {
             var file = CreateTempFile(size);

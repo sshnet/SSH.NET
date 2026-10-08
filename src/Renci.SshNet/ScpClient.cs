@@ -351,7 +351,10 @@ namespace Renci.SshNet
         /// <param name="source">The <see cref="Stream"/> to upload.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="path"/> is a zero-length <see cref="string"/>, does not have a file name part (for example,
+        /// it ends with <c>/</c>), or its file name part contains a line feed character.
+        /// </exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -362,7 +365,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+            var (remoteDirectory, remoteFileName) = GetUploadPathParts(path);
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -373,15 +376,15 @@ namespace Renci.SshNet
 
                 // Pass only the directory part of the path to the server, and optionally use the (hidden) -d option to signal
                 // that we expect the target to be a directory.
-                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(posixPath.Directory)}"))
+                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(remoteDirectory)}"))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
 
                 CheckReturnCode(input);
 
-                UploadFileModeAndName(channel, input, source.Length, posixPath.File);
-                UploadFileContent(channel, input, source, posixPath.File);
+                UploadFileModeAndName(channel, input, source.Length, remoteFileName);
+                UploadFileContent(channel, input, source, remoteFileName);
             }
         }
 
@@ -392,7 +395,10 @@ namespace Renci.SshNet
         /// <param name="path">A relative or absolute path for the remote file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="path"/> is a zero-length <see cref="string"/>, does not have a file name part (for example,
+        /// it ends with <c>/</c>), or its file name part contains a line feed character.
+        /// </exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -405,7 +411,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+            var (remoteDirectory, remoteFileName) = GetUploadPathParts(path);
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -416,7 +422,7 @@ namespace Renci.SshNet
 
                 // Pass only the directory part of the path to the server, and optionally use the (hidden) -d option to signal
                 // that we expect the target to be a directory.
-                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(posixPath.Directory)}"))
+                if (!channel.SendExecRequest($"scp -t {EnsureIsDirectoryArg} {_remotePathTransformation.Transform(remoteDirectory)}"))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -426,7 +432,7 @@ namespace Renci.SshNet
                 using (var source = fileInfo.OpenRead())
                 {
                     UploadTimes(channel, input, fileInfo);
-                    UploadFileModeAndName(channel, input, source.Length, posixPath.File);
+                    UploadFileModeAndName(channel, input, source.Length, remoteFileName);
                     UploadFileContent(channel, input, source, fileInfo.Name);
                 }
             }
@@ -811,6 +817,8 @@ namespace Renci.SshNet
             var files = directoryInfo.GetFiles();
             foreach (var file in files)
             {
+                EnsureValidRecordName(file.Name);
+
                 using (var source = file.OpenRead())
                 {
                     UploadTimes(channel, input, file);
@@ -823,6 +831,8 @@ namespace Renci.SshNet
             var directories = directoryInfo.GetDirectories();
             foreach (var directory in directories)
             {
+                EnsureValidRecordName(directory.Name);
+
                 UploadTimes(channel, input, directory);
                 UploadDirectoryModeAndName(channel, input, directory.Name);
                 UploadDirectoryContent(channel, input, directory);
@@ -831,6 +841,14 @@ namespace Renci.SshNet
             // Mark upload of current directory complete
             SendData(channel, "E\n");
             CheckReturnCode(input);
+
+            static void EnsureValidRecordName(string name)
+            {
+                if (name.Contains('\n'))
+                {
+                    throw new ScpException($"The name \"{name}\" contains a line feed character and cannot be sent to the server.");
+                }
+            }
         }
 
         /// <summary>
@@ -840,6 +858,28 @@ namespace Renci.SshNet
         {
             SendData(channel, string.Format("D0755 0 {0}\n", directoryName));
             CheckReturnCode(input);
+        }
+
+        /// <summary>
+        /// Splits the remote path passed to <see cref="Upload(Stream, string)"/> or
+        /// <see cref="Upload(FileInfo, string)"/> into its directory and file name parts, and ensures
+        /// that the file name part can be sent in an SCP C record.
+        /// </summary>
+        private static (string Directory, string FileName) GetUploadPathParts(string path)
+        {
+            var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+
+            if (posixPath.File is null)
+            {
+                throw new ArgumentException("The path must include a file name.", nameof(path));
+            }
+
+            if (posixPath.File.Contains('\n'))
+            {
+                throw new ArgumentException("The file name part of the path must not contain a line feed character.", nameof(path));
+            }
+
+            return (posixPath.Directory, posixPath.File);
         }
 
         /// <summary>

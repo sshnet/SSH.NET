@@ -862,6 +862,11 @@ namespace Renci.SshNet
             {
                 var read = input.Read(buffer, 0, (int)Math.Min(needToRead, BufferSize));
 
+                if (read == 0 && needToRead > 0)
+                {
+                    throw new SshException("Stream has been closed.");
+                }
+
                 output.Write(buffer, 0, read);
 
                 RaiseDownloadingEvent(filename, length, length - needToRead);

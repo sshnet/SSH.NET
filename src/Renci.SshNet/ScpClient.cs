@@ -564,9 +564,27 @@ namespace Renci.SshNet
         /// <param name="directoryInfo">Local directory information.</param>
         /// <exception cref="ArgumentException"><paramref name="directoryName"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host, or the server sent an invalid or unexpected SCP record.</exception>
+        /// <exception cref="ScpException">
+        /// File or directory with the specified path does not exist on the remote host, the server sent an invalid
+        /// or unexpected SCP record, or the server sent a file or directory name that is not a valid local name.
+        /// </exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <remarks>
+        /// <para>
+        /// Each file and directory name sent by the server must be a plain name that refers to an entry
+        /// directly inside the directory being downloaded into. The download is aborted with an
+        /// <see cref="ScpException"/> if a name contains a directory separator or another character that is
+        /// not valid in a local file name, refers to the current or parent directory, or would be resolved by
+        /// the local file system to a different name or location, so that the names sent by the server cannot
+        /// refer to a location outside of <paramref name="directoryInfo"/>.
+        /// </para>
+        /// <para>
+        /// Existing files in <paramref name="directoryInfo"/> are overwritten by files with the same name, and
+        /// symbolic links and junctions that already exist within it are followed. If the download fails, the
+        /// files received so far, including part of the file being received, are left in place.
+        /// </para>
+        /// </remarks>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             ArgumentException.ThrowIfNullOrEmpty(directoryName);
@@ -946,30 +964,61 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Ensures that a file or directory name received from the remote host in the SCP
-        /// protocol stream is a plain local name that cannot redirect a write outside of the
-        /// caller-supplied destination directory.
+        /// Combines a file or directory name received from the remote host with a local directory,
+        /// ensuring that the result is a direct child of that directory with exactly that name.
         /// </summary>
+        /// <param name="directory">The local directory, as returned by <see cref="NormalizeDirectory(string)"/>.</param>
         /// <param name="name">The file or directory name as sent by the server.</param>
-        /// <exception cref="ScpException">
-        /// <paramref name="name"/> is empty, refers to the current or parent directory, or
-        /// contains a character that is not valid in a local file name (such as a directory
-        /// separator).
-        /// </exception>
-        internal static void EnsureValidLocalName(string name)
+        /// <returns>
+        /// The full path of the child, or <see langword="null"/> if <paramref name="name"/> is empty, refers
+        /// to the current or parent directory, contains a character that is not valid in a local file name
+        /// (such as a directory separator), or the local file system would resolve it to a different name or
+        /// location (for example, Windows removes trailing dots and spaces, so "..." refers to
+        /// <paramref name="directory"/> itself).
+        /// </returns>
+        internal static string? ResolveChild(string directory, string name)
         {
-            // A legitimate SCP server only ever sends a single, plain path component in a
-            // C (file) or D (directory) record. Reject anything that is empty, refers to the
-            // current/parent directory, or carries a directory separator, drive qualifier or
-            // other character that is not valid in a local file name. Path.GetInvalidFileNameChars()
-            // is platform-aware: on Windows it includes '\', '/' and ':'; on Unix it includes '/'.
-            if (string.IsNullOrEmpty(name) ||
-                name.Equals(".", StringComparison.Ordinal) ||
-                name.Equals("..", StringComparison.Ordinal) ||
-                name.IndexOfAny(InvalidLocalNameChars) >= 0)
+            if (string.IsNullOrEmpty(name) || name.IndexOfAny(InvalidLocalNameChars) >= 0)
             {
-                throw new ScpException($"The server sent a file or directory name (\"{name}\") that is not a valid local name.");
+                return null;
             }
+
+            var path = Path.GetFullPath(Path.Combine(directory, name));
+
+            if (!string.Equals(Path.GetDirectoryName(path), directory, PathHelpers.StringComparison) ||
+                !string.Equals(Path.GetFileName(path), name, PathHelpers.StringComparison))
+            {
+                return null;
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// Returns the full path of a local directory without a trailing directory separator, unless
+        /// the directory is a root.
+        /// </summary>
+        /// <param name="path">The path of the directory.</param>
+        /// <returns>The normalized full path.</returns>
+        internal static string NormalizeDirectory(string path)
+        {
+            var fullPath = Path.GetFullPath(path);
+            var root = Path.GetPathRoot(fullPath);
+
+            if (root is not null && fullPath.Length > root.Length)
+            {
+                fullPath = fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+
+            return fullPath;
+        }
+
+        [DoesNotReturn]
+        private void SendInvalidLocalNameErrorAndThrow(IChannel channel)
+        {
+            SendErrorConfirmation(channel, "File or directory name is not a valid local name.");
+
+            throw new ScpException("The server sent a file or directory name that is not a valid local name.");
         }
 
         /// <summary>
@@ -1044,8 +1093,8 @@ namespace Renci.SshNet
             var modifiedUtc = DateTime.UtcNow;
             var accessedUtc = modifiedUtc;
 
-            var startDirectoryFullName = directoryInfo.FullName;
-            var currentDirectoryFullName = startDirectoryFullName;
+            var destination = NormalizeDirectory(directoryInfo.FullName);
+            var currentDirectoryFullName = destination;
             var directoryCounter = 0;
 
             while (true)
@@ -1054,6 +1103,11 @@ namespace Renci.SshNet
 
                 if (message == "E")
                 {
+                    if (directoryCounter <= 0)
+                    {
+                        SendInvalidRecordErrorAndThrow(channel);
+                    }
+
                     SendSuccessConfirmation(channel); // Send reply
 
                     directoryCounter--;
@@ -1065,7 +1119,7 @@ namespace Renci.SshNet
 
                     var currentDirectoryParent = new DirectoryInfo(currentDirectoryFullName).Parent;
 
-                    Debug.Assert(currentDirectoryParent is not null, $"Should be {directoryCounter.ToString(CultureInfo.InvariantCulture)} levels deeper than {startDirectoryFullName}.");
+                    Debug.Assert(currentDirectoryParent is not null, $"Should be {directoryCounter.ToString(CultureInfo.InvariantCulture)} levels deeper than {destination}.");
 
                     currentDirectoryFullName = currentDirectoryParent.FullName;
 
@@ -1075,31 +1129,35 @@ namespace Renci.SshNet
                 var match = DirectoryInfoRegex.Match(message);
                 if (match.Success)
                 {
-                    SendSuccessConfirmation(channel); // Send reply
-
                     // Read directory
                     var filename = match.Result("${filename}");
 
-                    DirectoryInfo newDirectoryInfo;
                     if (directoryCounter > 0)
                     {
-                        // The server-supplied name is combined into a local path; ensure it
-                        // cannot escape the destination directory.
-                        EnsureValidLocalName(filename);
+                        var path = ResolveChild(currentDirectoryFullName, filename);
 
-                        newDirectoryInfo = Directory.CreateDirectory(Path.Combine(currentDirectoryFullName, filename));
+                        if (path is null)
+                        {
+                            SendInvalidLocalNameErrorAndThrow(channel);
+                        }
+
+                        SendSuccessConfirmation(channel); // Send reply
+
+                        var newDirectoryInfo = Directory.CreateDirectory(path);
                         newDirectoryInfo.LastAccessTimeUtc = accessedUtc;
                         newDirectoryInfo.LastWriteTimeUtc = modifiedUtc;
+
+                        currentDirectoryFullName = path;
                     }
                     else
                     {
+                        SendSuccessConfirmation(channel); // Send reply
+
                         // Don't create directory for first level
-                        newDirectoryInfo = directoryInfo;
+                        currentDirectoryFullName = destination;
                     }
 
                     directoryCounter++;
-
-                    currentDirectoryFullName = newDirectoryInfo.FullName;
                     continue;
                 }
 
@@ -1109,14 +1167,17 @@ namespace Renci.SshNet
                 {
                     var fileName = match.Result("${filename}");
 
+                    var path = ResolveChild(currentDirectoryFullName, fileName);
+
+                    if (path is null)
+                    {
+                        SendInvalidLocalNameErrorAndThrow(channel);
+                    }
+
+                    var fileInfo = new FileInfo(path);
+
                     // Read file
                     SendSuccessConfirmation(channel); //  Send reply
-
-                    // The server-supplied name is combined into a local path; ensure it
-                    // cannot escape the destination directory.
-                    EnsureValidLocalName(fileName);
-
-                    var fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
 
                     DownloadFileContent(channel, input, fileInfo, fileName, length, modifiedUtc, accessedUtc);
 
@@ -1140,6 +1201,32 @@ namespace Renci.SshNet
                 }
 
                 SendInvalidRecordErrorAndThrow(channel);
+            }
+        }
+
+        // https://github.com/dotnet/runtime/blob/a1115d3990ce45403dd80d96e39c43066e9ece65/src/libraries/Common/src/System/IO/PathInternal.CaseSensitivity.cs
+        private static class PathHelpers
+        {
+            internal static StringComparison StringComparison
+            {
+                get
+                {
+                    return IsCaseSensitive ?
+                        StringComparison.Ordinal :
+                        StringComparison.OrdinalIgnoreCase;
+                }
+            }
+
+            internal static bool IsCaseSensitive
+            {
+                get
+                {
+#if NET
+                    return !(OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS());
+#else
+                    return Path.DirectorySeparatorChar != '\\';
+#endif
+                }
             }
         }
     }

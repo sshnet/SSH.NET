@@ -2071,6 +2071,61 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         /// <summary>
+        /// A recursive download must never write outside of the destination directory when the
+        /// remote tree contains a directory named "...". It is an ordinary name on the (Linux)
+        /// server, but Windows path normalization resolves it to the current directory.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Download_DirectoryInfo_DirectoryNamedThreeDots_StaysInsideDestination()
+        {
+            var remoteDirectory = "/tmp/sshnet-scp-dots-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.CreateDirectory(remoteDirectory);
+                client.CreateDirectory(remoteDirectory + "/...");
+                client.WriteAllText(remoteDirectory + "/.../inner.txt", "inner");
+                client.WriteAllText(remoteDirectory + "/outer.txt", "outer");
+            }
+
+            var localRoot = Path.Combine(Path.GetTempPath(), "sshnet-scp-dots-" + Guid.NewGuid().ToString("N"));
+            var destination = Directory.CreateDirectory(Path.Combine(localRoot, "download"));
+
+            try
+            {
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+
+                    if (Path.DirectorySeparatorChar == '\\')
+                    {
+                        _ = Assert.ThrowsExactly<ScpException>(() => client.Download(remoteDirectory, destination));
+                    }
+                    else
+                    {
+                        client.Download(remoteDirectory, destination);
+                        Assert.AreEqual("inner", File.ReadAllText(Path.Combine(destination.FullName, "...", "inner.txt")));
+                        Assert.AreEqual("outer", File.ReadAllText(Path.Combine(destination.FullName, "outer.txt")));
+                    }
+                }
+
+                // Nothing should be written outside of the destination directory on any platform.
+                CollectionAssert.AreEqual(new[] { destination.FullName }, Directory.GetFileSystemEntries(localRoot));
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+
+                Directory.Delete(localRoot, recursive: true);
+            }
+        }
+
+        /// <summary>
         /// A file whose name contains the text of a D record must be downloaded as a file, with its
         /// content written verbatim rather than interpreted as SCP records.
         /// </summary>

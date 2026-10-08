@@ -86,6 +86,26 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void DownloadDirectoryInfo_EndDirectoryBeforeAnyDirectory_ShouldThrowScpException()
+        {
+            // Without the check, the E record would move the download to the parent of the destination,
+            // and the following file would overwrite the existing file there.
+            var existing = Path.Combine(DestinationParent, "existing.txt");
+            File.WriteAllText(existing, "original");
+
+            var transcript = new ScpServerTranscript()
+                .Line("E")
+                .File("existing.txt", "data");
+
+            var result = DownloadDirectory(transcript);
+
+            AssertRejected(result, expectedSuccessStatuses: 1);
+            Assert.AreEqual("original", File.ReadAllText(existing));
+            AssertNothingOutsideDestination(expectedOutside: "a/b/existing.txt");
+            Assert.IsEmpty(Directory.GetFileSystemEntries(Destination));
+        }
+
+        [TestMethod]
         [DataRow("Xjunk")]
         [DataRow("C0644 99999999999999999999 f")]
         [DataRow("T999999999999 0 1 0")]

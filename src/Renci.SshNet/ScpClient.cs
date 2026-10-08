@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -66,9 +67,9 @@ namespace Renci.SshNet
             "taking an IRemotePathTransformation which suits the escaping rules of the remote server and " +
             "the trust environment in which this code runs, and consider using SFTP where possible.";
 
-        private const string FileInfoPattern = @"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
-        private const string DirectoryInfoPattern = @"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)";
-        private const string TimestampPattern = @"T(?<mtime>\d+) 0 (?<atime>\d+) 0";
+        private const string FileInfoPattern = @"^C(?<mode>[0-7]{4}) (?<length>[0-9]+) (?<filename>.+)$";
+        private const string DirectoryInfoPattern = @"^D(?<mode>[0-7]{4}) (?<length>[0-9]+) (?<filename>.+)$";
+        private const string TimestampPattern = @"^T(?<mtime>[0-9]+) 0 (?<atime>[0-9]+) 0$";
 
 #if NET
         private static readonly Regex FileInfoRegex = GetFileInfoRegex();
@@ -489,7 +490,7 @@ namespace Renci.SshNet
         /// <param name="fileInfo">Local file information.</param>
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <see langword="null"/> or empty.</exception>
-        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
+        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file, or the server sent an invalid or unexpected SCP record.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, FileInfo fileInfo)
@@ -518,7 +519,41 @@ namespace Renci.SshNet
                 // Send reply
                 SendSuccessConfirmation(channel);
 
-                InternalDownload(channel, input, fileInfo);
+                var modifiedUtc = DateTime.UtcNow;
+                var accessedUtc = modifiedUtc;
+
+                var message = ReadString(input);
+
+                var match = TimestampRegex.Match(message);
+                if (match.Success)
+                {
+                    if (!long.TryParse(match.Result("${mtime}"), NumberStyles.None, CultureInfo.InvariantCulture, out var mtime) ||
+                        !long.TryParse(match.Result("${atime}"), NumberStyles.None, CultureInfo.InvariantCulture, out var atime) ||
+                        !TryFromUnixTimeSeconds(mtime, out modifiedUtc) ||
+                        !TryFromUnixTimeSeconds(atime, out accessedUtc))
+                    {
+                        SendInvalidRecordErrorAndThrow(channel);
+                    }
+
+                    SendSuccessConfirmation(channel);
+
+                    message = ReadString(input);
+                }
+
+                match = FileInfoRegex.Match(message);
+                if (match.Success &&
+                    long.TryParse(match.Result("${length}"), NumberStyles.None, CultureInfo.InvariantCulture, out var length))
+                {
+                    var fileName = match.Result("${filename}");
+
+                    SendSuccessConfirmation(channel);
+
+                    DownloadFileContent(channel, input, fileInfo, fileName, length, modifiedUtc, accessedUtc);
+                }
+                else
+                {
+                    SendInvalidRecordErrorAndThrow(channel);
+                }
             }
         }
 
@@ -529,7 +564,7 @@ namespace Renci.SshNet
         /// <param name="directoryInfo">Local directory information.</param>
         /// <exception cref="ArgumentException"><paramref name="directoryName"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host.</exception>
+        /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host, or the server sent an invalid or unexpected SCP record.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
@@ -558,7 +593,7 @@ namespace Renci.SshNet
                 // Send reply
                 SendSuccessConfirmation(channel);
 
-                InternalDownload(channel, input, directoryInfo);
+                DownloadDirectoryContent(channel, input, directoryInfo);
             }
         }
 
@@ -569,7 +604,7 @@ namespace Renci.SshNet
         /// <param name="destination">The <see cref="Stream"/> to download the remote file to.</param>
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <see langword="null"/> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
+        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file, or the server sent an invalid or unexpected SCP record.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Download(string filename, Stream destination)
@@ -600,19 +635,19 @@ namespace Renci.SshNet
                 var message = ReadString(input);
                 var match = FileInfoRegex.Match(message);
 
-                if (match.Success)
+                if (match.Success &&
+                    long.TryParse(match.Result("${length}"), NumberStyles.None, CultureInfo.InvariantCulture, out var length))
                 {
+                    var fileName = match.Result("${filename}");
+
                     // Read file
                     SendSuccessConfirmation(channel); //  Send reply
 
-                    var length = long.Parse(match.Result("${length}"), CultureInfo.InvariantCulture);
-                    var fileName = match.Result("${filename}");
-
-                    InternalDownload(channel, input, destination, fileName, length);
+                    DownloadFileContent(channel, input, destination, fileName, length);
                 }
                 else
                 {
-                    SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
+                    SendInvalidRecordErrorAndThrow(channel);
                 }
             }
         }
@@ -744,6 +779,34 @@ namespace Renci.SshNet
         private void SendData(IChannel channel, string command)
         {
             channel.SendData(ConnectionInfo.Encoding.GetBytes(command));
+        }
+
+        [DoesNotReturn]
+        private void SendInvalidRecordErrorAndThrow(IChannel channel)
+        {
+            SendErrorConfirmation(channel, "Invalid or unexpected SCP record.");
+
+            throw new ScpException("The server sent an invalid or unexpected SCP record.");
+        }
+
+        /// <summary>
+        /// Converts a number of seconds since the Unix epoch, as sent in a T record, to a <see cref="DateTime"/>.
+        /// </summary>
+        /// <param name="seconds">The number of seconds since the Unix epoch.</param>
+        /// <param name="dateTime">The time, in UTC, if <paramref name="seconds"/> can be represented.</param>
+        /// <returns><see langword="true"/> if <paramref name="seconds"/> can be represented as a <see cref="DateTime"/>; otherwise, <see langword="false"/>.</returns>
+        private static bool TryFromUnixTimeSeconds(long seconds, out DateTime dateTime)
+        {
+            try
+            {
+                dateTime = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime;
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                dateTime = default;
+                return false;
+            }
         }
 
         /// <summary>
@@ -909,7 +972,11 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalDownload(IChannel channel, Stream input, Stream output, string filename, long length)
+        /// <summary>
+        /// Downloads the content announced by a C record into a stream, and exchanges the confirmations
+        /// that follow it.
+        /// </summary>
+        private void DownloadFileContent(IChannel channel, Stream input, Stream output, string filename, long length)
         {
             var buffer = new byte[Math.Min(length, BufferSize)];
             var needToRead = length;
@@ -942,12 +1009,42 @@ namespace Renci.SshNet
             CheckReturnCode(input);
         }
 
-        private void InternalDownload(IChannelSession channel, Stream input, FileSystemInfo fileSystemInfo)
+        /// <summary>
+        /// Downloads the content announced by a C record into a local file, and applies the times.
+        /// </summary>
+        private void DownloadFileContent(
+            IChannelSession channel,
+            Stream input,
+            FileInfo fileInfo,
+            string fileName,
+            long length,
+            DateTime modifiedUtc,
+            DateTime accessedUtc)
         {
-            var modifiedTime = DateTime.Now;
-            var accessedTime = DateTime.Now;
+            Debug.Assert(modifiedUtc.Kind == DateTimeKind.Utc);
+            Debug.Assert(accessedUtc.Kind == DateTimeKind.Utc);
 
-            var startDirectoryFullName = fileSystemInfo.FullName;
+            using (var output = fileInfo.Open(FileMode.Create, FileAccess.Write))
+            {
+                DownloadFileContent(channel, input, output, fileName, length);
+            }
+
+            fileInfo.LastAccessTimeUtc = accessedUtc;
+            fileInfo.LastWriteTimeUtc = modifiedUtc;
+        }
+
+        /// <summary>
+        /// Downloads the records and content of a directory tree (<c>scp -prf</c>) into a local directory.
+        /// </summary>
+        /// <param name="channel">The channel to perform the download in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which the server's records and content are read.</param>
+        /// <param name="directoryInfo">The local directory to download into.</param>
+        private void DownloadDirectoryContent(IChannelSession channel, Stream input, DirectoryInfo directoryInfo)
+        {
+            var modifiedUtc = DateTime.UtcNow;
+            var accessedUtc = modifiedUtc;
+
+            var startDirectoryFullName = directoryInfo.FullName;
             var currentDirectoryFullName = startDirectoryFullName;
             var directoryCounter = 0;
 
@@ -991,13 +1088,13 @@ namespace Renci.SshNet
                         EnsureValidLocalName(filename);
 
                         newDirectoryInfo = Directory.CreateDirectory(Path.Combine(currentDirectoryFullName, filename));
-                        newDirectoryInfo.LastAccessTime = accessedTime;
-                        newDirectoryInfo.LastWriteTime = modifiedTime;
+                        newDirectoryInfo.LastAccessTimeUtc = accessedUtc;
+                        newDirectoryInfo.LastWriteTimeUtc = modifiedUtc;
                     }
                     else
                     {
                         // Don't create directory for first level
-                        newDirectoryInfo = (DirectoryInfo)fileSystemInfo;
+                        newDirectoryInfo = directoryInfo;
                     }
 
                     directoryCounter++;
@@ -1007,30 +1104,21 @@ namespace Renci.SshNet
                 }
 
                 match = FileInfoRegex.Match(message);
-                if (match.Success)
+                if (match.Success &&
+                    long.TryParse(match.Result("${length}"), NumberStyles.None, CultureInfo.InvariantCulture, out var length))
                 {
+                    var fileName = match.Result("${filename}");
+
                     // Read file
                     SendSuccessConfirmation(channel); //  Send reply
 
-                    var length = long.Parse(match.Result("${length}"), CultureInfo.InvariantCulture);
-                    var fileName = match.Result("${filename}");
+                    // The server-supplied name is combined into a local path; ensure it
+                    // cannot escape the destination directory.
+                    EnsureValidLocalName(fileName);
 
-                    if (fileSystemInfo is not FileInfo fileInfo)
-                    {
-                        // The server-supplied name is combined into a local path; ensure it
-                        // cannot escape the destination directory.
-                        EnsureValidLocalName(fileName);
+                    var fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
 
-                        fileInfo = new FileInfo(Path.Combine(currentDirectoryFullName, fileName));
-                    }
-
-                    using (var output = fileInfo.Open(FileMode.Create, FileAccess.Write))
-                    {
-                        InternalDownload(channel, input, output, fileName, length);
-                    }
-
-                    fileInfo.LastAccessTime = accessedTime;
-                    fileInfo.LastWriteTime = modifiedTime;
+                    DownloadFileContent(channel, input, fileInfo, fileName, length, modifiedUtc, accessedUtc);
 
                     if (directoryCounter == 0)
                     {
@@ -1041,21 +1129,17 @@ namespace Renci.SshNet
                 }
 
                 match = TimestampRegex.Match(message);
-                if (match.Success)
+                if (match.Success &&
+                    long.TryParse(match.Result("${mtime}"), NumberStyles.None, CultureInfo.InvariantCulture, out var mtime) &&
+                    long.TryParse(match.Result("${atime}"), NumberStyles.None, CultureInfo.InvariantCulture, out var atime) &&
+                    TryFromUnixTimeSeconds(mtime, out modifiedUtc) &&
+                    TryFromUnixTimeSeconds(atime, out accessedUtc))
                 {
-                    // Read timestamp
-                    SendSuccessConfirmation(channel); //  Send reply
-
-                    var mtime = long.Parse(match.Result("${mtime}"), CultureInfo.InvariantCulture);
-                    var atime = long.Parse(match.Result("${atime}"), CultureInfo.InvariantCulture);
-
-                    var zeroTime = DateTime.UnixEpoch;
-                    modifiedTime = zeroTime.AddSeconds(mtime);
-                    accessedTime = zeroTime.AddSeconds(atime);
+                    SendSuccessConfirmation(channel);
                     continue;
                 }
 
-                SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
+                SendInvalidRecordErrorAndThrow(channel);
             }
         }
     }

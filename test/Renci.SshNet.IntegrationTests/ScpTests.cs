@@ -2071,6 +2071,55 @@ namespace Renci.SshNet.IntegrationTests
         }
 
         /// <summary>
+        /// A file whose name contains the text of a D record must be downloaded as a file, with its
+        /// content written verbatim rather than interpreted as SCP records.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Download_DirectoryInfo_FileNameContainingRecordText_IsDownloadedAsFile()
+        {
+            const string FileName = "zD0755 0 x";
+            const string Content = "E\nC0644 8 injected.txt\ninjected";
+
+            var remoteDirectory = "/tmp/sshnet-scp-records-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.CreateDirectory(remoteDirectory);
+                client.WriteAllText(remoteDirectory + "/" + FileName, Content);
+            }
+
+            var localRoot = Path.Combine(Path.GetTempPath(), "sshnet-scp-records-" + Guid.NewGuid().ToString("N"));
+            var destination = Directory.CreateDirectory(Path.Combine(localRoot, "download"));
+
+            try
+            {
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+                    client.Download(remoteDirectory, destination);
+                }
+
+                var filePath = Path.Combine(destination.FullName, FileName);
+
+                CollectionAssert.AreEquivalent(
+                    new[] { destination.FullName, filePath },
+                    Directory.GetFileSystemEntries(localRoot, "*", SearchOption.AllDirectories));
+                Assert.AreEqual(Content, File.ReadAllText(filePath));
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+
+                Directory.Delete(localRoot, recursive: true);
+            }
+        }
+
+        /// <summary>
         /// A line feed in the file name part of the upload path must not be sent in the C record. It would
         /// end the record early: the server reads the rest of the name as the start of the file content,
         /// and content crafted to match is then read as further records, creating another file.

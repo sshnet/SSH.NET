@@ -20,6 +20,24 @@ namespace Renci.SshNet.Sftp
         public SftpFileAttributes Attributes { get; private set; }
 
         /// <summary>
+        /// Gets the "longname" that the server sent for this file in a directory listing.
+        /// </summary>
+        /// <value>
+        /// A line in the style of the output of <c>ls -l</c>, such as
+        /// <c>-rw-r--r--    1 owner    group        1024 Oct  9 14:31 file.txt</c>, which servers commonly use to show
+        /// the names of the owner and the group; or <see langword="null"/> if the server did not send one (SFTP
+        /// protocol version 4 and later) or if this instance was not obtained from a directory listing.
+        /// </value>
+        /// <remarks>
+        /// The SFTP protocol does not specify the format of this line: it is meant to be displayed to users. Use
+        /// <see cref="Attributes"/> for the attributes of the file.
+        /// </remarks>
+        public string LongName
+        {
+            get { return Attributes.LongName; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SftpFile"/> class.
         /// </summary>
         /// <param name="sftpSession">The SFTP session.</param>

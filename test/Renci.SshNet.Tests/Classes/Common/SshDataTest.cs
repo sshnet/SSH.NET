@@ -102,23 +102,15 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        public void ReadBytes_Length_LengthIsGreaterThanNumberOfBytesAvailable()
+        [DataRow(4)]
+        [DataRow(int.MaxValue)]
+        public void ReadBytes_Length_LengthIsGreaterThanNumberOfBytesAvailable(int length)
         {
             MySshData sshData = new MySshData();
 
             sshData.Load(new byte[] { 0x01, 0x0d, 0x0a }, 0, 3);
 
-            try
-            {
-                sshData.ReadBytes(4);
-                Assert.Fail();
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                Assert.AreEqual(typeof(ArgumentOutOfRangeException), ex.GetType());
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("length", ex.ParamName);
-            }
+            Assert.Throws<ArgumentException>(() => sshData.ReadBytes(length));
         }
 
         [TestMethod]

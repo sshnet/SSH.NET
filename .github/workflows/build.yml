@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read
 
+env:
+  DOTNET_TARGET_FRAMEWORK: net11.0
+
 jobs:
   Linux:
     runs-on: ubuntu-24.04
@@ -27,15 +30,15 @@ jobs:
       uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net10.0 test/Renci.SshNet.Tests/
+      run: dotnet build -f $DOTNET_TARGET_FRAMEWORK test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net10.0 test/Renci.SshNet.IntegrationTests/
+      run: dotnet build -f $DOTNET_TARGET_FRAMEWORK test/Renci.SshNet.IntegrationTests/
 
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
-          -f net10.0 \
+          -f $DOTNET_TARGET_FRAMEWORK \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
@@ -47,7 +50,7 @@ jobs:
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
-          -f net10.0 \
+          -f $DOTNET_TARGET_FRAMEWORK \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
@@ -92,7 +95,7 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test `
-          -f net10.0 `
+          -f $DOTNET_TARGET_FRAMEWORK `
           --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
@@ -145,16 +148,7 @@ jobs:
           -f net48 `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
-          -p:CollectCoverage=true `
-          -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_4_8_coverage.xml `
           test\Renci.SshNet.IntegrationTests\
-
-    - name: Archive Coverlet Results
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: Coverlet Results Windows .NET Framework
-        path: coverlet
 
   Windows-Integration-Tests-Net:
     name: Windows Integration Tests .NET
@@ -185,7 +179,7 @@ jobs:
     - name: Run Integration Tests .NET
       run:
         dotnet test `
-          -f net10.0 `
+          -f $env:DOTNET_TARGET_FRAMEWORK `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `

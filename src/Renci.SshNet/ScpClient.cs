@@ -72,18 +72,14 @@ namespace Renci.SshNet
         private const string TimestampPattern = @"^T(?<mtime>[0-9]+) 0 (?<atime>[0-9]+) 0$";
 
 #if NET
-        private static readonly Regex FileInfoRegex = GetFileInfoRegex();
-        private static readonly Regex DirectoryInfoRegex = GetDirectoryInfoRegex();
-        private static readonly Regex TimestampRegex = GetTimestampRegex();
-
         [GeneratedRegex(FileInfoPattern)]
-        private static partial Regex GetFileInfoRegex();
+        private static partial Regex FileInfoRegex { get; }
 
         [GeneratedRegex(DirectoryInfoPattern)]
-        private static partial Regex GetDirectoryInfoRegex();
+        private static partial Regex DirectoryInfoRegex { get; }
 
         [GeneratedRegex(TimestampPattern)]
-        private static partial Regex GetTimestampRegex();
+        private static partial Regex TimestampRegex { get; }
 #else
         private static readonly Regex FileInfoRegex = new Regex(FileInfoPattern, RegexOptions.Compiled);
         private static readonly Regex DirectoryInfoRegex = new Regex(DirectoryInfoPattern, RegexOptions.Compiled);

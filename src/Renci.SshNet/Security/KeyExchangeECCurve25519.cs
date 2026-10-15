@@ -8,10 +8,10 @@ namespace Renci.SshNet.Security
     internal partial class KeyExchangeECCurve25519 : KeyExchangeEC
     {
 #pragma warning disable SA1401 // Fields should be private
-#if NET
-        protected Impl _impl;
-#else
+#if NETSTANDARD
         protected BouncyCastleImpl _impl;
+#else
+        protected Impl _impl;
 #endif
 #pragma warning restore SA1401 // Fields should be private
 
@@ -38,8 +38,14 @@ namespace Renci.SshNet.Security
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             base.Start(session, message, sendClientInitMessage);
-#if NET
+#if NET && !NET11_0_OR_GREATER
             if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
+            {
+                _impl = new BclImpl();
+            }
+            else
+#elif NETFRAMEWORK || NET11_0_OR_GREATER
+            if (X25519DiffieHellman.IsSupported)
             {
                 _impl = new BclImpl();
             }

@@ -11,7 +11,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Meziantou.Analyzer" Version="3.0.125" />
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="11.0.0-preview.7.26381.103" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.10" />
     <PackageVersion Include="MSTest" Version="4.3.3" />

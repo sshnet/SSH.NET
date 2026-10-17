@@ -272,10 +272,8 @@ namespace Renci.SshNet.Security
 
         /// <summary>
         /// Selects the first algorithm in <paramref name="clientAlgorithms"/> (in client preference order) that is
-        /// also present in <paramref name="serverAlgorithms"/>, using an explicit ordinal comparison instead of
-        /// LINQ's default equality comparison. This avoids relying on culture-sensitive string comparison behavior
-        /// that can differ across runtimes (for example, some Mono-based environments), which could otherwise cause
-        /// algorithm negotiation to fail or select an unexpected algorithm.
+        /// also present in <paramref name="serverAlgorithms"/>. Explicit loops retain the existing
+        /// client preference order and use ordinal equality for SSH algorithm identifiers.
         /// </summary>
         /// <param name="clientAlgorithms">The algorithms supported by the client, in preference order.</param>
         /// <param name="serverAlgorithms">The algorithms offered by the server.</param>

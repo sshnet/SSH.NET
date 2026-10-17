@@ -174,8 +174,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
         {
-            base.OnOpenFailure(reasonCode, description, language);
-
             if (OnOpenFailureException != null)
             {
                 throw OnOpenFailureException;

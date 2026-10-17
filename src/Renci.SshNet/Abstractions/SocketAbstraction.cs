@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -86,37 +86,6 @@ namespace Renci.SshNet.Abstractions
 
             // dispose SocketAsyncEventArgs
             args.Dispose();
-        }
-
-        public static void ClearReadBuffer(Socket socket)
-        {
-            var timeout = TimeSpan.FromMilliseconds(500);
-            var buffer = new byte[256];
-            int bytesReceived;
-
-            do
-            {
-                bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, timeout);
-            }
-            while (bytesReceived > 0);
-        }
-
-        public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
-        {
-            // Socket.ReceiveTimeout (SO_RCVTIMEO) is not reliably enforced on Mono-derived runtimes
-            // when the TCP handshake completes but the remote peer subsequently stops responding
-            // without sending a RST/FIN (no exception is thrown and the blocking Receive call can
-            // hang indefinitely). Socket.Poll's timeout is honored via a plain select()/poll() system
-            // call, which is far more consistently implemented, so use a poll-based deadline loop
-            // instead of depending on the receive timeout socket option.
-            if (!PollWithDeadline(socket, timeout, out var _))
-            {
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                                                                     "Socket read operation has timed out after {0:F0} milliseconds.",
-                                                                     timeout.TotalMilliseconds));
-            }
-
-            return socket.Receive(buffer, offset, size, SocketFlags.None);
         }
 
         public static void ReadContinuous(Socket socket, byte[] buffer, int offset, int size, Action<byte[], int, int> processReceivedBytesAction)
@@ -245,10 +214,13 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            // See the remarks on ReadPartial: rely on Socket.Poll's deadline rather than
-            // Socket.ReceiveTimeout, which is not consistently enforced on Mono-derived runtimes
-            // when the remote peer goes silent after the TCP handshake completes.
+            // Use a polling deadline because Mono may report a receive timeout as WouldBlock,
+            // which the resumable-error handling below would otherwise keep retrying.
             //
+            // Preserve Socket.ReceiveTimeout's zero and infinite values, as well as its
+            // validation and millisecond conversion, before accessing the socket.
+            var timeoutMilliseconds = readTimeout.AsTimeout();
+
             // Timeout.InfiniteTimeSpan (-1 ms) means "wait forever" and must NOT be added to
             // DateTime.UtcNow: doing so produces a deadline already in the past (UtcNow - 1ms),
             // which makes the very first non-blocking poll below spuriously throw an
@@ -256,8 +228,8 @@ namespace Renci.SshNet.Abstractions
             // is not already available at that exact instant, even though the caller asked to
             // wait indefinitely. Skip deadline tracking entirely in that case and let
             // PollWithDeadline block forever on each iteration.
-            var isInfiniteTimeout = readTimeout == Timeout.InfiniteTimeSpan;
-            var deadlineUtc = isInfiniteTimeout ? DateTime.MaxValue : DateTime.UtcNow + readTimeout;
+            var isInfiniteTimeout = timeoutMilliseconds <= 0;
+            var deadlineUtc = isInfiniteTimeout ? DateTime.MaxValue : DateTime.UtcNow + TimeSpan.FromMilliseconds(timeoutMilliseconds);
 
             do
             {

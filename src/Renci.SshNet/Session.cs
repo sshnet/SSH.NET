@@ -418,31 +418,6 @@ namespace Renci.SshNet
         internal event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
 
         /// <summary>
-        /// Occurs when <see cref="IgnoreMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="UnimplementedMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="DebugMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="ServiceRequestMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="ServiceAcceptMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
-
-        /// <summary>
         /// Occurs when <see cref="KeyExchangeInitMessage"/> message received
         /// </summary>
         internal event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
@@ -461,16 +436,6 @@ namespace Renci.SshNet
         /// Occurs when a <see cref="KeyExchangeHybridReplyMessage"/> message is received from the SSH server.
         /// </summary>
         internal event EventHandler<MessageEventArgs<KeyExchangeHybridReplyMessage>> KeyExchangeHybridReplyMessageReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="NewKeysMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
-
-        /// <summary>
-        /// Occurs when <see cref="RequestMessage"/> message received
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="FailureMessage"/> message received
@@ -1362,6 +1327,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var numberOfBytesToDecrypt = 4 + packetLength - blockSize;
@@ -1409,6 +1379,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var paddingLength = _receiveBuffer.ActiveReadOnlySpan[packetLengthFieldLength];
@@ -1479,49 +1454,10 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Called when <see cref="IgnoreMessage"/> received.
-        /// </summary>
-        /// <param name="message"><see cref="IgnoreMessage"/> message.</param>
-        internal void OnIgnoreReceived(IgnoreMessage message)
-        {
-            IgnoreReceived?.Invoke(this, new MessageEventArgs<IgnoreMessage>(message));
-        }
-
-        /// <summary>
-        /// Called when <see cref="UnimplementedMessage"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="UnimplementedMessage"/> message.</param>
-        internal void OnUnimplementedReceived(UnimplementedMessage message)
-        {
-            UnimplementedReceived?.Invoke(this, new MessageEventArgs<UnimplementedMessage>(message));
-        }
-
-        /// <summary>
-        /// Called when <see cref="DebugMessage"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="DebugMessage"/> message.</param>
-        internal void OnDebugReceived(DebugMessage message)
-        {
-            DebugReceived?.Invoke(this, new MessageEventArgs<DebugMessage>(message));
-        }
-
-        /// <summary>
-        /// Called when <see cref="ServiceRequestMessage"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="ServiceRequestMessage"/> message.</param>
-        internal void OnServiceRequestReceived(ServiceRequestMessage message)
-        {
-            ServiceRequestReceived?.Invoke(this, new MessageEventArgs<ServiceRequestMessage>(message));
-        }
-
-        /// <summary>
         /// Called when <see cref="ServiceAcceptMessage"/> message received.
         /// </summary>
-        /// <param name="message"><see cref="ServiceAcceptMessage"/> message.</param>
-        internal void OnServiceAcceptReceived(ServiceAcceptMessage message)
+        internal void OnServiceAcceptReceived()
         {
-            ServiceAcceptReceived?.Invoke(this, new MessageEventArgs<ServiceAcceptMessage>(message));
-
             _ = _serviceAccepted.Set();
         }
 
@@ -1661,8 +1597,6 @@ namespace Renci.SshNet
                 InboundPacketSequence = 0;
             }
 
-            NewKeysReceived?.Invoke(this, new MessageEventArgs<NewKeysMessage>(message));
-
             // Signal that key exchange completed
             _keyExchangeCompletedWaitHandle.Set();
         }
@@ -1673,15 +1607,6 @@ namespace Renci.SshNet
         void ISession.OnDisconnecting()
         {
             _isDisconnecting = true;
-        }
-
-        /// <summary>
-        /// Called when <see cref="RequestMessage"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="RequestMessage"/> message.</param>
-        internal void OnUserAuthenticationRequestReceived(RequestMessage message)
-        {
-            UserAuthenticationRequestReceived?.Invoke(this, new MessageEventArgs<RequestMessage>(message));
         }
 
         /// <summary>

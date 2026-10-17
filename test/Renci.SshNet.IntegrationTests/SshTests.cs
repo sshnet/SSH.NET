@@ -789,7 +789,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             const string hostsFile = "/etc/hosts";
 
-            using (var client = new ScpClient(linuxAdminConnectionFactory.Create()))
+            using (var client = new ScpClient(linuxAdminConnectionFactory.Create(), RemotePathTransformation.ShellQuote))
             {
                 client.Connect();
 
@@ -876,7 +876,7 @@ namespace Renci.SshNet.IntegrationTests
         {
             const string hostsFile = "/etc/hosts";
 
-            using (var client = new ScpClient(linuxAdminConnectionFactory.Create()))
+            using (var client = new ScpClient(linuxAdminConnectionFactory.Create(), RemotePathTransformation.ShellQuote))
             {
                 client.Connect();
 

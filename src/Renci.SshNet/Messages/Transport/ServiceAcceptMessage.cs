@@ -53,7 +53,7 @@ namespace Renci.SshNet.Messages.Transport
 
         internal override void Process(Session session)
         {
-            session.OnServiceAcceptReceived(this);
+            session.OnServiceAcceptReceived();
         }
     }
 }

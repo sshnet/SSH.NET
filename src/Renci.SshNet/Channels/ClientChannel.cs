@@ -22,16 +22,6 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> is received.
-        /// </summary>
-        public event EventHandler<ChannelOpenConfirmedEventArgs> OpenConfirmed;
-
-        /// <summary>
-        /// Occurs when <see cref="ChannelOpenFailureMessage"/> is received.
-        /// </summary>
-        public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
-
-        /// <summary>
         /// Called when channel is opened by the server.
         /// </summary>
         /// <param name="remoteChannelNumber">The remote channel number.</param>
@@ -43,8 +33,6 @@ namespace Renci.SshNet.Channels
 
             // Channel is consider to be open when confirmation message was received
             IsOpen = true;
-
-            OpenConfirmed?.Invoke(this, new ChannelOpenConfirmedEventArgs(remoteChannelNumber, initialWindowSize, maximumPacketSize));
         }
 
         /// <summary>
@@ -65,10 +53,7 @@ namespace Renci.SshNet.Channels
         /// <param name="reasonCode">The reason code.</param>
         /// <param name="description">The description.</param>
         /// <param name="language">The language.</param>
-        protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
-        {
-            OpenFailed?.Invoke(this, new ChannelOpenFailedEventArgs(LocalChannelNumber, reasonCode, description, language));
-        }
+        protected abstract void OnOpenFailure(uint reasonCode, string description, string language);
 
         private void OnChannelOpenConfirmation(object sender, MessageEventArgs<ChannelOpenConfirmationMessage> e)
         {

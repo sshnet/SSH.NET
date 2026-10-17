@@ -2,6 +2,8 @@
 
 using Renci.SshNet.Common;
 
+#pragma warning disable CS0618 // These SCP tests use the obsolete default-transformation constructors.
+
 namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 {
     /// <summary>
@@ -309,7 +311,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 for (var i = 0; i < hash.Length; i++)
                 {
-                    _ = sb.Append(i.ToString("x2"));
+                    _ = sb.Append(hash[i].ToString("x2"));
                 }
 
                 return sb.ToString();

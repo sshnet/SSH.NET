@@ -29,6 +29,11 @@ namespace System
             {
                 return text.IndexOf(value.ToString(), comparisonType);
             }
+
+            public bool Contains(char value)
+            {
+                return text.IndexOf(value) >= 0;
+            }
 #endif
         }
     }

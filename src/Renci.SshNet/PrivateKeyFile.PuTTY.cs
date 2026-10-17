@@ -175,7 +175,7 @@ namespace Renci.SshNet
                         var curve = publicKeyReader.ReadString(Encoding.ASCII);
                         var pub = publicKeyReader.ReadBinary();
                         var prv = privateKeyReader.ReadBinary();
-                        parsedKey = new EcdsaKey(curve, pub, prv);
+                        parsedKey = new EcdsaKey(curve, pub, prv.TrimLeadingZeros());
                         break;
                     case "ssh-rsa":
                         var exponent = publicKeyReader.ReadBigInt();

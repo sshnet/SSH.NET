@@ -47,9 +47,6 @@ namespace Renci.SshNet.Connection
             {
                 SocketAbstraction.Connect(socket, endPoint, timeout);
 
-                const int socketBufferSize = 10 * Session.MaximumSshPacketSize;
-                socket.SendBufferSize = socketBufferSize;
-                socket.ReceiveBufferSize = socketBufferSize;
                 return socket;
             }
             catch (Exception)
@@ -77,9 +74,6 @@ namespace Renci.SshNet.Connection
             {
                 await SocketAbstraction.ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
 
-                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
-                socket.SendBufferSize = socketBufferSize;
-                socket.ReceiveBufferSize = socketBufferSize;
                 return socket;
             }
             catch (Exception)

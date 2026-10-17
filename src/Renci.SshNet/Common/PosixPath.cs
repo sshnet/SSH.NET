@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace Renci.SshNet.Common
 {
@@ -7,8 +8,10 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal sealed class PosixPath
     {
-        private PosixPath()
+        private PosixPath(string directory, string? file)
         {
+            Directory = directory;
+            File = file;
         }
 
         /// <summary>
@@ -17,7 +20,7 @@ namespace Renci.SshNet.Common
         /// <value>
         /// The directory of the path.
         /// </value>
-        public string Directory { get; private set; }
+        public string Directory { get; }
 
         /// <summary>
         /// Gets the file part of the path.
@@ -25,7 +28,7 @@ namespace Renci.SshNet.Common
         /// <value>
         /// The file part of the path, or <see langword="null"/> if the path represents a directory.
         /// </value>
-        public string File { get; private set; }
+        public string? File { get; }
 
         /// <summary>
         /// Create a <see cref="PosixPath"/> from the specified path.
@@ -40,7 +43,8 @@ namespace Renci.SshNet.Common
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            var posixPath = new PosixPath();
+            string directory;
+            string? file = null;
 
             var pathEnd = path.LastIndexOf('/');
             if (pathEnd == -1)
@@ -50,27 +54,28 @@ namespace Renci.SshNet.Common
                     throw new ArgumentException("The path is a zero-length string.", nameof(path));
                 }
 
-                posixPath.Directory = ".";
-                posixPath.File = path;
+                directory = ".";
+                file = path;
             }
             else if (pathEnd == 0)
             {
-                posixPath.Directory = "/";
+                directory = "/";
+
                 if (path.Length > 1)
                 {
-                    posixPath.File = path.Substring(pathEnd + 1);
+                    file = path.Substring(pathEnd + 1);
                 }
             }
             else
             {
-                posixPath.Directory = path.Substring(0, pathEnd);
+                directory = path.Substring(0, pathEnd);
                 if (pathEnd < path.Length - 1)
                 {
-                    posixPath.File = path.Substring(pathEnd + 1);
+                    file = path.Substring(pathEnd + 1);
                 }
             }
 
-            return posixPath;
+            return new PosixPath(directory, file);
         }
 
         /// <summary>
@@ -87,7 +92,7 @@ namespace Renci.SshNet.Common
         /// is returned.
         /// </para>
         /// <para>
-        /// If path has a trailing slash, <see cref="GetFileName(string)"/> return a zero-length string.
+        /// If path has a trailing slash, <see cref="GetFileName(string)"/> returns a zero-length string.
         /// </para>
         /// </remarks>
         public static string GetFileName(string path)

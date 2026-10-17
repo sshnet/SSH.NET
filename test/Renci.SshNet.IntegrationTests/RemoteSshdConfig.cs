@@ -16,7 +16,7 @@ namespace Renci.SshNet.IntegrationTests
             _remoteSshd = remoteSshd;
             _connectionInfoFactory = connectionInfoFactory;
 
-            using (var client = new ScpClient(_connectionInfoFactory.Create()))
+            using (var client = new ScpClient(_connectionInfoFactory.Create(), RemotePathTransformation.ShellQuote))
             {
                 client.Connect();
 
@@ -213,7 +213,7 @@ namespace Renci.SshNet.IntegrationTests
 
         public RemoteSshd Update()
         {
-            using (var client = new ScpClient(_connectionInfoFactory.Create()))
+            using (var client = new ScpClient(_connectionInfoFactory.Create(), RemotePathTransformation.ShellQuote))
             {
                 client.Connect();
 

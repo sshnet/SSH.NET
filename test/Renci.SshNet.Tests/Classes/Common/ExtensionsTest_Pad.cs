@@ -12,7 +12,9 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             byte[] value = { 0x0a, 0x0d };
             var padded = value.Pad(2);
+#pragma warning disable MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.AreEqual(value, padded);
+#pragma warning restore MSTEST0065 // Avoid Assert.AreEqual on collection types
             Assert.HasCount(value.Length, padded);
         }
 

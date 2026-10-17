@@ -192,6 +192,9 @@ dotnet_diagnostic.MA0040.severity = none
 # duplicate of CA1849
 dotnet_diagnostic.MA0042.severity = none
 
+# S1133: Deprecated code should be removed
+dotnet_diagnostic.S1133.severity = suggestion
+
 # S3236: Caller information arguments should not be provided explicitly
 dotnet_diagnostic.S3236.severity = none
 

@@ -311,7 +311,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 for (var i = 0; i < hash.Length; i++)
                 {
-                    _ = sb.Append(i.ToString("x2"));
+                    _ = sb.Append(hash[i].ToString("x2"));
                 }
 
                 return sb.ToString();

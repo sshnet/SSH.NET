@@ -404,7 +404,10 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.AreEqual(typeof(SshConnectionException), errorOccurred.GetType());
                 Assert.IsNull(errorOccurred.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", errorOccurred.Message);
-                Assert.IsFalse(client.IsConnected);
+
+                // ErrorOccurred is raised on the message listener thread before the session disconnects,
+                // so IsConnected may still be true for a moment after it is signaled.
+                Assert.IsTrue(SpinWait.SpinUntil(() => !client.IsConnected, TimeSpan.FromSeconds(5)));
             }
         }
 

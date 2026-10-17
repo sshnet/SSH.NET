@@ -570,6 +570,16 @@ namespace Renci.SshNet.Sftp
 
         internal uint Permissions { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the "longname" that the server sent with these attributes in an SSH_FXP_NAME response, or
+        /// <see langword="null"/> if it sent none.
+        /// </summary>
+        /// <remarks>
+        /// It is not part of the attributes on the wire: it is kept here so that it reaches the <see cref="SftpFile"/>
+        /// created from a directory listing.
+        /// </remarks>
+        internal string? LongName { get; set; }
+
         internal SftpFileAttributes(DateTime lastAccessTimeUtc, DateTime lastWriteTimeUtc, long size, int userId, int groupId, uint permissions, Dictionary<string, string>? extensions)
         {
             LastAccessTimeUtc = _originalLastAccessTimeUtc = lastAccessTimeUtc;

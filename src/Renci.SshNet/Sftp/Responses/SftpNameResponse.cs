@@ -34,12 +34,15 @@ namespace Renci.SshNet.Sftp.Responses
             for (var i = 0; i < Count; i++)
             {
                 var fileName = ReadString(Encoding);
+                string longName = null;
                 if (SupportsLongName(ProtocolVersion))
                 {
-                    _ = ReadString(Encoding); // skip longname
+                    longName = ReadString(Encoding);
                 }
 
-                Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, ReadAttributes());
+                var attributes = ReadAttributes();
+                attributes.LongName = longName;
+                Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, attributes);
             }
         }
 
@@ -57,7 +60,7 @@ namespace Renci.SshNet.Sftp.Responses
 
                 if (SupportsLongName(ProtocolVersion))
                 {
-                    Write(0U); // longname
+                    Write(file.Value.LongName ?? string.Empty, Encoding); // longname
                 }
 
                 Write(file.Value.GetBytes()); // attrs

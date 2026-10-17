@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp.Responses
 {
@@ -29,6 +32,13 @@ namespace Renci.SshNet.Sftp.Responses
             base.LoadData();
 
             Count = ReadUInt32();
+
+            // Each entry is at least two uints in size.
+            if (Count > (DataStream.Length - DataStream.Position) / 8)
+            {
+                throw new SshException(string.Format(CultureInfo.InvariantCulture, "Invalid SSH_FXP_NAME count: {0}.", Count));
+            }
+
             Files = new KeyValuePair<string, SftpFileAttributes>[Count];
 
             for (var i = 0; i < Count; i++)

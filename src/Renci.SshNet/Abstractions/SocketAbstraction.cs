@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -214,10 +214,38 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
-            socket.ReceiveTimeout = readTimeout.AsTimeout();
+            // Use a polling deadline because Mono may report a receive timeout as WouldBlock,
+            // which the resumable-error handling below would otherwise keep retrying.
+            //
+            // Preserve Socket.ReceiveTimeout's zero and infinite values, as well as its
+            // validation and millisecond conversion, before accessing the socket.
+            var timeoutMilliseconds = readTimeout.AsTimeout();
+
+            // Timeout.InfiniteTimeSpan (-1 ms) means "wait forever" and must NOT be added to
+            // DateTime.UtcNow: doing so produces a deadline already in the past (UtcNow - 1ms),
+            // which makes the very first non-blocking poll below spuriously throw an
+            // SshOperationTimeoutException ("...timed out after -1 milliseconds") whenever data
+            // is not already available at that exact instant, even though the caller asked to
+            // wait indefinitely. Skip deadline tracking entirely in that case and let
+            // PollWithDeadline block forever on each iteration.
+            var isInfiniteTimeout = timeoutMilliseconds <= 0;
+            var deadlineUtc = isInfiniteTimeout ? DateTime.MaxValue : DateTime.UtcNow + TimeSpan.FromMilliseconds(timeoutMilliseconds);
 
             do
             {
+                var remaining = isInfiniteTimeout ? Timeout.InfiniteTimeSpan : deadlineUtc - DateTime.UtcNow;
+                if (!isInfiniteTimeout && remaining < TimeSpan.Zero)
+                {
+                    remaining = TimeSpan.Zero;
+                }
+
+                if (!PollWithDeadline(socket, remaining, out var _))
+                {
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                                                           "Socket read operation has timed out after {0:F0} milliseconds.",
+                                                           readTimeout.TotalMilliseconds));
+                }
+
                 try
                 {
                     var bytesRead = socket.Receive(buffer, offset + totalBytesRead, totalBytesToRead - totalBytesRead, SocketFlags.None);
@@ -249,6 +277,69 @@ namespace Renci.SshNet.Abstractions
             while (totalBytesRead < totalBytesToRead);
 
             return totalBytesRead;
+        }
+
+        /// <summary>
+        /// Waits, using <see cref="Socket.Poll(int, SelectMode)"/>, until the specified <see cref="Socket"/>
+        /// has data available to read or the specified <paramref name="timeout"/> elapses.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to poll.</param>
+        /// <param name="timeout">The maximum time to wait for data to become available.</param>
+        /// <param name="remaining">The time remaining in <paramref name="timeout"/> when data became available.</param>
+        /// <returns>
+        /// <see langword="true"/> if data is available to read (or the connection was closed by the
+        /// remote host) before <paramref name="timeout"/> elapses; otherwise, <see langword="false"/>.
+        /// </returns>
+        /// <remarks>
+        /// Unlike <see cref="Socket.ReceiveTimeout"/>, which is enforced differently (and, on some
+        /// runtimes, unreliably) across platforms, <see cref="Socket.Poll(int, SelectMode)"/> maps
+        /// directly onto the underlying select()/poll() system call and consistently unblocks when
+        /// its timeout elapses, even if the remote peer never sends any data and never resets or
+        /// closes the connection.
+        /// </remarks>
+        private static bool PollWithDeadline(Socket socket, TimeSpan timeout, out TimeSpan remaining)
+        {
+            // Timeout.InfiniteTimeSpan (-1 ms) means "wait forever" and must NOT be added to
+            // DateTime.UtcNow below: doing so produces a deadline that is already in the past
+            // (UtcNow - 1ms), so the very first non-blocking Socket.Poll(0, ...) call that does not
+            // immediately find data available would incorrectly be treated as an expired deadline
+            // and spuriously throw an SshOperationTimeoutException ("...timed out after -1
+            // milliseconds") even though the caller asked to wait indefinitely. Poll with an actual
+            // infinite/blocking wait (-1 microseconds) instead in that case.
+            if (timeout == Timeout.InfiniteTimeSpan)
+            {
+                _ = socket.Poll(-1, SelectMode.SelectRead);
+                remaining = Timeout.InfiniteTimeSpan;
+                return true;
+            }
+
+            var deadlineUtc = DateTime.UtcNow + timeout;
+
+            while (true)
+            {
+                var timeUntilDeadline = deadlineUtc - DateTime.UtcNow;
+                if (timeUntilDeadline < TimeSpan.Zero)
+                {
+                    timeUntilDeadline = TimeSpan.Zero;
+                }
+
+                // Socket.Poll caps its microseconds parameter at int.MaxValue; clamp accordingly
+                // instead of overflowing when timeUntilDeadline is very large (e.g. Timeout.InfiniteTimeSpan).
+                var microseconds = timeUntilDeadline.TotalMilliseconds * 1000d;
+                var pollMicroseconds = microseconds >= int.MaxValue ? int.MaxValue : (int)microseconds;
+
+                if (socket.Poll(pollMicroseconds, SelectMode.SelectRead))
+                {
+                    remaining = deadlineUtc - DateTime.UtcNow;
+                    return true;
+                }
+
+                if (DateTime.UtcNow >= deadlineUtc)
+                {
+                    remaining = TimeSpan.Zero;
+                    return false;
+                }
+            }
         }
 
 #if !NET

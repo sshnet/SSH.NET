@@ -6,22 +6,22 @@
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
-    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
-    <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="coverlet.msbuild" Version="10.1.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
-    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.290" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.303" />
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.12" />
-    <PackageVersion Include="MSTest" Version="4.4.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.13" />
+    <PackageVersion Include="MSTest" Version="4.5.1" />
     <PackageVersion Include="Moq" Version="4.21.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.94" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.34.0.3385" />
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.35.0.4138" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <!-- Should stay on LTS .NET releases. -->
-    <PackageVersion Include="System.Formats.Asn1" Version="10.0.12" />
-    <PackageVersion Include="Testcontainers" Version="4.15.0" />
+    <PackageVersion Include="System.Formats.Asn1" Version="10.0.13" />
+    <PackageVersion Include="Testcontainers" Version="4.16.0" />
   </ItemGroup>
 </Project>

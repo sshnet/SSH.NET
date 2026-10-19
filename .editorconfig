@@ -32,6 +32,9 @@ dotnet_diagnostic.S101.severity = none
 # This is a duplicate of CA2201 and MA0012.
 dotnet_diagnostic.S112.severity = none
 
+# S125: Remove this commented out code
+dotnet_diagnostic.S125.severity = silent
+
 # S127: "for" loop stop conditions should be invariant
 # https://rules.sonarsource.com/csharp/RSPEC-127
 #
@@ -324,6 +327,23 @@ dotnet_diagnostic.S4487.severity = none
 # This is a partial duplicate of MA0067, and we do not want to report the use of 'default' for a Guid as error.
 dotnet_diagnostic.S4581.severity = none
 
+# S4790: Weak hashing algorithms should not be used
+dotnet_diagnostic.S4790.severity = none
+
+# S5766: Serializable objects should validate data during deserialization
+dotnet_diagnostic.S5766.severity = none
+
+# S6444: Pass a regex timeout
+dotnet_diagnostic.S6444.severity = silent
+
+# S8949: The overload accepting a 'CancellationToken' should be used
+dotnet_diagnostic.S8949.severity = silent
+
+# S8969: Remove unnecessary suppression
+#
+# Dupe of IDE0370
+dotnet_diagnostic.S8969.severity = none
+
 # S4830: Server certificates should be verified during SSL/TLS connections
 # https://rules.sonarsource.com/csharp/RSPEC-4830/
 dotnet_diagnostic.S4830.severity = none
@@ -612,6 +632,9 @@ MA0053.exceptions_should_be_sealed = true
 # Also report diagnostic for types that define (new) virtual members.
 MA0053.class_with_virtual_member_shoud_be_sealed = true
 
+# MA0071: Avoid using redundant else
+dotnet_diagnostic.MA0071.severity = silent
+
 # MA0112: Use 'Count > 0' instead of 'Any()'
 #
 # This rule is disabled by default, hence we need to explicitly enable it.
@@ -634,6 +657,9 @@ dotnet_diagnostic.MA0190.severity = none
 
 # MA0192 - Use HasFlag instead of bitwise checks
 dotnet_diagnostic.MA0192.severity = none
+
+# MA0219: Set the language attribute in XML comment
+dotnet_diagnostic.MA0219.severity = none
 
 #### MSTest rules ####
 

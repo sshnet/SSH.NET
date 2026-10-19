@@ -44,6 +44,11 @@ namespace Renci.SshNet
         private uint _bufferSize;
 
         /// <summary>
+        /// Holds the maximum number of pending reads.
+        /// </summary>
+        private int _maxPendingReads;
+
+        /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
         /// <value>
@@ -110,6 +115,45 @@ namespace Renci.SshNet
             {
                 CheckDisposed();
                 _bufferSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of pending read requests allowed in read-ahead mode.
+        /// </summary>
+        /// <value>
+        /// The maximum number of pending read requests. The default value is 100.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// This controls how many SSH_FXP_READ requests can be in-flight simultaneously
+        /// when sequentially reading a file. Higher values allow the library to pipeline
+        /// more requests, improving throughput on high-latency connections.
+        /// </para>
+        /// <para>
+        /// On resource-constrained platforms (e.g., mobile devices), reducing this value
+        /// can prevent connection stalls when downloading larger files.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException">The value is less than 1.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public int MaxPendingReads
+        {
+            get
+            {
+                CheckDisposed();
+                return _maxPendingReads;
+            }
+            set
+            {
+                CheckDisposed();
+
+                if (value < 1)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "Cannot be less than one.");
+                }
+
+                _maxPendingReads = value;
             }
         }
 
@@ -280,6 +324,7 @@ namespace Renci.SshNet
         {
             _operationTimeout = Timeout.Infinite;
             _bufferSize = 1024 * 32;
+            _maxPendingReads = 100;
         }
 
         #endregion Constructors
@@ -1555,7 +1600,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return SftpFileStream.Open(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
+            return SftpFileStream.Open(_sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize, maxPendingReads: _maxPendingReads);
         }
 
         /// <inheritdoc/>
@@ -1693,7 +1738,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return SftpFileStream.Open(_sftpSession, path, mode, access, (int)_bufferSize);
+            return SftpFileStream.Open(_sftpSession, path, mode, access, (int)_bufferSize, maxPendingReads: _maxPendingReads);
         }
 
         /// <summary>
@@ -1714,7 +1759,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
+            return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken, maxPendingReads: _maxPendingReads);
         }
 
         /// <summary>
@@ -2368,7 +2413,8 @@ namespace Renci.SshNet
                     FileAccess.Read,
                     (int)_bufferSize,
                     cancellationToken,
-                    isDownloadFile: true).ConfigureAwait(false);
+                    isDownloadFile: true,
+                    maxPendingReads: _maxPendingReads).ConfigureAwait(false);
             }
             else
             {
@@ -2380,7 +2426,8 @@ namespace Renci.SshNet
                     FileMode.Open,
                     FileAccess.Read,
                     (int)_bufferSize,
-                    isDownloadFile: true);
+                    isDownloadFile: true,
+                    maxPendingReads: _maxPendingReads);
             }
 
             // The below is effectively sftpStream.CopyTo{Async}(output) with consideration

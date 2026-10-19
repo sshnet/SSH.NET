@@ -1,4 +1,4 @@
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
 
 namespace Renci.SshNet.IntegrationTests
 {
@@ -104,7 +104,8 @@ namespace Renci.SshNet.IntegrationTests
         [TestMethod]
         public void Test_Sftp_ListDirectory_Permission_Denied()
         {
-            Assert.ThrowsExactly<SftpPermissionDeniedException>(() => _sftpClient.ListDirectory("/root"));
+            var ex = Assert.ThrowsExactly<SftpPermissionDeniedException>(() => _sftpClient.ListDirectory("/root"));
+            Assert.AreEqual("/root", ex.Path);
         }
 
         [TestMethod]

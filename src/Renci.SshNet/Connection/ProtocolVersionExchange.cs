@@ -181,7 +181,7 @@ namespace Renci.SshNet.Connection
 
             while (buffer.Count < MaximumBannerLineLength)
             {
-                var bytesRead = await SocketAbstraction.ReadAsync(socket, data, cancellationToken).ConfigureAwait(false);
+                var bytesRead = await socket.ReceiveAsync(data, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw CreateConnectionLostException();

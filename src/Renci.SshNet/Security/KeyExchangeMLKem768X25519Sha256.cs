@@ -2,19 +2,22 @@
 using System.Linq;
 using System.Security.Cryptography;
 
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Kems;
 using Org.BouncyCastle.Crypto.Parameters;
 
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
-    internal sealed class KeyExchangeMLKem768X25519Sha256 : KeyExchangeECCurve25519
+    internal sealed partial class KeyExchangeMLKem768X25519Sha256 : KeyExchangeECCurve25519
     {
-        private MLKemDecapsulator _mlkemDecapsulator;
+#if Test_BCL_MLKem
+        private MLKemBclImpl _mlkemImpl;
+#elif Test_BouncyCastle_MLKem
+        private MLKemBouncyCastleImpl _mlkemImpl;
+#else
+        private Impl _mlkemImpl;
+#endif
 
         /// <summary>
         /// Gets algorithm name.
@@ -42,14 +45,21 @@ namespace Renci.SshNet.Security
 
             Session.KeyExchangeHybridReplyMessageReceived += Session_KeyExchangeHybridReplyMessageReceived;
 
-            var mlkem768KeyPairGenerator = new MLKemKeyPairGenerator();
-            mlkem768KeyPairGenerator.Init(new MLKemKeyGenerationParameters(CryptoAbstraction.SecureRandom, MLKemParameters.ml_kem_768));
-            var mlkem768KeyPair = mlkem768KeyPairGenerator.GenerateKeyPair();
-
-            _mlkemDecapsulator = new MLKemDecapsulator(MLKemParameters.ml_kem_768);
-            _mlkemDecapsulator.Init(mlkem768KeyPair.Private);
-
-            var mlkem768PublicKey = ((MLKemPublicKeyParameters)mlkem768KeyPair.Public).GetEncoded();
+#if Test_BCL_MLKem
+            _mlkemImpl = new MLKemBclImpl();
+#elif Test_BouncyCastle_MLKem
+            _mlkemImpl = new MLKemBouncyCastleImpl();
+#else
+            if (MLKem.IsSupported)
+            {
+                _mlkemImpl = new MLKemBclImpl();
+            }
+            else
+            {
+                _mlkemImpl = new MLKemBouncyCastleImpl();
+            }
+#endif
+            var mlkem768PublicKey = _mlkemImpl.GenerateClientPublicKey();
 
             var x25519PublicKey = _impl.GenerateClientPublicKey();
 
@@ -101,20 +111,28 @@ namespace Renci.SshNet.Security
             _hostKey = hostKey;
             _signature = signature;
 
-            if (serverExchangeValue.Length != _mlkemDecapsulator.EncapsulationLength + X25519PublicKeyParameters.KeySize)
+            if (serverExchangeValue.Length != MLKemAlgorithm.MLKem768.CiphertextSizeInBytes + X25519PublicKeyParameters.KeySize)
             {
                 throw new SshConnectionException(
                     string.Format(CultureInfo.CurrentCulture, "Bad S_Reply length: {0}.", serverExchangeValue.Length),
                     DisconnectReason.KeyExchangeFailed);
             }
 
-            var mlkemSecret = new byte[_mlkemDecapsulator.SecretLength];
+            var mlkemSecret = _mlkemImpl.CalculateAgreement(serverExchangeValue);
 
-            _mlkemDecapsulator.Decapsulate(serverExchangeValue, 0, _mlkemDecapsulator.EncapsulationLength, mlkemSecret, 0, _mlkemDecapsulator.SecretLength);
-
-            var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(_mlkemDecapsulator.EncapsulationLength, X25519PublicKeyParameters.KeySize));
+            var x25519Agreement = _impl.CalculateAgreement(serverExchangeValue.Take(MLKemAlgorithm.MLKem768.CiphertextSizeInBytes, X25519PublicKeyParameters.KeySize));
 
             SharedKey = SHA256.HashData(mlkemSecret.Concat(x25519Agreement));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _mlkemImpl?.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

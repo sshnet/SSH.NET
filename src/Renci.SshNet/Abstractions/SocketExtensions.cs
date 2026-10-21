@@ -2,118 +2,69 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Renci.SshNet.Abstractions
 {
-    // Async helpers based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/
     internal static class SocketExtensions
     {
-        private sealed class AwaitableSocketAsyncEventArgs : SocketAsyncEventArgs, INotifyCompletion
+        public static Task ConnectAsync(this Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
-            private static readonly Action SENTINEL = () => { };
-
-            private bool _isCancelled;
-            private Action _continuationAction;
-
-            public AwaitableSocketAsyncEventArgs()
+            if (cancellationToken.IsCancellationRequested)
             {
-                Completed += (sender, e) => SetCompleted();
+                return Task.FromCanceled(cancellationToken);
             }
 
-            public AwaitableSocketAsyncEventArgs ExecuteAsync(Func<SocketAsyncEventArgs, bool> func)
+            var connectTask = Task.Factory.FromAsync(
+                    static (s, remoteEndpoint, callback, state) => s.BeginConnect(remoteEndpoint, callback, state),
+                    static result => ((Socket)result.AsyncState).EndConnect(result),
+                    socket,
+                    remoteEndpoint,
+                    state: socket);
+
+            return connectTask.IsCompleted || !cancellationToken.CanBeCanceled
+                ? connectTask
+                : WaitWithCancellation(connectTask, socket, cancellationToken);
+
+            static async Task WaitWithCancellation(Task connectTask, Socket socket, CancellationToken cancellationToken)
             {
-                if (!func(this))
+                using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
                 {
-                    SetCompleted();
-                }
-
-                return this;
-            }
-
-            private void SetCompleted()
-            {
-                IsCompleted = true;
-                var continuation = Interlocked.Exchange(ref _continuationAction, SENTINEL);
-                if (continuation is not null)
-                {
-                    continuation();
-                }
-            }
-
-            public void SetCancelled()
-            {
-                _isCancelled = true;
-                SetCompleted();
-            }
-
-            public AwaitableSocketAsyncEventArgs GetAwaiter()
-            {
-                return this;
-            }
-
-            public bool IsCompleted { get; private set; }
-
-            void INotifyCompletion.OnCompleted(Action continuation)
-            {
-                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, comparand: null) == SENTINEL)
-                {
-                    // We have already completed; run continuation asynchronously
-                    _ = Task.Run(continuation);
-                }
-            }
-
-            public void GetResult()
-            {
-                if (_isCancelled)
-                {
-                    throw new TaskCanceledException();
-                }
-
-                if (!IsCompleted)
-                {
-                    // We don't support sync/async
-                    throw new InvalidOperationException("The asynchronous operation has not yet completed.");
-                }
-
-                if (SocketError != SocketError.Success)
-                {
-                    throw new SocketException((int)SocketError);
+                    await connectTask.ConfigureAwait(false);
                 }
             }
         }
 
-        public static async Task ConnectAsync(this Socket socket, EndPoint remoteEndpoint, CancellationToken cancellationToken)
+        public static Task<int> ReceiveAsync(this Socket socket, byte[] buffer, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (var args = new AwaitableSocketAsyncEventArgs())
-            {
-                args.RemoteEndPoint = remoteEndpoint;
-
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))
-                {
-                    await args.ExecuteAsync(socket.ConnectAsync);
-                }
-            }
+            return ReceiveAsync(socket, buffer, 0, buffer.Length, cancellationToken);
         }
 
-        public static async Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+        public static Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (var args = new AwaitableSocketAsyncEventArgs())
+            if (cancellationToken.IsCancellationRequested)
             {
-                args.SetBuffer(buffer, offset, length);
+                return Task.FromCanceled<int>(cancellationToken);
+            }
 
-                using (cancellationToken.Register(o => ((AwaitableSocketAsyncEventArgs)o).SetCancelled(), args, useSynchronizationContext: false))
+            var receiveTask = Task.Factory.FromAsync(
+                    static (s, buffer, callback, state) => s.BeginReceive(buffer.Array, buffer.Offset, buffer.Count, SocketFlags.None, callback, state),
+                    static result => ((Socket)result.AsyncState).EndReceive(result),
+                    socket,
+                    new ArraySegment<byte>(buffer, offset, length),
+                    state: socket);
+
+            return receiveTask.IsCompleted || !cancellationToken.CanBeCanceled
+                ? receiveTask
+                : WaitWithCancellation(receiveTask, socket, cancellationToken);
+
+            static async Task<int> WaitWithCancellation(Task<int> receiveTask, Socket socket, CancellationToken cancellationToken)
+            {
+                using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
                 {
-                    await args.ExecuteAsync(socket.ReceiveAsync);
+                    return await receiveTask.ConfigureAwait(false);
                 }
-
-                return args.BytesTransferred;
             }
         }
     }

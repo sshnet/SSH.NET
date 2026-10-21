@@ -38,6 +38,14 @@ namespace Renci.SshNet.Tests.Classes
 
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
+
+        /// <summary>
+        /// The name of the (mocked) key exchange algorithm that the "server" offers in its KEXINIT.
+        /// </summary>
+        protected string KeyExchangeAlgorithm
+        {
+            get { return _keyExchangeAlgorithm; }
+        }
         protected ConnectionInfo ConnectionInfo { get; private set; }
         protected IList<EventArgs> DisconnectedRegister { get; private set; }
         protected IList<MessageEventArgs<DisconnectMessage>> DisconnectReceivedRegister { get; private set; }
@@ -208,6 +216,9 @@ namespace Renci.SshNet.Tests.Classes
             _ = _keyExchangeMock.Setup(p => p.Name)
                                 .Returns(_keyExchangeAlgorithm);
             _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), false));
+
+            // a key re-exchange initiated by the server: the client is expected to send its own KEXINIT
+            _ = _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>(), true));
             _ = _keyExchangeMock.Setup(p => p.ExchangeHash)
                                 .Returns(SessionId);
             _ = _keyExchangeMock.Setup(p => p.CreateServerCipher(out It.Ref<bool>.IsAny))

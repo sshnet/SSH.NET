@@ -67,6 +67,12 @@ namespace Renci.SshNet
         internal const byte HighestMessageNumber = 100;
 
         /// <summary>
+        /// Defines the lowest message number of the connection protocol (RFC 4254), which is
+        /// SSH_MSG_GLOBAL_REQUEST. The connection protocol messages run up to <see cref="HighestMessageNumber"/>.
+        /// </summary>
+        internal const byte FirstConnectionProtocolMessageNumber = 80;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SshMessageFactory"/> class.
         /// </summary>
         public SshMessageFactory()
@@ -126,7 +132,18 @@ namespace Renci.SshNet
         /// <para>  The relevant KEX Reply MSG will be allowed from a sub class of KeyExchange class.</para>
         /// <para>  For example, it calls <c>Session.RegisterMessage("SSH_MSG_KEX_ECDH_REPLY");</c> if the curve25519-sha256 KEX algorithm is selected per negotiation.</para>
         /// </param>
-        public void DisableNonKeyExchangeMessages(bool strict)
+        /// <param name="allowConnectionProtocolMessages">
+        /// <see langword="true"/> to leave the connection protocol messages (80 - 100, e.g. SSH_MSG_CHANNEL_DATA) enabled;
+        /// otherwise <see langword="false"/>. Ignored in strict key exchange mode.
+        /// <para>
+        /// This is meant for a key re-exchange in an established session. The sender of a message is not
+        /// supposed to send connection protocol messages between its SSH_MSG_KEXINIT and its SSH_MSG_NEWKEYS,
+        /// but the messages the peer had already queued when it decided to re-exchange keys, or that a
+        /// less strict peer sends anyway, are still protected by the old keys and are safe to accept.
+        /// The caller is responsible for not processing them until the key exchange has completed.
+        /// </para>
+        /// </param>
+        public void DisableNonKeyExchangeMessages(bool strict, bool allowConnectionProtocolMessages = false)
         {
             for (var i = 0; i < AllMessages.Length; i++)
             {
@@ -142,7 +159,10 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    if (messageNumber is (> 2 and < 20) or > 30)
+                    var isNonKeyExchangeMessage = messageNumber is (> 2 and < 20) or > 30;
+                    var isRetained = allowConnectionProtocolMessages && messageNumber >= FirstConnectionProtocolMessageNumber;
+
+                    if (isNonKeyExchangeMessage && !isRetained)
                     {
                         _enabledMessagesByNumber[messageNumber] = null;
                     }

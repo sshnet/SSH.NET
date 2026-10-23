@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -21,7 +22,37 @@ namespace Renci.SshNet
         private readonly ISession _session;
         private readonly Encoding _encoding;
 
-        private IChannelSession _channel;
+        /// <summary>
+        /// Guards <see cref="_channel"/>, <see cref="_channelUseCount"/>, <see cref="_channelClosed"/>
+        /// and <see cref="_executionCompleted"/>.
+        /// </summary>
+        private readonly Lock _channelLock = new Lock();
+
+        /// <summary>
+        /// The channel of the current execution, or <see langword="null"/> before the first execution
+        /// and after the channel of a completed execution has been released.
+        /// </summary>
+        private IChannelSession? _channel;
+
+        /// <summary>
+        /// The number of threads currently blocked in a request on <see cref="_channel"/>
+        /// (<see cref="IChannelSession.SendExecRequest(string)"/> or
+        /// <see cref="IChannelSession.SendSignalRequest(string)"/>). The channel is not disposed
+        /// while this is non-zero, because disposing it would pull the wait handle out from under
+        /// the waiting thread (see #1596).
+        /// </summary>
+        private int _channelUseCount;
+
+        /// <summary>
+        /// Whether <see cref="_channel"/> has been closed at both ends.
+        /// </summary>
+        private bool _channelClosed;
+
+        /// <summary>
+        /// Whether the execution that <see cref="_channel"/> belongs to has completed.
+        /// </summary>
+        private bool _executionCompleted;
+
         private TaskCompletionSource<object>? _tcs;
         private CancellationTokenSource? _cts;
         private CancellationTokenRegistration _tokenRegistration;
@@ -142,7 +173,9 @@ namespace Renci.SshNet
         /// </example>
         public Stream CreateInputStream()
         {
-            if (!_channel.IsOpen)
+            var channel = _channel;
+
+            if (channel is not { IsOpen: true })
             {
                 throw new InvalidOperationException("The input stream can be used only during execution.");
             }
@@ -152,7 +185,7 @@ namespace Renci.SshNet
                 throw new InvalidOperationException("The input stream already exists.");
             }
 
-            _inputStream = new ChannelInputStream(_channel);
+            _inputStream = new ChannelInputStream(channel);
             return _inputStream;
         }
 
@@ -224,9 +257,10 @@ namespace Renci.SshNet
             CommandTimeout = Timeout.InfiniteTimeSpan;
             OutputStream = new PipeStream();
             ExtendedOutputStream = new PipeStream();
-            _session.Disconnected += Session_Disconnected;
-            _session.ErrorOccured += Session_ErrorOccurred;
-            _channel = _session.CreateChannelSession();
+
+            // Note: we deliberately do not subscribe to session events or create the channel here.
+            // Both are done in ExecuteAsync and undone when the execution completes, so that an
+            // SshCommand which is not disposed is not kept alive by a long-lived session (#1204).
         }
 
         /// <summary>
@@ -258,7 +292,9 @@ namespace Renci.SshNet
                     throw new InvalidOperationException("Asynchronous operation is already in progress.");
                 }
 
-                UnsubscribeFromChannelEvents(dispose: true);
+                // The channel of the previous execution has been released when that execution
+                // completed; this is just a safety net.
+                ReleaseChannel(force: true);
 
                 OutputStream.Dispose();
                 ExtendedOutputStream.Dispose();
@@ -268,7 +304,6 @@ namespace Renci.SshNet
                 // so we just need to reinitialise them for subsequent executions.
                 OutputStream = new PipeStream();
                 ExtendedOutputStream = new PipeStream();
-                _channel = _session.CreateChannelSession();
             }
 
             _exitStatus = default;
@@ -283,16 +318,55 @@ namespace Renci.SshNet
             _cts = null;
             _cancellationRequested = false;
 
+            var channel = _session.CreateChannelSession();
+
             _tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             _userToken = cancellationToken;
 
-            _channel.DataReceived += Channel_DataReceived;
-            _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
-            _channel.RequestReceived += Channel_RequestReceived;
-            _channel.Closed += Channel_Closed;
-            _channel.Open();
+            lock (_channelLock)
+            {
+                _channel = channel;
+                _channelClosed = false;
+                _executionCompleted = false;
 
-            _ = _channel.SendExecRequest(CommandText);
+                // This thread is about to block in SendExecRequest; don't let the channel be
+                // disposed underneath it if SSH_MSG_CHANNEL_CLOSE is processed first (#1596).
+                _channelUseCount = 1;
+            }
+
+            channel.DataReceived += Channel_DataReceived;
+            channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
+            channel.RequestReceived += Channel_RequestReceived;
+            channel.Closed += Channel_Closed;
+
+            // Subscribe after the channel has been created so that the channel's own
+            // session event handlers run before ours.
+            SubscribeToSessionEvents();
+
+            try
+            {
+                channel.Open();
+
+                _ = channel.SendExecRequest(CommandText);
+            }
+            catch (Exception ex)
+            {
+                // The command could not be started. Don't leave the channel and the session
+                // subscriptions behind, and don't leave this instance stuck "in progress".
+                _ = _tcs.TrySetException(ex);
+                _ = _tcs.Task.Exception; // Observed: the exception is rethrown to the caller below.
+
+                UnsubscribeFromSessionEvents();
+                EndChannelUse(channel);
+                ReleaseChannel(force: true);
+
+                OutputStream.Dispose();
+                ExtendedOutputStream.Dispose();
+
+                throw;
+            }
+
+            EndChannelUse(channel);
 
             if (CommandTimeout != Timeout.InfiniteTimeSpan)
             {
@@ -453,11 +527,22 @@ namespace Renci.SshNet
 
             try
             {
-                // Try to send the cancellation signal.
-                if (_channel?.SendSignalRequest(forceKill ? "KILL" : "TERM") is null)
+                var channel = BeginChannelUse();
+
+                if (channel is null)
                 {
                     // Command has completed (in the meantime since the last check).
                     return;
+                }
+
+                try
+                {
+                    // Try to send the cancellation signal.
+                    _ = channel.SendSignalRequest(forceKill ? "KILL" : "TERM");
+                }
+                finally
+                {
+                    EndChannelUse(channel);
                 }
 
                 // Having sent the "signal" message, we expect to receive "exit-signal"
@@ -507,55 +592,71 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object? sender, EventArgs e)
         {
-            _ = _tcs?.TrySetException(new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost));
-
-            SetAsyncComplete(setResult: false);
+            SetAsyncComplete(new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost));
         }
 
         private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
-            _ = _tcs?.TrySetException(e.Exception);
-
-            SetAsyncComplete(setResult: false);
+            SetAsyncComplete(e.Exception);
         }
 
-        private void SetAsyncComplete(bool setResult = true)
+        private void SetAsyncComplete(Exception? exception = null)
         {
-            Interlocked.MemoryBarrier(); // ensure fresh read of _cancellationRequested (possibly unnecessary)
+            // Clean up before completing the task: once the task has completed, the instance may be
+            // executed again (e.g. on a continuation), and this cleanup must not then affect the
+            // session subscriptions or output streams of that new execution.
 
-            if (setResult)
+            // The execution is over: stop listening to the session so that the session (which
+            // typically lives much longer than a command) no longer references this instance.
+            UnsubscribeFromSessionEvents();
+
+            // Release the channel unless a thread is blocked in a request on it, in which case that
+            // thread releases it when the request returns (see EndChannelUse).
+            lock (_channelLock)
             {
-                Debug.Assert(_tcs is not null, "Should only be completing the task if we've started one.");
-
-                if (_userToken.IsCancellationRequested)
-                {
-                    _ = _tcs.TrySetCanceled(_userToken);
-                }
-                else if (_cts?.Token.IsCancellationRequested == true)
-                {
-                    _ = _tcs.TrySetException(new SshOperationTimeoutException($"Command '{CommandText}' timed out. ({nameof(CommandTimeout)}: {CommandTimeout})."));
-                }
-                else if (_cancellationRequested)
-                {
-                    _ = _tcs.TrySetCanceled();
-                }
-                else
-                {
-                    _ = _tcs.TrySetResult(null!);
-                }
+                _executionCompleted = true;
             }
 
-            // We don't dispose the channel here to avoid a race condition
-            // where SSH_MSG_CHANNEL_CLOSE arrives before _channel starts
-            // waiting for a response in _channel.SendExecRequest().
-            UnsubscribeFromChannelEvents(dispose: false);
+            ReleaseChannel(force: false);
 
             OutputStream.Dispose();
             ExtendedOutputStream.Dispose();
+
+            if (exception is not null)
+            {
+                _ = _tcs?.TrySetException(exception);
+                return;
+            }
+
+            Interlocked.MemoryBarrier(); // ensure fresh read of _cancellationRequested (possibly unnecessary)
+
+            Debug.Assert(_tcs is not null, "Should only be completing the task if we've started one.");
+
+            if (_userToken.IsCancellationRequested)
+            {
+                _ = _tcs.TrySetCanceled(_userToken);
+            }
+            else if (_cts?.Token.IsCancellationRequested == true)
+            {
+                _ = _tcs.TrySetException(new SshOperationTimeoutException($"Command '{CommandText}' timed out. ({nameof(CommandTimeout)}: {CommandTimeout})."));
+            }
+            else if (_cancellationRequested)
+            {
+                _ = _tcs.TrySetCanceled();
+            }
+            else
+            {
+                _ = _tcs.TrySetResult(null!);
+            }
         }
 
         private void Channel_Closed(object? sender, ChannelEventArgs e)
         {
+            lock (_channelLock)
+            {
+                _channelClosed = true;
+            }
+
             SetAsyncComplete();
         }
 
@@ -596,13 +697,96 @@ namespace Renci.SshNet
             OutputStream.Write(e.Data.Array!, e.Data.Offset, e.Data.Count);
         }
 
-        /// <summary>
-        /// Unsubscribes the current <see cref="SshCommand"/> from channel events, and optionally,
-        /// disposes <see cref="_channel"/>.
-        /// </summary>
-        private void UnsubscribeFromChannelEvents(bool dispose)
+        private void SubscribeToSessionEvents()
         {
-            var channel = _channel;
+            // Guard against a double subscription should a previous execution not have unsubscribed.
+            UnsubscribeFromSessionEvents();
+
+            _session.Disconnected += Session_Disconnected;
+            _session.ErrorOccured += Session_ErrorOccurred;
+        }
+
+        private void UnsubscribeFromSessionEvents()
+        {
+            _session.Disconnected -= Session_Disconnected;
+            _session.ErrorOccured -= Session_ErrorOccurred;
+        }
+
+        /// <summary>
+        /// Marks the start of a blocking request on the current channel.
+        /// </summary>
+        /// <returns>
+        /// The channel, or <see langword="null"/> if there is no channel or it has already been closed.
+        /// Each non-null return must be paired with a call to <see cref="EndChannelUse(IChannelSession)"/>.
+        /// </returns>
+        private IChannelSession? BeginChannelUse()
+        {
+            lock (_channelLock)
+            {
+                if (_channel is null || _channelClosed)
+                {
+                    return null;
+                }
+
+                _channelUseCount++;
+                return _channel;
+            }
+        }
+
+        /// <summary>
+        /// Marks the end of a blocking request on <paramref name="channel"/>, and releases the channel
+        /// if the execution has completed in the meantime.
+        /// </summary>
+        /// <param name="channel">The channel returned by <see cref="BeginChannelUse"/>.</param>
+        private void EndChannelUse(IChannelSession channel)
+        {
+            lock (_channelLock)
+            {
+                if (!ReferenceEquals(channel, _channel))
+                {
+                    // That channel has already been released (forcibly, by Dispose or a subsequent
+                    // execution); the count now belongs to another channel (or none).
+                    return;
+                }
+
+                Debug.Assert(_channelUseCount > 0, "EndChannelUse without matching use.");
+
+                _channelUseCount--;
+            }
+
+            ReleaseChannel(force: false);
+        }
+
+        /// <summary>
+        /// Unsubscribes from the events of <see cref="_channel"/>, disposes it and drops the reference to it.
+        /// </summary>
+        /// <param name="force">
+        /// <see langword="false"/> to only release the channel when its execution has completed and no
+        /// thread is blocked in a request on it; <see langword="true"/> to release it unconditionally
+        /// (and synchronously).
+        /// </param>
+        private void ReleaseChannel(bool force)
+        {
+            IChannelSession? channel;
+            bool channelClosed;
+
+            lock (_channelLock)
+            {
+                channel = _channel;
+
+                if (channel is null)
+                {
+                    return;
+                }
+
+                if (!force && (!_executionCompleted || _channelUseCount > 0))
+                {
+                    return;
+                }
+
+                channelClosed = _channelClosed;
+                _channel = null;
+            }
 
             // unsubscribe from events as we do not want to be signaled should these get fired
             // during the dispose of the channel
@@ -611,10 +795,29 @@ namespace Renci.SshNet
             channel.RequestReceived -= Channel_RequestReceived;
             channel.Closed -= Channel_Closed;
 
-            if (dispose)
+            // Disposing the channel unsubscribes it from the session's events and releases its
+            // wait handles. If the channel has been closed this does not send any message nor block.
+            if (force || channelClosed)
             {
                 channel.Dispose();
+                return;
             }
+
+            // The execution completed while the channel is still open (cancellation without a reply
+            // from the server, session error/disconnect). Disposing it then sends SSH_MSG_CHANNEL_CLOSE
+            // and waits up to ConnectionInfo.ChannelCloseTimeout for the server to close it, which we
+            // don't want to do on the thread completing the execution (possibly the message loop).
+            ThreadAbstraction.ExecuteThread(() =>
+            {
+                try
+                {
+                    channel.Dispose();
+                }
+                catch
+                {
+                    // Swallow exceptions which would otherwise be unhandled.
+                }
+            });
         }
 
         /// <summary>
@@ -641,12 +844,11 @@ namespace Renci.SshNet
             {
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccurred;
+                UnsubscribeFromSessionEvents();
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                UnsubscribeFromChannelEvents(dispose: true);
+                ReleaseChannel(force: true);
 
                 _inputStream?.Dispose();
                 _inputStream = null;

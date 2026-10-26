@@ -529,13 +529,17 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object? sender, EventArgs e)
         {
-            _ = _tcs?.TrySetException(new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost));
+            var exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+
+            CompleteOperation(exception);
+            _ = _tcs?.TrySetException(exception);
 
             SetAsyncComplete(setResult: false);
         }
 
         private void Session_ErrorOccurred(object? sender, ExceptionEventArgs e)
         {
+            CompleteOperation(e.Exception);
             _ = _tcs?.TrySetException(e.Exception);
 
             SetAsyncComplete(setResult: false);
@@ -551,18 +555,24 @@ namespace Renci.SshNet
 
                 if (_userToken.IsCancellationRequested)
                 {
+                    CompleteOperation(isCanceled: true);
                     _ = _tcs.TrySetCanceled(_userToken);
                 }
                 else if (_cts?.Token.IsCancellationRequested == true)
                 {
-                    _ = _tcs.TrySetException(new SshOperationTimeoutException($"Command '{CommandText}' timed out. ({nameof(CommandTimeout)}: {CommandTimeout})."));
+                    var exception = new SshOperationTimeoutException($"Command '{CommandText}' timed out. ({nameof(CommandTimeout)}: {CommandTimeout}).");
+
+                    CompleteOperation(exception);
+                    _ = _tcs.TrySetException(exception);
                 }
                 else if (_cancellationRequested)
                 {
+                    CompleteOperation(isCanceled: true);
                     _ = _tcs.TrySetCanceled();
                 }
                 else
                 {
+                    CompleteOperation();
                     _ = _tcs.TrySetResult(null!);
                 }
             }
@@ -574,11 +584,13 @@ namespace Renci.SshNet
 
             OutputStream.Dispose();
             ExtendedOutputStream.Dispose();
-
-            CompleteOperation();
         }
 
-        private void CompleteOperation()
+        /// <summary>
+        /// Ends the telemetry operation, if any. Called before completing <see cref="_tcs"/>
+        /// so that the operation has ended by the time awaiters resume.
+        /// </summary>
+        private void CompleteOperation(Exception? exception = null, bool isCanceled = false)
         {
             var operation = Interlocked.Exchange(ref _operation, value: null);
             if (operation is null)
@@ -591,12 +603,11 @@ namespace Renci.SshNet
                 operation.SetTag("ssh.command.exit_code", exitStatus);
             }
 
-            var task = _tcs?.Task;
-            if (task is { IsFaulted: true, Exception.InnerException: Exception ex })
+            if (exception is not null)
             {
-                operation.SetError(ex);
+                operation.SetError(exception);
             }
-            else if (task is { IsCanceled: true })
+            else if (isCanceled)
             {
                 operation.SetError(typeof(OperationCanceledException).FullName!, "The command was cancelled.");
             }
@@ -712,7 +723,10 @@ namespace Renci.SshNet
                 if (_tcs is { Task.IsCompleted: false } tcs)
                 {
                     // In case an operation is still running, try to complete it with an ObjectDisposedException.
-                    _ = tcs.TrySetException(new ObjectDisposedException(GetType().FullName));
+                    var exception = new ObjectDisposedException(GetType().FullName);
+
+                    CompleteOperation(exception);
+                    _ = tcs.TrySetException(exception);
                 }
 
                 _isDisposed = true;

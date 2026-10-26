@@ -46,6 +46,8 @@ namespace Renci.SshNet
         private int _exitStatus;
         private volatile bool _haveExitStatus; // volatile to prevent re-ordering of reads/writes of _exitStatus.
 
+        private SshNetTelemetry.Operation? _operation;
+
         /// <summary>
         /// Gets the command text.
         /// </summary>
@@ -290,9 +292,29 @@ namespace Renci.SshNet
             _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             _channel.RequestReceived += Channel_RequestReceived;
             _channel.Closed += Channel_Closed;
-            _channel.Open();
 
-            _ = _channel.SendExecRequest(CommandText);
+            // This method is not async, so restore Activity.Current to keep the
+            // caller's subsequent work from being parented to the command.
+            if (SshNetTelemetry.IsEnabled)
+            {
+                var previousActivity = Activity.Current;
+                _operation = SshNetTelemetry.StartOperation("ssh", "Execute", _session.ConnectionInfo);
+                Activity.Current = previousActivity;
+            }
+
+            try
+            {
+                _channel.Open();
+
+                _ = _channel.SendExecRequest(CommandText);
+            }
+            catch (Exception ex)
+            {
+                var operation = Interlocked.Exchange(ref _operation, value: null);
+                operation?.SetError(ex);
+                operation?.Dispose();
+                throw;
+            }
 
             if (CommandTimeout != Timeout.InfiniteTimeSpan)
             {
@@ -552,6 +574,34 @@ namespace Renci.SshNet
 
             OutputStream.Dispose();
             ExtendedOutputStream.Dispose();
+
+            CompleteOperation();
+        }
+
+        private void CompleteOperation()
+        {
+            var operation = Interlocked.Exchange(ref _operation, value: null);
+            if (operation is null)
+            {
+                return;
+            }
+
+            if (ExitStatus is int exitStatus)
+            {
+                operation.SetTag("ssh.command.exit_code", exitStatus);
+            }
+
+            var task = _tcs?.Task;
+            if (task is { IsFaulted: true, Exception.InnerException: Exception ex })
+            {
+                operation.SetError(ex);
+            }
+            else if (task is { IsCanceled: true })
+            {
+                operation.SetError(typeof(OperationCanceledException).FullName!, "The command was cancelled.");
+            }
+
+            operation.Dispose();
         }
 
         private void Channel_Closed(object? sender, ChannelEventArgs e)

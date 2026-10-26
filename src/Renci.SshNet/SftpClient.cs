@@ -169,6 +169,12 @@ namespace Renci.SshNet
             }
         }
 
+        /// <inheritdoc/>
+        private protected override string TelemetryProtocolName
+        {
+            get { return "sftp"; }
+        }
+
         /// <summary>
         /// Gets the current SFTP session.
         /// </summary>
@@ -643,9 +649,23 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            // The operation spans the whole enumeration. C# does not allow yield
+            // inside try/catch, so errors are recorded around each request instead.
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "ListDirectory", ConnectionInfo, path);
 
-            var handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            string fullPath;
+            byte[] handle;
+            try
+            {
+                fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+                handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+
             try
             {
                 var basePath = (fullPath[fullPath.Length - 1] == '/') ?
@@ -654,7 +674,17 @@ namespace Renci.SshNet
 
                 while (true)
                 {
-                    var files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    KeyValuePair<string, SftpFileAttributes>[]? files;
+                    try
+                    {
+                        files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        operation?.SetError(ex);
+                        throw;
+                    }
+
                     if (files is null)
                     {
                         break;
@@ -2285,6 +2315,20 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client not connected.</exception>
         private List<ISftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult? asyncResult, Action<int>? listCallback)
         {
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "ListDirectory", ConnectionInfo, path);
+            try
+            {
+                return InternalListDirectoryCore(path, asyncResult, listCallback);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private List<ISftpFile> InternalListDirectoryCore(string path, SftpListDirectoryAsyncResult? asyncResult, Action<int>? listCallback)
+        {
             ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
@@ -2346,6 +2390,27 @@ namespace Renci.SshNet
             bool isAsync,
             CancellationToken cancellationToken)
         {
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "DownloadFile", ConnectionInfo, path);
+            try
+            {
+                var bytesDownloaded = await InternalDownloadFileCore(path, output, asyncResult, downloadProgress, isAsync, cancellationToken).ConfigureAwait(false);
+                operation?.SetTag("sftp.transfer.bytes", (long)bytesDownloaded);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private async Task<ulong> InternalDownloadFileCore(
+            string path,
+            Stream output,
+            SftpDownloadAsyncResult? asyncResult,
+            IProgress<DownloadFileProgressReport>? downloadProgress,
+            bool isAsync,
+            CancellationToken cancellationToken)
+        {
             Debug.Assert(!string.IsNullOrWhiteSpace(path));
             Debug.Assert(output is not null);
             Debug.Assert(isAsync || cancellationToken == default);
@@ -2386,10 +2451,10 @@ namespace Renci.SshNet
             // The below is effectively sftpStream.CopyTo{Async}(output) with consideration
             // for downloadCallback/asyncResult.
 
+            ulong totalBytesRead = 0;
             var buffer = ArrayPool<byte>.Shared.Rent(81920);
             try
             {
-                ulong totalBytesRead = 0;
                 while (true)
                 {
                     // Cancel download
@@ -2447,9 +2512,33 @@ namespace Renci.SshNet
                     sftpStream.Dispose();
                 }
             }
+
+            return totalBytesRead;
         }
 
         private async Task InternalUploadFile(
+            Stream input,
+            string path,
+            Flags flags,
+            SftpUploadAsyncResult? asyncResult,
+            IProgress<UploadFileProgressReport>? uploadProgress,
+            bool isAsync,
+            CancellationToken cancellationToken)
+        {
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "UploadFile", ConnectionInfo, path);
+            try
+            {
+                var bytesUploaded = await InternalUploadFileCore(input, path, flags, asyncResult, uploadProgress, isAsync, cancellationToken).ConfigureAwait(false);
+                operation?.SetTag("sftp.transfer.bytes", (long)bytesUploaded);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private async Task<ulong> InternalUploadFileCore(
             Stream input,
             string path,
             Flags flags,
@@ -2593,6 +2682,8 @@ namespace Renci.SshNet
             {
                 _sftpSession.RequestClose(handle);
             }
+
+            return offset;
         }
 #pragma warning restore CA1849 // Call async methods when in an async method
 

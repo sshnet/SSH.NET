@@ -101,7 +101,17 @@ namespace Renci.SshNet.IntegrationTests
                 var spans = _activities.ToList();
 
                 CollectionAssert.AreEqual(
-                    new[] { "sftp Connect", "sftp UploadFile", "sftp ListDirectory", "sftp ListDirectory", "sftp DownloadFile" },
+                    new[]
+                    {
+                        "sftp Connect",
+                        "sftp CreateDirectory",
+                        "sftp UploadFile",
+                        "sftp ListDirectory",
+                        "sftp ListDirectory",
+                        "sftp DownloadFile",
+                        "sftp DeleteFile",
+                        "sftp DeleteDirectory",
+                    },
                     spans.Select(s => s.DisplayName).ToArray());
 
                 foreach (var span in spans)
@@ -125,6 +135,57 @@ namespace Renci.SshNet.IntegrationTests
                 Assert.AreEqual(spans.Count, _durations.Count);
                 Assert.IsTrue(_durations.All(d => d.Value > 0 && !d.Tags.ContainsKey("file.path")));
             }
+        }
+
+        [TestMethod]
+        public async Task Sftp_MetadataOperations_ProduceSpans()
+        {
+            var directory = $"/tmp/telemetry-{Guid.NewGuid():N}";
+
+            using var client = new SftpClient(SshServerHostName, SshServerPort, User.UserName, User.Password);
+            client.Connect();
+
+            await client.CreateDirectoryAsync(directory);
+            client.WriteAllText($"{directory}/a.txt", "a");
+
+            Assert.IsTrue(client.Exists($"{directory}/a.txt"));
+            Assert.IsFalse(await client.ExistsAsync($"{directory}/missing.txt"));
+            client.RenameFile($"{directory}/a.txt", $"{directory}/b.txt");
+            _ = await client.GetAttributesAsync($"{directory}/b.txt", CancellationToken.None);
+            client.ChangeDirectory(directory);
+            await client.ChangeDirectoryAsync("/tmp");
+            client.Delete($"{directory}/b.txt");
+            await client.DeleteDirectoryAsync(directory);
+
+            var spans = _activities.ToList();
+
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    "sftp Connect",
+                    "sftp CreateDirectory",
+                    "sftp Exists",
+                    "sftp Exists",
+                    "sftp RenameFile",
+                    "sftp GetAttributes",
+                    "sftp ChangeDirectory",
+                    "sftp ChangeDirectory",
+                    "sftp Get",
+                    "sftp Delete",
+                    "sftp DeleteDirectory",
+                },
+                spans.Select(s => s.DisplayName).ToArray());
+
+            // A path that does not exist is a normal result of Exists, not an error.
+            Assert.IsTrue(spans.TrueForAll(s => s.Status == ActivityStatusCode.Unset));
+
+            var rename = spans.Single(s => s.DisplayName == "sftp RenameFile");
+            Assert.AreEqual($"{directory}/a.txt", rename.GetTagItem("file.path"));
+
+            // Delete looks the file up first, so Get is its child.
+            var delete = spans.Single(s => s.DisplayName == "sftp Delete");
+            var get = spans.Single(s => s.DisplayName == "sftp Get");
+            Assert.AreEqual(delete.SpanId, get.ParentSpanId);
         }
 
         [TestMethod]

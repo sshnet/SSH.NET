@@ -185,12 +185,6 @@ namespace Renci.SshNet
         /// </remarks>
         public bool UseDirectoryFlag { get; set; } = true;
 
-        /// <inheritdoc/>
-        private protected override string TelemetryProtocolName
-        {
-            get { return "scp"; }
-        }
-
         private string EnsureIsDirectoryArg
         {
             get

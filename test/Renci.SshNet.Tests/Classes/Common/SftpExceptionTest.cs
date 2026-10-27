@@ -16,10 +16,12 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(StatusCode.BadMessage, new SftpException(StatusCode.BadMessage).StatusCode);
             Assert.AreEqual(StatusCode.OperationUnsupported, new SftpException(StatusCode.OperationUnsupported, null).StatusCode);
             Assert.AreEqual(StatusCode.Failure, new SftpException(StatusCode.Failure, null, null).StatusCode);
+            Assert.AreEqual(StatusCode.Failure, new SftpException(StatusCode.Failure, null, null, null).StatusCode);
 
             Assert.AreEqual(StatusCode.PermissionDenied, new SftpPermissionDeniedException().StatusCode);
             Assert.AreEqual(StatusCode.PermissionDenied, new SftpPermissionDeniedException(null).StatusCode);
             Assert.AreEqual(StatusCode.PermissionDenied, new SftpPermissionDeniedException(null, null).StatusCode);
+            Assert.AreEqual(StatusCode.PermissionDenied, new SftpPermissionDeniedException(null, null, null).StatusCode);
 
             Assert.AreEqual(StatusCode.NoSuchFile, new SftpPathNotFoundException().StatusCode);
             Assert.AreEqual(StatusCode.NoSuchFile, new SftpPathNotFoundException(null).StatusCode);
@@ -34,12 +36,14 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpException(StatusCode.Failure).Message));
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpException(StatusCode.Failure, "").Message));
             Assert.AreEqual("Custom message", new SftpException(StatusCode.Failure, "Custom message").Message);
+            Assert.AreEqual("Custom message", new SftpException(StatusCode.Failure, "Custom message", "path1", null).Message);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpPermissionDeniedException().Message));
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpPermissionDeniedException("").Message));
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpPermissionDeniedException("", null).Message));
             Assert.AreEqual("Custom message1", new SftpPermissionDeniedException("Custom message1").Message);
             Assert.AreEqual("Custom message2", new SftpPermissionDeniedException("Custom message2", null).Message);
+            Assert.AreEqual("Custom message3", new SftpPermissionDeniedException("Custom message3", "path1", null).Message);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpPathNotFoundException().Message));
             Assert.IsFalse(string.IsNullOrWhiteSpace(new SftpPathNotFoundException("").Message));
@@ -52,8 +56,18 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
-        public void PathNotFoundException_Path()
+        public void Path()
         {
+            Assert.IsNull(new SftpException(StatusCode.Failure).Path);
+            Assert.IsNull(new SftpException(StatusCode.Failure, "message", innerException: null).Path);
+            Assert.AreEqual("path1", new SftpException(StatusCode.Failure, null, "path1", null).Path);
+            Assert.Contains("Path: 'path2'.", new SftpException(StatusCode.Failure, null, "path2", null).Message, StringComparison.Ordinal);
+
+            Assert.IsNull(new SftpPermissionDeniedException().Path);
+            Assert.IsNull(new SftpPermissionDeniedException("message").Path);
+            Assert.AreEqual("path1", new SftpPermissionDeniedException("message", "path1", null).Path);
+            Assert.Contains("Path: 'path2'.", new SftpPermissionDeniedException("", "path2", null).Message, StringComparison.Ordinal);
+
             Assert.IsNull(new SftpPathNotFoundException().Path);
             Assert.IsNull(new SftpPathNotFoundException("message").Path);
             Assert.AreEqual("path1", new SftpPathNotFoundException("message", "path1").Path);

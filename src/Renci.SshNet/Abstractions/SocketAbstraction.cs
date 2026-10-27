@@ -232,9 +232,12 @@ namespace Renci.SshNet.Abstractions
 
                     if (ex.SocketErrorCode == SocketError.TimedOut)
                     {
-                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                                                               "Socket read operation has timed out after {0:F0} milliseconds.",
-                                                               readTimeout.TotalMilliseconds));
+                        throw new SshOperationTimeoutException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "Socket read operation has timed out after {0:F0} milliseconds.",
+                                readTimeout.TotalMilliseconds),
+                            ex);
                     }
 
                     throw;

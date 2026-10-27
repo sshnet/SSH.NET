@@ -29,10 +29,8 @@ namespace Renci.SshNet.Connection
         private const int MaximumBannerLineLength = 8192;
 
 #if NET
-        private static readonly Regex ServerVersionRegex = GetServerVersionRegex();
-
         [GeneratedRegex(ServerVersionPattern, RegexOptions.ExplicitCapture)]
-        private static partial Regex GetServerVersionRegex();
+        private static partial Regex ServerVersionRegex { get; }
 #else
         private static readonly Regex ServerVersionRegex = new Regex(ServerVersionPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #endif

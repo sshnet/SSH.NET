@@ -117,7 +117,7 @@ namespace Renci.SshNet.IntegrationTests
                 foreach (var span in spans)
                 {
                     Assert.AreEqual(ActivityKind.Client, span.Kind);
-                    Assert.AreEqual(parent!.TraceId, span.TraceId);
+                    Assert.AreEqual(parent.TraceId, span.TraceId);
                     Assert.AreEqual(parent.SpanId, span.ParentSpanId);
                     Assert.AreEqual(ActivityStatusCode.Unset, span.Status);
                     Assert.AreEqual("sftp", span.GetTagItem("network.protocol.name"));
@@ -235,7 +235,7 @@ namespace Renci.SshNet.IntegrationTests
             await task;
 
             var span = _activities.Single(s => s.DisplayName == "ssh Execute");
-            Assert.AreEqual(parent!.SpanId, span.ParentSpanId);
+            Assert.AreEqual(parent.SpanId, span.ParentSpanId);
             Assert.AreEqual(3, span.GetTagItem("ssh.command.exit_code"));
             Assert.AreEqual(ActivityStatusCode.Unset, span.Status);
             Assert.IsNull(span.GetTagItem("ssh.command.text"));

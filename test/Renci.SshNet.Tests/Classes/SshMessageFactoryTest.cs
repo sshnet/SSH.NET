@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -18,6 +19,20 @@ namespace Renci.SshNet.Tests.Classes
         public void SetUp()
         {
             _sshMessageFactory = new SshMessageFactory();
+        }
+
+        private void AssertMessageIsNotValidInCurrentContext(byte messageNumber)
+        {
+            try
+            {
+                _sshMessageFactory.Create(messageNumber);
+                Assert.Fail();
+            }
+            catch (SshException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid in the current context.", messageNumber), ex.Message);
+            }
         }
 
         [TestMethod]
@@ -312,6 +327,50 @@ namespace Renci.SshNet.Tests.Classes
             var actual = _sshMessageFactory.Create(messageNumber);
             Assert.IsNotNull(actual);
             Assert.AreEqual(typeof(NewKeysMessage), actual.GetType());
+        }
+
+        [TestMethod]
+        public void DisableNonKeyExchangeMessagesShouldDisableConnectionProtocolMessagesByDefault()
+        {
+            const byte messageNumber = 94;
+
+            _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_CHANNEL_DATA");
+            _sshMessageFactory.DisableNonKeyExchangeMessages(strict: false);
+
+            AssertMessageIsNotValidInCurrentContext(messageNumber);
+        }
+
+        [TestMethod]
+        public void DisableNonKeyExchangeMessagesShouldNotDisableConnectionProtocolMessagesWhenAllowed()
+        {
+            const byte messageNumber = 94;
+
+            _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_CHANNEL_DATA");
+            _sshMessageFactory.DisableNonKeyExchangeMessages(strict: false, allowConnectionProtocolMessages: true);
+
+            var actual = _sshMessageFactory.Create(messageNumber);
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(typeof(ChannelDataMessage), actual.GetType());
+        }
+
+        [TestMethod]
+        public void DisableNonKeyExchangeMessagesShouldStillDisableOtherNonKeyExchangeMessagesWhenConnectionProtocolMessagesAreAllowed()
+        {
+            _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
+            _sshMessageFactory.DisableNonKeyExchangeMessages(strict: false, allowConnectionProtocolMessages: true);
+
+            AssertMessageIsNotValidInCurrentContext(60);
+        }
+
+        [TestMethod]
+        public void DisableNonKeyExchangeMessagesShouldIgnoreAllowConnectionProtocolMessagesInStrictMode()
+        {
+            const byte messageNumber = 94;
+
+            _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_CHANNEL_DATA");
+            _sshMessageFactory.DisableNonKeyExchangeMessages(strict: true, allowConnectionProtocolMessages: true);
+
+            AssertMessageIsNotValidInCurrentContext(messageNumber);
         }
 
         [TestMethod]

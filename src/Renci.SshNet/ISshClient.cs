@@ -67,6 +67,38 @@ namespace Renci.SshNet
         public SshCommand RunCommand(string commandText);
 
         /// <summary>
+        /// Creates the command to be executed.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <returns><see cref="SshCommandLite"/> object.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        public SshCommandLite CreateCommandLite(string commandText);
+
+        /// <summary>
+        /// Creates the command to be executed with specified encoding.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="encoding">The encoding to use for results.</param>
+        /// <returns><see cref="SshCommandLite"/> object which uses specified encoding.</returns>
+        /// <remarks>This method will change current default encoding.</remarks>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is <see langword="null"/>.</exception>
+        public SshCommandLite CreateCommandLite(string commandText, Encoding encoding);
+
+        /// <summary>
+        /// Creates and executes the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>Returns an instance of <see cref="SshCommandLite"/> with execution results.</returns>
+        /// <remarks>This method internally uses asynchronous calls.</remarks>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is <see langword="null"/>.</exception>
+        public SshCommandLite RunCommandLite(string commandText);
+
+        /// <summary>
         /// Creates the shell.
         /// </summary>
         /// <param name="input">The input.</param>

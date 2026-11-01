@@ -12,6 +12,13 @@ namespace Renci.SshNet.Common
 #pragma warning restore CA2002 // Do not lock on objects with weak identity
         }
 
+        public void Enter()
+        {
+#pragma warning disable CA2002 // Do not lock on objects with weak identity
+            Monitor.Enter(this);
+#pragma warning restore CA2002 // Do not lock on objects with weak identity
+        }
+
         public void Exit()
         {
             Monitor.Exit(this);

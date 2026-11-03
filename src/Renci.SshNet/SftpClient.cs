@@ -169,6 +169,12 @@ namespace Renci.SshNet
             }
         }
 
+        /// <inheritdoc/>
+        private protected override string TelemetryProtocolName
+        {
+            get { return "sftp"; }
+        }
+
         /// <summary>
         /// Gets the current SFTP session.
         /// </summary>
@@ -304,7 +310,16 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            _sftpSession.ChangeDirectory(path);
+            using var operation = StartOperation("ChangeDirectory", path);
+            try
+            {
+                _sftpSession.ChangeDirectory(path);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -331,7 +346,7 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _sftpSession.ChangeDirectoryAsync(path, cancellationToken);
+            return ChangeDirectoryCoreAsync(_sftpSession, path, cancellationToken);
         }
 
         /// <summary>
@@ -347,8 +362,17 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void ChangePermissions(string path, short mode)
         {
-            var file = Get(path);
-            file.SetPermissions(mode);
+            using var operation = StartOperation("ChangePermissions", path);
+            try
+            {
+                var file = Get(path);
+                file.SetPermissions(mode);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -370,9 +394,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("CreateDirectory", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            _sftpSession.RequestMkDir(fullPath);
+                _sftpSession.RequestMkDir(fullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -396,9 +429,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("CreateDirectory", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
-            await _sftpSession.RequestMkDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                await _sftpSession.RequestMkDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -421,9 +463,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("DeleteDirectory", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            _sftpSession.RequestRmDir(fullPath);
+                _sftpSession.RequestRmDir(fullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -439,9 +490,18 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("DeleteDirectory", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
-            await _sftpSession.RequestRmDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                await _sftpSession.RequestRmDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -464,9 +524,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("DeleteFile", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            _sftpSession.RequestRemove(fullPath);
+                _sftpSession.RequestRemove(fullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -482,8 +551,17 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            await _sftpSession.RequestRemoveAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("DeleteFile", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+                await _sftpSession.RequestRemoveAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -523,17 +601,26 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var oldFullPath = _sftpSession.GetCanonicalPath(oldPath);
-
-            var newFullPath = _sftpSession.GetCanonicalPath(newPath);
-
-            if (isPosix)
+            using var operation = StartOperation("RenameFile", oldPath);
+            try
             {
-                _sftpSession.RequestPosixRename(oldFullPath, newFullPath);
+                var oldFullPath = _sftpSession.GetCanonicalPath(oldPath);
+
+                var newFullPath = _sftpSession.GetCanonicalPath(newPath);
+
+                if (isPosix)
+                {
+                    _sftpSession.RequestPosixRename(oldFullPath, newFullPath);
+                }
+                else
+                {
+                    _sftpSession.RequestRename(oldFullPath, newFullPath);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _sftpSession.RequestRename(oldFullPath, newFullPath);
+                operation?.SetError(ex);
+                throw;
             }
         }
 
@@ -562,9 +649,18 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var oldFullPath = await _sftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
-            var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
-            await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("RenameFile", oldPath);
+            try
+            {
+                var oldFullPath = await _sftpSession.GetCanonicalPathAsync(oldPath, cancellationToken).ConfigureAwait(false);
+                var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
+                await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -588,11 +684,20 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("SymbolicLink", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var linkFullPath = _sftpSession.GetCanonicalPath(linkPath);
+                var linkFullPath = _sftpSession.GetCanonicalPath(linkPath);
 
-            _sftpSession.RequestSymLink(fullPath, linkFullPath);
+                _sftpSession.RequestSymLink(fullPath, linkFullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -643,9 +748,23 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            // The operation spans the whole enumeration. C# does not allow yield
+            // inside try/catch, so errors are recorded around each request instead.
+            using var operation = StartOperation("ListDirectory", path);
 
-            var handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            string fullPath;
+            byte[] handle;
+            try
+            {
+                fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+                handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+
             try
             {
                 var basePath = (fullPath[fullPath.Length - 1] == '/') ?
@@ -654,7 +773,17 @@ namespace Renci.SshNet
 
                 while (true)
                 {
-                    var files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    KeyValuePair<string, SftpFileAttributes>[]? files;
+                    try
+                    {
+                        files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        operation?.SetError(ex);
+                        throw;
+                    }
+
                     if (files is null)
                     {
                         break;
@@ -746,11 +875,20 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("Get", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var attributes = _sftpSession.RequestLStat(fullPath);
+                var attributes = _sftpSession.RequestLStat(fullPath);
 
-            return new SftpFile(_sftpSession, fullPath, attributes);
+                return new SftpFile(_sftpSession, fullPath, attributes);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -778,11 +916,20 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("Get", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
-            var attributes = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                var attributes = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
 
-            return new SftpFile(_sftpSession, fullPath, attributes);
+                return new SftpFile(_sftpSession, fullPath, attributes);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -807,35 +954,44 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
-
-            /*
-             * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
-             * been clear on how the server should respond when the specified path is not present on
-             * the server:
-             *
-             * SSH 1 to 4:
-             * No mention of how the server should respond if the path is not present on the server.
-             *
-             * SSH 5:
-             * The server SHOULD fail the request if the path is not present on the server.
-             *
-             * SSH 6:
-             * Draft 06: The server SHOULD fail the request if the path is not present on the server.
-             * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
-             *
-             * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
-             * currently only support up to v3.
-             */
-
+            using var operation = StartOperation("Exists", path);
             try
             {
-                _ = _sftpSession.RequestLStat(fullPath);
-                return true;
+                var fullPath = _sftpSession.GetCanonicalPath(path);
+
+                /*
+                 * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
+                 * been clear on how the server should respond when the specified path is not present on
+                 * the server:
+                 *
+                 * SSH 1 to 4:
+                 * No mention of how the server should respond if the path is not present on the server.
+                 *
+                 * SSH 5:
+                 * The server SHOULD fail the request if the path is not present on the server.
+                 *
+                 * SSH 6:
+                 * Draft 06: The server SHOULD fail the request if the path is not present on the server.
+                 * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
+                 *
+                 * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
+                 * currently only support up to v3.
+                 */
+
+                try
+                {
+                    _ = _sftpSession.RequestLStat(fullPath);
+                    return true;
+                }
+                catch (SftpPathNotFoundException)
+                {
+                    return false;
+                }
             }
-            catch (SftpPathNotFoundException)
+            catch (Exception ex)
             {
-                return false;
+                operation?.SetError(ex);
+                throw;
             }
         }
 
@@ -865,35 +1021,44 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-
-            /*
-             * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
-             * been clear on how the server should respond when the specified path is not present on
-             * the server:
-             *
-             * SSH 1 to 4:
-             * No mention of how the server should respond if the path is not present on the server.
-             *
-             * SSH 5:
-             * The server SHOULD fail the request if the path is not present on the server.
-             *
-             * SSH 6:
-             * Draft 06: The server SHOULD fail the request if the path is not present on the server.
-             * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
-             *
-             * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
-             * currently only support up to v3.
-             */
-
+            using var operation = StartOperation("Exists", path);
             try
             {
-                _ = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
-                return true;
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+                /*
+                 * Using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
+                 * been clear on how the server should respond when the specified path is not present on
+                 * the server:
+                 *
+                 * SSH 1 to 4:
+                 * No mention of how the server should respond if the path is not present on the server.
+                 *
+                 * SSH 5:
+                 * The server SHOULD fail the request if the path is not present on the server.
+                 *
+                 * SSH 6:
+                 * Draft 06: The server SHOULD fail the request if the path is not present on the server.
+                 * Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
+                 *
+                 * Note that SSH 6 (draft 06 and forward) allows for more control options, but we
+                 * currently only support up to v3.
+                 */
+
+                try
+                {
+                    _ = await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                    return true;
+                }
+                catch (SftpPathNotFoundException)
+                {
+                    return false;
+                }
             }
-            catch (SftpPathNotFoundException)
+            catch (Exception ex)
             {
-                return false;
+                operation?.SetError(ex);
+                throw;
             }
         }
 
@@ -1355,9 +1520,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("GetStatus", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            return _sftpSession.RequestStatVfs(fullPath);
+                return _sftpSession.RequestStatVfs(fullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1384,8 +1558,17 @@ namespace Renci.SshNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
-            return await _sftpSession.RequestStatVfsAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("GetStatus", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+                return await _sftpSession.RequestStatVfsAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         #region File Methods
@@ -1582,15 +1765,33 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Delete(string path)
         {
-            var file = Get(path);
-            file.Delete();
+            using var operation = StartOperation("Delete", path);
+            try
+            {
+                var file = Get(path);
+                file.Delete();
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <inheritdoc />
         public async Task DeleteAsync(string path, CancellationToken cancellationToken = default)
         {
-            var file = await GetAsync(path, cancellationToken).ConfigureAwait(false);
-            await file.DeleteAsync(cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("Delete", path);
+            try
+            {
+                var file = await GetAsync(path, cancellationToken).ConfigureAwait(false);
+                await file.DeleteAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -2043,9 +2244,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("GetAttributes", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            return _sftpSession.RequestLStat(fullPath);
+                return _sftpSession.RequestLStat(fullPath);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -2070,9 +2280,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+            using var operation = StartOperation("GetAttributes", path);
+            try
+            {
+                var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
 
-            return await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+                return await _sftpSession.RequestLStatAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -2092,9 +2311,18 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            using var operation = StartOperation("SetAttributes", path);
+            try
+            {
+                var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            _sftpSession.RequestSetStat(fullPath, fileAttributes);
+                _sftpSession.RequestSetStat(fullPath, fileAttributes);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
         }
 
         #endregion // File Methods
@@ -2285,6 +2513,20 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client not connected.</exception>
         private List<ISftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult? asyncResult, Action<int>? listCallback)
         {
+            using var operation = StartOperation("ListDirectory", path);
+            try
+            {
+                return InternalListDirectoryCore(path, asyncResult, listCallback);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private List<ISftpFile> InternalListDirectoryCore(string path, SftpListDirectoryAsyncResult? asyncResult, Action<int>? listCallback)
+        {
             ArgumentNullException.ThrowIfNull(path);
 
             if (_sftpSession is null)
@@ -2337,8 +2579,48 @@ namespace Renci.SshNet
             return result;
         }
 
+        private SshNetTelemetry.Operation? StartOperation(string operation, string? path)
+        {
+            return SshNetTelemetry.StartOperation(TelemetryProtocolName, operation, ConnectionInfo, path);
+        }
+
+        private async Task ChangeDirectoryCoreAsync(ISftpSession sftpSession, string path, CancellationToken cancellationToken)
+        {
+            using var operation = StartOperation("ChangeDirectory", path);
+            try
+            {
+                await sftpSession.ChangeDirectoryAsync(path, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
 #pragma warning disable CA1849 // Call async methods when in an async method
         private async Task InternalDownloadFile(
+            string path,
+            Stream output,
+            SftpDownloadAsyncResult? asyncResult,
+            IProgress<DownloadFileProgressReport>? downloadProgress,
+            bool isAsync,
+            CancellationToken cancellationToken)
+        {
+            using var operation = StartOperation("DownloadFile", path);
+            try
+            {
+                var bytesDownloaded = await InternalDownloadFileCore(path, output, asyncResult, downloadProgress, isAsync, cancellationToken).ConfigureAwait(false);
+                operation?.SetTag("sftp.transfer.bytes", (long)bytesDownloaded);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private async Task<ulong> InternalDownloadFileCore(
             string path,
             Stream output,
             SftpDownloadAsyncResult? asyncResult,
@@ -2386,10 +2668,10 @@ namespace Renci.SshNet
             // The below is effectively sftpStream.CopyTo{Async}(output) with consideration
             // for downloadCallback/asyncResult.
 
+            ulong totalBytesRead = 0;
             var buffer = ArrayPool<byte>.Shared.Rent(81920);
             try
             {
-                ulong totalBytesRead = 0;
                 while (true)
                 {
                     // Cancel download
@@ -2447,9 +2729,33 @@ namespace Renci.SshNet
                     sftpStream.Dispose();
                 }
             }
+
+            return totalBytesRead;
         }
 
         private async Task InternalUploadFile(
+            Stream input,
+            string path,
+            Flags flags,
+            SftpUploadAsyncResult? asyncResult,
+            IProgress<UploadFileProgressReport>? uploadProgress,
+            bool isAsync,
+            CancellationToken cancellationToken)
+        {
+            using var operation = StartOperation("UploadFile", path);
+            try
+            {
+                var bytesUploaded = await InternalUploadFileCore(input, path, flags, asyncResult, uploadProgress, isAsync, cancellationToken).ConfigureAwait(false);
+                operation?.SetTag("sftp.transfer.bytes", (long)bytesUploaded);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private async Task<ulong> InternalUploadFileCore(
             Stream input,
             string path,
             Flags flags,
@@ -2593,6 +2899,8 @@ namespace Renci.SshNet
             {
                 _sftpSession.RequestClose(handle);
             }
+
+            return offset;
         }
 #pragma warning restore CA1849 // Call async methods when in an async method
 

@@ -21,6 +21,20 @@ namespace Renci.SshNet.Common
         public StatusCode StatusCode { get; }
 
         /// <summary>
+        /// Gets the path that is associated with this exception.
+        /// </summary>
+        /// <value>
+        /// The path that the failed operation was performed on, or <see langword="null"/>
+        /// if no path was passed to the constructor for this instance.
+        /// </value>
+        /// <remarks>
+        /// This is populated only for operations which act on a single path, such as
+        /// opening or deleting a file. It is <see langword="null"/> for operations acting
+        /// on an open handle or on more than one path, such as renaming a file.
+        /// </remarks>
+        public string? Path { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SftpException"/> class.
         /// </summary>
         /// <param name="statusCode">The status code that indicates the error that occurred.</param>
@@ -46,15 +60,28 @@ namespace Renci.SshNet.Common
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public SftpException(StatusCode statusCode, string? message, Exception? innerException)
-            : base(string.IsNullOrEmpty(message) ? GetDefaultMessage(statusCode) : message, innerException)
+            : this(statusCode, message, path: null, innerException)
         {
-            StatusCode = statusCode;
         }
 
-        private protected static string GetDefaultMessage(StatusCode statusCode)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpException"/> class.
+        /// </summary>
+        /// <param name="statusCode">The status code that indicates the error that occurred.</param>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="path">The path that the failed operation was performed on.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
+        public SftpException(StatusCode statusCode, string? message, string? path, Exception? innerException)
+            : base(string.IsNullOrEmpty(message) ? GetDefaultMessage(statusCode, path) : message, innerException)
+        {
+            StatusCode = statusCode;
+            Path = path;
+        }
+
+        private static string GetDefaultMessage(StatusCode statusCode, string? path)
         {
 #pragma warning disable IDE0072 // Add missing cases
-            return statusCode switch
+            var message = statusCode switch
             {
                 StatusCode.Ok => "The operation completed successfully.",
                 StatusCode.NoSuchFile => "A reference was made to a file that does not exist.",
@@ -65,6 +92,10 @@ namespace Renci.SshNet.Common
                 _ => statusCode.ToString()
             };
 #pragma warning restore IDE0072 // Add missing cases
+
+            return path is not null
+                ? $"{message} Path: '{path}'."
+                : message;
         }
 
 #if NETFRAMEWORK

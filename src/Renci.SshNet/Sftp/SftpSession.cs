@@ -1034,7 +1034,7 @@ namespace Renci.SshNet.Sftp
                                                    _encoding,
                                                    response =>
                                                    {
-                                                       exception = GetSftpException(response);
+                                                       exception = GetSftpException(response, path);
                                                        wait.SetIgnoringObjectDisposed();
                                                    });
 
@@ -1071,7 +1071,7 @@ namespace Renci.SshNet.Sftp
                                                      }
                                                      else
                                                      {
-                                                         _ = tcs.TrySetException(GetSftpException(response));
+                                                         _ = tcs.TrySetException(GetSftpException(response, path));
                                                      }
                                                  }));
 
@@ -1519,25 +1519,23 @@ namespace Renci.SshNet.Sftp
         internal static SftpException GetSftpException(SftpStatusResponse response, string path = null)
         {
 #pragma warning disable IDE0010 // Add missing cases
+            var message = response.ErrorMessage;
+
+            if (!string.IsNullOrEmpty(message) && path is not null)
+            {
+                message = $"{message}{(message[^1] == '.' ? " " : ". ")}Path: '{path}'.";
+            }
+
             switch (response.StatusCode)
             {
                 case StatusCode.Ok:
                     return null;
                 case StatusCode.PermissionDenied:
-                    return new SftpPermissionDeniedException(response.ErrorMessage);
+                    return new SftpPermissionDeniedException(message, path, innerException: null);
                 case StatusCode.NoSuchFile:
-
-                    var message = response.ErrorMessage;
-
-                    if (!string.IsNullOrEmpty(message) && path is not null)
-                    {
-                        message = $"{message}{(message[^1] == '.' ? " " : ". ")}Path: '{path}'.";
-                    }
-
                     return new SftpPathNotFoundException(message, path);
-
                 default:
-                    return new SftpException(response.StatusCode, response.ErrorMessage);
+                    return new SftpException(response.StatusCode, message, path, innerException: null);
             }
 #pragma warning restore IDE0010 // Add missing cases
         }

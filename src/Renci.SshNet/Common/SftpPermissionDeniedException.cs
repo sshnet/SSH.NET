@@ -37,7 +37,18 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <inheritdoc cref="Exception(string, Exception)" path="/param"/>
         public SftpPermissionDeniedException(string? message, Exception? innerException)
-            : base(Code, message, innerException)
+            : this(message, path: null, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpPermissionDeniedException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="path">The path that the failed operation was performed on.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
+        public SftpPermissionDeniedException(string? message, string? path, Exception? innerException)
+            : base(Code, message, path, innerException)
         {
         }
 

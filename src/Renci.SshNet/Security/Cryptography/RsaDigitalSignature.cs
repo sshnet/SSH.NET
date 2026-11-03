@@ -2,6 +2,8 @@
 using System;
 using System.Security.Cryptography;
 
+using Renci.SshNet.Common;
+
 namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
@@ -35,7 +37,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <inheritdoc/>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            return _key.RSA.VerifyData(input, signature, _hashAlgorithmName, RSASignaturePadding.Pkcs1);
+            return _key.RSA.VerifyData(input, signature.Pad((_key.RSA.KeySize + 7) / 8), _hashAlgorithmName, RSASignaturePadding.Pkcs1);
         }
 
         /// <inheritdoc/>

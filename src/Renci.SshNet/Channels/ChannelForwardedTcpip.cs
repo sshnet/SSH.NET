@@ -98,6 +98,18 @@ namespace Renci.SshNet.Channels
             SocketAbstraction.ReadContinuous(_socket, buffer, 0, buffer.Length, SendData);
         }
 
+        /// <summary>
+        /// Called when channel has no more data to receive.
+        /// </summary>
+        protected override void OnEof()
+        {
+            base.OnEof();
+
+            // the server will not send any more data; shut down the send direction of the socket so the
+            // connected host receives end-of-stream, while it can still send data back over the channel
+            ShutdownSocket(SocketShutdown.Send);
+        }
+
         protected override void OnErrorOccurred(Exception exp)
         {
             base.OnErrorOccurred(exp);

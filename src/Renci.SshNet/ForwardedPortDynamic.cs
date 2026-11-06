@@ -504,19 +504,13 @@ namespace Renci.SshNet
 
             channel.Open(host, port, this, socket);
 
-            SocketAbstraction.SendByte(socket, 0x00);
+            var channelOpen = channel.IsOpen;
 
-            if (channel.IsOpen)
-            {
-                SocketAbstraction.SendByte(socket, 0x5a);
-                SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
-                SocketAbstraction.Send(socket, ipBuffer, 0, ipBuffer.Length);
-                return true;
-            }
+            var socksReply = CreateSocks4Reply(channelOpen, portBuffer, ipBuffer);
 
-            // signal that request was rejected or failed
-            SocketAbstraction.SendByte(socket, 0x5b);
-            return false;
+            SocketAbstraction.Send(socket, socksReply, 0, socksReply.Length);
+
+            return channelOpen;
         }
 
         private bool HandleSocks5(Socket socket, IChannelDirectTcpip channel, TimeSpan timeout)
@@ -669,6 +663,52 @@ namespace Renci.SshNet
                 default:
                     throw new ProxyException(string.Format(CultureInfo.InvariantCulture, "SOCKS5: Address type '{0}' is not supported.", addressType));
             }
+        }
+
+        /// <summary>
+        /// Creates the reply to a SOCKS4 request.
+        /// </summary>
+        /// <param name="channelOpen"><see langword="true"/> if the channel was opened; otherwise, <see langword="false"/>.</param>
+        /// <param name="portBuffer">The destination port from the request.</param>
+        /// <param name="ipBuffer">The destination address from the request.</param>
+        /// <returns>
+        /// An array of <see cref="byte"/> containing the reply.
+        /// </returns>
+        /// <remarks>
+        /// The reply is eight bytes whether or not the request was granted. The destination port and
+        /// address are defined to be ignored by the client, but they are not optional: a client that
+        /// reads the reply as the fixed-width record it is - which includes the SOCKS4 client in this
+        /// library - would block waiting for the remaining six bytes of a rejection.
+        /// </remarks>
+        private static byte[] CreateSocks4Reply(bool channelOpen, byte[] portBuffer, byte[] ipBuffer)
+        {
+            var socksReply = new byte[// Reply version; fixed: 0x00
+                                      1 +
+
+                                      // Reply code
+                                      1 +
+
+                                      // Destination port; ignored by the client
+                                      2 +
+
+                                      // Destination IPv4 address; ignored by the client
+                                      4];
+
+            socksReply[0] = 0x00;
+
+            if (channelOpen)
+            {
+                socksReply[1] = 0x5a; // request granted
+            }
+            else
+            {
+                socksReply[1] = 0x5b; // request rejected or failed
+            }
+
+            Buffer.BlockCopy(portBuffer, 0, socksReply, 2, portBuffer.Length);
+            Buffer.BlockCopy(ipBuffer, 0, socksReply, 4, ipBuffer.Length);
+
+            return socksReply;
         }
 
         private static byte[] CreateSocks5Reply(bool channelOpen)

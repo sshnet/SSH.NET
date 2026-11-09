@@ -119,22 +119,13 @@ namespace Renci.SshNet.Sftp
             }
 
             // Check for special cases
-            if (fullPath.EndsWith("/.", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.EndsWith("/..", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.Equals("/", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.IndexOf('/', StringComparison.OrdinalIgnoreCase) < 0)
+            if (IsSpecialPath(fullPath))
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
-
-            var partialFullPath = string.Join('/', pathParts, 0, pathParts.Length - 1);
-
-            if (string.IsNullOrEmpty(partialFullPath))
-            {
-                partialFullPath = "/";
-            }
+            var partialFullPath = ExtractPartialFullPath(pathParts);
 
             realPathFiles = RequestRealPath(partialFullPath, nullOnError: true);
 
@@ -157,6 +148,30 @@ namespace Renci.SshNet.Sftp
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
+        internal static bool IsSpecialPath(string fullPath)
+        {
+            return fullPath.EndsWith("/.", StringComparison.Ordinal) ||
+                    fullPath.EndsWith("/..", StringComparison.Ordinal) ||
+                    fullPath.Equals("/", StringComparison.Ordinal) ||
+#if NET
+                    fullPath.IndexOf('/', StringComparison.Ordinal) < 0
+#else
+                    fullPath.IndexOf('/') < 0
+#endif
+            ;
+        }
+
+        internal static string ExtractPartialFullPath(string[] pathParts)
+        {
+            var partialFullPath = string.Join('/', pathParts, 0, pathParts.Length - 1);
+            if (string.IsNullOrEmpty(partialFullPath))
+            {
+                partialFullPath = "/";
+            }
+
+            return partialFullPath;
+        }
+
         /// <inheritdoc/>
         public async Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
         {
@@ -175,30 +190,13 @@ namespace Renci.SshNet.Sftp
             }
 
             // Check for special cases
-            if (fullPath.EndsWith("/.", StringComparison.Ordinal) ||
-                fullPath.EndsWith("/..", StringComparison.Ordinal) ||
-                fullPath.Equals("/", StringComparison.Ordinal) ||
-#if NET
-                fullPath.IndexOf('/', StringComparison.Ordinal) < 0)
-#else
-                fullPath.IndexOf('/') < 0)
-#endif
+            if (IsSpecialPath(fullPath))
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
-
-#if NET
-            var partialFullPath = string.Join('/', pathParts);
-#else
-            var partialFullPath = string.Join("/", pathParts);
-#endif
-
-            if (string.IsNullOrEmpty(partialFullPath))
-            {
-                partialFullPath = "/";
-            }
+            var partialFullPath = ExtractPartialFullPath(pathParts);
 
             realPathFiles = await RequestRealPathAsync(partialFullPath, nullOnError: true, cancellationToken).ConfigureAwait(false);
 

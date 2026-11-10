@@ -45,6 +45,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
+        public void FromBytes_ExtendedCountExceedsData_Throws()
+        {
+            var ex = Assert.ThrowsExactly<SshException>(() => SftpFileAttributes.FromBytes([
+                0x80, 0, 0, 0, // flags: extended
+                0x7F, 0xFF, 0xFF, 0xFF, // extended count
+                0, 0, 0, 1, (byte)'a', // extension name
+                0, 0, 0, 1, (byte)'b', // extension data
+            ]));
+
+            Assert.AreEqual("Invalid extended attribute count: 2147483647.", ex.Message);
+        }
+
+        [TestMethod]
         public void FromBytesGetBytes()
         {
             // 81a4 in hex = 100644 in octal

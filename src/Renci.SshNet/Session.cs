@@ -1015,34 +1015,40 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (!_keyExchangeCompletedWaitHandle.IsSet && message is not IKeyExchangedAllowed)
+            while (true)
             {
+                _socketWriteLock.Enter();
+
+                if (_keyExchangeCompletedWaitHandle.IsSet || message is IKeyExchangedAllowed)
+                {
+                    break;
+                }
+
                 // Wait for key exchange to be completed
+                _socketWriteLock.Exit();
                 WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
             }
 
-            if (_logger.IsEnabled(LogLevel.Trace))
+            try
             {
-                _logger.LogTrace("[{SessionId}] Sending message {MessageName}({MessageNumber}) to server: '{Message}'.", SessionIdHex, message.MessageName, message.MessageNumber, message.ToString());
-            }
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace("[{SessionId}] Sending message {MessageName}({MessageNumber}) to server: '{Message}'.", SessionIdHex, message.MessageName, message.MessageNumber, message.ToString());
+                }
 
-            var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
+                var paddingMultiplier = _clientCipher is null ? (byte)8 : Math.Max((byte)8, _clientCipher.MinimumSize);
 
-            var macLength = 0;
+                var macLength = 0;
 
-            if (_clientAead)
-            {
-                macLength = _clientCipher.TagSize;
-            }
-            else if (_clientMac != null)
-            {
-                macLength = _clientMac.HashSize / 8;
-            }
+                if (_clientAead)
+                {
+                    macLength = _clientCipher.TagSize;
+                }
+                else if (_clientMac != null)
+                {
+                    macLength = _clientMac.HashSize / 8;
+                }
 
-            // take a write lock to ensure the outbound packet sequence number is incremented
-            // atomically, and only after the packet has actually been sent
-            lock (_socketWriteLock)
-            {
                 var activeBufferLength = message.GetPacket(
                     ref _sendBuffer,
                     paddingMultiplier,
@@ -1115,6 +1121,10 @@ namespace Renci.SshNet
                     // which messages are sent must follow the outbound packet sequence number
                     _outboundPacketSequence++;
                 }
+            }
+            finally
+            {
+                _socketWriteLock.Exit();
             }
         }
 
@@ -1327,6 +1337,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var numberOfBytesToDecrypt = 4 + packetLength - blockSize;
@@ -1374,6 +1389,11 @@ namespace Renci.SshNet
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
+#if NETFRAMEWORK
+                // Ensure MAC is reset so that it can be reused for the next packet
+                // It is only required for certain older .NET Framework builds, e.g., mscorlib.dll version 4.8.4110.0
+                _serverMac.Initialize();
+#endif
             }
 
             var paddingLength = _receiveBuffer.ActiveReadOnlySpan[packetLengthFieldLength];
@@ -1490,7 +1510,7 @@ namespace Renci.SshNet
             }
 
             // Disable messages that are not key exchange related
-            _sshMessageFactory.DisableNonKeyExchangeMessages(_isStrictKex);
+            _sshMessageFactory.DisableNonKeyExchangeMessages(strict: _isStrictKex && _isInitialKex);
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
                                                              message.KeyExchangeAlgorithms);

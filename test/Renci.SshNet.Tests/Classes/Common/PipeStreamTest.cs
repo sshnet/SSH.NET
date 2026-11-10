@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -154,6 +155,115 @@ namespace Renci.SshNet.Tests.Classes.Common
             await pipeStream.WriteAsync(new byte[] { 1, 2, 3, 4 });
 
             Assert.AreEqual(0, await readTask);
+        }
+#endif
+
+        [TestMethod]
+        public async Task ReadAsync_DataAvailable_CompletesSynchronously()
+        {
+            var pipeStream = new PipeStream();
+
+            pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+
+            var readBuffer = new byte[3];
+
+            Task<int> readTask = pipeStream.ReadAsync(readBuffer, 0, 3);
+
+            Assert.IsTrue(readTask.IsCompleted);
+            Assert.AreEqual(3, await readTask);
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, readBuffer);
+
+            readTask = pipeStream.ReadAsync(readBuffer, 0, 3);
+
+            Assert.IsTrue(readTask.IsCompleted);
+            Assert.AreEqual(1, await readTask);
+            Assert.AreEqual(4, readBuffer[0]);
+
+            // No data left, so the next read should block.
+            readTask = pipeStream.ReadAsync(readBuffer, 0, 3);
+
+            await Task.Delay(50);
+
+            Assert.IsFalse(readTask.IsCompleted);
+
+            await pipeStream.WriteAsync(new byte[] { 5 }, 0, 1);
+
+            Assert.AreEqual(1, await readTask);
+            Assert.AreEqual(5, readBuffer[0]);
+        }
+
+        [TestMethod]
+        public async Task ReadAsync_AfterDispose_CompletesSynchronously()
+        {
+            var pipeStream = new PipeStream();
+
+            pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+
+            pipeStream.Dispose();
+
+            Task<int> readTask = pipeStream.ReadAsync(new byte[5], 0, 5);
+
+            Assert.IsTrue(readTask.IsCompleted);
+            Assert.AreEqual(4, await readTask);
+
+            readTask = pipeStream.ReadAsync(new byte[5], 0, 5);
+
+            Assert.IsTrue(readTask.IsCompleted);
+            Assert.AreEqual(0, await readTask);
+        }
+
+        [TestMethod]
+        public async Task ReadAsync_DataAvailable_CancelledToken_TaskIsCancelled()
+        {
+            var pipeStream = new PipeStream();
+
+            pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+
+            var token = new CancellationToken(canceled: true);
+
+            Task<int> readTask = pipeStream.ReadAsync(new byte[4], 0, 4, token);
+
+            Assert.IsTrue(readTask.IsCanceled);
+
+            var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => readTask);
+
+            Assert.AreEqual(token, ex.CancellationToken);
+            Assert.AreEqual(4, pipeStream.Length);
+        }
+
+#if NET
+        [TestMethod]
+        public async Task ReadAsync_Memory_DataAvailable_CompletesSynchronously()
+        {
+            var pipeStream = new PipeStream();
+
+            pipeStream.Write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+
+            var readBuffer = new byte[3];
+
+            ValueTask<int> readTask = pipeStream.ReadAsync(readBuffer.AsMemory());
+
+            Assert.IsTrue(readTask.IsCompletedSuccessfully);
+            Assert.AreEqual(3, await readTask);
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, readBuffer);
+
+            ValueTask<int> readTask2 = pipeStream.ReadAsync(readBuffer.AsMemory());
+
+            Assert.IsTrue(readTask2.IsCompletedSuccessfully);
+            Assert.AreEqual(1, await readTask2);
+            Assert.AreEqual(4, readBuffer[0]);
+
+            // No data left, so the next read should block.
+            ValueTask<int> readTask3 = pipeStream.ReadAsync(readBuffer.AsMemory());
+
+            await Task.Delay(50);
+
+            Assert.IsFalse(readTask3.IsCompleted);
+
+            await pipeStream.WriteAsync(new byte[] { 5 });
+
+            Assert.AreEqual(1, await readTask3);
+            Assert.AreEqual(5, readBuffer[0]);
         }
 #endif
 

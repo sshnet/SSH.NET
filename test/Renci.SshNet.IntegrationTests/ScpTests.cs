@@ -2070,6 +2070,233 @@ namespace Renci.SshNet.IntegrationTests
             }
         }
 
+        /// <summary>
+        /// A recursive download must never write outside of the destination directory when the
+        /// remote tree contains a directory named "...". It is an ordinary name on the (Linux)
+        /// server, but Windows path normalization resolves it to the current directory.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Download_DirectoryInfo_DirectoryNamedThreeDots_StaysInsideDestination()
+        {
+            var remoteDirectory = "/tmp/sshnet-scp-dots-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.CreateDirectory(remoteDirectory);
+                client.CreateDirectory(remoteDirectory + "/...");
+                client.WriteAllText(remoteDirectory + "/.../inner.txt", "inner");
+                client.WriteAllText(remoteDirectory + "/outer.txt", "outer");
+            }
+
+            var localRoot = Path.Combine(Path.GetTempPath(), "sshnet-scp-dots-" + Guid.NewGuid().ToString("N"));
+            var destination = Directory.CreateDirectory(Path.Combine(localRoot, "download"));
+
+            try
+            {
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+
+                    if (Path.DirectorySeparatorChar == '\\')
+                    {
+                        _ = Assert.ThrowsExactly<ScpException>(() => client.Download(remoteDirectory, destination));
+                    }
+                    else
+                    {
+                        client.Download(remoteDirectory, destination);
+                        Assert.AreEqual("inner", File.ReadAllText(Path.Combine(destination.FullName, "...", "inner.txt")));
+                        Assert.AreEqual("outer", File.ReadAllText(Path.Combine(destination.FullName, "outer.txt")));
+                    }
+                }
+
+                // Nothing should be written outside of the destination directory on any platform.
+                CollectionAssert.AreEqual(new[] { destination.FullName }, Directory.GetFileSystemEntries(localRoot));
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+
+                Directory.Delete(localRoot, recursive: true);
+            }
+        }
+
+        /// <summary>
+        /// A file whose name contains the text of a D record must be downloaded as a file, with its
+        /// content written verbatim rather than interpreted as SCP records.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Download_DirectoryInfo_FileNameContainingRecordText_IsDownloadedAsFile()
+        {
+            const string FileName = "zD0755 0 x";
+            const string Content = "E\nC0644 8 injected.txt\ninjected";
+
+            var remoteDirectory = "/tmp/sshnet-scp-records-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SftpClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                client.CreateDirectory(remoteDirectory);
+                client.WriteAllText(remoteDirectory + "/" + FileName, Content);
+            }
+
+            var localRoot = Path.Combine(Path.GetTempPath(), "sshnet-scp-records-" + Guid.NewGuid().ToString("N"));
+            var destination = Directory.CreateDirectory(Path.Combine(localRoot, "download"));
+
+            try
+            {
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+                    client.Download(remoteDirectory, destination);
+                }
+
+                var filePath = Path.Combine(destination.FullName, FileName);
+
+                CollectionAssert.AreEquivalent(
+                    new[] { destination.FullName, filePath },
+                    Directory.GetFileSystemEntries(localRoot, "*", SearchOption.AllDirectories));
+                Assert.AreEqual(Content, File.ReadAllText(filePath));
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+
+                Directory.Delete(localRoot, recursive: true);
+            }
+        }
+
+        /// <summary>
+        /// A line feed in the file name part of the upload path must not be sent in the C record. It would
+        /// end the record early: the server reads the rest of the name as the start of the file content,
+        /// and content crafted to match is then read as further records, creating another file.
+        /// </summary>
+        [TestMethod]
+        public void Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            // The server reads the rest of the name (22 x's) and the line feed that ends the record as the
+            // start of the 29 bytes of content, followed by "report". It then reads the "\0" as the status
+            // byte that ends the file, and the remaining 22 bytes as a C record for extra.txt and its content.
+            var fileName = "report.txt\n" + new string('x', 22);
+            var content = "report\0C0644 4 extra.txt\ndata"u8.ToArray();
+
+            AssertNameWithLineFeedDoesNotCreateFiles<ArgumentException>(
+                (client, remoteDirectory) =>
+                {
+                    using (var source = new MemoryStream(content))
+                    {
+                        client.Upload(source, remoteDirectory + "/" + fileName);
+                    }
+                });
+        }
+
+        /// <inheritdoc cref="Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles"/>
+        [TestMethod]
+        public void Scp_Upload_FileInfo_FileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            var localFile = Path.GetTempFileName();
+            File.WriteAllBytes(localFile, "report\0C0644 4 extra.txt\ndata"u8.ToArray());
+
+            try
+            {
+                AssertNameWithLineFeedDoesNotCreateFiles<ArgumentException>((client, remoteDirectory)
+                    => client.Upload(new FileInfo(localFile), remoteDirectory + "/report.txt\n" + new string('x', 22)));
+            }
+            finally
+            {
+                File.Delete(localFile);
+            }
+        }
+
+        /// <summary>
+        /// A local file whose name contains a line feed must not be sent in a C record when uploading a
+        /// directory; see <see cref="Scp_Upload_Stream_FileNameWithLineFeed_DoesNotCreateFiles"/>.
+        /// </summary>
+        [TestMethod]
+        [OSCondition(ConditionMode.Exclude, OperatingSystems.Windows,
+            IgnoreMessage = "A line feed is not valid in a file name on Windows.")]
+        public void Scp_Upload_DirectoryInfo_LocalFileNameWithLineFeed_DoesNotCreateFiles()
+        {
+            var localDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "sshnet-scp-lf-" + Guid.NewGuid().ToString("N")));
+            File.WriteAllBytes(Path.Combine(localDirectory.FullName, "report.txt\n" + new string('x', 22)),
+                               "report\0C0644 4 extra.txt\ndata"u8.ToArray());
+
+            try
+            {
+                AssertNameWithLineFeedDoesNotCreateFiles<ScpException>((client, remoteDirectory)
+                    => client.Upload(localDirectory, remoteDirectory));
+            }
+            finally
+            {
+                localDirectory.Delete(recursive: true);
+            }
+        }
+
+        /// <summary>
+        /// Runs <paramref name="upload"/> into a new, empty remote directory, and asserts that it throws
+        /// <typeparamref name="TException"/> without creating anything in that directory.
+        /// </summary>
+        private void AssertNameWithLineFeedDoesNotCreateFiles<TException>(Action<ScpClient, string> upload)
+            where TException : Exception
+        {
+            var remoteDirectory = "/tmp/sshnet-scp-lf-" + Guid.NewGuid().ToString("N");
+
+            using (var client = new SshClient(_connectionInfoFactory.Create()))
+            {
+                client.Connect();
+                _ = client.RunCommand("mkdir -p '" + remoteDirectory + "'");
+            }
+
+            try
+            {
+                Exception exception = null;
+
+                using (var client = new ScpClient(_connectionInfoFactory.Create(), _remotePathTransformation))
+                {
+                    client.Connect();
+
+                    try
+                    {
+                        upload(client, remoteDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
+                }
+
+                using (var client = new SftpClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+
+                    var entries = client.ListDirectory(remoteDirectory)
+                                        .Where(f => f.Name is not "." and not "..")
+                                        .Select(f => f.Name)
+                                        .ToArray();
+
+                    Assert.IsEmpty(entries, "Files were created on the server: " + string.Join(", ", entries));
+                }
+
+                Assert.IsInstanceOfType<TException>(exception);
+            }
+            finally
+            {
+                using (var client = new SshClient(_connectionInfoFactory.Create()))
+                {
+                    client.Connect();
+                    _ = client.RunCommand("rm -rf '" + remoteDirectory + "'");
+                }
+            }
+        }
+
         private static void CreateRemoteFile(ScpClient client, string remoteFile, int size)
         {
             var file = CreateTempFile(size);

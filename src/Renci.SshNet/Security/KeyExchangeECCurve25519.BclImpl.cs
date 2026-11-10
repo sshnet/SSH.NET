@@ -1,4 +1,4 @@
-﻿#if NET
+﻿#if NET && !NET11_0_OR_GREATER
 using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security

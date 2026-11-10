@@ -567,6 +567,8 @@ namespace Renci.SshNet
                 _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
                                             .Connect(ConnectionInfo);
 
+                _socket.SendTimeout = ConnectionInfo.SendTimeout.AsTimeout();
+
                 var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                             .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
 
@@ -691,6 +693,8 @@ namespace Renci.SshNet
 
                 _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
                                             .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+
+                _socket.SendTimeout = ConnectionInfo.SendTimeout.AsTimeout();
 
                 var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
                                                             .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);

@@ -5,6 +5,7 @@
     <Product>SSH.NET</Product>
     <AssemblyTitle>SSH.NET</AssemblyTitle>
     <TargetFrameworks>net462;netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SshNetTargetFramework)' != ''">$(SshNetTargetFramework)</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -54,6 +55,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
     <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 

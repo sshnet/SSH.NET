@@ -44,6 +44,9 @@ jobs:
           -p:CoverletOutput=../../coverlet/linux_unit_test_net_10_coverage.xml \
           test/Renci.SshNet.Tests/
 
+    - name: Run Unit Tests against the .NET Standard asset
+      run: dotnet test -f net10.0 -p:SshNetTargetFramework=netstandard2.0 test/Renci.SshNet.Tests/
+
     - name: Run Integration Tests .NET
       run: |
         dotnet test \

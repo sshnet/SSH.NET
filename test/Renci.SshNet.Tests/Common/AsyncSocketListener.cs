@@ -5,6 +5,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
+#if NET9_0_OR_GREATER
+using Lock = System.Threading.Lock;
+#endif
+
 using Renci.SshNet.Common;
 #pragma warning restore IDE0005
 

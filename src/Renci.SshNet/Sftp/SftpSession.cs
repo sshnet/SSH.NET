@@ -102,11 +102,26 @@ namespace Renci.SshNet.Sftp
         /// <inheritdoc/>
         public string GetCanonicalPath(string path)
         {
+            return GetCanonicalPathCore(path, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        /// <inheritdoc/>
+        public Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
+        {
+            return GetCanonicalPathCore(path, isAsync: true, cancellationToken);
+        }
+
+        private async Task<string> GetCanonicalPathCore(string path, bool isAsync, CancellationToken cancellationToken)
+        {
+            Debug.Assert(isAsync || cancellationToken == default);
+
             var fullPath = GetFullRemotePath(path);
 
             var canonizedPath = string.Empty;
 
-            var realPathFiles = RequestRealPath(fullPath, nullOnError: true);
+            var realPathFiles = isAsync
+                ? await RequestRealPathAsync(fullPath, nullOnError: true, cancellationToken).ConfigureAwait(false)
+                : RequestRealPath(fullPath, nullOnError: true);
 
             if (realPathFiles != null)
             {
@@ -119,86 +134,26 @@ namespace Renci.SshNet.Sftp
             }
 
             // Check for special cases
-            if (IsSpecialPath(fullPath))
+            if (fullPath.EndsWith("/.", StringComparison.Ordinal) ||
+                fullPath.EndsWith("/..", StringComparison.Ordinal) ||
+                fullPath.Equals("/", StringComparison.Ordinal) ||
+                fullPath.IndexOf('/', StringComparison.Ordinal) < 0)
             {
                 return fullPath;
             }
 
             var pathParts = fullPath.Split('/');
-            var partialFullPath = ExtractPartialFullPath(pathParts);
 
-            realPathFiles = RequestRealPath(partialFullPath, nullOnError: true);
-
-            if (realPathFiles != null)
-            {
-                canonizedPath = realPathFiles[0].Key;
-            }
-
-            if (string.IsNullOrEmpty(canonizedPath))
-            {
-                return fullPath;
-            }
-
-            var slash = string.Empty;
-            if (canonizedPath[canonizedPath.Length - 1] != '/')
-            {
-                slash = "/";
-            }
-
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
-        }
-
-        internal static bool IsSpecialPath(string fullPath)
-        {
-            return fullPath.EndsWith("/.", StringComparison.Ordinal) ||
-                    fullPath.EndsWith("/..", StringComparison.Ordinal) ||
-                    fullPath.Equals("/", StringComparison.Ordinal) ||
-#if NET
-                    fullPath.IndexOf('/', StringComparison.Ordinal) < 0
-#else
-                    fullPath.IndexOf('/') < 0
-#endif
-            ;
-        }
-
-        internal static string ExtractPartialFullPath(string[] pathParts)
-        {
             var partialFullPath = string.Join('/', pathParts, 0, pathParts.Length - 1);
+
             if (string.IsNullOrEmpty(partialFullPath))
             {
                 partialFullPath = "/";
             }
 
-            return partialFullPath;
-        }
-
-        /// <inheritdoc/>
-        public async Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
-        {
-            var fullPath = GetFullRemotePath(path);
-
-            var canonizedPath = string.Empty;
-            var realPathFiles = await RequestRealPathAsync(fullPath, nullOnError: true, cancellationToken).ConfigureAwait(false);
-            if (realPathFiles != null)
-            {
-                canonizedPath = realPathFiles[0].Key;
-            }
-
-            if (!string.IsNullOrEmpty(canonizedPath))
-            {
-                return canonizedPath;
-            }
-
-            // Check for special cases
-            if (IsSpecialPath(fullPath))
-            {
-                return fullPath;
-            }
-
-            var pathParts = fullPath.Split('/');
-            var partialFullPath = ExtractPartialFullPath(pathParts);
-
-            realPathFiles = await RequestRealPathAsync(partialFullPath, nullOnError: true, cancellationToken).ConfigureAwait(false);
+            realPathFiles = isAsync
+                ? await RequestRealPathAsync(partialFullPath, nullOnError: true, cancellationToken).ConfigureAwait(false)
+                : RequestRealPath(partialFullPath, nullOnError: true);
 
             if (realPathFiles != null)
             {
@@ -216,7 +171,7 @@ namespace Renci.SshNet.Sftp
                 slash = "/";
             }
 
-            return canonizedPath + slash + pathParts[pathParts.Length - 1];
+            return string.Concat(canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
         internal string GetFullRemotePath(string path)

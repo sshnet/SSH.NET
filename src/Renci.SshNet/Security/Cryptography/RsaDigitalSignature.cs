@@ -37,6 +37,8 @@ namespace Renci.SshNet.Security.Cryptography
         /// <inheritdoc/>
         public override bool Verify(byte[] input, byte[] signature)
         {
+            ArgumentNullException.ThrowIfNull(signature);
+
             return _key.RSA.VerifyData(input, signature.Pad((_key.RSA.KeySize + 7) / 8), _hashAlgorithmName, RSASignaturePadding.Pkcs1);
         }
 

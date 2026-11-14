@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-#if NET9_0_OR_GREATER
+#if NET
 using System.Threading;
 #endif
 

@@ -24,14 +24,11 @@ namespace Renci.SshNet.NetConf
         private int _messageId;
 
 #if NET
-        private static readonly Regex LengthRegex = GetLengthRegex();
-        private static readonly Regex ReplyRegex = GetReplyRegex();
-
         [GeneratedRegex(LengthPattern)]
-        private static partial Regex GetLengthRegex();
+        private static partial Regex LengthRegex { get; }
 
         [GeneratedRegex(ReplyPattern)]
-        private static partial Regex GetReplyRegex();
+        private static partial Regex ReplyRegex { get; }
 #else
         private static readonly Regex LengthRegex = new Regex(LengthPattern, RegexOptions.Compiled);
         private static readonly Regex ReplyRegex = new Regex(ReplyPattern, RegexOptions.Compiled);

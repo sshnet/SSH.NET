@@ -1,4 +1,4 @@
-﻿#if NET9_0_OR_GREATER
+﻿#if NET
 #nullable enable
 #pragma warning disable SA1649 // File name should match first type name
 
@@ -209,15 +209,7 @@ namespace Renci.SshNet
 
         public bool TryAdd(TKey key, TValue value, out int index)
         {
-#if NET10_0_OR_GREATER
             return _impl.TryAdd(key, value, out index);
-#else
-            var success = _impl.TryAdd(key, value);
-
-            index = _impl.IndexOf(key);
-
-            return success;
-#endif
         }
 
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
@@ -227,18 +219,7 @@ namespace Renci.SshNet
 
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value, out int index)
         {
-#if NET10_0_OR_GREATER
             return _impl.TryGetValue(key, out value, out index);
-#else
-            if (_impl.TryGetValue(key, out value))
-            {
-                index = _impl.IndexOf(key);
-                return true;
-            }
-
-            index = -1;
-            return false;
-#endif
         }
     }
 }

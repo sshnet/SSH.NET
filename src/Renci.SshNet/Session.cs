@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +33,18 @@ namespace Renci.SshNet
     {
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
+
+        /// <summary>
+        /// Maximum number of lines that we permit from the server when waiting
+        /// for a valid SSH identification string.
+        /// </summary>
+        private const int MaximumBannerLines = 1024;
+
+        /// <summary>
+        /// Maximum length of a line we permit from the server when waiting for
+        /// a valid SSH identification string.
+        /// </summary>
+        private const int MaximumBannerLineLength = 8192;
 
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
@@ -71,6 +84,8 @@ namespace Renci.SshNet
 
         internal static readonly string ClientVersionString =
             "SSH-2.0-Renci.SshNet.SshClient." + ThisAssembly.NuGetPackageVersion.Replace('-', '_');
+
+        internal static readonly byte[] ClientVersionBytes = [.. Encoding.ASCII.GetBytes(ClientVersionString), (byte)'\r', (byte)'\n'];
 
         /// <summary>
         /// Holds the factory to use for creating new services.
@@ -544,12 +559,40 @@ namespace Renci.SshNet
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         public void Connect()
         {
+            ConnectCore(isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Asynchronously connects to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        public Task ConnectAsync(CancellationToken cancellationToken)
+        {
+            return ConnectCore(isAsync: true, cancellationToken);
+        }
+
+        private async Task ConnectCore(bool isAsync, CancellationToken cancellationToken)
+        {
             if (IsConnected)
             {
                 return;
             }
 
-            _connectLock.Wait();
+            if (isAsync)
+            {
+                await _connectLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                Debug.Assert(cancellationToken == default);
+
+                _connectLock.Wait(CancellationToken.None);
+            }
 
             try
             {
@@ -564,11 +607,20 @@ namespace Renci.SshNet
                 // Build list of available messages while connecting
                 _sshMessageFactory = new SshMessageFactory();
 
-                _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .Connect(ConnectionInfo);
+                var connector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
 
-                var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
-                                                            .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
+                SshIdentification serverIdentification;
+
+                if (isAsync)
+                {
+                    _socket = await connector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+                    serverIdentification = await DoProtocolVersionExchange(_socket, ConnectionInfo.Timeout, isAsync: true, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    _socket = connector.Connect(ConnectionInfo);
+                    serverIdentification = DoProtocolVersionExchange(_socket, ConnectionInfo.Timeout, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+                }
 
                 // Set connection versions
                 ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
@@ -657,129 +709,160 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Asynchronously connects to the server.
-        /// </summary>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
-        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
-        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
-        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
-        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        private async Task<SshIdentification> DoProtocolVersionExchange(
+            Socket socket,
+            TimeSpan timeout,
+            bool isAsync,
+            CancellationToken cancellationToken)
         {
-            // If connected don't connect again
-            if (IsConnected)
+            if (isAsync)
             {
-                return;
+                _ = await socket.SendAsync(ClientVersionBytes, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                socket.SendTimeout = socket.ReceiveTimeout = timeout.AsTimeout();
+
+                _ = socket.Send(ClientVersionBytes);
             }
 
-            await _connectLock.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-            try
+            for (var n = 0; n < MaximumBannerLines; n++)
             {
-                if (IsConnected)
+                var bytesObserved = 0;
+                int indexOfLf;
+
+                while (true)
                 {
-                    return;
+                    var boundedLength = Math.Min(_receiveBuffer.ActiveLength, MaximumBannerLineLength);
+
+                    // Bound the search space below by what we have already observed, in order
+                    // to avoid O(n^2) behavior when the data comes in piecewise, and above by
+                    // the maximum line length to also avoid redundant work since we will throw
+                    // if we exceed that anyway.
+                    var relativeIndexOfNullOrLf = _receiveBuffer.ActiveReadOnlySpan
+                        .Slice(bytesObserved, boundedLength - bytesObserved)
+                        .IndexOfAny((byte)0, (byte)'\n');
+
+                    if (relativeIndexOfNullOrLf >= 0)
+                    {
+                        var indexOfNullOrLf = bytesObserved + relativeIndexOfNullOrLf;
+
+                        if (_receiveBuffer.ActiveReadOnlySpan[indexOfNullOrLf] == 0)
+                        {
+                            throw new SshConnectionException(
+                                "The server response contained an invalid null character before a valid SSH identification string was received.",
+                                DisconnectReason.ProtocolError);
+                        }
+
+                        indexOfLf = indexOfNullOrLf;
+                        break;
+                    }
+
+                    if (_receiveBuffer.ActiveLength >= MaximumBannerLineLength)
+                    {
+                        throw new SshConnectionException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "The server returned a banner line that exceeds the maximum allowed length of {0} bytes.",
+                                MaximumBannerLineLength),
+                            DisconnectReason.ProtocolError);
+                    }
+
+                    bytesObserved = _receiveBuffer.ActiveLength;
+
+                    _receiveBuffer.EnsureAvailableSpace(1);
+
+                    int bytesRead;
+                    if (isAsync)
+                    {
+#if NET
+                        bytesRead = await socket.ReceiveAsync(_receiveBuffer.AvailableMemory, cancellationToken).ConfigureAwait(false);
+#else
+                        bytesRead = await socket.ReceiveAsync(
+                            buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                            offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                            length: _receiveBuffer.AvailableLength,
+                            cancellationToken).ConfigureAwait(false);
+#endif
+                    }
+                    else
+                    {
+                        try
+                        {
+                            bytesRead = socket.Receive(
+                                buffer: _receiveBuffer.DangerousGetUnderlyingBuffer(),
+                                offset: _receiveBuffer.ActiveStartOffset + _receiveBuffer.ActiveLength,
+                                size: _receiveBuffer.AvailableLength,
+                                SocketFlags.None);
+                        }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                        {
+                            throw new SshOperationTimeoutException(
+                                string.Format(CultureInfo.InvariantCulture,
+                                "Socket read operation has timed out after {0:F0} milliseconds.",
+                                timeout.TotalMilliseconds),
+                                ex);
+                        }
+                    }
+
+                    _receiveBuffer.Commit(bytesRead);
+
+                    if (bytesRead == 0)
+                    {
+                        throw new SshConnectionException(
+                            "The connection to the remote server was closed before a valid SSH identification string was received.",
+                            DisconnectReason.ConnectionLost);
+                    }
                 }
 
-                // Reset connection specific information
-                Reset();
+                var currentLine = _receiveBuffer.ActiveReadOnlySpan.Slice(0, indexOfLf);
 
-                // Build list of available messages while connecting
-                _sshMessageFactory = new SshMessageFactory();
-
-                _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                            .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
-
-                var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
-                                                            .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);
-
-                // Set connection versions
-                ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
-
-                _logger.LogInformation("Server version '{ServerIdentification}'.", serverIdentification);
-
-                if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
+                if (!currentLine.IsEmpty && currentLine[^1] == (byte)'\r')
                 {
-                    throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
-                                                        DisconnectReason.ProtocolVersionNotSupported);
+                    currentLine = currentLine[..^1];
                 }
 
-                ServerIdentificationReceived?.Invoke(this, new SshIdentificationEventArgs(serverIdentification));
+                int indexOfDash;
 
-                // Register Transport response messages
-                RegisterMessage("SSH_MSG_DISCONNECT");
-                RegisterMessage("SSH_MSG_IGNORE");
-                RegisterMessage("SSH_MSG_UNIMPLEMENTED");
-                RegisterMessage("SSH_MSG_DEBUG");
-                RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
-                RegisterMessage("SSH_MSG_KEXINIT");
-                RegisterMessage("SSH_MSG_NEWKEYS");
-
-                // Some server implementations might sent this message first, prior to establishing encryption algorithm
-                RegisterMessage("SSH_MSG_USERAUTH_BANNER");
-
-                // Send our key exchange init.
-                // We need to do this before starting the message listener to avoid the case where we receive the server
-                // key exchange init and we continue the key exchange before having sent our own init.
-                _isInitialKex = true;
-                ClientInitMessage = BuildClientInitMessage(includeStrictKexPseudoAlgorithm: true);
-                SendMessage(ClientInitMessage);
-
-                // Mark the message listener threads as started
-                _ = _messageListenerCompleted.Reset();
-
-                // Start incoming request listener
-                // ToDo: Make message pump async, to not consume a thread for every session
-                _ = ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
-
-                // Wait for key exchange to be completed
-                WaitOnHandle(_keyExchangeCompletedWaitHandle.WaitHandle);
-
-                // If sessionId is not set then its not connected
-                if (SessionId is null)
+                if (!currentLine.StartsWith("SSH-"u8) ||
+                    (indexOfDash = currentLine.Slice(4).IndexOf((byte)'-')) < 0)
                 {
-                    Disconnect();
-                    return;
+                    // This line is not interesting to us, go for a new one.
+                    _receiveBuffer.Discard(indexOfLf + 1);
+                    continue;
                 }
 
-                // Request user authorization service
-                SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
+                var protocolVersion = Encoding.ASCII.GetString(_receiveBuffer.ActiveReadOnlySpan.Slice(4, indexOfDash));
 
-                // Wait for service to be accepted
-                WaitOnHandle(_serviceAccepted);
+                var softwareVersionAndComments = currentLine.Slice(4 + indexOfDash + 1);
 
-                if (string.IsNullOrEmpty(ConnectionInfo.Username))
+                var indexOfSpace = softwareVersionAndComments.IndexOf((byte)' ');
+
+                string softwareVersion;
+                string comments;
+
+                if (indexOfSpace >= 0)
                 {
-                    throw new SshException("Username is not specified.");
+                    softwareVersion = Encoding.ASCII.GetString(softwareVersionAndComments.Slice(0, indexOfSpace));
+                    comments = Encoding.UTF8.GetString(softwareVersionAndComments.Slice(indexOfSpace + 1));
+                }
+                else
+                {
+                    softwareVersion = Encoding.ASCII.GetString(softwareVersionAndComments);
+                    comments = null;
                 }
 
-                // Some servers send a global request immediately after successful authentication
-                // Avoid race condition by already enabling SSH_MSG_GLOBAL_REQUEST before authentication
-                RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
+                _receiveBuffer.Discard(indexOfLf + 1);
 
-                ConnectionInfo.Authenticate(this, _serviceFactory);
-                _isAuthenticated = true;
-
-                // Register Connection messages
-                RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-                RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
-                RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
-                RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
-                RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
-                RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
-                RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
-                RegisterMessage("SSH_MSG_CHANNEL_DATA");
-                RegisterMessage("SSH_MSG_CHANNEL_EOF");
-                RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
+                return new SshIdentification(protocolVersion, softwareVersion, comments);
             }
-            finally
-            {
-                _ = _connectLock.Release();
-            }
+
+            throw new SshConnectionException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "The server response exceeded the maximum allowed number of banner lines ({0}) before a valid SSH identification string was received.",
+                    MaximumBannerLines),
+                DisconnectReason.ProtocolError);
         }
 
         /// <summary>
@@ -2006,6 +2089,7 @@ namespace Renci.SshNet
             _isDisconnecting = false;
             _isAuthenticated = false;
             _exception = null;
+            _receiveBuffer.DiscardAll();
         }
 
         private static SshConnectionException CreateConnectionAbortedByServerException()

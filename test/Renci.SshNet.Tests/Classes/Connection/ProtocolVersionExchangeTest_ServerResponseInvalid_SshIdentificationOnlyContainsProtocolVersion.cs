@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -9,7 +8,6 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
@@ -18,14 +16,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class ProtocolVersionExchangeTest_ServerResponseInvalid_SshIdentificationOnlyContainsProtocolVersion
     {
         private AsyncSocketListener _server;
-        private ProtocolVersionExchange _protocolVersionExchange;
-        private string _clientVersion;
         private TimeSpan _timeout;
         private IPEndPoint _serverEndPoint;
         private List<byte> _dataReceivedByServer;
         private byte[] _serverIdentification;
-        private bool _clientDisconnected;
-        private Socket _client;
+        private SshClient _client;
         private SshConnectionException _actualException;
 
         [TestInitialize]
@@ -41,17 +36,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _server?.Dispose();
             _server = null;
 
-            if (_client != null)
-            {
-                _client.Shutdown(SocketShutdown.Both);
-                _client.Close();
-                _client = null;
-            }
+            _client?.Dispose();
+            _client = null;
         }
 
         protected void Arrange()
         {
-            _clientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
             _timeout = TimeSpan.FromSeconds(5);
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _dataReceivedByServer = new List<byte>();
@@ -67,19 +57,16 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
                     socket.Shutdown(SocketShutdown.Send);
                 };
-            _server.Disconnected += (socket) => _clientDisconnected = true;
 
-            _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _client.Connect(_serverEndPoint);
-
-            _protocolVersionExchange = new ProtocolVersionExchange();
+            _client = new SshClient(_serverEndPoint.Address.ToString(), _serverEndPoint.Port, "user", "password");
+            _client.ConnectionInfo.Timeout = _timeout;
         }
 
         protected void Act()
         {
             try
             {
-                _ = _protocolVersionExchange.Start(_clientVersion, _client, _timeout);
+                _client.Connect();
                 Assert.Fail();
             }
             catch (SshConnectionException ex)
@@ -92,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
 
         [TestMethod]
-        public void StartShouldHaveThrownSshConnectionException()
+        public void ConnectShouldHaveThrownSshConnectionException()
         {
             Assert.IsInstanceOfType<SshConnectionException>(_actualException);
             Assert.IsNull(_actualException.InnerException);
@@ -102,26 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ClientIdentificationWasSentToServer()
         {
-            var expected = Encoding.UTF8.GetBytes(_clientVersion);
-
-            Assert.HasCount(expected.Length + 2, _dataReceivedByServer);
-
-            CollectionAssert.AreEqual(expected, _dataReceivedByServer.Take(expected.Length).ToArray());
-            Assert.AreEqual(Session.CarriageReturn, _dataReceivedByServer[_dataReceivedByServer.Count - 2]);
-            Assert.AreEqual(Session.LineFeed, _dataReceivedByServer[_dataReceivedByServer.Count - 1]);
-        }
-
-        [TestMethod]
-        public void ConnectionIsClosedByServer()
-        {
-            Assert.IsTrue(_client.Connected);
-            Assert.IsFalse(_clientDisconnected);
-
-            var bytesReceived = _client.Receive(new byte[1]);
-            Assert.AreEqual(0, bytesReceived);
-
-            Assert.IsTrue(_client.Connected);
-            Assert.IsFalse(_clientDisconnected);
+            Assert.AreSequenceEqual(Session.ClientVersionBytes, _dataReceivedByServer);
         }
     }
 }

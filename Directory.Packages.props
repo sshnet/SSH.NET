@@ -12,7 +12,7 @@
     <PackageVersion Include="Meziantou.Analyzer" Version="3.0.317" />
     <!-- Should stay on LTS .NET releases. -->
     <PackageVersion Include="Microsoft.Bcl.Cryptography" Version="10.0.15" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.15" />
     <PackageVersion Include="MSTest" Version="4.5.2" />
     <PackageVersion Include="Moq" Version="4.21.0" />

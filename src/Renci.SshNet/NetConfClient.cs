@@ -202,6 +202,12 @@ namespace Renci.SshNet
         /// </value>
         public bool AutomaticMessageIdHandling { get; set; }
 
+        /// <inheritdoc/>
+        private protected override string TelemetryProtocolName
+        {
+            get { return "netconf"; }
+        }
+
         /// <summary>
         /// Sends the receive RPC.
         /// </summary>

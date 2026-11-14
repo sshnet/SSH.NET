@@ -49,6 +49,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets the protocol name used in telemetry for this client.
+        /// </summary>
+        private protected virtual string TelemetryProtocolName
+        {
+            get { return "ssh"; }
+        }
+
+        /// <summary>
         /// Gets the connection info.
         /// </summary>
         /// <value>
@@ -209,6 +217,20 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "Connect", _connectionInfo);
+            try
+            {
+                ConnectCore();
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private void ConnectCore()
+        {
             // TODO (see issue #1758):
             // we're not stopping the keep-alive timer and disposing the session here
             //
@@ -278,6 +300,20 @@ namespace Renci.SshNet
             CheckDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
+            using var operation = SshNetTelemetry.StartOperation(TelemetryProtocolName, "Connect", _connectionInfo);
+            try
+            {
+                await ConnectCoreAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                operation?.SetError(ex);
+                throw;
+            }
+        }
+
+        private async Task ConnectCoreAsync(CancellationToken cancellationToken)
+        {
             // TODO (see issue #1758):
             // we're not stopping the keep-alive timer and disposing the session here
             //

@@ -1,4 +1,4 @@
-﻿#if NET
+﻿#if NETFRAMEWORK || NET11_0_OR_GREATER
 using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security
@@ -7,39 +7,23 @@ namespace Renci.SshNet.Security
     {
         protected sealed class BclImpl : Impl
         {
-            private readonly ECCurve _curve;
-            private readonly ECDiffieHellman _clientECDH;
+            private readonly X25519DiffieHellman _clientX25519DH;
 
             public BclImpl()
             {
-                _curve = ECCurve.CreateFromFriendlyName("Curve25519");
-                _clientECDH = ECDiffieHellman.Create();
+                _clientX25519DH = X25519DiffieHellman.GenerateKey();
             }
 
             public override byte[] GenerateClientPublicKey()
             {
-                _clientECDH.GenerateKey(_curve);
-
-                var q = _clientECDH.PublicKey.ExportParameters().Q;
-
-                return q.X;
+                return _clientX25519DH.ExportPublicKey();
             }
 
             public override byte[] CalculateAgreement(byte[] serverPublicKey)
             {
-                var parameters = new ECParameters
-                {
-                    Curve = _curve,
-                    Q = new ECPoint
-                    {
-                        X = serverPublicKey,
-                        Y = new byte[serverPublicKey.Length]
-                    },
-                };
+                using var serverX25519DH = X25519DiffieHellman.ImportPublicKey(serverPublicKey);
 
-                using var serverECDH = ECDiffieHellman.Create(parameters);
-
-                return _clientECDH.DeriveRawSecretAgreement(serverECDH.PublicKey);
+                return _clientX25519DH.DeriveRawSecretAgreement(serverX25519DH.ExportPublicKey());
             }
 
             protected override void Dispose(bool disposing)
@@ -48,7 +32,7 @@ namespace Renci.SshNet.Security
 
                 if (disposing)
                 {
-                    _clientECDH.Dispose();
+                    _clientX25519DH.Dispose();
                 }
             }
         }

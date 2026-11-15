@@ -18,7 +18,7 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public sealed partial class SftpFileStream : Stream
     {
-        private const int MaxPendingReads = 100;
+        private readonly int _maxPendingReads;
 
         private readonly ISftpSession _session;
         private readonly FileAccess _access;
@@ -140,6 +140,7 @@ namespace Renci.SshNet.Sftp
             int writeBufferSize,
             byte[] handle,
             long position,
+            int maxPendingReads,
             SftpFileReader? initialReader)
         {
             Timeout = TimeSpan.FromSeconds(30);
@@ -148,6 +149,7 @@ namespace Renci.SshNet.Sftp
             _session = session;
             _access = access;
             _canSeek = canSeek;
+            _maxPendingReads = maxPendingReads;
 
             Handle = handle;
             _readBufferSize = readBufferSize;
@@ -163,9 +165,10 @@ namespace Renci.SshNet.Sftp
             FileMode mode,
             FileAccess access,
             int bufferSize,
-            bool isDownloadFile = false)
+            bool isDownloadFile = false,
+            int maxPendingReads = 100)
         {
-            return Open(session, path, mode, access, bufferSize, isDownloadFile, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+            return Open(session, path, mode, access, bufferSize, maxPendingReads, isDownloadFile, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         internal static Task<SftpFileStream> OpenAsync(
@@ -175,9 +178,10 @@ namespace Renci.SshNet.Sftp
             FileAccess access,
             int bufferSize,
             CancellationToken cancellationToken,
-            bool isDownloadFile = false)
+            bool isDownloadFile = false,
+            int maxPendingReads = 100)
         {
-            return Open(session, path, mode, access, bufferSize, isDownloadFile, isAsync: true, cancellationToken);
+            return Open(session, path, mode, access, bufferSize, maxPendingReads, isDownloadFile, isAsync: true, cancellationToken);
         }
 
         private static async Task<SftpFileStream> Open(
@@ -186,6 +190,7 @@ namespace Renci.SshNet.Sftp
             FileMode mode,
             FileAccess access,
             int bufferSize,
+            int maxPendingReads,
             bool isDownloadFile,
             bool isAsync,
             CancellationToken cancellationToken)
@@ -309,15 +314,15 @@ namespace Renci.SshNet.Sftp
                     // so we can let there be several in-flight requests from the get go.
                     // This optimisation is mostly only beneficial to smaller files on higher latency connections.
                     // The +2 is +1 for rounding up to cover the whole file, and +1 for the final request to receive EOF.
-                    var initialPendingReads = (int)Math.Max(1, Math.Min(MaxPendingReads, 2 + (attributes.Size / readBufferSize)));
+                    var initialPendingReads = (int)Math.Max(1, Math.Min(maxPendingReads, 2 + (attributes.Size / readBufferSize)));
 
-                    initialReader = new(handle, session, readBufferSize, position, MaxPendingReads, (ulong)attributes.Size, initialPendingReads);
+                    initialReader = new(handle, session, readBufferSize, position, maxPendingReads, (ulong)attributes.Size, initialPendingReads);
                 }
                 else if ((access & FileAccess.Read) == FileAccess.Read)
                 {
                     // The reader can use the size information to reduce in-flight requests near the expected EOF,
                     // so pass it in here.
-                    initialReader = new(handle, session, readBufferSize, position, MaxPendingReads, (ulong)attributes.Size);
+                    initialReader = new(handle, session, readBufferSize, position, maxPendingReads, (ulong)attributes.Size);
                 }
             }
             else
@@ -327,7 +332,7 @@ namespace Renci.SshNet.Sftp
                 canSeek = false;
             }
 
-            return new SftpFileStream(session, path, access, canSeek, readBufferSize, writeBufferSize, handle, position, initialReader);
+            return new SftpFileStream(session, path, access, canSeek, readBufferSize, writeBufferSize, handle, position, maxPendingReads, initialReader);
         }
 
         /// <inheritdoc/>
@@ -421,7 +426,7 @@ namespace Renci.SshNet.Sftp
                 if (_sftpFileReader is null)
                 {
                     Flush();
-                    _sftpFileReader = new(Handle, _session, _readBufferSize, _position, MaxPendingReads);
+                    _sftpFileReader = new(Handle, _session, _readBufferSize, _position, _maxPendingReads);
                 }
 
                 _readBuffer = _sftpFileReader.ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -475,7 +480,7 @@ namespace Renci.SshNet.Sftp
                 {
                     await FlushAsync(cancellationToken).ConfigureAwait(false);
 
-                    _sftpFileReader = new(Handle, _session, _readBufferSize, _position, MaxPendingReads);
+                    _sftpFileReader = new(Handle, _session, _readBufferSize, _position, _maxPendingReads);
                 }
 
                 _readBuffer = await _sftpFileReader.ReadAsync(cancellationToken).ConfigureAwait(false);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace Renci.SshNet.Connection
 {
@@ -29,7 +30,7 @@ namespace Renci.SshNet.Connection
         /// <param name="comments">The comments.</param>
         /// <exception cref="ArgumentNullException"><paramref name="protocolVersion"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="softwareVersion"/> is <see langword="null"/>.</exception>
-        public SshIdentification(string protocolVersion, string softwareVersion, string comments)
+        public SshIdentification(string protocolVersion, string softwareVersion, string? comments)
         {
             ArgumentNullException.ThrowIfNull(protocolVersion);
             ArgumentNullException.ThrowIfNull(softwareVersion);
@@ -69,7 +70,7 @@ namespace Renci.SshNet.Connection
         /// <see cref="Comments"/> should contain additional information that might be useful
         /// in solving user problems.
         /// </remarks>
-        public string Comments { get; }
+        public string? Comments { get; }
 
         /// <summary>
         /// Returns the SSH identification string.
@@ -79,14 +80,9 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public override string ToString()
         {
-            var identificationString = "SSH-" + ProtocolVersion + "-" + SoftwareVersion;
-
-            if (Comments != null)
-            {
-                identificationString += " " + Comments;
-            }
-
-            return identificationString;
+            return Comments != null
+                ? $"SSH-{ProtocolVersion}-{SoftwareVersion} {Comments}"
+                : $"SSH-{ProtocolVersion}-{SoftwareVersion}";
         }
     }
 }

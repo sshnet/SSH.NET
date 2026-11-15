@@ -26,19 +26,6 @@ namespace Renci.SshNet.Abstractions
             return connectTask.IsCompleted || !cancellationToken.CanBeCanceled
                 ? connectTask
                 : WaitWithCancellation(connectTask, socket, cancellationToken);
-
-            static async Task WaitWithCancellation(Task connectTask, Socket socket, CancellationToken cancellationToken)
-            {
-                using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
-                {
-                    await connectTask.ConfigureAwait(false);
-                }
-            }
-        }
-
-        public static Task<int> ReceiveAsync(this Socket socket, byte[] buffer, CancellationToken cancellationToken)
-        {
-            return ReceiveAsync(socket, buffer, 0, buffer.Length, cancellationToken);
         }
 
         public static Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
@@ -58,13 +45,45 @@ namespace Renci.SshNet.Abstractions
             return receiveTask.IsCompleted || !cancellationToken.CanBeCanceled
                 ? receiveTask
                 : WaitWithCancellation(receiveTask, socket, cancellationToken);
+        }
 
-            static async Task<int> WaitWithCancellation(Task<int> receiveTask, Socket socket, CancellationToken cancellationToken)
+        public static Task<int> SendAsync(this Socket socket, byte[] buffer, CancellationToken cancellationToken)
+        {
+            return SendAsync(socket, buffer, 0, buffer.Length, cancellationToken);
+        }
+
+        public static Task<int> SendAsync(this Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
             {
-                using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
-                {
-                    return await receiveTask.ConfigureAwait(false);
-                }
+                return Task.FromCanceled<int>(cancellationToken);
+            }
+
+            var sendTask = Task.Factory.FromAsync(
+                    static (s, buffer, callback, state) => s.BeginSend(buffer.Array, buffer.Offset, buffer.Count, SocketFlags.None, callback, state),
+                    static result => ((Socket)result.AsyncState).EndSend(result),
+                    socket,
+                    new ArraySegment<byte>(buffer, offset, length),
+                    state: socket);
+
+            return sendTask.IsCompleted || !cancellationToken.CanBeCanceled
+                ? sendTask
+                : WaitWithCancellation(sendTask, socket, cancellationToken);
+        }
+
+        private static async Task WaitWithCancellation(Task task, Socket socket, CancellationToken cancellationToken)
+        {
+            using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
+            {
+                await task.ConfigureAwait(false);
+            }
+        }
+
+        private static async Task<int> WaitWithCancellation(Task<int> task, Socket socket, CancellationToken cancellationToken)
+        {
+            using (cancellationToken.Register(static s => ((Socket)s).Dispose(), socket, useSynchronizationContext: false))
+            {
+                return await task.ConfigureAwait(false);
             }
         }
     }

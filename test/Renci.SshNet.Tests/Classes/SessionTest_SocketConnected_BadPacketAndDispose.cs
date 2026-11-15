@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,7 +21,6 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISocketFactory> _socketFactoryMock;
         private Mock<IConnector> _connectorMock;
-        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
         private ConnectionInfo _connectionInfo;
         private Session _session;
         private AsyncSocketListener _serverListener;
@@ -48,7 +48,6 @@ namespace Renci.SshNet.Tests.Classes
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
             _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
-            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
         }
 
         protected void SetupData()
@@ -66,8 +65,7 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     _serverSocket = socket;
 
-                    // Since we're mocking the protocol version exchange, we can immediately send the bad
-                    // packet upon establishing the connection
+                    _ = _serverSocket.Send(Encoding.ASCII.GetBytes("SSH-2.0-XXX\r\n"));
 
                     var badPacket = new byte[] { 0x0a, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05 };
 
@@ -88,10 +86,6 @@ namespace Renci.SshNet.Tests.Classes
                                    .Returns(_connectorMock.Object);
             _ = _connectorMock.Setup(p => p.Connect(_connectionInfo))
                               .Returns(_clientSocket);
-            _ = _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
-                                   .Returns(_protocolVersionExchangeMock.Object);
-            _ = _protocolVersionExchangeMock.Setup(p => p.Start(_session.ClientVersion, _clientSocket, _connectionInfo.Timeout))
-                                            .Returns(new SshIdentification("2.0", "XXX"));
         }
 
         protected void Arrange()

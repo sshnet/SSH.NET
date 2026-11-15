@@ -115,18 +115,14 @@ namespace Renci.SshNet
         private const string CertificatePattern = @"(?<type>[-\w]+@openssh\.com)\s(?<data>[a-zA-Z0-9\/+=]*)(\s+(?<comment>.*))?";
 
 #if NET
-        private static readonly Regex PrivateKeyRegex = GetPrivateKeyRegex();
-        private static readonly Regex PuTTYPrivateKeyRegex = GetPrivateKeyPuTTYRegex();
-        private static readonly Regex CertificateRegex = GetCertificateRegex();
-
         [GeneratedRegex(PrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
-        private static partial Regex GetPrivateKeyRegex();
+        private static partial Regex PrivateKeyRegex { get; }
 
         [GeneratedRegex(PuTTYPrivateKeyPattern, RegexOptions.Multiline | RegexOptions.ExplicitCapture)]
-        private static partial Regex GetPrivateKeyPuTTYRegex();
+        private static partial Regex PuTTYPrivateKeyRegex { get; }
 
         [GeneratedRegex(CertificatePattern, RegexOptions.ExplicitCapture)]
-        private static partial Regex GetCertificateRegex();
+        private static partial Regex CertificateRegex { get; }
 #else
         private static readonly Regex PrivateKeyRegex = new Regex(PrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         private static readonly Regex PuTTYPrivateKeyRegex = new Regex(PuTTYPrivateKeyPattern, RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);

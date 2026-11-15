@@ -38,7 +38,7 @@ namespace Renci.SshNet.Security
         public override void Start(Session session, KeyExchangeInitMessage message, bool sendClientInitMessage)
         {
             base.Start(session, message, sendClientInitMessage);
-#if NET && !NET11_0_OR_GREATER
+#if NET10_0
             if (System.OperatingSystem.IsWindowsVersionAtLeast(10))
             {
                 _impl = new BclImpl();

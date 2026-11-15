@@ -27,7 +27,9 @@ namespace System
 
             public int IndexOf(char value, StringComparison comparisonType)
             {
-                return text.IndexOf(value.ToString(), comparisonType);
+                return comparisonType == StringComparison.Ordinal
+                    ? text.IndexOf(value)
+                    : text.IndexOf(value.ToString(), comparisonType);
             }
 
             public bool Contains(char value)

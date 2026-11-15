@@ -66,7 +66,7 @@ namespace Renci.SshNet.Common
         // to write directly into the underlying buffer without the need for any intermediate
         // arrays (rented or otherwise).
 
-#if NET9_0_OR_GREATER
+#if NET
         /// <inheritdoc/>
         public override void Write(ReadOnlySpan<byte> buffer)
         {
@@ -75,13 +75,13 @@ namespace Renci.SshNet.Common
 #endif
 
         private delegate void WriteAction<in TArg>(Span<byte> span, TArg arg)
-#if NET9_0_OR_GREATER
+#if NET
             where TArg : allows ref struct
 #endif
             ;
 
         private void Write<TArg>(TArg arg, int numBytesToWrite, WriteAction<TArg> writeAction)
-#if NET9_0_OR_GREATER
+#if NET
             where TArg : allows ref struct
 #endif
         {

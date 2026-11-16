@@ -44,7 +44,7 @@ jobs:
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_unit_test_net_10_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_unit_test_${{ env.DOTNET_TARGET_FRAMEWORK }}_coverage.xml \
           test/Renci.SshNet.Tests/
 
     - name: Run Integration Tests .NET
@@ -56,7 +56,7 @@ jobs:
           --logger GitHubActions \
           -p:CollectCoverage=true \
           -p:CoverletOutputFormat=cobertura \
-          -p:CoverletOutput=../../coverlet/linux_integration_test_net_10_coverage.xml \
+          -p:CoverletOutput=../../coverlet/linux_integration_test_${{ env.DOTNET_TARGET_FRAMEWORK }}_coverage.xml \
           test/Renci.SshNet.IntegrationTests/
 
     - name: Archive Coverlet Results
@@ -101,7 +101,7 @@ jobs:
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=../../coverlet/windows_unit_test_net_10_coverage.xml `
+          -p:CoverletOutput=../../coverlet/windows_unit_test_${{ env.DOTNET_TARGET_FRAMEWORK }}_coverage.xml `
           test/Renci.SshNet.Tests/
 
     - name: Run Unit Tests .NET Framework
@@ -193,7 +193,7 @@ jobs:
           --logger GitHubActions `
           -p:CollectCoverage=true `
           -p:CoverletOutputFormat=cobertura `
-          -p:CoverletOutput=..\..\coverlet\windows_integration_test_net_9_coverage.xml `
+          -p:CoverletOutput=..\..\coverlet\windows_integration_test_${{ env.DOTNET_TARGET_FRAMEWORK }}_coverage.xml `
           test\Renci.SshNet.IntegrationTests\
 
     - name: Archive Coverlet Results

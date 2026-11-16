@@ -13,29 +13,32 @@ on:
 permissions:
   contents: read
 
+env:
+  DOTNET_TARGET_FRAMEWORK: net11.0
+
 jobs:
   Linux:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
         persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
 
     - name: Build Unit Tests .NET
-      run: dotnet build -f net10.0 test/Renci.SshNet.Tests/
+      run: dotnet build -f $DOTNET_TARGET_FRAMEWORK test/Renci.SshNet.Tests/
 
     - name: Build IntegrationTests .NET
-      run: dotnet build -f net10.0 test/Renci.SshNet.IntegrationTests/
+      run: dotnet build -f $DOTNET_TARGET_FRAMEWORK test/Renci.SshNet.IntegrationTests/
 
     - name: Run Unit Tests .NET
       run: |
         dotnet test \
-          -f net10.0 \
+          -f $DOTNET_TARGET_FRAMEWORK \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
@@ -47,7 +50,7 @@ jobs:
     - name: Run Integration Tests .NET
       run: |
         dotnet test \
-          -f net10.0 \
+          -f $DOTNET_TARGET_FRAMEWORK \
           --no-build \
           --logger "console;verbosity=normal" \
           --logger GitHubActions \
@@ -66,13 +69,13 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
         persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
 
     - name: Build Solution
       run: dotnet build Renci.SshNet.slnx
@@ -92,7 +95,7 @@ jobs:
     - name: Run Unit Tests .NET
       run: |
         dotnet test `
-          -f net10.0 `
+          -f $DOTNET_TARGET_FRAMEWORK `
           --no-build `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
@@ -118,13 +121,13 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
         persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
 
     - name: Setup WSL2
       uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
@@ -187,13 +190,13 @@ jobs:
     runs-on: windows-2025
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0 # needed for Nerdbank.GitVersioning
         persist-credentials: false
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
 
     - name: Setup WSL2
       uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
@@ -211,7 +214,7 @@ jobs:
     - name: Run Integration Tests .NET 1
       run:
         dotnet test `
-          -f net10.0 `
+          -f $env:DOTNET_TARGET_FRAMEWORK `
           --logger "console;verbosity=normal" `
           --logger GitHubActions `
           -p:CollectCoverage=true `

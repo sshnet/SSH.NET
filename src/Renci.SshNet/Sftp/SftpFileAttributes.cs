@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -820,8 +821,15 @@ namespace Renci.SshNet.Sftp
 
             if ((flag & SSH_FILEXFER_ATTR_EXTENDED) == SSH_FILEXFER_ATTR_EXTENDED)
             {
-                var extendedCount = (int)stream.ReadUInt32();
-                extensions = new Dictionary<string, string>(extendedCount);
+                var extendedCount = stream.ReadUInt32();
+
+                // Each extension is at least two string lengths.
+                if (extendedCount > (stream.Length - stream.Position) / 8)
+                {
+                    throw new SshException(string.Format(CultureInfo.InvariantCulture, "Invalid extended attribute count: {0}.", extendedCount));
+                }
+
+                extensions = new Dictionary<string, string>((int)extendedCount);
                 for (var i = 0; i < extendedCount; i++)
                 {
                     var extensionName = stream.ReadString(Encoding.UTF8);

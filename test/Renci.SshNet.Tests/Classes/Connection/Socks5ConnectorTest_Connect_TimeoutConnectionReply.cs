@@ -95,7 +95,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ConnectShouldHaveThrownSshOperationTimeoutException()
         {
-            Assert.IsNull(_actualException.InnerException);
             Assert.IsInstanceOfType<SshOperationTimeoutException>(_actualException);
         }
 

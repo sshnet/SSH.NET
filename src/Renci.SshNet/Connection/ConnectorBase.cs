@@ -72,7 +72,7 @@ namespace Renci.SshNet.Connection
             var socket = SocketFactory.Create(SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                await SocketAbstraction.ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
+                await socket.ConnectAsync(endPoint, cancellationToken).ConfigureAwait(false);
 
                 return socket;
             }
@@ -83,35 +83,11 @@ namespace Renci.SshNet.Connection
             }
         }
 
-        protected static byte SocketReadByte(Socket socket)
-        {
-            var buffer = new byte[1];
-            _ = SocketRead(socket, buffer, 0, 1, Timeout.InfiniteTimeSpan);
-            return buffer[0];
-        }
-
         protected static byte SocketReadByte(Socket socket, TimeSpan readTimeout)
         {
             var buffer = new byte[1];
             _ = SocketRead(socket, buffer, 0, 1, readTimeout);
             return buffer[0];
-        }
-
-        /// <summary>
-        /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
-        /// </summary>
-        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
-        /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data.</param>
-        /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
-        /// <param name="length">The number of bytes to read.</param>
-        /// <returns>
-        /// The number of bytes read.
-        /// </returns>
-        /// <exception cref="SshConnectionException">The socket is closed.</exception>
-        /// <exception cref="SocketException">The read failed.</exception>
-        protected static int SocketRead(Socket socket, byte[] buffer, int offset, int length)
-        {
-            return SocketRead(socket, buffer, offset, length, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>

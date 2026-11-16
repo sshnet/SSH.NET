@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,12 +28,12 @@ namespace Renci.SshNet.Tests.Classes
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
         internal Mock<IConnector> ConnectorMock { get; private set; }
 
-        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
         private string[] _keyExchangeAlgorithms;
         private bool _authenticationStarted;
+        private bool _clientIdentificationReceived;
         private SocketFactory _socketFactory;
 
         protected Random Random { get; private set; }
@@ -116,6 +117,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerBytesReceivedRegister = new List<byte[]>();
             ServerIdentification = new SshIdentification("2.0", "OurServerStub");
             _authenticationStarted = false;
+            _clientIdentificationReceived = false;
             _socketFactory = new SocketFactory();
 
             Session = new Session(ConnectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
@@ -130,6 +132,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Connected += socket =>
             {
                 ServerSocket = socket;
+                _ = ServerSocket.Send(Encoding.ASCII.GetBytes(ServerIdentification + "\r\n"));
                 ActionBeforeKexInit();
                 var keyExchangeInitMessage = new KeyExchangeInitMessage
                 {
@@ -150,6 +153,24 @@ namespace Renci.SshNet.Tests.Classes
             };
             ServerListener.BytesReceived += (received, socket) =>
             {
+                if (!_clientIdentificationReceived)
+                {
+                    var indexOfLf = Array.IndexOf(received, (byte)'\n');
+                    if (indexOfLf < 0)
+                    {
+                        return;
+                    }
+
+                    _clientIdentificationReceived = true;
+
+                    if (indexOfLf == received.Length - 1)
+                    {
+                        return;
+                    }
+
+                    received = received.AsSpan(indexOfLf + 1).ToArray();
+                }
+
                 ServerBytesReceivedRegister.Add(received);
 
                 if (received.Length > 5 && received[5] == 20)
@@ -189,8 +210,6 @@ namespace Renci.SshNet.Tests.Classes
                 }
             };
             ServerListener.Start();
-
-            ClientSocket = new DirectConnector(_socketFactory, NullLoggerFactory.Instance).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()
@@ -198,7 +217,6 @@ namespace Renci.SshNet.Tests.Classes
             ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
             ConnectorMock = new Mock<IConnector>(MockBehavior.Strict);
-            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
             _keyExchangeMock = new Mock<IKeyExchange>(MockBehavior.Strict);
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
@@ -208,11 +226,7 @@ namespace Renci.SshNet.Tests.Classes
             _ = ServiceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object))
                                   .Returns(ConnectorMock.Object);
             _ = ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
-                             .Returns(ClientSocket);
-            _ = ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
-                                  .Returns(_protocolVersionExchangeMock.Object);
-            _ = _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
-                                            .Returns(() => ServerIdentification);
+                             .Returns(() => ClientSocket = new DirectConnector(_socketFactory, NullLoggerFactory.Instance).Connect(ConnectionInfo));
             _ = ServiceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, _keyExchangeAlgorithms)).Returns(_keyExchangeMock.Object);
 
             _ = _keyExchangeMock.Setup(p => p.Name)

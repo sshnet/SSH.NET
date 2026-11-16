@@ -66,7 +66,7 @@ namespace Renci.SshNet.Common
         // to write directly into the underlying buffer without the need for any intermediate
         // arrays (rented or otherwise).
 
-#if NET9_0_OR_GREATER
+#if NET
         /// <inheritdoc/>
         public override void Write(ReadOnlySpan<byte> buffer)
         {
@@ -75,13 +75,13 @@ namespace Renci.SshNet.Common
 #endif
 
         private delegate void WriteAction<in TArg>(Span<byte> span, TArg arg)
-#if NET9_0_OR_GREATER
+#if NET
             where TArg : allows ref struct
 #endif
             ;
 
         private void Write<TArg>(TArg arg, int numBytesToWrite, WriteAction<TArg> writeAction)
-#if NET9_0_OR_GREATER
+#if NET
             where TArg : allows ref struct
 #endif
         {
@@ -371,12 +371,9 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
         internal byte[] ReadBytes(int length)
         {
-            var data = new byte[length];
-            var bytesRead = Read(data, 0, length);
-            if (bytesRead < length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", length, bytesRead));
-            }
+            var data = GetRemainingBuffer().Slice(0, length).ToArray();
+
+            Position += length;
 
             return data;
         }

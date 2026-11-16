@@ -11,13 +11,7 @@ namespace Renci.SshNet.Security
 {
     internal sealed partial class KeyExchangeMLKem768X25519Sha256 : KeyExchangeECCurve25519
     {
-#if Test_BCL_MLKem
-        private MLKemBclImpl _mlkemImpl;
-#elif Test_BouncyCastle_MLKem
-        private MLKemBouncyCastleImpl _mlkemImpl;
-#else
         private Impl _mlkemImpl;
-#endif
 
         /// <summary>
         /// Gets algorithm name.
@@ -45,11 +39,6 @@ namespace Renci.SshNet.Security
 
             Session.KeyExchangeHybridReplyMessageReceived += Session_KeyExchangeHybridReplyMessageReceived;
 
-#if Test_BCL_MLKem
-            _mlkemImpl = new MLKemBclImpl();
-#elif Test_BouncyCastle_MLKem
-            _mlkemImpl = new MLKemBouncyCastleImpl();
-#else
             if (MLKem.IsSupported)
             {
                 _mlkemImpl = new MLKemBclImpl();
@@ -58,7 +47,7 @@ namespace Renci.SshNet.Security
             {
                 _mlkemImpl = new MLKemBouncyCastleImpl();
             }
-#endif
+
             var mlkem768PublicKey = _mlkemImpl.GenerateClientPublicKey();
 
             var x25519PublicKey = _impl.GenerateClientPublicKey();

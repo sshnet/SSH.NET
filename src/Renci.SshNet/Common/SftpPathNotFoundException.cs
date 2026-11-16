@@ -16,15 +16,6 @@ namespace Renci.SshNet.Common
         private const StatusCode Code = StatusCode.NoSuchFile;
 
         /// <summary>
-        /// Gets the path that cannot be found.
-        /// </summary>
-        /// <value>
-        /// The path that cannot be found, or <see langword="null"/> if no path was
-        /// passed to the constructor for this instance.
-        /// </value>
-        public string? Path { get; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
         public SftpPathNotFoundException()
@@ -66,18 +57,8 @@ namespace Renci.SshNet.Common
         /// <param name="path">The path that cannot be found.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public SftpPathNotFoundException(string? message, string? path, Exception? innerException)
-            : base(Code, string.IsNullOrEmpty(message) ? GetDefaultMessage(path) : message, innerException)
+            : base(Code, message, path, innerException)
         {
-            Path = path;
-        }
-
-        private static string GetDefaultMessage(string? path)
-        {
-            var message = GetDefaultMessage(Code);
-
-            return path is not null
-                ? $"{message} Path: '{path}'."
-                : message;
         }
 
 #if NETFRAMEWORK

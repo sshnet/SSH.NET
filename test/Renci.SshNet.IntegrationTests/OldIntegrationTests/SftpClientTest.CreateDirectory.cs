@@ -31,7 +31,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.CreateDirectory("/sbin/test"));
+                var ex = Assert.ThrowsExactly<SftpPermissionDeniedException>(() => sftp.CreateDirectory("/sbin/test"));
+                Assert.AreEqual("/sbin/test", ex.Path);
             }
         }
 
@@ -43,7 +44,8 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
             {
                 sftp.Connect();
 
-                Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.CreateDirectory("/abcdefg/abcefg"));
+                var ex = Assert.ThrowsExactly<SftpPathNotFoundException>(() => sftp.CreateDirectory("/abcdefg/abcefg"));
+                Assert.AreEqual("/abcdefg/abcefg", ex.Path);
             }
         }
 
@@ -59,6 +61,7 @@ namespace Renci.SshNet.IntegrationTests.OldIntegrationTests
 
                 var ex = Assert.ThrowsExactly<SftpException>(() => sftp.CreateDirectory("test"));
                 Assert.AreEqual(StatusCode.Failure, ex.StatusCode);
+                Assert.AreEqual($"{sftp.WorkingDirectory}/test", ex.Path);
             }
         }
     }

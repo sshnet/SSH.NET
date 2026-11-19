@@ -494,7 +494,7 @@ namespace Renci.SshNet
                         {
                             var returnText = bufferText.Substring(0, match.Index + match.Length);
 #endif
-                            _readBuffer.Discard(_encoding.GetByteCount(returnText));
+                            _readBuffer.Discard(GetByteCountOfDecodedPrefix(returnText.Length));
 
                             expectAction.Action(returnText);
 
@@ -814,6 +814,44 @@ namespace Renci.SshNet
             return read == 0 ? -1 : b;
         }
 #endif
+
+        /// <summary>
+        /// Returns the number of bytes at the start of the read buffer that decode to the
+        /// first <paramref name="charCount"/> characters.
+        /// </summary>
+        /// <remarks>
+        /// Re-encoding the decoded text does not give this count when the buffer holds bytes
+        /// the encoding cannot decode, because each replacement character re-encodes to a
+        /// different number of bytes than it replaced.
+        /// </remarks>
+        private int GetByteCountOfDecodedPrefix(int charCount)
+        {
+            Debug.Assert(Monitor.IsEntered(_sync));
+
+            var buffer = _readBuffer.DangerousGetUnderlyingBuffer();
+            var offset = _readBuffer.ActiveStartOffset;
+
+            // Decoding more bytes never yields fewer characters, so find the largest
+            // byte count that decodes to at most charCount characters.
+            var low = 0;
+            var high = _readBuffer.ActiveLength;
+
+            while (low < high)
+            {
+                var mid = low + ((high - low + 1) / 2);
+
+                if (_encoding.GetCharCount(buffer, offset, mid) <= charCount)
+                {
+                    low = mid;
+                }
+                else
+                {
+                    high = mid - 1;
+                }
+            }
+
+            return low;
+        }
 
         private string GetString(int length)
         {

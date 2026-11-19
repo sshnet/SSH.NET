@@ -305,6 +305,24 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [DataRow(new byte[] { 0xF8 }, DisplayName = "Lone invalid byte")]
+        [DataRow(new byte[] { 0xE2, 0x82 }, DisplayName = "Truncated sequence")]
+        [DataRow(new byte[] { 0xFF, 0xFF }, DisplayName = "Two invalid bytes")]
+        public void Expect_Regex_InvalidBytes_DiscardsOnlyMatchedBytes(byte[] invalid)
+        {
+            _channelSessionStub.Receive([(byte)'a', .. invalid, (byte)'b', (byte)'>', (byte)' ', (byte)'c']);
+
+            var expected = Encoding.UTF8.GetString([(byte)'a', .. invalid, (byte)'b', (byte)'>']);
+
+            Assert.AreEqual(expected, _shellStream.Expect(new Regex(">")));
+            Assert.AreEqual(" c", _shellStream.Read());
+
+            _channelSessionStub.Receive(Encoding.UTF8.GetBytes("next>"));
+
+            Assert.AreEqual("next>", _shellStream.Expect(new Regex(">")));
+        }
+
+        [TestMethod]
         public void Expect_String_LargeExpect()
         {
             _channelSessionStub.Receive(Encoding.UTF8.GetBytes(new string('a', 100)));

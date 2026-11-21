@@ -682,6 +682,10 @@ namespace Renci.SshNet.IntegrationTests
                     s.WriteLine("ABC");
                     s.Flush();
                     s.Expect("ABC");
+
+                    // The echo of "ABC" only means telnet has read the line: wait for it to reach the
+                    // listener before closing the shell (which terminates telnet).
+                    areBytesReceivedOnListener1 = bytesReceivedEventOnListener1.WaitOne(TimeSpan.FromSeconds(10));
                     s.Close();
                 }
 
@@ -692,11 +696,10 @@ namespace Renci.SshNet.IntegrationTests
                     s.WriteLine("DEF");
                     s.Flush();
                     s.Expect("DEF");
+
+                    areBytesReceivedOnListener2 = bytesReceivedEventOnListener2.WaitOne(TimeSpan.FromSeconds(10));
                     s.Close();
                 }
-
-                areBytesReceivedOnListener1 = bytesReceivedEventOnListener1.WaitOne(1000);
-                areBytesReceivedOnListener2 = bytesReceivedEventOnListener2.WaitOne(1000);
 
                 forwardedPort1.Stop();
                 forwardedPort2.Stop();

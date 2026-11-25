@@ -7,6 +7,7 @@ using System.Numerics;
 using Org.BouncyCastle.Asn1.EdEC;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Math.EC.Rfc8032;
 using Org.BouncyCastle.Pkcs;
 
 using Renci.SshNet.Common;
@@ -84,7 +85,17 @@ namespace Renci.SshNet
 
                 if (algorithmOid.Equals(EdECObjectIdentifiers.id_Ed25519))
                 {
-                    return new ED25519Key(key);
+                    // RFC 8410 section 7: the privateKey field holds a CurvePrivateKey OCTET STRING.
+                    var curvePrivateKeyReader = new AsnReader(key, AsnEncodingRules.DER);
+                    var seed = curvePrivateKeyReader.ReadOctetString();
+                    curvePrivateKeyReader.ThrowIfNotEmpty();
+
+                    if (seed.Length != Ed25519.SecretKeySize)
+                    {
+                        throw new SshException(string.Format(CultureInfo.InvariantCulture, "Invalid Ed25519 private key length {0}.", seed.Length));
+                    }
+
+                    return new ED25519Key(seed);
                 }
 
                 throw new SshException(string.Format(CultureInfo.InvariantCulture, "Private key algorithm \"{0}\" is not supported.", algorithmOid));

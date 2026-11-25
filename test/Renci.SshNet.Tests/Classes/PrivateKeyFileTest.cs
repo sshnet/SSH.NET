@@ -380,6 +380,29 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [DataRow("Key.OPENSSH.ED25519.PKCS8.Encrypted.Aes.256.CBC.12345.txt", "12345")]
+        [DataRow("Key.OPENSSH.ED25519.PKCS8.txt", null)]
+        [DataRow("Key.OPENSSH.ED25519.txt", null)]
+        public void Test_PrivateKey_ED25519_KeyMaterial(string name, string passPhrase)
+        {
+            // The PKCS#8 files hold the same key as Key.OPENSSH.ED25519.txt.
+            // openssl pkey -in Key.OPENSSH.ED25519.PKCS8.txt -outform DER | tail -c 32 | base64
+            var expectedPrivateKey = Convert.FromBase64String("AMwRdTD1Ma7PsnKSYdvM86Pxd5ulnCjvqK7Em0eS8Ck=");
+
+            // cut -d' ' -f2 Key.OPENSSH.ED25519.pub | base64 -d | tail -c 32 | base64
+            var expectedPublicKey = Convert.FromBase64String("DQlmcNCvFBlw0At9lgbss8BbUxgQa9VbmeN7s6UwYyI=");
+
+            using (var stream = GetData(name))
+            {
+                var pkFile = new PrivateKeyFile(stream, passPhrase);
+
+                var key = Assert.IsInstanceOfType<ED25519Key>(pkFile.Key);
+                CollectionAssert.AreEqual(expectedPrivateKey, key.PrivateKey);
+                CollectionAssert.AreEqual(expectedPublicKey, key.PublicKey);
+            }
+        }
+
+        [TestMethod]
         public void Test_Certificate_OPENSSH_RSA()
         {
             PrivateKeyFile pkFile;
